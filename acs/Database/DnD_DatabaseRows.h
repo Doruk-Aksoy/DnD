@@ -23,7 +23,11 @@ enum {
 #define DND_DB_STATS_DEX "DND_PlayerStats_2"
 #define DND_DB_STATS_INT "DND_PlayerStats_3"
 #define DND_DB_BACKPACKS "DND_Backpacks"
-#define DND_DB_PERK "DND_PlayerPerk_"
+
+// The perk tree, one row per packed word. Absolute state, not a delta: a respec has to survive the
+// activity save that runs at a level end, and "+N lanes" is not a thing that can be incremented.
+#define DND_DB_PERKS "DnD_PlayerPerks_"
+
 #define DND_DB_HEALTH "DND_PlayerHealth"
 #define DND_DB_ESHIELD "DnD_PlayerEShield"
 #define DND_DB_AMMO "DND_PlayerAmmo_"
@@ -33,12 +37,10 @@ enum {
 #define DND_DB_EXP "DND_PlayerEXP"
 #define DND_DB_CREDIT "DND_PlayerCredit"
 #define DND_DB_LEVEL "DND_PlayerLevel"
-#define DND_DB_ABILITY "DND_PlayerAbilities"
 #define DND_DB_UNSPENTATTRIB "DND_PlayerUnspentAttribs"
 #define DND_DB_UNSPENTPERK "DND_PlayerUnspentPerks"
 #define DND_DB_ACTIVEACCESSORIES "DND_SelectedAccessories"
 #define DND_DB_ACCESSORIES "DND_PlayerAccessories"
-#define DND_DB_ARTIFACTS "DND_PlayerArtifacts"
 #define DND_DB_RESEARCH_DONE "DND_PlayerResearch_Done_"
 #define DND_DB_RESEARCH_DISCOVERED "DND_PlayerResearch_Discovered_"
 #define DND_DB_RESEARCH_INVESTED "DND_PlayerResearch_Invested_"
@@ -48,8 +50,6 @@ enum {
 #define DND_DB_WEAPONMOD_TIER "DnD_WeaponModTier_"
 #define DND_DB_SURVIVECOUNT "DnD_PlayerLifeTime"
 #define DND_DB_PLAYERWEPCHECKERS "DnD_PlayerWepCheckers"
-#define DND_DB_MISC "DnD_PlayerMiscallenous"
-#define DND_DB_KEYS "DnD_PlayerChestKeys"
 #define DND_DB_RESEARCHTRACKER "DnD_ResearchTracker"
 #define DND_DB_NPCTRACKER "DnD_NPCTracker"
 #define DND_DB_LEGENDARYTRACKER "DnD_LegendaryKills"
@@ -82,9 +82,6 @@ enum {
 #define DND_DB_PLAYERINVENTORYFIELD_QUALITY "Quality"
 #define DND_DB_PLAYERINVENTORYFIELD_CORRUPTED "AttributeCorruption"
 #define DND_DB_PLAYERINVENTORYFIELD_BASE "ItemBase"
-// AllowedFlags / ExcludedFlags used to live here, per item. The mod pool reads its tagset from the
-// static base table keyed by item_base, never from the item, so they were written and read back
-// without ever being consulted. Old saves keep the two orphan keys -- nothing loads them now.
 #define DND_DB_PLAYERINVENTORYFIELD_IMPLICITVAL "ImplicitVal"
 #define DND_DB_PLAYERINVENTORYFIELD_IMPLICITID "ImplicitID"
 #define DND_DB_PLAYERINVENTORYFIELD_IMPLICITTIER "ImplicitTier"

@@ -398,7 +398,8 @@ bool CheckAmmoPickup(int slot, bool simple) {
 }
 
 int GetAmmoGainFactor() {
-	return (100 + PlayerModData[PlayerNumber()].vals[PSTAT_AMMOGAIN_INCREASE] + (CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN));
+	// was + Munitionist per point; Perception's Munitionist is the same effect in the tree
+	return 100 + PlayerModData[PlayerNumber()].vals[PSTAT_AMMOGAIN_INCREASE];
 }
 
 void HandleAmmoContainerPickup(int slot, int basic_kind) {
@@ -433,12 +434,28 @@ void HandleAmmoContainerPickup(int slot, int basic_kind) {
 }
 
 void GiveAmmo(int amt, int slot, int t) {
+	int pnum = PlayerNumber();
+
 	if(slot != DND_AMMOSLOT_SOULS)
 		amt = amt * GetAmmoGainFactor() / 100;
 	else
-		amt = amt * (100 + PlayerModData[PlayerNumber()].vals[PSTAT_EX_PICKUPS_MORESOUL]) / 100;
+		amt = amt * (100 + PlayerModData[pnum].vals[PSTAT_EX_PICKUPS_MORESOUL]) / 100;
 	auto a_info = GetAmmoInfo(slot, t);
+
+	// Perception / Excess Conversion. The overflow has to be measured BEFORE the give, because after
+	// it the engine has already discarded whatever would not fit and there is nothing left to convert.
+	int rate = PlayerModData[pnum].vals[PSTAT_AMMO_CONVERTRATE];
+	int spill = 0;
+	if(rate)
+		spill = CheckInventory(a_info.name) + amt - GetAmmoCapacity(a_info.name);
+
 	GiveInventory(a_info.name, amt);
+
+	if(spill > 0) {
+		spill = spill * rate / 100;
+		if(spill > 0)
+			ACS_NamedExecuteAlways("DnD Convert Excess Ammo", 0, spill);
+	}
 }
 
 // a fancy ammo pickup script to make it easier to add new ammo types to slots

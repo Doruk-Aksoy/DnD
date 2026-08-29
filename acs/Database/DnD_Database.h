@@ -34,6 +34,19 @@ void RestoreResearchItems() {
 		DoubleSpecialAmmoCapacity();
 }
 
+// The packed perk lanes. Written by BOTH save paths on purpose: the activity save is what runs at a
+// level end and on disconnect, and a respec made between full saves would otherwise not persist.
+// Absolute rather than incremental, because a lane is a state and not a quantity.
+void DB_SavePerkData(int pnum, int char_id, str pacc) {
+	for(int i = 0; i < DND_PERK_WORDS; ++i)
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_PERKS, char_id), d:i), pacc, PlayerModData[pnum].perks_packed[i]);
+}
+
+void DB_ClearPerkData(int char_id, str pacc) {
+	for(int i = 0; i < DND_PERK_WORDS; ++i)
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_PERKS, char_id), d:i), pacc, 0);
+}
+
 void DB_SaveItemData(inventory_T* item, int i, int char_id, str pacc) {
 	int j;
 	SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_WIDTH), char_id), pacc, item.width);
@@ -320,10 +333,6 @@ void SavePlayerData(int pnum, int char_id) {
 	temp = CheckActorInventory(tid, "BackpackCounter");
 	SetDBEntry(GetCharField(DND_DB_BACKPACKS, char_id), pacc, temp);
 	
-	// save perks (use 4 bits per perk, max is 10 for a perk)
-	for(i = DND_PERK_BEGIN; i <= DND_PERK_END; ++i)
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_PERK, char_id), d:i), pacc, GetActorPerk(tid, i));
-	
 	// save health
 	temp = GetActorProperty(tid, APROP_HEALTH);
 	SetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc, temp);
@@ -373,14 +382,9 @@ void SavePlayerData(int pnum, int char_id) {
 	// send temp over
 	SetDBEntry(GetCharField(DND_DB_LEVEL, char_id), pacc, temp);
 	
-	// save abilities
-	temp = 0;
-	for(i = 0; i < MAXABILITIES; ++i) {
-		if(CheckActorInventory(tid, GetAbilityInfo(i)))
-			temp = SetBit(temp, i);
-	}
-	// send temp over
-	SetDBEntry(GetCharField(DND_DB_ABILITY, char_id), pacc, temp);
+	// Abilities and artifacts are neither saved nor loaded. Nothing hands either of them out
+	// any more, so this was a read and a write per save of a row that could only be zero.
+	
 	
 	// save unspent attribute/perk points
 	temp = CheckActorInventory(tid, "AttributePoint");
@@ -388,8 +392,11 @@ void SavePlayerData(int pnum, int char_id) {
 
 	temp = CheckActorInventory(tid, "PerkPoint");
 	SetDBEntry(GetCharField(DND_DB_UNSPENTPERK, char_id), pacc, temp);
+
+	// save the perk tree itself
+	DB_SavePerkData(pnum, char_id, pacc);
 	
-	// save accessories and artifacts
+	// save accessories
 	temp = 0;
 	for(i = 0; i < MAX_ACCESSORY; ++i) {
 		if(CheckActorInventory(tid, StrParam(s:"Accessory_", d:i + 1)))
@@ -400,22 +407,6 @@ void SavePlayerData(int pnum, int char_id) {
 	
 	// save active accessories
 	SetDBEntry(GetCharField(DND_DB_ACTIVEACCESSORIES, char_id), pacc, CheckActorInventory(tid, "Accessory_Index"));
-	
-	temp = 0;
-	// fieldkits can have 3, assume 3 bits. (Maybe in future) Portable Shields hold 3 as well. Rest are all 1. Do not save automap.
-	// Take fieldkit and portable shields last
-	// this guy breaks the loop sequence so take him first
-	temp |= CheckActorInventory(tid, "SalvationSphere");
-	for(i = 3; i < MAXARTIFACTS - 3; ++i) {
-		if(CheckActorInventory(tid, ArtifactInfo[i][ARTI_NAME]))
-			temp = SetBit(temp, i - 2); // because 0th bit is for salvation sphere
-	}
-	// last 3 won't be saved and these two arent saved yet, so anything besides these are saved until here
-	temp |= CheckActorInventory(tid, "FieldKit") << (MAXARTIFACTS - 5); 
-	temp |= CheckActorInventory(tid, "PortableShield") << (MAXARTIFACTS - 3);
-	temp |= CheckActorInventory(tid, "StatReset") << (MAXARTIFACTS - 1);
-	// send temp over
-	SetDBEntry(GetCharField(DND_DB_ARTIFACTS, char_id), pacc, temp);
 	
 	temp = 0;
 	// save researches
@@ -512,10 +503,6 @@ void SavePlayerActivities(int pnum, int char_id) {
 	temp = PlayerActivities[pnum].attribute_change[STAT_INT];
 	IncrementDBEntry(GetCharField(DND_DB_STATS_INT, char_id), pacc, temp);
 	
-	// save perks
-	for(i = DND_PERK_BEGIN; i <= DND_PERK_END; ++i)
-		IncrementDBEntry(StrParam(s:GetCharField(DND_DB_PERK, char_id), d:i), pacc, PlayerActivities[pnum].perk_change[i - DND_PERK_BEGIN]);
-	
 	for(i = 0; i < MAXWEPS; ++i) {
 		if(!Player_Weapon_Infos[pnum][i].needs_save)
 			continue;
@@ -570,6 +557,10 @@ void SavePlayerActivities(int pnum, int char_id) {
 	// send data over
 	IncrementDBEntry(GetCharField(DND_DB_UNSPENTATTRIB, char_id), pacc, temp);
 	IncrementDBEntry(GetCharField(DND_DB_UNSPENTPERK, char_id), pacc, vt);
+
+	// The pool above is a delta; the tree is not. Spending is the other half of every one of those
+	// negative deltas, so writing one without the other loses the points outright.
+	DB_SavePerkData(pnum, char_id, pacc);
 
 	// save player weapon discards
 	SetDBEntry(GetCharField(DND_DB_WEAPONDISCARDS, char_id), pacc, PlayerActivities[pnum].discarded_weapons);
@@ -892,10 +883,6 @@ void LoadPlayerData(int pnum, int char_id) {
 	temp = GetDBEntry(GetCharField(DND_DB_BACKPACKS, char_id), pacc);
 	SetInventory("BackpackCounter", temp);
 	
-	// read perks
-	for(i = DND_PERK_BEGIN; i <= DND_PERK_END; ++i)
-		SetPerk(i, GetDBEntry(StrParam(s:GetCharField(DND_DB_PERK, char_id), d:i), pacc));
-	
 	// read health
 	temp = GetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc);
 	SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
@@ -935,13 +922,6 @@ void LoadPlayerData(int pnum, int char_id) {
 		SetInventory(a_info.name, temp);
 	}
 	
-	// read abilities
-	temp = GetDBEntry(GetCharField(DND_DB_ABILITY, char_id), pacc);
-	for(i = 0; i < MAXABILITIES; ++i) {
-		if(IsSet(temp, i))
-			GiveInventory(GetAbilityInfo(i), 1);
-	}
-	
 	// read unspent attribute/perk points
 	// added: Update player activity to prevent it going from negative
 	temp = GetDBEntry(GetCharField(DND_DB_UNSPENTATTRIB, char_id), pacc);
@@ -949,19 +929,13 @@ void LoadPlayerData(int pnum, int char_id) {
 	temp = GetDBEntry(GetCharField(DND_DB_UNSPENTPERK, char_id), pacc);
 	SetInventory("PerkPoint", temp);
 
-	temp = GetDBEntry(GetCharField(DND_DB_ARTIFACTS, char_id), pacc);
-	// read artifacts
-	SetInventory("SalvationSphere", temp & 1);
-	for(i = 3; i < MAXARTIFACTS - 3; ++i)
-		// because 0th bit is for salvation sphere
-		SetInventory(ArtifactInfo[i][ARTI_NAME], !!(temp & (1 << (i - 2)))); // these have only 1 carry limit
-	// at this point MAXARTIFACTS - 3 bits are occupied
-	temp >>= (MAXARTIFACTS - 5);
-	SetInventory("FieldKit", temp & 0x3);
-	temp >>= 2;
-	SetInventory("PortableShield", temp & 0x3);
-	temp >>= 2;
-	SetInventory("StatReset", temp & 1);
+	// The lanes go in raw. Everything derived from them -- the archetype totals, the legality sweep
+	// against the tree as it exists now, the stats they contribute -- belongs to "DnD Apply Loaded
+	// Perks", which can wait for the perk table to finish building where a function cannot.
+	for(i = 0; i < DND_PERK_WORDS; ++i)
+		PlayerModData[pnum].perks_packed[i] = GetDBEntry(StrParam(s:GetCharField(DND_DB_PERKS, char_id), d:i), pacc);
+
+	ACS_NamedExecuteAlways("DnD Apply Loaded Perks", 0, pnum);
 
 	// read researches
 	for(i = 0; i < RESEARCH_BITSETS; ++i) {
@@ -1168,8 +1142,7 @@ void WipeoutPlayerData(int pnum, int cid) {
 	SetDBEntry(GetCharField(DND_DB_STATS_INT, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_BACKPACKS, char_id), pacc, 0);
 
-	for(i = DND_PERK_BEGIN; i <= DND_PERK_END; ++i)
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_PERK, char_id), d:i), pacc, 0);
+	DB_ClearPerkData(char_id, pacc);
 
 	SetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ESHIELD, char_id), pacc, 0);
@@ -1204,12 +1177,10 @@ void WipeoutPlayerData(int pnum, int cid) {
 	SetDBEntry(GetCharField(DND_DB_EXP, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_CREDIT, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_LEVEL, char_id), pacc, 1);
-	SetDBEntry(GetCharField(DND_DB_ABILITY, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_UNSPENTATTRIB, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_UNSPENTPERK, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ACCESSORIES, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ACTIVEACCESSORIES, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ARTIFACTS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_BUDGET, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_SURVIVECOUNT, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_PLAYERWEPCHECKERS, char_id), pacc, 0);
@@ -1328,8 +1299,7 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_STATS_INT, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_BACKPACKS, char_id), pacc, 0);
 
-	for(i = DND_PERK_BEGIN; i <= DND_PERK_END; ++i)
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_PERK, char_id), d:i), pacc, 0);
+	DB_ClearPerkData(char_id, pacc);
 
 	SetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc, 100); // base health
 	SetDBEntry(GetCharField(DND_DB_ESHIELD, char_id), pacc, 0);
@@ -1370,12 +1340,10 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_EXP, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_CREDIT, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_LEVEL, char_id), pacc, 1);
-	SetDBEntry(GetCharField(DND_DB_ABILITY, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_UNSPENTATTRIB, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_UNSPENTPERK, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ACCESSORIES, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ACTIVEACCESSORIES, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ARTIFACTS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_BUDGET, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_SURVIVECOUNT, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_PLAYERWEPCHECKERS, char_id), pacc, 0);

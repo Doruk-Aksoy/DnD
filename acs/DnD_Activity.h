@@ -29,7 +29,6 @@ typedef struct {
 	int credit;
 	int budget;
 	int level;
-	int perk_change[DND_MAX_PERKS];
 	int attribute_change[DND_MAX_ATTRIBUTES];
 	int free_perks;
 	int free_attributes;
@@ -82,7 +81,6 @@ enum {
 	DND_ACTIVITY_BUDGET,
 	DND_ACTIVITY_LEVEL,
 	DND_ACTIVITY_TALENT,
-	DND_ACTIVITY_PERK,
 	DND_ACTIVITY_ATTRIBUTE,
 	DND_ACTIVITY_PERKPOINT,
 	DND_ACTIVITY_ATTRIBUTEPOINT,
@@ -102,10 +100,6 @@ void UpdateActivity(int pnum, int activity, int val, int extra) {
 		break;
 		case DND_ACTIVITY_LEVEL:
 			PlayerActivities[pnum].level += val;
-		break;
-		case DND_ACTIVITY_PERK:
-			PlayerActivities[pnum].perk_change[extra] += val;
-			//printbold(s:"activity for perk ", d:extra, s: " became ", d:PlayerActivities[pnum].perk_change[extra]);
 		break;
 		case DND_ACTIVITY_ATTRIBUTE:
 			PlayerActivities[pnum].attribute_change[extra] += val;
@@ -190,8 +184,6 @@ void ResetPlayerActivities(int pnum, bool hardReset) {
 			PlayerActivities[pnum].player_account[i] = 0;
 	}
 	
-	for(i = 0; i < DND_MAX_PERKS; ++i)
-		PlayerActivities[pnum].perk_change[i] = 0;
 	for(i = 0; i < DND_MAX_ATTRIBUTES; ++i)
 		PlayerActivities[pnum].attribute_change[i] = 0;
 }

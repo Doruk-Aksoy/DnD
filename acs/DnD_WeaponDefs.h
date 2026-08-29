@@ -66,6 +66,17 @@ enum {
 	WPROP_HOMINGSCREEN = 131072,
 	WPROP_FIRESPROJECTILES = 262144,
 	WPROP_NOREALAMMOUSE = 524288,
+
+	// Melee sub-categories. Deliberately up here and not in the WPROP_TECH..WPROP_MELEE run:
+	// IsWeaponType indexes that run from bit 9 (DND_TYPE_SHIFT_OFFSET), so a bit inserted there
+	// would silently renumber every damage type. These sit past it and past the 17 displayed
+	// properties, so neither WeaponPropertyImages nor the type mapping moves.
+	//
+	// A melee weapon carries at most one of them, and carrying neither is a valid answer rather than
+	// an oversight: the Wheel of Torment is a magical weapon that neither slashes nor bludgeons, so
+	// it satisfies no sub-category perk. Nothing enforces the choice, and that is the safe failure.
+	WPROP_SLASHING = 1048576,
+	WPROP_BLUNT = 2097152,
 };
 #define MAX_WEAPON_PROPERTIES 17
 #define DND_TYPE_SHIFT_OFFSET 9 // 9 bits later the weapon type bit is stored
@@ -392,8 +403,22 @@ int WeaponMagazineCaps[DND_MAX_MAGAZINES] = {
 	75
 };
 
+// The shell magazines are contiguous, but the two pump shotguns that do not follow the SHELLn
+// naming are shotguns all the same, so they are named rather than left out of their own perk.
+bool IsShellMagazine(int mag_id) {
+	return (mag_id >= DND_MAG_SHELL2 && mag_id <= DND_MAG_SHELL18) ||
+			mag_id == DND_MAG_SAWEDOFF || mag_id == DND_MAG_RIOTGUN;
+}
+
 int GetMagazineCap(int pnum, int mag_id) {
-	return WeaponMagazineCaps[mag_id] * (100 + PlayerModData[pnum].vals[PSTAT_MAGAZINE_INCREASE]) / 100;
+	int base = WeaponMagazineCaps[mag_id];
+
+	// Perception / Pumped, folded into the BASE so a magazine-cap roll scales it too. Shotgun
+	// capacities are small enough (2 to 18) that the compounding stays modest.
+	if(IsShellMagazine(mag_id))
+		base += PlayerModData[pnum].vals[PSTAT_SHELLCAP_FLAT];
+
+	return base * (100 + PlayerModData[pnum].vals[PSTAT_MAGAZINE_INCREASE]) / 100;
 }
 
 #include "DnD_TempWeps.h"
@@ -424,7 +449,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_FIST].icon = "WEPICO1";
 	Weapons_Data[DND_WEAPON_FIST].ammo_use1 = 0;
 	Weapons_Data[DND_WEAPON_FIST].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_FIST].properties = WPROP_MELEE | WPROP_NOREALAMMOUSE;
+	Weapons_Data[DND_WEAPON_FIST].properties = WPROP_MELEE | WPROP_NOREALAMMOUSE | WPROP_BLUNT;
 	Weapons_Data[DND_WEAPON_FIST].attunement[STAT_STR] = 0.03;
 	Weapons_Data[DND_WEAPON_FIST].attunement[STAT_DEX] = 0.01;
 	
@@ -434,7 +459,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_CHAINSAW].icon = "WEPICO2";
 	Weapons_Data[DND_WEAPON_CHAINSAW].ammo_use1 = 0;
 	Weapons_Data[DND_WEAPON_CHAINSAW].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_CHAINSAW].properties = WPROP_CANTHITGHOST | WPROP_MELEE | WPROP_NOREALAMMOUSE;
+	Weapons_Data[DND_WEAPON_CHAINSAW].properties = WPROP_CANTHITGHOST | WPROP_MELEE | WPROP_NOREALAMMOUSE | WPROP_SLASHING;
 	Weapons_Data[DND_WEAPON_CHAINSAW].attunement[STAT_STR] = 0.03;
 	Weapons_Data[DND_WEAPON_CHAINSAW].attunement[STAT_DEX] = 0.01;
 	
@@ -444,7 +469,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DOUBLECHAINSAW].icon = "WEPICO3";
 	Weapons_Data[DND_WEAPON_DOUBLECHAINSAW].ammo_use1 = 0;
 	Weapons_Data[DND_WEAPON_DOUBLECHAINSAW].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_DOUBLECHAINSAW].properties = WPROP_CANTHITGHOST | WPROP_MELEE | WPROP_NOREALAMMOUSE;
+	Weapons_Data[DND_WEAPON_DOUBLECHAINSAW].properties = WPROP_CANTHITGHOST | WPROP_MELEE | WPROP_NOREALAMMOUSE | WPROP_SLASHING;
 	Weapons_Data[DND_WEAPON_DOUBLECHAINSAW].attunement[STAT_STR] = 0.03;
 	Weapons_Data[DND_WEAPON_DOUBLECHAINSAW].attunement[STAT_DEX] = 0.01;
 	
@@ -454,7 +479,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_KATANA].icon = "WEPICO4";
 	Weapons_Data[DND_WEAPON_KATANA].ammo_use1 = 0;
 	Weapons_Data[DND_WEAPON_KATANA].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_KATANA].properties = WPROP_RIPPER | WPROP_MELEE | WPROP_FIRESPROJECTILES | WPROP_NOREALAMMOUSE;
+	Weapons_Data[DND_WEAPON_KATANA].properties = WPROP_RIPPER | WPROP_MELEE | WPROP_FIRESPROJECTILES | WPROP_NOREALAMMOUSE | WPROP_SLASHING;
 	Weapons_Data[DND_WEAPON_KATANA].attunement[STAT_STR] = 0.015;
 	Weapons_Data[DND_WEAPON_KATANA].attunement[STAT_DEX] = 0.025;
 	
@@ -464,7 +489,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_EXCALIBAT].icon = "WEPICO5";
 	Weapons_Data[DND_WEAPON_EXCALIBAT].ammo_use1 = 0;
 	Weapons_Data[DND_WEAPON_EXCALIBAT].ammo_use2 = 3;
-	Weapons_Data[DND_WEAPON_EXCALIBAT].properties = WPROP_CANTHITGHOST | WPROP_IGNORESHIELD | WPROP_MELEE | WPROP_MAGIC | WPROP_FIRESPROJECTILES | WPROP_NOREALAMMOUSE;
+	Weapons_Data[DND_WEAPON_EXCALIBAT].properties = WPROP_CANTHITGHOST | WPROP_IGNORESHIELD | WPROP_MELEE | WPROP_MAGIC | WPROP_FIRESPROJECTILES | WPROP_NOREALAMMOUSE | WPROP_BLUNT;
 	Weapons_Data[DND_WEAPON_EXCALIBAT].attunement[STAT_STR] = 0.025;
 	Weapons_Data[DND_WEAPON_EXCALIBAT].attunement[STAT_INT] = 0.015;
 	
@@ -474,7 +499,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].icon = "WEPICO6";
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].ammo_use1 = 0;
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].ammo_use2 = 5;
-	Weapons_Data[DND_WEAPON_INFERNOSWORD].properties = WPROP_CANTHITGHOST | WPROP_MELEE | WPROP_MAGIC | WPROP_FIRESPROJECTILES | WPROP_NOREALAMMOUSE;
+	Weapons_Data[DND_WEAPON_INFERNOSWORD].properties = WPROP_CANTHITGHOST | WPROP_MELEE | WPROP_MAGIC | WPROP_FIRESPROJECTILES | WPROP_NOREALAMMOUSE | WPROP_SLASHING;
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].attunement[STAT_STR] = 0.025;
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].attunement[STAT_INT] = 0.015;
 	
@@ -484,7 +509,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DUSKBLADE].icon = "WEPICO7";
 	Weapons_Data[DND_WEAPON_DUSKBLADE].ammo_use1 = 0;
 	Weapons_Data[DND_WEAPON_DUSKBLADE].ammo_use2 = 11;
-	Weapons_Data[DND_WEAPON_DUSKBLADE].properties = WPROP_MELEE | WPROP_MAGIC | WPROP_FIRESPROJECTILES | WPROP_NOREALAMMOUSE;
+	Weapons_Data[DND_WEAPON_DUSKBLADE].properties = WPROP_MELEE | WPROP_MAGIC | WPROP_FIRESPROJECTILES | WPROP_NOREALAMMOUSE | WPROP_SLASHING;
 	Weapons_Data[DND_WEAPON_DUSKBLADE].attunement[STAT_STR] = 0.015;
 	Weapons_Data[DND_WEAPON_DUSKBLADE].attunement[STAT_DEX] = 0.01;
 	Weapons_Data[DND_WEAPON_DUSKBLADE].attunement[STAT_INT] = 0.015;
@@ -495,7 +520,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_SICKLE].icon = "WEPICO8";
 	Weapons_Data[DND_WEAPON_SICKLE].ammo_use1 = 0;
 	Weapons_Data[DND_WEAPON_SICKLE].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_SICKLE].properties = WPROP_IRREDUCIBLE | WPROP_MELEE | WPROP_MAGIC | WPROP_FIRESPROJECTILES | WPROP_NOREALAMMOUSE;
+	Weapons_Data[DND_WEAPON_SICKLE].properties = WPROP_IRREDUCIBLE | WPROP_MELEE | WPROP_MAGIC | WPROP_FIRESPROJECTILES | WPROP_NOREALAMMOUSE | WPROP_SLASHING;
 	Weapons_Data[DND_WEAPON_SICKLE].attunement[STAT_STR] = 0.01;
 	Weapons_Data[DND_WEAPON_SICKLE].attunement[STAT_DEX] = 0.01;
 	Weapons_Data[DND_WEAPON_SICKLE].attunement[STAT_INT] = 0.02;
@@ -708,7 +733,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_AXE].icon = "WEPICO99";
 	Weapons_Data[DND_WEAPON_AXE].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_AXE].ammo_use2 = 3;
-	Weapons_Data[DND_WEAPON_AXE].properties = WPROP_IGNORESHIELD | WPROP_NOREFLECT | WPROP_MELEE | WPROP_MAGIC;
+	Weapons_Data[DND_WEAPON_AXE].properties = WPROP_IGNORESHIELD | WPROP_NOREFLECT | WPROP_MELEE | WPROP_MAGIC | WPROP_SLASHING;
 	Weapons_Data[DND_WEAPON_AXE].attunement[STAT_STR] = 0.025;
 	Weapons_Data[DND_WEAPON_AXE].attunement[STAT_DEX] = 0.015;
 	
@@ -956,7 +981,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_HAMMER].icon = "WEPICO98";
 	Weapons_Data[DND_WEAPON_HAMMER].ammo_use1 = 0;
 	Weapons_Data[DND_WEAPON_HAMMER].ammo_use2 = 1;
-	Weapons_Data[DND_WEAPON_HAMMER].properties = WPROP_IGNORESHIELD | WPROP_NOREFLECT | WPROP_MELEE | WPROP_MAGIC | WPROP_FIRESPROJECTILES | WPROP_NOREALAMMOUSE;
+	Weapons_Data[DND_WEAPON_HAMMER].properties = WPROP_IGNORESHIELD | WPROP_NOREFLECT | WPROP_MELEE | WPROP_MAGIC | WPROP_FIRESPROJECTILES | WPROP_NOREALAMMOUSE | WPROP_BLUNT;
 	Weapons_Data[DND_WEAPON_HAMMER].attunement[STAT_STR] = 0.03;
 	Weapons_Data[DND_WEAPON_HAMMER].attunement[STAT_INT] = 0.01;
 	
@@ -1329,7 +1354,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_SOULRENDER].icon = "WEPICO77";
 	Weapons_Data[DND_WEAPON_SOULRENDER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_SOULRENDER].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_SOULRENDER].properties = WPROP_RIPPER | WPROP_IGNORESHIELD | WPROP_MAGIC | WPROP_MELEE | WPROP_FIRESPROJECTILES;
+	Weapons_Data[DND_WEAPON_SOULRENDER].properties = WPROP_RIPPER | WPROP_IGNORESHIELD | WPROP_MAGIC | WPROP_MELEE | WPROP_FIRESPROJECTILES | WPROP_SLASHING;
 	Weapons_Data[DND_WEAPON_SOULRENDER].attunement[STAT_STR] = 0.02;
 	Weapons_Data[DND_WEAPON_SOULRENDER].attunement[STAT_DEX] = 0.01;
 	Weapons_Data[DND_WEAPON_SOULRENDER].attunement[STAT_INT] = 0.01;
@@ -1940,6 +1965,17 @@ bool IsMeleeWeapon(int wepid) {
 	return Weapons_Data[wepid].properties & WPROP_MELEE;
 }
 
+// Melee sub-categories, for the perks that name one -- Deep Cuts wants slashing, Cranium Bash wants
+// blunt. Both test the bit rather than "melee and not the other", so a melee weapon that fits
+// neither is simply outside both perks instead of falling into whichever is written as the default.
+bool IsSlashingWeapon(int wepid) {
+	return Weapons_Data[wepid].properties & WPROP_SLASHING;
+}
+
+bool IsBluntWeapon(int wepid) {
+	return Weapons_Data[wepid].properties & WPROP_BLUNT;
+}
+
 bool IsPrecisionWeapon(int wepid) {
 	return Weapons_Data[wepid].properties & WPROP_PRECISION;
 }
@@ -2000,9 +2036,42 @@ void GiveOverheat(int pnum, str item, int amt, int wepid) {
 		GiveInventory(item, amt);
 }
 
+// Perception / Emergency Protocol. Firing while fully overheated used to be one permanent stat, so
+// every check reads through here now -- a temporary window and a permanent licence answer the same
+// question and the firing code should not have to know which one it got.
+bool CanFireWhileOverheated(int pnum) {
+	return PlayerModData[pnum].vals[PSTAT_EX_CANFIREOVERHEATED] ||
+			CheckActorInventory(pnum + P_TIDSTART, "DnD_OverheatGrace");
+}
+
 void HandleOverheating(int pnum, str overheatPercentItem, str overheatCooldownItem) {
-	if(CheckInventory(overheatPercentItem) >= 100)
+	if(CheckInventory(overheatPercentItem) >= 100) {
+		// Emergency Protocol opens its window HERE, on the tic the weapon actually tops out -- this is
+		// the only place that transition is observed, everywhere else just reads the resulting state.
+		//
+		// Not refreshed while it runs: "an extended 3 seconds" is one reprieve per overheat, and
+		// refreshing it every tic the weapon sat at 100 would be an indefinite one.
+		int temp = PlayerModData[pnum].vals[PSTAT_OVERHEAT_GRACE];
+		if(temp && !CheckInventory("DnD_OverheatGrace") && !CheckInventory("DnD_OverheatGraceSpent")) {
+			SetInventory("DnD_OverheatGrace", temp);
+			SetInventory("DnD_OverheatGraceSpent", 1);
+			ACS_NamedExecuteAlways("DnD Overheat Grace", 0, pnum + P_TIDSTART);
+			return;
+		}
+
 		GiveInventory(overheatCooldownItem, 1);
+	}
+}
+
+// Perception / Heatsinks. Zeroes every overheat bar at once rather than the held weapon's, because
+// the item is a panic button and asking which weapon is out would make it useless mid-swap.
+void ClearAllOverheat(int p_tid) {
+	for(int i = 0; i < MAXOVERHEATWEPS; ++i) {
+		if(WeaponOverheatItems[i][WEAPON_OVERHEATID] != "")
+			SetActorInventory(p_tid, WeaponOverheatItems[i][WEAPON_OVERHEATID], 0);
+		if(WeaponOverheatItems[i][WEAPON_OVERHEATCOOLDOWNID] != "")
+			SetActorInventory(p_tid, WeaponOverheatItems[i][WEAPON_OVERHEATCOOLDOWNID], 0);
+	}
 }
 
 bool HasRunningOverheatCooldown(int p_tid) {

@@ -60,6 +60,17 @@ enum {
 	
 	MENU_PERK,
 	
+	// One page per archetype, in PERK_ARCH_* order so the page IS the archetype:
+	// curopt - MENU_PERKTREE_FIRST. Seven pages rather than one page with a variable, because the
+	// pane is rebuilt on page CHANGE and a variable would swap archetypes without it ever noticing.
+	MENU_PERK_ACRO,
+	MENU_PERK_ASSN,
+	MENU_PERK_CUN,
+	MENU_PERK_END,
+	MENU_PERK_MART,
+	MENU_PERK_PERC,
+	MENU_PERK_TORM,
+	
 	MENU_LOAD,
 	MENU_LOAD1,
 	MENU_LOAD_INVENTORY,
@@ -110,11 +121,9 @@ enum {
 	MENU_SHOP_AMMO_4_2,
 	MENU_SHOP_AMMO_SPECIAL1,
 	
-	MENU_SHOP_ABILITY_1,
-	MENU_SHOP_ABILITY_2,
-	
-	MENU_SHOP_ARTIFACT_1,
-	MENU_SHOP_ARTIFACT_2,
+	// The ability and artifact shop pages are gone. Everything they sold still exists and still
+	// works when granted -- the actors, the SHOP_ABILITY_* / SHOP_ARTI_* ids, their table rows and
+	// every hook that reads them. There is simply no counter selling them any more.
 	
 	MENU_SHOP_ACCOUNT,
 	
@@ -269,6 +278,68 @@ enum {
 
 #define MAX_ACCESSORIES (DND_ACCESSORY_LICHARM + 1)
 
+// The tree page's layout, in screen pixels. Here rather than beside the drawing code because the
+// scroll switch near the top of DnD_MenuFuncs.h reads them, and a macro cannot be forward referenced
+// in bcs the way a function can.
+//
+// The page has TWO scrolling regions: the list of perks, and the detail panel under it. They keep
+// separate positions -- see perk_scroll_T -- because the panel's text runs to eight lines for the
+// wordiest perks and reading it should not cost you your place in the tree.
+// The text column. It has to STOP SHORT of the scroll bar, which stands at DND_SCROLLBAR_X and is
+// drawn over whatever reaches it -- 192 + 248 lands at 440, nine pixels clear of it. This is the clip
+// width and the wrap width both: wrapping alone would still let an unbreakable run overhang, and
+// clipping alone would cut mid-word.
+#define DND_PERKLIST_X       192
+#define DND_PERKLIST_W       248
+
+#define DND_PERKLIST_TOP     76
+#define DND_PERKLIST_H       128    // exactly 8 rows, so the step below divides it
+#define DND_PERKROW_H        16
+#define DND_PERKINDENT       8
+
+// One row per step, so a row is never left half inside the window. That in turn is what makes the
+// clip pad safe: with a partial row possible, padding the top would show the bottom of the row above.
+#define DND_PERKSCROLL_STEP  DND_PERKROW_H
+
+// Glyphs sit a little above the y they are drawn at, so a clip that starts exactly at the first row
+// shaves its top pixel off. Padding is added upward and taken out of the height, leaving the bottom
+// edge where it was.
+#define DND_PERKLIST_CLIPPAD 4
+
+// How tall a row's click target is, centred on its text. Eight matches every hand-written bp[] row
+// in the layout table -- a taller one reaches into the gap below and picks the wrong perk.
+#define DND_PERKROW_HIT      8
+
+// Which bar drives which region. The list takes bar 0 because that is the one whose position lives
+// in ScrollPos.x, which is what the rest of the menu resets on a page change.
+#define DND_PERKBAR_LIST     0
+#define DND_PERKBAR_PANEL    1
+
+// The archetype index runs out of rows at y 208 and the panel goes to 280, so the dash toggle lives
+// in that gap behind a rule. It is not a perk, which is exactly why it is fenced off rather than
+// dropped in as an eighth row -- and the box after the last archetype is the same "extras go last"
+// convention the tree page uses for its back arrow.
+#define DND_PERKINDEX_DIVIDER_Y 226.2
+#define DND_PERKINDEX_TOGGLE_Y  240.2
+#define DND_PERKINDEX_HINT_Y    280.2
+#define DND_PERKINDEX_TOGGLEBOX (MBOX_1 + PERK_ARCH_COUNT)
+
+#define DND_PERKDIVIDER_Y    206
+#define DND_PERKPANEL_TOP    216
+#define DND_PERKPANEL_H      64     // 8 lines, which is the wordiest perk in the tree
+#define DND_PERKPANEL_LINE   8
+
+// Rough characters per wrapped line. ACS cannot measure a rendered string, so the panel's extent is
+// estimated from its length -- only the scroll bar's thumb depends on this being close.
+#define DND_PERKPANEL_CPL    31
+
+#define MENU_PERKTREE_FIRST MENU_PERK_ACRO
+#define MENU_PERKTREE_LAST  MENU_PERK_TORM
+
+bool IsPerkTreePage(int page) {
+	return page >= MENU_PERKTREE_FIRST && page <= MENU_PERKTREE_LAST;
+}
+
 bool IsWeaponPage(int page) {
 	return page >= SHOP_FIRSTWEAPON_PAGE && page <= SHOP_LASTWEAPON_PAGE;
 }
@@ -279,10 +350,6 @@ bool IsAmmoPage(int page) {
 
 bool IsCraftingPageForTokens(int page) {
 	return page == MENU_LOAD_CRAFTING_WEAPON || page == MENU_LOAD_CRAFTING_INVENTORY;
-}
-
-bool IsArtifactPage(int page) {
-	return page == MENU_SHOP_ARTIFACT_1 || page == MENU_SHOP_ARTIFACT_2;
 }
 
 #define SHOP_SLOT1_END SHOP_WEP_SICKLE

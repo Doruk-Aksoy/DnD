@@ -451,6 +451,40 @@ void SyncItemData_Null(int pnum, int itemid, int source, int wprev, int hprev, b
 	}
 }
 
+// Everything a box owns ITSELF, zeroed -- but not topleftboxid or item_type, which for a cell in
+// the middle of a multi-cell item belong to the item's top left box and are set by ITS sync.
+//
+// This exists for the one case the bulk resyncs skip: a box that is neither an item's top left nor
+// empty. Its topleft and type get corrected by the owner, but width, height, image, subtype, level
+// and the attribute list are per box and would keep whatever used to live there. A stale height is
+// the dangerous one -- the crafting view lists a box when its type is craftable AND its height is
+// non-zero, so a leftover height makes a middle cell look like a whole item, drawn with the previous
+// occupant's image under the current owner's name.
+void SyncItemData_ClearFields(int pnum, int itemid, int source) {
+	int i, j;
+	int page = source >> 16;
+	int raw_source = source & 0xFFFF;
+	int payload = (raw_source << 8) | (page << 16);
+
+	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMBASE; ++i)
+		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, i | payload, 0, itemid);
+
+	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID | payload, -1, itemid | (i << 16));
+		for(j = DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL; j <= DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA; ++j)
+			ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, j | payload, 0, itemid | (i << 16));
+	}
+
+	// The count goes to zero last. Nothing reads an attribute past the count, so zeroing it is what
+	// makes any entries beyond the ones cleared here unreachable rather than merely stale.
+	int h = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source);
+	for(i = 0; i < h; ++i)
+		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_LAST_SYNC_TYPE; ++j)
+			ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, j | payload, 0, itemid | (i << 16));
+
+	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMSATTRIBCOUNT | payload, 0, itemid);
+}
+
 void SyncItemAttributes(int pnum, int itemid, int source) {
 	int i, j;
 	int page = source >> 16;
@@ -583,6 +617,27 @@ Script "DnD Request Flag Sync" (int pnum, int word, int val) CLIENTSIDE {
 	if(GameType() == GAME_SINGLE_PLAYER)
 		Terminate;
 	PlayerModData[pnum].pflags[word] = val;
+	SetResultValue(0);
+}
+
+// Same shape as the flag sync and for the same reason. spent_in is deliberately NOT sent: it is
+// derived from these words, so shipping it too would give the client two copies of one fact that
+// could disagree. The client recounts instead.
+Script "DnD Request Perk Sync" (int pnum, int word, int val) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+	PlayerModData[pnum].perks_packed[word] = val;
+	RecountPerkPoints(pnum);
+	SetResultValue(0);
+}
+
+// The unspent pool. Its real home is the PerkPoint item, but a client cannot read another actor's
+// inventory and player TIDs are only ever assigned server side, so the tree's "can I afford this"
+// test reads this mirror instead of the item it shadows.
+Script "DnD Request Perk Point Sync" (int pnum, int val) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+	PlayerModData[pnum].unspent = val;
 	SetResultValue(0);
 }
 

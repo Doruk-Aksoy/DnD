@@ -20,6 +20,10 @@ Actor DnDWeapon : Weapon {
 		QuickDeselect:
 			"####" "#######################" 0 A_Lower
 		Loop
+
+		ReloadFinish:
+			"####" "#" 1 A_GiveInventory("DnD_ReloadFinished", 1)
+		Goto WaitforReady
 		
 		Zoom:
 			"####" "#" 0 A_JumpIfInventory("Doomguy_Perk1", 1, "CanCheckExecution")

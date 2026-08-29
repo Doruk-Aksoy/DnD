@@ -204,15 +204,16 @@ void LogModPoolLevelCoverage(int ilvl) {
             Log(s:"MOD POOL DANGER: base ", d:b, s:" offers only ", d:ok, s:" mods at ilvl ", d:ilvl,
                 s:" -- a roll loop here may never terminate. Ungate a mod this base can take.");
 
-#ifdef ISDEBUGBUILD
-        if(ok < DND_MODPOOL_THIN_WARN) {
+        if(ok < DND_MODPOOL_THIN_WARN)
             ++thin;
+
+#ifdef VERBOSE_MODPOOL
+        if(ok < DND_MODPOOL_THIN_WARN)
             Log(s:"  thin: base ", d:b, s:" offers ", d:ok, s:" of ", d:m.count, s:" mods at ilvl ", d:ilvl);
-        }
 #endif
     }
 
-#ifdef ISDEBUGBUILD
+#ifdef VERBOSE_MODPOOL
     Log(s:"ilvl ", d:ilvl, s:" coverage: ", d:thin, s:" thin bases, worst is base ", d:worst_base,
         s:" with ", d:worst, s:" eligible.");
 #endif

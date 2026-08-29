@@ -91,22 +91,10 @@ str GetTalentTag(int id) {
 	return StrParam(s:"DND_TALENT", d:id + 1);
 }
 
-#define DND_PERKS (DND_PERK_END - DND_PERK_BEGIN + 1)
 str StatData[STAT_LVL + 1] = {
 	"PSTAT_Strength",
 	"PSTAT_Dexterity",
 	"PSTAT_Intellect",
-	
-	"Perk_Sharpshooting",
-	"Perk_Brutality",
-	"Perk_RiskAversion",
-	"Perk_Wisdom",
-	"Perk_Greed",
-	"Perk_Medic",
-	"Perk_Munitionist",
-	"Perk_Deadliness",
-	"Perk_Savagery",
-	"Perk_Acrimony",
 	
 	"Level"
 };
@@ -132,6 +120,14 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget, bool noMedkitStor
 	// dont bother
 	if(PlayerModData[pnum].vals[PSTAT_EX_HEALTHATONE])
 		return;
+
+	// Endurance / Physician. On the heal itself rather than on the item, so it covers every source
+	// of healing rather than only the ones that happen to be pickups.
+	int physician = PlayerModData[pnum].vals[PSTAT_HEAL_CLEANSECHANCE];
+	if(physician && random(1, 100) <= physician) {
+		GiveInventory("RemovePoison", 1);
+		GiveInventory("RemoveBleed", 1);
+	}
 
 	int bonus = GetHealingBonuses(pnum);
 	// holds the old amt
@@ -184,14 +180,6 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget, bool noMedkitStor
 		GiveInventory("Research_Body_Hp_1_Tracker", toGive);
 	}
 
-	if(HasMasteredPerk(STAT_MED)) {
-		bonus = GetPlayerEnergyShieldCap(PlayerNumber());
-		amt = toGive * PERK_MEDIC_ESBONUS / 100;
-		if(amt && CheckInventory("EShieldAmount") < bonus)
-			AddEnergyShield(amt);
-		else
-			SetEnergyShield(bonus);
-	}
 	
 	HandleHealDependencyCheck();
 }
@@ -233,21 +221,13 @@ int GetActorLevelCredits(int tid) {
 	return CheckActorInventory(tid, "DnD_LevelCredit");
 }
 
-int GetPerk(int attr) {
-	return CheckInventory(StatData[attr]);
-}
-
-void SetPerk(int attr, int val) {
-	SetInventory(StatData[attr], val);
-}
-
-int GetActorPerk(int tid, int attr) {
-	return CheckActorInventory(tid, StatData[attr]);
+// Was GetPerk, which the attribute paths were calling too because the two shared StatData. Named
+// for what it actually reads now that perks no longer live in an inventory item.
+int GetStatPoints(int stat_id) {
+	return CheckInventory(StatData[stat_id]);
 }
 
 str GetStatLabel(int id) {
-	if(id >= DND_PERK_BEGIN && id <= DND_PERK_END)
-		return StrParam(s:"DND_PERK", d:id + 1 - DND_PERK_BEGIN);
 	return StrParam(s:"DND_STAT", d:id + 1);
 }
 
@@ -326,17 +306,9 @@ int GetPlayerEstimatedArmorProtect(int pnum, int cap) {
 }
 
 void GiveStat(int stat_id, int amt) {
-	// get cap
-	int lim = stat_id <= DND_ATTRIB_END ? DND_STAT_FULLMAX : DND_PERK_MAX;
-	amt = Clamp_Between(CheckInventory(StatData[stat_id]) + amt, 0, lim) - CheckInventory(StatData[stat_id]);
+	amt = Clamp_Between(CheckInventory(StatData[stat_id]) + amt, 0, DND_STAT_FULLMAX) - CheckInventory(StatData[stat_id]);
 	GiveInventory(StatData[stat_id], amt);
-	
-	if(lim == DND_STAT_FULLMAX)
-		UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTE, amt, stat_id);
-	else if(lim == DND_PERK_MAX) {
-		UpdateActivity(PlayerNumber(), DND_ACTIVITY_PERK, amt, stat_id - DND_PERK_BEGIN);
-		UpdatePerkStuff(stat_id);
-	}
+	UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTE, amt, stat_id);
 
 	// visual updates
 	if(stat_id == STAT_STR) {
@@ -349,27 +321,13 @@ void GiveStat(int stat_id, int amt) {
 void TakeStat(int stat_id, int amt) {
 	// printbold(s:"take stat ", d:stat_id, s: " amt: ", d:amt);
 	TakeInventory(StatData[stat_id], amt);
-	
-	if(stat_id <= DND_ATTRIB_END)
-		UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTE, -amt, stat_id);
-	else if(stat_id <= DND_PERK_END) {
-		UpdateActivity(PlayerNumber(), DND_ACTIVITY_PERK, -amt, stat_id - DND_PERK_BEGIN);
-		UpdatePerkStuff(stat_id);
-	}
-		
+	UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTE, -amt, stat_id);
+
 	// visual updates
 	if(stat_id == STAT_STR) {
 		UpdatePlayerKnockbackResist();
 		SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
 	}
-}
-
-bool HasMasteredPerk(int stat) {
-	return GetPerk(stat) == DND_PERK_MAX;
-}
-
-bool HasActorMasteredPerk(int tid, int stat) {
-	return GetActorPerk(tid, stat) == DND_PERK_MAX;
 }
 
 void SpawnPlayerDrop(int pnum, str actor, int zoffset, int thrust, int setspecial, int setspecial2, bool noRandomVelXY = false) {
@@ -431,7 +389,8 @@ void GiveActorExp(int tid, int amt) {
 
 int GetPlayerWisdomBonus(int pnum, int tid) {
 	// the item modifier is fixed point and is a more multiplier
-	int base = 100 + BASE_WISDOM_GAIN * CheckActorInventory(tid, "Perk_Wisdom") + HasDungeonUpside(DUN_UPSIDE_EXPANDCREDIT);
+	// was + BASE_WISDOM_GAIN per Wisdom point
+	int base = 100 + HasDungeonUpside(DUN_UPSIDE_EXPANDCREDIT);
 	
 	// halved
 	if(IsAccessoryEquipped(tid, DND_ACCESSORY_TALISMANGREED))
@@ -446,7 +405,8 @@ int GetPlayerWisdomBonus(int pnum, int tid) {
 
 int GetPlayerGreedBonus(int pnum, int tid) {
 	// the item modifier is fixed point and is a more multiplier
-	int base = 100 + BASE_GREED_GAIN * CheckActorInventory(tid, "Perk_Greed") + HasDungeonUpside(DUN_UPSIDE_EXPANDCREDIT);
+	// was + BASE_GREED_GAIN per Greed point
+	int base = 100 + HasDungeonUpside(DUN_UPSIDE_EXPANDCREDIT);
 	
 	// halved
 	if(IsAccessoryEquipped(tid, DND_ACCESSORY_TALISMANWISDOM))
@@ -547,12 +507,6 @@ void ConsumeAttributePointOn(int pnum, int stat, int amt) {
 	CalculateUnity(pnum);
 }
 
-void ConsumePerkPointOn(int perk, int amt) {
-	GiveStat(perk, amt);
-	UpdateActivity(PlayerNumber(), DND_ACTIVITY_PERKPOINT, -amt, 0);
-	TakeInventory("PerkPoint", amt);
-}
-
 bool ReachedAccessoryLimit() {
 	// consider accessory limit enhancement here
 	int baselimit = DND_ACCESSORY_BASELIMIT;
@@ -614,13 +568,6 @@ int GetPlayerArmor(int pnum) {
 int Calculate_Stats() {
 	int res = 0;
 	for(int i = DND_ATTRIB_BEGIN; i <= DND_ATTRIB_END; ++i)
-		res += CheckInventory(StatData[i]);
-	return res;
-}
-
-int Calculate_Perks() {
-	int res = 0;
-	for(int i = DND_PERK_BEGIN; i <= DND_PERK_END; ++i)
 		res += CheckInventory(StatData[i]);
 	return res;
 }
@@ -821,13 +768,6 @@ bool HasNoSigilPower() {
 	return PlayerHasNoElementalDamageBuff(PlayerNumber());
 }
 
-void UpdatePerkStuff(int perk) {
-	if(perk == STAT_WIS && CheckInventory(StatData[perk]) == DND_PERK_MAX)
-		++CurrentLevelData[LEVELDATA_WISDOMMASTERED];
-	else if(perk == STAT_GRE && CheckInventory(StatData[perk]) == DND_PERK_MAX)
-		++CurrentLevelData[LEVELDATA_GREEDMASTERED];
-}
-
 bool HasKilledLegendary(int id) {
 	return IsSet(CheckInventory("LegendaryKills"), id);
 }
@@ -901,8 +841,47 @@ void BreakAllTrades() {
 	}
 }
 
+// "Elites and uniques" as Bane of Legends words it. Elite is a spawn flag; unique bosses are their
+// own id range and are never flagged elite, so both have to be asked separately.
+bool IsEliteOrUniqueTarget(int victim) {
+	if(victim < DND_MONSTERTID_BEGIN)
+		return false;
+
+	int m_id = victim - DND_MONSTERTID_BEGIN;
+	return (MonsterProperties[m_id].flags & DND_MONFLAG_ISELITE) || isUniqueBossMonster(m_id);
+}
+
+bool IsBossTarget(int victim) {
+	if(victim < DND_MONSTERTID_BEGIN)
+		return false;
+	return IsMonsterIdBoss(MonsterProperties[victim - DND_MONSTERTID_BEGIN].id);
+}
+
+// The General Notes definitions: Full Life is at maximum health, Low Life is <= 50%.
+//
+// Both read the stored maxhp rather than APROP_SPAWNHEALTH, because monster health is scaled at
+// spawn and the spawn property no longer describes the monster you are actually shooting. A zero
+// maxhp means the monster was never registered, and answering false there is what keeps a
+// mid-registration hit from counting as full life for free.
+bool IsTargetAtFullLife(int victim) {
+	if(victim < DND_MONSTERTID_BEGIN)
+		return false;
+
+	int maxhp = MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp;
+	return maxhp > 0 && GetActorProperty(victim, APROP_HEALTH) >= maxhp;
+}
+
+bool IsTargetOnLowLife(int victim) {
+	if(victim < DND_MONSTERTID_BEGIN)
+		return false;
+
+	int maxhp = MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp;
+	return maxhp > 0 && GetActorProperty(victim, APROP_HEALTH) * 2 <= maxhp;
+}
+
 int GetBaseCritChance(int pnum) {
-	int base = CheckInventory("Perk_Deadliness") * PERK_DEADLINESS_BONUS + PlayerModData[pnum].vals[PSTAT_CRITCHANCE_INCREASE];
+	// was + PERK_DEADLINESS_BONUS per Deadliness point; Assassination's Deadliness replaces it
+	int base = PlayerModData[pnum].vals[PSTAT_CRITCHANCE_INCREASE];
 	
 	// this one is percentage based, like 1.0 is 1%, but crit is 0.01 = 1%, so adjust
 	if(HasClassPerk_Fast(DND_PLAYER_TRICKSTER, 1)) {
@@ -936,6 +915,51 @@ int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0) {
 		if(IsPrecisionWeapon(wepid) && (pct_bonus = PlayerModData[pnum].vals[PSTAT_IMP_PRECISIONCRITBONUS]))
 			chance += pct_bonus;
 	}
+
+	// Assassination / Bane of Legends, crit chance half. Fixed point like everything else here.
+	if((pct_bonus = PlayerModData[pnum].vals[PSTAT_CRITCHANCE_VS_ELITE]) && IsEliteOrUniqueTarget(victim))
+		chance += pct_bonus;
+
+	// Assassination / Backstab. "Back is turned" is the target's own facing, not the attacker's --
+	// MaxAngleDiff would answer whether the PLAYER is looking at the monster, which is a different
+	// question and true almost always.
+	if((pct_bonus = PlayerModData[pnum].vals[PSTAT_CRITCHANCE_FROMBEHIND]) && victim >= DND_MONSTERTID_BEGIN) {
+		int to_player = VectorAngle(GetActorX(pnum + P_TIDSTART) - GetActorX(victim),
+									GetActorY(pnum + P_TIDSTART) - GetActorY(victim));
+		int off = abs(to_player - GetActorAngle(victim));
+		if(off > 0.5)
+			off = 1.0 - off;
+
+		if(off > (DND_BACKSTAB_ANGLE / 360.0))
+			chance += pct_bonus;
+	}
+
+	// Perception / Lucky Bullet. Flat, not a multiplier: the notes give it as "+2.5% chance", and
+	// every other flat crit source in this function is added the same way.
+	if(CheckActorInventory(pnum + P_TIDSTART, "DnD_LuckyBullet"))
+		chance += PlayerModData[pnum].vals[PSTAT_LASTROUND_CRIT];
+
+	// Assassination / Preparation. A MULTIPLIER on the whole chance, like the two below -- "50%
+	// increased crit chance" on a fixed point probability would be absurd read as +50 points.
+	if((pct_bonus = PlayerModData[pnum].vals[PSTAT_CRIT_DROUGHTBONUS]) &&
+		!CheckActorInventory(pnum + P_TIDSTART, "DnD_CritDrought"))
+		chance = FixedMul(chance, 1.0 + ((pct_bonus << 16) / 100));
+
+	// Assassination / Master of Shadows. Player state rather than victim state, but multiplicative
+	// for the same reason and so it belongs in the same block. The light read is deliberately last of
+	// the three conditions to be evaluated, since it is the only one that costs an engine call.
+	if((pct_bonus = PlayerModData[pnum].vals[PSTAT_CRITCHANCE_INDARK]) &&
+		GetActorLightLevel(pnum + P_TIDSTART) <= DND_DARKAREA_LIGHTLEVEL)
+		chance = FixedMul(chance, 1.0 + ((pct_bonus << 16) / 100));
+
+	// Assassination / Opening Salvo and Mercy Kill. Multiplicative, and placed after every flat
+	// source above so they scale the whole crit chance rather than a partial sum. The two conditions
+	// are mutually exclusive unless a monster has 0 or 1 max health, so no ordering question arises.
+	if((pct_bonus = PlayerModData[pnum].vals[PSTAT_CRITCHANCE_VS_FULLLIFE]) && IsTargetAtFullLife(victim))
+		chance = FixedMul(chance, 1.0 + ((pct_bonus << 16) / 100));
+
+	if((pct_bonus = PlayerModData[pnum].vals[PSTAT_CRITCHANCE_VS_LOWLIFE]) && IsTargetOnLowLife(victim))
+		chance = FixedMul(chance, 1.0 + ((pct_bonus << 16) / 100));
 
 	// more player crit chance bonuses, only on sniper rifle currently
 	pct_bonus = CheckInventory("SniperZoomTimer");
@@ -1025,7 +1049,8 @@ void HandleHunterTalisman() {
 // for base > 1311 at a 5.0 crit chance -- the "if(base < 100) base = 100" floor then
 // caught the negative, so crits landed for exactly base damage.
 int GetIndependentCritModifier(int pnum, bool applyExcess = true) {
-	int base = DND_BASE_CRITMODIFIER + DND_SAVAGERY_BONUS * CheckInventory("Perk_Savagery") + PlayerModData[pnum].vals[PSTAT_CRITDAMAGE_INCREASE];
+	// was + DND_SAVAGERY_BONUS per Savagery point
+	int base = DND_BASE_CRITMODIFIER + PlayerModData[pnum].vals[PSTAT_CRITDAMAGE_INCREASE];
 	if(PlayerModData[pnum].vals[PSTAT_EX_DEADEYEBONUS])
 		base -= DND_DEADEYE_BONUS * (GetActorProperty(0, APROP_ACCURACY) / DND_DEADEYE_MINUSPER);
 
@@ -1055,6 +1080,24 @@ int GetCritModifier(int pnum, int victim, int wepid, bool forcedReturn = false) 
 	
 	// berserker perk50 check
 	base += (CheckInventory("Berserker_HitTracker") == DND_BERSERKER_PERK60_MAXSTACKS) * DND_BERSERKER_PERK60_CRITBONUS;
+
+	// Perception / Lucky Bullet, multiplier half.
+	if(CheckActorInventory(pnum + P_TIDSTART, "DnD_LuckyBullet"))
+		base += PlayerModData[pnum].vals[PSTAT_LASTROUND_CRITDMG];
+
+	// Assassination / Steady Shot. The stationary counter is kept by "DnD Fall Impact", which already
+	// runs per tic per player -- a second loop for the same question would be waste.
+	if((temp = PlayerModData[pnum].vals[PSTAT_CRITDAMAGE_PERSTILLSEC]))
+		base += temp * Min(CheckActorInventory(pnum + P_TIDSTART, "DnD_StillSeconds"), DND_STEADYSHOT_MAXSECONDS);
+
+	// Assassination / Big Game Hunter and Bane of Legends. Both are integer percent added to the
+	// multiplier, and both read the victim the same way the OSMIUM check below does. A boss that is
+	// also a unique satisfies both, which is intended -- they are separate perks with separate costs.
+	if((temp = PlayerModData[pnum].vals[PSTAT_CRITDAMAGE_VS_BOSS]) && IsBossTarget(victim))
+		base += temp;
+
+	if((temp = PlayerModData[pnum].vals[PSTAT_CRITDAMAGE_VS_ELITE]) && IsEliteOrUniqueTarget(victim))
+		base += temp;
 	
 	if(CheckInventory("HunterTalismanCheck"))
 		base >>= 1;
@@ -1071,11 +1114,6 @@ int GetCritModifier(int pnum, int victim, int wepid, bool forcedReturn = false) 
 		}
 	}
 	
-	if(HasMasteredPerk(STAT_SAV) &&!CheckInventory("DnD_SavageryMasteryTimer")) {
-		base += DND_SAVAGERY_BONUS;
-		GiveInventory("DnD_SavageryMasteryTimer", 1);
-	}
-
 	if(victim >= DND_MONSTERTID_BEGIN && HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_OSMIUM))
 		base -= DND_OSMIUM_REDUCTION;
 
@@ -1349,12 +1387,12 @@ int GetPlayerMeleeRange(int pnum, int range) {
 	return FixedMul(
 		range, 
 		1.0 +  
-		0.01 * (PlayerModData[pnum].vals[PSTAT_MELEERANGE] + GetPerk(STAT_BRUT) * DND_PERK_BRUTALITY_RANGEINC)
+		0.01 * PlayerModData[pnum].vals[PSTAT_MELEERANGE]
 	);
 }
 
 int GetPlayerDOTMulti(int pnum, int victim = -1, int wepid = -1) {
-	int base = PlayerModData[pnum].vals[PSTAT_DOTMULTI] + DND_ACRIMONY_GAIN * GetActorPerk(pnum + P_TIDSTART, STAT_ACRM);
+	int base = PlayerModData[pnum].vals[PSTAT_DOTMULTI];
 	int temp = 0;
 	if((temp = PlayerModData[pnum].vals[PSTAT_INC_CRITFORDOT]))
 		base += GetCritModifier(pnum, victim, wepid, true) * (100 + temp) / 100;
@@ -1504,10 +1542,19 @@ int CheckBleedChance(int pnum, int wepid, int victim) {
 		base = DND_BASE_BLEEDCHANCE_PROJ;
 
 	base += PlayerModData[pnum].vals[PSTAT_BLEED_CHANCE];
+
+	// Martialist / Deep Cuts. The gate belongs here rather than in the perk because this is the only
+	// place that knows which weapon swung -- and the function already had wepid for the melee split.
+	if(IsSlashingWeapon(wepid))
+		base += PlayerModData[pnum].vals[PSTAT_BLEED_CHANCE_SLASHING];
+
 	base += CheckActorInventory(victim, "DnD_OpenWounds") * DND_OPENWOUNDS_BLEEDCHANCE;
 	return random(1, 100) <= base;
 }
 
+// Deliberately does NOT fold in PSTAT_BLEED_CHANCE_SLASHING. This is a melee/projectile pair with
+// no weapon in hand to test, so a slashing-only bonus has no honest place in it -- showing it would
+// promise the number on a pistol. It wants its own line when the perk UI exists.
 str GetBleedChanceDisplay(int pnum) {
 	int mval = DND_BASE_BLEEDCHANCE_MELEE + PlayerModData[pnum].vals[PSTAT_BLEED_CHANCE];
 	int pval = DND_BASE_BLEEDCHANCE_PROJ + PlayerModData[pnum].vals[PSTAT_BLEED_CHANCE];
@@ -1678,15 +1725,22 @@ int GetPelletIncrease(int pnum) {
 	return base;
 }
 
-int GetPelletCount(int pnum, int base) {
+// wepid defaults to -1 for the callers that genuinely have no weapon in hand. Perception's Blastier
+// Shots is shotgun-only and there is no other way to know: GetPelletIncrease is a global factor and
+// the base count says nothing about what fired it.
+int GetPelletCount(int pnum, int base, int wepid = -1) {
 	// factor base is 1.0
-	return ApplyFixedFactorToInt(base, GetPelletIncrease(pnum) - 1.0);
+	int count = ApplyFixedFactorToInt(base, GetPelletIncrease(pnum) - 1.0);
+
+	// Added AFTER the factor, unlike Pumped's shell: a pellet bonus multiplied by a pellet factor
+	// compounds into whole extra volleys, and "an additional pellet" means one.
+	if(wepid != -1 && IsBoomstick(wepid))
+		count += PlayerModData[pnum].vals[PSTAT_PELLET_FLAT_SHOTGUN];
+
+	return count;
 }
 
 int HandleStatBonus(int pnum, int strength, int dexterity, int intellect, bool isMelee) {
-	if(HasMasteredPerk(STAT_SHRP))
-		dexterity += DND_SHARPSHOOTER_MASTERY_BONUS;
-
 	// 1.0 is 100%, we get stuff like 0.03 here for 3% etc.
 	int statOf = 0;
 	int hasStrToIntConversion = PlayerModData[pnum].vals[PSTAT_EX_INTBONUSTOMELEE];
@@ -1708,9 +1762,7 @@ int HandleStatBonus(int pnum, int strength, int dexterity, int intellect, bool i
 
 	// brutality is a more multiplier, if there are other "more" things related to melee, keep multiplying here
 	if(isMelee)
-		statOf = (statOf + (PlayerModData[pnum].vals[PSTAT_MELEEDAMAGE] << 16) / 100) * (100 + GetPerk(STAT_BRUT) * DND_PERK_BRUTALITY_DAMAGEINC) / 100;
-	else
-		statOf = (statOf * (100 + GetPerk(STAT_SHRP) * DND_PERK_SHARPSHOOTER_INC)) / 100;
+		statOf = statOf + (PlayerModData[pnum].vals[PSTAT_MELEEDAMAGE] << 16) / 100;
 
 	statOf = (statOf * 100) >> 16;
 
@@ -1808,7 +1860,8 @@ int GetPlayerElementalAvoidChance(int pnum, int avoid_id) {
 	if((HasActorClassPerk_Fast(ptid, DND_PLAYER_WANDERER, 3) && CheckActorInventory(ptid, "EShieldAmount")))
 		return 100;
 
-	return PlayerModData[pnum].vals[PSTAT_AVOID_BASE + avoid_id] + PlayerModData[pnum].vals[PSTAT_AVOID_ELEALL] + RISK_AVERSION_VALUE * CheckActorInventory(ptid, "Perk_RiskAversion");
+	// was + RISK_AVERSION_VALUE per RiskAversion point
+	return PlayerModData[pnum].vals[PSTAT_AVOID_BASE + avoid_id] + PlayerModData[pnum].vals[PSTAT_AVOID_ELEALL];
 }
 
 // Split out of GetPlayerNonElementalAvoidance, which was two functions wearing one name: bleed was
@@ -1821,7 +1874,7 @@ int GetPlayerBleedAvoidChance(int pnum) {
 	if(CheckActorInventory(ptid, "Perk_AversionActivated"))
 		return 100;
 
-	int base = PlayerModData[pnum].vals[PSTAT_AVOID_BASE + DND_PAVOID_BLEED] + RISK_AVERSION_VALUE * CheckActorInventory(ptid, "Perk_RiskAversion");
+	int base = PlayerModData[pnum].vals[PSTAT_AVOID_BASE + DND_PAVOID_BLEED];
 
 	// special conditions like punisher and wanderer
 	if
@@ -1842,7 +1895,7 @@ int GetPlayerNonElementalAvoidance(int pnum, int attr) {
 	int ptid = pnum + P_TIDSTART;
 	if(CheckActorInventory(ptid, "Perk_AversionActivated"))
 		return 100;
-	int base = ReadPlayerModValue(pnum, attr) + RISK_AVERSION_VALUE * CheckActorInventory(ptid, "Perk_RiskAversion");
+	int base = ReadPlayerModValue(pnum, attr);
 
 	if(HasActorClassPerk_Fast(ptid, DND_PLAYER_WANDERER, 3) && CheckActorInventory(ptid, "EShieldAmount"))
 		base = 100;
@@ -1850,9 +1903,10 @@ int GetPlayerNonElementalAvoidance(int pnum, int attr) {
 	return base;
 }
 
+// The Perk_AversionActivated powerup and its three readers in the defence path are deliberately
+// still here -- they are a working mechanic that simply has no source now that RiskAversion is gone.
+// Re-granting it is a job for the new tree, not a rebuild.
 void HandleRiskAversion() {
-	if(HasMasteredPerk(STAT_RISK) && !CheckInventory("Perk_AversionActivated"))
-		GiveInventory("Perk_AversionActivated", 1);
 }
 
 int GetPlayerBonusProjectiles(int pnum, int wepid) {

@@ -137,6 +137,11 @@ int GetFlaskData(int pnum, inventory_T? flask, int flask_type, int data_type) {
 			// free forever, which is the same unbounded problem wearing a different sign.
 			if(res < 1)
 				res = 1;
+
+			// Cunning / Desperate Measures. AFTER the floor, because this is the one case that is meant
+			// to cost nothing -- clamping it back up to 1 would make the perk do nothing at all.
+			if((temp = PlayerModData[pnum].vals[PSTAT_FLASK_FREEUSECHANCE]) && IsLowLife() && random(1, 100) <= temp)
+				res = 0;
 		break;
 		case FLASK_DATA_EFFECTDURATION:
 			// guaranteed first implicit contains effect duration on extra
@@ -461,6 +466,12 @@ int GetReducedFlaskEffectAmount(int pnum, inventory_T? flask) {
 int GetFlaskDurationEffects(int pnum, inventory_T? flask) {
 	int base = GetFlaskAttributeVal(pnum, flask, INV_FLASK_INCDURATION);
 	base -= GetFlaskAttributeExtra(pnum, flask, INV_FLASK_INCEFFECT);
+
+	// Cunning / Enriched Minerals. Utility only, and the subtype is right here -- a life flask has a
+	// recovery rate rather than an effect duration, so the perk has nothing to lengthen on one.
+	if(IsUtilityFlask(flask.item_subtype))
+		base += PlayerModData[pnum].vals[PSTAT_FLASK_UTILDURATION];
+
 	return base;
 }
 
@@ -472,6 +483,13 @@ int GetFlaskEffectModifiers(int pnum, inventory_T? flask) {
 
 void HandleCommonFlaskActivationEffects(int pnum, inventory_T? flask) {
 	int tid = pnum + P_TIDSTART;
+
+	// Cunning / Potent Salve. RemoveAilments is the existing catch-all the DoT paths already honour,
+	// so "a random ailment" is served by clearing whatever happens to be running rather than by
+	// picking one -- the player has at most a handful and picking would need them enumerated first.
+	int temp = PlayerModData[pnum].vals[PSTAT_FLASK_CLEANSECHANCE];
+	if(temp && random(1, 100) <= temp)
+		GiveActorInventory(tid, "RemoveAilments", 1);
 	if(GetFlaskAttributeVal(pnum, flask, INV_FLASK_IMMUNE_BLEED))
 		GiveActorInventory(tid, "RemoveBleed", 1);
 	if(GetFlaskAttributeVal(pnum, flask, INV_FLASK_IMMUNE_CHILLFREEZE))
@@ -490,6 +508,17 @@ void HandleFlaskBuffDispatch(int pnum, inventory_T? flask, int type, int duratio
 	int temp = GetFlaskDurationEffects(pnum, flask);
 	if(temp)
 		duration = duration * (100 + temp) / 100;
+
+	// One window covering "during any flask effect", for Surging Vitality and Spiked Concoction. Set
+	// here rather than per buff type because the perks say ANY flask effect, and the individual buffs
+	// each have their own duration and their own reasons to end early.
+	if(PlayerModData[pnum].vals[PSTAT_FLASK_RESISTBONUS] || PlayerModData[pnum].vals[PSTAT_FLASK_ENEMYVULN]) {
+		int tid = pnum + P_TIDSTART;
+		if(CheckActorInventory(tid, "DnD_FlaskEffectTimer") < duration * TICRATE) {
+			SetActorInventory(tid, "DnD_FlaskEffectTimer", duration * TICRATE);
+			ACS_NamedExecuteAlways("DnD Flask Effect Window", 0, tid);
+		}
+	}
 
 	int inc_effect = GetFlaskEffectModifiers(pnum, flask);
 

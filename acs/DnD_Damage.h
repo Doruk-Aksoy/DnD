@@ -715,9 +715,199 @@ void UnlockPlayerCritState(int pnum, int wepid) {
 	PlayerDamageCritLock[wepid][0] &= ~(1 << pnum);
 }
 
+// Acrobacy / Thumper, Head Start and All-shaking Presence -- everything a hard landing triggers.
+//
+// Bounded by UsedMonsterTIDs like the Crash Course sweep, for the same reason: DND_MAX_MONSTERS is
+// 12800 and a level holds a fraction of that.
+void HandleFallImpact(int pnum) {
+	int ptid = pnum + P_TIDSTART;
+	int temp;
+
+	// Head Start does not need Thumper -- the notes make it a separate first-tier perk, so it fires on
+	// the landing itself rather than on the shockwave.
+	if((temp = PlayerModData[pnum].vals[PSTAT_FALL_SPEEDBONUS])) {
+		SetActorInventory(ptid, "DnD_HeadStartSpeed", temp);
+		SetActorInventory(ptid, "DnD_HeadStartTimer", PlayerModData[pnum].vals[PSTAT_FALL_SPEEDTIME]);
+		ACS_NamedExecuteAlways("DnD Head Start Timer", 0, ptid);
+	}
+
+	int power = PlayerModData[pnum].vals[PSTAT_THUMPER_POWER];
+	if(!power)
+		return;
+
+	int dmg = (DND_THUMPER_BASEDMG + ((DND_THUMPER_STRFACTOR * GetStrength(pnum)) >> 16)) * power / 100;
+	int radius = FixedMul(DND_THUMPER_BASERADIUS, (power << 16) / 100);
+
+	int vuln = PlayerModData[pnum].vals[PSTAT_THUMPER_VULN];
+	int vuln_time = PlayerModData[pnum].vals[PSTAT_THUMPER_VULNTIME];
+
+	for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
+		int m_tid = UsedMonsterTIDs[mn];
+		if(!m_tid || !isActorAlive(m_tid))
+			continue;
+
+		if(AproxDistance(GetActorX(m_tid) - GetActorX(ptid), GetActorY(m_tid) - GetActorY(ptid)) > radius)
+			continue;
+
+		// All-shaking Presence marks what Thumper actually HURT, so it is applied here inside the
+		// radius test rather than to everything nearby.
+		if(vuln) {
+			SetActorInventory(m_tid, "DnD_ThumperWeakness", vuln);
+			SetActorInventory(m_tid, "DnD_ThumperWeaknessTimer", vuln_time);
+			ACS_NamedExecuteAlways("DnD Thumper Weakness Timer", 0, m_tid);
+		}
+
+		Thing_Damage2(m_tid, dmg, "Physical");
+	}
+}
+
+// Acrobacy / Tailwind. "Running past" is proximity while moving -- the caller only invokes this on
+// its poll tic, so the sweep runs a tenth as often as anything else that walks the monster list.
+void HandleTailwind(int pnum) {
+	int temp = PlayerModData[pnum].vals[PSTAT_TAILWIND_SPEED];
+	int ptid = pnum + P_TIDSTART;
+
+	if(!temp || CheckActorInventory(ptid, "DnD_TailwindCooldown"))
+		return;
+
+	int i;
+
+	// other players first: the list is 64 long against a level's worth of monsters, so the cheap
+	// half of the question is asked first and often answers it.
+	for(i = 0; i < MAXPLAYERS; ++i) {
+		int o = i + P_TIDSTART;
+		if(i == pnum || !PlayerInGame(i) || !isActorAlive(o))
+			continue;
+
+		if(AproxDistance(GetActorX(o) - GetActorX(ptid), GetActorY(o) - GetActorY(ptid)) <= DND_TAILWIND_RADIUS) {
+			GiveTailwind(pnum, temp);
+			return;
+		}
+	}
+
+	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+		int m_tid = UsedMonsterTIDs[i];
+		if(!m_tid || !isActorAlive(m_tid))
+			continue;
+
+		if(AproxDistance(GetActorX(m_tid) - GetActorX(ptid), GetActorY(m_tid) - GetActorY(ptid)) <= DND_TAILWIND_RADIUS) {
+			GiveTailwind(pnum, temp);
+			return;
+		}
+	}
+}
+
+// Martialist / Gratuitous Violence. "Overkill" is the General Notes definition -- a killing blow
+// worth more than 30% of the target's maximum health -- so the damage of the blow is the test, not
+// the fact that it killed.
+void HandleGratuitousViolence(int pnum, int victim) {
+	int temp = PlayerModData[pnum].vals[PSTAT_RAGE_ONOVERKILL];
+
+	// The overkill test itself is done by HandleMonsterDeathConfirm, which is the only place holding
+	// the KILLING blow's damage -- by the time the death script runs the number is gone.
+	if(temp && CheckActorInventory(victim, "DnD_WasOverkilled"))
+		GiveRage(pnum, temp);
+}
+
+// Assassination / Eradication. DnD_DeathEffectBlock is what "DnD Monster Death Effects" already
+// checks, so suppressing on-death behaviour is a matter of setting the flag it looks for rather than
+// of teaching that script about perks.
+void HandleEradication(int pnum, int victim) {
+	if(PlayerModData[pnum].vals[PSTAT_CRITKILL_NODEATHFX] && CheckActorInventory(victim, "DnD_LastHitCrit"))
+		GiveActorInventory(victim, "DnD_DeathEffectBlock", 1);
+}
+
+// Perception / Essence Theft. Stacks while kills keep coming and lapses four seconds after the last,
+// so the whole stack shares one timer -- the notes describe a running total, not individual charges.
+void HandleEssenceTheft(int pnum, int victim) {
+	int amt = PlayerModData[pnum].vals[PSTAT_MAGICKILL_PEN];
+
+	// "Slain by magical attacks" is answered by a mark left at damage time, not by the death: the
+	// damage type is not carried to the kill, and MonsterProperties has nowhere to keep it.
+	if(!amt || !CheckActorInventory(victim, "DnD_LastHitMagic"))
+		return;
+
+	int ptid = pnum + P_TIDSTART;
+	if(CheckActorInventory(ptid, "DnD_EssenceTheft") < PlayerModData[pnum].vals[PSTAT_MAGICKILL_PENCAP])
+		GiveActorInventory(ptid, "DnD_EssenceTheft", amt);
+
+	SetActorInventory(ptid, "DnD_EssenceTheftTimer", DND_ESSENCETHEFT_TICS);
+	ACS_NamedExecuteAlways("DnD Essence Theft Timer", 0, ptid);
+}
+
+// Perception / Shield stealer. "Shielded enemies" is the same DND_ISBLOCKING trait Bastion Breaker
+// pierces -- there is no monster energy shield in the game, so a shield is a raised guard.
+//
+// Reads the TRAIT rather than whether the guard happened to be up at the moment of death: a monster
+// killed mid-swing is still a shield enemy, and requiring the block to be active would make the perk
+// fire almost never.
+void HandleShieldStealer(int pnum, int m_id) {
+	int temp = PlayerModData[pnum].vals[PSTAT_SHIELDSTEAL_PCT];
+	if(!temp || m_id < 0 || !HasMonsterTrait(m_id, DND_ISBLOCKING))
+		return;
+
+	int cap = GetPlayerEnergyShieldCap(pnum);
+	if(cap > 0)
+		AddEnergyShield(cap * temp / 100);
+}
+
+// Cunning / Overflowing Reserves. "Enemies with ailments" is any monster still carrying one when it
+// dies, which is what the ailment slot on MonsterProperties already records.
+void HandleOverflowingReserves(int pnum, int victim) {
+	int temp = PlayerModData[pnum].vals[PSTAT_FLASK_REFILLCHANCE];
+	if(!temp)
+		return;
+
+	// DnD_AilmentToken is the bitmask AddMonsterAilment maintains, so "an enemy with ailments" is
+	// simply a non-zero one -- no need to ask about each ailment in turn.
+	if(!CheckActorInventory(victim, "DnD_AilmentToken"))
+		return;
+
+	if(random(1, 100) <= temp)
+		GiveFlaskChargesPercentage(pnum, DND_OVERFLOWING_REFILLPCT);
+}
+
+// Acrobacy / Adrenaline. Rides the same confirmed-kill path as Unending Rush, but only for a monster
+// All-shaking Presence had marked -- which is what makes it a payoff for the chain rather than a
+// heal on every kill.
+void HandleAdrenaline(int pnum, int victim) {
+	int heal = PlayerModData[pnum].vals[PSTAT_ADRENALINE_HEAL];
+	if(!heal || !CheckActorInventory(victim, "DnD_ThumperWeakness"))
+		return;
+
+	int ptid = pnum + P_TIDSTART;
+	if(CheckActorInventory(ptid, "DnD_AdrenalineCooldown"))
+		return;
+
+	SetActorInventory(ptid, "DnD_AdrenalineCooldown", DND_ADRENALINE_COOLDOWN);
+	ACS_NamedExecuteAlways("DnD Adrenaline Cooldown", 0, ptid);
+	ACS_NamedExecuteAlways("DnD Health Pickup", 0, heal);
+}
+
+// Acrobacy / Unending Rush. The kill must land inside a ONE second window after the dash, which is
+// narrower than DnD_DashedRecently's four -- so it reads how much of that window is left rather than
+// merely testing that it is open.
+void HandleUnendingRush(int pnum) {
+	if(!PlayerModData[pnum].vals[PSTAT_DASH_REFRESHONKILL])
+		return;
+
+	int tid = pnum + P_TIDSTART;
+	if(CheckActorInventory(tid, "DnD_DashedRecently") > DND_PERKDASH_RECENT_TICS - DND_PERKDASH_KILLWINDOW)
+		SetActorInventory(tid, "DnD_PerkDashCooldown", 0);
+}
+
 void HandleMonsterDeathConfirm(int tid, int dmg) {
-	if(GetActorProperty(tid, APROP_HEALTH) <= dmg)
+	if(GetActorProperty(tid, APROP_HEALTH) <= dmg) {
 		GiveActorInventory(tid, "MonsterKilledByPlayer", 1);
+
+		// "Overkill: killing blow that did more than 30% of an enemy's maximum health." Recorded here
+		// because this is the only place that has the killing blow's size; the death script that reads
+		// it runs later and only knows that the monster died.
+		int m_id = tid - DND_MONSTERTID_BEGIN;
+		if(m_id >= 0 && MonsterProperties[m_id].maxhp > 0 &&
+			dmg * 100 > MonsterProperties[m_id].maxhp * DND_OVERKILL_PERCENT)
+			GiveActorInventory(tid, "DnD_WasOverkilled", 1);
+	}
 }
 
 // All resists uniformly follow same factors.
@@ -868,8 +1058,10 @@ bool AdjustDamageRetrievePointers(int flags, bool crit_check = false, int wepid 
 	return res;
 }
 
+// The Deadliness mastery gate is gone with the old perk system. The counter and its window are
+// left intact for Assassination to re-drive -- `false` keeps the shape rather than deleting it.
 void HandleOnHitEffects(int owner) {
-	if(HasActorMasteredPerk(owner, STAT_DED)) {
+	if(false) {
 		if(!CheckActorInventory(owner, "DnD_DeadlinessMasteryWindow")) {
 			// didn't have before, reset (or had some, we dont care, it needs to be reset)
 			// reset to 1, as this is a hit by itself
@@ -959,7 +1151,7 @@ int ApplyNonWeaponBaseDamageBonus(int tid, int dmg, int damage_type, int flags) 
 	
 	// overall percentage bonuses -- this is basically ScaleCachedDamage but unwrapped, we need to rewrite these into a common function that just retrieves the overall bonus factor to multiply with!
 	// uncached path, so the buff term is read live right here
-	int factor = 100 + GetPlayerPercentDamage(pnum, -1, damage_category, flags) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1);
+	int factor = 100 + GetPlayerPercentDamage(pnum, -1, damage_category, flags) + GetPlayerBuffIncreasedDamage(pnum) + GetRageDamageBonus(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1);
 	
 	// apply flat health to damage conversion if player has any
 	int temp = PlayerModData[pnum].vals[PSTAT_EX_PHYSDAMAGEPER_FLATHEALTH];
@@ -1021,7 +1213,7 @@ int StageDamageComponents(int pnum, int slot, int dmgid, int wepid, int damage_c
 	// the generic pools apply to every component because they are true of the weapon whatever it
 	// fires; the per-path typed pools are already folded into the cached inc below
 	int generic = 100 + GetCachedPlayerIncreased(pnum, slot, dmgid) +
-				  GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, wepid);
+				  GetPlayerBuffIncreasedDamage(pnum) + GetRageDamageBonus(pnum) + GetPlayerAccuracyDamageBonus(pnum, wepid);
 	int more_gen = GetCachedPlayerMorePacked(pnum, slot, dmgid);
 	int flat_eff = GetCachedPlayerFlatFactor(pnum, slot, dmgid);
 	int total = 0;
@@ -1115,7 +1307,13 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 	else // no rng, so just set it to temp
 		dmg = temp;
 
-	bool is_melee_mastery_exception = (IsMeleeWeapon(wepid) || (flags & DND_DAMAGEFLAG_COUNTSASMELEE)) && HasMasteredPerk(STAT_BRUT);
+	// Brutality mastery used to be the only thing that set this. Left as a named false so the
+	// branches that read it stay intact for whatever the new tree wires in.
+	// Martialist / Blademaster. This is the old melee-mastery flag, restored: it routes the melee
+	// stat attunement to a non-melee damage category, which is exactly "melee damage and range
+	// increase also applies to projectiles fired from melee weapons".
+	bool is_melee_mastery_exception = (IsMeleeWeapon(wepid) || (flags & DND_DAMAGEFLAG_COUNTSASMELEE)) &&
+										PlayerModData[pnum].vals[PSTAT_MELEE_TOPROJECTILES];
 
 	// only store scaling factors here for later use, no modifying damage in this block
 	// damage modifications are done at the end
@@ -1333,7 +1531,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 	// The weapon's generic pool, its pool for THIS category, and the live buff term all join here.
 	// Splitting generic from typed changes where the terms are stored, not which pool they land in.
 	temp = 100 + GetCachedPlayerIncreased(pnum, slot, dmgid) + GetCachedPlayerIncreasedTyped(pnum, slot, dmgid, damage_category) +
-		   GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, wepid);
+		   GetPlayerBuffIncreasedDamage(pnum) + GetRageDamageBonus(pnum) + GetPlayerAccuracyDamageBonus(pnum, wepid);
 
 	// Collapse the two layers into ONE integer percent before touching dmg.
 	// Scaling dmg by the increased pool first would quantize it to an integer and
@@ -1538,6 +1736,88 @@ void HandleChillEffects(int pnum, int victim) {
 	}
 }
 
+// Martialist / Exhauster and Cranium Bash. Both ride an ordinary melee hit and both are chances
+// rather than magnitudes, so they sit together next to the bleed roll that works the same way.
+// Cunning / Spiked Concoction. Any hit, not just melee -- so it is its own handler beside the melee
+// one rather than inside it. Stacks cap because the notes cap them; without that a sustained weapon
+// would sit at the ceiling permanently and the "up to" in the description would be a lie.
+// Perception / Ceaseless Assault. A permanent strip rather than a timed one, per the perk -- so the
+// only thing bounding it is its own cap, which is why the cap is a slot rather than a constant.
+void HandleAutoResistShred(int pnum, int victim, int wepid) {
+	int amt = PlayerModData[pnum].vals[PSTAT_AUTO_RESISTSHRED];
+	if(!amt || victim < DND_MONSTERTID_BEGIN || !IsAutomaticWeapon(wepid))
+		return;
+
+	int cap = PlayerModData[pnum].vals[PSTAT_AUTO_RESISTSHREDCAP];
+	if(CheckActorInventory(victim, "DnD_ResistShred") < cap)
+		GiveActorInventory(victim, "DnD_ResistShred", amt);
+}
+
+void HandleFlaskHitEffects(int pnum, int victim, int duration) {
+	if(!PlayerModData[pnum].vals[PSTAT_FLASK_ENEMYVULN] || victim < DND_MONSTERTID_BEGIN)
+		return;
+
+	if(!CheckActorInventory(pnum + P_TIDSTART, "DnD_FlaskEffectTimer"))
+		return;
+
+	if(CheckActorInventory(victim, "DnD_SpikedStacks") < DND_SPIKEDCONCOCTION_MAXSTACKS)
+		GiveActorInventory(victim, "DnD_SpikedStacks", 1);
+
+	SetActorInventory(victim, "DnD_SpikedTimer", duration);
+	ACS_NamedExecuteAlways("DnD Spiked Concoction Timer", 0, victim);
+}
+
+void HandleMeleeSubTypeEffects(int pnum, int victim, int wepid) {
+	if(!IsMeleeWeapon(wepid) || victim < DND_MONSTERTID_BEGIN)
+		return;
+
+	int temp;
+
+	// Martialist / Swift & Precise. "Per enemy hit" is a stack, so it counts up and the window
+	// refreshes -- capped because the notes cap it, and without the cap a crowd would be permanent
+	// 100% speed rather than a burst.
+	if((temp = PlayerModData[pnum].vals[PSTAT_MELEEHIT_SPEED])) {
+		int tid = pnum + P_TIDSTART;
+		if(CheckActorInventory(tid, "DnD_SwiftPreciseStacks") < DND_SWIFTPRECISE_MAXSTACK)
+			GiveActorInventory(tid, "DnD_SwiftPreciseStacks", 1);
+
+		SetActorInventory(tid, "DnD_SwiftPreciseTimer", DND_SWIFTPRECISE_TICS);
+		ACS_NamedExecuteAlways("DnD Swift Precise Timer", 0, tid);
+	}
+
+	// Slow. Deliberately NOT chill: no freeze build-up, no chill FX, no ailment -- just the speed
+	// penalty, so other sources of plain slow can join it later without inheriting chill's meaning.
+	temp = PlayerModData[pnum].vals[PSTAT_SLOWCHANCE_MELEE];
+	if(temp && random(1, 100) <= temp) {
+		// strongest slow wins rather than stacking, so repeated hits refresh instead of freezing
+		if(CheckActorInventory(victim, "DnD_SlowPercent") < DND_EXHAUSTER_SLOWPCT)
+			SetActorInventory(victim, "DnD_SlowPercent", DND_EXHAUSTER_SLOWPCT);
+
+		SetActorInventory(victim, "DnD_SlowTimer", DND_EXHAUSTER_SLOWTIME);
+		ACS_NamedExecuteAlways("DnD Monster Slow Ticker", 0, victim);
+	}
+
+	// Martialist / Ramping Assault. The counter lives on the MONSTER, so "the same enemy" is answered
+	// by where it is stored rather than by remembering which enemy was last hit -- switching targets
+	// mid-ramp keeps each monster's own progress, which is what "on the same enemy" implies.
+	if((temp = PlayerModData[pnum].vals[PSTAT_RAMPING_HITS])) {
+		GiveActorInventory(victim, "DnD_RampingHits", 1);
+		if(CheckActorInventory(victim, "DnD_RampingHits") >= temp)
+			SetActorInventory(victim, "DnD_RampingHits", 0);
+	}
+
+	// Stun, blunt only. The Stunned state already exists on DnD_BaseMonster and loops on the counter;
+	// all this does is fill the counter and push the monster into it.
+	if(IsBluntWeapon(wepid)) {
+		temp = PlayerModData[pnum].vals[PSTAT_STUNCHANCE_BLUNT];
+		if(temp && random(1, 100) <= temp && !CheckActorInventory(victim, "StunDurationCounter")) {
+			SetActorInventory(victim, "StunDurationCounter", DND_CRANIUMBASH_STUNTICS);
+			SetActorState(victim, "Stunned");
+			ACS_NamedExecuteAlways("DnD Monster Stun Ticker", 0, victim);
+		}
+	}
+}
+
 void HandleBleedEffects(int pnum, int victim, int wepid, int overall_dmg) {
 	if
 	(
@@ -1737,6 +2017,15 @@ int FactorResists(int source, int victim, int wepid, int dmg, int damage_type, i
 	if(IsBoomstick(wepid) && HasClassPerk_Fast(DND_PLAYER_HOBO, 2)) 
 		pct_val += DND_HOBO_RESISTPCT + (GetLevel() / DND_PERK_REGULARTHRESHOLD) * DND_HOBO_RESISTPCT_PERLVL;
 	
+	// Martialist / Expose Weakness. Reduces the MONSTER's resists, so it belongs with the monster's
+	// own resist reduction rather than with the player's penetration -- once a monster is exposed it
+	// is exposed to everyone, which is what a debuff on the target means.
+	pct_val += CheckActorInventory(victim, "DnD_ExposedResists");
+
+	// Perception / Ceaseless Assault. Beside Expose Weakness because it is the same kind of thing --
+	// a resistance the MONSTER has lost, not penetration the player brought.
+	pct_val += CheckActorInventory(victim, "DnD_ResistShred");
+
 	if(CheckActorInventory(victim, "Doomguy_ResistReduced"))
 		pct_val += DND_DOOMGUY_RESISTPCT;
 
@@ -1934,19 +2223,36 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		temp = PlayerModData[pnum].vals[PSTAT_ESS_HARKIMONDE];
 		// we have 0 chance or we have chance but it didn't roll in our favor
 		if(!temp || temp < random(1, 100)) {
-			ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, 0, 0, DND_HITBEEP_INVULNERABLE);
+			// Perception / Bastion Breaker. A block is otherwise total, so this is a share of the hit
+			// getting through rather than a reduction of one -- the surviving damage then meets resists
+			// and everything else below exactly as an unblocked hit would.
+			//
+			// Deliberately NOT applied to CheckFlag(victim, "INVULNERABLE"): invulnerability frames are
+			// an engine state that other things rely on being absolute, while DND_ISBLOCKING is the
+			// shield-raised trait the perk is named for.
+			int pierce = PlayerModData[pnum].vals[PSTAT_BLOCK_PIERCE];
+			if(pierce > 0 && HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_ISBLOCKING)) {
+				dmg = dmg * pierce / 100;
 
-			temp = PlayerModData[pnum].vals[PSTAT_INC_BLOCKPREVENTION];
-			if(temp && random(1, 100) <= temp) {
-				if(!CheckActorInventory(victim, "DnD_AntiBlockCounter")) {
-					SetActorInventory(victim, "DnD_AntiBlockCounter", DND_INC_BLOCKPREVENTIONTIME);
-					ACS_NamedExecuteWithResult("DnD Block Prevention Timer", victim);
-				}
-				else
-					SetActorInventory(victim, "DnD_AntiBlockCounter", DND_INC_BLOCKPREVENTIONTIME);
+				// a hit that pierced must still land for something, or the perk reads as a miss
+				if(dmg < 1)
+					dmg = 1;
 			}
+			else {
+				ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, 0, 0, DND_HITBEEP_INVULNERABLE);
 
-			return 0;
+				temp = PlayerModData[pnum].vals[PSTAT_INC_BLOCKPREVENTION];
+				if(temp && random(1, 100) <= temp) {
+					if(!CheckActorInventory(victim, "DnD_AntiBlockCounter")) {
+						SetActorInventory(victim, "DnD_AntiBlockCounter", DND_INC_BLOCKPREVENTIONTIME);
+						ACS_NamedExecuteWithResult("DnD Block Prevention Timer", victim);
+					}
+					else
+						SetActorInventory(victim, "DnD_AntiBlockCounter", DND_INC_BLOCKPREVENTIONTIME);
+				}
+
+				return 0;
+			}
 		}
 	}
 
@@ -2423,7 +2729,7 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags, int str_
 	// dont let dot double dip
 	if(!(flags & DND_WDMG_ISDOT)) {
 		// uncached path, so the buff term is read live right here
-		temp = GetPlayerPercentDamage(pnum, -1, damage_category, dmg_flag_mapping) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1);
+		temp = GetPlayerPercentDamage(pnum, -1, damage_category, dmg_flag_mapping) + GetPlayerBuffIncreasedDamage(pnum) + GetRageDamageBonus(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1);
 		if(temp/* && !isSpell*/)
 			pct_bonus += temp;
 
@@ -2518,6 +2824,14 @@ int GetIgniteScaleSource(int pnum, int m_id, int tic_flags) {
 // ASSUMPTION: PLAYER RUNS THIS! -- care if adapting this later for other things
 Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damage_type) {
 	int pnum = PlayerNumber();
+
+	// Perception / Essence Theft reads this at the kill. Recorded here because damage_type only
+	// exists on this side of the hit -- nothing carries it through to the death script.
+	// "Magical" is OCCULT in this enum -- there is no DND_DAMAGETYPE_MAGICAL. IsOccultDamage is used
+	// rather than a range test because occult is NOT contiguous: MELEEOCCULT and SOUL sit outside the
+	// OCCULT..MAGICSEAL run, so a range would have quietly excluded melee occult and soul kills.
+	if(PlayerModData[pnum].vals[PSTAT_MAGICKILL_PEN])
+		SetActorInventory(victim_data + DND_MONSTERTID_BEGIN, "DnD_LastHitMagic", IsOccultDamage(damage_type));
 	int wep_neg = victim_data >> DND_DAMAGE_ACCUM_SHIFT;
 	victim_data &= DND_MONSTER_TICDATA_BITMASK;
 
@@ -2567,6 +2881,36 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 	if(HasMonsterTrait(victim_data, DND_ISBLOCKING) && (temp = PlayerModData[pnum].vals[PSTAT_BLOCKERS_MOREDMG]))
 		more_dmg = more_dmg * (100 + ((temp * 100) >> 16)) / 100;
 	
+	// Perception / Sharpshooter. Ramps to its full value at DND_SHARPSHOOTER_MAXRANGE and is flat
+	// past it -- "up to 30% ... capped at 2048 units" caps the DISTANCE the ramp reads, not the bonus,
+	// so a shot from across a map is worth the same as one from exactly 2048 rather than more.
+	if((temp = PlayerModData[pnum].vals[PSTAT_PRECISION_FALLOFF]) && IsPrecisionWeapon(wepid)) {
+		int dist = AproxDistance(
+			GetActorX(victim_tid) - GetActorX(pnum + P_TIDSTART),
+			GetActorY(victim_tid) - GetActorY(pnum + P_TIDSTART)
+		);
+
+		if(dist > DND_SHARPSHOOTER_MAXRANGE)
+			dist = DND_SHARPSHOOTER_MAXRANGE;
+
+		more_dmg = more_dmg * (100 + (temp * (dist >> 16)) / (DND_SHARPSHOOTER_MAXRANGE >> 16)) / 100;
+	}
+
+	// Assassination / Pressure Points. Only for the element the crit was: the stored type is
+	// damage_type + 1 so that zero reads as "no mark" rather than as damage type 0.
+	if(CheckActorInventory(victim_tid, "DnD_PressureType") == damage_type + 1)
+		more_dmg = more_dmg * (100 + CheckActorInventory(victim_tid, "DnD_PressureAmount")) / 100;
+
+	// Acrobacy / All-shaking Presence and Cunning / Spiked Concoction. Both live HERE rather than on
+	// the melee damage line, because both say "enemies take increased damage" without qualifying how
+	// you follow up -- putting them on the melee line would have silently made them melee-only.
+	//
+	// Additive with each other and multiplicative against the rest, matching the blocker bonus above.
+	temp = CheckActorInventory(victim_tid, "DnD_ThumperWeakness") +
+			CheckActorInventory(victim_tid, "DnD_SpikedStacks") * PlayerModData[pnum].vals[PSTAT_FLASK_ENEMYVULN];
+	if(temp)
+		more_dmg = more_dmg * (100 + temp) / 100;
+
 	// buff effectiveness is the maximum of what the monster might have had previously from another player vs. most up-to-date, which is overwritten into its DnD_OverloadDamage item
 	if(CheckActorInventory(victim_tid, "DnD_OverloadTimer"))
 		more_dmg = more_dmg * (100 + DND_BASE_OVERLOADBUFF + CheckActorInventory(victim_tid, "DnD_OverloadDamage")) / 100;
@@ -2629,6 +2973,47 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 		if(more_dmg != 100)
 			PlayerDamageTic[pnum].total[victim_data] = MulPercent_Exact(PlayerDamageTic[pnum].total[victim_data], more_dmg);
 
+		// Assassination / Eradication needs to know the KILLING blow was a crit, and the kill is
+		// confirmed elsewhere -- so the crit is recorded on the victim here and read there.
+		SetActorInventory(victim_tid, "DnD_LastHitCrit", 1);
+
+		// Assassination, everything that reacts to a landed crit. This branch is the only place that
+		// knows a crit actually happened -- GetCritChance is the roll, not the result.
+		int ptid = pnum + P_TIDSTART;
+		int acrit;
+
+		// Quick Getaway
+		if((acrit = PlayerModData[pnum].vals[PSTAT_CRIT_SPEEDBONUS])) {
+			SetActorInventory(ptid, "DnD_CritSpeed", acrit);
+			SetActorInventory(ptid, "DnD_CritSpeedTimer", DND_QUICKGETAWAY_TICS);
+			ACS_NamedExecuteAlways("DnD Crit Speed Timer", 0, ptid);
+		}
+
+		// Preparation. The window is refreshed by every crit, so the perk pays only for the FIRST one
+		// after a drought -- which is what "if you haven't landed a critical hit" asks for.
+		if(PlayerModData[pnum].vals[PSTAT_CRIT_DROUGHTBONUS]) {
+			SetActorInventory(ptid, "DnD_CritDrought", DND_PREPARATION_DROUGHT);
+			ACS_NamedExecuteAlways("DnD Crit Drought Timer", 0, ptid);
+		}
+
+		// Dance with Death. The re-gain block is the perk's own wording -- Elusive cannot be refreshed
+		// while it runs, so a crit during it is simply not a chance to roll.
+		if((acrit = PlayerModData[pnum].vals[PSTAT_ELUSIVE_ONCRIT]) &&
+			!CheckActorInventory(ptid, "DnD_Elusive") && random(1, 100) <= acrit) {
+			SetActorInventory(ptid, "DnD_Elusive", DND_ELUSIVE_TICS);
+			ACS_NamedExecuteAlways("DnD Elusive Timer", 0, ptid);
+		}
+
+		// Pressure Points. Stores the TYPE alongside the amount, because the exposure only applies to
+		// the element the crit was -- a fire crit does not soften a monster against bullets. One type
+		// at a time, latest crit winning, rather than a mark per element.
+		if((acrit = PlayerModData[pnum].vals[PSTAT_CRIT_EXPOSEPCT])) {
+			SetActorInventory(victim_tid, "DnD_PressureType", damage_type + 1);
+			SetActorInventory(victim_tid, "DnD_PressureAmount", acrit);
+			SetActorInventory(victim_tid, "DnD_PressureTimer", DND_PRESSUREPOINTS_TICS);
+			ACS_NamedExecuteAlways("DnD Pressure Points Timer", 0, victim_tid);
+		}
+
 		// amplify the overall damage as a crit here -- wepid negativity check happens inside np
 		more_dmg = GetCritModifier(pnum, victim_tid, wepid);
 
@@ -2636,8 +3021,14 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 
 		HandleHunterTalisman();
 	}
-	else if(more_dmg != 100)
-		PlayerDamageTic[pnum].total[victim_data] = MulPercent_Exact(PlayerDamageTic[pnum].total[victim_data], more_dmg);
+	else {
+		// A non-crit clears the mark, so Eradication reads "the last hit was a crit" rather than
+		// "a crit happened at some point during this fight".
+		SetActorInventory(victim_tid, "DnD_LastHitCrit", 0);
+
+		if(more_dmg != 100)
+			PlayerDamageTic[pnum].total[victim_data] = MulPercent_Exact(PlayerDamageTic[pnum].total[victim_data], more_dmg);
+	}
 
 	//printbold(s:"before ", d:prev_dmg, s: " new dmg: ", d:PlayerDamageTic[pnum].total[victim_data], s: " ", d:more_dmg);
 
@@ -2720,6 +3111,9 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 
 		if(can_ail && (tic_flags & DND_DAMAGETICFLAG_PHYSICAL) && !(tic_flags & DND_DAMAGETICFLAG_DOT))
 			HandleBleedEffects(pnum, victim_tid, wepid, GetTicElementDamage(pnum, victim_data, DND_TICELEM_PHYSICAL));
+			HandleMeleeSubTypeEffects(pnum, victim_tid, wepid);
+			HandleFlaskHitEffects(pnum, victim_tid, PlayerModData[pnum].vals[PSTAT_FLASK_VULNTIME]);
+			HandleAutoResistShred(pnum, victim_tid, wepid);
 
 		if(can_ail && (tic_flags & (DND_DAMAGETICFLAG_POISON | DND_DAMAGETICFLAG_INFLICTPOISON)) && !(tic_flags & DND_DAMAGETICFLAG_NOPOISONSTACK) && CheckAilmentImmunity(pnum, victim_data, DND_TOXICBLOOD)) {
 			// poison damage deals 10% of its damage per stack over 3 seconds
@@ -3030,9 +3424,6 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid, int firstEntry) {
 		Terminate;
 	}
 
-	if(HasActorMasteredPerk(source, STAT_ACRM) && random(0, 1.0) <= DND_ACRIMONY_RECOVERCHANCE)
-		HandleHealthPickup(DND_ACRIMONY_RECOVERPERCENT, 0, true, true);
-
 	temp = PlayerModData[pnum].vals[PSTAT_INC_POISONSPREAD];
 	if(random(1, 100) <= temp) {
 		// DONT USE PNUM FOR PLAYER ANYMORE HERE, SOURCE ALREADY HAS IT
@@ -3150,6 +3541,47 @@ Script "DnD Monster Chill" (int victim, int pnum) {
 
 	if(HasClassPerk_Fast(DND_PLAYER_WANDERER, 2))
 		RemoveMonsterAilment(victim, DND_AILMENT_CHILL);
+}
+
+// Martialist / Exhauster. A plain speed penalty with none of chill's meaning -- no stacks, no freeze
+// build-up, no ailment, no FX. Sources set DnD_SlowPercent to the strongest slow they want and
+// refresh DnD_SlowTimer; this owns the property and restores what it captured when the timer runs
+// out. The running token keeps one ticker per monster, so a second hit refreshes rather than
+// capturing an ALREADY SLOWED speed as the base and ratcheting the monster to a standstill.
+//
+// Chill is not routed through here yet: it captures and restores its own base in its own loop, so a
+// monster that is both chilled and slowed has whichever loop ticks last decide its speed. Unifying
+// the two is the right fix and wants doing the next time chill is touched.
+Script "DnD Monster Slow Ticker" (int victim) {
+	if(CheckActorInventory(victim, "DnD_SlowTickerRunning"))
+		Terminate;
+
+	GiveActorInventory(victim, "DnD_SlowTickerRunning", 1);
+	int base_speed = GetActorProperty(victim, APROP_SPEED);
+
+	while(CheckActorInventory(victim, "DnD_SlowTimer") && isActorAlive(victim)) {
+		SetActorProperty(victim, APROP_SPEED,
+			base_speed * (100 - CheckActorInventory(victim, "DnD_SlowPercent")) / 100);
+		Delay(const:TICRATE);
+		TakeActorInventory(victim, "DnD_SlowTimer", 1);
+	}
+
+	SetActorProperty(victim, APROP_SPEED, base_speed);
+	SetActorInventory(victim, "DnD_SlowPercent", 0);
+	TakeActorInventory(victim, "DnD_SlowTickerRunning", 1);
+}
+
+// Martialist / Cranium Bash. The Stunned state on DnD_BaseMonster loops while StunDurationCounter is
+// non-zero and nothing in DECORATE decrements it, so the countdown has to live here. Clearing it on
+// death matters: the state machine is gone by then and a stale counter would stun the next monster
+// to reuse the tid.
+Script "DnD Monster Stun Ticker" (int victim) {
+	while(CheckActorInventory(victim, "StunDurationCounter") && isActorAlive(victim)) {
+		TakeActorInventory(victim, "StunDurationCounter", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(victim, "StunDurationCounter", 0);
 }
 
 Script "DnD Bleed FX" (int tid, int isRobot) CLIENTSIDE {
@@ -3271,6 +3703,19 @@ Script "DnD Monster Bleed (Player)" (int victim, int wepid, int dmg) {
 	bool isRobot = IsActorFullRobotic(victim);
 	bool isMoving = false;
 
+	// Martialist / Flesh Carver. "Deals damage faster" shortens the interval rather than raising the
+	// damage, so the percentage divides. Was Delay(const:DND_BLEED_TICRATE - 2) -- a const delay
+	// cannot vary, which is why this is computed once here and the delay below is now dynamic.
+	//
+	// The two tics spent on the movement check below come out of the interval, so the floor is 3: any
+	// lower and the delay argument goes to zero and the loop stops yielding.
+	int bleed_rate = DND_BLEED_TICRATE;
+	if(IsMeleeWeapon(wepid)) {
+		int faster = PlayerModData[pnum].vals[PSTAT_BLEEDRATE_MELEE];
+		if(faster > 0)
+			bleed_rate = Max(3, (bleed_rate * 100) / (100 + faster));
+	}
+
 	do {
 		// monsters dont set velxyz fields, so check prev pos vs curr pos for delta -- for extra guarantee on this specific thing, checking for 2 tic window instead
 		isMoving = false;
@@ -3306,7 +3751,7 @@ Script "DnD Monster Bleed (Player)" (int victim, int wepid, int dmg) {
 		}
 
 		// x 5
-		Delay(const:DND_BLEED_TICRATE - 2);
+		Delay(bleed_rate - 2);
 
 		// Decrement only after the delay, as in the ignite loop. The timer is still what this loop
 		// tests, so the decrement, the test and the teardown have to stay in one uninterrupted step.
@@ -3330,10 +3775,6 @@ Script "DnD Monster Bleed (Player)" (int victim, int wepid, int dmg) {
 	// in FactorResists, so that fed straight into damage. Every other ailment loop pairs these.
 	if(HasActorClassPerk_Fast(source, DND_PLAYER_WANDERER, 2))
 		RemoveMonsterAilment(victim, DND_AILMENT_BLEED);
-
-	if(!IsActorAlive(victim) && HasActorMasteredPerk(source, STAT_ACRM) && random(0, 1.0) <= DND_ACRIMONY_RECOVERCHANCE) {
-		HandleHealthPickup(DND_ACRIMONY_RECOVERPERCENT, 0, true, true);
-	}
 
 	SetActorInventory(victim, "DnD_BleedTimer", 0);
 	SetActorInventory(victim, "DnD_CurrentBleedDamage", 0);
@@ -3428,9 +3869,6 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int tick_dmg)
 		Terminate;
 	}
 
-	if(HasActorMasteredPerk(source, STAT_ACRM) && random(0, 1.0) <= DND_ACRIMONY_RECOVERCHANCE)
-		HandleHealthPickup(DND_ACRIMONY_RECOVERPERCENT, 0, true, true);
-	
 	// find N closest targets to victim for igniting
 	//printbold(d:canProlif, s: " ", d:!IsActorAlive(victim), s: " ", d:CheckIgniteProlifChance(pnum));
 	if((ign_flags & DND_IGNITEFLAG_CANPROLIF) && CheckIgniteProlifChance(pnum)) {
@@ -3857,8 +4295,46 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	if(temp)
 		mult = CombineFactors(mult, (temp << 16) / 100);
 
+	// Elusive's avoidance. Folded into the same dodge the perk-side avoidance uses, and scaled by how
+	// much of the effect is left -- that decay is the whole character of Elusive.
+	// Placed with the damage-taken block rather than in GetDodgeChance because the scaling needs the
+	// remaining duration, which is a token read rather than a stat.
+
+	// Endurance / Wind Dancer. The token means "a mitigation happened recently", so the perk pays
+	// while it is ABSENT -- naming it for the event rather than for the perk keeps that readable.
+	temp = PlayerModData[pnum].vals[PSTAT_UNMITIGATED_LESSDMG];
+	if(temp && !isDot && !CheckActorInventory(pnum + P_TIDSTART, "DnD_MitigatedRecently"))
+		mult = CombineFactors(mult, -((temp << 16)) / 100);
+
+	// Acrobacy / Kinetic Pads. "Until dash is available" is literally the cooldown, so that is what
+	// it tests rather than the shared recently-dashed window.
+	temp = PlayerModData[pnum].vals[PSTAT_DASH_LESSDMGTAKEN];
+	if(temp && CheckActorInventory(pnum + P_TIDSTART, "DnD_PerkDashCooldown"))
+		mult = CombineFactors(mult, -((temp << 16)) / 100);
+
+	// Endurance / Stone Skin. Same idiom as the overheat reduction above -- a negative factor into
+	// mult, so it combines with every other less-multiplier instead of stacking additively. Gated on
+	// isDot because it is the whole point of the perk, and isDot already covers both the damage string
+	// and the type flag.
+	if(isDot) {
+		temp = PlayerModData[pnum].vals[PSTAT_DOT_DMGTAKEN_REDUCE];
+		if(temp)
+			mult = CombineFactors(mult, -((temp << 16)) / 100);
+	}
+
 	if(m_id != -1 && HasMonsterTrait(m_id, DND_PENETRATOR))
 		res_bonus += DND_PENETRATOR_PIERCE;
+
+	// Cunning / Surging Vitality. Same field the penetrator trait uses, opposite sign -- one is a
+	// resistance the player gains and the other one the monster removes, and they belong in the same
+	// sum so they cancel rather than each applying to a different number.
+	//
+	// Physical and elemental only, per the perk. res_to_apply is settled above, so the type test is
+	// just reading which one it landed on.
+	if((temp = PlayerModData[pnum].vals[PSTAT_FLASK_RESISTBONUS]) &&
+		(res_to_apply == DND_PRESIST_PHYS || res_to_apply == DND_PRESIST_ELEM) &&
+		CheckActorInventory(pnum + P_TIDSTART, "DnD_FlaskEffectTimer"))
+		res_bonus += temp << 16;
 
 	// A hit is normally one damage type the whole way down, and for that case there is exactly one
 	// portion here and everything below reduces to what it has always been. A monster with a touch
@@ -4263,6 +4739,11 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 	if(!is_dot && CouldMitigateDamage(pnum)) {
 		temp = GetMitigationEffect(pnum);
 		dmg = dmg * ((100.0 - temp) >> 16) / 100;
+
+		// Endurance / Wind Dancer reads this to know a mitigation happened. Set where the mitigation
+		// actually LANDS rather than where the chance is rolled, so a failed roll does not count.
+		SetInventory("DnD_MitigatedRecently", DND_WINDDANCER_TICS);
+		ACS_NamedExecuteAlways("DnD Mitigated Recently Timer", 0, pnum + P_TIDSTART);
 
 		// only cooldown for sound because apparently localambientsound does not respect sound limits
 		if(!CheckInventory("DnD_MitigationCooldown")) {
@@ -5004,8 +5485,18 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				}
 			}
 
-			if(isRipper)
+			if(isRipper) {
 				dmg >>= 1;
+
+				// Endurance / Dense Exoskeleton. ACS cannot set an actor flag in Zandronum, so the window
+				// is opened by a CustomInventory whose pickup state flips DONTRIP on the owner and a
+				// second one that flips it back.
+				int riptemp = PlayerModData[pnum].vals[PSTAT_RIPIMMUNE_TICS];
+				if(riptemp && random(1, 100) <= riptemp && !CheckActorInventory(victim, "DnD_RipImmuneTimer")) {
+					SetActorInventory(victim, "DnD_RipImmuneTimer", DND_RIPIMMUNE_TICS);
+					ACS_NamedExecuteAlways("DnD Rip Immunity", 0, victim);
+				}
+			}
 				
 			// halved by demon sealer effect if any
 			if(CheckActorInventory(shooter, "DemonSealDamageDebuff"))
@@ -5024,7 +5515,13 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 						!(dmg_data & (DND_DAMAGETYPEFLAG_EXPLOSIVE | DND_DAMAGETYPEFLAG_HITSCAN | DND_DAMAGETYPEFLAG_DOT)) && !isDot && arg2 != "Melee" && HasPlayerBuff(pnum, BTI_PHASING)
 					) ||
 					(
-						GetDodgeChance(pnum) >= random(0.01, 100.0) && !(dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE)
+						// BUGFIX: dodge applied to damage over time, which it was never meant to. There is
+						// nothing to dodge out of the way of on a bleed or ignite tic, and every source that
+						// feeds this -- mitigation-to-dodge and Acrobacy's Evasive Maneuvers alike -- reads as
+						// a periodic damage reduction while it does. Excluded here rather than inside
+						// GetDodgeChance because the chance is a property of the PLAYER; whether a given hit
+						// can be dodged at all belongs to the hit.
+						!isDot && GetDodgeChance(pnum) >= random(0.01, 100.0) && !(dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE)
 					)
 				)
 				{
@@ -5051,6 +5548,12 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					Thing_ChangeTID(AUX_PARRY_TID + pnum, 0);
 
 					GiveActorInventory(victim, "DnD_ParryDamageReduction", 1);
+
+					// Martialist / Flash Parry. Here because this branch IS a successful parry -- the
+					// projectile is consumed a few lines below, so reaching this point is the event the
+					// perk describes.
+					if(PlayerModData[pnum].vals[PSTAT_PARRY_SHOCKDMG])
+						ACS_NamedExecuteAlways("DnD Flash Parry Shockwave", 0, victim, pnum);
 
 					// remove the projectile or attack that hit us if it's not a monster!!
 					SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
@@ -5215,6 +5718,14 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 						SetActorInventory(victim, "DnD_ParryWeaknessTimer", GetPlayerParryWeakenTimer(pnum, victim));
 						if(!CheckActorInventory(victim, "DnD_ParryWeakness")) {
 							GiveActorInventory(victim, "DnD_ParryWeakness", 1);
+
+							// Martialist / Expose Weakness rides the same parry that applies the weakness
+							// above, so the two cannot disagree about what counts as a successful parry.
+							if((temp = PlayerModData[pnum].vals[PSTAT_PARRY_RESISTREDUCE])) {
+								SetActorInventory(victim, "DnD_ExposedResists", temp);
+								SetActorInventory(victim, "DnD_ExposedTimer", DND_EXPOSEWEAKNESS_TICS);
+								ACS_NamedExecuteAlways("DnD Expose Weakness Timer", 0, victim);
+							}
 							ACS_NamedExecuteWithResult("DnD Parry Weakness Time", victim);
 						}
 					}
@@ -5365,9 +5876,26 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 						else if(IsOnLowStamina())
 							dmg = dmg * (100 - DND_LOWSTAMINA_FACTOR) / 100;
 						
+						// Martialist / Ramping Assault. Reads the count BEFORE HandleMeleeSubTypeEffects bumps
+						// it, so the bonus lands on the hit that completes the run rather than the one after.
+						int ramp = 0;
+						if(PlayerModData[pnum].vals[PSTAT_RAMPING_HITS] &&
+							CheckActorInventory(victim, "DnD_RampingHits") + 1 >= PlayerModData[pnum].vals[PSTAT_RAMPING_HITS])
+							ramp = PlayerModData[pnum].vals[PSTAT_RAMPING_BONUS];
+
+						// Acrobacy / Swift Reflexes. Consumed HERE rather than in the post-damage hook, because it
+						// has to be spent by the hit it buffs -- reading it after the fact would let one armed flag
+						// boost a second swing.
+						int swift = 0;
+						if(CheckActorInventory(pnum + P_TIDSTART, "DnD_SwiftReflexesReady")) {
+							swift = PlayerModData[pnum].vals[PSTAT_DASH_MELEEBONUS];
+							SetActorInventory(pnum + P_TIDSTART, "DnD_SwiftReflexesReady", 0);
+						}
+
 						dmg = dmg * (
 							100 + 
 							PlayerModData[pnum].vals[PSTAT_MELEEDAMAGE] + 
+							swift + ramp + 
 							CheckActorInventory(victim, "DnD_ParryWeakness") * DND_PARRY_DAMAGEWEAKNESS
 						) / 100;
 
@@ -5436,8 +5964,16 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					isReflected = CheckInventory("DnD_RipCount");
 					isArmorPiercing = CheckInventory("DnD_RipLimit");
 					// if we reach ripcount and we aren't a "super ripper"
-					if(isArmorPiercing != MAX_RIPCOUNT && (HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_HARDENED_SKIN) || isReflected >= isArmorPiercing))
-						GiveInventory("TakeRipperAway", 1);
+					// Perception / Unstoppable Force. Only the HARDENED SKIN half of this is a chance --
+					// the other half is the ripper running out of rips, which the perk says nothing about
+					// and which would be unbounded piercing if it could be skipped.
+					if(isArmorPiercing != MAX_RIPCOUNT && (HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_HARDENED_SKIN) || isReflected >= isArmorPiercing)) {
+						int survive = PlayerModData[pnum].vals[PSTAT_RIPPER_SURVIVECHANCE];
+						bool skinned = HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_HARDENED_SKIN) && isReflected < isArmorPiercing;
+
+						if(!skinned || !survive || random(1, 100) > survive)
+							GiveInventory("TakeRipperAway", 1);
+					}
 					isArmorPiercing = PlayerModData[pnum].vals[PSTAT_RIPDAMAGE];
 					dmg = dmg * (100 + isArmorPiercing * isReflected) / 100;
 				}
@@ -5484,6 +6020,11 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					(dmg_data & DND_DAMAGEFLAG_ISMELEE) && 
 						(
 							HasActorClassPerk_Fast(shooter, DND_PLAYER_BERSERKER, 3) || 
+							// Martialist / Echoing Strikes joins this roll rather than adding a second one --
+							// two rolls would let one hit splash twice. It is deliberately NOT gated on
+							// stamina: that condition belongs to the mod whose slot sits beside it, not to a
+							// perk that never mentions stamina.
+							(PlayerModData[pnum].vals[PSTAT_MELEESPLASH_CHANCE] >= random(1, 100)) ||
 							(!IsOnLowStamina() && PlayerModData[pnum].vals[PSTAT_MELEESPLASH_NOTONLOWSTAMINA] >= random(1, 100)) ||
 							(ox = CheckPlayerCleave(pnum))
 						)
@@ -5502,6 +6043,11 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					SetActorProperty(0, APROP_STAMINA, dmg_data ^ DND_DAMAGEFLAG_ISMELEE);
 
 					arg2 = GetPlayerMeleeRange(pnum, DND_BERSERKER_PERK40_SPLASHRADIUS);
+
+					// Martialist / Fervent Reach. After GetPlayerMeleeRange, so it compounds with melee
+					// range the way "splash effects can occur further" reads -- reach extending reach.
+					if((temp = PlayerModData[pnum].vals[PSTAT_MELEESPLASH_RANGE]))
+						arg2 = arg2 * (100 + temp) / 100;
 
 					if(inflictor_class == "ThunderAxePuff") {
 						inflictor_class = "ThunderAxePuff_NoChain";

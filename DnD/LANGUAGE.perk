@@ -1,0 +1,450 @@
+[enu default]
+
+// Perk names and descriptions. Generated from Perk_Notes/ so the two cannot drift -- if a
+// perk is renamed there, regenerate rather than editing here. The same pass writes the key
+// table GetPerkLangKey in DnD_Perks.h, which is how the menu reaches these strings.
+//
+// <ID>      the name shown in the tree
+// <ID>_DESC what one point does
+// <ID>_PER  what each further point adds, absent for one-point perks
+// <ID>_REQ  the Requires clause, absent when there is none
+
+// The archetype names the tree menu heads each page with. Kept beside the perks rather than
+// in LANGUAGE.menu because they name tree data, not menu furniture.
+PERK_ARCH_ACRO                           = "Acrobacy";
+PERK_ARCH_ASSN                           = "Assassination";
+PERK_ARCH_CUN                            = "Cunning";
+PERK_ARCH_END                            = "Endurance";
+PERK_ARCH_MART                           = "Martialist";
+PERK_ARCH_PERC                           = "Perception";
+PERK_ARCH_TORM                           = "Tormentor";
+
+
+// ================= Acrobacy =================
+PERK_ACRO_TACTICALDASH                   = "Tactical Dash";
+PERK_ACRO_TACTICALDASH_DESC              = "Unlocks short range dash with 6 seconds cooldown.";
+PERK_ACRO_TACTICALDASH_PER               = "10% reduced cooldown.";
+
+PERK_ACRO_KINETICPADS                    = "Kinetic Pads";
+PERK_ACRO_KINETICPADS_DESC               = "After dashing, take 5% less damage until dash is available.";
+PERK_ACRO_KINETICPADS_PER                = "2.5% less damage bonus";
+PERK_ACRO_KINETICPADS_REQ                = "Tactical Dash (1)";
+
+PERK_ACRO_SWIFTREFLEXES                  = "Swift Reflexes";
+PERK_ACRO_SWIFTREFLEXES_DESC             = "The next melee attack you do after dashing within 4 seconds does 10% more damage.";
+PERK_ACRO_SWIFTREFLEXES_PER              = "5% damage bonus";
+PERK_ACRO_SWIFTREFLEXES_REQ              = "Tactical Dash (1)";
+
+PERK_ACRO_ENHANCEDJOINTS                 = "Enhanced Joints";
+PERK_ACRO_ENHANCEDJOINTS_DESC            = "Dash range increases by 15%.";
+PERK_ACRO_ENHANCEDJOINTS_REQ             = "Tactical Dash (1)";
+
+PERK_ACRO_EVASIVEMANEUVERS               = "Evasive Maneuvers";
+PERK_ACRO_EVASIVEMANEUVERS_DESC          = "Dashing grants 5% chance to avoid taking damage from direct hits for 3 seconds.";
+PERK_ACRO_EVASIVEMANEUVERS_PER           = "0.5 second buff duration, 2.5% chance to avoid";
+PERK_ACRO_EVASIVEMANEUVERS_REQ           = "Tactical Dash (1), Enhanced Joints (1)";
+
+PERK_ACRO_CRASHCOURSE                    = "Crash Course";
+PERK_ACRO_CRASHCOURSE_DESC               = "Dashing into an enemy stuns them for 1.5 seconds and deals 300 (+Knockback Resist + 0.025 STR + 0.025 DEX) damage.";
+PERK_ACRO_CRASHCOURSE_PER                = "0.25 second stun duration.";
+PERK_ACRO_CRASHCOURSE_REQ                = "Tactical Dash (1), Kinetic Pads (1)";
+
+PERK_ACRO_UNENDINGRUSH                   = "Unending Rush";
+PERK_ACRO_UNENDINGRUSH_DESC              = "Killing an enemy within the second of dashing refreshes dash cooldown.";
+PERK_ACRO_UNENDINGRUSH_REQ               = "Crash Course (1)";
+
+PERK_ACRO_THUMPER                        = "Thumper";
+PERK_ACRO_THUMPER_DESC                   = "Landing from a great height creates a small shockwave around you dealing 100 (+0.05 STR) physical damage in 160 unit radius.";
+PERK_ACRO_THUMPER_PER                    = "25% increased damage and radius.";
+
+PERK_ACRO_HEADSTART                      = "Head Start";
+PERK_ACRO_HEADSTART_DESC                 = "Gain a 10% movement speed bonus for 3 seconds after landing from a great height.";
+PERK_ACRO_HEADSTART_PER                  = "2.5% movement speed and 0.5 second duration";
+PERK_ACRO_HEADSTART_REQ                  = "Thumper (1)";
+
+PERK_ACRO_ALLSHAKINGPRESENCE             = "All-shaking Presence";
+PERK_ACRO_ALLSHAKINGPRESENCE_DESC        = "Enemies hurt by Thumper take 10% increased damage for 5 seconds.";
+PERK_ACRO_ALLSHAKINGPRESENCE_PER         = "1 second debuff duration";
+PERK_ACRO_ALLSHAKINGPRESENCE_REQ         = "Thumper (1)";
+
+PERK_ACRO_ADRENALINE                     = "Adrenaline";
+PERK_ACRO_ADRENALINE_DESC                = "Regenerate 10% of your health after killing an enemy affected by All-shaking Presence, occuring only once every 10 seconds.";
+PERK_ACRO_ADRENALINE_REQ                 = "All-shaking Presence (1)";
+
+PERK_ACRO_AUGMENTEDFOOTPADS              = "Augmented Footpads";
+PERK_ACRO_AUGMENTEDFOOTPADS_DESC         = "Gain 2% movement speed.";
+PERK_ACRO_AUGMENTEDFOOTPADS_PER          = "1% movement speed.";
+
+PERK_ACRO_TAILWIND                       = "Tailwind";
+PERK_ACRO_TAILWIND_DESC                  = "Running past other players or monsters grants 15% movement speed with a 10 second cooldown.";
+PERK_ACRO_TAILWIND_PER                   = "-1 to cooldown.";
+PERK_ACRO_TAILWIND_REQ                   = "Augmented Footpads (1)";
+
+PERK_ACRO_NIMBLENESS                     = "Nimbleness";
+PERK_ACRO_NIMBLENESS_DESC                = "Gain 1% mitigation chance for every 3 seconds you've run without pause, up to 25%. Lose all bonus on stopping.";
+PERK_ACRO_NIMBLENESS_PER                 = "+0.5 mitigation chance.";
+PERK_ACRO_NIMBLENESS_REQ                 = "Augmented Footpads (1)";
+
+
+// ================= Assassination =================
+PERK_ASSN_BACKSTAB                       = "Backstab";
+PERK_ASSN_BACKSTAB_DESC                  = "Hitting enemies while their back is turned gives +2% to crit chance.";
+PERK_ASSN_BACKSTAB_PER                   = "1% crit chance.";
+
+PERK_ASSN_DEADLINESS                     = "Deadliness";
+PERK_ASSN_DEADLINESS_DESC                = "Attacks gain 1% crit chance.";
+PERK_ASSN_DEADLINESS_PER                 = "1.5% crit chance.";
+
+PERK_ASSN_PREPARATION                    = "Preparation";
+PERK_ASSN_PREPARATION_DESC               = "Gain 50% increased crit chance if you haven't landed a critical hit in the last 5 seconds.";
+PERK_ASSN_PREPARATION_REQ                = "Backstab (1) OR Deadliness (1)";
+
+PERK_ASSN_BIGGAMEHUNTER                  = "Big Game Hunter";
+PERK_ASSN_BIGGAMEHUNTER_DESC             = "10% crit multiplier against boss enemies.";
+PERK_ASSN_BIGGAMEHUNTER_PER              = "10% added crit multiplier.";
+PERK_ASSN_BIGGAMEHUNTER_REQ              = "Backstab (1) OR Deadliness (1)";
+
+PERK_ASSN_BANEOFLEGENDS                  = "Bane of Legends";
+PERK_ASSN_BANEOFLEGENDS_DESC             = "+5% to crit chance and 30% to crit multiplier against elites and uniques.";
+
+PERK_ASSN_OPENINGSALVO                   = "Opening Salvo";
+PERK_ASSN_OPENINGSALVO_DESC              = "Enemies at full life are 15% more susceptible to crits.";
+PERK_ASSN_OPENINGSALVO_PER               = "+5% additional susceptability.";
+
+PERK_ASSN_ERADICATION                    = "Eradication";
+PERK_ASSN_ERADICATION_DESC               = "Enemies that die to a crit don't trigger on-death effects.";
+
+PERK_ASSN_QUICKGETAWAY                   = "Quick Getaway";
+PERK_ASSN_QUICKGETAWAY_DESC              = "Landing a crit gives 5% movement speed for 3 seconds.";
+PERK_ASSN_QUICKGETAWAY_PER               = "1% movement speed bonus.";
+
+PERK_ASSN_MASTEROFSHADOWS                = "Master of Shadows";
+PERK_ASSN_MASTEROFSHADOWS_DESC           = "Standing in dark areas grant 25% increased crit chance.";
+PERK_ASSN_MASTEROFSHADOWS_PER            = "25% crit chance bonus.";
+
+PERK_ASSN_PLANNEDEXECUTION               = "Planned Execution";
+PERK_ASSN_PLANNEDEXECUTION_DESC          = "Precision weapons have +5% to crit chance.";
+PERK_ASSN_PLANNEDEXECUTION_REQ           = "Quick Getaway (1) OR Master of Shadows (1)";
+
+PERK_ASSN_STEADYSHOT                     = "Steady Shot";
+PERK_ASSN_STEADYSHOT_DESC                = "Standing still grants +10% to crit multiplier for each second, up to 100%.";
+PERK_ASSN_STEADYSHOT_PER                 = "5% to crit multiplier bonus.";
+PERK_ASSN_STEADYSHOT_REQ                 = "Quick Getaway (1) OR Master of Shadows (1)";
+
+PERK_ASSN_PRESSUREPOINTS                 = "Pressure Points";
+PERK_ASSN_PRESSUREPOINTS_DESC            = "Your critical strikes expose weakness of enemies for 5 seconds, making them take 10% more damage from the damage type the crit was from.";
+PERK_ASSN_PRESSUREPOINTS_PER             = "+2.5% damage increase.";
+PERK_ASSN_PRESSUREPOINTS_REQ             = "Quick Getaway (1) OR Master of Shadows (1)";
+
+PERK_ASSN_MERCYKILL                      = "Mercy Kill";
+PERK_ASSN_MERCYKILL_DESC                 = "Enemies on low life are 10% more susceptible to crits.";
+PERK_ASSN_MERCYKILL_PER                  = "2.5% additional susceptability.";
+
+PERK_ASSN_DANCEWITHDEATH                 = "Dance with Death";
+PERK_ASSN_DANCEWITHDEATH_DESC            = "10% chance to gain Elusive on crit. (Elusive grants 30% movement speed and 25% chance to avoid damage from hits, rapidly decaying from 100% effect to 0%. Can't gain Elusive until it wears off)";
+PERK_ASSN_DANCEWITHDEATH_PER             = "2.5% chance to gain Elusive.";
+
+
+// ================= Cunning =================
+PERK_CUN_POTENTSALVE                     = "Potent Salve";
+PERK_CUN_POTENTSALVE_DESC                = "33% chance to remove a random ailment from you on flask use.";
+PERK_CUN_POTENTSALVE_PER                 = "33% chance.";
+
+PERK_CUN_EFFICIENTRECYCLING              = "Efficient Recycling";
+PERK_CUN_EFFICIENTRECYCLING_DESC         = "15% increased flask charges gained on kill.";
+PERK_CUN_EFFICIENTRECYCLING_PER          = "15% increased charges gained.";
+
+PERK_CUN_ENRICHEDMINERALS                = "Enriched Minerals";
+PERK_CUN_ENRICHEDMINERALS_DESC           = "Utility flasks gain 15% increased flask effect duration.";
+PERK_CUN_ENRICHEDMINERALS_PER            = "15% increased flask effect duration.";
+PERK_CUN_ENRICHEDMINERALS_REQ            = "Potent Salve or Efficient Recycling";
+
+PERK_CUN_SURGINGVITALITY                 = "Surging Vitality";
+PERK_CUN_SURGINGVITALITY_DESC            = "Gain 5% to physical and elemental resistances during any flask effect.";
+PERK_CUN_SURGINGVITALITY_PER             = "5% additional resistance.";
+PERK_CUN_SURGINGVITALITY_REQ             = "Potent Salve or Efficient Recycling";
+
+PERK_CUN_DESPERATEMEASURES               = "Desperate Measures";
+PERK_CUN_DESPERATEMEASURES_DESC          = "25% chance for flasks to not consume any charges while on low life.";
+
+PERK_CUN_OVERFLOWINGRESERVES             = "Overflowing Reserves";
+PERK_CUN_OVERFLOWINGRESERVES_DESC        = "10% chance to fill 50% of your flask charges on killing enemies with ailments.";
+PERK_CUN_OVERFLOWINGRESERVES_PER         = "10% additional chance.";
+PERK_CUN_OVERFLOWINGRESERVES_REQ         = "Potent Salve or Efficient Recycling";
+
+PERK_CUN_SPIKEDCONCOCTION                = "Spiked Concoction";
+PERK_CUN_SPIKEDCONCOCTION_DESC           = "Enemies hit while under flask effects take 5% increased damage per stack, up to 20% for 3 seconds.";
+PERK_CUN_SPIKEDCONCOCTION_PER            = "1 second duration.";
+
+PERK_CUN_DEEPWISDOM                      = "Deep Wisdom";
+PERK_CUN_DEEPWISDOM_DESC                 = "You can gain experience from any kill regardless of distance.";
+
+PERK_CUN_ENDLESSGREED                    = "Endless Greed";
+PERK_CUN_ENDLESSGREED_DESC               = "You can gain credits from any kill regardless of distance.";
+
+PERK_CUN_ENDURINGCOMPOSURE               = "Enduring Composure";
+PERK_CUN_ENDURINGCOMPOSURE_DESC          = "Endurance charges last 20% longer.";
+PERK_CUN_ENDURINGCOMPOSURE_PER           = "15% duration.";
+
+PERK_CUN_LASTINGFRENZY                   = "Lasting Frenzy";
+PERK_CUN_LASTINGFRENZY_DESC              = "Frenzy charges last 20% longer.";
+PERK_CUN_LASTINGFRENZY_PER               = "15% duration.";
+
+PERK_CUN_ASTOUNDINGPOWER                 = "Astounding Power";
+PERK_CUN_ASTOUNDINGPOWER_DESC            = "Power charges last 20% longer.";
+PERK_CUN_ASTOUNDINGPOWER_PER             = "15% duration.";
+
+PERK_CUN_DISCIPLEOFTHEUNYIELDING         = "Disciple of the Unyielding";
+PERK_CUN_DISCIPLEOFTHEUNYIELDING_DESC    = "8% chance to gain an Endurance Charge on kill.";
+PERK_CUN_DISCIPLEOFTHEUNYIELDING_REQ     = "any charge related point";
+
+PERK_CUN_DISCIPLEOFTHESLAUGHTER          = "Disciple of the Slaughter";
+PERK_CUN_DISCIPLEOFTHESLAUGHTER_DESC     = "8% chance to gain a Frenzy Charge on kill.";
+PERK_CUN_DISCIPLEOFTHESLAUGHTER_REQ      = "any charge related point";
+
+PERK_CUN_DISCIPLEOFTHEFORBIDDEN          = "Disciple of the Forbidden";
+PERK_CUN_DISCIPLEOFTHEFORBIDDEN_DESC     = "8% chance to gain a Power Charge on kill.";
+PERK_CUN_DISCIPLEOFTHEFORBIDDEN_REQ      = "any charge related point";
+
+PERK_CUN_MASTEROFRESILIENCE              = "Master of Resilience";
+PERK_CUN_MASTEROFRESILIENCE_DESC         = "+1 to maximum Endurance charges.";
+PERK_CUN_MASTEROFRESILIENCE_REQ          = "any charge related point";
+
+PERK_CUN_MASTEROFFEROCITY                = "Master of Ferocity";
+PERK_CUN_MASTEROFFEROCITY_DESC           = "+1 to maximum Frenzy charges.";
+PERK_CUN_MASTEROFFEROCITY_REQ            = "any charge related point";
+
+PERK_CUN_MASTEROFTHEARCANE               = "Master of the Arcane";
+PERK_CUN_MASTEROFTHEARCANE_DESC          = "+1 to maximum Power charges.";
+PERK_CUN_MASTEROFTHEARCANE_REQ           = "any charge related point";
+
+
+// ================= Endurance =================
+PERK_END_PHYSICIAN                       = "Physician";
+PERK_END_PHYSICIAN_DESC                  = "50% chance to remove poison and bleeding when using healing items.";
+PERK_END_PHYSICIAN_PER                   = "25% added chance.";
+
+PERK_END_UNWAVERINGSTANCE                = "Unwavering Stance";
+PERK_END_UNWAVERINGSTANCE_DESC           = "200 knockback resist and 5% health.";
+PERK_END_UNWAVERINGSTANCE_PER            = "Additional 200 knockback resist and 5% health.";
+
+PERK_END_MEDIC                           = "Medic";
+PERK_END_MEDIC_DESC                      = "20% increased effect of healing on you.";
+PERK_END_MEDIC_PER                       = "20% additional effect of healing on you.";
+
+PERK_END_VIGOUR                          = "Vigour";
+PERK_END_VIGOUR_DESC                     = "Gain 2 health regeneration per second up to your regeneration cap.";
+PERK_END_VIGOUR_PER                      = "2 health regeneration per second.";
+
+PERK_END_RESTLESSVITALITY                = "Restless Vitality";
+PERK_END_RESTLESSVITALITY_DESC           = "Life regeneration is not paused by damage over time effects.";
+PERK_END_RESTLESSVITALITY_REQ            = "Physician or Vigour";
+
+PERK_END_INDOMITABLERESOLVE              = "Indomitable Resolve";
+PERK_END_INDOMITABLERESOLVE_DESC         = "When you are first afflicted by an ailment, prevent further ailments for the next 5 seconds.";
+PERK_END_INDOMITABLERESOLVE_REQ          = "Physician or Vigour";
+
+PERK_END_CAMOUFLAGE                      = "Camouflage";
+PERK_END_CAMOUFLAGE_DESC                 = "10% chance to avoid projectiles from homing in on you.";
+PERK_END_CAMOUFLAGE_PER                  = "10% additional chance to avoid.";
+
+PERK_END_DENSEEXOSKELETON                = "Dense Exoskeleton";
+PERK_END_DENSEEXOSKELETON_DESC           = "10% chance for rippers to not go through you.";
+PERK_END_DENSEEXOSKELETON_PER            = "10% additional chance.";
+
+PERK_END_STONESKIN                       = "Stone Skin";
+PERK_END_STONESKIN_DESC                  = "+15% reduced damage taken from damage over time.";
+PERK_END_STONESKIN_PER                   = "10% additional reduced damage taken from damage over time.";
+
+PERK_END_CRYSTALSKIN                     = "Crystal Skin";
+PERK_END_CRYSTALSKIN_DESC                = "+1.5% resistance cap.";
+PERK_END_CRYSTALSKIN_PER                 = "Additional 1.5% resistance cap.";
+
+PERK_END_ENHANCEDIRON                    = "Enhanced Iron";
+PERK_END_ENHANCEDIRON_DESC               = "10% increased armor.";
+PERK_END_ENHANCEDIRON_PER                = "Additional 10% increased armor.";
+
+PERK_END_FINESSE                         = "Finesse";
+PERK_END_FINESSE_DESC                    = "5% mitigation chance.";
+PERK_END_FINESSE_PER                     = "Additional 5% mitigation chance.";
+
+PERK_END_SHIELDING                       = "Shielding";
+PERK_END_SHIELDING_DESC                  = "5% increased energy shield.";
+PERK_END_SHIELDING_PER                   = "Additional 5% increased energy shield.";
+
+PERK_END_PERFECTSHELL                    = "Perfect Shell";
+PERK_END_PERFECTSHELL_DESC               = "8% chance to defend with twice your armor on hits.";
+PERK_END_PERFECTSHELL_PER                = "Additional 8% chance to defend with twice your armor on hits.";
+PERK_END_PERFECTSHELL_REQ                = "Enhanced Iron";
+
+PERK_END_WINDDANCER                      = "Wind Dancer";
+PERK_END_WINDDANCER_DESC                 = "10% less damage taken from hits if you haven't mitigated damage recently.";
+PERK_END_WINDDANCER_PER                  = "Additional 10% less damage taken.";
+PERK_END_WINDDANCER_REQ                  = "Finesse";
+
+PERK_END_HIDDENRESERVE                   = "Hidden Reserve";
+PERK_END_HIDDENRESERVE_DESC              = "Energy shield recharge can't be interrupted if it began recently, 40% reduced energy shield recharge rate.";
+PERK_END_HIDDENRESERVE_PER               = "Energy shield reduction is instead 25%.";
+PERK_END_HIDDENRESERVE_REQ               = "Shielding";
+
+
+// ================= Martialist =================
+PERK_MART_RAMPINGASSAULT                 = "Ramping Assault";
+PERK_MART_RAMPINGASSAULT_DESC            = "Every 6th melee hit on the same enemy deals 20% more damage.";
+PERK_MART_RAMPINGASSAULT_PER             = "-1 hits needed for the bonus damage.";
+
+PERK_MART_CRANIUMBASH                    = "Cranium Bash";
+PERK_MART_CRANIUMBASH_DESC               = "Blunt melee weapons have 3% chance to stun enemies on melee hit for 1.5 seconds.";
+PERK_MART_CRANIUMBASH_PER                = "3% additional chance to stun.";
+
+PERK_MART_ECHOINGSTRIKES                 = "Echoing Strikes";
+PERK_MART_ECHOINGSTRIKES_DESC            = "Melee attacks have 12.5% chance to splash around for 50% of the damage.";
+PERK_MART_ECHOINGSTRIKES_PER             = "12.5% chance.";
+PERK_MART_ECHOINGSTRIKES_REQ             = "Ramping Assault (1) or Cranium Bash (1)";
+
+PERK_MART_UNENDINGFURY                   = "Unending Fury";
+PERK_MART_UNENDINGFURY_DESC              = "Berserk's damage bonus applies to all melee weapons at 25% effect.";
+PERK_MART_UNENDINGFURY_PER               = "25% additional factor.";
+PERK_MART_UNENDINGFURY_REQ               = "Ramping Assault";
+
+PERK_MART_FERVENTREACH                   = "Fervent Reach";
+PERK_MART_FERVENTREACH_DESC              = "Melee splash effects can occur 20% further.";
+PERK_MART_FERVENTREACH_PER               = "20% additional splash distance.";
+PERK_MART_FERVENTREACH_REQ               = "Echoing Strikes";
+
+PERK_MART_BLADEMASTER                    = "Blademaster";
+PERK_MART_BLADEMASTER_DESC               = "Melee damage and range increase also applies to projectiles fired from melee weapons.";
+PERK_MART_BLADEMASTER_REQ                = "Deep Cuts OR Ramping Assault OR Cranium Bash";
+
+PERK_MART_EXHAUSTER                      = "Exhauster";
+PERK_MART_EXHAUSTER_DESC                 = "Melee hits have 15% chance to slow enemies hit by 20%.";
+PERK_MART_EXHAUSTER_PER                  = "+5% chance to slow.";
+
+PERK_MART_DEEPCUTS                       = "Deep Cuts";
+PERK_MART_DEEPCUTS_DESC                  = "Slashing melee hits have +15% chance to inflict bleeding on hit.";
+PERK_MART_DEEPCUTS_PER                   = "7.5% bleeding chance.";
+
+PERK_MART_QUICKDEADLY                    = "Quick & Deadly";
+PERK_MART_QUICKDEADLY_DESC               = "Slashing attacks repeat an additional time and are 33% faster.";
+PERK_MART_QUICKDEADLY_REQ                = "Deep Cuts";
+
+PERK_MART_SWIFTPRECISE                   = "Swift & Precise";
+PERK_MART_SWIFTPRECISE_DESC              = "Melee hits grant 10% movement speed per enemy hit up to 100% for 3 seconds.";
+
+PERK_MART_FLESHCARVER                    = "Flesh Carver";
+PERK_MART_FLESHCARVER_DESC               = "Bleed from melee hits deals damage 10% faster.";
+PERK_MART_FLESHCARVER_PER                = "10% faster damage.";
+PERK_MART_FLESHCARVER_REQ                = "Deep Cuts";
+
+PERK_MART_FLASHPARRY                     = "Flash Parry";
+PERK_MART_FLASHPARRY_DESC                = "Parrying projectiles releases a shockwave forward for a limited distance, dealing 100 + 5% max health damage to enemies.";
+PERK_MART_FLASHPARRY_PER                 = "50 base damage and 10% shockwave travel distance.";
+
+PERK_MART_RIPOSTE                        = "Riposte";
+PERK_MART_RIPOSTE_DESC                   = "Successful parries reduce subsequent parry costs by 10% up to a maximum of 30% within a 10 second window.";
+
+PERK_MART_EXPOSEWEAKNESS                 = "Expose Weakness";
+PERK_MART_EXPOSEWEAKNESS_DESC            = "Reduce enemy resists by 25% on parry damage for 15 seconds.";
+PERK_MART_EXPOSEWEAKNESS_PER             = "15% additional resist reduction.";
+
+PERK_MART_MARTIALFINESSE                 = "Martial Finesse";
+PERK_MART_MARTIALFINESSE_DESC            = "Melee hits on enemies reduce melee cooldowns by 8%.";
+PERK_MART_MARTIALFINESSE_PER             = "Additional 8% reduction.";
+PERK_MART_MARTIALFINESSE_REQ             = "Expose Weakness";
+
+PERK_MART_GRATUITOUSVIOLENCE             = "Gratuitous Violence";
+PERK_MART_GRATUITOUSVIOLENCE_DESC        = "Overkilling enemies grants rage.";
+PERK_MART_GRATUITOUSVIOLENCE_REQ         = "Expose Weakness OR Fervent Reach OR Swift & Precise";
+
+
+// ================= Perception =================
+PERK_PERC_MUNITIONIST                    = "Munitionist";
+PERK_PERC_MUNITIONIST_DESC               = "20% increased ammo gained from pickups.";
+PERK_PERC_MUNITIONIST_PER                = "Additional 15% increased ammo gained.";
+
+PERK_PERC_PLANB                          = "Plan B";
+PERK_PERC_PLANB_DESC                     = "After depleting your magazine fully, gain 10% increased movement speed for 3 seconds.";
+PERK_PERC_PLANB_PER                      = "Additional 10% movement speed.";
+
+PERK_PERC_EXCESSCONVERSION               = "Excess Conversion";
+PERK_PERC_EXCESSCONVERSION_DESC          = "Excess ammo from pickups is converted to another ammo type for a weapon you own at 15% rate.";
+PERK_PERC_EXCESSCONVERSION_PER           = "Conversion rate has an additional 10%.";
+
+PERK_PERC_FRESHCLIP                      = "Fresh Clip";
+PERK_PERC_FRESHCLIP_DESC                 = "Finishing a reload action empowers the next 5 shots to do 15% more damage.";
+PERK_PERC_FRESHCLIP_PER                  = "Empower lasts for an additional round.";
+PERK_PERC_FRESHCLIP_REQ                  = "Munitionist or Plan B";
+
+PERK_PERC_LUCKYBULLET                    = "Lucky Bullet";
+PERK_PERC_LUCKYBULLET_DESC               = "The very last round in your magazine/reserve has an additional +2.5% chance to crit and 25% crit multiplier.";
+PERK_PERC_LUCKYBULLET_PER                = "Additional 2.5% crit chance and 25% crit multiplier.";
+PERK_PERC_LUCKYBULLET_REQ                = "Munitionist or Plan B";
+
+PERK_PERC_SALVAGER                       = "Salvager";
+PERK_PERC_SALVAGER_DESC                  = "Enemies have 2% chance to drop ammo tokens, giving 10% ammo to a random weapon you own.";
+PERK_PERC_SALVAGER_REQ                   = "Munitionist or Plan B";
+
+PERK_PERC_SLEIGHTOFHAND                  = "Sleight of Hand";
+PERK_PERC_SLEIGHTOFHAND_DESC             = "Reload weapons 50% faster.";
+
+PERK_PERC_PRECISETECHNIQUE               = "Precise Technique";
+PERK_PERC_PRECISETECHNIQUE_DESC          = "Precision weapons get 15% increased damage.";
+PERK_PERC_PRECISETECHNIQUE_PER           = "15% additional damage.";
+
+PERK_PERC_FIREDUP                        = "Fired up";
+PERK_PERC_FIREDUP_DESC                   = "Automatic weapons get +1 additional damage.";
+PERK_PERC_FIREDUP_PER                    = "Additional +2 damage.";
+
+PERK_PERC_PUMPED                         = "Pumped";
+PERK_PERC_PUMPED_DESC                    = "Shotguns have +1 shell capacity.";
+PERK_PERC_PUMPED_PER                     = "Additional +1 shell capacity.";
+
+PERK_PERC_QUAKER                         = "Quaker";
+PERK_PERC_QUAKER_DESC                    = "Artillery weapons gain 10% increased radius.";
+PERK_PERC_QUAKER_PER                     = "Additional 10% increased radius.";
+
+PERK_PERC_DARKARTS                       = "Dark arts";
+PERK_PERC_DARKARTS_DESC                  = "Magic weapons deal 10% increased damage.";
+PERK_PERC_DARKARTS_PER                   = "Additional 15% damage.";
+
+PERK_PERC_SHARPSHOOTER                   = "Sharpshooter";
+PERK_PERC_SHARPSHOOTER_DESC              = "Precision weapons gain up to 30% more damage with distance, capped at 2048 units.";
+PERK_PERC_SHARPSHOOTER_REQ               = "Precise Technique";
+
+PERK_PERC_CEASELESSASSAULT               = "Ceaseless Assault";
+PERK_PERC_CEASELESSASSAULT_DESC          = "Enemies hit by your automatic weapons recently lose 2 to all resistances up to 20.";
+PERK_PERC_CEASELESSASSAULT_REQ           = "Fired up";
+
+PERK_PERC_BLASTIERSHOTS                  = "Blastier Shots";
+PERK_PERC_BLASTIERSHOTS_DESC             = "Gain an additional pellet for shotgun attacks.";
+PERK_PERC_BLASTIERSHOTS_REQ              = "Pumped";
+
+PERK_PERC_EARTHSHAKER                    = "Earthshaker";
+PERK_PERC_EARTHSHAKER_DESC               = "Artillery attacks gain 10% more damage and radius per continuous attack, up to 3 times.";
+PERK_PERC_EARTHSHAKER_REQ                = "Quaker";
+
+PERK_PERC_ESSENCETHEFT                   = "Essence Theft";
+PERK_PERC_ESSENCETHEFT_DESC              = "Enemies slain recently by magical attacks grant 2 magic pierce up to 10.";
+PERK_PERC_ESSENCETHEFT_REQ               = "Dark Arts";
+
+PERK_PERC_BASTIONBREAKER                 = "Bastion Breaker";
+PERK_PERC_BASTIONBREAKER_DESC            = "Hitting shielded enemies instead lets 15% of the damage go through.";
+PERK_PERC_BASTIONBREAKER_PER             = "Additional 15% damage goes through.";
+
+PERK_PERC_SHIELDSTEALER                  = "Shield stealer";
+PERK_PERC_SHIELDSTEALER_DESC             = "Killing shielded enemies recovers 5% of your energy shield.";
+PERK_PERC_SHIELDSTEALER_REQ              = "Bastion Breaker";
+
+PERK_PERC_UNSTOPPABLEFORCE               = "Unstoppable Force";
+PERK_PERC_UNSTOPPABLEFORCE_DESC          = "5% chance for rippers to not be destroyed on hitting 'Hardened Skin' enemies.";
+PERK_PERC_UNSTOPPABLEFORCE_PER           = "Additional 7.5% chance.";
+
+PERK_PERC_HEATSINKS                      = "Heatsinks";
+PERK_PERC_HEATSINKS_DESC                 = "Gain heatsink item to instantly reduce your overheat to 0 with a 45 second cooldown.";
+PERK_PERC_HEATSINKS_PER                  = "-5 second cooldown.";
+
+PERK_PERC_EMERGENCYPROTOCOL              = "Emergency Protocol";
+PERK_PERC_EMERGENCYPROTOCOL_DESC         = "Fully overheated weapons can continue firing for an extended 3 seconds.";
+
+
+// ---- Tormentor: nothing authored yet ----

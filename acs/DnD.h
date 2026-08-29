@@ -162,6 +162,116 @@ enum {
 #define SD_DASHSTRONG		12.0		// And dash speed whilst grounded
 #define SD_SOUNDVOLUME		1.0			// How loud the dash sound is played
 
+// Acrobacy / Tactical Dash. The ability dash uses DashDelay, a PowerProtection with a fixed 35 tic
+// duration baked into DECORATE. The perk dash needs a cooldown that shrinks with points, so it gets
+// its own counter driven from ACS rather than trying to vary a powerup's duration.
+//
+// A player holding BOTH keeps two independent cooldowns, which is intended: the ability recharges in
+// a second and the perk version in six, so they are not the same dash wearing one timer.
+#define DND_PERKDASH_COOLDOWN (6 * TICRATE)
+#define DND_PERKDASH_RECENT_TICS (4 * TICRATE)   // Swift Reflexes' window, and "recently" generally
+#define DND_PERKDASH_EVADE_TICS (3 * TICRATE)    // Evasive Maneuvers' base window
+#define DND_PERKDASH_KILLWINDOW TICRATE          // Unending Rush: "within the second of dashing"
+
+// Acrobacy / Crash Course. The dash is a velocity impulse rather than a moving hitbox ACS can watch,
+// so the collision is a short proximity sweep over the tics the impulse is actually carrying the
+// player -- past that they are walking, and walking into a monster is not crashing into it.
+#define DND_CRASHCOURSE_WATCHTICS 12
+#define DND_CRASHCOURSE_RADIUS 64.0
+#define DND_CRASHCOURSE_BASEDMG 300
+#define DND_CRASHCOURSE_STRFACTOR 0.025
+#define DND_CRASHCOURSE_DEXFACTOR 0.025
+
+// Acrobacy fall-impact cluster. "A great height" is a landing speed, not a distance: the engine
+// gives velocity for free every tic while a fall's origin would have to be tracked and would be
+// wrong the moment a lift or a teleport moved the floor.
+#define DND_THUMPER_MINFALLVEL -12.0
+#define DND_THUMPER_BASEDMG 100
+#define DND_THUMPER_BASERADIUS 160.0
+#define DND_THUMPER_STRFACTOR 0.05
+#define DND_ADRENALINE_COOLDOWN (10 * TICRATE)
+
+// Cunning flask cluster.
+#define DND_SPIKEDCONCOCTION_MAXSTACKS 4         // 5% a stack up to 20%
+#define DND_OVERFLOWING_REFILLPCT 50
+
+// Perception / Sharpshooter. The range the bonus reaches its full value at, from the notes.
+#define DND_SHARPSHOOTER_MAXRANGE 2048.0
+
+// Martialist / Swift & Precise. The notes cap the stack at 100% and give it three seconds.
+#define DND_SWIFTPRECISE_MAXSTACK 10
+#define DND_SWIFTPRECISE_TICS (3 * TICRATE)
+
+// Martialist / Expose Weakness. Fifteen seconds, from the notes.
+#define DND_EXPOSEWEAKNESS_TICS (15 * TICRATE)
+
+// Assassination.
+#define DND_QUICKGETAWAY_TICS (3 * TICRATE)
+#define DND_PREPARATION_DROUGHT (5 * TICRATE)    // "haven't landed a crit in the last 5 seconds"
+#define DND_PRESSUREPOINTS_TICS (5 * TICRATE)
+#define DND_STEADYSHOT_MAXSECONDS 10             // the notes cap the ramp at 100% on a 10% base
+
+// A target counts as facing away past this many degrees off the line to the attacker. 90 is the
+// literal reading of "back is turned" -- the rear hemisphere, not a narrow cone behind them.
+#define DND_BACKSTAB_ANGLE 90.0
+
+// Endurance / Wind Dancer. "Recently" is the mod's usual four seconds, per the General Notes.
+#define DND_WINDDANCER_TICS (4 * TICRATE)
+
+// Acrobacy / Nimbleness. Its ramp is per THREE seconds and caps at 25%, both from the notes.
+#define DND_NIMBLENESS_SECSPERSTACK 3
+#define DND_NIMBLENESS_CAP 25.0
+
+// Martialist / Riposte. Ten second window, capped at three stacks -- 10% each to the notes' 30%.
+#define DND_RIPOSTE_TICS (10 * TICRATE)
+#define DND_RIPOSTE_MAXSTACK 3
+
+// Rage, per the General Notes: 1% more attack damage a point to a cap of 30, falling to nothing in
+// three seconds once none is being gained. The cap lives on the DnD_Rage actor's maxamount; this is
+// the decay, which drains the whole bar over DND_RAGE_DECAYTIME however full it was -- "rapidly goes
+// down to 0 in 3 seconds" is a fixed emptying time, not a fixed rate.
+#define DND_RAGE_DAMAGEPER 1
+#define DND_RAGE_MAXSTACK 30
+#define DND_RAGE_DECAYTIME (3 * TICRATE)
+#define DND_RAGE_GRACE (1 * TICRATE)     // gained rage holds this long before the drain starts
+
+// Elusive, per the General Notes: 30% movement speed and 25% avoidance, decaying from full effect to
+// nothing, and unobtainable again until it has worn off.
+#define DND_ELUSIVE_SPEED 30
+#define DND_ELUSIVE_AVOID 25
+#define DND_ELUSIVE_TICS (5 * TICRATE)
+
+// "Overkill: Killing blow that did more than 30% of an enemy's maximum health."
+#define DND_OVERKILL_PERCENT 30
+
+// Perception / Plan B. Three seconds, from the notes.
+#define DND_PLANB_TICS (3 * TICRATE)
+
+// Martialist / Flash Parry. The shockwave is a forward sweep rather than a spawned actor: the
+// ParryAoE beside it carries its own damage and could not be scaled per perk without the actor
+// asking ACS what to do.
+#define DND_FLASHPARRY_BASERANGE 256.0
+#define DND_FLASHPARRY_ANGLE 45.0
+#define DND_FLASHPARRY_HEALTHPCT 5
+
+// Acrobacy / Tailwind. Polled far less often than the Crash Course sweep -- running past someone
+// is a second-scale event, not a tic-scale one, and this runs for every player forever.
+#define DND_TAILWIND_POLLRATE 10
+#define DND_TAILWIND_RADIUS 128.0
+#define DND_TAILWIND_TICS (3 * TICRATE)
+#define DND_TAILWIND_BASECOOLDOWN (10 * TICRATE)
+
+// Perception / Heatsinks. 45 seconds before another is handed out, shrinking with points.
+#define DND_HEATSINK_BASECOOLDOWN (45 * TICRATE)
+#define DND_HEATSINK_POLLRATE 17
+
+// Perception / Essence Theft. "Recently" is the mod's four seconds, per the General Notes.
+#define DND_ESSENCETHEFT_TICS (4 * TICRATE)
+
+// Endurance / Dense Exoskeleton. Long enough to cover the rip that triggered it and the next tic or
+// two of the same ripper passing through, short enough not to be blanket immunity.
+#define DND_RIPIMMUNE_TICS 17
+
 #define CHANCE_HEART 0.025
 
 #define UPGRADETEXTID 6999
@@ -958,10 +1068,15 @@ void HandleCreditExp_Regular(int this, int target, int m_id) {
 			if(IsActorAlive(pnum) && pnum != target) { // dont give twice
 				// check if range flag is on, if it is check the range
 				addone = AproxDistance(GetActorX(target) - GetActorX(pnum), GetActorY(target) - GetActorY(pnum)) >> 16 <= pcount;
-				if(expshare && exptemp && (!GetCVar("dnd_gainonlyinrange") || addone || HasActorMasteredPerk(pnum, STAT_WIS)))
+				// The "ignore range" clause was Wisdom and Greed mastery before the old perk system was
+				// retired; Cunning's Deep Wisdom and Endless Greed are the same effect and now supply it.
+				//
+				// Read off i, NOT the killer: the perk belongs to the player being paid, so a bystander
+				// with Deep Wisdom collects from across the map whoever landed the kill.
+				if(expshare && exptemp && (!GetCVar("dnd_gainonlyinrange") || addone || PlayerModData[i].vals[PSTAT_EXPGAIN_ANYRANGE]))
 					expscale = RewardActorExp(pnum, exptemp);
 					
-				if(creditshare && credtemp && (!GetCVar("dnd_gainonlyinrange") || addone || HasActorMasteredPerk(pnum, STAT_GRE)))
+				if(creditshare && credtemp && (!GetCVar("dnd_gainonlyinrange") || addone || PlayerModData[i].vals[PSTAT_CREDITGAIN_ANYRANGE]))
 					creditscale = RewardActorCredit(pnum, credtemp);
 				
 				// if something could be provided, show it to user
@@ -1020,15 +1135,9 @@ void HandleCreditExp_MasteryCheck(int this, int target, int m_id) {
 		creditscale = 0;
 		target = P_TIDSTART + i;
 		if(IsActorAlive(target)) {
-			if(HasActorMasteredPerk(target, STAT_WIS)) {
-				expscale = RewardActorExp(target, exptemp);
-				++expshare;
-			}
-			
-			if(HasActorMasteredPerk(target, STAT_GRE)) {
-				creditscale = RewardActorCredit(target, credtemp);
-				++creditshare;
-			}
+			// Wisdom and Greed mastery used to feed expshare/creditshare here. The sharing machinery
+			// below is untouched and simply has no source now; Cunning's Deep Wisdom and Endless Greed
+			// are the replacements it hooks back up to in phase 3.
 			
 			if(expscale || creditscale) {
 				SetActivator(target);
@@ -1055,8 +1164,10 @@ void HandleLootDrops(int tid, int target, int loc_tid = -1) {
 	int temp;
 	int p_chance = GetDropChance(pnum);
 	
-	// ammo specialty drop
-	if(HasActorMasteredPerk(target, STAT_MUN) && RunPrecalcDropChance(p_chance, DND_MUNITION_MASTERY_CHANCE, m_id, DND_MON_RNG_1))
+	// Perception / Salvager. This is the drop Munitionist mastery used to make, restored with the
+	// perk supplying the chance instead of a constant.
+	if((temp = PlayerModData[pnum].vals[PSTAT_AMMOTOKEN_CHANCE]) &&
+		RunPrecalcDropChance(p_chance, (temp << 16) / 100, m_id, DND_MON_RNG_1))
 		SpawnPlayerDrop(pnum, "DnD_AmmoToken", 24.0, 16, 0, 0);
 	
 	// research drop
@@ -1543,11 +1654,6 @@ void PostPlayerLoadRoutine(int pnum) {
 	// force sync client stuff
 	GiveInventory("DnD_SyncMe", 1);
 	ACS_NamedExecuteAlways("DnD Force Sync Player Bonuses", 0);
-
-	if(HasMasteredPerk(STAT_WIS))
-		++CurrentLevelData[LEVELDATA_WISDOMMASTERED];
-	if(HasMasteredPerk(STAT_GRE))
-		++CurrentLevelData[LEVELDATA_GREEDMASTERED];
 
 	// scripts for berserker in case they have remaining buffs like this, restart the timer scripts
 	if(CheckInventory("Berserker_DamageTracker"))

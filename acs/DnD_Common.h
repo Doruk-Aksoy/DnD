@@ -12,6 +12,15 @@
 #define VERBOSE_TID_SETUP
 //#define WANT_BUFF_LOG
 
+// The per-base mod pool coverage report: which bases are thin at a given item level, and the summary
+// line under it. Useful when tuning mod level gates, noise on every other startup -- the MOD POOL
+// DANGER line that actually matters is not gated by any of this and always prints.
+//#define VERBOSE_MODPOOL
+
+// What the perk table built: how many perks landed in each archetype's menu list. The list is what
+// the tree page draws from, so an empty one is an empty page.
+//#define VERBOSE_PERK_SETUP
+
 #ifdef ISDEBUGBUILD
 int test_counter = 0;
 #endif
@@ -172,6 +181,22 @@ enum {
 
 	DND_PAVOID_COUNT
 };
+
+// Martialist melee riders. The slow magnitude and both durations are flat in the notes -- only the
+// chance scales with points -- so they are constants rather than slots.
+#define DND_EXHAUSTER_SLOWPCT 20
+#define DND_EXHAUSTER_SLOWTIME 3        // seconds
+#define DND_CRANIUMBASH_STUNTICS 52     // 1.5 seconds, the notes' figure
+
+// Sector light level at or below which Master of Shadows considers the player to be in the dark.
+// Doom light levels run 0..255 and a normally lit room sits around 160..192, so this is genuinely
+// unlit rather than merely dim.
+#define DND_DARKAREA_LIGHTLEVEL 96
+
+// Charge types. The DND_CHARGE_* enum in DnD_CommonStat.h must stay within this count -- it is
+// defined here rather than read from there because that file is included later, and bcs does
+// not resolve macro forward references.
+#define DND_MAX_CHARGETYPES 3
 
 enum {
 	// Flat added damage, one slot per DND_DAMAGECATEGORY_*. Categories with no mod that can fill
@@ -492,8 +517,155 @@ enum {
 	PSTAT_REAPINGCLEAVE,
 	PSTAT_INCFLASKCHARGEGAINED,
 
+	// Perk-first slots. No item mod feeds either yet, which is fine -- the slot is the contract, not
+	// the source. Both are plain integer percent, matching their read sites.
+	PSTAT_HEALING_EFFECT,           // Endurance / Medic. amt * (100 + this) / 100 in HandleHealthPickup
+	PSTAT_DOT_DMGTAKEN_REDUCE,      // Endurance / Stone Skin. less-multiplier on DOT hits only
+	PSTAT_AVOID_HOMING,             // Endurance / Camouflage. percent chance to shake a seeker's lock
+
+	// Conditional slots. Each one is the same magnitude as an existing unconditional slot but only
+	// counts when its condition holds, so it cannot share that slot -- the read site applies the gate.
+	PSTAT_BLEED_CHANCE_SLASHING,    // Martialist / Deep Cuts. added only for WPROP_SLASHING weapons
+	PSTAT_CRITDAMAGE_VS_BOSS,       // Assassination / Big Game Hunter
+	PSTAT_CRITCHANCE_VS_ELITE,      // Assassination / Bane of Legends -- FIXED POINT, 0.01 is 1%
+	PSTAT_CRITDAMAGE_VS_ELITE,      // Assassination / Bane of Legends
+
+	// "more susceptible to crits" -- a MULTIPLIER on crit chance, not percentage points added to it.
+	// Additive would be enormous: crit chance is a fixed point probability where 0.01 is 1%, so a
+	// literal +15 points would be a bigger bonus than every crit mod in the game combined.
+	PSTAT_CRITCHANCE_VS_FULLLIFE,   // Assassination / Opening Salvo
+	PSTAT_CRITCHANCE_VS_LOWLIFE,    // Assassination / Mercy Kill
+	PSTAT_SHELLCAP_FLAT,            // Perception / Pumped. flat shells, folded into the base cap
+
+	// Per charge type duration, indexed by DND_CHARGE_*. PSTAT_CHARGEDURATION stays the all-charges
+	// slot item mods write; these three are the Cunning perks that name one type each.
+	PSTAT_CRITCHANCE_INDARK,        // Assassination / Master of Shadows. multiplier, like the two above
+	PSTAT_BLOCK_PIERCE,             // Perception / Bastion Breaker. percent of a blocked hit that lands
+	PSTAT_BLEEDRATE_MELEE,          // Martialist / Flesh Carver. percent FASTER, so it shortens the tic
+	PSTAT_SLOWCHANCE_MELEE,         // Martialist / Exhauster. percent chance on a melee hit
+	PSTAT_STUNCHANCE_BLUNT,         // Martialist / Cranium Bash. percent chance on a blunt melee hit
+
+	// Acrobacy dash cluster. Tactical Dash grants the dash at all; the rest read the state it leaves.
+	PSTAT_DASH_UNLOCK,              // non-zero means the player has a perk dash
+	PSTAT_DASH_COOLDOWNREDUCE,      // percent off DND_PERKDASH_COOLDOWN
+	PSTAT_DASH_RANGE,               // percent added to the dash impulse
+	PSTAT_DASH_LESSDMGTAKEN,        // percent less damage while the perk dash is recharging
+	PSTAT_DASH_MELEEBONUS,          // Swift Reflexes. percent, first melee hit after a dash
+	PSTAT_DASH_AVOIDCHANCE,         // Evasive Maneuvers. percent to dodge a direct hit after a dash
+	PSTAT_DASH_AVOIDTIME,           // Evasive Maneuvers. extra TICS on that window
+	PSTAT_DASH_REFRESHONKILL,       // Unending Rush. non-zero means a kill just after a dash refreshes
+	PSTAT_DASH_CRASHSTUN,           // Crash Course. stun TICS on a monster the dash runs into
+
+	// Acrobacy fall-impact cluster. Thumper's power is one percent driving BOTH damage and radius,
+	// because the notes scale them together and splitting them would let the two drift apart.
+	PSTAT_THUMPER_POWER,            // percent of the base shockwave, 0 means no Thumper
+	PSTAT_FALL_SPEEDBONUS,          // Head Start. percent movement speed on landing
+	PSTAT_FALL_SPEEDTIME,           // Head Start. tics that lasts
+	PSTAT_THUMPER_VULN,             // All-shaking Presence. percent more damage taken
+	PSTAT_THUMPER_VULNTIME,         // All-shaking Presence. tics that lasts
+	PSTAT_ADRENALINE_HEAL,          // Adrenaline. percent of max health on an affected kill
+
+	// Cunning flask cluster.
+	PSTAT_FLASK_CLEANSECHANCE,      // Potent Salve. percent to strip an ailment on use
+	PSTAT_FLASK_UTILDURATION,       // Enriched Minerals. percent, utility flasks only
+	PSTAT_FLASK_FREEUSECHANCE,      // Desperate Measures. percent to spend no charges on low life
+	PSTAT_FLASK_RESISTBONUS,        // Surging Vitality. flat resist while a flask effect runs
+	PSTAT_FLASK_ENEMYVULN,          // Spiked Concoction. percent more damage taken, per stack
+	PSTAT_FLASK_VULNTIME,           // Spiked Concoction. tics a stack survives
+
+	// Perception.
+	PSTAT_SHIELDSTEAL_PCT,          // Shield stealer. percent of ES back on killing a blocker
+	PSTAT_PRECISION_FALLOFF,        // Sharpshooter. percent MORE damage at maximum range
+
+	// Cunning. Non-zero means the range gate on shared exp/credit does not apply to this player.
+	PSTAT_EXPGAIN_ANYRANGE,         // Deep Wisdom
+	PSTAT_CREDITGAIN_ANYRANGE,      // Endless Greed
+
+	// Martialist.
+	PSTAT_MELEESPLASH_CHANCE,       // Echoing Strikes. percent, joins the existing splash roll
+	PSTAT_MELEESPLASH_RANGE,        // Fervent Reach. percent on the splash radius
+	PSTAT_MELEEHIT_SPEED,           // Swift & Precise. percent movement speed per enemy hit
+	PSTAT_PARRY_RESISTREDUCE,       // Expose Weakness. percent off a parried enemy's resists
+
+	// Assassination, crit-reactive group.
+	PSTAT_CRIT_SPEEDBONUS,          // Quick Getaway. percent movement speed on landing a crit
+	PSTAT_CRIT_DROUGHTBONUS,        // Preparation. percent MORE crit chance while none has landed
+	PSTAT_CRITCHANCE_FROMBEHIND,    // Backstab. FIXED POINT, added when the target faces away
+	PSTAT_CRITDAMAGE_PERSTILLSEC,   // Steady Shot. percent per second standing still
+	PSTAT_CRIT_EXPOSEPCT,           // Pressure Points. percent more of the crit's own damage type
+
+	// Endurance and Acrobacy, remainder.
+	PSTAT_HEAL_CLEANSECHANCE,       // Physician. percent to strip poison and bleed on a heal
+	PSTAT_UNMITIGATED_LESSDMG,      // Wind Dancer. percent less damage while nothing was mitigated
+	PSTAT_MIT_PERRUNSEC,            // Nimbleness. FIXED POINT mitigation per second running
+
+	// Martialist, remainder.
+	PSTAT_PARRY_COSTREDUCE,         // Riposte. percent off the parry stamina cost, per stack
+	PSTAT_RAMPING_HITS,             // Ramping Assault. hits needed, counts DOWN with points
+	PSTAT_RAMPING_BONUS,            // Ramping Assault. percent more on the qualifying hit
+
+	// Perception.
+	PSTAT_PELLET_FLAT_SHOTGUN,      // Blastier Shots. flat pellets, shotguns only
+
+	PSTAT_RAGE_ONOVERKILL,          // Martialist / Gratuitous Violence. rage points per overkill
+	PSTAT_ELUSIVE_ONCRIT,           // Assassination / Dance with Death. percent chance on a crit
+
+	// Perception, magazine group. All three key off TakeAmmoFromPlayer, the one choke point every
+	// shot passes through.
+	PSTAT_EMPTYMAG_SPEED,           // Plan B. percent movement speed on emptying a magazine
+	PSTAT_FRESHCLIP_SHOTS,          // Fresh Clip. how many shots a finished reload empowers
+	PSTAT_FRESHCLIP_DAMAGE,         // Fresh Clip. percent more on each of them
+	PSTAT_LASTROUND_CRIT,           // Lucky Bullet. FIXED POINT crit chance on the last round
+	PSTAT_LASTROUND_CRITDMG,        // Lucky Bullet. percent crit multiplier on it
+
+	PSTAT_PARRY_SHOCKDMG,           // Martialist / Flash Parry. flat damage of the shockwave
+	PSTAT_PARRY_SHOCKRANGE,         // Martialist / Flash Parry. percent on its travel distance
+	PSTAT_TAILWIND_SPEED,           // Acrobacy / Tailwind. percent movement speed on a pass
+	PSTAT_TAILWIND_CDREDUCE,        // Acrobacy / Tailwind. seconds off its cooldown
+
+	// Perception, overheat group.
+	PSTAT_OVERHEAT_GRACE,           // Emergency Protocol. TICS of firing past full overheat
+	PSTAT_HEATSINK_CDREDUCE,        // Heatsinks. seconds off the heatsink's recharge
+	PSTAT_AUTO_RESISTSHRED,         // Ceaseless Assault. resist a hit strips, and its own cap
+	PSTAT_AUTO_RESISTSHREDCAP,
+	PSTAT_MAGICKILL_PEN,            // Essence Theft. magic pierce a kill grants
+	PSTAT_MAGICKILL_PENCAP,
+
+	PSTAT_CRITKILL_NODEATHFX,       // Assassination / Eradication
+	PSTAT_AILMENT_IMMUNETICS,       // Endurance / Indomitable Resolve
+
+	PSTAT_AMMOTOKEN_CHANCE,         // Perception / Salvager. percent for a monster to drop one
+	PSTAT_AMMO_CONVERTRATE,         // Perception / Excess Conversion. percent of the overflow kept
+	PSTAT_ARTILLERY_RAMP,           // Perception / Earthshaker. percent per continuous attack,
+	PSTAT_ARTILLERY_RAMPCAP,        // to BOTH damage and radius. and how many of them count
+	PSTAT_ARTILLERY_RADIUS,         // Perception / Quaker. artillery-only explosion radius percent
+
+	PSTAT_RIPPER_SURVIVECHANCE,     // Perception / Unstoppable Force. percent vs hardened skin
+	PSTAT_RIPIMMUNE_TICS,           // Endurance / Dense Exoskeleton. tics of DONTRIP after a rip
+	PSTAT_BERSERK_ALLMELEE,         // Martialist / Unending Fury. percent melee damage under berserk
+	PSTAT_MELEE_TOPROJECTILES,      // Martialist / Blademaster. non-zero routes melee scaling to projectiles
+	PSTAT_SLASH_QUICKDEADLY,        // Martialist / Quick & Deadly. non-zero grants the DECORATE token
+	PSTAT_FASTRELOAD,               // Perception / Sleight of Hand. non-zero grants the DECORATE token
+	PSTAT_FLASK_REFILLCHANCE,       // Overflowing Reserves. percent on an ailment kill
+
+	PSTAT_CHARGEDURATION_BASE,
+	PSTAT_CHARGEDURATION_END = PSTAT_CHARGEDURATION_BASE + DND_MAX_CHARGETYPES - 1,
+
 	PSTAT_COUNT
 };
+
+// Perk tree sizing. Here rather than in DnD_Perks.h because player_item_mod_data_T is sized by these
+// and is declared first -- bcs resolves macros in preprocessor order, so a forward reference silently
+// expands to nothing. Everything else about perks lives in DnD_Perks.h.
+//
+// _NEW is a leftover from the migration -- the old DND_MAX_PERKS is gone, so this can lose the
+// suffix whenever someone wants to do the rename.
+#define DND_MAX_PERKS_NEW       128     // 99 authored, room to grow
+#define DND_PERK_MAXPOINTS      3
+#define DND_MAX_PERK_ARCHETYPES 8       // 6 authored + Tormentor + spare
+#define DND_MAX_PERK_REQS       3       // Blademaster and Gratuitous Violence each name three
+#define DND_PERK_BITS           2       // one lane holds 0..3, exactly DND_PERK_MAXPOINTS
+#define DND_PERK_WORDS          ((DND_MAX_PERKS_NEW * DND_PERK_BITS + 31) / 32)
 
 // Returned by MapAttributeToPStat for every mod that still lives in the old value[] array.
 #define DND_PSTAT_UNMAPPED -1
@@ -641,17 +813,10 @@ enum {
 	STAT_DEX,
 	STAT_INT,
 	
-	// same for these
-	STAT_SHRP,
-	STAT_BRUT,
-	STAT_RISK,
-	STAT_WIS,
-	STAT_GRE,
-	STAT_MED,
-	STAT_MUN,
-    STAT_DED,
-	STAT_SAV,
-	STAT_ACRM,
+	// The ten point-spend perks used to sit here, between the attributes and the level, because
+	// they shared StatData and its inventory-item storage with them. Retired 2026-08-28 -- the
+	// perk tree in DnD_Perks.h keeps its points in PlayerModData instead. Nothing persisted or
+	// transmitted a raw STAT_ index, so STAT_LVL sliding from 12 to 3 is safe.
 
 	STAT_LVL
 };

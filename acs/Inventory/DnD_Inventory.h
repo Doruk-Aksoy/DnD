@@ -4142,6 +4142,15 @@ Script "DnD Load Inventory Attributes" OPEN {
 		Delay(const:1);
 		SetupDungeonModTable();
 		Delay(const:5);
+
+		// A tic to itself on BOTH sides. SetupPerkTable is a table build in the same weight class as
+		// SetupInventoryAttributeTable, and the delays are written here rather than left to whatever
+		// its neighbours happen to use, so reordering this block cannot quietly pair two builds in one
+		// tic. See the bytecode sizes in .claude/notes/dnd-perk-rework.md.
+		Delay(const:1);
+		SetupPerkTable();
+		Delay(const:1);
+
 		Delay(const:10);
 		SetupUniqueItems();
 		Delay(10);
@@ -4170,9 +4179,44 @@ Script "DnD Load Inventory Attributes - CS" OPEN CLIENTSIDE {
 		Delay(const:10);
 		SetupDungeonModTable();
 		Delay(const:5);
+
+		// A tic to itself on BOTH sides. SetupPerkTable is a table build in the same weight class as
+		// SetupInventoryAttributeTable, and the delays are written here rather than left to whatever
+		// its neighbours happen to use, so reordering this block cannot quietly pair two builds in one
+		// tic. See the bytecode sizes in .claude/notes/dnd-perk-rework.md.
+		Delay(const:1);
+		SetupPerkTable();
+
+		// The server can push perk words before this table existed, and the archetype totals they feed
+		// are counted AGAINST it -- a sync that landed early stored the lanes correctly and counted
+		// nothing. Recount once the table is real; the lanes themselves were never in doubt.
+		for(i = 0; i < MAXPLAYERS; ++i)
+			RecountPerkPoints(i);
+		Delay(const:1);
+
 		SetupUniqueItems();
 		Delay(10);
 		ACS_NamedExecuteAlways("DnD Setup Menu Vars - CS", 0);
+	}
+}
+
+// The perk table, for clients the block above never ran for. That block is gated on
+// SETUP_ITEMTABLES, and a client already carrying the flag skips all of it -- which was fine while
+// everything in there was also built serverside, but the perk tree menu is CLIENTSIDE and draws from
+// this table. A client without it sees seven empty archetypes and cannot click a single row.
+//
+// A fallback, not a second path: it waits for the normal build and only acts if nothing arrived.
+// Kept out of the block above deliberately, so it cannot inherit that gate.
+Script "DnD Setup Perk Table - CS" OPEN CLIENTSIDE {
+	int waited = 0;
+	while(waited < DND_PERKTABLE_FALLBACK_WAIT && !IsPerkTableReady()) {
+		Delay(const:5);
+		waited += 5;
+	}
+
+	if(!IsPerkTableReady()) {
+		Log(s:"Perk table was missing clientside -- building it here. The main setup block was skipped.");
+		SetupPerkTable();
 	}
 }
 

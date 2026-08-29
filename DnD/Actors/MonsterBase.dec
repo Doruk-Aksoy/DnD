@@ -33,6 +33,14 @@ Actor BuffTintTimer : DnD_Info { }
 Actor BuffTintColor : DnD_Info { }
 Actor BuffTintIntensity : DnD_Info { }
 
+Actor StunDurationCounter : DnD_Info { }
+
+// Plain slow, owned by "DnD Monster Slow Ticker". Separate from the chill stack on purpose --
+// this one carries no freeze build-up and no ailment, so other slow sources can share it.
+Actor DnD_SlowPercent : DnD_Info { }
+Actor DnD_SlowTimer : DnD_Info { }
+Actor DnD_SlowTickerRunning : DnD_Info { }
+
 Actor BlindCancelledSignal : PowerDamage {
 	damagefactor "normal", 1.0
 	powerup.duration 7
@@ -172,6 +180,25 @@ Actor DnD_BaseMonster {
 			"####" "###" 4 A_SpawnItemEx("FreezeGlitter", frandom(-radius, radius) / 2, frandom(-radius, radius) / 2, frandom(10, height / 2))
 			"####" "###" 0 A_SpawnItemEx("ColdSmoke", frandom(-radius, radius) / 2, frandom(-radius, radius) / 2, frandom(24, height + 16) / 2, frandom(-1.25, 1.25), frandom(-1.25, 1.25), frandom(-0.75, 0.75))
 			"####" "#" 1 A_JumpIfInventory("DnD_FreezeTimer", 1, "FrozenLoop")
+		Goto See
+
+		Stunned:
+			"####" "#" 0 A_UnSetInvulnerable
+			// looping sounds should be stopped
+			"####" "#" 0 A_Pain
+			"####" "#" 0 A_StopSound(CHAN_WEAPON)
+			"####" "#" 0 A_StopSound(5)
+			"####" "#" 0 A_StopSound(6)
+			"####" "#" 0 A_StopSound(7)
+			"####" "#" 0 A_ChangeFlag("NOPAIN", 1)
+		StunLoop:
+			"####" "#" 1 A_JumpIfInventory("StunDurationCounter", 1, "StunLoopTic")
+		Goto StunEnd
+		StunLoopTic:
+			"####" "#" 5 A_SpawnItemEx("StunFXMarker", 0, 0, height + 8.0)
+		Goto StunLoop
+		StunEnd:
+			"####" "#" 1 ACS_NamedExecuteWithResult("DnD Toggle NoPain")
 		Goto See
 		
 		GravdisFling:

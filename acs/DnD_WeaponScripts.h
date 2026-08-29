@@ -95,7 +95,7 @@ Script "DnD Can Fire Weapon" (void) {
 			case DND_WEAPON_SHOCKER:
 				// reusing ammo variable here
 				canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
-				canFire = canAltFire && (PlayerModData[pnum].vals[PSTAT_EX_CANFIREOVERHEATED] || CheckInventory("ShockerOverheat") <= 80);
+				canFire = canAltFire && (CanFireWhileOverheated(pnum) || CheckInventory("ShockerOverheat") <= 80);
 				
 				canAltFire &= CheckInventory("ShockerOverheat") >= 10;
 
@@ -119,7 +119,7 @@ Script "DnD Can Fire Weapon" (void) {
 				canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 				hasOverheatCooldown = CheckInventory("DesolatorCooldown");
 
-				canFire &= PlayerModData[pnum].vals[PSTAT_EX_CANFIREOVERHEATED] || (!hasOverheatCooldown && CheckInventory("DesolatorOverheat") < 100);
+				canFire &= CanFireWhileOverheated(pnum) || (!hasOverheatCooldown && CheckInventory("DesolatorOverheat") < 100);
 
 				if(flags & DND_CFW_HOLDFIREORRELOADCHECK)
 					canFire &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
@@ -213,7 +213,7 @@ Script "DnD Can Fire Weapon" (void) {
 				canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 				hasOverheatCooldown = CheckInventory("FreezerCooldown");
 				
-				canAltFire = PlayerModData[pnum].vals[PSTAT_EX_CANFIREOVERHEATED] || (!hasOverheatCooldown && CheckInventory("FreezerOverheat") < 100);
+				canAltFire = CanFireWhileOverheated(pnum) || (!hasOverheatCooldown && CheckInventory("FreezerOverheat") < 100);
 				canFire &= canAltFire;
 				
 				canAltFire &= CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1 / 2, flags);
@@ -224,7 +224,7 @@ Script "DnD Can Fire Weapon" (void) {
 				canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 				hasOverheatCooldown = CheckInventory("VoidCannonCooldown");
 
-				canFire &= PlayerModData[pnum].vals[PSTAT_EX_CANFIREOVERHEATED] || (!hasOverheatCooldown && CheckInventory("VoidCannonOverHeat") < 81);
+				canFire &= CanFireWhileOverheated(pnum) || (!hasOverheatCooldown && CheckInventory("VoidCannonOverHeat") < 81);
 
 				isOverheatingWeapon = true;
 			break;
@@ -233,7 +233,7 @@ Script "DnD Can Fire Weapon" (void) {
 				canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 				hasOverheatCooldown = CheckInventory("PlasmaOverheatCooldown");
 
-				canFire &= PlayerModData[pnum].vals[PSTAT_EX_CANFIREOVERHEATED] || (!hasOverheatCooldown && CheckInventory("PlasmaOverheat") < 100);
+				canFire &= CanFireWhileOverheated(pnum) || (!hasOverheatCooldown && CheckInventory("PlasmaOverheat") < 100);
 
 				isOverheatingWeapon = true;
 			break;
@@ -248,7 +248,7 @@ Script "DnD Can Fire Weapon" (void) {
 			case DND_WEAPON_REBOUNDER:
 				canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 				hasOverheatCooldown = CheckInventory("RebounderCooldown");
-				isOverheatingWeapon = PlayerModData[pnum].vals[PSTAT_EX_CANFIREOVERHEATED];
+				isOverheatingWeapon = CanFireWhileOverheated(pnum);
 
 				canFire &= isOverheatingWeapon || (!hasOverheatCooldown && CheckInventory("RebounderOverheat") < 98);
 				canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt2, flags);
@@ -265,7 +265,7 @@ Script "DnD Can Fire Weapon" (void) {
 				canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 				hasOverheatCooldown = CheckInventory("BFG32768Cooldown");
 
-				canFire &= PlayerModData[pnum].vals[PSTAT_EX_CANFIREOVERHEATED] || (!hasOverheatCooldown && CheckInventory("BFG32768Overheat") < 100);
+				canFire &= CanFireWhileOverheated(pnum) || (!hasOverheatCooldown && CheckInventory("BFG32768Overheat") < 100);
 
 				isOverheatingWeapon = true;
 			break;
@@ -273,7 +273,7 @@ Script "DnD Can Fire Weapon" (void) {
 				canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 				hasOverheatCooldown = CheckInventory("DeathRayCooldown");
 
-				canFire &= PlayerModData[pnum].vals[PSTAT_EX_CANFIREOVERHEATED] || (!hasOverheatCooldown && CheckInventory("DeathRayOverheat") < 100);
+				canFire &= CanFireWhileOverheated(pnum) || (!hasOverheatCooldown && CheckInventory("DeathRayOverheat") < 100);
 
 				isOverheatingWeapon = true;
 			break;
@@ -281,7 +281,7 @@ Script "DnD Can Fire Weapon" (void) {
 				canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 				hasOverheatCooldown = CheckInventory("IonCooldown");
 
-				canFire &= PlayerModData[pnum].vals[PSTAT_EX_CANFIREOVERHEATED] || (!hasOverheatCooldown && CheckInventory("IonOverheat") < 100);
+				canFire &= CanFireWhileOverheated(pnum) || (!hasOverheatCooldown && CheckInventory("IonOverheat") < 100);
 				canAltFire = canFire && GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
 
 				isOverheatingWeapon = true;
@@ -401,6 +401,11 @@ void DoWeaponDamageCache(int pnum, int dmg_id, int dmg, int dmg_rand, int wepid,
 Script "DnD Weapon Damage Cache" (int wepid, int refill_pnum) {
 	bool is_refill = refill_pnum > 0;
 	int pnum = is_refill ? refill_pnum - 1 : PlayerNumber();
+
+	// Perception / Earthshaker's run ends here, because this is what runs on Ready. Only on a real
+	// raise -- a refill is a cache rebuild that does not mean the player stopped firing.
+	if(!is_refill)
+		SetActorInventory(pnum + P_TIDSTART, "DnD_ArtilleryRamp", 0);
 
 	// Only the raise waits for player data. A refill writes nothing but the constant table, so
 	// bailing here would leave the slot empty and the weapon dealing nothing -- and this guard is
@@ -2550,13 +2555,30 @@ Script "DnD Can Parry" (void) {
 }
 
 Script "DnD Parry" (void) {
+	int pnum = PlayerNumber();
 	int amt = DND_BASE_PARRY_AMT + CheckInventory("Ability_ParryMaster") * DND_PARRY_MASTER_BONUS;
 	SetInventory("DnD_Parrying", amt);
 	GiveInventory("DnD_ParryCooldown", 1);
 
-	HandleStaminaBarDraw(PlayerNumber());
+	HandleStaminaBarDraw(pnum);
 
-	TakeStamina(DND_PARRY_STAMINA_COST - CheckInventory("Ability_ParryMaster") * DND_PARRYMASTER_STAMINAREDUCE);
+	// Martialist / Riposte. "Subsequent parry costs" -- so the stack earned by THIS parry must not
+	// discount it, which is why the cost is taken before the stack is added below.
+	int cost = DND_PARRY_STAMINA_COST - CheckInventory("Ability_ParryMaster") * DND_PARRYMASTER_STAMINAREDUCE;
+
+	int riposte = PlayerModData[pnum].vals[PSTAT_PARRY_COSTREDUCE];
+	if(riposte)
+		cost = cost * (100 - riposte * CheckInventory("DnD_RiposteStacks")) / 100;
+
+	TakeStamina(cost);
+
+	if(riposte) {
+		if(CheckInventory("DnD_RiposteStacks") < DND_RIPOSTE_MAXSTACK)
+			GiveInventory("DnD_RiposteStacks", 1);
+
+		SetInventory("DnD_RiposteTimer", DND_RIPOSTE_TICS);
+		ACS_NamedExecuteAlways("DnD Riposte Timer", 0, pnum + P_TIDSTART);
+	}
 
 	int count = 0;
 	while(isAlive() && count++ < amt)

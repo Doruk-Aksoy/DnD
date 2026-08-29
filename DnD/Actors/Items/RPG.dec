@@ -145,69 +145,12 @@ Actor PSTAT_Unity : Ammo {
 	+IGNORESKILL
 }
 
-Actor Perk_Sharpshooting : Ammo {
-	inventory.amount 1
-	inventory.maxamount 10
-	+IGNORESKILL
-}
-
-Actor Perk_Brutality : Ammo {
-	inventory.amount 1
-	inventory.maxamount 10
-	+IGNORESKILL
-}
-
-Actor Perk_RiskAversion : Ammo {
-	inventory.amount 1
-	inventory.maxamount 10
-	+IGNORESKILL
-}
-
+// The ten Perk_* Ammo classes that stored point counts were retired 2026-08-28 -- the tree in
+// acs/DnD_Perks.h keeps its points in PlayerModData. This one is NOT one of them: it is a live
+// powerup that the defence path reads, currently with no source, waiting for the tree to grant it.
 Actor Perk_AversionActivated : PowerProtection {
 	damagefactor "normal", 1.0
 	powerup.duration -5
-}
-
-Actor Perk_Wisdom : Ammo {
-	inventory.amount 1
-	inventory.maxamount 10
-	+IGNORESKILL
-}
-
-Actor Perk_Greed : Ammo {
-	inventory.amount 1
-	inventory.maxamount 10
-	+IGNORESKILL
-}
-
-Actor Perk_Medic : Ammo {
-	inventory.amount 1
-	inventory.maxamount 10
-	+IGNORESKILL
-}
-
-Actor Perk_Munitionist : Ammo {
-	inventory.amount 1
-	inventory.maxamount 10
-	+IGNORESKILL
-}
-
-Actor Perk_Deadliness : Ammo {
-	inventory.amount 1
-	inventory.maxamount 10
-	+IGNORESKILL
-}
-
-Actor Perk_Savagery : Ammo {
-	inventory.amount 1
-	inventory.maxamount 10
-	+IGNORESKILL
-}
-
-Actor Perk_Acrimony : Ammo {
-	inventory.amount 1
-	inventory.maxamount 10
-	+IGNORESKILL
 }
 
 Actor CriticalHit : PowerDamage {
@@ -493,6 +436,123 @@ Actor Menu_LRCooldown : PowerDamage {
 Actor DashDelay : PowerProtection {
 	damagefactor "normal", 1.0
 	powerup.duration 35
+}
+
+// Acrobacy / Tactical Dash. Plain counters rather than powerups: both durations scale with perk
+// points, and a PowerProtection's duration is fixed at definition time.
+Actor DnD_PerkDashCooldown : DnD_Info { }
+Actor DnD_DashedRecently : DnD_Info { }
+Actor DnD_DashEvadeWindow : DnD_Info { }
+Actor DnD_SwiftReflexesReady : DnD_Info { }
+
+// Acrobacy fall-impact cluster.
+Actor DnD_HeadStartSpeed : DnD_Info { }
+Actor DnD_HeadStartTimer : DnD_Info { }
+Actor DnD_ThumperWeakness : DnD_Info { }
+Actor DnD_ThumperWeaknessTimer : DnD_Info { }
+Actor DnD_AdrenalineCooldown : DnD_Info { }
+
+// Cunning flask cluster.
+Actor DnD_FlaskEffectTimer : DnD_Info { }
+Actor DnD_SpikedStacks : DnD_Info { }
+Actor DnD_SpikedTimer : DnD_Info { }
+
+// Martialist.
+Actor DnD_SwiftPreciseStacks : DnD_Info { }
+Actor DnD_SwiftPreciseTimer : DnD_Info { }
+Actor DnD_ExposedResists : DnD_Info { }
+Actor DnD_ExposedTimer : DnD_Info { }
+
+Actor DnD_Rage : DnD_Info {
+	inventory.maxamount 30
+}
+
+Actor DnD_ReloadFinished : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 17
+}
+
+// Assassination.
+Actor DnD_CritSpeed : DnD_Info { }
+Actor DnD_CritSpeedTimer : DnD_Info { }
+Actor DnD_CritDrought : DnD_Info { }
+Actor DnD_StillSeconds : DnD_Info { }
+Actor DnD_PressureType : DnD_Info { }
+Actor DnD_PressureAmount : DnD_Info { }
+Actor DnD_PressureTimer : DnD_Info { }
+
+Actor DnD_RunSeconds : DnD_Info { }
+Actor DnD_MitigatedRecently : DnD_Info { }
+
+Actor DnD_RiposteStacks : DnD_Info { }
+Actor DnD_RiposteTimer : DnD_Info { }
+Actor DnD_RampingHits : DnD_Info { }
+
+Actor DnD_RageGrace : DnD_Info { }
+Actor DnD_RageDecaying : DnD_Info { }
+Actor DnD_Elusive : DnD_Info { }
+Actor DnD_WasOverkilled : DnD_Info { }
+
+// Perception, magazine group.
+Actor DnD_FreshClipShots : DnD_Info { }
+Actor DnD_LuckyBullet : DnD_Info { }
+Actor DnD_PlanBSpeed : DnD_Info { }
+Actor DnD_PlanBTimer : DnD_Info { }
+
+Actor DnD_TailwindSpeed : DnD_Info { }
+Actor DnD_TailwindTimer : DnD_Info { }
+Actor DnD_TailwindCooldown : DnD_Info { }
+
+// Perception, overheat group.
+Actor DnD_OverheatGrace : DnD_Info { }
+Actor DnD_OverheatGraceSpent : DnD_Info { }
+Actor DnD_HeatsinkCooldown : DnD_Info { }
+Actor DnD_LastHitCrit : DnD_Info { }
+Actor DnD_LastHitMagic : DnD_Info { }
+Actor DnD_ResistShred : DnD_Info { }
+Actor DnD_EssenceTheft : DnD_Info { }
+Actor DnD_EssenceTheftTimer : DnD_Info { }
+Actor DnD_AilmentImmune : DnD_Info { }
+Actor DnD_ArtilleryRamp : DnD_Info { }
+Actor DnD_RipImmuneTimer : DnD_Info { }
+Actor DnD_QuickDeadly : DnD_Info { }
+
+// Endurance / Dense Exoskeleton. ACS cannot set an actor flag in Zandronum, so these two do it
+// from a pickup state instead. They are given and immediately consumed; nothing holds them.
+Actor Perk_RipImmunityOn : CustomInventory {
+	inventory.maxamount 0
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("DONTRIP", 1)
+		Stop
+	}
+}
+
+Actor Perk_RipImmunityOff : CustomInventory {
+	inventory.maxamount 0
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("DONTRIP", 0)
+		Stop
+	}
+}
+
+// Perception / Heatsinks. A usable that dumps every overheat bar at once. Fails rather than
+// being consumed when the script declines, so it is never wasted.
+Actor HeatsinkItem : CustomInventory {
+	inventory.maxamount 1
+	inventory.icon "AMSPA0"
+	Inventory.UseSound "weapons/pickup"
+	+INVBAR
+	States {
+		Use:
+			TNT1 A 0 A_JumpIfInventory("DnD_HeatsinkCooldown", 1, "Failed")
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Use Heatsink")
+		Fail
+		Failed:
+			TNT1 A 0
+		Fail
+	}
 }
 
 Actor CanLoad : DnD_Boolean { }

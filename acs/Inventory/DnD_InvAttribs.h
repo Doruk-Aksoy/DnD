@@ -264,6 +264,18 @@ typedef struct {
 	// Boolean mods, one bit each, plus the packed source counts that make removal correct.
 	int pflags[DND_PFLAG_WORDS];
 	int pflag_rc[DND_PFLAG_RCWORDS];
+
+	// Perk points, two bits each, plus the per archetype running total the [N] thresholds read.
+	// Here because the lifetime is identical: this whole struct is cleared by ResetPlayerModList and
+	// its clientside twin, and those run only on character teardown or a fresh load -- never on
+	// equip, map change, death with lives left, or spectate. Being in a struct that is already
+	// mirrored clientside is what lets the tree menu read points without a sync path of its own.
+	//
+	// No refcount, unlike pflag_rc: an item mod can have several simultaneous sources, a perk has
+	// exactly one, so a refund is just the negative of what the spend added.
+	int perks_packed[DND_PERK_WORDS];
+	int spent_in[DND_MAX_PERK_ARCHETYPES];
+	int unspent;
 } player_item_mod_data_T;
 
 global player_item_mod_data_T 57: PlayerModData[MAXPLAYERS];
@@ -1043,6 +1055,12 @@ void ResetPlayerModList(int pnum) {
 	for(i = 0; i < DND_PFLAG_RCWORDS; ++i)
 		PlayerModData[pnum].pflag_rc[i] = 0;
 
+	for(i = 0; i < DND_PERK_WORDS; ++i)
+		PlayerModData[pnum].perks_packed[i] = 0;
+	for(i = 0; i < DND_MAX_PERK_ARCHETYPES; ++i)
+		PlayerModData[pnum].spent_in[i] = 0;
+	PlayerModData[pnum].unspent = 0;
+
 	// Damage conversion accumulates outside PlayerModData -- one summed attribute cannot tell two
 	// conversion mods apart when each names its own source and destination -- so it has to be reset
 	// alongside it or a character reload doubles everything the player is wearing.
@@ -1066,6 +1084,15 @@ void SyncPlayerItemMods(int pnum) {
 
 	for(i = 0; i < DND_PFLAG_WORDS; ++i)
 		ACS_NamedExecuteWithResult("DnD Request Flag Sync", pnum, i, PlayerModData[pnum].pflags[i]);
+
+	// Whole words, same reasoning as the flags: the client mirrors rather than reconstructs. Sent
+	// unconditionally because a word going back to 0 is exactly the update that must not be skipped.
+	for(i = 0; i < DND_PERK_WORDS; ++i)
+		ACS_NamedExecuteWithResult("DnD Request Perk Sync", pnum, i, PlayerModData[pnum].perks_packed[i]);
+
+	// The pool the lanes are spent from. Forced, because a resync has to re-state the client's copy
+	// even when the server's has not moved -- the client is zeroed independently of the server.
+	RefreshUnspentPerkPoints(pnum, true);
 }
 
 // resets things clientside for the array
@@ -1087,6 +1114,12 @@ Script "DnD Reset Player Mod List" (int pnum) CLIENTSIDE {
 		PlayerModData[pnum].pflags[i] = 0;
 	for(i = 0; i < DND_PFLAG_RCWORDS; ++i)
 		PlayerModData[pnum].pflag_rc[i] = 0;
+
+	for(i = 0; i < DND_PERK_WORDS; ++i)
+		PlayerModData[pnum].perks_packed[i] = 0;
+	for(i = 0; i < DND_MAX_PERK_ARCHETYPES; ++i)
+		PlayerModData[pnum].spent_in[i] = 0;
+	PlayerModData[pnum].unspent = 0;
 }
 
 // returns the amount to skip over the base range to map it into its appropriate tier

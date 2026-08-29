@@ -909,9 +909,24 @@ Script "DND On Kill" KILL {
 		target = temp;
 
 	bool killerWasntPlayer = !CheckInventory("MonsterKilledByPlayer");
+	int pnum = -1;
 	TakeInventory("MonsterKilledByPlayer", 1);
 
 	MonsterProperties[m_id].killer_tid = target;
+
+	// Acrobacy / Unending Rush. Here rather than in HandleMonsterDeathConfirm because that one only
+	// knows the victim; this is where the killer has already been resolved to a player.
+	if(!killerWasntPlayer && IsPlayer(target)) {
+		pnum = target - P_TIDSTART;
+
+		HandleUnendingRush(pnum);
+		HandleAdrenaline(pnum, this);
+		HandleOverflowingReserves(pnum, this);
+		HandleShieldStealer(pnum, m_id);
+		HandleGratuitousViolence(pnum, this);
+		HandleEradication(pnum, this);
+		HandleEssenceTheft(pnum, this);
+	}
 	
 	// if this was a unique boss monster, since its dead now we can clear it to clients
 	if(isUniqueBossMonster(m_id)) {
@@ -929,7 +944,7 @@ Script "DND On Kill" KILL {
 	
 	// only work if you can determine target as a player and if the player is alive
 	// if player has no level data don't process anything as it's somehow bad state to work with
-	if(!IsActorAlive(target) || !GetActorLevel(target))
+	if(!IsActorAlive(target) || pnum == -1)
 		Terminate;
 		
 	// if theres cooldown item, reduce by a second here
@@ -979,7 +994,6 @@ Script "DND On Kill" KILL {
 	SetInventory("DnD_OverloadTimer", 0);
 
 	int is_demon = IsDemon();
-	int pnum = target - P_TIDSTART;
 
 	// Demon Bane check
 	if(is_demon && PlayerModData[pnum].vals[PSTAT_EX_DEMONBARRIERS]) {
@@ -1213,23 +1227,19 @@ Script "DND Show Kill Digits" (int tid, int exp, int credit) CLIENTSIDE {
 // Stat Reset
 Script 832 (void) {
 	int statpts = Calculate_Stats();
-	int perkpts = Calculate_Perks();
+	int perkpts = 0;
 	int pnum = PlayerNumber();
 	
 	TakeInventory("DnD_StatListOpen", 1);
 	
 	// don't use set here, it removes unallocated pts
 	GiveInventory("AttributePoint", statpts);
-	GiveInventory("PerkPoint", perkpts);
+	GivePerkPoints(pnum, perkpts);
 	
 	// update activity for the taken stats! Fixes leftover stats bug
 	int i;
 	for(i = DND_ATTRIB_BEGIN; i <= DND_ATTRIB_END; ++i)
-		TakeStat(i, GetPerk(i));
-		
-	// for perks now
-	for(i = DND_PERK_BEGIN; i <= DND_PERK_END; ++i)
-		TakeStat(i, GetPerk(i));
+		TakeStat(i, GetStatPoints(i));
 
 	UpdateEnergyShieldVisual(GetPlayerEnergyShieldCap(pnum));
 			
@@ -1240,7 +1250,6 @@ Script 832 (void) {
 	
 	// update activities for unspent attrib and perk points
 	UpdateActivity(pnum, DND_ACTIVITY_ATTRIBUTEPOINT, statpts, 0);
-	UpdateActivity(pnum, DND_ACTIVITY_PERKPOINT, perkpts, 0);
 
 	CalculateUnity(pnum);
 }
@@ -2480,9 +2489,8 @@ Script "DnD Player Levelup Check" (int tid) {
 		if(exptemp < 0)
 			exptemp = 0;
 
-		if(!((currlvl + 1) % 5)) { // multiples of 5 give perk
-			GiveActorInventory(tid, "PerkPoint", 1);
-			UpdateActivity(pnum, DND_ACTIVITY_PERKPOINT, 1, 0);
+		if(!((currlvl + 1) % DND_PERK_MULTIPLES)) { // multiples of 5 give perk
+			GivePerkPoints(pnum, 1);
 			GiveActorInventory(tid, "PerkedUp", 1);
 			ACS_NamedExecuteAlways("DnD Levelup Log", 0, 1);
 		}
@@ -3744,7 +3752,7 @@ Script 996 (int type, int id) {
 				type = GetAmmoContainerValue(i, j);
 
 				auto a_info = GetAmmoInfo(i, j);
-				GiveInventory(a_info.name, ((type / 5) + (type / 5) * (PlayerModData[PlayerNumber()].vals[PSTAT_AMMOGAIN_INCREASE] + (CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100));
+				GiveInventory(a_info.name, ((type / 5) + (type / 5) * PlayerModData[PlayerNumber()].vals[PSTAT_AMMOGAIN_INCREASE] / 100));
 			}
 	}
     else if(type == 1) {
@@ -3763,7 +3771,15 @@ Script 997 (void) NET {
 	int velZ;
 	bool dashed = false;
 	Delay(3);
-	if(CheckInventory("Ability_Dash") && !CheckInventory("DashDelay") && GetActorVelZ(0) >= 0.0 && !CheckInventory("DashDisabled") && !CheckInventory("P_Frozen") && GetActorProperty(0, APROP_HEALTH) > 0) {
+	int pnum = PlayerNumber();
+
+	// The dash is Acrobacy / Tactical Dash and nothing else. Ability_Dash no longer grants it, and the
+	// ability entry stays in the enum only so the tags and help text survive for the spell rework --
+	// nothing reads it any more now that abilities are neither sold nor saved.
+	if(PlayerModData[pnum].vals[PSTAT_DASH_UNLOCK] && !CheckInventory("DnD_PerkDashCooldown") && GetActorVelZ(0) >= 0.0 && !CheckInventory("DashDisabled") && !CheckInventory("P_Frozen") && GetActorProperty(0, APROP_HEALTH) > 0) {
+		// Acrobacy / Enhanced Joints. Scales the impulse, which is what "dash range" means for a
+		// velocity based dash -- there is no distance to extend, only how hard the push is.
+		int range_factor = 1.0 + ((PlayerModData[pnum].vals[PSTAT_DASH_RANGE] << 16) / 100);
 		for(int i = 0; i < 4; ++i) {
 			input = GetPlayerInput(-1, INPUT_BUTTONS);
 			//oldInput = GetPlayerInput(-1, INPUT_OLDBUTTONS);
@@ -3772,14 +3788,14 @@ Script 997 (void) NET {
 				angle = GetActorAngle(0) + GetMovementAngle(i);
 				
 				if(GetActorZ(0) - GetActorFloorZ(0) > 0) {
-					velX = FixedMul(cos(angle), SD_DASHSPEED);
-					velY = FixedMul(sin(angle), SD_DASHSPEED);
+					velX = FixedMul(cos(angle), FixedMul(SD_DASHSPEED, range_factor));
+					velY = FixedMul(sin(angle), FixedMul(SD_DASHSPEED, range_factor));
 					velZ = -GetActorVelZ(0) + SD_DASHJUMP;
 				}
 				
 				else {
-					velX = FixedMul(cos(angle), SD_DASHSTRONG);
-					velY = FixedMul(sin(angle), SD_DASHSTRONG);
+					velX = FixedMul(cos(angle), FixedMul(SD_DASHSTRONG, range_factor));
+					velY = FixedMul(sin(angle), FixedMul(SD_DASHSTRONG, range_factor));
 					velZ = 0.0;
 				}
 				
@@ -3789,7 +3805,32 @@ Script 997 (void) NET {
 					soundplayed = 1;
 				}
 				GiveInventory("DashEffect", 1);
-				GiveInventory("DashDelay", 1);
+
+				int cd = DND_PERKDASH_COOLDOWN *
+					(100 - PlayerModData[pnum].vals[PSTAT_DASH_COOLDOWNREDUCE]) / 100;
+				SetInventory("DnD_PerkDashCooldown", Max(1, cd));
+				ACS_NamedExecuteAlways("DnD Perk Dash Cooldown", 0);
+
+				// "Recently dashed", read by the perks that key off a dash. A plain countdown rather than
+				// a timestamp, because ACS has no clock a client and server would agree on.
+				SetInventory("DnD_DashedRecently", DND_PERKDASH_RECENT_TICS);
+				ACS_NamedExecuteAlways("DnD Dashed Recently Timer", 0);
+
+				// Acrobacy / Swift Reflexes arms ONE melee hit, so it is a flag the hit consumes rather
+				// than a window -- "the next melee attack" is not "every melee attack for four seconds".
+				if(PlayerModData[pnum].vals[PSTAT_DASH_MELEEBONUS])
+					SetInventory("DnD_SwiftReflexesReady", 1);
+
+				if(PlayerModData[pnum].vals[PSTAT_DASH_CRASHSTUN])
+					ACS_NamedExecuteAlways("DnD Dash Crash Course", 0);
+
+				// Acrobacy / Evasive Maneuvers. Its own window because its duration scales separately.
+				if(PlayerModData[pnum].vals[PSTAT_DASH_AVOIDCHANCE]) {
+					SetInventory("DnD_DashEvadeWindow",
+						DND_PERKDASH_EVADE_TICS + PlayerModData[pnum].vals[PSTAT_DASH_AVOIDTIME]);
+					ACS_NamedExecuteAlways("DnD Dash Evade Timer", 0);
+				}
+
 				dashed = true;
 			}
 		}
@@ -3802,6 +3843,496 @@ Script 997 (void) NET {
 				ACS_NamedExecuteWithResult("DnD Give Buff", DND_BUFF_PHASING_DASH, DEBUFF_F_PLAYERISACTIVATOR);
 		}
 	}
+}
+
+// Acrobacy / Tactical Dash. Its cooldown is a plain counter because it has to scale with points,
+// and a PowerProtection's duration is fixed in DECORATE.
+Script "DnD Perk Dash Cooldown" (void) {
+	while(CheckInventory("DnD_PerkDashCooldown") && GetActorProperty(0, APROP_HEALTH) > 0) {
+		TakeInventory("DnD_PerkDashCooldown", 1);
+		Delay(const:1);
+	}
+
+	SetInventory("DnD_PerkDashCooldown", 0);
+}
+
+// Rage decay. The grace period is refreshed by every gain, so the drain only starts once the player
+// stops earning it -- and it empties the WHOLE bar over DND_RAGE_DECAYTIME however full it was,
+// because "goes down to 0 in 3 seconds" is an emptying time rather than a rate.
+Script "DnD Rage Decay" (int ptid) {
+	if(CheckActorInventory(ptid, "DnD_RageDecaying"))
+		Terminate;
+
+	GiveActorInventory(ptid, "DnD_RageDecaying", 1);
+
+	while(CheckActorInventory(ptid, "DnD_Rage") && isActorAlive(ptid)) {
+		if(CheckActorInventory(ptid, "DnD_RageGrace")) {
+			TakeActorInventory(ptid, "DnD_RageGrace", 1);
+			Delay(const:1);
+			continue;
+		}
+
+		// one step of the drain, sized so a full bar empties in DND_RAGE_DECAYTIME
+		Delay(const:DND_RAGE_DECAYTIME / DND_RAGE_MAXSTACK);
+		TakeActorInventory(ptid, "DnD_Rage", 1);
+	}
+
+	SetActorInventory(ptid, "DnD_Rage", 0);
+	TakeActorInventory(ptid, "DnD_RageDecaying", 1);
+}
+
+// Elusive. Counts down so GetElusiveEffect can read how much is left -- the effect scales with it
+// rather than switching off at the end.
+// Martialist / Flash Parry. A forward cone sweep rather than a spawned actor, because the ParryAoE
+// beside it carries its own fixed damage and scaling that per perk would mean the actor asking ACS.
+// Bounded by UsedMonsterTIDs like every other sweep in this file.
+Script "DnD Flash Parry Shockwave" (int ptid, int pnum) {
+	int dmg = PlayerModData[pnum].vals[PSTAT_PARRY_SHOCKDMG] +
+			GetSpawnHealth() * DND_FLASHPARRY_HEALTHPCT / 100;
+
+	int range = DND_FLASHPARRY_BASERANGE;
+	int temp = PlayerModData[pnum].vals[PSTAT_PARRY_SHOCKRANGE];
+	if(temp)
+		range = range * (100 + temp) / 100;
+
+	for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
+		int m_tid = UsedMonsterTIDs[mn];
+		if(!m_tid || !isActorAlive(m_tid))
+			continue;
+
+		if(AproxDistance(GetActorX(m_tid) - GetActorX(ptid), GetActorY(m_tid) - GetActorY(ptid)) > range)
+			continue;
+
+		// "forward" -- a parry faces the thing it parried, so the cone is the player's own facing
+		if(!MaxAngleDiff(ptid, m_tid, DND_FLASHPARRY_ANGLE) || !CheckSight(ptid, m_tid, CSF_NOBLOCKALL))
+			continue;
+
+		Thing_Damage2(m_tid, dmg, "Physical");
+	}
+}
+
+// Perception / Emergency Protocol. DnD_OverheatGraceSpent is cleared when the window ends rather
+// than when the weapon cools, so one overheat buys exactly one reprieve -- clearing it on cooldown
+// would let a weapon sitting at 100 re-arm the moment the grace lapsed.
+// Perception / Excess Conversion. Reuses the bounded pick the ammo token already relies on: a
+// player can own nothing that takes ammo, so an unbounded search for one would never end.
+Script "DnD Convert Excess Ammo" (int amt) {
+	int pnum = PlayerNumber();
+	int id;
+
+	int tries = 0;
+	do {
+		id = PickRandomOwnedWeaponID(pnum);
+		++tries;
+	} while(!IsAmmoUsingWeapon(id) && tries < DND_AMMOTOKEN_MAXTRIES);
+
+	if(!IsAmmoUsingWeapon(id))
+		Terminate;
+
+	str ammo = Weapons_Data[id].ammo_name1;
+	if(ammo != "")
+		GiveInventory(ammo, amt);
+}
+
+Script "DnD Essence Theft Timer" (int ptid) {
+	while(CheckActorInventory(ptid, "DnD_EssenceTheftTimer") && isActorAlive(ptid)) {
+		TakeActorInventory(ptid, "DnD_EssenceTheftTimer", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(ptid, "DnD_EssenceTheft", 0);
+	SetActorInventory(ptid, "DnD_EssenceTheftTimer", 0);
+}
+
+// Endurance / Indomitable Resolve. The window is NOT refreshed by ailments turned away during it --
+// "prevent further ailments for the next 5 seconds" is one window per affliction, and refreshing it
+// on every blocked tic would make a burning room permanent immunity.
+// Endurance / Dense Exoskeleton. DONTRIP is an actor FLAG and Zandronum has no SetActorFlag, so it
+// is toggled by a CustomInventory whose pickup state calls A_ChangeFlag on the owner. Two of them,
+// because the flag has to come back off.
+Script "DnD Rip Immunity" (int ptid) {
+	GiveActorInventory(ptid, "Perk_RipImmunityOn", 1);
+
+	while(CheckActorInventory(ptid, "DnD_RipImmuneTimer") && isActorAlive(ptid)) {
+		TakeActorInventory(ptid, "DnD_RipImmuneTimer", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(ptid, "DnD_RipImmuneTimer", 0);
+	GiveActorInventory(ptid, "Perk_RipImmunityOff", 1);
+}
+
+Script "DnD Ailment Immunity" (int ptid) {
+	while(CheckActorInventory(ptid, "DnD_AilmentImmune") && isActorAlive(ptid)) {
+		TakeActorInventory(ptid, "DnD_AilmentImmune", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(ptid, "DnD_AilmentImmune", 0);
+}
+
+Script "DnD Overheat Grace" (int ptid) {
+	while(CheckActorInventory(ptid, "DnD_OverheatGrace") && isActorAlive(ptid)) {
+		TakeActorInventory(ptid, "DnD_OverheatGrace", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(ptid, "DnD_OverheatGrace", 0);
+	SetActorInventory(ptid, "DnD_OverheatGraceSpent", 0);
+}
+
+// Perception / Heatsinks, the item's Use state. Returns 1 so the CustomInventory consumes it only
+// when it actually did something -- using it with nothing overheated would otherwise waste it.
+Script "DnD Use Heatsink" (void) {
+	int pnum = PlayerNumber();
+	ClearAllOverheat(pnum + P_TIDSTART);
+
+	int cd = DND_HEATSINK_BASECOOLDOWN - PlayerModData[pnum].vals[PSTAT_HEATSINK_CDREDUCE] * TICRATE;
+	SetInventory("DnD_HeatsinkCooldown", Max(TICRATE, cd));
+	ACS_NamedExecuteAlways("DnD Heatsink Cooldown", 0, pnum + P_TIDSTART);
+
+	SetResultValue(1);
+}
+
+Script "DnD Heatsink Cooldown" (int ptid) {
+	while(CheckActorInventory(ptid, "DnD_HeatsinkCooldown") && isActorAlive(ptid)) {
+		TakeActorInventory(ptid, "DnD_HeatsinkCooldown", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(ptid, "DnD_HeatsinkCooldown", 0);
+}
+
+Script "DnD Tailwind Timer" (int ptid) {
+	while(CheckActorInventory(ptid, "DnD_TailwindTimer") && isActorAlive(ptid)) {
+		TakeActorInventory(ptid, "DnD_TailwindTimer", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(ptid, "DnD_TailwindSpeed", 0);
+	SetActorInventory(ptid, "DnD_TailwindTimer", 0);
+}
+
+Script "DnD Tailwind Cooldown" (int ptid) {
+	while(CheckActorInventory(ptid, "DnD_TailwindCooldown") && isActorAlive(ptid)) {
+		TakeActorInventory(ptid, "DnD_TailwindCooldown", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(ptid, "DnD_TailwindCooldown", 0);
+}
+
+Script "DnD Plan B Timer" (int ptid) {
+	while(CheckActorInventory(ptid, "DnD_PlanBTimer") && isActorAlive(ptid)) {
+		TakeActorInventory(ptid, "DnD_PlanBTimer", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(ptid, "DnD_PlanBSpeed", 0);
+	SetActorInventory(ptid, "DnD_PlanBTimer", 0);
+}
+
+Script "DnD Elusive Timer" (int ptid) {
+	while(CheckActorInventory(ptid, "DnD_Elusive") && isActorAlive(ptid)) {
+		TakeActorInventory(ptid, "DnD_Elusive", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(ptid, "DnD_Elusive", 0);
+}
+
+Script "DnD Riposte Timer" (int ptid) {
+	while(CheckActorInventory(ptid, "DnD_RiposteTimer") && isActorAlive(ptid)) {
+		TakeActorInventory(ptid, "DnD_RiposteTimer", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(ptid, "DnD_RiposteStacks", 0);
+	SetActorInventory(ptid, "DnD_RiposteTimer", 0);
+}
+
+// Endurance / Wind Dancer. Named for the EVENT it records, not the perk that reads it -- the perk
+// pays while this is absent, and a token called "wind dancer active" would read backwards.
+Script "DnD Mitigated Recently Timer" (int ptid) {
+	while(CheckActorInventory(ptid, "DnD_MitigatedRecently") && isActorAlive(ptid)) {
+		TakeActorInventory(ptid, "DnD_MitigatedRecently", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(ptid, "DnD_MitigatedRecently", 0);
+}
+
+Script "DnD Crit Speed Timer" (int ptid) {
+	while(CheckActorInventory(ptid, "DnD_CritSpeedTimer") && isActorAlive(ptid)) {
+		TakeActorInventory(ptid, "DnD_CritSpeedTimer", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(ptid, "DnD_CritSpeed", 0);
+	SetActorInventory(ptid, "DnD_CritSpeedTimer", 0);
+}
+
+// Assassination / Preparation. Counts DOWN from the last crit; the perk pays while this is zero, so
+// the token being present means "a crit landed recently" rather than "the perk is active".
+Script "DnD Crit Drought Timer" (int ptid) {
+	while(CheckActorInventory(ptid, "DnD_CritDrought") && isActorAlive(ptid)) {
+		TakeActorInventory(ptid, "DnD_CritDrought", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(ptid, "DnD_CritDrought", 0);
+}
+
+// Assassination / Pressure Points. Clears the TYPE too, not just the amount -- leaving a stale type
+// behind would expose the next monster on that tid to whatever element last critted this one.
+Script "DnD Pressure Points Timer" (int m_tid) {
+	while(CheckActorInventory(m_tid, "DnD_PressureTimer") && isActorAlive(m_tid)) {
+		TakeActorInventory(m_tid, "DnD_PressureTimer", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(m_tid, "DnD_PressureType", 0);
+	SetActorInventory(m_tid, "DnD_PressureAmount", 0);
+	SetActorInventory(m_tid, "DnD_PressureTimer", 0);
+}
+
+// Martialist / Swift & Precise. The whole stack drops together when the window lapses, matching
+// Spiked Concoction -- decaying one at a time would need a timestamp per stack.
+Script "DnD Swift Precise Timer" (int ptid) {
+	while(CheckActorInventory(ptid, "DnD_SwiftPreciseTimer") && isActorAlive(ptid)) {
+		TakeActorInventory(ptid, "DnD_SwiftPreciseTimer", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(ptid, "DnD_SwiftPreciseStacks", 0);
+	SetActorInventory(ptid, "DnD_SwiftPreciseTimer", 0);
+}
+
+// Martialist / Expose Weakness. Clears on death as well as expiry, so a stale mark cannot follow the
+// tid onto the next monster to use it.
+Script "DnD Expose Weakness Timer" (int m_tid) {
+	while(CheckActorInventory(m_tid, "DnD_ExposedTimer") && isActorAlive(m_tid)) {
+		TakeActorInventory(m_tid, "DnD_ExposedTimer", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(m_tid, "DnD_ExposedResists", 0);
+	SetActorInventory(m_tid, "DnD_ExposedTimer", 0);
+}
+
+// Cunning / Spiked Concoction. The whole stack expires together rather than one at a time, because
+// each hit refreshes the timer -- decaying individually would need a timestamp per stack.
+Script "DnD Spiked Concoction Timer" (int m_tid) {
+	while(CheckActorInventory(m_tid, "DnD_SpikedTimer") && isActorAlive(m_tid)) {
+		TakeActorInventory(m_tid, "DnD_SpikedTimer", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(m_tid, "DnD_SpikedStacks", 0);
+	SetActorInventory(m_tid, "DnD_SpikedTimer", 0);
+}
+
+// Cunning / Surging Vitality and Spiked Concoction. One window for "during any flask effect" --
+// refreshed to the LONGEST remaining rather than reset, so drinking a short flask cannot cut short
+// the window a long one opened.
+Script "DnD Flask Effect Window" (int ptid) {
+	while(CheckActorInventory(ptid, "DnD_FlaskEffectTimer") && isActorAlive(ptid)) {
+		TakeActorInventory(ptid, "DnD_FlaskEffectTimer", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(ptid, "DnD_FlaskEffectTimer", 0);
+}
+
+// Acrobacy / Head Start. The speed bonus is read by GetPlayerSpeed while the timer runs; this only
+// owns the countdown, so the bonus never has to be added and removed symmetrically.
+Script "DnD Head Start Timer" (int ptid) {
+	while(CheckActorInventory(ptid, "DnD_HeadStartTimer") && isActorAlive(ptid)) {
+		TakeActorInventory(ptid, "DnD_HeadStartTimer", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(ptid, "DnD_HeadStartSpeed", 0);
+	SetActorInventory(ptid, "DnD_HeadStartTimer", 0);
+}
+
+// Acrobacy / All-shaking Presence. Clears on death as well as on expiry -- a stale mark would make
+// the next monster to reuse the tid take extra damage and feed Adrenaline for free.
+Script "DnD Thumper Weakness Timer" (int m_tid) {
+	while(CheckActorInventory(m_tid, "DnD_ThumperWeaknessTimer") && isActorAlive(m_tid)) {
+		TakeActorInventory(m_tid, "DnD_ThumperWeaknessTimer", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(m_tid, "DnD_ThumperWeakness", 0);
+	SetActorInventory(m_tid, "DnD_ThumperWeaknessTimer", 0);
+}
+
+Script "DnD Adrenaline Cooldown" (int ptid) {
+	while(CheckActorInventory(ptid, "DnD_AdrenalineCooldown") && isActorAlive(ptid)) {
+		TakeActorInventory(ptid, "DnD_AdrenalineCooldown", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(ptid, "DnD_AdrenalineCooldown", 0);
+}
+
+// Acrobacy fall-impact cluster. Landing has to be caught on the tic it happens, and the existing
+// per-player loop in "DnD Periodic Checks" runs every ten -- a whole fall can start and finish
+// inside one of its gaps -- so this needs a loop of its own.
+//
+// The loop is cheap when the player has none of the cluster: it still has to watch velocity to know
+// a landing happened, but everything past the landing test is skipped.
+Script "DnD Fall Impact" ENTER {
+	int pnum = PlayerNumber();
+	int prev_velz = 0;
+	int still_tics = 0;
+	int run_tics = 0;
+	int tailwind_tic = 0;
+	int heatsink_tic = 0;
+
+	while(PlayerInGame(pnum)) {
+		if(isAlive()) {
+			int velz = GetActorVelZ(0);
+			bool grounded = GetActorZ(0) - GetActorFloorZ(0) <= 0;
+
+			// The landing tic is the one where the player is on the floor and was still falling hard a
+			// tic ago. Reading velz on the same tic does not work: the engine has already zeroed it.
+			if(grounded && prev_velz <= DND_THUMPER_MINFALLVEL)
+				HandleFallImpact(pnum);
+
+			// Assassination / Steady Shot's stationary counter rides this loop rather than opening a
+			// second one -- it is the same question asked at the same rate. Counted in SECONDS because
+			// the perk is worded per second, so the token stays small and readable.
+			// Acrobacy / Tailwind. Polled every DND_TAILWIND_POLLRATE tics rather than every one: running
+			// past someone is a second-scale event, and this sweep would otherwise be the Crash Course
+			// runaway wearing a permanent loop instead of a twelve-tic one.
+			if(!(tailwind_tic = (tailwind_tic + 1) % DND_TAILWIND_POLLRATE))
+				HandleTailwind(pnum);
+
+			// Perception / Heatsinks hands out its item on the same slow poll. There is no "cooldown
+			// finished" event to hook -- the cooldown is a counter -- so the restock is a check rather
+			// than a callback.
+			if(!(heatsink_tic = (heatsink_tic + 1) % DND_HEATSINK_POLLRATE) &&
+				PlayerModData[pnum].vals[PSTAT_HEATSINK_CDREDUCE] >= 0 &&
+				HasPerk(pnum, PERK_PERC_HEATSINKS) &&
+				!CheckInventory("DnD_HeatsinkCooldown") && !CheckInventory("HeatsinkItem"))
+				GiveInventory("HeatsinkItem", 1);
+
+			// Martialist / Quick & Deadly. The effect is DECORATE-side; ACS only has to make sure the
+			// token it checks for is present exactly while the perk is held.
+			if(PlayerModData[pnum].vals[PSTAT_SLASH_QUICKDEADLY] != !!CheckInventory("DnD_QuickDeadly"))
+				SetInventory("DnD_QuickDeadly", !!PlayerModData[pnum].vals[PSTAT_SLASH_QUICKDEADLY]);
+
+			// Perception / Sleight of Hand, the same arrangement. Ability_Reloader used to be bought
+			// in the shop; the token it hands out is unchanged, so every weapon that branches on it
+			// keeps working and the perk is simply the new way to hold it.
+			if(PlayerModData[pnum].vals[PSTAT_FASTRELOAD] != !!CheckInventory("Ability_Reloader"))
+				SetInventory("Ability_Reloader", !!PlayerModData[pnum].vals[PSTAT_FASTRELOAD]);
+
+			// Acrobacy / Nimbleness needs the mirror of this -- seconds spent MOVING -- so both counters
+			// live here and each resets the other. One is always zero.
+			if(IsPlayerMoving(pnum, 0)) {
+				SetInventory("DnD_StillSeconds", 0);
+				still_tics = 0;
+				if(++run_tics >= TICRATE) {
+					run_tics = 0;
+					GiveInventory("DnD_RunSeconds", 1);
+				}
+			}
+			else {
+				SetInventory("DnD_RunSeconds", 0);
+				run_tics = 0;
+				if(++still_tics >= TICRATE) {
+					still_tics = 0;
+					GiveInventory("DnD_StillSeconds", 1);
+				}
+			}
+
+			prev_velz = velz;
+		}
+		else {
+			prev_velz = 0;
+			still_tics = 0;
+			run_tics = 0;
+			SetInventory("DnD_StillSeconds", 0);
+			SetInventory("DnD_RunSeconds", 0);
+		}
+
+		Delay(const:1);
+	}
+}
+
+// Acrobacy / Crash Course. Sweeps for monsters while the dash impulse is still carrying the player
+// and stuns plus damages the first one it reaches.
+//
+// One monster per dash, not one per tic: without the break a dash through a crowd would stun the
+// whole crowd, and without stopping at the first hit the same monster would be hit every tic of the
+// sweep. DnD_CrashCourseHit marks the dash as spent.
+Script "DnD Dash Crash Course" (void) {
+	int pnum = PlayerNumber();
+	int ptid = pnum + P_TIDSTART;
+
+	int dmg = DND_CRASHCOURSE_BASEDMG +
+				PlayerModData[pnum].vals[PSTAT_KNOCKBACK_RESIST] +
+				((DND_CRASHCOURSE_STRFACTOR * GetStrength(pnum)) >> 16) +
+				((DND_CRASHCOURSE_DEXFACTOR * GetDexterity(pnum)) >> 16);
+
+	int stun = PlayerModData[pnum].vals[PSTAT_DASH_CRASHSTUN];
+
+	for(int t = 0; t < DND_CRASHCOURSE_WATCHTICS; ++t) {
+		if(!isActorAlive(ptid))
+			Terminate;
+
+		// UsedMonsterTIDs is the DENSE list of monsters actually spawned, bounded by the level's own
+		// count. Walking DND_MAX_MONSTERS instead would be 12800 probes per tic for a map that might
+		// hold 700 -- the same shape as the runaway that killed FlushDamageTicResidue.
+		for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
+			int m_tid = UsedMonsterTIDs[mn];
+			if(!m_tid || !isActorAlive(m_tid))
+				continue;
+
+			if(AproxDistance(GetActorX(m_tid) - GetActorX(ptid), GetActorY(m_tid) - GetActorY(ptid)) > DND_CRASHCOURSE_RADIUS)
+				continue;
+
+			if(!CheckSight(ptid, m_tid, CSF_NOBLOCKALL))
+				continue;
+
+			// reuses the stun Cranium Bash drives, so there is one stun in the game rather than two
+			if(!CheckActorInventory(m_tid, "StunDurationCounter")) {
+				SetActorInventory(m_tid, "StunDurationCounter", stun);
+				SetActorState(m_tid, "Stunned");
+				ACS_NamedExecuteAlways("DnD Monster Stun Ticker", 0, m_tid);
+			}
+
+			Thing_Damage2(m_tid, dmg, "Physical");
+			Terminate;
+		}
+
+		Delay(const:1);
+	}
+}
+
+// Acrobacy / Evasive Maneuvers. Separate from DnD_DashedRecently because its length scales with
+// points while that one is a fixed four seconds.
+Script "DnD Dash Evade Timer" (void) {
+	while(CheckInventory("DnD_DashEvadeWindow") && GetActorProperty(0, APROP_HEALTH) > 0) {
+		TakeInventory("DnD_DashEvadeWindow", 1);
+		Delay(const:1);
+	}
+
+	SetInventory("DnD_DashEvadeWindow", 0);
+}
+
+// Shared "recently dashed" window. Kinetic Pads reads the COOLDOWN instead, since its wording is
+// "until dash is available" rather than a fixed window.
+Script "DnD Dashed Recently Timer" (void) {
+	while(CheckInventory("DnD_DashedRecently") && GetActorProperty(0, APROP_HEALTH) > 0) {
+		TakeInventory("DnD_DashedRecently", 1);
+		Delay(const:1);
+	}
+
+	SetInventory("DnD_DashedRecently", 0);
 }
 
 // reload script -- rewrite sometime
@@ -4132,9 +4663,49 @@ Script "DnD Lifesteal Script" (int tid) {
 
 // for elites with pierce armor flag
 // also generic projectile initialization
+// How often the camouflage watcher re-reads its projectile's tracer. Every tic would be wasteful
+// for something that only matters when a lock CHANGES, and a few tics of lock is not noticeable.
+#define DND_CAMOUFLAGE_POLLRATE 5
+
+// A seeking projectile cannot be talked out of its target from the player's side -- A_SeekerMissile
+// picks in DECORATE and nothing in ACS sees it happen. So the projectile watches itself: it polls
+// its own tracer, and when that tracer is a player with Camouflage it rolls once for the lock.
+//
+// Started only for seekers, from the setup script below, so ordinary projectiles pay nothing.
+Script "DnD Projectile Camouflage Watch" (void) {
+	// The player this projectile has already rolled against. Rolling once per LOCK rather than once
+	// per poll is the whole correctness of this: at a few percent a tic the perk would be a
+	// guaranteed drop within a second, and re-acquiring the same player must not re-roll either or
+	// a seeker that instantly re-locks would roll forever.
+	int rolled_for = 0;
+
+	// A projectile has no death state to hook and no owner to ask, so the loop is bounded by its own
+	// liveness -- APROP_HEALTH reads 0 once the activator is gone.
+	while(GetActorProperty(0, APROP_HEALTH) > 0) {
+		int tracer = GetActorProperty(0, APROP_TRACERTID);
+
+		if(tracer != rolled_for) {
+			rolled_for = tracer;
+
+			int pnum = tracer - P_TIDSTART;
+			if(pnum >= 0 && pnum < MAXPLAYERS && PlayerInGame(pnum)) {
+				int chance = PlayerModData[pnum].vals[PSTAT_AVOID_HOMING];
+				if(chance && random(1, 100) <= chance)
+					SetPointer(AAPTR_TRACER, 0);
+			}
+		}
+
+		Delay(const:DND_CAMOUFLAGE_POLLRATE);
+	}
+}
+
 Script "DnD Monster Projectile Setup" (void) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	int m_id = owner - DND_MONSTERTID_BEGIN;
+
+	// Only a seeker has a lock to break, so only a seeker pays for a watcher.
+	if(CheckFlag(0, "SEEKERMISSILE") || CheckFlag(0, "SCREENSEEKER"))
+		ACS_NamedExecuteAlways("DnD Projectile Camouflage Watch", 0);
 
 	// setactorflag isnt in zandro, so
 	if(CheckFlag(owner, "PIERCEARMOR"))
@@ -4866,7 +5437,11 @@ Script "DnD Explosion Radius Retrieve" (int r_base, int noSecondExp) {
 	// Integer sqrt because radius IS an integer here; no fixed point round trip, and fsqrt carries a
 	// documented ceiling this does not need. Largest base radius in DECORATE is 448, so 448^2 * 300
 	// is nowhere near overflow.
-	r_base = sqrt_z(r_base * r_base * (100 + GetPlayerAoEIncrease(pnum)) / 100);
+	// The artillery term is added here and NOT inside GetPlayerAoEIncrease: that one is also what
+	// APROP_SCORE and the stat page carry, and both of those describe the player rather than one
+	// explosion, so neither can answer "is the weapon in hand artillery".
+	r_base = sqrt_z(r_base * r_base *
+		(100 + GetPlayerAoEIncrease(pnum) + GetPlayerArtilleryAoEIncrease(pnum, owner)) / 100);
 
 	// less mods
 	if(!noSecondExp) {
@@ -5436,10 +6011,6 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 		
 		Log(s:"\n--------------------------------\n------- ", l:"DND_STATALLOCATION", s:" -------\n--------------------------------\n");
 		Log(s:"\c[Y5]", l:"DND_STAT1", s:": \c-", d:GetStrength(pnum), s:"\n\c[Y5]", l:"DND_STAT2", s:": \c-", d:GetDexterity(pnum), s:"\n\c[Y5]", l:"DND_STAT3", s:": \c-", d:GetIntellect(pnum));
-		
-		Log(s:"\n--------------------------------\n------- ", l:"DND_PERKALLOCATION", s:" -------\n--------------------------------\n");
-		for(i = 0; i < DND_MAX_PERKS; ++i)
-			Log(s:"\c[Y5]", l:GetStatLabel(DND_PERK_BEGIN + i), s:": \c-", d:GetPerk(DND_PERK_BEGIN + i));
 		
 		Log(s:"\n--------------------------------\n------- ", l:"DND_MENU_ACCESSORIES", s:" -------\n--------------------------------\n");
 		for(j = 0, i = 0; i < MAX_ACCESSORY && j < 2; ++i) {
@@ -6359,12 +6930,17 @@ Script 68 (int x) NET {
 			ACS_NamedExecuteWithResult("DnD Handle Attribute Sync", PlayerNumber());
 		}
 		else if(x == 450) {
-			GiveInventory("PerkPoint", 10);
-			UpdateActivity(PlayerNumber(), DND_ACTIVITY_PERKPOINT, 10, 0);
+			GivePerkPoints(PlayerNumber(), 10);
 			GiveInventory("PerkedUp", 1);
 
 			GiveInventory("AttributePoint", 25);
 			UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTEPOINT, 25, 0);
+		}
+		else if(x == 452) {
+			// Perk points ALONE, unlike 450 which also hands out attribute points and PerkedUp.
+			// Goes through GivePerkPoints, so the pool, the activity delta and the menu's mirror all
+			// move together -- which `give PerkPoint` from the console does not do.
+			GivePerkPoints(PlayerNumber(), 10);
 		}
 		else if(x == 451)
 			SpawnDrop("ResearchModule_MP", 24.0, 16, 1, random(0, 50));

@@ -107,6 +107,18 @@ struct scrollbar_T {
 	int grab_y;
 	int grab_pos;
 
+	// Where this bar's track is drawn, in screen pixels. A page states it in the same ListenScroll
+	// call that states its range, because a bar that spans the whole page while scrolling a strip at
+	// the bottom of it is not a control, it is a riddle -- which is exactly how the perk tree's
+	// detail panel read before it got a track of its own.
+	int track_y;
+	int track_h;
+
+	// Where this bar is scrolled to. Bar 0 does NOT use this: its position stays in ScrollPos.x,
+	// which every existing page reads directly when it draws and writes directly when it resets.
+	// Moving that would have meant touching all of them; see GetScrollBarPos.
+	int pos;
+
 	// listened separates "this page scrolls, and the two above describe it" from "this page has no
 	// scroll at all", which is the difference between drawing a bar and not drawing one.
 	bool listened;
@@ -119,9 +131,14 @@ struct scrollbar_T {
 	bool lit;
 };
 
-scrollbar_T module& GetScrollBar() {
-	static scrollbar_T bar;
-	return bar;
+// Two bars, because one page needs two independent ones. Every other page uses bar 0 and never
+// mentions the second, which stands down on its own -- a bar nothing called ListenScroll for has
+// listened == false and is not drawn.
+#define DND_SCROLLBAR_COUNT 2
+
+scrollbar_T module& GetScrollBar(int id = 0) {
+	static scrollbar_T bars[DND_SCROLLBAR_COUNT];
+	return bars[id];
 }
 
 // The bar sits in the strip between where the page's text stops and where the panel's right hand
@@ -150,8 +167,11 @@ scrollbar_T module& GetScrollBar() {
 #define DND_SCROLLBAR_THUMBDEFAULT 32
 // small enough to still mean "there is a lot below", large enough to still be a mouse target
 #define DND_SCROLLBAR_THUMBMIN 16
-// a thumb that filled the whole track would leave nowhere to drag it to
-#define DND_SCROLLBAR_THUMBMAX (DND_SCROLLBAR_H - 8)
+// a thumb that filled its track would leave nowhere to drag it to. Against the BAR's track rather
+// than the default one, because a short bar's thumb has to be short enough to move within it.
+#define DND_SCROLLBAR_THUMBMAX(track_h) ((track_h) - 8)
+
+#define DND_SCROLLBAR_IDSTRIDE (RPGMENUSCROLLGRIPID2 - RPGMENUSCROLLGRIPID)
 
 #define DND_SCROLLBAR_XF (DND_SCROLLBAR_X << 16)
 #define DND_SCROLLBAR_YF (DND_SCROLLBAR_Y << 16)
@@ -161,11 +181,12 @@ scrollbar_T module& GetScrollBar() {
 #define DND_SCROLLBAR_GRABPAD 5
 
 // The cursor runs the other way to the screen (top left is 1:1, see point_in_box), so the bar's
-// screen rectangle has to be flipped into cursor space before anything can be tested against it.
+// screen rectangle has to be flipped into cursor space before anything can be tested against it. The
+// y pair takes the bar's own track, since two bars share the column and only their y separates them.
 #define DND_SCROLLBAR_CURSOR_XMAX ((HUDMAX_X - DND_SCROLLBAR_X + DND_SCROLLBAR_GRABPAD) << 16)
 #define DND_SCROLLBAR_CURSOR_XMIN ((HUDMAX_X - DND_SCROLLBAR_X - DND_SCROLLBAR_W - DND_SCROLLBAR_GRABPAD) << 16)
-#define DND_SCROLLBAR_CURSOR_YMAX ((HUDMAX_Y - DND_SCROLLBAR_Y) << 16)
-#define DND_SCROLLBAR_CURSOR_YMIN ((HUDMAX_Y - DND_SCROLLBAR_Y - DND_SCROLLBAR_H) << 16)
+#define DND_SCROLLBAR_CURSOR_YMAX(track_y) ((HUDMAX_Y - (track_y)) << 16)
+#define DND_SCROLLBAR_CURSOR_YMIN(track_y, track_h) ((HUDMAX_Y - (track_y) - (track_h)) << 16)
 
 #define BOSSDATA_TID 0 // unique boss tid, this is typically dungeon boss or one off boss encounters in maps
 #define BOSSDATA_HP 1 // unique boss hp, monster health isnt synced to clients
@@ -255,12 +276,21 @@ enum {
 	// Below RPGMENUBACKGROUNDID also keeps them clear of RPGMENUBACKGROUNDID + 1, which the
 	// prompt and vote banners write to.
 	// the handle's three bands, then its groove, each in front of the one after it
+	// One group of four per bar, contiguous and in the same order, so bar n's ids are the first
+	// group plus n * DND_SCROLLBAR_IDSTRIDE. The background follows the last group rather than
+	// sitting at a fixed number, so adding a bar cannot quietly overlap it -- everything that
+	// references it, including the prompt and vote banners at + 1, does so by name.
 	RPGMENUSCROLLGRIPID = 2151,
-	RPGMENUSCROLLCAPID = 2152,
-	RPGMENUSCROLLTHUMBID = 2153,
-	RPGMENUSCROLLTRACKID = 2154,
+	RPGMENUSCROLLCAPID,
+	RPGMENUSCROLLTHUMBID,
+	RPGMENUSCROLLTRACKID,
 
-	RPGMENUBACKGROUNDID = 2155,
+	RPGMENUSCROLLGRIPID2,
+	RPGMENUSCROLLCAPID2,
+	RPGMENUSCROLLTHUMBID2,
+	RPGMENUSCROLLTRACKID2,
+
+	RPGMENUBACKGROUNDID,
 
 	// monster scanner hud id stuff
 	MONSTER_TYPEICONID = 2300,

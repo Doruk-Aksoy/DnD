@@ -58,7 +58,7 @@ void ClearTempItemInventory() {
 
 // includes left right shortcuts
 // works clientside
-void ListenInput(int listenflag, int condx_min, int condx_max, int curr_res_page = -1) {
+void ListenInput(int listenflag, int condx_min, int condx_max, int curr_res_page = -1, bool allow_pin = false) {
 	int bpress = GetPlayerInput(-1, INPUT_BUTTONS);
 	int obpress = GetPlayerInput(-1, INPUT_OLDBUTTONS);
 	int curposx = CheckInventory("MenuPosX");
@@ -144,7 +144,13 @@ void ListenInput(int listenflag, int condx_min, int condx_max, int curr_res_page
 			GiveInventory("DnD_ClickTicker", 1);
 			if(CheckInventory("DnD_SellConfirm"))
 				ACS_NamedExecuteAlways("DnD Menu Sell Popup Clear", 0);
-			SetInventory("MenuInput", DND_MENUINPUT_LCLICK);
+
+			// Jump held makes it a pin on the pages that offer one, and an ordinary click everywhere
+			// else -- nowhere else is hovering fighting the cursor, so nowhere else needs the gesture.
+			if(allow_pin && IsButtonHeld(bpress, BT_JUMP))
+				SetInventory("MenuInput", DND_MENUINPUT_PINCLICK);
+			else
+				SetInventory("MenuInput", DND_MENUINPUT_LCLICK);
 		}
 		else if(IsButtonPressed(bpress, obpress, BT_ALTATTACK)) {
 			GiveInventory("DnD_ClickTicker", 1);
@@ -225,57 +231,6 @@ void ShowNeedResearchPopup() {
 	ShowPopup(POPUP_NEEDRESEARCH, false, 0);
 }
 
-str GetPerkText(int id) {
-	return StrParam(s:"DND_MENU_PERKTEXT", d:id + 1);
-}
-
-// yeah this is ugly, but it is what it is
-void DrawPerkText(int boxid) {
-	if(boxid != MAINBOX_NONE) {
-		// order follows perk definition order at the enum in DND_CommonStat.h
-		int perk = boxid + DND_PERK_BEGIN - 1;
-		str toShow = "";
-		switch(perk) {
-			case STAT_SHRP:
-				toShow = StrParam(s:"\cd* \ci+", d:DND_PERK_SHARPSHOOTER_INC, s:"%\c- ", l:GetPerkText(boxid - 1));
-			break;
-			case STAT_BRUT:
-				toShow = StrParam(s:"\cd* \ci+", d:DND_PERK_BRUTALITY_DAMAGEINC, s:"%\c- ", l:GetPerkText(boxid - 1), l:"DND_MENU_AND", s:"\ci+", d:DND_PERK_BRUTALITY_RANGEINC, s:"%\c- ", l:"DND_MENU_PERKTEXT2_CONT");
-			break;
-			case STAT_RISK:
-				toShow = StrParam(s:"\cd* \ci+", d:RISK_AVERSION_VALUE, s:"%\c- ", l:GetPerkText(boxid - 1));
-			break;
-			case STAT_WIS:
-				toShow = StrParam(s:"\cd* \ci+", d:BASE_WISDOM_GAIN, s:"%\c- ", l:GetPerkText(boxid - 1));
-			break;
-			case STAT_GRE:
-				toShow = StrParam(s:"\cd* \ci+", d:BASE_GREED_GAIN, s:"%\c- ", l:GetPerkText(boxid - 1));
-			break;
-			case STAT_MED:
-				toShow = StrParam(s:"\cd* \ci+", d:PERK_MEDICBONUS, s:"%\c- ", l:GetPerkText(boxid - 1));
-			break;
-			case STAT_MUN:
-				toShow = StrParam(s:"\cd* \ci+", d:DND_MUNITION_GAIN, s:"%\c- ", l:GetPerkText(boxid - 1));
-			break;
-			case STAT_DED:
-				toShow = StrParam(s:"\cd* \ci+", s:GetFixedRepresentation(PERK_DEADLINESS_BONUS, true), s:"%\c- ", l:GetPerkText(boxid - 1));
-			break;
-			case STAT_SAV:
-				toShow = StrParam(s:"\cd* \ci+", d:DND_SAVAGERY_BONUS, s:"%\c- ", l:GetPerkText(boxid - 1));
-			break;
-			case STAT_ACRM:
-				toShow = StrParam(s:"\cd* \ci+", d:DND_ACRIMONY_GAIN, s:"%\c- ", l:GetPerkText(boxid - 1));
-			break;
-		}
-		if(GetPerk(perk) == DND_PERK_MAX)
-			toShow = StrParam(s:toShow, s:"\n\c[Y5]", l:"DND_MENU_MASTERY", s:": \cd", l:StrParam(s:"DND_MENU_PERKMASTERY", d:boxid));
-		else
-			toShow = StrParam(s:toShow, s:"\n\c[Y5]", l:"DND_MENU_MASTERY", s:" (", l:"DND_MENU_MASTERY_COND", s:"): \cu", l:StrParam(s:"DND_MENU_PERKMASTERY", d:boxid));
-		SetHudClipRect(184, 232, 256, 48, 256);
-		HudMessage(s:toShow; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 232.1 + 2.0 * ScrollPos.x, 0.0, 0.0);
-		SetHudClipRect(0, 0, 0, 0, 0);
-	}
-}
 
 void DrawDamageTypes(int req_id, int constraint, int flags) {
 	static int WeaponDamageTypes[MAXSHOPWEAPONS] = {
@@ -566,7 +521,10 @@ bool HandlePageListening(int curopt, int boxid) {
 	// Pages that scroll set this again through ListenScroll below; the ones that don't leave it
 	// clear, which is how the bar knows to stand down. Cleared here rather than by the caller so
 	// it cannot be forgotten at a call site that only wanted the key handling.
-	GetScrollBar().listened = false;
+	// Every bar stands down unless the page below asks for it back. A page that mentions only bar 0
+	// leaves the second one un-listened, which is what keeps it off every page but the perk tree.
+	for(int b = 0; b < DND_SCROLLBAR_COUNT; ++b)
+		GetScrollBar(b).listened = false;
 	switch(curopt) {
 		case MENU_MAIN:
 			redraw = ListenScroll(-32, 0, 4, 128);
@@ -576,9 +534,6 @@ bool HandlePageListening(int curopt, int boxid) {
 		break;
 		case MENU_HELP_AILMENTS:
 			redraw = ListenScroll(-40, 0, 8, 228);
-		break;
-		case MENU_PERK:
-			redraw = ListenScroll(-16, 0, 2, 48);
 		break;
 
 		case MENU_HELP_CLASSPERKS:
@@ -678,6 +633,17 @@ bool HandlePageListening(int curopt, int boxid) {
 			// the investment explanation under the research entry, not the entry itself
 			if(boxid == MBOX_2)
 				redraw = ListenScroll(-16, 0, 2, 36);
+		break;
+		// Each tree page states its own span, because it depends on how many perks the archetype
+		// has: an archetype that gained one would otherwise scroll short of its own last row.
+		case MENU_PERK_ACRO:
+		case MENU_PERK_ASSN:
+		case MENU_PERK_CUN:
+		case MENU_PERK_END:
+		case MENU_PERK_MART:
+		case MENU_PERK_PERC:
+		case MENU_PERK_TORM:
+			redraw = HandlePerkPageScroll(curopt - MENU_PERKTREE_FIRST, boxid);
 		break;
 		#ifdef ISAPRILFIRST
 		case MENU_SHOP_NFT:
@@ -1447,21 +1413,10 @@ void DrawHighLightBar (int posy, int framecounter) {
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_SIDE_STATS"; HUDMSG_PLAIN, RPGMENULISTID, -1, 96.0, 168.0, 0.0);
 
 	drawstate |= 2;
-	if(
-		CheckInventory("PerkPoint") && 
-		!(framecounter % 2) &&
-	    !(
-			(CheckInventory("Perk_Sharpshooting") == DND_PERK_MAX) &&
-			(CheckInventory("Perk_RiskAversion") == DND_PERK_MAX) &&
-			(CheckInventory("Perk_Wisdom") == DND_PERK_MAX) &&
-			(CheckInventory("Perk_Greed") == DND_PERK_MAX) &&
-			(CheckInventory("Perk_Medic") == DND_PERK_MAX) &&
-			(CheckInventory("Perk_Munitionist") == DND_PERK_MAX) &&
-			(CheckInventory("Perk_Deadliness") == DND_PERK_MAX) &&
-			(CheckInventory("Perk_Savagery") == DND_PERK_MAX) &&
-			(CheckInventory("Perk_Luck") == DND_PERK_MAX)
-		)
-	)
+	// Used to also suppress the blink once every old perk was maxed. 218 points across the tree
+	// against 50 from levelling, so an equivalent all-maxed state is not reachable and not worth
+	// computing -- having points to spend is the whole condition now.
+	if(CheckInventory("PerkPoint") && !(framecounter % 2))
 	{
 		drawstate |= (posy == MAINBOX_PERK) * 4;
 		HudMessage(s:"\c[B3]", l:"DND_MENU_SIDE_PERKS"; HUDMSG_PLAIN, RPGMENULISTID - 1, -1, 96.0, 186.0, 0.0);
@@ -1622,17 +1577,20 @@ bool IsBoxEnabled(menu_inventory_T module& p, int box) {
 }
 
 // deepcopy to avoid accidental overriding
+//
+// The bound is MAX_PANE_BOXES, not MAX_MENU_BOXES: this writes into the runtime pane, while
+// MAX_MENU_BOXES belongs to the bp[][] table LoadPane reads FROM. The guard is live rather than
+// commented because overflowing here runs off the end of MenuRectangles and straight over cursize.
 void AddBoxToPane(menu_pane_T module& p, rect_T module& box) {
-	//Log(s:"add box ", d:p.cursize);
-	//if(p.cursize < MAX_MENU_BOXES) {
+	if(p.cursize < MAX_PANE_BOXES) {
 		p.MenuRectangles[p.cursize].topleft_x = box.topleft_x;
 		p.MenuRectangles[p.cursize].topleft_y = box.topleft_y;
 		p.MenuRectangles[p.cursize].botright_x = box.botright_x;
 		p.MenuRectangles[p.cursize].botright_y = box.botright_y;
 		++p.cursize;
-	/*}
+	}
 	else
-		Log(s:"Menu box limit exceeded.");*/
+		Log(s:"AddBoxToPane: pane is full at ", d:MAX_PANE_BOXES, s:" boxes, dropping one.");
 }
 
 void AddBoxToInventory(menu_inventory_T module& p, rect_T module& box) {
@@ -1730,18 +1688,44 @@ rect_T module& LoadRect(int menu_page, int id) {
 			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
-		// perk
+		// perk -- one row per archetype, in PERK_ARCH_* order
 		{
-			{ 296.0, 245.0, 184.0, 237.0 }, // sharp
-			{ 296.0, 229.0, 184.0, 221.0 }, // brutality
-			{ 296.0, 213.0, 184.0, 205.0 }, // end
-			{ 296.0, 197.0, 184.0, 189.0 }, // wis
-			{ 296.0, 181.0, 184.0, 173.0 }, // greed
-			{ 296.0, 165.0, 184.0, 157.0 }, // med
-			{ 296.0, 149.0, 184.0, 141.0 }, // mun
-			{ 296.0, 133.0, 184.0, 125.0 }, // ded
-			{ 296.0, 117.0, 184.0, 109.0 }, // sav
-			{ 296.0, 101.0, 184.0, 93.0  }, // luck
+			{ 296.0, 238.0, 80.0, 226.0 }, // acrobacy
+			{ 296.0, 218.0, 80.0, 206.0 }, // assassination
+			{ 296.0, 198.0, 80.0, 186.0 }, // cunning
+			{ 296.0, 178.0, 80.0, 166.0 }, // endurance
+			{ 296.0, 158.0, 80.0, 146.0 }, // martialist
+			{ 296.0, 138.0, 80.0, 126.0 }, // perception
+			{ 296.0, 118.0, 80.0, 106.0 }, // tormentor
+			{ 296.0, 96.0, 80.0, 84.0 },   // dash toggle, below the rule
+			{ -1, -1, -1, -1 }
+		},
+		// perk tree: acrobacy
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// perk tree: assassination
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// perk tree: cunning
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// perk tree: endurance
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// perk tree: martialist
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// perk tree: perception
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// perk tree: tormentor
+		{
 			{ -1, -1, -1, -1 }
 		},
 		// loadout
@@ -1887,15 +1871,13 @@ rect_T module& LoadRect(int menu_page, int id) {
 			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
-		// shop
+		// shop -- abilities and artifacts no longer have a counter, so the rows below them moved up
 		{
 			{ 289.0, 229.0, 179.0, 221.0 }, // wep
 			{ 289.0, 213.0, 162.0, 205.0 }, // ammo
-			{ 289.0, 197.0, 178.0, 189.0 }, // ability
-			{ 289.0, 181.0, 169.0, 173.0 }, // arti
-			{ 289.0, 165.0, 183.0, 157.0 }, // account
+			{ 289.0, 197.0, 183.0, 189.0 }, // account
 			#ifdef ISAPRILFIRST
-				{ 289.0, 149.0, 188.0, 141.0 }, // nft
+				{ 289.0, 181.0, 188.0, 173.0 }, // nft
 			#endif
 			{ -1, -1, -1, -1 }
 		},
@@ -2151,43 +2133,6 @@ rect_T module& LoadRect(int menu_page, int id) {
 			{ 289.0, 149.0, 96.0, 141.0 }, // w7
 			{ -1, -1, -1, -1 }
 		},
-		// ability shop - 1
-		{
-			{ 289.0, 245.0, 120.0, 239.0 }, // w1
-			{ 289.0, 229.0, 120.0, 223.0 }, // w2
-			{ 289.0, 213.0, 120.0, 207.0 }, // w3
-			{ 289.0, 197.0, 120.0, 191.0 }, // w4
-			{ 289.0, 181.0, 120.0, 175.0 }, // w5
-			{ 289.0, 165.0, 120.0, 159.0 }, // w6
-			{ 289.0, 149.0, 120.0, 143.0 }, // w7
-			{ 289.0, 133.0, 120.0, 127.0 }, // w8
-			{ -1, -1, -1, -1 }
-		},
-		// ability shop - 2
-		{
-			{ 289.0, 245.0, 120.0, 239.0 }, // w1
-			{ 289.0, 229.0, 120.0, 223.0 }, // w2
-			{ -1, -1, -1, -1 }
-		},
-		// artifact shop - 1
-		{
-			{ 289.0, 245.0, 120.0, 239.0 }, // w1
-			{ 289.0, 229.0, 120.0, 223.0 }, // w2
-			{ 289.0, 213.0, 120.0, 207.0 }, // w3
-			{ 289.0, 197.0, 120.0, 191.0 }, // w4
-			{ 289.0, 181.0, 120.0, 175.0 }, // w5
-			{ 289.0, 165.0, 120.0, 159.0 }, // w6
-			{ 289.0, 149.0, 120.0, 143.0 }, // w7
-			{ 289.0, 133.0, 120.0, 127.0 }, // w8
-			{ 289.0, 117.0, 120.0, 111.0 }, // w9
-			{ 289.0, 101.0, 104.0, 95.0 }, // w10
-			{ -1, -1, -1, -1 }
-		},
-		// artifact shop - 2
-		{
-			{ 289.0, 245.0, 120.0, 239.0 }, // w1
-			{ -1, -1, -1, -1 }
-		},
 		// account
 		{
 			{ 289.0, 245.0, 120.0, 239.0 }, // w1
@@ -2330,9 +2275,8 @@ rect_T module& LoadRect(int menu_page, int id) {
 		{
 			{ -1, -1, -1, -1 }
 		},
-		// ability
+		// ability -- header only until it becomes the spell tree; the dash toggle moved to the perk index
 		{
-			{ 289.0, 69.0, 104.0, 61.0 }, // dash
 			{ -1, -1, -1, -1 }
 		}
 		#ifdef ISAPRILFIRST
@@ -2563,6 +2507,7 @@ void LoadCraftingView(menu_inventory_T module& p) {
 	}
 }
 
+// Bounded by MAX_MENU_BOXES because it is walking a bp[] ROW, not filling the pane to capacity.
 void LoadPane(menu_pane_T module& p, int menu_page) {
 	p.cursize = 0;
 	for(int i = 0; i < MAX_MENU_BOXES; ++i) {
@@ -2865,6 +2810,345 @@ void HandleAmmoPageInput(int pnum, int slot, int boxid, int begin_index, int pag
 		ClearPlayerInput(pnum, true);
 		UpdateMenuPosition(pagenext);
 	}
+}
+
+// ---------------------------------------------------------------- the perk tree
+// Two pages. MENU_PERK indexes the archetypes; one MENU_PERK_* page per archetype draws its tree.
+//
+// A tree page lays itself out from the perk table rather than from a bp[] row, so it builds its own
+// boxes here on every redraw. The BOX ORDER is the contract with the click handler in
+// "DND Server Box Receive": box n is entry n of GetPerkArchList(arch), then the back arrow last.
+// Rows scrolled out of view still take their box -- parked where the cursor cannot reach it -- so
+// the numbering can never shift under the server, which has no idea where the client scrolled to.
+
+// How far a tree page scrolls: whatever its rows overrun the window by, in steps. Stated here so the
+// scroll handler and the draw cannot disagree about where the bottom is.
+int GetPerkTreeScrollSpan(int arch) {
+	EnsurePerkArchLists();
+
+	int over = GetPerkArchList(arch).rows * DND_PERKROW_H - DND_PERKLIST_H;
+	if(over <= 0)
+		return 0;
+	return (over + DND_PERKSCROLL_STEP - 1) / DND_PERKSCROLL_STEP;
+}
+
+void HandlePerkIndexDraw(int pnum, int boxid) {
+	EnsurePerkArchLists();
+
+	// The same column the tree pages use, and for the same reason: the hint line at the bottom and
+	// the empty-archetype note both run past the panel without it.
+	SetHudClipRect(DND_PERKLIST_X, 56, DND_PERKLIST_W, 224, DND_PERKLIST_W);
+
+#ifdef VERBOSE_PERK_SETUP
+	// This draw is CLIENTSIDE, so this is the client's view and the place a blank tree is diagnosed.
+	// An empty table means the clientside setup script never ran at all; a full table beside an empty
+	// list means it ran but the list build did not.
+	Log(s:"perk index draw (client): table ", d:PerkTable[PERK_ACRO_TACTICALDASH].max_points,
+		s:", arch0 holds ", d:GetPerkArchList(PERK_ARCH_ACRO).count, s:" perks.");
+#endif
+
+	HudMessage(s:"--- ", l:"DND_MENU_HEAD_PERKS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+
+	HudMessage(s:"\c[Y5]", l:"DND_MENU_PERKSAVAIL", s:": \c-", d:PlayerModData[pnum].unspent;
+		HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 192.1, 64.0, 0.0, 0.0);
+
+	for(int i = 0; i < PERK_ARCH_COUNT; ++i) {
+		perk_arch_list_T module& list = GetPerkArchList(i);
+		int y = (88 + 20 * i) << 16;
+
+		// An archetype with nothing authored still has a row in the layout table, so it has to say
+		// why it does nothing rather than silently swallow the click.
+		if(!list.count) {
+			HudMessage(s:"\c[G8]", l:GetPerkArchLangKey(i); HUDMSG_PLAIN, RPGMENUITEMID - 1 - i, CR_WHITE, 192.1, y, 0.0, 0.0);
+			HudMessage(s:"\c[G8]", l:"DND_MENU_PERK_EMPTY"; HUDMSG_PLAIN, RPGMENUITEMID - 16 - i, CR_WHITE, 336.1, y, 0.0, 0.0);
+			continue;
+		}
+
+		DrawBoxText(GetPerkArchLangKey(i), DND_LANGUAGE_LOOKUP, boxid, MBOX_1 + i, RPGMENUITEMID - 1 - i, 192.1, y, "\c[B1]", "\c[Y5]");
+		HudMessage(s:"\cj", d:GetPerkSpentIn(pnum, i), s:"\c-/", d:list.maxpoints;
+			HUDMSG_PLAIN, RPGMENUITEMID - 16 - i, CR_WHITE, 336.1, y, 0.0, 0.0);
+	}
+
+	HudMessage(
+		s:"\cu", l:"DND_MENU_PERK_PICKARCH", s:"\n\cu",
+		l:"DND_MENU_PERK_PINHELP1", s:" \ci", k:"+jump", s:"\cu ", l:"DND_MENU_PERK_PINHELP2"; 
+		HUDMSG_PLAIN, RPGMENUITEMID - 32, CR_WHITE, 192.1,
+		DND_PERKINDEX_HINT_Y, 0.0, 0.0
+	);
+
+	// Everything below the rule is not a perk. The dash toggle is the only thing down here for now;
+	// it used to sit on the abilities page, which is being emptied for the spell rework.
+	HudMessage(s:"\c[G8]___________________________________";
+		HUDMSG_PLAIN, RPGMENUITEMID - 33, CR_WHITE, 192.1, DND_PERKINDEX_DIVIDER_Y, 0.0, 0.0);
+
+	str dashstate = "DND_MENU_ENABLED";
+	if(CheckInventory("DashDisabled"))
+		dashstate = "DND_MENU_DISABLED";
+
+	DrawBoxText(StrParam(l:"DND_MENU_DASH", s:": ", l:dashstate), DND_NOLOOKUP,
+		boxid, DND_PERKINDEX_TOGGLEBOX, RPGMENUITEMID - 34, 192.1, DND_PERKINDEX_TOGGLE_Y,
+		"\c[B1]", "\c[Y5]");
+
+	SetHudClipRect(0, 0, 0, 0, 0);
+}
+
+// The colour IS the state, so this is the one place that decides it -- the row and the detail panel
+// both take it from here and cannot end up disagreeing about whether a perk is locked.
+str GetPerkRowColour(int pnum, int perk, int blocker) {
+	if(GetPerkPoints(pnum, perk) >= PerkTable[perk].max_points)
+		return "\cd";
+	if(blocker == PERKBLOCK_THRESHOLD || blocker == PERKBLOCK_REQUIRES)
+		return "\c[G8]";
+	if(GetPerkPoints(pnum, perk))
+		return "\cj";
+	return "\c[Y5]";
+}
+
+// Both bars, every frame, each against its own region. They are independent: the list keeps its
+// place while the panel is read, and each thumb is sized against the strip it actually scrolls
+// rather than against the whole page.
+// Everything below the divider is the panel, bar column included. The two regions are stacked, so
+// the cursor's y alone separates them and it never has to be precisely on a track for the keys to
+// go where the eye is.
+bool IsCursorBelowPerkDivider() {
+	return PlayerCursorData.posy <= (HUDMAX_Y - DND_PERKDIVIDER_Y) << 16;
+}
+
+// Jump + click pins the panel to the row under the cursor; any plain click releases it.
+//
+// Called from the menu loop DIRECTLY after the input is produced, and that placement is the whole
+// point. MenuInput is cleared twice per iteration -- once before the input is read, and again the
+// moment the server's DND_ACK comes back. On a listen server the ack lands within the same
+// iteration, so anything reading MenuInput on a LATER frame sees zero. The first version of this
+// lived in HandlePerkPageScroll, which runs before the input exists, and so did nothing at all.
+bool HandlePerkPin(int arch, int boxid, int input) {
+	perk_scroll_T module& ps = GetPerkScroll();
+
+	if(input == DND_MENUINPUT_PINCLICK) {
+		EnsurePerkArchLists();
+
+		perk_arch_list_T module& plist = GetPerkArchList(arch);
+		if(boxid >= MBOX_1 && boxid < MBOX_1 + plist.count) {
+			int pk = plist.perk[boxid - MBOX_1];
+
+			// Rewind only for a DIFFERENT perk. Pinning the one already being read is the whole
+			// gesture -- scroll partway down a long description, then pin so the cursor cannot move
+			// it -- and rewinding there would undo the reading the pin exists to protect.
+			if(ps.shown_perk != pk)
+				SetScrollBarPos(DND_PERKBAR_PANEL, 0);
+
+			ps.shown_perk = pk;
+			ps.pinned = true;
+			LocalAmbientSound("RPG/MenuChoose", 127);
+			return true;
+		}
+	}
+	else if(input == DND_MENUINPUT_LCLICK && ps.pinned) {
+		ps.pinned = false;
+		return true;
+	}
+
+	return false;
+}
+
+bool HandlePerkPageScroll(int arch, int boxid) {
+	EnsurePerkArchLists();
+
+	perk_scroll_T module& ps = GetPerkScroll();
+	bool on_panel = IsCursorBelowPerkDivider();
+	bool redraw = false;
+
+	redraw |= ListenScroll(-GetPerkTreeScrollSpan(arch), 0, DND_PERKSCROLL_STEP, DND_PERKLIST_H,
+		DND_PERKBAR_LIST, DND_PERKLIST_TOP, DND_PERKLIST_H, !on_panel);
+
+	// Nothing described means nothing to scroll, and a bar over an empty panel is a control that
+	// does nothing -- range 0..0 is what CanShowScrollBar reads as "stand down".
+	int over = 0;
+	if(ps.shown_perk != -1)
+		over = ps.panel_lines * DND_PERKPANEL_LINE - DND_PERKPANEL_H;
+	if(over < 0)
+		over = 0;
+
+	redraw |= ListenScroll(-(over / DND_PERKPANEL_LINE), 0, DND_PERKPANEL_LINE, DND_PERKPANEL_H,
+		DND_PERKBAR_PANEL, DND_PERKPANEL_TOP, DND_PERKPANEL_H, on_panel);
+
+	return redraw;
+}
+
+void HandlePerkTreeDraw(int pnum, int arch, int boxid, menu_pane_T module& p) {
+	EnsurePerkArchLists();
+
+	perk_arch_list_T module& list = GetPerkArchList(arch);
+	perk_scroll_T module& ps = GetPerkScroll();
+	int i, pk, y, blocker, row = 0, hovered = -1;
+	str col;
+
+	// A page change drops the described perk and both positions: the perk belongs to the tree you
+	// just left, and the offsets are measured against content that is no longer on screen.
+	if(ps.shown_arch != arch) {
+		ps.shown_arch = arch;
+		ps.shown_perk = -1;
+		ps.panel_lines = 0;
+		ps.pinned = false;
+		SetScrollBarPos(DND_PERKBAR_LIST, 0);
+		SetScrollBarPos(DND_PERKBAR_PANEL, 0);
+	}
+
+	HudMessage(s:"--- ", l:GetPerkArchLangKey(arch), s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+
+	HudMessage(s:"\c[Y5]", l:"DND_MENU_PERKSSPENT", s:": \c-", d:GetPerkSpentIn(pnum, arch),
+		s:"    \c[Y5]", l:"DND_MENU_PERKSAVAIL", s:": \c-", d:PlayerModData[pnum].unspent;
+		HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 192.1, 60.0, 0.0, 0.0);
+
+	// Rebuilt every redraw rather than tracked: the rows move with the scroll, and a few dozen stores
+	// buys out an entire class of stale-box bug.
+	ResetPane(p);
+
+	// Every row is drawn every frame, including the ones off the window -- the clip rect hides those.
+	// Skipping them instead would leave their previous message standing at its old, visible position.
+	//
+	// The pad comes off the top and out of the height, so the bottom edge does not move. It is safe
+	// only because the scroll step is a whole row: with a half row possible, padding the top would
+	// show the bottom sliver of the row above instead of the top pixel of the first one.
+	SetHudClipRect(DND_PERKLIST_X, DND_PERKLIST_TOP - DND_PERKLIST_CLIPPAD, DND_PERKLIST_W,
+		DND_PERKLIST_H + DND_PERKLIST_CLIPPAD, DND_PERKLIST_W);
+	for(i = 0; i < list.count; ++i) {
+		// Categories carry no names in the notes, so the break between them is a blank row.
+		if(list.newcat[i])
+			++row;
+
+		y = DND_PERKLIST_TOP + row * DND_PERKROW_H + GetScrollBarPos(DND_PERKBAR_LIST) * DND_PERKSCROLL_STEP;
+		++row;
+
+		pk = list.perk[i];
+		blocker = GetPerkSpendBlocker(pnum, pk);
+		col = GetPerkRowColour(pnum, pk, blocker);
+
+		if(y >= DND_PERKLIST_TOP && y <= DND_PERKLIST_TOP + DND_PERKLIST_H - DND_PERKROW_H) {
+			// DND_PERKROW_HIT tall and CENTRED on the text, matching what every bp[] row does: a
+			// rect's y is HUDMAX_Y minus the screen y, so the larger number is the TOP edge. The
+			// first cut had it 14 tall and biased eight pixels downward, which is why a row could be
+			// picked from most of the way into the gap below it.
+			AddBoxToPane_Points(p,
+				296.0, ((HUDMAX_Y + DND_PERKROW_HIT / 2) - y) << 16,
+				40.0, ((HUDMAX_Y - DND_PERKROW_HIT / 2) - y) << 16);
+			if(boxid == MBOX_1 + i && !CheckInventory("DnD_HighlightBlocker")) {
+				col = "\c[B1]";
+				hovered = i;
+			}
+		}
+		else
+			AddBoxToPane_Points(p, -1, -1, -1, -1);
+
+		// Name and rank in ONE message, not two. Every id a page draws has to fall inside the
+		// DeleteTextRange(RPGMENUITEMID - 45, RPGMENUITEMID) at the top of each redraw, and a second
+		// band for the ranks ran past it -- it would have followed the player to the next page.
+		// DND_MAX_PERKS_PERARCH is what keeps the band below from reaching that floor.
+		str name = StrParam(s:col, l:GetPerkLangKey(pk), s:" ", d:GetPerkPoints(pnum, pk), s:"/", d:PerkTable[pk].max_points);
+
+		// Indent is depth in the requirement chain, which is what makes this read as a tree rather
+		// than a list -- a perk sits under the one it needs.
+		if(list.depth[i])
+			name = StrParam(s:col, s:"- ", s:name);
+
+		HudMessage(s:name; HUDMSG_PLAIN, RPGMENUITEMID - 8 - i, CR_WHITE,
+			((DND_PERKLIST_X + DND_PERKINDENT * list.depth[i]) << 16) + 0.1, y << 16, 0.0, 0.0);
+	}
+	SetHudClipRect(0, 0, 0, 0, 0);
+
+	// Last, so entry n stays box n whatever the tree does.
+	AddBoxToPane_Points(p, 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE);
+	DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_1 + list.count, RPGMENUITEMID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
+
+	// The two regions are separately scrollable, so the eye needs to be told where one ends. Drawn
+	// inside the same clip as everything else: a rule long enough to span the column at any font is
+	// also long enough to run under the scroll bar without one.
+	SetHudClipRect(DND_PERKLIST_X, DND_PERKDIVIDER_Y, DND_PERKLIST_W, DND_PERKROW_H, DND_PERKLIST_W);
+	HudMessage(s:"\c[G8]________________________________________________________";
+		HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 192.1, DND_PERKDIVIDER_Y << 16, 0.0, 0.0);
+	SetHudClipRect(0, 0, 0, 0, 0);
+
+	// What the panel describes survives the cursor LEAVING the row, because moving down to read the
+	// panel is the same gesture as un-hovering the row it belongs to -- tracking hover alone would
+	// empty the panel exactly as you reached for it. A new row replaces it and rewinds the panel.
+	if(!ps.pinned && hovered != -1 && ps.shown_perk != list.perk[hovered]) {
+		ps.shown_perk = list.perk[hovered];
+		SetScrollBarPos(DND_PERKBAR_PANEL, 0);
+	}
+
+	// Always written, never conditionally skipped, or the previous perk's text stays on screen.
+	str body;
+	if(ps.shown_perk != -1) {
+		pk = ps.shown_perk;
+		blocker = GetPerkSpendBlocker(pnum, pk);
+
+		str key = GetPerkLangKey(pk);
+
+		// Status on the SECOND line, not the last: it is the one actionable line, so it is not the
+		// one to leave where a long description pushes it out of view.
+		str status;
+		if(blocker == PERKBLOCK_MAXED)
+			status = StrParam(s:"\cd", l:"DND_MENU_PERK_MAXED");
+		else if(blocker == PERKBLOCK_THRESHOLD)
+			status = StrParam(s:"\c[G8]", l:"DND_MENU_PERK_NEEDSPENT", s:": ", d:PerkTable[pk].threshold);
+		else if(blocker == PERKBLOCK_REQUIRES)
+			status = StrParam(s:"\c[G8]", l:"DND_MENU_PERK_LOCKED");
+		else if(blocker == PERKBLOCK_NOPOINTS)
+			status = StrParam(s:"\c[D4]", l:"DND_MENU_PERK_NOPOINTS");
+		else
+			status = StrParam(s:GetMenuLeftClickKeysText("\cd"), s:" \cd", l:"DND_MENU_PERK_SPENDHINT");
+
+		// Its own line, APPENDED rather than replacing the status. The panel's scrollable height is
+		// estimated from the length of this text, so anything that can SHRINK it can drop the panel
+		// below the point where it scrolls at all -- and swapping a long "needs points spent in this
+		// archetype" for a shorter pinned line did exactly that, taking the scroll bar away at the
+		// moment the player pinned the description they wanted to scroll. Appending can only grow it.
+		str pinmark = "";
+		if(ps.pinned)
+			pinmark = StrParam(s:"\n\c[Q9]", l:"DND_MENU_PERK_PINNED1", s: " - ", s:GetMenuLeftClickKeysText("\c[Q9]"), s:" \c[Q9]", l:"DND_MENU_PERK_PINNED2");
+
+		// The refund goes directly under the header, not at the bottom: it is the other half of what
+		// a click on this row does, so it belongs beside the line saying what the left button does
+		// rather than below a description long enough to push it out of view.
+		str refund = "";
+		int rstatus = GetPerkRefundStatus(pnum, pk);
+		if(rstatus == PERKREFUND_NONE)
+			refund = StrParam(s:"\n", s:GetMenuRightClickKeysText(), s:" \c[Y5]", l:"DND_MENU_PERK_REFUND", s:" \cd$", d:GetPerkRespecCost(pnum, pk),
+				s:" \c[Y5]", l:"DND_MENU_CREDITS");
+		else if(rstatus == PERKREFUND_LOCKS)
+			refund = StrParam(s:"\n\c[D4]", l:"DND_MENU_PERK_REFUNDLOCKS", s:" \c-",
+				l:GetPerkLangKey(GetPerkRefundBlocker(pnum, pk)));
+		else if(rstatus == PERKREFUND_POOR)
+			refund = StrParam(s:"\n\c[D4]", l:"DND_MENU_PERK_REFUNDPOOR", s:" (\cg$",
+				d:GetPerkRespecCost(pnum, pk), s:"\c[D4])");
+
+		body = StrParam(s:GetPerkRowColour(pnum, pk, blocker), l:key, s:" \c-", d:GetPerkPoints(pnum, pk),
+			s:"/", d:PerkTable[pk].max_points, s:"   ", s:status, s:pinmark, s:refund,
+			s:"\n\cu", l:StrParam(s:key, s:"_DESC"));
+
+		// _PER exists exactly when a perk has more than one point to give and _REQ exactly when it
+		// names a prerequisite -- both correlations are checked by the verifier -- so the table can be
+		// asked instead of the lump. A lookup that missed would print the raw key at the player.
+		if(PerkTable[pk].max_points > 1)
+			body = StrParam(s:body, s:"\n\c[Y5]", l:"DND_MENU_PERK_PERPOINT", s:": \cu", l:StrParam(s:key, s:"_PER"));
+
+		if(PerkTable[pk].req_kind != PERK_REQ_NONE)
+			body = StrParam(s:body, s:"\n\c[Y5]", l:"DND_MENU_PERK_REQUIRES", s:": \cu", l:StrParam(s:key, s:"_REQ"));
+
+		// Estimated, and only the bar's thumb depends on it. Colour codes inflate StrLen, so this
+		// errs long -- which spends the error on a little blank space at the bottom rather than on
+		// text the player cannot reach.
+		ps.panel_lines = StrLen(body) / DND_PERKPANEL_CPL + 2;
+	}
+	else {
+		body = StrParam(s:"\cu", l:"DND_MENU_PERK_PICKARCH");
+		ps.panel_lines = 0;
+	}
+
+	SetHudClipRect(DND_PERKLIST_X, DND_PERKPANEL_TOP - 2, DND_PERKLIST_W, DND_PERKPANEL_H + 2, DND_PERKLIST_W);
+	HudMessage(s:body; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1,
+		((DND_PERKPANEL_TOP + GetScrollBarPos(DND_PERKBAR_PANEL) * DND_PERKPANEL_LINE) << 16) + 0.1, 0.0, 0.0);
+	SetHudClipRect(0, 0, 0, 0, 0);
 }
 
 void HandleResearchPageDraw(int pnum, int page, int boxid) {
@@ -5570,7 +5854,9 @@ void GetInputOnMenuPage(int opt) {
 	else if(opt >= SHOP_RESPAGE_BEGIN && opt <= SHOP_RESPAGE_END)
 		ListenInput(LISTEN_LEFT | LISTEN_RIGHT | LISTEN_FASTLR | LISTEN_SKIPKNOWNRES, 0, MENU_MAXRES_PERPAGE, opt - SHOP_RESPAGE_BEGIN);
 	else
-		ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0);
+		// Only the perk trees take a pin: their rows ARE the hover targets, so reading a long
+		// description means holding the cursor still on the very row you are scrolling away from.
+		ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, -1, IsPerkTreePage(opt));
 }
 
 int GetAmmoSlotAndIndexFromShop(int index) {
@@ -5775,6 +6061,17 @@ void DrawPlayerStats(int pnum, int category) {
 			val = GetPlayerAoEIncrease(pnum);
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"IATTR_T31", s:"\n");
+				++k;
+			}
+
+			// The artillery-only half, listed separately rather than summed into the line above --
+			// they apply to different explosions, so one number could only be wrong for one of them.
+			// Read off the slot rather than GetPlayerArtilleryAoEIncrease, which answers for the
+			// weapon in hand; this is a character sheet, not a live readout.
+			val = PlayerModData[pnum].vals[PSTAT_ARTILLERY_RADIUS];
+			if(val) {
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ",
+					l:"DND_ARTILLERYRADIUS", s:"\n");
 				++k;
 			}
 			

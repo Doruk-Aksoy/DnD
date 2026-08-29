@@ -257,9 +257,14 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			ResetPane(CurrentPane);
 			LoadPane(CurrentPane, curopt);
 			ScrollPos.x = 0;
+
+			// A pinned perk description belongs to the page it was pinned on. Cleared here rather
+			// than only in that page's draw so it also lapses when the menu is closed and reopened.
+			GetPerkScroll().pinned = false;
 			// the new page has its own extent, so a grab carried across would be dragging against
 			// a range that no longer exists
-			ScrollBar.grabbed = false;
+			for(int b = 0; b < DND_SCROLLBAR_COUNT; ++b)
+				GetScrollBar(b).grabbed = false;
 			SetInventory("MenuPosX", 0);
 			SetInventory("DnD_PlayerItemIndex", 0);
 			SetInventory("DnD_PlayerPrevItemIndex", 0);
@@ -269,7 +274,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 
 			if(IsWeaponPage(curopt_prev))
 				ClearInfoPanel();
-			else if(IsAmmoPage(curopt_prev) || IsArtifactPage(curopt_prev))
+			else if(IsAmmoPage(curopt_prev))
 				DeleteText(RPGMENUHELPCORNERID);
 			else
 				DeleteText(RPGMENUITEMSUBID);
@@ -312,7 +317,14 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			}
 			else {
 				if(boxid != MAINBOX_NONE) {
-					ScrollPos.x = 0;
+					// Rewinding on hover suits a page whose body changes with the hovered box -- the
+					// shop help text, the research entry. On the perk tree the rows ARE the boxes, so
+					// running the cursor down the list would rewind the list out from under it and
+					// the bar would be useless. That page keeps its own two offsets and restores them
+					// itself. The move sound is not part of that and stays for every page.
+					if(!IsPerkTreePage(curopt))
+						ScrollPos.x = 0;
+
 					if(!CheckInventory("DnD_InventoryView") && !CheckInventory("InTradeView") && !CheckInventory("DnD_StashView"))
 						LocalAmbientSound("RPG/MenuMove", 127);
 				}
@@ -358,10 +370,17 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		// clean input buffer
 		SetInventory("MenuInput", 0);
 		// receives MenuInput -- held back while the bar is being dragged, see above
-		if(!ScrollBar.grabbed)
+		// A grab on EITHER bar has to hold the click handling off, or dragging the panel's bar would
+		// also count as clicking whatever perk row the cursor started over.
+		if(!IsAnyScrollBarGrabbed())
 			GetInputOnMenuPage(curopt);
 		i = CheckInventory("MenuInput");
-		
+
+		// Straight after the input is produced and before the ack below can clear it. See
+		// HandlePerkPin: nothing may read MenuInput on a later iteration and expect to find it.
+		if(IsPerkTreePage(curopt))
+			redraw |= HandlePerkPin(curopt - MENU_PERKTREE_FIRST, boxid, i);
+				
 		// The server discards anything arriving inside its own DND_MENU_INPUTDELAYTICS debounce --
 		// no ack, no processing, no way for us to know. Clicking faster than that just means a
 		// random subset survives. We already know the rule, so pace ourselves to it instead of
@@ -674,16 +693,10 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 
 				DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_1, RPGMENUPAGEID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
 			}
-			else if(curopt == MENU_PERK) {
-				HudMessage(s:"--- ", l:"DND_MENU_HEAD_PERKS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
-				
-				HudMessage(s:"\c[Y5]", l:"DND_MENU_PERKSAVAIL", s:": \c-", d:CheckInventory("PerkPoint"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 312.0, 64.0, 0.0, 0.0);
-				
-				for(i = 0; i < DND_PERKS; ++i)
-					DrawToggledLabel(GetStatLabel(DND_PERK_BEGIN + i), DND_LANGUAGE_LOOKUP, GetPerk(DND_PERK_BEGIN + i), boxid, MBOX_1 + i, RPGMENUITEMID - 1 - i, "\c[Y5]", "\c[B1]", 192.1, 80.0 + i * 16.0);
-			
-				DrawPerkText(boxid);
-			}
+			else if(curopt == MENU_PERK)
+				HandlePerkIndexDraw(pnum, boxid);
+			else if(IsPerkTreePage(curopt))
+				HandlePerkTreeDraw(pnum, curopt - MENU_PERKTREE_FIRST, boxid, CurrentPane);
 			else if(curopt == MENU_LOAD) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_LOADOUT", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				
@@ -948,12 +961,10 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				
 				DrawBoxText("DND_MENU_WEAPONS", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMID, 192.1, 96.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("DND_MENU_AMMO", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("DND_MENU_ABILITIES", DND_LANGUAGE_LOOKUP, boxid, MBOX_3, RPGMENUITEMID - 3, 192.1, 128.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("DND_MENU_ARTIFACTS", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("DND_MENU_ACCOUNT", DND_LANGUAGE_LOOKUP, boxid, MBOX_5, RPGMENUITEMID - 6, 192.1, 160.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_ACCOUNT", DND_LANGUAGE_LOOKUP, boxid, MBOX_3, RPGMENUITEMID - 6, 192.1, 128.0, "\c[B1]", "\c[Y5]");
 			
 				#ifdef ISAPRILFIRST
-					DrawBoxText("DND_MENU_NFT", DND_LANGUAGE_LOOKUP, boxid, MBOX_6, RPGMENUITEMID - 7, 192.1, 192.0, "\c[B1]", "\c[Y5]");
+					DrawBoxText("DND_MENU_NFT", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUITEMID - 7, 192.1, 144.0, "\c[B1]", "\c[Y5]");
 				#endif
 			}
 			else if(curopt == MENU_SHOP_WEAPON) {
@@ -1023,38 +1034,6 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				HandleAmmoPageDraw(pnum, boxid, DND_AMMOSLOT_CELL, -1, AMMOSLOT_CELL2_BEGIN, AMMOSLOT_CELL2_END, false);
 			else if(curopt == MENU_SHOP_AMMO_SPECIAL1)
 				HandleAmmoPageDraw(pnum, boxid, -1, 0, -1, -1, true);
-			else if(curopt == MENU_SHOP_ABILITY_1) {
-				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ABILITIES", s:" (1) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-				DrawCredits(pnum);
-				
-				for(i = SHOP_ABILITY1_BEGIN; i <= SHOP_ABILITY1_END; ++i)
-					DrawToggledImage(pnum, i, boxid, i - SHOP_ABILITY1_BEGIN, GetAbilityDrawInfo(i - SHOP_ABILITY1_BEGIN).flags, CR_WHITE, CR_GREEN, "", 1, CR_RED);
-			
-				HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
-			}
-			else if(curopt == MENU_SHOP_ABILITY_2) {
-				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ABILITIES", s:" (2) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-				DrawCredits(pnum);
-				
-				for(i = SHOP_ABILITY2_BEGIN; i <= SHOP_LASTABILITY_INDEX; ++i)
-					DrawToggledImage(pnum, i, boxid, i - SHOP_ABILITY2_BEGIN, GetAbilityDrawInfo(i - SHOP_ABILITY1_BEGIN).flags, CR_WHITE, CR_GREEN, "", 1, CR_RED);
-			
-				HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
-			}
-			else if(curopt == MENU_SHOP_ARTIFACT_1) {
-				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ARTIFACTS", s:" (1) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-				DrawCredits(pnum);
-				
-				for(i = 0; i < MAXARTIFACTS_PERPAGE; ++i)
-					DrawToggledImage(pnum, SHOP_FIRSTARTI1_INDEX + i, boxid, i, GetArtifactDrawInfo(i).flags, CR_WHITE, CR_GREEN, ArtifactInfo[i][ARTI_NAME], GetShopItemInfo(SHOP_FIRSTARTI1_INDEX + i, DND_SHOPINFO_MAX), CR_RED);
-			}
-			else if(curopt == MENU_SHOP_ARTIFACT_2) {
-				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ARTIFACTS", s:" (2) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-				DrawCredits(pnum);
-				
-				for(i = ARTI_RADSUIT; i < MAXARTIFACTS; ++i)
-					DrawToggledImage(pnum, SHOP_FIRSTARTI1_INDEX + i, boxid, i - ARTI_RADSUIT, GetArtifactDrawInfo(i).flags, CR_WHITE, CR_GREEN, ArtifactInfo[i][ARTI_NAME], GetShopItemInfo(SHOP_FIRSTARTI1_INDEX + i, DND_SHOPINFO_MAX), CR_RED);
-			}
 			else if(curopt == MENU_SHOP_ACCOUNT) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ACCOUNT", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				DrawCredits(pnum);
@@ -1092,29 +1071,11 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			}
 			else if(curopt >= SHOP_RESPAGE_BEGIN && curopt <= SHOP_RESPAGE_END)
 				HandleResearchPageDraw(pnum, curopt - SHOP_RESPAGE_BEGIN, boxid);
-			else if(curopt == MENU_ABILITY) {
+			else if(curopt == MENU_ABILITY)
+				// Empty until it becomes the spell tree. The learned list went with the shop and the
+				// save; the dash toggle went to the perk index, which had room under its archetypes.
+				// The header keeps its name on purpose -- renaming it now means renaming it again then.
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ABILEARNED", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-				
-				for(i = 0; i < MAXABILITIES; ++i) {
-					if(CheckInventory(GetItemName(SHOP_ABILITY1_BEGIN + i)))
-						HudMessage(s:"\c[Y5]", l:GetAbilityTag(i), s:": \cd", l:"DND_MENU_LEARNED"; HUDMSG_PLAIN, RPGMENUITEMID - i, CR_WHITE, 192.1, 80.0 + 16.0 * i, 0.0, 0.0);
-					else
-						HudMessage(s:"\c[Y5]", l:GetAbilityTag(i), s:": \c-", s:"\c[G8]N/A"; HUDMSG_PLAIN, RPGMENUITEMID - i, CR_WHITE, 192.1, 80.0 + 16.0 * i, 0.0, 0.0);
-				}
-					
-				if(boxid == MBOX_1) {
-					if(!CheckInventory("DashDisabled"))
-						HudMessage(s:"\c[B1]", l:"DND_MENU_DASH", s:": ", l:"DND_MENU_ENABLED"; HUDMSG_PLAIN, RPGMENUITEMID - 26, CR_WHITE, 192.1, 256.0, 0.0, 0.0);
-					else
-						HudMessage(s:"\c[B1]", l:"DND_MENU_DASH", s:": ", l:"DND_MENU_DISABLED"; HUDMSG_PLAIN, RPGMENUITEMID - 26, CR_WHITE, 192.1, 256.0, 0.0, 0.0);
-				}
-				else {
-					if(!CheckInventory("DashDisabled"))
-						HudMessage(s:"\c[Y5]", l:"DND_MENU_DASH", s:": ", l:"DND_MENU_ENABLED"; HUDMSG_PLAIN, RPGMENUITEMID - 26, CR_WHITE, 192.1, 256.0, 0.0, 0.0);
-					else
-						HudMessage(s:"\c[Y5]", l:"DND_MENU_DASH", s:": ", l:"DND_MENU_DISABLED"; HUDMSG_PLAIN, RPGMENUITEMID - 26, CR_WHITE, 192.1, 256.0, 0.0, 0.0);
-				}
-			}
 			else if(curopt == MENU_MAIN) {
 				HudMessage(s:"--- ", l:"DND_MENU_WELCOME", s:"! ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
 				ShowBobby();
@@ -1576,7 +1537,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 							temp = CheckInventory("AttributePoint");
 							
 						stat_id = boxid - 1 + DND_ATTRIB_BEGIN;
-						stat_pt = GetPerk(stat_id);
+						stat_pt = GetStatPoints(stat_id);
 					
 						ConsumeAttributePointOn(pnum, stat_id, temp);
 						LocalAmbientSound("RPG/MenuChoose", 127);
@@ -1629,25 +1590,78 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					UpdateMenuPosition(MENU_STAT2);
 			}
 			else if(curopt == MENU_PERK) {
+				EnsurePerkArchLists();
 				if(HasPlayerClicked(pnum)) {
-					if(CheckInventory("PerkPoint") && boxid != MAINBOX_NONE) { // tried to level perk, so you must have some perk point
-						// same check as above
-						stat_id = boxid - 1 + DND_PERK_BEGIN;
-						stat_pt = GetPerk(stat_id);
-						if(HasLeftClicked(pnum))
-							temp = 1;
-						else
-							temp = Min(CheckInventory("PerkPoint"), DND_PERK_MAX - stat_pt);
-						
-						if(stat_pt < DND_PERK_MAX) {
-							ConsumePerkPointOn(stat_id, temp);
-							LocalAmbientSound("RPG/MenuChoose", 127);
-							ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
-						}					
+					// Every archetype has a row in the layout table, including the ones with nothing
+					// authored -- so the click is refused here rather than opening an empty page.
+					if(boxid >= MBOX_1 && boxid < MBOX_1 + PERK_ARCH_COUNT && GetPerkArchList(boxid - MBOX_1).count)
+						UpdateMenuPosition(MENU_PERKTREE_FIRST + boxid - MBOX_1);
+					else if(boxid == DND_PERKINDEX_TOGGLEBOX && HasLeftClicked(pnum)) {
+						SetInventory("DashDisabled", !CheckInventory("DashDisabled"));
+						ACS_NamedExecuteAlways("DnD Toggle User Dash", 0);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+
+						// The toggle is drawn from the item this just flipped, and the flip happens a
+						// round trip after the client drew it.
+						GiveInventory("DnD_RefreshPane", 1);
 					}
 				}
-				if(HasPressedLeft(pnum))
+				else if(HasPressedLeft(pnum))
 					ReturnToMain();
+			}
+			else if(IsPerkTreePage(curopt)) {
+				EnsurePerkArchLists();
+
+				// The timer reconciles this every 10 tics, which is not soon enough for a click that
+				// lands in between -- and the click is the one moment the number has to be right.
+				RefreshUnspentPerkPoints(pnum);
+				if(HasPlayerClicked(pnum)) {
+					perk_arch_list_T module& plist = GetPerkArchList(curopt - MENU_PERKTREE_FIRST);
+
+					// The back arrow is added to the pane after every perk, so that entry n stays
+					// box n no matter what the tree does.
+					if(boxid == MBOX_1 + plist.count)
+						UpdateMenuPosition(MENU_PERK);
+					else if(boxid >= MBOX_1 && boxid < MBOX_1 + plist.count) {
+						// Left spends a point, right buys one back. Both re-run the whole gate rather
+						// than trusting this: the box number was computed on a client, against a page
+						// that may already be stale by the time it lands here.
+						j = plist.perk[boxid - MBOX_1];
+
+						if(HasLeftClicked(pnum) ? SpendPerkPoint(pnum, j) : RespecPerkPoint(pnum, j)) {
+							LocalAmbientSound("RPG/MenuChoose", 127);
+
+							// The change lands here, a round trip after the client drew. Without this
+							// it does not appear until something else happens to ask for a redraw.
+							GiveInventory("DnD_RefreshPane", 1);
+						}
+						else if(HasLeftClicked(pnum)) {
+							// A click that does nothing and says nothing reads as the menu being
+							// broken rather than as the perk being locked, so every refusal names
+							// itself. The popup carries its own error sound.
+							i = GetPerkSpendBlocker(pnum, j);
+							if(i == PERKBLOCK_NOPOINTS)
+								ShowActorPopup(pnum, POPUP_NOPERKPOINT, false, 0);
+							else if(i == PERKBLOCK_MAXED)
+								ShowActorPopup(pnum, POPUP_PERKMAXED, false, 0);
+							else
+								ShowActorPopup(pnum, POPUP_PERKLOCKED, false, 0);
+						}
+						else {
+							i = GetPerkRefundStatus(pnum, j);
+							if(i == PERKREFUND_POOR)
+								ShowActorPopup(pnum, POPUP_NOFUNDS, false, 0);
+							else if(i == PERKREFUND_LOCKS)
+								ShowActorPopup(pnum, POPUP_PERKREFUNDLOCKED, false, 0);
+							else
+								// Right clicking a perk with nothing on it is not a mistake worth a
+								// popup, but it still has to answer.
+								LocalAmbientSound("RPG/MenuError", 127);
+						}
+					}
+				}
+				else if(HasPressedLeft(pnum))
+					UpdateMenuPosition(MENU_PERK);
 			}
 			else if(curopt == MENU_LOAD) {
 				// prevents having something clicked previously in crafting altering something else
@@ -2011,13 +2025,9 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					else if(boxid == MBOX_2)
 						temp = MENU_SHOP_AMMOSELECT;
 					else if(boxid == MBOX_3)
-						temp = MENU_SHOP_ABILITY_1;
-					else if(boxid == MBOX_4)
-						temp = MENU_SHOP_ARTIFACT_1;
-					else if(boxid == MBOX_5)
 						temp = MENU_SHOP_ACCOUNT;
 					#ifdef ISAPRILFIRST
-					else if(boxid == MBOX_6)
+					else if(boxid == MBOX_4)
 						temp = MENU_SHOP_NFT;
 					#endif
 					else
@@ -2102,42 +2112,6 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 				HandleAmmoPageInput(pnum, DND_AMMOSLOT_CELL, boxid, AMMOSLOT_CELL2_BEGIN, MENU_SHOP_AMMO_4_1, -1, false);
 			else if(curopt == MENU_SHOP_AMMO_SPECIAL1)
 				HandleAmmoPageInput(pnum, -1, boxid, 0, -1, -1, true);
-			else if(curopt == MENU_SHOP_ABILITY_1) {
-				if(HasLeftClicked(pnum)) {
-					if(boxid != MAINBOX_NONE)
-						ProcessTrade(pnum, boxid - 1, SHOP_ABILITY1_BEGIN, SHOP_ABILITY1_END, TRADE_BUY | TRADE_ABILITY, false);
-				}
-				if(HasPressedLeft(pnum))
-					UpdateMenuPosition(MENU_SHOP);
-				else if(HasPressedRight(pnum))
-					UpdateMenuPosition(MENU_SHOP_ABILITY_2);
-			}
-			else if(curopt == MENU_SHOP_ABILITY_2) {
-				if(HasLeftClicked(pnum)) {
-					if(boxid != MAINBOX_NONE)
-						ProcessTrade(pnum, boxid - 1, SHOP_ABILITY2_BEGIN, SHOP_LASTABILITY_INDEX, TRADE_BUY | TRADE_ABILITY, false);
-				}
-				if(HasPressedLeft(pnum))
-					UpdateMenuPosition(MENU_SHOP_ABILITY_1);
-			}
-			else if(curopt == MENU_SHOP_ARTIFACT_1) {
-				if(HasLeftClicked(pnum)) {
-					if(boxid != MAINBOX_NONE)
-						ProcessTrade(pnum, boxid - 1, SHOP_FIRSTARTI1_INDEX, SHOP_ARTIFACT1_END, TRADE_BUY | TRADE_ARTIFACT, false);
-				}
-				if(HasPressedLeft(pnum))
-					UpdateMenuPosition(MENU_SHOP);
-				else if(HasPressedRight(pnum))
-					UpdateMenuPosition(MENU_SHOP_ARTIFACT_2);
-			}
-			else if(curopt == MENU_SHOP_ARTIFACT_2) {
-				if(HasLeftClicked(pnum)) {
-					if(boxid != MAINBOX_NONE)
-						ProcessTrade(pnum, boxid - 1, SHOP_FIRSTARTI2_INDEX, SHOP_LASTARTI_INDEX, TRADE_BUY | TRADE_ARTIFACT, false);
-				}
-				if(HasPressedLeft(pnum))
-					UpdateMenuPosition(MENU_SHOP_ARTIFACT_1);
-			}
 			else if(curopt == MENU_SHOP_ACCOUNT) {
 				if(HasLeftClicked(pnum)) {
 					if(boxid != MAINBOX_NONE)
@@ -2197,13 +2171,6 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 				HandleResearchPageInput(pnum, curopt - SHOP_RESPAGE_BEGIN, boxid);
 			}
 			else if(curopt == MENU_ABILITY) {
-				if(HasLeftClicked(pnum)) {
-					if(boxid == MBOX_1) {
-						SetInventory("DashDisabled", !CheckInventory("DashDisabled"));
-						ACS_NamedExecuteAlways("DnD Toggle User Dash", 0);
-						LocalAmbientSound("RPG/MenuChoose", 127);
-					}
-				}
 				if(HasPressedLeft(pnum))
 					ReturnToMain();
 			}
@@ -2524,12 +2491,20 @@ Script "DnD Sort Inventory" (int source, int page) NET {
 	// not spread out: a box updates on the client the moment its sync lands, so yielding here shows
 	// the grid half repacked for as many tics as the loop takes. The client sees the old layout
 	// until this tic ends and the new one after it, with nothing in between.
+	// Every box gets a definite state, including the third case this used to fall through: a cell in
+	// the middle of a multi-cell item. Its topleft and type come from the owner's sync, but its own
+	// fields do not, and a repack moves items across boxes that used to hold something else -- so a
+	// middle cell kept the previous occupant's width, height, image and subtype. The crafting view
+	// lists any box whose type is craftable and whose height is non-zero, so those cells showed up as
+	// phantom entries: the old item's icon under the new owner's name, with an out of range subtype.
 	for(int i = 0; i < MAX_INVENTORY_BOXES; ++i) {
 		auto item = AcquireItemFromSource(pnum, i, source);
 		if(item.topleftboxid == i + 1)
 			SyncItemData(pnum, i, source, -1, -1);
 		else if(item.item_type == DND_ITEM_NULL)
 			SyncItemData_Null(pnum, i, source, 1, 1);
+		else
+			SyncItemData_ClearFields(pnum, i, source);
 	}
 
 	// A repack moves almost every box, and the per box syncs leave the icons of items that were

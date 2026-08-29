@@ -48,6 +48,14 @@ enum {
     POPUP_NODUNGEONSELECTED,
 	POPUP_ALREADYDUNGEONACTIVE,
 	POPUP_ORBSONLY,
+
+	// The perk tree. POPUP_NOTALENTPOINT is not reused for the first of these: it says "talent
+	// points", which is the retired system's word, and the tree is the only thing that hands out
+	// perk points now. Insufficient CREDITS on a refund uses POPUP_NOFUNDS like every other purchase.
+	POPUP_NOPERKPOINT,
+	POPUP_PERKLOCKED,
+	POPUP_PERKMAXED,
+	POPUP_PERKREFUNDLOCKED,
 	
 	#ifdef ISAPRILFIRST
 	POPUP_OWNNFT,
@@ -148,6 +156,14 @@ str GetPopupText(int id) {
 		return "DND_POPUP_ALREADYDUNGEONACTIVE";
 		case POPUP_ORBSONLY:
 		return "DND_POPUP_ORBSONLY";
+		case POPUP_NOPERKPOINT:
+		return "DND_POPUP_NOPERKPOINT";
+		case POPUP_PERKLOCKED:
+		return "DND_POPUP_PERKLOCKED";
+		case POPUP_PERKMAXED:
+		return "DND_POPUP_PERKMAXED";
+		case POPUP_PERKREFUNDLOCKED:
+		return "DND_POPUP_PERKREFUNDLOCKED";
 		
 		#ifdef ISAPRILFIRST
 		case POPUP_OWNNFT:

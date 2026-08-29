@@ -40,6 +40,14 @@ void CalculateHudScale(int width, int height, bool isForcedScale) {
 	HudScale.y = FixedMul(scale, GetCVar("hud_aspectscale") ? 1.2 : 1.0);
 }*/
 
+str GetMenuLeftClickKeysText(str separator = "\c[L7]") {
+	return StrParam(s:"\ci", k:"+use", s:" ", s:separator, l:"DND_OR", s:" \ci", k:"+attack");
+}
+
+str GetMenuRightClickKeysText() {
+	return StrParam(s:"\ci", k:"+altattack");
+}
+
 #define HUD_DII_MULT 14
 #define MAXINVENTORYBLOCKS_HORIZ 5 // from top to bottom, 5 heights
 #define MAXINVENTORYBLOCKS_VERT 9 // from left to right, 9 vertical slices
@@ -91,12 +99,14 @@ void ClearMenuDisplay() {
 	DeleteText(RPGMENUHIGHLIGHTID);
 	DeleteTextRange(RPGMENULISTID - 1, RPGMENULISTID);
 
-	// the bar draws outside every sweep below it, so it has to be named to go away
-	DeleteTextRange(RPGMENUSCROLLGRIPID, RPGMENUSCROLLTRACKID);
-	scrollbar_T module& bar = GetScrollBar();
-	bar.listened = false;
-	bar.grabbed = false;
-	bar.drawn = false;
+	// the bars draw outside every sweep below this, so they have to be named to go away
+	DeleteTextRange(RPGMENUSCROLLGRIPID, RPGMENUSCROLLTRACKID + DND_SCROLLBAR_IDSTRIDE * (DND_SCROLLBAR_COUNT - 1));
+	for(int b = 0; b < DND_SCROLLBAR_COUNT; ++b) {
+		scrollbar_T module& bar = GetScrollBar(b);
+		bar.listened = false;
+		bar.grabbed = false;
+		bar.drawn = false;
+	}
 
 	DeleteTextRange(RPGMENUCURSORID, RPGMENUINVENTORYID);
 	DeleteTextRange(RPGMENUINFOID, RPGMENUWEAPONPANELID);
@@ -158,8 +168,17 @@ void ResetCursorClickProc() {
 }
 
 void UpdateCursorHoverData(int itemid, int source, int itemtype, int owner_p, int offset, int dimx = 0, int dimy = 0) {
-	if(PlayerCursorData.itemHovered != itemid)
+	if(PlayerCursorData.itemHovered != itemid) {
 		CleanInventoryInfo();
+
+		// The crafting views draw an orb or token tooltip ONCE and then set LimitedCraftDraw to stop
+		// redrawing it. That assumes the item under the cursor only changes when the cursor moves,
+		// which is false: those views resolve a box to the Nth craftable item every frame, so a sort
+		// repacks the grid under a stationary cursor and the box comes to mean a different item.
+		// Nothing else lifts the suppression, so the previous item's text stayed on screen over the
+		// new item's icon. Lifted here, where the change is already being detected.
+		TakeInventory("LimitedCraftDraw", 1);
+	}
 	
 	PlayerCursorData.itemHovered = itemid;
 	PlayerCursorData.itemHoveredSource = source;
@@ -215,7 +234,12 @@ enum {
 	DND_MENUINPUT_RCLICK,
 	DND_MENUINPUT_PREVBUTTON,
 	DND_MENUINPUT_NEXTBUTTON,
-	DND_MENUINPUT_USEBUTTON
+	DND_MENUINPUT_USEBUTTON,
+
+	// Jump held while clicking, on the pages that offer a pin. Deliberately NOT one of the two the
+	// click helpers below answer to: it reaches the server like any other input and every page
+	// handler ignores it, which is what stops a pin from also spending a perk point.
+	DND_MENUINPUT_PINCLICK
 };
 
 #define DND_MENU_INPUTDELAYTICS 4
@@ -295,9 +319,17 @@ typedef struct cursor {
 } cursor_T;
 cursor_T PlayerCursorData;
 
+// Two limits, not one. MAX_MENU_BOXES sizes the STATIC bp[][] layout table in DnD_MenuFuncs.h,
+// which is one row per menu page and so pays for any increase ~150 times over. MAX_PANE_BOXES sizes
+// the RUNTIME pane, which is a single struct -- a page that builds its boxes with AddBoxToPane*
+// rather than loading a bp row is bounded only by this one, and pays 4 ints per extra box.
+//
+// The perk tree is the reason they had to split: its largest archetype is 21 perks plus navigation,
+// and it lays itself out from the perk table rather than from a fixed rect list.
 #define MAX_MENU_BOXES 20
+#define MAX_PANE_BOXES 32
 struct menu_pane_T {
-	rect_T MenuRectangles[MAX_MENU_BOXES];
+	rect_T MenuRectangles[MAX_PANE_BOXES];
 	int cursize;
 };
 
@@ -312,7 +344,7 @@ void ResetPane(menu_pane_T module& p) {
 }
 
 void AddBoxToPane_Points(menu_pane_T module& p, int tx, int ty, int bx, int by) {
-	if(p.cursize < MAX_MENU_BOXES) {
+	if(p.cursize < MAX_PANE_BOXES) {
 		p.MenuRectangles[p.cursize].topleft_x = tx;
 		p.MenuRectangles[p.cursize].topleft_y = ty;
 		p.MenuRectangles[p.cursize].botright_x = bx;
@@ -537,33 +569,62 @@ void SetupScreenOffsets() {
 // page already applies to ScrollPos.x when it draws -- and view_px is the height of the clip it
 // draws inside. Together they say how much content exists, which is what sizes the thumb. Leave
 // them out and the bar still works, it just draws a fixed size thumb that only reports position.
-bool ListenScroll(int condx_min, int condx_max, int step_px = 0, int view_px = 0) {
+// Bar 0's position lives in ScrollPos.x and not in the bar, because every page that scrolls reads
+// ScrollPos.x directly when it draws and writes it directly when it resets. Moving it into the bar
+// would have meant rewriting all of them for the sake of one page that wanted a second bar; the
+// bars past the first carry their own.
+int GetScrollBarPos(int id) {
+	if(id)
+		return GetScrollBar(id).pos;
+	return ScrollPos.x;
+}
+
+void SetScrollBarPos(int id, int val) {
+	if(id)
+		GetScrollBar(id).pos = val;
+	else
+		ScrollPos.x = val;
+}
+
+// take_keys is for pages with more than one bar: only one region can own the up and down keys at a
+// time, and only the page knows which -- from where the cursor is, not from where the tracks are.
+// A page with one bar leaves it alone and that bar takes the keys, as every page always has.
+bool ListenScroll(int condx_min, int condx_max, int step_px = 0, int view_px = 0,
+	int id = 0, int track_y = DND_SCROLLBAR_Y, int track_h = DND_SCROLLBAR_H, bool take_keys = true) {
 	bool redraw = false;
 	int bpress = GetPlayerInput(-1, INPUT_BUTTONS);
+	int pos = GetScrollBarPos(id);
 
 	// Every page states how far it scrolls right here and nowhere else, so this is the only place
 	// the bar can learn its range from. Recording it costs a handful of stores on a path that
 	// already runs every tic, and saves duplicating the per page extents in a second table that
 	// would then have to be kept in step with this one by hand.
-	scrollbar_T module& bar = GetScrollBar();
+	scrollbar_T module& bar = GetScrollBar(id);
 	bar.range.x = condx_min;
 	bar.range.y = condx_max;
 	bar.content.x = step_px;
 	bar.content.y = view_px;
+	bar.track_y = track_y;
+	bar.track_h = track_h;
 	bar.listened = true;
 
 	// up is 1, down is 2
 	// opposite buttons because view should go up
+	// Still reports its range above, so the bar is drawn and remains draggable -- it is only the
+	// keyboard that is handed to one region at a time.
+	if(!take_keys)
+		return false;
+
 	if(IsButtonHeld(bpress, BT_FORWARD)) {
-		if(ScrollPos.x < condx_max) {
-			++ScrollPos.x;
+		if(pos < condx_max) {
+			SetScrollBarPos(id, pos + 1);
 			redraw = true;
 		}
 		SetInventory("MenuUD", 1);
 	}
 	if(IsButtonHeld(bpress, BT_BACK)) {
-		if(ScrollPos.x > condx_min) {
-			--ScrollPos.x;
+		if(pos > condx_min) {
+			SetScrollBarPos(id, pos - 1);
 			redraw = true;
 		}
 		SetInventory("MenuUD", 2);
@@ -593,33 +654,41 @@ int GetScrollThumbHeight(scrollbar_T module& bar) {
 		return DND_SCROLLBAR_THUMBDEFAULT;
 
 	return Clamp_Between(
-		DND_SCROLLBAR_H * bar.content.y / (bar.content.y + (bar.range.y - bar.range.x) * bar.content.x),
+		bar.track_h * bar.content.y / (bar.content.y + (bar.range.y - bar.range.x) * bar.content.x),
 		DND_SCROLLBAR_THUMBMIN,
-		DND_SCROLLBAR_THUMBMAX
+		DND_SCROLLBAR_THUMBMAX(bar.track_h)
 	);
 }
 
 // How far the thumb can move. THUMBMAX keeps this away from zero, which the drag divides by.
 int GetScrollTravel(scrollbar_T module& bar) {
-	return DND_SCROLLBAR_H - GetScrollThumbHeight(bar);
+	return bar.track_h - GetScrollThumbHeight(bar);
 }
 
 // Where the thumb's top edge sits, in pixels down from the top of the track.
-int GetScrollThumbOffset(scrollbar_T module& bar) {
+int GetScrollThumbOffset(scrollbar_T module& bar, int id) {
 	// Top of the content is range.y and puts the thumb at the top of the track, so the distance
 	// travelled is measured from there. Clamped because the position carries over from the page
 	// before for the one tic between a page change and that page's first ListenScroll, and a stale
 	// position outside the new range would put the thumb off the end of the track.
 	int travel = GetScrollTravel(bar);
-	return Clamp_Between(travel * (bar.range.y - ScrollPos.x) / (bar.range.y - bar.range.x), 0, travel);
+	return Clamp_Between(travel * (bar.range.y - GetScrollBarPos(id)) / (bar.range.y - bar.range.x), 0, travel);
 }
 
-bool IsCursorOnScrollBar() {
+// Against the bar's own track. Two bars share the column, so only their y tells them apart.
+bool IsCursorOnScrollTrack(scrollbar_T module& bar) {
 	return point_in_points(
-		DND_SCROLLBAR_CURSOR_XMAX, DND_SCROLLBAR_CURSOR_YMAX,
-		DND_SCROLLBAR_CURSOR_XMIN, DND_SCROLLBAR_CURSOR_YMIN,
+		DND_SCROLLBAR_CURSOR_XMAX, DND_SCROLLBAR_CURSOR_YMAX(bar.track_y),
+		DND_SCROLLBAR_CURSOR_XMIN, DND_SCROLLBAR_CURSOR_YMIN(bar.track_y, bar.track_h),
 		PlayerCursorData.posx, PlayerCursorData.posy, 0
 	);
+}
+
+bool IsAnyScrollBarGrabbed() {
+	for(int i = 0; i < DND_SCROLLBAR_COUNT; ++i)
+		if(GetScrollBar(i).grabbed)
+			return true;
+	return false;
 }
 
 // Dragging the bar with the mouse. Returns whether anything the eye can see changed, so the caller
@@ -629,10 +698,17 @@ bool IsCursorOnScrollBar() {
 // way for the duration -- without that, every drag would additionally count as clicking on
 // whatever box the cursor happened to pass over on the way down.
 bool HandleScrollBarDrag() {
-	scrollbar_T module& bar = GetScrollBar();
+	bool any = false;
+	for(int i = 0; i < DND_SCROLLBAR_COUNT; ++i)
+		any |= HandleScrollBarDragOne(i);
+	return any;
+}
+
+bool HandleScrollBarDragOne(int id) {
+	scrollbar_T module& bar = GetScrollBar(id);
 	int bpress = GetPlayerInput(-1, INPUT_BUTTONS);
 	bool shown = CanShowScrollBar(bar);
-	bool lit = shown && (bar.grabbed || IsCursorOnScrollBar());
+	bool lit = shown && (bar.grabbed || IsCursorOnScrollTrack(bar));
 
 	// Whether the bar is there at all and whether it is lit are the only two things it draws
 	// differently, so a change in either is exactly when a redraw is owed. It matters that this
@@ -659,7 +735,7 @@ bool HandleScrollBarDrag() {
 
 		bar.grabbed = true;
 		bar.grab_y = PlayerCursorData.posy;
-		bar.grab_pos = ScrollPos.x;
+		bar.grab_pos = GetScrollBarPos(id);
 		LocalAmbientSound("RPG/MenuMove", 127);
 		return true;
 	}
@@ -674,26 +750,39 @@ bool HandleScrollBarDrag() {
 		bar.range.y
 	);
 
-	if(npos == ScrollPos.x)
+	if(npos == GetScrollBarPos(id))
 		return redraw;
 
-	ScrollPos.x = npos;
+	SetScrollBarPos(id, npos);
 	return true;
 }
 
 // Expects the HUDMAX_X x HUDMAX_Y hud size the menu draws its text in.
 void DrawScrollBar() {
-	scrollbar_T module& bar = GetScrollBar();
+	for(int i = 0; i < DND_SCROLLBAR_COUNT; ++i)
+		DrawScrollBarOne(i);
+}
+
+void DrawScrollBarOne(int id) {
+	scrollbar_T module& bar = GetScrollBar(id);
+	int gripid = RPGMENUSCROLLGRIPID + DND_SCROLLBAR_IDSTRIDE * id;
+	int capid = RPGMENUSCROLLCAPID + DND_SCROLLBAR_IDSTRIDE * id;
+	int thumbid = RPGMENUSCROLLTHUMBID + DND_SCROLLBAR_IDSTRIDE * id;
+	int trackid = RPGMENUSCROLLTRACKID + DND_SCROLLBAR_IDSTRIDE * id;
+
 	if(!CanShowScrollBar(bar)) {
-		DeleteTextRange(RPGMENUSCROLLGRIPID, RPGMENUSCROLLTRACKID);
+		DeleteTextRange(gripid, trackid);
 		return;
 	}
 
+	// Clipped to the bar's own track, because the art is one fixed height and a bar shorter than it
+	// would otherwise run past its own end.
 	SetFont("SCRLTRAK");
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUSCROLLTRACKID, -1, DND_SCROLLBAR_XF + 0.1, DND_SCROLLBAR_YF + 0.1, 0.0, 0.0);
+	SetHudClipRect(DND_SCROLLBAR_X, bar.track_y, DND_SCROLLBAR_W, bar.track_h, DND_SCROLLBAR_W);
+	HudMessage(s:"A"; HUDMSG_PLAIN, trackid, -1, DND_SCROLLBAR_XF + 0.1, (bar.track_y << 16) + 0.1, 0.0, 0.0);
 
 	int th = GetScrollThumbHeight(bar);
-	int ty = DND_SCROLLBAR_Y + GetScrollThumbOffset(bar);
+	int ty = bar.track_y + GetScrollThumbOffset(bar, id);
 	// dimmed until it is worth reaching for, so a page you are only reading does not have a bright
 	// orange bar competing with the text. Reads the state the redraw decision was made from rather
 	// than recomputing the hit test, so the two cannot disagree.
@@ -708,13 +797,13 @@ void DrawScrollBar() {
 
 	SetHudClipRect(DND_SCROLLBAR_X, ty, DND_SCROLLBAR_W, th, DND_SCROLLBAR_W);
 	HudMessage(
-		s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, RPGMENUSCROLLTHUMBID, -1,
+		s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, thumbid, -1,
 		DND_SCROLLBAR_XF + 0.1, ((ty - DND_SCROLLBAR_THUMBBODY) << 16) + 0.1, 0.0, alpha
 	);
 
 	SetHudClipRect(DND_SCROLLBAR_X, ty + th - 1, DND_SCROLLBAR_W, 1, DND_SCROLLBAR_W);
 	HudMessage(
-		s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, RPGMENUSCROLLCAPID, -1,
+		s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, capid, -1,
 		DND_SCROLLBAR_XF + 0.1, ((ty + th - 1 - DND_SCROLLBAR_THUMBCAP) << 16) + 0.1, 0.0, alpha
 	);
 
@@ -722,12 +811,12 @@ void DrawScrollBar() {
 		int gy = ty + (th - DND_SCROLLBAR_THUMBGRIPH) / 2;
 		SetHudClipRect(DND_SCROLLBAR_X, gy, DND_SCROLLBAR_W, DND_SCROLLBAR_THUMBGRIPH, DND_SCROLLBAR_W);
 		HudMessage(
-			s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, RPGMENUSCROLLGRIPID, -1,
+			s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, gripid, -1,
 			DND_SCROLLBAR_XF + 0.1, ((gy - DND_SCROLLBAR_THUMBGRIP) << 16) + 0.1, 0.0, alpha
 		);
 	}
 	else
-		DeleteText(RPGMENUSCROLLGRIPID);
+		DeleteText(gripid);
 
 	SetHudClipRect(0, 0, 0, 0, 0);
 }

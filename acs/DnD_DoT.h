@@ -124,6 +124,21 @@ Script "DnD Player Receive DoT" (int pnum, int duration, int owner, int inflicto
 	duration &= 0xFFFF;
 
 	int victim = P_TIDSTART + pnum;
+
+	// Endurance / Indomitable Resolve. This is the one place every ailment a player receives passes
+	// through, so the window both starts and is enforced here -- the FIRST ailment lands and arms it,
+	// and everything for the next few seconds is turned away.
+	int resolve = PlayerModData[pnum].vals[PSTAT_AILMENT_IMMUNETICS];
+	if(resolve) {
+		if(CheckActorInventory(victim, "DnD_AilmentImmune")) {
+			SetResultValue(0);
+			Terminate;
+		}
+
+		SetActorInventory(victim, "DnD_AilmentImmune", resolve);
+		ACS_NamedExecuteAlways("DnD Ailment Immunity", 0, victim);
+	}
+
 	if(HasActorClassPerk_Fast(victim, DND_PLAYER_WANDERER, DND_CLASSPERK_1))
 		duration = duration * (100 - DND_WANDERER_PERK5_DEBUFFREDUCE) / 100;
 	

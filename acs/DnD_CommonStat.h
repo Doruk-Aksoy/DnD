@@ -4,6 +4,10 @@
 #include "DnD_Accessories.h"
 #include "Inventory/DnD_InvAttribs.h"
 
+// After DnD_InvAttribs.h on purpose -- the perk accessors read PlayerModData, and a variable cannot
+// be forward referenced the way a function can.
+#include "DnD_Perks.h"
+
 #define DND_ACCURACY_CAP 100000
 
 #define DND_SHIFTBITS_FOR_SLOTFROMFLAG 13 // 8192 must return 0 to us
@@ -209,7 +213,7 @@ enum {
 #define STAT_BASE 0
 #define DND_STAT_MAX 1024 // for menu only, in game stats can go up to 1024
 #define DND_STAT_FULLMAX 1024
-#define DND_PERK_MAX 10
+// Retired with the ten-perk system. DND_PERK_MAXPOINTS in DnD_Common.h is the tree's cap.
 
 #define MAX_WEAPON_SLOTS 9
 
@@ -386,10 +390,6 @@ str GetAttributeLabel_Short(int id) {
 	return StrParam(s:"DND_MENU_ATTR_SHORT", d:id + 1);
 }
 
-#define DND_PERK_BEGIN STAT_SHRP
-#define DND_PERK_END STAT_ACRM
-#define DND_MAX_PERKS (DND_PERK_END - DND_PERK_BEGIN + 1)
-
 #define DND_PERK_SHARPSHOOTER_INC 5 // 5%
 #define DND_PERK_BRUTALITY_DAMAGEINC 5 // 5%
 #define DND_PERK_BRUTALITY_RANGEINC 8 // 8%
@@ -417,9 +417,74 @@ enum {
 	SF_FREEZE = 1
 };
 
+// Rage. A stacking, decaying damage bonus described in the General Notes and stored on DnD_Rage so
+// the status bar can read it. Gaining any refreshes the grace period, so a fight keeps it alive and
+// a lull drains it -- "goes down to 0 in 3 seconds if no rage is gained".
+void GiveRage(int pnum, int amt) {
+	int ptid = pnum + P_TIDSTART;
+	GiveActorInventory(ptid, "DnD_Rage", amt);
+	SetActorInventory(ptid, "DnD_RageGrace", DND_RAGE_GRACE);
+	ACS_NamedExecuteAlways("DnD Rage Decay", 0, ptid);
+}
+
+// Acrobacy / Tailwind. Grant and cooldown together, since the cooldown is the whole limiter on it.
+void GiveTailwind(int pnum, int amt) {
+	int ptid = pnum + P_TIDSTART;
+	SetActorInventory(ptid, "DnD_TailwindSpeed", amt);
+	SetActorInventory(ptid, "DnD_TailwindTimer", DND_TAILWIND_TICS);
+
+	int cd = DND_TAILWIND_BASECOOLDOWN - PlayerModData[pnum].vals[PSTAT_TAILWIND_CDREDUCE] * TICRATE;
+	SetActorInventory(ptid, "DnD_TailwindCooldown", Max(TICRATE, cd));
+
+	ACS_NamedExecuteAlways("DnD Tailwind Timer", 0, ptid);
+	ACS_NamedExecuteAlways("DnD Tailwind Cooldown", 0, ptid);
+}
+
+int GetRageDamageBonus(int pnum) {
+	int res = CheckActorInventory(pnum + P_TIDSTART, "DnD_Rage") * DND_RAGE_DAMAGEPER;
+
+	// Perception / Fresh Clip rides the same live term rather than the cached one, for the same
+	// reason rage does: it is counted in SHOTS, so a cached factor would freeze it on the first.
+	if(CheckActorInventory(pnum + P_TIDSTART, "DnD_FreshClipShots"))
+		res += PlayerModData[pnum].vals[PSTAT_FRESHCLIP_DAMAGE];
+
+	// Martialist / Unending Fury. Berserk otherwise only changes which hitscan the FIST uses, which
+	// no other melee weapon can borrow -- so the perk is a damage percentage while berserk is up
+	// rather than a share of the fist's variant, which is not a number that exists to take a share of.
+	if(CheckActorInventory(pnum + P_TIDSTART, "PowerStrength"))
+		res += PlayerModData[pnum].vals[PSTAT_BERSERK_ALLMELEE];
+
+	// Perception / Earthshaker. Live for the same reason -- the ramp changes shot to shot.
+	res += PlayerModData[pnum].vals[PSTAT_ARTILLERY_RAMP] *
+			CheckActorInventory(pnum + P_TIDSTART, "DnD_ArtilleryRamp");
+
+	return res;
+}
+
+// How much of Elusive is left, as a percent. Everything Elusive does is scaled by this rather than
+// switched on and off, which is what "rapidly decaying from 100% effect to 0%" asks for.
+int GetElusiveEffect(int pnum) {
+	int left = CheckActorInventory(pnum + P_TIDSTART, "DnD_Elusive");
+	return left <= 0 ? 0 : (left * 100) / DND_ELUSIVE_TICS;
+}
+
 int GetBonusPlayerSpeed(int pnum) {
 	int ptid = pnum + P_TIDSTART;
 	int res = PlayerModData[pnum].vals[PSTAT_SPEED_INCREASE] + GetPlayerFrenzyCharges(ptid, pnum) * DND_FRENZYCHARGE_SPEEDBONUS;
+
+	// Acrobacy / Head Start. A token rather than a PSTAT because it is a temporary window, and a
+	// PSTAT would have to be added and removed symmetrically -- a missed removal is permanent.
+	res += CheckActorInventory(ptid, "DnD_HeadStartSpeed");
+
+	// Martialist / Swift & Precise. Stacks times the per-hit percent, so the cap on the stack IS
+	// the cap on the bonus -- there is no second clamp to keep in sync with it.
+	res += CheckActorInventory(ptid, "DnD_SwiftPreciseStacks") * PlayerModData[pnum].vals[PSTAT_MELEEHIT_SPEED];
+	res += CheckActorInventory(ptid, "DnD_CritSpeed");
+
+	// Elusive, scaled by what is left of it.
+	res += DND_ELUSIVE_SPEED * GetElusiveEffect(pnum) / 100;
+	res += CheckActorInventory(ptid, "DnD_PlanBSpeed");
+	res += CheckActorInventory(ptid, "DnD_TailwindSpeed");
 	// add other stuff here
 	res += CheckActorInventory(ptid, "GryphonCheck") * DND_GRYPHON_MSPEED + CheckActorInventory(ptid, "CelestialCheck") * DND_CELESTIAL_MSPEED;
 	return res;
@@ -517,7 +582,8 @@ bool CanActorHaveMorePets(int tid) {
 }
 
 int GetHealingBonuses(int pnum) {
-	int bonus = PERK_MEDICBONUS * CheckInventory("Perk_Medic");
+	// Endurance / Medic feeds this. Integer percent -- HandleHealthPickup does amt * (100 + b) / 100.
+	int bonus = PlayerModData[pnum].vals[PSTAT_HEALING_EFFECT];
 	// doesn't make sense for it to go below 0
 	int less_mod = Clamp_Between(100 - PlayerModData[pnum].vals[PSTAT_EX_LESSHEALING], 0, 100);
 	bonus = bonus * less_mod / 100;
@@ -656,6 +722,26 @@ void UpdatePlayerKnockbackResist() {
 
 		SetActorProperty(0, APROP_MASS, val);
 	}
+}
+
+// Explosion radius that only artillery weapons get. Separate from GetPlayerAoEIncrease because that
+// one is every explosion the player causes -- item mods, class perks, artifacts -- and folding an
+// artillery-only bonus into it would have widened all of them.
+//
+// Quaker is the flat part. Earthshaker rides the SAME continuous-attack counter its damage half
+// reads, so one stack is worth the same percentage to both, which is what its note describes.
+//
+// Judged on the weapon the owner is holding NOW, because the explosion knows its owner but not the
+// weapon that fired it -- the radius script is called from around a hundred DECORATE states with no
+// weapon argument. A projectile that lands after a swap is therefore judged by the new weapon. For
+// Earthshaker that is self correcting, since the counter is zeroed the moment a weapon returns to
+// Ready; for Quaker it is a real if small inaccuracy on slow projectiles.
+int GetPlayerArtilleryAoEIncrease(int pnum, int tid) {
+	if(!IsArtilleryWeapon(GetActorWeaponID(tid)))
+		return 0;
+
+	return PlayerModData[pnum].vals[PSTAT_ARTILLERY_RADIUS] +
+		PlayerModData[pnum].vals[PSTAT_ARTILLERY_RAMP] * CheckActorInventory(tid, "DnD_ArtilleryRamp");
 }
 
 int GetPlayerAoEIncrease(int pnum) {
@@ -875,6 +961,16 @@ int GetMitigationChance(int pnum, bool forcedReturn = false) {
 		return 0;
 
 	int base = GetDexterityEffect(pnum, DND_MIT_PER_DEX) + PlayerModData[pnum].vals[PSTAT_MIT_CHANCE];
+
+	// Acrobacy / Nimbleness. Its OWN cap, not the shared one: the notes cap this perk at 25%,
+	// which says nothing about how much mitigation the player may have from everything else.
+	int nimble = PlayerModData[pnum].vals[PSTAT_MIT_PERRUNSEC];
+	if(nimble) {
+		nimble *= CheckActorInventory(pnum + P_TIDSTART, "DnD_RunSeconds") / DND_NIMBLENESS_SECSPERSTACK;
+		if(nimble > DND_NIMBLENESS_CAP)
+			nimble = DND_NIMBLENESS_CAP;
+		base += nimble;
+	}
 	base += CheckActorInventory(pnum + P_TIDSTART, "DnD_HasAmphetamine") * DND_AMPHETAMINE_MITIGATIONCHANCE;
 	base += pbuffs[pnum].buff_net_values[BUFF_MITIGATION].additive;
 
@@ -904,6 +1000,16 @@ int GetDodgeChance(int pnum) {
 	
 	if(HasPlayerFlag(pnum, PFLAG_MITIGATION_TO_DODGE))
 		base += GetMitigationChance(pnum, true) / 2;
+
+	// Acrobacy / Evasive Maneuvers. "Avoid taking damage from direct hits" IS the dodge, so it joins
+	// the existing roll rather than adding a second one -- two independent rolls would compound and
+	// quietly beat DND_DODGECHANCE_CAP, which is enforced below on this sum alone.
+	if(CheckActorInventory(pnum + P_TIDSTART, "DnD_DashEvadeWindow"))
+		base += PlayerModData[pnum].vals[PSTAT_DASH_AVOIDCHANCE] << 16;
+
+	// Elusive. "Avoid damage from hits" is the DODGE, not mitigation -- mitigation reduces a hit and
+	// dodge skips it. Scaled by what is left of the effect, which is the whole character of Elusive.
+	base += (DND_ELUSIVE_AVOID * GetElusiveEffect(pnum) / 100) << 16;
 
 	if(base > DND_DODGECHANCE_CAP)
 		base = DND_DODGECHANCE_CAP;
@@ -1045,11 +1151,19 @@ int CountMonsterAilments(int tid) {
 	return count;
 }
 
-int GetPlayerChargeDuration(int pnum) {
+// charge_type is DND_CHARGE_*, or -1 for a caller that genuinely means "any charge". The per type
+// bonus is summed with the all-charges one rather than multiplied, so a player carrying both an item
+// mod and the matching Cunning perk gets what both plainly say.
+int GetPlayerChargeDuration(int pnum, int charge_type = -1) {
 	int base = DND_BASE_CHARGEDURATION;
 	if(PlayerModData[pnum].vals[PSTAT_EX_CHARGEDURATIONHALVED])
 		base >>= 1;
-	return base * (100 + PlayerModData[pnum].vals[PSTAT_CHARGEDURATION]) / 100;
+
+	int inc = PlayerModData[pnum].vals[PSTAT_CHARGEDURATION];
+	if(charge_type >= 0 && charge_type < DND_MAX_CHARGETYPES)
+		inc += PlayerModData[pnum].vals[PSTAT_CHARGEDURATION_BASE + charge_type];
+
+	return base * (100 + inc) / 100;
 }
 
 int GetPlayerMaxFrenzyCharges(int pnum) {

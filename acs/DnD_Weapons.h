@@ -88,6 +88,48 @@ bool CanTakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt, int flags = 0
 	return ((flags & DND_CFW_DONTCHECKEQUALITY) && mult > amt) || mult >= amt;
 }
 
+// Perception's magazine group. All three fire from the same place because a shot leaving the
+// magazine is the only event any of them actually cares about.
+void HandleMagazinePerks(int pnum, str ammo) {
+	if(!IsMagazineAmmoClass(ammo))
+		return;
+
+	int left = CheckInventory(ammo);
+	int temp;
+
+	// Fresh Clip. DnD_ReloadFinished is a short-lived powerup the reload leaves behind; it is
+	// CONSUMED here rather than merely read, so one reload arms one run of shots no matter how long
+	// the powerup would otherwise have lingered.
+	if(CheckInventory("DnD_ReloadFinished")) {
+		TakeInventory("DnD_ReloadFinished", 1);
+		if((temp = PlayerModData[pnum].vals[PSTAT_FRESHCLIP_SHOTS]))
+			SetInventory("DnD_FreshClipShots", temp);
+	}
+	else if(CheckInventory("DnD_FreshClipShots"))
+		TakeInventory("DnD_FreshClipShots", 1);
+
+	// Lucky Bullet. Held while the magazine is down to its last round, so the shot that empties it
+	// is covered whichever side of the ammo take the damage is computed on -- a flag set for exactly
+	// one instant would be a race against the firing order.
+	SetInventory("DnD_LuckyBullet", left <= 1);
+
+	// Plan B. "After depleting your magazine fully" -- so the magazine reaching zero, not a reload.
+	if(!left && (temp = PlayerModData[pnum].vals[PSTAT_EMPTYMAG_SPEED])) {
+		SetInventory("DnD_PlanBSpeed", temp);
+		SetInventory("DnD_PlanBTimer", DND_PLANB_TICS);
+		ACS_NamedExecuteAlways("DnD Plan B Timer", 0, pnum + P_TIDSTART);
+	}
+}
+
+// Is this ammo class one of the magazines? Perception's magazine perks all need to know, and the
+// class name is the only thing TakeAmmoFromPlayer is given -- there is no magazine id at that point.
+bool IsMagazineAmmoClass(str ammo) {
+	for(int i = 0; i < DND_MAX_MAGAZINES; ++i)
+		if(WeaponMagazineList[i] == ammo)
+			return true;
+	return false;
+}
+
 int TakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt, int flags = 0) {
 	int mult = 1;
 	if(!(flags & DND_ATF_NOAMMOCONSUMPTIONCHECK)) {
@@ -108,6 +150,16 @@ int TakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt, int flags = 0) {
 		Thing_Damage2(pnum + P_TIDSTART, amt, "SkipHandle");
 		amt = 0;
 	}
+
+	HandleMagazinePerks(pnum, ammo);
+
+	// Perception / Earthshaker. "Per continuous attack" is counted here and zeroed when the weapon
+	// returns to Ready, so putting the weapon down or swapping breaks the run -- which is what makes
+	// it continuous rather than cumulative.
+	if(PlayerModData[pnum].vals[PSTAT_ARTILLERY_RAMP] && IsArtilleryWeapon(wepid) &&
+		CheckInventory("DnD_ArtilleryRamp") < PlayerModData[pnum].vals[PSTAT_ARTILLERY_RAMPCAP])
+		GiveInventory("DnD_ArtilleryRamp", 1);
+
 	return amt;
 }
 
@@ -565,7 +617,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					}
 				}
 				else {
-					count = GetPelletCount(pnum, 5) + GetPlayerBonusProjectiles(pnum, wepid);
+					count = GetPelletCount(pnum, 5, wepid) + GetPlayerBonusProjectiles(pnum, wepid);
 					Do_Attack_Circle(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, flags, vPos);
 				}
 			}
@@ -875,7 +927,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			// check if circle attack, fire in circle otherwise
 			if(!CheckUniquePropertyOnPlayer(pnum, PUP_PELLETSFIRECIRCLE)) {
 				// this weapon fires half pellets as railgun, half as hitscan -- so we tuck it at the end
-				count = GetPelletCount(pnum, count * 2);
+				count = GetPelletCount(pnum, count * 2, wepid);
 				// vPos was missing here, so hitscan_id landed on the vPos parameter and the real
 				// hitscan_id fell back to its -1 default. Do_Hitscan_Attack only maps it through
 				// HitscanDamageData when it is not -1, so every pellet in this half went out with a
@@ -886,7 +938,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			}
 			else {
 				GiveInventory("HeavySSG_RailHelper_Circle", 1);
-				count = GetPelletCount(pnum, count);
+				count = GetPelletCount(pnum, count, wepid);
 				Do_Attack_Circle(owner, pnum, DND_PROJ_HEAVYSSG, wepid, count, ProjectileInfo[DND_PROJ_HEAVYSSG].spd_range, flags, vPos, hitscan_id);
 			}
 		break;
@@ -943,8 +995,8 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			}
 			else {
 				count = GetPlayerBonusProjectiles(pnum, wepid);
-				Do_Attack_Circle(owner, pnum, DND_PROJ_HELLSMAWMAIN, wepid, GetPelletCount(pnum, 1) + count, ProjectileInfo[DND_PROJ_HELLSMAWMAIN].spd_range, flags, vPos);
-				Do_Attack_Circle(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, GetPelletCount(pnum, 3) + count, ProjectileInfo[DND_PROJ_HELLSMAWMINI].spd_range, flags, vPos);
+				Do_Attack_Circle(owner, pnum, DND_PROJ_HELLSMAWMAIN, wepid, GetPelletCount(pnum, 1, wepid) + count, ProjectileInfo[DND_PROJ_HELLSMAWMAIN].spd_range, flags, vPos);
+				Do_Attack_Circle(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, GetPelletCount(pnum, 3, wepid) + count, ProjectileInfo[DND_PROJ_HELLSMAWMINI].spd_range, flags, vPos);
 			}
 		break;
 		case DND_WEAPON_AXE:
@@ -996,7 +1048,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					HandleProjectileAttack(owner, pnum, proj_id, wepid, 0, angle_vec, offset_vec, 0, 0, flags, vPos, vUp, vDir, vRight, 3.0, 6.0);
 			}
 			else {
-				count = GetPelletCount(pnum, 6) + GetPlayerBonusProjectiles(pnum, wepid);
+				count = GetPelletCount(pnum, 6, wepid) + GetPlayerBonusProjectiles(pnum, wepid);
 				Do_Attack_Circle(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, flags, vPos);
 			}
 		break;
@@ -1132,7 +1184,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					}
 				}
 				else {
-					count = GetPelletCount(pnum, 3);
+					count = GetPelletCount(pnum, 3, wepid);
 					Do_Attack_Circle(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, flags, vPos);
 				}
 			}
@@ -1186,7 +1238,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					}
 				}
 				else {
-					count = GetPelletCount(pnum, 12) + GetPlayerBonusProjectiles(pnum, wepid);
+					count = GetPelletCount(pnum, 12, wepid) + GetPlayerBonusProjectiles(pnum, wepid);
 					Do_Attack_Circle(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, flags, vPos);
 				}
 			}
@@ -1202,7 +1254,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					}
 				}
 				else {
-					count = GetPelletCount(pnum, 6) + GetPlayerBonusProjectiles(pnum, wepid);
+					count = GetPelletCount(pnum, 6, wepid) + GetPlayerBonusProjectiles(pnum, wepid);
 					Do_Attack_Circle(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, flags, vPos);
 				}
 			}
@@ -1363,7 +1415,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				HandleProjectileAttack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags, vPos, vUp, vDir, vRight);
 			}
 			else {
-				count = GetPelletCount(pnum, 4) + GetPlayerBonusProjectiles(pnum, wepid);
+				count = GetPelletCount(pnum, 4, wepid) + GetPlayerBonusProjectiles(pnum, wepid);
 				Do_Attack_Circle(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, flags, vPos);
 			}
 		break;
@@ -2045,7 +2097,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			else {
 				// can fire circle, do so
 				use_default = false;
-				count = GetPelletCount(pnum, 3) + GetPlayerBonusProjectiles(pnum, wepid);
+				count = GetPelletCount(pnum, 3, wepid) + GetPlayerBonusProjectiles(pnum, wepid);
 				Do_Attack_Circle_Named(owner, pnum, "HellfireLinkC", wepid, count, 24, 0, vPos);
 				Do_Attack_Circle_Named(owner, pnum, "HellfireLinkF", wepid, count, 24, 0, vPos);
 			}
@@ -2068,7 +2120,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					}
 				}
 				else {
-					count = GetPelletCount(pnum, 9) + GetPlayerBonusProjectiles(pnum, wepid);
+					count = GetPelletCount(pnum, 9, wepid) + GetPlayerBonusProjectiles(pnum, wepid);
 					Do_Attack_Circle_Named(owner, pnum, "RazorShot1", wepid, count, 50, 0, vPos);
 				}
 			}
@@ -2090,7 +2142,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				}
 			}
 			else {
-				count = GetPelletCount(pnum, 3) + GetPlayerBonusProjectiles(pnum, wepid);
+				count = GetPelletCount(pnum, 3, wepid) + GetPlayerBonusProjectiles(pnum, wepid);
 				Do_Attack_Circle_Named(owner, pnum, "RazorSkull", wepid, count, 25, 0, vPos);
 			}
 		break;
@@ -2112,7 +2164,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				Do_Projectile_Attack_Named(owner, pnum, "SunBeamSpawner", wepid, 1, 25, angle_vec, offset_vec, 0, 0, 0, vPos, vUp, vDir, vRight);
 			}
 			else {
-				count = GetPelletCount(pnum, 3);
+				count = GetPelletCount(pnum, 3, wepid);
 				Do_Attack_Circle_Named(owner, pnum, "SunBeamSpawner", wepid, count, 20, 0, vPos);
 			}
 		break;
@@ -2332,7 +2384,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		ammo_take_amt = IsWeaponFiringProjectiles(wepid) * GetPlayerBonusProjectiles(pnum, wepid);
 		if(count > 1 && (flags & DND_ATF_CANFIRECIRCLE)) {
 			count += ammo_take_amt;
-			count = GetPelletCount(pnum, count);
+			count = GetPelletCount(pnum, count, wepid);
 		}
 
 		if(!CheckUniquePropertyOnPlayer(pnum, PUP_PELLETSFIRECIRCLE) || !(flags & DND_ATF_CANFIRECIRCLE)) {

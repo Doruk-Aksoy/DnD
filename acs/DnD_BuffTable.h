@@ -192,7 +192,7 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             tic_duration = PlayerModData[pnum].vals[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF];
             if(!tic_duration || (tic_duration && ReadPlayerModExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_FRENZY)) {
                 bvalue = DND_FRENZYCHARGE_BONUS;
-                bduration = GetPlayerChargeDuration(pnum);
+                bduration = GetPlayerChargeDuration(pnum, DND_CHARGE_FRENZY);
                 tic_duration = bduration * TICRATE;
 
                 // set bvalue to 0 for refreshing duration
@@ -217,7 +217,7 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             tic_duration = PlayerModData[pnum].vals[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF];
             if(!tic_duration || (tic_duration  && ReadPlayerModExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_ENDURANCE)) {
                 bvalue = -DND_ENDURANCECHARGE_BONUS;
-                bduration = GetPlayerChargeDuration(pnum);
+                bduration = GetPlayerChargeDuration(pnum, DND_CHARGE_ENDURANCE);
                 tic_duration = bduration * TICRATE;
 
                 if(CanActorHaveEnduranceCharges(ptid, pnum))
@@ -241,7 +241,7 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             tic_duration = PlayerModData[pnum].vals[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF];
             if(!tic_duration || (tic_duration && ReadPlayerModExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_POWER)) {
                 bvalue = DND_POWERCHARGE_BONUS;
-                bduration = GetPlayerChargeDuration(pnum);
+                bduration = GetPlayerChargeDuration(pnum, DND_CHARGE_POWER);
                 tic_duration = bduration * TICRATE;
 
                 if(CanActorHavePowerCharges(ptid, pnum))
