@@ -53,9 +53,11 @@
 
 #define LEVELDATA_CHESTSPAWNED 0
 #define LEVELDATA_MAXCHESTS 1
-#define LEVELDATA_WISDOMMASTERED 2 // counts of players who have mastered wisdom and greed perks
-#define LEVELDATA_GREEDMASTERED 3
-#define MAX_LEVEL_DATA_ITEMS 4
+// 2 and 3 were the counts of players who had mastered the retired Wisdom and Greed perks. Nothing
+// wrote them after the retirement, so both read as zero forever and the two conditions that asked
+// about them became constants. Cunning's Deep Wisdom and Endless Greed replace those perks and use
+// their own PSTAT slots, so nothing needs the counts back.
+#define MAX_LEVEL_DATA_ITEMS 2
 int CurrentLevelData[MAX_LEVEL_DATA_ITEMS];
 
 enum {

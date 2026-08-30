@@ -74,5 +74,4 @@ Actor DnD_ShotUndead : DnD_Boolean { }
 
 Actor DnD_UsedSuperWeapon : DnD_Boolean { }
 
-Actor DnD_UsedNonSpecial : DnD_Boolean { }
 Actor DnD_MoneySpentQuest : DnD_Info { }

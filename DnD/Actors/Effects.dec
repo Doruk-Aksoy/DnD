@@ -2933,17 +2933,3 @@ Actor DnD_ReapingCleaveFX : DnD_SpecialFX {
 		Stop
 	}
 }
-
-Actor StunFXMarker : DnD_SpecialFX {
-	Renderstyle Add
-	XScale 1.0
-	YScale 0.5
-	Alpha 0.9
-	ReactionTime 28
-	States {
-		Spawn:
-			TNT1 A 0 A_SetScale(1.0 + frandom(-0.075, 0.075), 0.5 + frandom(-0.075, 0.075))
-			CMRK C 2 A_CountDown
-		Loop
-	}
-}

@@ -391,8 +391,9 @@ ACTOR "Soul Render" : DnDWeapon {
 		Goto ContFireCheckInvis
 		FireConfirmed:
 			// This fixes the A_Refire not making you go to Ready for the removal of the weapon
-			TNT1 A 0 A_JumpIfInventory("BladeCharge",100,"Fire2")
+			TNT1 A 0 A_JumpIfInventory("BladeCharge", 100, "Fire2")
 			TNT1 A 0 A_JumpIfInventory("DrainMode", 1, "DrainFire")
+			TNT1 A 0 A_JumpIfInventory("DnD_QuickDeadly", 1, "FireNormal_Quick")
 			VBLG B 3 A_AlertMonsters
 			VBLG C 1 A_PlayWeaponSound("weapons/hamswg")
 			VBLX AB 1
@@ -411,7 +412,7 @@ ACTOR "Soul Render" : DnDWeapon {
 			VBLG G 3 
 			TNT1 A 4 
 			TNT1 A 0 A_ReFire("FireCheckInvis")
-			ContFireCheckInvis:
+		ContFireCheckInvis:
 			VBLG A 1 Offset (0,80)
 			VBLG A 1 Offset (0,72)
 			VBLG A 1 Offset (0,64)
@@ -419,12 +420,53 @@ ACTOR "Soul Render" : DnDWeapon {
 			VBLG A 1 Offset (0,48)
 			VBLG A 1 Offset (0,40)
 		Goto ReadyLoop
+		FireNormal_Quick:
+			VBLG B 2 A_AlertMonsters
+			VBLG C 1 A_PlayWeaponSound("weapons/hamswg")
+			VBLX A 1
+			VBLG D 1 
+			VBLX C 1
+			TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
+			TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
+			TNT1 A 0 A_SetInvulnerable
+			VBLG E 1 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SOULRENDER, DND_ATK_PRIMARY, 0, DND_ATF_NOAMMOTAKE)
+			VBLX E 1
+			VBLG F 1 
+			VBLX GH 1
+			TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
+			TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
+			TNT1 A 0  A_UnSetInvulnerable
+			VBLG G 2 
+			TNT1 A 3 
+// repeat
+			VBLG B 2
+			VBLG C 1 A_PlayWeaponSound("weapons/hamswg")
+			VBLX A 1
+			VBLG D 1 
+			VBLX C 1
+			TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
+			TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
+			TNT1 A 0 A_SetInvulnerable
+			VBLG E 1 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SOULRENDER, DND_ATK_PRIMARY, 0, DND_ATF_NOAMMOTAKE)
+			VBLX E 1
+			VBLG F 1 
+			VBLX GH 1
+			TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
+			TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
+			TNT1 A 0  A_UnSetInvulnerable
+			VBLG G 2 
+			TNT1 A 3 
+			TNT1 A 0 A_ReFire("FireCheckInvis")
+		Goto ContFireCheckInvis
+
 		Fire2CheckInvis:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "Fire2")
 			TNT1 A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto ContFire2CheckInvis
 		Fire2:
+			TNT1 A 0 A_JumpIfInventory("DnD_QuickDeadly", 1, "Fire2_Quick")
+		Fire2_NoRepeat:
 			VB3G D 3 Bright A_AlertMonsters
 			VB3G E 1 Bright A_PlayWeaponSound("weapons/vblswg")
 			VB3X AB 1 Bright
@@ -447,7 +489,7 @@ ACTOR "Soul Render" : DnDWeapon {
 			VB3G I 3 Bright
 			TNT1 A 4
 			TNT1 A 0 A_ReFire("Fire2CheckInvis")
-			ContFire2CheckInvis:
+		ContFire2CheckInvis:
 			TNT1 A 0 A_JumpIfInventory("BladeCharge", 100, "RaiseFlame")
 			TNT1 A 0 A_JumpIfInventory("DrainMode", 1, "RaiseDrain")
 			VBLG A 1 Offset (0,80)
@@ -457,6 +499,54 @@ ACTOR "Soul Render" : DnDWeapon {
 			VBLG A 1 Offset (0,48)
 			VBLG A 1 Offset (0,40)
 		Goto ReadyLoop
+		Fire2_Quick:
+			VB3G D 2 Bright A_AlertMonsters
+			VB3G E 1 Bright A_PlayWeaponSound("weapons/vblswg")
+			VB3X A 1 Bright
+			VB3G F 1 Bright
+			VB3X C 1 Bright
+			TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
+			TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
+			TNT1 A 0 A_SetInvulnerable
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_TEMPORARY, DND_TEMPAMMO_BLADEHITS, 15)
+			TNT1 A 0 A_TakeInventory("BladeHits", 15)
+			TNT1 A 0 A_TakeInventory("BladeCharge", 100)
+			TNT1 A 0 Radius_Quake(6,6,0,1,0)
+			VB3G G 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SOULRENDER, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE)
+			VB3X E 1 Bright
+			VB3G H 1 Bright 
+			VB3X G 1 Bright
+			TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
+			TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
+			TNT1 A 0 A_UnSetInvulnerable
+			VB3G I 2 Bright
+			TNT1 A 3
+// repeat
+			VB3G D 2 Bright
+			VB3G E 1 Bright A_PlayWeaponSound("weapons/vblswg")
+			VB3X A 1 Bright
+			VB3G F 1 Bright
+			VB3X C 1 Bright
+			TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
+			TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
+			TNT1 A 0 A_SetInvulnerable
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_TEMPORARY, DND_TEMPAMMO_BLADEHITS, 15)
+			TNT1 A 0 A_TakeInventory("BladeHits", 15)
+			TNT1 A 0 A_TakeInventory("BladeCharge", 100)
+			TNT1 A 0 Radius_Quake(6,6,0,1,0)
+			VB3G G 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SOULRENDER, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE)
+			VB3X E 1 Bright
+			VB3G H 1 Bright 
+			VB3X G 1 Bright
+			TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
+			TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
+			TNT1 A 0 A_UnSetInvulnerable
+			VB3G I 2 Bright
+			TNT1 A 3
+			TNT1 A 0 A_ReFire("Fire2CheckInvis")
+		Goto ContFire2CheckInvis
+
+
 		AltFire:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_JumpIfInventory("DrainMode", 1, "TakeDrain")
@@ -475,7 +565,8 @@ ACTOR "Soul Render" : DnDWeapon {
 			TNT1 A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto ContDrainCheckInvis
 		DrainFire:
-			TNT1 A 0 A_JumpIfInventory("BladeCharge",100,"Fire2")
+			TNT1 A 0 A_JumpIfInventory("BladeCharge", 100, "Fire2")
+			TNT1 A 0 A_JumpIfInventory("DnD_QuickDeadly", 1, "DrainFire_Quick")
 			VB2G C 3 Bright A_AlertMonsters
 			VB2G D 1 Bright A_PlayWeaponSound("weapons/hamswg")
 			VB2X AB 1 Bright
@@ -512,6 +603,45 @@ ACTOR "Soul Render" : DnDWeapon {
 			VB3G C 1 Bright Offset (0,48)
 			VB3G C 1 Bright Offset (0,40)  
 		Goto ReadyLoop
+		DrainFire_Quick:
+			VB2G C 2 Bright A_AlertMonsters
+			VB2G D 1 Bright A_PlayWeaponSound("weapons/hamswg")
+			VB2X A 1 Bright
+			VB2G E 1 Bright 
+			VB2X C 1 Bright
+			TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
+			TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
+			TNT1 A 0 A_SetInvulnerable
+			VB2G F 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SOULRENDER, DND_ATK_OTHER_DIR, 0, DND_ATF_NOAMMOTAKE)
+			VB2X E 1 Bright
+			VB2G G 1 Bright 
+			VB2X G 1 Bright
+			TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
+			TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
+			TNT1 A 0 A_UnSetInvulnerable
+			VB2G H 2 Bright 
+			TNT1 A 3
+			TNT1 A 0 A_JumpIfInventory("BladeCharge", 100, "Fire2_NoRepeat")
+// repeat
+			VB2G C 2 Bright
+			VB2G D 1 Bright A_PlayWeaponSound("weapons/hamswg")
+			VB2X A 1 Bright
+			VB2G E 1 Bright 
+			VB2X C 1 Bright
+			TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
+			TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
+			TNT1 A 0 A_SetInvulnerable
+			VB2G F 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SOULRENDER, DND_ATK_OTHER_DIR, 0, DND_ATF_NOAMMOTAKE)
+			VB2X E 1 Bright
+			VB2G G 1 Bright 
+			VB2X G 1 Bright
+			TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
+			TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
+			TNT1 A 0 A_UnSetInvulnerable
+			VB2G H 2 Bright 
+			TNT1 A 3
+			TNT1 A 0 A_ReFire("DrainCheckInvis")
+		Goto ContDrainCheckInvis
 		
 		RiseUpSpecial:
 			VBLG A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)

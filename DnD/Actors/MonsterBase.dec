@@ -195,7 +195,7 @@ Actor DnD_BaseMonster {
 			"####" "#" 1 A_JumpIfInventory("StunDurationCounter", 1, "StunLoopTic")
 		Goto StunEnd
 		StunLoopTic:
-			"####" "#" 5 A_SpawnItemEx("StunFXMarker", 0, 0, height + 8.0)
+			"####" "#" 5
 		Goto StunLoop
 		StunEnd:
 			"####" "#" 1 ACS_NamedExecuteWithResult("DnD Toggle NoPain")

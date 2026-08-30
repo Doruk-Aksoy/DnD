@@ -186,7 +186,7 @@ enum {
 // chance scales with points -- so they are constants rather than slots.
 #define DND_EXHAUSTER_SLOWPCT 20
 #define DND_EXHAUSTER_SLOWTIME 3        // seconds
-#define DND_CRANIUMBASH_STUNTICS 52     // 1.5 seconds, the notes' figure
+#define DND_CRANIUMBASH_STUNTICS 70     // 2 seconds
 
 // Sector light level at or below which Master of Shadows considers the player to be in the dark.
 // Doom light levels run 0..255 and a normally lit room sits around 160..192, so this is genuinely

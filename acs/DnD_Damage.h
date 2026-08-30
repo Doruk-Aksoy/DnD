@@ -3576,10 +3576,15 @@ Script "DnD Monster Slow Ticker" (int victim) {
 // death matters: the state machine is gone by then and a stale counter would stun the next monster
 // to reuse the tid.
 Script "DnD Monster Stun Ticker" (int victim) {
+	int sfx_id = ACS_NamedExecuteWithResult("DND Spawn Attachment", victim, DND_ATTACHMENT_STUNICON);
+
 	while(CheckActorInventory(victim, "StunDurationCounter") && isActorAlive(victim)) {
 		TakeActorInventory(victim, "StunDurationCounter", 1);
 		Delay(const:1);
 	}
+
+	if(isActorAlive(victim))
+		ACS_NamedExecuteWithResult("DnD Remove Monster Attachment", victim, sfx_id);
 
 	SetActorInventory(victim, "StunDurationCounter", 0);
 }

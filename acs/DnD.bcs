@@ -972,8 +972,11 @@ Script "DND On Kill" KILL {
 	if(!HasMonsterTrait(m_id, DND_NODROPS)) {
 		if(!killerWasntPlayer)
 			HandleCreditExp_Regular(this, target, m_id);
-		else if(!CurrentLevelData[LEVELDATA_WISDOMMASTERED] && !CurrentLevelData[LEVELDATA_GREEDMASTERED]) {
-			HandleCreditExp_MasteryCheck(this, target, m_id);
+		else {
+			// The condition here used to be "nobody has mastered Wisdom or Greed". Both counters
+			// were permanently zero, so it was always taken -- this is that branch, without the
+			// question.
+			HandleNonPlayerKillDrop(this, m_id);
 			Terminate;
 		}
 	}

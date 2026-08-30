@@ -683,23 +683,27 @@ Script "DnD Create Blind FX" (int type, int distance) CLIENTSIDE {
 
 	str actor = "";
 	int zoff = GetActorProperty(0, APROP_HEIGHT) + 8.0;
+	int id = 0;
 	switch(type) {
 		case DND_BLIND_LIGHT:
 			PlaySound(0, "Blind/Normal", CHAN_6, 1.0);
-			CreateMonsterAttachment(this, "DnD_BlindIcon", 0, 0, zoff);
+			id = CreateMonsterAttachment(this, "DnD_BlindIcon", 0, 0, zoff);
 			actor = "NormalBlindFX";
 		break;
 		case DND_BLIND_HEAVY:
 			PlaySound(0, "Blind/Heavy", CHAN_6, 1.0);
-			CreateMonsterAttachment(this, "DnD_BlindIcon_Heavy", 0, 0, zoff);
+			id = CreateMonsterAttachment(this, "DnD_BlindIcon_Heavy", 0, 0, zoff);
 			actor = "HeavyBlindFX";
 		break;
 		case DND_BLIND_PETRIFY:
 			PlaySound(0, "Lich/VisionDim", CHAN_6, 1.0);
-			CreateMonsterAttachment(this, "DnD_BlindIcon_Petrify", 0, 0, zoff);
+			id = CreateMonsterAttachment(this, "DnD_BlindIcon_Petrify", 0, 0, zoff);
 			actor = "PetrifyBlindFX";
 		break;
 	}
+
+	SetActorInventory(this, "DnD_BlindFXToRemove", id + 1);
+	//printbold(s:"set inventory ", d:CheckActorInventory(this, "DnD_BlindFXToRemove"));
 
 	// create circle fx around this with r = dist
 	for(int i = 0; i < 24; ++i) {

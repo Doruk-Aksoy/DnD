@@ -1095,62 +1095,15 @@ void HandleCreditExp_Regular(int this, int target, int m_id) {
 	ACS_NamedExecuteWithResult("DND Show Kill Digits", target, expscale, creditscale);
 }
 
-void HandleCreditExp_MasteryCheck(int this, int target, int m_id) {
-	int expshare = GetCVar("dnd_sharexp");
-	int creditshare = GetCVar("dnd_sharecredit");
-	
-    // decide how exp/credit base is calculated
-	int exptemp = MonsterProperties[m_id].gain;
-	int credtemp = ApplyCreditFactor(target, exptemp);
-    int pnum = 0, i = MonsterProperties[m_id].level;
-	
-	if(credtemp < DND_MIN_CREDIT)
-		credtemp = DND_MIN_CREDIT;
-	
-	int pcount = Clamp_Between(PlayerCount(), 1, DND_MAX_SHARE);
-	int expscale = Clamp_Between(GetCVar("dnd_exp_scale"), 1, EXP_SCALE_MAX);
-	int creditscale = Clamp_Between(GetCVar("dnd_credit_scale"), 1, CREDIT_SCALE_MAX);
-	
-	// if full share is on we won't divide by player count, but if it isn't we will
-	if(!GetCVar("dnd_fullshare")) {
-		exptemp = (exptemp * expscale) / pcount;
-		if(exptemp < MIN_EXP_GAIN)
-			exptemp = MIN_EXP_GAIN;
-		credtemp = (credtemp * creditscale) / pcount;
-		if(credtemp < MIN_CREDIT_GAIN)
-			credtemp = MIN_CREDIT_GAIN;
-	}
-	else {
-		exptemp *= expscale;
-		credtemp *= creditscale;
-	}
-
-	// from here on out the scale variables and pcount are useless
-	pcount = GetCVar("dnd_gainrange");
-	expshare = 0;
-	creditshare = 0;
-	
-	for(i = 0; i < MAXPLAYERS; ++i) {
-		expscale = 0;
-		creditscale = 0;
-		target = P_TIDSTART + i;
-		if(IsActorAlive(target)) {
-			// Wisdom and Greed mastery used to feed expshare/creditshare here. The sharing machinery
-			// below is untouched and simply has no source now; Cunning's Deep Wisdom and Endless Greed
-			// are the replacements it hooks back up to in phase 3.
-			
-			if(expscale || creditscale) {
-				SetActivator(target);
-				ACS_NamedExecuteWithResult("DND Show Kill Digits", target, expscale, creditscale);
-			}
-			
-			// quit early if we concluded all mastery players
-			if(expshare == CurrentLevelData[LEVELDATA_WISDOMMASTERED] && creditshare == CurrentLevelData[LEVELDATA_GREEDMASTERED])
-				break;
-		}
-	}
-	
-	// guaranteed temp weapon drop
+// A kill the player did not make. It used to share exp and credit with anyone who had mastered the
+// Wisdom or Greed perks, and every part of that is gone: the two counters it compared against were
+// never written after the retirement, expshare and creditshare were zeroed and never raised, the
+// per-player scale values were zeroed at the top of each iteration so the kill digits never drew,
+// and the loop's early out was therefore true on its first pass. The exp and credit it computed were
+// never spent. What survived all of that is the temp weapon drop, which is the whole function now.
+//
+// Renamed to match: nothing here checks a mastery or hands out credit or exp.
+void HandleNonPlayerKillDrop(int this, int m_id) {
 	HandleMonsterTemporaryWeaponDrop(this, m_id, -1, true);
 }
 

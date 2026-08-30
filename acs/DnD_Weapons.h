@@ -202,9 +202,6 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		ammo_take_amt = Weapons_Data[wepid].ammo_use1;
 	}
 	
-	if(ammo_slot != DND_AMMOSLOT_SPECIAL)
-		GiveInventory("DnD_UsedNonSpecial", 1);
-	
 	int proj_id = -1;				// id of proj to fire
 	str proj_name_alt = "";			// alternative name
 	int count = 1;					// proj count

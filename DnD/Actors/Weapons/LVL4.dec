@@ -637,7 +637,6 @@ Actor "Upgraded Machine Gun" : DnDWeapon {
 			SMG2 A 3
 		Goto ReadyLoop
 		AltFire:
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_JumpIfInventory("WeaponZoomCooldown", 1, "Failed")
 			TNT1 A 0 A_GiveInventory("WeaponZoomCooldown", 1)
 			TNT1 A 0 A_JumpIfInventory("WeaponZoom", 1, "RevertZoom")

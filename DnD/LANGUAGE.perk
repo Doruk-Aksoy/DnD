@@ -294,7 +294,7 @@ PERK_MART_RAMPINGASSAULT_DESC            = "Every 6th melee hit on the same enem
 PERK_MART_RAMPINGASSAULT_PER             = "-1 hits needed for the bonus damage.";
 
 PERK_MART_CRANIUMBASH                    = "Cranium Bash";
-PERK_MART_CRANIUMBASH_DESC               = "Blunt melee weapons have 3% chance to stun enemies on melee hit for 1.5 seconds.";
+PERK_MART_CRANIUMBASH_DESC               = "Blunt melee weapons have 4% chance to stun enemies on melee hit for 2 seconds.";
 PERK_MART_CRANIUMBASH_PER                = "3% additional chance to stun.";
 
 PERK_MART_ECHOINGSTRIKES                 = "Echoing Strikes";

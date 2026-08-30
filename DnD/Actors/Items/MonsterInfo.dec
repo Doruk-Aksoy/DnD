@@ -201,6 +201,8 @@ enum {
 const int DND_FORCEDLEVEL = 7;
 const int DND_PASSLEVEL = 8;
 
+Actor DnD_BlindFXToRemove : DnD_Info { }
+
 Actor EliteSpecialFX : DnD_AttachedFXBase {
 	Height 2
 	Radius 1
@@ -273,6 +275,10 @@ Actor DnD_BlindIcon : DnD_AttachedFXBase {
 			ESYM HHHH 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
 			TNT1 A 0 A_JumpIfInTargetInventory("BlindCancelledSignal", 1, "Disappear")
 		Loop
+		Disappear:
+			TNT1 A 2 ACS_NamedExecuteWithResult("DnD Remove Blind FX Count")
+			TNT1 A 35 ACS_NamedExecuteWithResult("DnD Remove Actor - CS")
+		Stop
 	}
 }
 
@@ -292,6 +298,10 @@ Actor DnD_BlindIcon_Heavy : DnD_BlindIcon {
 			ESYM LLLL 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
 			TNT1 A 0 A_JumpIfInTargetInventory("BlindCancelledSignal", 1, "Disappear")
 		Loop
+		Disappear:
+			TNT1 A 2 ACS_NamedExecuteWithResult("DnD Remove Blind FX Count")
+			TNT1 A 35 ACS_NamedExecuteWithResult("DnD Remove Actor - CS")
+		Stop
 	}
 }
 
@@ -311,6 +321,10 @@ Actor DnD_BlindIcon_Petrify : DnD_BlindIcon {
 			ESYM DDDD 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
 			TNT1 A 0 A_JumpIfInTargetInventory("BlindCancelledSignal", 1, "Disappear")
 		Loop
+		Disappear:
+			TNT1 A 2 ACS_NamedExecuteWithResult("DnD Remove Blind FX Count")
+			TNT1 A 35 ACS_NamedExecuteWithResult("DnD Remove Actor - CS")
+		Stop
 	}
 }
 
@@ -420,6 +434,20 @@ Actor WardAuraFX : DnD_AttachedFXBase {
 			TNT1 A 1 ACS_NamedExecuteWithResult("DnD Aura Scale to Match")
 		RealLoop:
 			AURA G 1 Bright A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_INTERPOLATE | WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION)
+		Loop
+	}
+}
+
+Actor StunFXMarker : DnD_AttachedFXBase {
+	Renderstyle Add
+	XScale 1.0
+	YScale 0.5
+	Alpha 0.9
+	ReactionTime 28
+	States {
+		SpawnLoop:
+			TNT1 A 0 A_SetScale(1.0 + frandom(-0.075, 0.075), 0.5 + frandom(-0.075, 0.075))
+			CMRK CC 1 A_Warp(AAPTR_TARGET, 0, 0, mass, 0, WARPF_INTERPOLATE | WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION)
 		Loop
 	}
 }

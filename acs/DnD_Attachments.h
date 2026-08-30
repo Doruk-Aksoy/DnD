@@ -22,13 +22,15 @@ enum {
 
 	DND_SPECIALFX_ASMODEUSCIRCLE,
 
-	DND_ATTACHMENT_PETICON
+	DND_ATTACHMENT_PETICON,
+	DND_ATTACHMENT_STUNICON,
 };
 
 Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 	// non-zero hopefully
+	int res = 0;
 	if(tid) {
-		Delay(const:1);
+		//Delay(const:1);
 
 		int i;
 		int zoff = GetActorProperty(tid, APROP_HEIGHT) >> 1;
@@ -42,13 +44,13 @@ Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 					CreateMonsterAttachment(tid, "EliteReflectingShield", xoff, 0, zoff, i * 1.0 / 3);
 			break;
 			case DND_ELITEFX_CRIPPLEAURA:
-				CreateMonsterAttachment(tid, "CrippleAuraFX");
+				res = CreateMonsterAttachment(tid, "CrippleAuraFX");
 			break;
 			case DND_ELITEFX_VIOLENTAURA:
-				CreateMonsterAttachment(tid, "ViolentAuraFX");
+				res = CreateMonsterAttachment(tid, "ViolentAuraFX");
 			break;
 			case DND_ELITEFX_TEMPORALBUBBLE:
-				CreateMonsterAttachment(tid, "TemporalBubbleFX", 0, 0, zoff);
+				res = CreateMonsterAttachment(tid, "TemporalBubbleFX", 0, 0, zoff);
 			break;
 			case DND_ELITEFX_ENSHROUD:
 				for(i = 0; i < 7; ++i)
@@ -58,17 +60,22 @@ Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 			// PLACEHOLDER ART: reuses the Asmodeus ring so the aura is visible in game at all. Wants
 			// its own sprite before this ships.
 			case DND_ELITEFX_WARDAURA:
-				CreateMonsterAttachment(tid, "WardAuraFX");
+				res = CreateMonsterAttachment(tid, "WardAuraFX");
 			break;
 
 			case DND_SPECIALFX_ASMODEUSCIRCLE:
-				CreateMonsterAttachment(tid, "AsmodeusAuraFX");
+				res = CreateMonsterAttachment(tid, "AsmodeusAuraFX");
 			break;
 
 			case DND_ATTACHMENT_PETICON:
 				zoff <<= 1;
                 zoff += 10.0;
-				CreateMonsterAttachment(tid, "DnD_PetIcon", xoff, 0, zoff);
+				res = CreateMonsterAttachment(tid, "DnD_PetIcon", xoff, 0, zoff);
+			break;
+			case DND_ATTACHMENT_STUNICON:
+				zoff <<= 1;
+                zoff += 12.0;
+				res = CreateMonsterAttachment(tid, "StunFXMarker", 0, 0, zoff);
 			break;
 
 			// normal elite sparkles
@@ -79,6 +86,7 @@ Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 			break;
 		}
 	}
+	SetResultValue(res);
 }
 
 void InitAttachments(int m_id) {
@@ -91,7 +99,7 @@ Script "DnD Init Monster Attachments" (int m_id) CLIENTSIDE {
 }
 
 // do not send tid here, send monster id (tid - DND_MONSTERTID_BEGIN)
-void CreateMonsterAttachment(int tid, str actor_name, int xoff = 0, int yoff = 0, int zoff = 0, int angle = 0) {
+int CreateMonsterAttachment(int tid, str actor_name, int xoff = 0, int yoff = 0, int zoff = 0, int angle = 0) {
 	// base tid skip
 	int sfx_id = 0;
 	int m_id = tid - DND_MONSTERTID_BEGIN;
@@ -104,24 +112,60 @@ void CreateMonsterAttachment(int tid, str actor_name, int xoff = 0, int yoff = 0
 
 	// don't go over the bit limit
 	if(sfx_id > 31)
-		return;
+		return 0;
 
 	attachment_data.val |= 1 << sfx_id;
 
+	//printbold(s:"give attachment to id ", d:sfx_id, s:" val: ", d:attachment_data.val);
+
 	// offset to tid
-	sfx_id += DND_MONSTER_ATTACHMENT_TID_BEGIN + m_id * DND_MAX_MONSTER_ATTACHMENTS;
-	SpawnForced(actor_name, GetActorX(tid) + xoff, GetActorY(tid) + yoff, GetActorZ(tid) + zoff, sfx_id, angle);
+	temp = sfx_id + DND_MONSTER_ATTACHMENT_TID_BEGIN + m_id * DND_MAX_MONSTER_ATTACHMENTS;
+	SpawnForced(actor_name, GetActorX(tid) + xoff, GetActorY(tid) + yoff, GetActorZ(tid) + zoff, temp, angle);
 
 	// setup the attachment
-	SetActivator(sfx_id);
+	SetActivator(temp);
 	SetPointer(AAPTR_TARGET, tid);
-	SetActorProperty(sfx_id, APROP_TARGETTID, tid);
+	SetActorProperty(temp, APROP_TARGETTID, tid);
 
 	// radius and other things
-	SetActorProperty(sfx_id, APROP_MASS, zoff >> 16);
-	SetActorProperty(sfx_id, APROP_SCORE, xoff >> 16);
+	SetActorProperty(temp, APROP_MASS, zoff >> 16);
+	SetActorProperty(temp, APROP_SCORE, xoff >> 16);
 
 	SetActivator(tid);
+
+	return sfx_id;
+}
+
+void RemoveAttachment(int m_id, int sfx_id, bool wantStateChange = true) {
+	auto attachment_data = GetMonsterAttachmentsUsed(m_id);
+	int temp = attachment_data.val;
+	int id_count = 0;
+	int base = DND_MONSTER_ATTACHMENT_TID_BEGIN + m_id * DND_MAX_MONSTER_ATTACHMENTS;
+
+	while(temp) {
+		if((temp & 1) && id_count == sfx_id) {
+			if(wantStateChange)
+				SetActorState(sfx_id + base, "Disappear");
+			attachment_data.val &= ~(1 << sfx_id);
+			break;
+		}
+		++id_count;
+		temp >>= 1;
+	}
+}
+
+Script "DnD Remove Monster Attachment" (int tid, int sfx_id) CLIENTSIDE {
+	RemoveAttachment(tid - DND_MONSTERTID_BEGIN, sfx_id);
+	SetResultValue(0);
+}
+
+Script "DnD Remove Blind FX Count" (void) CLIENTSIDE {
+	SetActivatorToTarget(0);
+	
+	int this = ActivatorTID();
+	RemoveAttachment(this - DND_MONSTERTID_BEGIN, CheckInventory("DnD_BlindFXToRemove") - 1, false);
+	SetInventory("DnD_BlindFXToRemove", 0);
+	SetResultValue(0);
 }
 
 // When a monster is killed this is called to do cleanup
