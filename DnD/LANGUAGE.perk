@@ -447,4 +447,162 @@ PERK_PERC_EMERGENCYPROTOCOL              = "Emergency Protocol";
 PERK_PERC_EMERGENCYPROTOCOL_DESC         = "Fully overheated weapons can continue firing for an extended 3 seconds.";
 
 
-// ---- Tormentor: nothing authored yet ----
+// ---- Tormentor / Poison ----
+
+PERK_TORM_STUDENTOFDECAY                 = "Student of Decay";
+PERK_TORM_STUDENTOFDECAY_DESC            = "10% increased poison damage over time.";
+PERK_TORM_STUDENTOFDECAY_PER             = "10% additional increase.";
+
+PERK_TORM_PROLONGEDTORTURE               = "Prolonged Torture";
+PERK_TORM_PROLONGEDTORTURE_DESC          = "15% increased poison duration.";
+PERK_TORM_PROLONGEDTORTURE_PER           = "5% additional poison duration.";
+
+PERK_TORM_DEATHSGRIP                     = "Death's Grip";
+PERK_TORM_DEATHSGRIP_DESC                = "5% chance to gain a frenzy charge on inflicting maximum poison stacks on an enemy.";
+PERK_TORM_DEATHSGRIP_PER                 = "5% additional chance.";
+PERK_TORM_DEATHSGRIP_REQ                 = "Student of Decay (1) OR Prolonged Torture (1)";
+
+PERK_TORM_FLOWOFLIFE                     = "Flow of Life";
+PERK_TORM_FLOWOFLIFE_DESC                = "Regenerate health up to 8% of your regen cap on killing poisoned enemies.";
+PERK_TORM_FLOWOFLIFE_PER                 = "4% additional regen percent.";
+PERK_TORM_FLOWOFLIFE_REQ                 = "Student of Decay (1) OR Prolonged Torture (1)";
+
+PERK_TORM_CORROSION                      = "Corrosion";
+PERK_TORM_CORROSION_DESC                 = "For every second of poison on an enemy, they lose 1 poison resist per stack up to 20.";
+PERK_TORM_CORROSION_PER                  = "+1 poison resist reduction per stack.";
+PERK_TORM_CORROSION_REQ                  = "Death's Grip (1) OR Flow of Life (1)";
+
+PERK_TORM_ACRIMONY                       = "Acrimony";
+PERK_TORM_ACRIMONY_DESC                  = "5% poison damage over time multiplier.";
+PERK_TORM_ACRIMONY_PER                   = "5% additional poison damage over time multiplier.";
+PERK_TORM_ACRIMONY_REQ                   = "Death's Grip (1) OR Flow of Life (1)";
+
+PERK_TORM_SEPTICTOUCH                    = "Septic Touch";
+PERK_TORM_SEPTICTOUCH_DESC               = "Enemies killed by poison create a small poison explosion with 10% of the total poison.";
+PERK_TORM_SEPTICTOUCH_PER                = "5% additional poison damage.";
+
+// ---- Tormentor / Cold ----
+
+PERK_TORM_BITTERFROST                    = "Bitter Frost";
+PERK_TORM_BITTERFROST_DESC               = "Cold damage gains 5% chance to inflict chill regardless of health threshold.";
+PERK_TORM_BITTERFROST_PER                = "5% chance to chill.";
+
+PERK_TORM_LINGERINGCOLD                  = "Lingering Cold";
+PERK_TORM_LINGERINGCOLD_DESC             = "10% increased chill duration on enemies.";
+PERK_TORM_LINGERINGCOLD_PER              = "10% increased duration.";
+
+PERK_TORM_FLASHFREEZE                    = "Flash Freeze";
+PERK_TORM_FLASHFREEZE_DESC               = "4% additional chance to freeze enemies that are chilled.";
+PERK_TORM_FLASHFREEZE_PER                = "3% additional chance.";
+PERK_TORM_FLASHFREEZE_REQ                = "Bitter Frost (1) OR Lingering Cold (1)";
+
+PERK_TORM_CRIPPLINGICE                   = "Crippling Ice";
+PERK_TORM_CRIPPLINGICE_DESC              = "Enemies stay frozen for an additional 0.5 seconds.";
+PERK_TORM_CRIPPLINGICE_PER               = "0.25 additional freeze duration.";
+PERK_TORM_CRIPPLINGICE_REQ               = "Bitter Frost (1) OR Lingering Cold (1)";
+
+PERK_TORM_BRINGEROFICE                   = "Bringer of Ice";
+PERK_TORM_BRINGEROFICE_DESC              = "While you have an enemy chilled or frozen, you can't be chilled or frozen for 4 seconds.";
+PERK_TORM_BRINGEROFICE_PER               = "+2 additional seconds on the timer.";
+PERK_TORM_BRINGEROFICE_REQ               = "Crippling Ice (1) OR Flash Freeze (1)";
+
+PERK_TORM_BREATHOFRIME                   = "Breath of Rime";
+PERK_TORM_BREATHOFRIME_DESC              = "20% increased effect of cold ailments and 25% increased cold damage.";
+PERK_TORM_BREATHOFRIME_PER               = "10% additional ailment effect and 15% damage increase.";
+PERK_TORM_BREATHOFRIME_REQ               = "Crippling Ice (1) OR Flash Freeze (1)";
+
+PERK_TORM_PERMAFROST                     = "Permafrost";
+PERK_TORM_PERMAFROST_DESC                = "Enemies chilled or frozen by you permanently take 1% increased damage each second up to 15%.";
+
+// ---- Tormentor / Fire ----
+
+PERK_TORM_SLOWCOOKER                     = "Slow Cooker";
+PERK_TORM_SLOWCOOKER_DESC                = "Ignites last for an additional 0.5 seconds.";
+PERK_TORM_SLOWCOOKER_PER                 = "0.25 additional ignite duration.";
+
+PERK_TORM_DEEPFRIED                      = "Deep Fried";
+PERK_TORM_DEEPFRIED_DESC                 = "+10 to ignite damage.";
+PERK_TORM_DEEPFRIED_PER                  = "+5 additional damage.";
+
+PERK_TORM_BLOWBACK                       = "Blowback";
+PERK_TORM_BLOWBACK_DESC                  = "Ignites deal damage 5% faster.";
+PERK_TORM_BLOWBACK_PER                   = "5% additional ignite rate.";
+PERK_TORM_BLOWBACK_REQ                   = "Deep Fried (1) OR Slow Cooker (1)";
+
+PERK_TORM_COOKEDALIVE                    = "Cooked Alive";
+PERK_TORM_COOKEDALIVE_DESC               = "+5% chance to ignite.";
+PERK_TORM_COOKEDALIVE_PER                = "5% additional chance.";
+PERK_TORM_COOKEDALIVE_REQ                = "Deep Fried (1) OR Slow Cooker (1)";
+
+PERK_TORM_WILDFIRE                       = "Wildfire";
+PERK_TORM_WILDFIRE_DESC                  = "+10% chance for ignites to spread on kill.";
+PERK_TORM_WILDFIRE_PER                   = "Ignites spread to a further 96 units.";
+PERK_TORM_WILDFIRE_REQ                   = "Blowback (1) OR Cooked Alive (1)";
+
+PERK_TORM_CREMATOR                       = "Cremator";
+PERK_TORM_CREMATOR_DESC                  = "Enemies dying to ignite are destroyed.";
+PERK_TORM_CREMATOR_REQ                   = "Blowback (1) OR Cooked Alive (1)";
+
+PERK_TORM_AVATAROFFIRE                   = "Avatar of Fire";
+PERK_TORM_AVATAROFFIRE_DESC              = "Convert 50% of physical, cold, lightning, poison and energy damage to fire. Cannot deal non-fire damage.";
+
+// ---- Tormentor / Overload ----
+
+PERK_TORM_SHOCKER                        = "Shocker";
+PERK_TORM_SHOCKER_DESC                   = "Overload effects on enemies last 1 second longer.";
+PERK_TORM_SHOCKER_PER                    = "1 additional overload second.";
+
+PERK_TORM_COURSINGCURRENT                = "Coursing Current";
+PERK_TORM_COURSINGCURRENT_DESC           = "Overload effects can bounce to an additional enemy.";
+PERK_TORM_COURSINGCURRENT_PER            = "1 additional bounce.";
+
+PERK_TORM_MAXIMUMOVERDRIVE               = "Maximum Overdrive";
+PERK_TORM_MAXIMUMOVERDRIVE_DESC          = "10% increased overload effect.";
+PERK_TORM_MAXIMUMOVERDRIVE_PER           = "10% additional overload effect.";
+PERK_TORM_MAXIMUMOVERDRIVE_REQ           = "Shocker (1) OR Coursing Current (1)";
+
+PERK_TORM_MUSCLESPASMS                   = "Muscle Spasms";
+PERK_TORM_MUSCLESPASMS_DESC              = "Overloaded enemies deal 4% less damage.";
+PERK_TORM_MUSCLESPASMS_PER               = "3% additional less damage dealt on overloaded enemies.";
+PERK_TORM_MUSCLESPASMS_REQ               = "Shocker (1) OR Coursing Current (1)";
+
+PERK_TORM_POWERUP                        = "Power Up";
+PERK_TORM_POWERUP_DESC                   = "5% chance to gain a power charge on hitting an overloaded enemy.";
+PERK_TORM_POWERUP_PER                    = "3% additional chance.";
+PERK_TORM_POWERUP_REQ                    = "Shocker (1) OR Coursing Current (1)";
+
+PERK_TORM_JOLT                           = "Jolt";
+PERK_TORM_JOLT_DESC                      = "Overloading an enemy for the first time has a 15% chance to also stun them for 2 seconds.";
+PERK_TORM_JOLT_PER                       = "5% additional chance and 0.5 stun duration.";
+PERK_TORM_JOLT_REQ                       = "Maximum Overdrive (1) OR Muscle Spasms (1)";
+
+PERK_TORM_SUPERCONDUCTOR                 = "Superconductor";
+PERK_TORM_SUPERCONDUCTOR_DESC            = "Overload effect applies to all damage types.";
+
+// ---- Tormentor / Bleed ----
+
+PERK_TORM_WOUNDER                        = "Wounder";
+PERK_TORM_WOUNDER_DESC                   = "+5% chance to bleed for attacks.";
+PERK_TORM_WOUNDER_PER                    = "5% additional bleed chance.";
+
+PERK_TORM_BLOODLETTING                   = "Bloodletting";
+PERK_TORM_BLOODLETTING_DESC              = "10% increased bleeding damage.";
+PERK_TORM_BLOODLETTING_PER               = "10% additional bleeding damage.";
+
+PERK_TORM_SWIFTDRAIN                     = "Swift Drain";
+PERK_TORM_SWIFTDRAIN_DESC                = "Bleeding deals damage 4% faster.";
+PERK_TORM_SWIFTDRAIN_PER                 = "3% faster bleeding.";
+PERK_TORM_SWIFTDRAIN_REQ                 = "Wounder (1) OR Bloodletting (1)";
+
+PERK_TORM_SAVAGEWOUNDS                   = "Savage Wounds";
+PERK_TORM_SAVAGEWOUNDS_DESC              = "5% to bleed damage over time multiplier.";
+PERK_TORM_SAVAGEWOUNDS_PER               = "5% additional bleed damage over time multiplier.";
+PERK_TORM_SAVAGEWOUNDS_REQ               = "Wounder (1) OR Bloodletting (1)";
+
+PERK_TORM_CORNEREDPREY                   = "Cornered Prey";
+PERK_TORM_CORNEREDPREY_DESC              = "40% increased critical strike chance and 20% critical strike multiplier against bleeding enemies.";
+PERK_TORM_CORNEREDPREY_PER               = "Additional 40% increased critical strike chance against bleeding enemies.";
+PERK_TORM_CORNEREDPREY_REQ               = "Swift Drain (1) OR Savage Wounds (1)";
+
+PERK_TORM_MASTEROFWOUNDS                 = "Master of Wounds";
+PERK_TORM_MASTEROFWOUNDS_DESC            = "10% chance for bleeds you inflict to be aggravated. (Aggravated bleeds treat enemy as moving)";

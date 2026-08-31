@@ -2,6 +2,14 @@ $pitchshiftrange 2
 
 NULLSND					NULLSND
 
+CrematorExplosion1      CREMATE1
+CrematorExplosion2      CREMATE2
+CrematorExplosion3      CREMATE3
+CrematorExplosion4      CREMATE4
+CrematorExplosion5      CREMATE5
+CrematorExplosion6      CREMATE6
+$random CrematorExplosion { CrematorExplosion1 CrematorExplosion2 CrematorExplosion3 CrematorExplosion4 CrematorExplosion5 CrematorExplosion6 }
+
 Items/FlaskDrop         FLASKDRP
 Items/FlaskUse          FLASKUSE
 

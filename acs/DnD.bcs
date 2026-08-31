@@ -996,6 +996,13 @@ Script "DND On Kill" KILL {
 	}
 	SetInventory("DnD_OverloadTimer", 0);
 
+	// Tormentor / Flow of Life. The stacks are still on the corpse at this point -- the poison
+	// loop only notices the death on its next tic -- so this is the last moment the kill can
+	// still be asked whether it was a poisoned one.
+	int flow = PlayerModData[target - P_TIDSTART].vals[PSTAT_REGEN_ONPOISONKILL];
+	if(flow && CheckActorInventory(this, "DnD_PoisonStacks"))
+		HandlePoisonKillRegen(target - P_TIDSTART, target, flow);
+
 	int is_demon = IsDemon();
 
 	// Demon Bane check
@@ -2541,10 +2548,10 @@ Script "DnD Player Levelup Check" (int tid) {
 				ACS_NamedExecuteAlways("DnD Marine Perk 50 Checker", 0);
 
 			// make some announcement the player has a new perk
-			ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_NEWCLASSPERK);
+			ACS_NamedExecuteAlways("DND Announcer", 0, DND_ANNOUNCER_NEWCLASSPERK);
 		}
 		else
-			ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_ATTRIBPOINT);
+			ACS_NamedExecuteAlways("DND Announcer", 0, DND_ANNOUNCER_ATTRIBPOINT);
 
 		// EVERY level, not just perk levels. New perks can raise damage factors, but so
 		// can the level itself: GetSpawnHealth() grows by DND_HP_PER_LVL each level and
@@ -4795,7 +4802,7 @@ Script "DnD Legendary Announcer" (void) {
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(PlayerInGame(i)) {
 			SetActivator(i + P_TIDSTART);
-			ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_LEGENDARYMONSTER);
+			ACS_NamedExecuteAlways("DND Announcer", 0, DND_ANNOUNCER_LEGENDARYMONSTER);
 		}
 	}
 }
@@ -4804,7 +4811,7 @@ Script "DnD Incursion Announcer" (void) {
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(PlayerInGame(i)) {
 			SetActivator(i + P_TIDSTART);
-			ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_INCURSION);
+			ACS_NamedExecuteAlways("DND Announcer", 0, DND_ANNOUNCER_INCURSION);
 		}
 	}
 }
@@ -6923,6 +6930,7 @@ Script 68 (int x) NET {
 			//Log(s:"helm");
 			SpawnHelm(0, 0);
 			SpawnOrbForAll(1, random(300, 500));
+			PlayerModData[0].vals[PSTAT_IGN_PROLIF_CHANCE_FLAT] += 80;
 			//SpawnChestKey(0);
 			//SpawnCharmWithMods_ForAll(INV_MELEERANGE);
 			//for(int k = FLASKS_BEGIN; k <= FLASKS_END; ++k)

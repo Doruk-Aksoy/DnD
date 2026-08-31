@@ -44,15 +44,15 @@ enum {
 	// Sigil element powers. Kept CONTIGUOUS and in DND_DAMAGECATEGORY order so the
 	// damage transform can index them with a single (category - DND_ELECATEGORY_BEGIN)
 	// offset instead of a switch. That order is the conversion ladder, hence poison
-	// before lightning -- do not "fix" it back.
-	BUFF_FIREDAMAGEDEALT,
+	// before lightning and FIRE LAST -- do not "fix" either back.
 	BUFF_ICEDAMAGEDEALT,
 	BUFF_POISONDAMAGEDEALT,
 	BUFF_LIGHTNINGDAMAGEDEALT,
+	BUFF_FIREDAMAGEDEALT,
 
 	BUFF_TYPES_MAX
 };
-#define DND_FIRST_ELEMENTAL_DMGBUFF BUFF_FIREDAMAGEDEALT
+#define DND_FIRST_ELEMENTAL_DMGBUFF BUFF_ICEDAMAGEDEALT
 #define DND_ELEMENTAL_DMGBUFF_COUNT 4
 #define DND_FIRST_CHARGE_BUFF BUFF_FRENZYCHARGE
 

@@ -41,11 +41,11 @@ enum {
     BTI_MARINE_DAMAGEREDUCTION,
 
     // sigil element powers -- keep contiguous and in DND_DAMAGECATEGORY order
-    // (that order is the conversion ladder, so poison precedes lightning)
-    BTI_ELEMENTPOWER_FIRE,
+    // (that order is the conversion ladder, so poison precedes lightning and fire is last)
     BTI_ELEMENTPOWER_ICE,
     BTI_ELEMENTPOWER_POISON,
     BTI_ELEMENTPOWER_LIGHTNING,
+    BTI_ELEMENTPOWER_FIRE,
 
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
@@ -528,7 +528,7 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
         case BTI_ELEMENTPOWER_ICE:
         case BTI_ELEMENTPOWER_LIGHTNING:
         case BTI_ELEMENTPOWER_POISON:
-            btype = DND_FIRST_ELEMENTAL_DMGBUFF + (buff_table_index - BTI_ELEMENTPOWER_FIRE);
+            btype = DND_FIRST_ELEMENTAL_DMGBUFF + (buff_table_index - BTI_ELEMENTPOWER_ICE);
             bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE;
 
             // DND_SIGIL_BUFF is 100, i.e. x2 on the matching element

@@ -67,6 +67,11 @@ struct ValueComponent_T {
 //
 // THE ORDER IS THE DAMAGE CONVERSION LADDER. A category may only convert into one that sits
 // LATER in this list, which is what makes conversion acyclic and lets the resolver run as a
+// FIRE SITS LAST OF THE ELEMENTS, immediately before occult, so every category except occult can
+// convert into it -- Tormentor / Avatar of Fire is the reason, and a forward-only ladder cannot
+// express "everything to fire" any other way. The elemental block stayed CONTIGUOUS across that
+// move, which is what keeps DND_ELECATEGORY_BEGIN..END a range check rather than a set.
+//
 // single ascending pass. Occult is the last rung and converts into nothing; Soul sits past the
 // end of the ladder entirely and never converts either way, so the ladder bound is exactly the
 // existing DND_DAMAGECATEGORY_END.
@@ -80,17 +85,17 @@ enum {
 	DND_DAMAGECATEGORY_MELEE,
 	DND_DAMAGECATEGORY_BULLET,
 	DND_DAMAGECATEGORY_ENERGY,
-	DND_DAMAGECATEGORY_FIRE,
 	DND_DAMAGECATEGORY_ICE,
 	DND_DAMAGECATEGORY_POISON,
 	DND_DAMAGECATEGORY_LIGHTNING,
+	DND_DAMAGECATEGORY_FIRE,
 	DND_DAMAGECATEGORY_OCCULT,
 	DND_DAMAGECATEGORY_SOUL
 };
 #define DND_DAMAGECONVERSION_BEGIN DND_DAMAGECATEGORY_BULLET
 #define DND_DAMAGECONVERSION_END DND_DAMAGECATEGORY_OCCULT
-#define DND_ELECATEGORY_BEGIN DND_DAMAGECATEGORY_FIRE
-#define DND_ELECATEGORY_END DND_DAMAGECATEGORY_LIGHTNING
+#define DND_ELECATEGORY_BEGIN DND_DAMAGECATEGORY_ICE
+#define DND_ELECATEGORY_END DND_DAMAGECATEGORY_FIRE
 #define MAX_DAMAGE_CATEGORIES (DND_DAMAGECATEGORY_SOUL + 1)
 
 // both of these are multipliers on the damage that gets through, not subtractions from the resist --
@@ -545,6 +550,36 @@ enum {
 	PSTAT_SLOWCHANCE_MELEE,         // Martialist / Exhauster. percent chance on a melee hit
 	PSTAT_STUNCHANCE_BLUNT,         // Martialist / Cranium Bash. percent chance on a blunt melee hit
 
+	// Tormentor. Each is an ailment number that had no slot because no item mod ever named it: the
+	// generic PSTAT_DOT_* and PSTAT_*_CHANCE slots are all-ailment or all-DoT, and these perks name
+	// one ailment and one half of it each, so they could not share.
+	// Avatar of Fire. The share of non-fire damage that reaches fire; the rest is destroyed.
+	// NOT fed through conv_raw -- the ladder only walks forward and fire is rung 3, so ice,
+	// poison, lightning and occult can never reach it there. See dnd-damage-conversion.
+	PSTAT_AVATAROFFIRE,
+	PSTAT_SEPTIC_POISONSHARE,       // Septic Touch. percent of the poison tic the cloud carries
+	PSTAT_CREMATOR,                 // Cremator. read by DECORATE through DnD Check Cremator
+	PSTAT_REGEN_ONPOISONKILL,       // Flow of Life. percent of the REGEN cap, not of max health
+	PSTAT_IGN_TICRATE,              // Blowback. percent FASTER, so it shortens the burn tic
+	PSTAT_POISON_RESISTSHRED,       // Corrosion. per poison STACK per second, capped
+	PSTAT_PERMAFROST,               // Permafrost. resist lost per second chilled, capped
+	PSTAT_COLDIMMUNE_TICS,          // Bringer of Ice. tics of self chill/freeze immunity
+	PSTAT_FRENZY_ONMAXPOISON,       // Death's Grip. rolled once, when a stack lands ON the cap
+	PSTAT_OVERLOAD_DMGREDUCE,       // Muscle Spasms. read off the ATTACKER, in HandlePlayerResists
+	PSTAT_OVERLOAD_STUNCHANCE,      // Jolt. first overload only
+	PSTAT_OVERLOAD_STUNTICS,        // Jolt. tics, the unit StunDurationCounter counts in
+	PSTAT_CRITCHANCE_VS_BLEEDING,   // Cornered Prey. a MULTIPLIER, like the other vs-state crit slots
+	PSTAT_CRITDAMAGE_VS_BLEEDING,   // Cornered Prey
+	PSTAT_BLEED_AGGRAVATECHANCE,    // Master of Wounds. rolled once per bleed, not per tic
+	PSTAT_POIS_DMG_PCT,             // Student of Decay. poison DOT only, unlike PSTAT_DOT_INCREASED
+	PSTAT_IGN_DMG_FLAT,             // Deep Fried. flat on the ignite tic, PSTAT_IGN_DMG is percent
+	PSTAT_IGN_DURATION_FLAT,        // Slow Cooker. FIXED POINT SECONDS, converted to ignite loops
+	PSTAT_CHILL_CHANCE_FLAT,        // Bitter Frost. chills without meeting the health threshold
+	PSTAT_CHILL_DURATION,           // Lingering Cold. percent, lengthens the per stack decay
+	PSTAT_FREEZE_CHANCE_FLAT,       // Flash Freeze. added points, PSTAT_FREEZE_CHANCE is a multiplier
+	PSTAT_FREEZE_DURATION,          // Crippling Ice. FIXED POINT SECONDS, converted to freeze units
+	PSTAT_BLEEDRATE,                // Swift Drain. percent FASTER on any weapon, unlike ..._MELEE
+
 	// Acrobacy dash cluster. Tactical Dash grants the dash at all; the rest read the state it leaves.
 	PSTAT_DASH_UNLOCK,              // non-zero means the player has a perk dash
 	PSTAT_DASH_COOLDOWNREDUCE,      // percent off DND_PERKDASH_COOLDOWN
@@ -660,7 +695,7 @@ enum {
 //
 // _NEW is a leftover from the migration -- the old DND_MAX_PERKS is gone, so this can lose the
 // suffix whenever someone wants to do the rename.
-#define DND_MAX_PERKS_NEW       128     // 99 authored, room to grow
+#define DND_MAX_PERKS_NEW       160     // 135 authored, room to grow
 #define DND_PERK_MAXPOINTS      3
 #define DND_MAX_PERK_ARCHETYPES 8       // 6 authored + Tormentor + spare
 #define DND_MAX_PERK_REQS       3       // Blademaster and Gratuitous Violence each name three
@@ -933,7 +968,10 @@ enum {
 	// 64 player temp tid range
 	DND_CROSSBOW_EXPLOSIONTID = DND_WANDERER_EXP_TID + MAXPLAYERS,
 
-	DND_TRICKSTERCLONE_TID = DND_CROSSBOW_EXPLOSIONTID + MAXPLAYERS,
+	// 64 player temp tid range -- Tormentor / Septic Touch
+	DND_SEPTIC_CLOUD_TID = DND_CROSSBOW_EXPLOSIONTID + MAXPLAYERS,
+
+	DND_TRICKSTERCLONE_TID = DND_SEPTIC_CLOUD_TID + MAXPLAYERS,
 	
 	DND_MERCHANT_TID = DND_TRICKSTERCLONE_TID + MAXPLAYERS,
 	DND_NPC_TID,

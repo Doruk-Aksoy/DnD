@@ -246,7 +246,7 @@ Script "DnD Dungeon Announce" (int owning_pnum, int sel_dungeon_id) {
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(PlayerInGame(i)) {
 			SetActivator(i + P_TIDSTART);
-			ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_DUNGEONPOP | (owning_pnum << 16), sel_dungeon_id | (DungeonInformation.level << 16));
+			ACS_NamedExecuteAlways("DND Announcer", 0, DND_ANNOUNCER_DUNGEONPOP | (owning_pnum << 16), sel_dungeon_id | (DungeonInformation.level << 16));
 		}
 	}
 }

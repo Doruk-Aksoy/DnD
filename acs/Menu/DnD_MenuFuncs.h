@@ -3051,7 +3051,7 @@ void HandlePerkTreeDraw(int pnum, int arch, int boxid, menu_pane_T module& p) {
 		if(list.depth[i])
 			name = StrParam(s:col, s:"- ", s:name);
 
-		HudMessage(s:name; HUDMSG_PLAIN, RPGMENUITEMID - 8 - i, CR_WHITE,
+		HudMessage(s:name; HUDMSG_PLAIN, RPGMENUITEMID - DND_PERKROW_IDBASE - i, CR_WHITE,
 			((DND_PERKLIST_X + DND_PERKINDENT * list.depth[i]) << 16) + 0.1, y << 16, 0.0, 0.0);
 	}
 	SetHudClipRect(0, 0, 0, 0, 0);
@@ -3126,19 +3126,28 @@ void HandlePerkTreeDraw(int pnum, int arch, int boxid, menu_pane_T module& p) {
 			s:"/", d:PerkTable[pk].max_points, s:"   ", s:status, s:pinmark, s:refund,
 			s:"\n\cu", l:StrParam(s:key, s:"_DESC"));
 
+		// Segments, not characters: the body carries explicit newlines and each part wraps on its
+		// own, so each can waste up to a full line. Counting them is what makes the estimate below
+		// hold for a wordy perk -- a flat constant undercounted Wildfire by a line.
+		int segs = 2;
+
 		// _PER exists exactly when a perk has more than one point to give and _REQ exactly when it
 		// names a prerequisite -- both correlations are checked by the verifier -- so the table can be
 		// asked instead of the lump. A lookup that missed would print the raw key at the player.
-		if(PerkTable[pk].max_points > 1)
+		if(PerkTable[pk].max_points > 1) {
 			body = StrParam(s:body, s:"\n\c[Y5]", l:"DND_MENU_PERK_PERPOINT", s:": \cu", l:StrParam(s:key, s:"_PER"));
+			++segs;
+		}
 
-		if(PerkTable[pk].req_kind != PERK_REQ_NONE)
+		if(PerkTable[pk].req_kind != PERK_REQ_NONE) {
 			body = StrParam(s:body, s:"\n\c[Y5]", l:"DND_MENU_PERK_REQUIRES", s:": \cu", l:StrParam(s:key, s:"_REQ"));
+			++segs;
+		}
 
 		// Estimated, and only the bar's thumb depends on it. Colour codes inflate StrLen, so this
 		// errs long -- which spends the error on a little blank space at the bottom rather than on
 		// text the player cannot reach.
-		ps.panel_lines = StrLen(body) / DND_PERKPANEL_CPL + 2;
+		ps.panel_lines = StrLen(body) / DND_PERKPANEL_CPL + segs + 1;
 	}
 	else {
 		body = StrParam(s:"\cu", l:"DND_MENU_PERK_PICKARCH");

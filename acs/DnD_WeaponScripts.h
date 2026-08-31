@@ -1507,7 +1507,7 @@ Script "DND Thunderstaff Bolts" (void) {
 	
 		for(i = 0; i < DND_THUNDERSTAFF_MAXTARGETS; ++i) {
 			if(tlist[pnum][i].tid)
-				ACS_NamedExecuteWithResult("DND Trail Spawner", DND_TRAILACTOR_THUNDERZAP, 16, tlist[pnum][i].tid);
+				ACS_NamedExecuteWithResult("DnD Trail Spawner", DND_TRAILACTOR_THUNDERZAP, 16, tlist[pnum][i].tid);
 		}
 		
 		int px = GetActorX(0);

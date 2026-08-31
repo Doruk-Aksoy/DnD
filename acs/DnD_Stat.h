@@ -873,6 +873,12 @@ bool IsTargetAtFullLife(int victim) {
 	return maxhp > 0 && GetActorProperty(victim, APROP_HEALTH) >= maxhp;
 }
 
+// A bleed the player did not inflict still counts. The timer is the monster's state, not a record
+// of who caused it, and Cornered Prey asks about the enemy rather than about the attack.
+bool IsTargetBleeding(int victim) {
+	return victim >= DND_MONSTERTID_BEGIN && CheckActorInventory(victim, "DnD_BleedTimer") > 0;
+}
+
 bool IsTargetOnLowLife(int victim) {
 	if(victim < DND_MONSTERTID_BEGIN)
 		return false;
@@ -979,6 +985,11 @@ int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0) {
 	pct_bonus = 1.0 + GetPercentCritChanceIncrease(pnum, wepid) + (!!isLightning) * PlayerModData[pnum].vals[PSTAT_EX_MORECRIT_LIGHTNING];
 	if(PlayerModData[pnum].vals[PSTAT_EX_DEADEYEBONUS])
 		pct_bonus += DND_DEADEYE_BONUSF * (GetActorProperty(0, APROP_ACCURACY) / DND_DEADEYE_PLUSPER);
+
+	// Tormentor / Cornered Prey. INCREASED, so it belongs in this pool rather than among the
+	// multipliers above: every increase sums here and scales the chance exactly once.
+	if(PlayerModData[pnum].vals[PSTAT_CRITCHANCE_VS_BLEEDING] && IsTargetBleeding(victim))
+		pct_bonus += PlayerModData[pnum].vals[PSTAT_CRITCHANCE_VS_BLEEDING];
 
 	if(chance)
 		chance = FixedMul(chance, pct_bonus);
@@ -1099,6 +1110,9 @@ int GetCritModifier(int pnum, int victim, int wepid, bool forcedReturn = false) 
 		base += temp;
 
 	if((temp = PlayerModData[pnum].vals[PSTAT_CRITDAMAGE_VS_ELITE]) && IsEliteOrUniqueTarget(victim))
+		base += temp;
+
+	if((temp = PlayerModData[pnum].vals[PSTAT_CRITDAMAGE_VS_BLEEDING]) && IsTargetBleeding(victim))
 		base += temp;
 	
 	if(CheckInventory("HunterTalismanCheck"))
@@ -1288,7 +1302,7 @@ int MapDamageCategoryToFlatBonus(int pnum, int talent, int flags) {
 	base += PlayerModData[pnum].vals[PSTAT_FLATDMG_BASE + talent];
 
 	// One mod feeding all four elements, so it cannot sit in a run keyed by a single category.
-	// DND_ELECATEGORY_BEGIN..END is exactly FIRE, ICE, POISON, LIGHTNING -- the four the switch listed.
+	// DND_ELECATEGORY_BEGIN..END is exactly ICE, POISON, LIGHTNING, FIRE -- the four the switch listed.
 	if(talent >= DND_ELECATEGORY_BEGIN && talent <= DND_ELECATEGORY_END)
 		base += PlayerModData[pnum].vals[PSTAT_FLATDMG_ELEM];
 
@@ -1393,8 +1407,13 @@ int GetPlayerMeleeRange(int pnum, int range) {
 	);
 }
 
-int GetPlayerDOTMulti(int pnum, int victim = -1, int wepid = -1) {
+// ailment_multi is the caller's PSTAT_DOTMULTI_* slot, or -1 for a DoT that is none of the three.
+// The per-ailment slots add to the all-ailment one rather than replacing it, so a build that stacks
+// generic and poison multi gets both.
+int GetPlayerDOTMulti(int pnum, int victim = -1, int wepid = -1, int ailment_multi = -1) {
 	int base = PlayerModData[pnum].vals[PSTAT_DOTMULTI];
+	if(ailment_multi != -1)
+		base += PlayerModData[pnum].vals[ailment_multi];
 	int temp = 0;
 	if((temp = PlayerModData[pnum].vals[PSTAT_INC_CRITFORDOT]))
 		base += GetCritModifier(pnum, victim, wepid, true) * (100 + temp) / 100;
@@ -1407,13 +1426,14 @@ int GetFireDOTDamage(int pnum, int bonus = 0, int victim = -1, int wepid = -1) {
 	int dmg = 	DND_BASE_IGNITEDMG + 
 				bonus +
 				PlayerModData[pnum].vals[PSTAT_FLATDMG_BASE + DND_DAMAGECATEGORY_FIRE] + 
+				PlayerModData[pnum].vals[PSTAT_IGN_DMG_FLAT] + 
 				PlayerModData[pnum].vals[PSTAT_DOT_FLAT];
 	
 	// percent increase
 	dmg = dmg * (100 + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_FIRE, 0) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1) + PlayerModData[pnum].vals[PSTAT_IGN_DMG] + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED]) / 100;
 	
 	// dot multi;
-	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid)) / 100;
+	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid, PSTAT_DOTMULTI_FIRE)) / 100;
 	
 	// hellfire amulet -- moved here for ignite calculation specifically
 	if(IsAccessoryEquipped(pnum + P_TIDSTART, DND_ACCESSORY_AMULETHELLFIRE))
@@ -1435,10 +1455,10 @@ int GetPoisonDOTDamage(int pnum, int base_poison, int victim = -1, int wepid = -
 			PlayerModData[pnum].vals[PSTAT_DOT_FLAT];
 	
 	// percent increase
-	dmg = dmg * (100 + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_POISON, 0) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1) + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED]) / 100;
+	dmg = dmg * (100 + PlayerModData[pnum].vals[PSTAT_POIS_DMG_PCT] + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_POISON, 0) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1) + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED]) / 100;
 	
 	// dot multi
-	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid)) / 100;
+	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid, PSTAT_DOTMULTI_POISON)) / 100;
 	
 	return dmg;
 }
@@ -1461,6 +1481,27 @@ int GetPlayerPoisonStacks(int pnum) {
 }
 
 #define DND_BASEREGENCAP 33
+// Tormentor / Flow of Life. A percent of the REGEN cap rather than of max health, and bounded by
+// that same cap -- the perk tops you up toward where regeneration would have taken you anyway,
+// so it must not carry you past it. HealthBonusX is what the regen loop itself gives.
+void HandlePoisonKillRegen(int pnum, int tid, int pct) {
+	int lim = GetRegenCap(pnum);
+	int cap = CheckActorInventory(tid, "PlayerHealthCap");
+	if(cap < lim)
+		lim = cap;
+
+	int cur = GetActorProperty(tid, APROP_HEALTH);
+	if(cur >= lim)
+		return;
+
+	int amt = lim * pct / 100;
+	if(cur + amt > lim)
+		amt = lim - cur;
+
+	if(amt > 0)
+		GiveActorInventory(tid, "HealthBonusX", amt);
+}
+
 int GetRegenCap(int pnum) {
 	int base = (DND_BASEREGENCAP + PlayerModData[pnum].vals[PSTAT_REGENCAP_INCREASE]) * GetSpawnHealth() / 100;
 	return base;
@@ -1579,7 +1620,7 @@ int GetBleedDamage(int pnum, int wepid, int dmg, int victim = -1) {
 	dmg = (dmg * (100 + PlayerModData[pnum].vals[PSTAT_BLEED_DMG_PCT] + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED]) / 100);
 	
 	// dot multi;
-	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid) + CheckActorInventory(victim, "DnD_OpenWounds") * DND_OPENWOUNDS_BLEEDMULTIBONUS) / 100;
+	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid, PSTAT_DOTMULTI_BLEED) + CheckActorInventory(victim, "DnD_OpenWounds") * DND_OPENWOUNDS_BLEEDMULTIBONUS) / 100;
 
 	return dmg;
 }
@@ -1637,8 +1678,12 @@ int GetIgniteProlifCount(int pnum) {
 	return Clamp_Between(DND_BASE_IGNITEPROLIFCOUNT + PlayerModData[pnum].vals[PSTAT_IGN_PROLIF_COUNT], 0, DND_MAX_IGNITEPROLIFS);
 }
 
+// The flat half is FIXED POINT SECONDS and this returns LOOPS of DND_IGNITE_TICKRATE tics, so it
+// converts to tics first and divides. It is added after the percent, not before: a flat "+0.5
+// seconds" that the percent then scaled would not be the half second the perk promises.
 int GetIgniteDuration(int pnum) {
-	return DND_BASE_IGNITETIMER * (100 + PlayerModData[pnum].vals[PSTAT_IGN_DURATION] + PlayerModData[pnum].vals[PSTAT_DOT_DURATION]) / 100;
+	int amt = DND_BASE_IGNITETIMER * (100 + PlayerModData[pnum].vals[PSTAT_IGN_DURATION] + PlayerModData[pnum].vals[PSTAT_DOT_DURATION]) / 100;
+	return amt + (((PlayerModData[pnum].vals[PSTAT_IGN_DURATION_FLAT] * TICRATE) >> 16) / DND_IGNITE_TICKRATE);
 }
 
 #define DND_POISON_CHECKRATE 0.1
@@ -1695,8 +1740,11 @@ int GetChillThreshold(int pnum, int stacks) {
 	return Clamp_Between((DND_BASE_CHILL_DAMAGETHRESHOLD * (100 - PlayerModData[pnum].vals[PSTAT_CHILL_THRESHOLD]) / 100) * stacks, DND_CHILL_HARDTHRESHOLD, 100);
 }
 
+// PSTAT_FREEZE_CHANCE scales the per stack chance; PSTAT_FREEZE_CHANCE_FLAT is added points and so
+// does NOT multiply by stacks -- Flash Freeze promises "4% additional chance", not 4% per stack.
 int GetFreezeChance(int pnum, int stacks) {
-	return DND_BASE_FREEZECHANCE_PERSTACK * stacks * (100 + PlayerModData[pnum].vals[PSTAT_FREEZE_CHANCE]) / 100;
+	return DND_BASE_FREEZECHANCE_PERSTACK * stacks * (100 + PlayerModData[pnum].vals[PSTAT_FREEZE_CHANCE]) / 100 +
+		PlayerModData[pnum].vals[PSTAT_FREEZE_CHANCE_FLAT];
 }
 
 int GetMonsterChillThreshold(int m_id) {

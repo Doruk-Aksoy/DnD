@@ -1869,7 +1869,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 											if(!TradeMuteStatus(i, pnum)) {
 												EngageTrade(pnum, i);
 												SetActivator(i + P_TIDSTART);
-												ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_TRADEREQUEST, pnum, i + 1);
+												ACS_NamedExecuteAlways("DND Announcer", 0, DND_ANNOUNCER_TRADEREQUEST, pnum, i + 1);
 												SetActivator(pnum + P_TIDSTART);
 												ACS_NamedExecuteAlways("DnD Trade Window", 0, pnum, false);
 												ACS_NamedExecuteAlways("DnD Trade Window", 0, i, true);

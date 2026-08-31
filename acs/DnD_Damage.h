@@ -297,6 +297,8 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 #define DND_DISTANCEDAMAGE_VARIABLE "user_tics"
 
 #define DND_BASE_FREEZETIMER 21 // 3 seconds base time (21 x 5 = 105)
+#define DND_CORROSION_CAP 20    // Tormentor / Corrosion, poison resist floor
+#define DND_PERMAFROST_CAP 15   // Tormentor / Permafrost
 #define DND_BASE_CHILL_CAP 5 // 50% health dealt in cold = maximum slow
 
 #define DND_BASE_OVERLOADCHANCE 5
@@ -1630,11 +1632,31 @@ int DealDamageComponents(int pnum, int shooter, int victim, int wepid, int dmgid
 	int part, dealt = 0;
 	int last_cat = DND_CONV_NOSKIP;
 
-	// The primary pushes when there is one. At full conversion there is not, so the first component
-	// has to, or a fully converted hit would stop shoving anything.
-	if(GetComponentStagePrimary(pnum) > 0)
+	// One push and one PAIN ROLL per hit, however many pieces the hit is split into. The primary
+	// takes both through the damage event when it lands; otherwise the first component that lands
+	// takes them here, and every other component stays Special_NoPain, which carries PainChance 0.
+	//
+	// Letting each component roll instead would make conversion a stagger mod: a build splitting a
+	// hit four ways would roll pain four times against a monster an unconverted build rolls once on,
+	// for the same damage. That is what the blanket Special_NoPain here was buying, and it was right
+	// to. What it got wrong was assuming the primary always does the rolling. Two cases where it
+	// does not, and neither flinched a monster:
+	//
+	//   full conversion -- there is no primary at all, its share having gone to the components
+	//   Avatar of Fire  -- the primary is STAGED non zero, holding the unconverted half, and then
+	//                      annihilated in FactorResists because that half is not fire
+	//
+	// Hence two questions rather than one. last_cat below keeps asking the STAGED one on purpose: it
+	// hands its share to the last component, and doing that under Avatar of Fire would convert the
+	// very half the perk exists to destroy.
+	bool has_primary = GetComponentStagePrimary(pnum) > 0;
+	bool primary_lands = has_primary && !IsNulledByAvatarOfFire(pnum, category);
+
+	bool pain_taken = primary_lands;
+	if(primary_lands)
 		flags |= DND_DAMAGEFLAG_NOPUSH;
-	else {
+
+	if(!has_primary) {
 		// Nothing may survive as the weapon's own type when every point of it was converted. The
 		// per-component shares each floor, so without this the leftover comes back as a sliver of
 		// exactly the damage type the player converted away. The last component absorbs it instead.
@@ -1665,11 +1687,19 @@ int DealDamageComponents(int pnum, int shooter, int victim, int wepid, int dmgid
 		// and then actually apply it. The primary reaches the monster through the damage event's
 		// return value; a component dealt from here has no event of its own, so HandleDamageDeal
 		// would leave it accumulated for the damage number and the ailments while never taking a
-		// single point of health. Special_NoPain is on the exception list, so this does not
-		// re-enter the handler and re-scale.
+		// single point of health.
 		if(part > 0) {
 			HandleMonsterDeathConfirm(victim, part);
-			Thing_Damage2(victim, part, "Special_NoPain");
+
+			// Both are on the exception list so neither re-enters the handler. They differ only in
+			// the pain table: Special_NoPain is PainChance 0, SkipHandle has no entry and so rolls
+			// the monster's ordinary chance.
+			if(pain_taken)
+				Thing_Damage2(victim, part, "Special_NoPain");
+			else {
+				Thing_Damage2(victim, part, "SkipHandle");
+				pain_taken = true;
+			}
 		}
 
 		// Stop once there is nothing left to hurt. Unlike the primary, these are applied here and
@@ -1694,6 +1724,30 @@ bool CheckCullRangeVsPlayer(int source, int victim, int dmg) {
 	return GetActorProperty(victim, APROP_HEALTH) - dmg <= CheckActorInventory(victim, "PlayerHealthCap") * base / 100;
 }
 
+// Tormentor / Death's Grip. Called straight after a stack lands, and only from inside the branch
+// that actually added one -- so a poison already sitting at the cap and being refreshed cannot
+// re-roll the charge every hit.
+void HandleMaxPoisonStackPerk(int pnum, int victim) {
+	int temp = PlayerModData[pnum].vals[PSTAT_FRENZY_ONMAXPOISON];
+	if(temp && CheckActorInventory(victim, "DnD_PoisonStacks") >= GetPlayerPoisonStacks(pnum) && random(1, 100) <= temp)
+		HandlePlayerBuffAssignment(pnum, 0, BTI_FRENZYCHARGE);
+}
+
+// Tormentor / Bringer of Ice. Refreshed every time the player lands a chill, so "while you have
+// an enemy chilled" is answered by the act of chilling rather than by scanning for a chilled
+// monster every tic. The ticker only runs when the window is not already open.
+void HandleColdImmunityPerk(int pnum) {
+	int tics = PlayerModData[pnum].vals[PSTAT_COLDIMMUNE_TICS];
+	if(!tics)
+		return;
+
+	int tid = pnum + P_TIDSTART;
+	bool running = !!CheckActorInventory(tid, "DnD_ColdImmuneTimer");
+	SetActorInventory(tid, "DnD_ColdImmuneTimer", tics);
+	if(!running)
+		ACS_NamedExecuteAlways("DnD Cold Immunity Ticker", 0, pnum);
+}
+
 void HandleChillEffects(int pnum, int victim) {
 	// not ailment immune
 	if(CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_FROSTBLOOD)) {
@@ -1702,8 +1756,13 @@ void HandleChillEffects(int pnum, int victim) {
 		int stacks = CheckActorInventory(victim, "DnD_ChillStacks");
 		int threshold = MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp * GetChillThreshold(pnum, stacks + 1) / 100;
 
-		if(hpdiff >= threshold) {
+		// Bitter Frost rolls INSTEAD of the threshold, not as well as it: the perk is "regardless of
+		// health threshold", so a hit that already met the threshold does not roll at all.
+		if(hpdiff >= threshold || (PlayerModData[pnum].vals[PSTAT_CHILL_CHANCE_FLAT] &&
+			random(1, 100) <= PlayerModData[pnum].vals[PSTAT_CHILL_CHANCE_FLAT])) {
 			// add a new stack of chill and check for freeze
+			HandleColdImmunityPerk(pnum);
+
 			if(!stacks) {
 				GiveActorInventory(victim, "DnD_ChillStacks", 1);
 				ACS_NamedExecuteWithResult("DnD Monster Chill", victim, pnum);
@@ -1722,6 +1781,10 @@ void HandleChillEffects(int pnum, int victim) {
 						stacks = DND_BASE_FREEZETIMER / 3;
 					else
 						stacks = DND_BASE_FREEZETIMER;
+
+					// Crippling Ice. The freeze loop spends 6 tics a unit, so fixed point seconds
+					// convert by that and not by DND_BASE_FREEZETIMER's stale 5 tic comment.
+					stacks += ((PlayerModData[pnum].vals[PSTAT_FREEZE_DURATION] * TICRATE) >> 16) / 6;
 					
 					// set freeze timer and run script
 					if(!CheckActorInventory(victim, "DnD_FreezeTimer")) {
@@ -1879,6 +1942,17 @@ void HandleOverloadEffects(int pnum, int victim) {
 			SetActorInventory(victim, "DnD_OverloadDamage", Max(temp, CheckActorInventory(victim, "DnD_OverloadDamage")));
 			
 			ACS_NamedExecuteWithResult("DnD Monster Overload", victim);
+
+			// Tormentor / Jolt. This branch is the one where the monster was NOT already
+			// overloaded, which is exactly "overloading an enemy for the first time" -- so the
+			// roll needs no bookkeeping of its own. Same three-step stun as Cranium Bash, and it
+			// defers to a stun already running rather than restarting one.
+			temp = PlayerModData[pnum].vals[PSTAT_OVERLOAD_STUNCHANCE];
+			if(temp && random(1, 100) <= temp && !CheckActorInventory(victim, "StunDurationCounter")) {
+				SetActorInventory(victim, "StunDurationCounter", PlayerModData[pnum].vals[PSTAT_OVERLOAD_STUNTICS]);
+				SetActorState(victim, "Stunned");
+				ACS_NamedExecuteAlways("DnD Monster Stun Ticker", 0, victim);
+			}
 		}
 		else
 			SetActorInventory(victim, "DnD_OverloadTimer", GetOverloadTime(pnum));
@@ -1947,11 +2021,32 @@ int ApplyPenetrationToDamage(int pnum, int victim, int dmg, int damage_category,
 	return res;
 }
 
+// Tormentor / Avatar of Fire. Asked in two places, so it is a question rather than a condition:
+// FactorResists uses it to zero the hit, and the hit feedback uses it to stay quiet about that.
+//
+// The distinction matters because the beep is INFERRED from the damage rather than told: a hit
+// that lands under a quarter of its pre-resist value reports as an immunity. Damage the perk
+// removed is not damage the monster resisted, and reporting it as such fires an immunity beep on
+// every non-fire component of every shot.
+bool IsNulledByAvatarOfFire(int pnum, int damage_category) {
+	return PlayerModData[pnum].vals[PSTAT_AVATAROFFIRE] && damage_category != DND_DAMAGECATEGORY_FIRE;
+}
+
 int FactorResists(int source, int victim, int wepid, int dmg, int damage_type, int actor_flags, int flags, bool forced_full, bool wep_neg = false) {
 	// check penetration stuff on source -- set it accordingly to damage type being checked down below
 	int mon_id = victim - DND_MONSTERTID_BEGIN;
 	int damage_category = GetDamageCategory(damage_type, flags);
 	int pnum = PlayerNumber();
+
+	// Tormentor / Avatar of Fire. "Cannot deal non-fire damage" is a hard zero, and it lands
+	// AFTER conversion has taken its share -- so what arrives here still wearing a non-fire
+	// category is exactly the part the perk did not convert.
+	//
+	// Occult included: it is non-fire, so it is destroyed. It is the only category that cannot
+	// be converted first -- it sits AFTER fire on the ladder and the walk only goes forward --
+	// so for occult this is a total loss rather than the half loss every other type takes.
+	if(IsNulledByAvatarOfFire(pnum, damage_category))
+		return 0;
 	int pen = GetResistPenetration(pnum, damage_category);
 	
 	// if doomguy perk 50 is there and this is a monster, ignore res
@@ -2025,6 +2120,12 @@ int FactorResists(int source, int victim, int wepid, int dmg, int damage_type, i
 	// Perception / Ceaseless Assault. Beside Expose Weakness because it is the same kind of thing --
 	// a resistance the MONSTER has lost, not penetration the player brought.
 	pct_val += CheckActorInventory(victim, "DnD_ResistShred");
+
+	// Tormentor / Permafrost and Corrosion. Both are resistance the MONSTER has lost, so they
+	// belong in this block. Corrosion names poison, so only a poison hit may read it.
+	pct_val += CheckActorInventory(victim, "DnD_Permafrost");
+	if(damage_category == DND_DAMAGECATEGORY_POISON)
+		pct_val += CheckActorInventory(victim, "DnD_PoisonShred");
 
 	if(CheckActorInventory(victim, "Doomguy_ResistReduced"))
 		pct_val += DND_DOOMGUY_RESISTPCT;
@@ -2330,9 +2431,14 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 
 	// hit beeps and stuff
 	// if more that means we hit a weakness, otherwise below conditions check immune and resist respectively
-	extra = (dmg < temp) * DND_DAMAGETICFLAG_LESSENED;
-	
-	ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, dmg, temp);
+	//
+	// Both are skipped for damage Avatar of Fire removed. Neither reads the reason a number got
+	// smaller, they only read that it did -- so the perk's own conversion loss would beep as an
+	// immunity and grey out the number, on a monster that resisted nothing.
+	if(!IsNulledByAvatarOfFire(pnum, GetDamageCategory(damage_type, flags))) {
+		extra = (dmg < temp) * DND_DAMAGETICFLAG_LESSENED;
+		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, dmg, temp);
+	}
 
 	// damage number handling - NO MORE DAMAGE FIDDLING FROM BELOW HERE
 	// all damage calculations should be done by this point, besides cull --- cull should not reflect on here
@@ -2781,6 +2887,11 @@ void HandleIgniteEffects(int pnum, int victim, int wepid, int flags, int dmg_wit
 		int current_ign_time = CheckActorInventory(victim, "DnD_IgniteTimer");
 		int ign_flags = DND_IGNITEFLAG_CANPROLIF;
 
+		// Tormentor / Cremator. Stamped on the victim at APPLICATION because the death itself has
+		// no idea who lit it -- DECORATE asks the corpse, through "DnD Check Cremator".
+		if(PlayerModData[pnum].vals[PSTAT_CREMATOR])
+			SetActorInventory(victim, "DnD_Cremated", 1);
+
 		// Price this application even if it cannot start the script: a refresh only pushes the timer
 		// out, so without parking the number the FIRST application would set the burn for its life.
 		int tick_dmg = GetIgniteTickDamage(pnum, victim, wepid, scaleIgn ? dmg_within_tic : 0);
@@ -3132,8 +3243,10 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 
 			oy = !CheckActorInventory(victim_tid, "DnD_PoisonStacks");
 
-			if(CheckActorInventory(victim_tid, "DnD_PoisonStacks") < GetPlayerPoisonStacks(pnum))
+			if(CheckActorInventory(victim_tid, "DnD_PoisonStacks") < GetPlayerPoisonStacks(pnum)) {
 				GiveActorInventory(victim_tid, "DnD_PoisonStacks", 1);
+				HandleMaxPoisonStackPerk(pnum, victim_tid);
+			}
 
 			ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim_tid, ox, wepid, oy);
 			//printbold(s:"poison received by ", d:victim);
@@ -3387,6 +3500,18 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid, int firstEntry) {
 					Thing_Damage2(victim, temp, "Special_NoPain");
 				ACS_NamedExecuteAlways("DnD Spawn Poison FX", 0, victim, stacks);
 
+				// Tormentor / Septic Touch. Checked here rather than at the kill site because "killed by
+				// poison" is exactly "this tic was the one that finished it" -- and the poison total is
+				// only in scope inside this loop, dot_cache being a local static.
+				if(!IsActorAlive(victim))
+					SpawnSepticCloud(pnum, victim, dmg);
+
+				// Tormentor / Corrosion. Per stack, per poison tic, and capped -- the cap is what makes
+				// this a debuff rather than an ever deepening hole, since fresh stacks hold the loop open.
+				int corrode = PlayerModData[pnum].vals[PSTAT_POISON_RESISTSHRED];
+				if(corrode && CheckActorInventory(victim, "DnD_PoisonShred") < DND_CORROSION_CAP)
+					GiveActorInventory(victim, "DnD_PoisonShred", corrode * stacks);
+
 				// This ailment cannot hurt this monster. Drop it instead of holding its slot -- see
 				// IsAilmentTicWasted. Breaking here lands in the teardown below, which clears the timer, so
 				// the monster goes back to being ailable immediately.
@@ -3417,7 +3542,10 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid, int firstEntry) {
 	SetActorInventory(victim, "DnD_PoisonStacks", 0);
 
 	if(HasActorClassPerk_Fast(source, DND_PLAYER_WANDERER, 2))
-		RemoveMonsterAilment(victim, DND_AILMENT_POISON);
+		// Tormentor / Corrosion. The shred is the poison's, so it leaves with it.
+	SetActorInventory(victim, "DnD_PoisonShred", 0);
+
+	RemoveMonsterAilment(victim, DND_AILMENT_POISON);
 
 	if(IsActorAlive(victim)) {
 		SetResultValue(0);
@@ -3488,8 +3616,10 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid, int firstEntry) {
 					//printbold(s:"prolif to ", d:tlist[pnum][i].tid);
 					counter = !CheckActorInventory(dot_cache[pnum][i].dmg, "DnD_PoisonStacks");
 
-					if(CheckActorInventory(dot_cache[pnum][i].dmg, "DnD_PoisonStacks") < GetPlayerPoisonStacks(source - P_TIDSTART))
+					if(CheckActorInventory(dot_cache[pnum][i].dmg, "DnD_PoisonStacks") < GetPlayerPoisonStacks(source - P_TIDSTART)) {
 						GiveActorInventory(dot_cache[pnum][i].dmg, "DnD_PoisonStacks", 1);
+						HandleMaxPoisonStackPerk(source - P_TIDSTART, dot_cache[pnum][i].dmg);
+					}
 
 					ACS_NamedExecuteWithResult("DnD Do Poison Damage", dot_cache[pnum][i].dmg, dmg, wepid, counter);
 
@@ -3529,7 +3659,17 @@ Script "DnD Monster Chill" (int victim, int pnum) {
 		// slow down
 		SetActorProperty(victim, APROP_SPEED, FixedMul(base_speed, 1.0 - GetChillEffect(pnum, cur_stacks)));
 		ACS_NamedExecuteAlways("DnD Monster Chill FX", 0, victim);
-		Delay(const:TICRATE);
+
+		// Tormentor / Permafrost. A second a stack is what this loop already spends, so the perk
+		// ticks here. Deliberately NOT cleared when the chill ends -- it is meant to persist and
+		// only leaves with the monster, which takes its inventory with it.
+		if(PlayerModData[pnum].vals[PSTAT_PERMAFROST] &&
+			CheckActorInventory(victim, "DnD_Permafrost") < DND_PERMAFROST_CAP)
+			GiveActorInventory(victim, "DnD_Permafrost", PlayerModData[pnum].vals[PSTAT_PERMAFROST]);
+
+		// Lingering Cold. Chill decays a stack a second, so "increased duration" is a longer second
+		// rather than more stacks -- more stacks would silently deepen the slow as well.
+		Delay(TICRATE * (100 + PlayerModData[pnum].vals[PSTAT_CHILL_DURATION]) / 100);
 		TakeActorInventory(victim, "DnD_ChillStacks", 1);
 	}
 	
@@ -3575,6 +3715,29 @@ Script "DnD Monster Slow Ticker" (int victim) {
 // non-zero and nothing in DECORATE decrements it, so the countdown has to live here. Clearing it on
 // death matters: the state machine is gone by then and a stale counter would stun the next monster
 // to reuse the tid.
+// Tormentor / Cremator. Activator is the MONSTER -- call it from Death.FireDOT and jump on a
+// non zero result. The answer is stamped on the monster when the burn is applied, so this stays
+// correct even though the killing tic has no attacker to ask.
+// Tormentor / Septic Touch. Same dispatch as DnD Wanderer Explosions: spawn on a reserved per
+// player tid, hand the actor its damage through user_dmg, point it at the player so the kill is
+// credited, then release the tid. The actor owns the radius and the FX.
+void SpawnSepticCloud(int pnum, int victim, int tic_dmg) {
+	int share = PlayerModData[pnum].vals[PSTAT_SEPTIC_POISONSHARE];
+	if(!share)
+		return;
+
+	int dmg = tic_dmg * share / 100;
+	if(dmg <= 0)
+		dmg = 1;
+
+	int tid = DND_SEPTIC_CLOUD_TID + pnum;
+	SpawnForced("Septic_Explosion", GetActorX(victim), GetActorY(victim), GetActorZ(victim), tid);
+	SetUserVariable(tid, "user_dmg", dmg);
+	SetActivator(tid);
+	SetPointer(AAPTR_TARGET, pnum + P_TIDSTART);
+	Thing_ChangeTID(tid, 0);
+}
+
 Script "DnD Monster Stun Ticker" (int victim) {
 	int sfx_id = ACS_NamedExecuteWithResult("DND Spawn Attachment", victim, DND_ATTACHMENT_STUNICON);
 
@@ -3715,11 +3878,16 @@ Script "DnD Monster Bleed (Player)" (int victim, int wepid, int dmg) {
 	// The two tics spent on the movement check below come out of the interval, so the floor is 3: any
 	// lower and the delay argument goes to zero and the loop stops yielding.
 	int bleed_rate = DND_BLEED_TICRATE;
-	if(IsMeleeWeapon(wepid)) {
-		int faster = PlayerModData[pnum].vals[PSTAT_BLEEDRATE_MELEE];
-		if(faster > 0)
-			bleed_rate = Max(3, (bleed_rate * 100) / (100 + faster));
-	}
+	int faster = PlayerModData[pnum].vals[PSTAT_BLEEDRATE];
+	if(IsMeleeWeapon(wepid))
+		faster += PlayerModData[pnum].vals[PSTAT_BLEEDRATE_MELEE];
+	if(faster > 0)
+		bleed_rate = Max(3, (bleed_rate * 100) / (100 + faster));
+
+	// Tormentor / Master of Wounds. Rolled ONCE for the whole bleed rather than per tic: the
+	// perk aggravates the bleed itself, and a per tic roll would turn a state into an average.
+	int aggravate = PlayerModData[pnum].vals[PSTAT_BLEED_AGGRAVATECHANCE];
+	bool aggravated = aggravate && random(1, 100) <= aggravate;
 
 	do {
 		// monsters dont set velxyz fields, so check prev pos vs curr pos for delta -- for extra guarantee on this specific thing, checking for 2 tic window instead
@@ -3738,7 +3906,7 @@ Script "DnD Monster Bleed (Player)" (int victim, int wepid, int dmg) {
 			dmg = HandleDamageDeal(
 				source, 
 				victim, 
-				next_dmg * (1 + 2 * isMoving), 
+				next_dmg * (1 + 2 * (isMoving || aggravated)), 
 				DND_DAMAGETYPE_PHYSICAL, wepid, DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_ISDAMAGEOVERTIME | DND_ACTORFLAG_PAINLESS
 			);
 			if(dmg > 0)
@@ -3794,6 +3962,13 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int tick_dmg)
 
 	int dmg_tic_buff = PlayerModData[pnum].vals[PSTAT_ESS_CHEGOVAX];
 
+	// Tormentor / Blowback. Read once: the burn's pace cannot change mid burn, and the FX
+	// script is handed the same number so the flames keep step with the damage.
+	int ign_rate = DND_IGNITE_TICKRATE;
+	int ign_faster = PlayerModData[pnum].vals[PSTAT_IGN_TICRATE];
+	if(ign_faster > 0)
+		ign_rate = Max(1, (ign_rate * 100) / (100 + ign_faster));
+
 	// Re-read off the victim every tick, not captured once: a hit on an already burning monster only
 	// pushes the timer out, so a captured base would freeze the burn at whatever opened it.
 	int base_dmg = tick_dmg;
@@ -3822,7 +3997,7 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int tick_dmg)
 
 		// only apply ignite if target is shootable ie. not teleporting
 		if(CheckFlag(victim, "SHOOTABLE")) {
-			ACS_NamedExecuteAlways("DnD Monster Ignite FX", 0, victim, 2);
+			ACS_NamedExecuteAlways("DnD Monster Ignite FX", 0, victim, 2, ign_rate);
 
 			i = HandleDamageDeal(source, victim, next_dmg, DND_DAMAGETYPE_FIRE, wepid, DND_DAMAGEFLAG_NOIGNITESTACK | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_ISDAMAGEOVERTIME | DND_ACTORFLAG_PAINLESS);
 
@@ -3851,7 +4026,7 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int tick_dmg)
 		// x 5
 		// UNCONDITIONAL, outside the SHOOTABLE test: the prolif dispatch runs this script inline and
 		// must reach a delay before returning to a caller still walking the shared tlist row.
-		Delay(const:DND_IGNITE_TICKRATE);
+		Delay(ign_rate);
 
 		// Decrement AFTER the delay. A nonzero DnD_IgniteTimer is what HandleIgniteEffects reads as
 		// "already owned, just refresh", so it must never read 0 while this script is still alive.
@@ -3870,6 +4045,14 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int tick_dmg)
 	SetActorInventory(victim, "DnD_CurrentIgniteDamage", 0);
 
 	if(IsActorAlive(victim)) {
+		// Cremator leaves with the burn it came from, but ONLY when the monster survived it --
+		// otherwise the next player to set it alight without the perk would inherit the stamp.
+		//
+		// Deliberately not cleared on death: that stamp is exactly what Death.FireDOT is about to
+		// read, and this teardown runs a full ignite tic after the killing blow. Clearing it here
+		// would race the state, and a longer cremate state would lose the race more often. The
+		// corpse takes the token with it.
+		SetActorInventory(victim, "DnD_Cremated", 0);
 		SetResultValue(0);
 		Terminate;
 	}
@@ -3951,6 +4134,13 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int tick_dmg)
 			for(i = 0, j = 0; i < prolif_count; ++i) {
 				if(tlist[pnum][i].tid) {
 					//printbold(s:"prolif to ", d:tlist[pnum][i].tid);
+					// Cremator travels with the fire. A proliferated monster is burning by THIS player's
+					// ignite, so a death to it is theirs to cremate -- the same stamp HandleIgniteEffects
+					// puts on the monsters it lights directly. Set before the branch below so it lands
+					// whether the target is newly lit or an existing burn being topped up.
+					if(PlayerModData[pnum].vals[PSTAT_CREMATOR])
+						SetActorInventory(tlist[pnum][i].tid, "DnD_Cremated", 1);
+
 					// Ownership is the script refcount here too, for the same reason it is in
 					// HandleIgniteEffects: the timer is inventory and outlives the script, so gating a
 					// jump on the timer left a proliferated monster permanently lit and taking nothing
@@ -3995,7 +4185,9 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int tick_dmg)
 	SetResultValue(0);
 }
 
-Script "DnD Monster Ignite FX" (int tid, int amt) CLIENTSIDE {
+// rate comes from the burn that spawned this, so Blowback speeds the flames and the damage
+// by the same amount rather than letting them drift apart.
+Script "DnD Monster Ignite FX" (int tid, int amt, int rate) CLIENTSIDE {
 	SetActivator(tid);
 	
 	for(int i = 0; i < amt; ++i) {
@@ -4267,6 +4459,13 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	int mult = 1.0;
 	mult = FixedMul(mult, pbuffs[pnum].buff_net_values[BUFF_DAMAGETAKEN].multiplicative);
 	mult = FixedMul(mult, pbuffs[pnum].buff_net_values[BUFF_ENDURANCECHARGE].multiplicative);
+
+	// Tormentor / Muscle Spasms. The only damage-taken reduction here that reads the ATTACKER:
+	// the perk is the player's but the condition is the monster's, so it needs the m_id the
+	// caller passed. A caller that did not pass one is not a monster hit and cannot qualify.
+	if(m_id != -1 && (temp = PlayerModData[pnum].vals[PSTAT_OVERLOAD_DMGREDUCE]) &&
+		CheckActorInventory(m_id + DND_MONSTERTID_BEGIN, "DnD_OverloadTimer"))
+		mult = CombineFactors(mult, -((temp << 16) / 100));
 
 	int res_to_apply = DND_PRESIST_NONE;
 	int res_bonus = 0;
@@ -5218,7 +5417,22 @@ bool IsDamageEventException(str dt) {
 	return 	dt == "Suicide" || dt == "Perish" || dt == "Special_NoPain" || dt == "SkipHandle" || dt == "ForcedPainBypass";
 }
 
+Script "DnD Cold Immunity Ticker" (int pnum) {
+	int tid = pnum + P_TIDSTART;
+	while(CheckActorInventory(tid, "DnD_ColdImmuneTimer") && IsActorAlive(tid)) {
+		TakeActorInventory(tid, "DnD_ColdImmuneTimer", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(tid, "DnD_ColdImmuneTimer", 0);
+}
+
 void HandlePlayerChill(int pnum, int m_id, int dmg_received, int dmg_data) {
+	// Tormentor / Bringer of Ice. Checked before anything else -- the perk is immunity, not a
+	// resistance, so an immune player does not roll and does not gain a stack either.
+	if(CheckActorInventory(pnum + P_TIDSTART, "DnD_ColdImmuneTimer"))
+		return;
+
 	// PlayerHitGainedFlags carries the touch traits' contribution: our caller only ever had the
 	// attack's own type flags, so a RIMETOUCH monster's cold would be invisible here without it.
 	if(m_id != -1 && ((dmg_data & DND_DAMAGETYPEFLAG_ICE) || (PlayerHitGainedFlags[pnum] & DND_DAMAGETYPEFLAG_ICE) || HasMonsterTrait(m_id, DND_FRIGID))) {

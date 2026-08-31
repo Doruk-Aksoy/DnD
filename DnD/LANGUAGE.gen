@@ -107,10 +107,10 @@ DND_TALENT1								= "Melee";
 DND_TALENT2								= "Physical";
 DND_TALENT3								= "Energy";
 
-DND_TALENT4								= "Fire";
-DND_TALENT5								= "Cold";
-DND_TALENT6								= "Poison";
-DND_TALENT7								= "Lightning";
+DND_TALENT4								= "Cold";
+DND_TALENT5								= "Poison";
+DND_TALENT6								= "Lightning";
+DND_TALENT7								= "Fire";
 
 DND_TALENT8								= "Magic";
 

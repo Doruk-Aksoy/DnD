@@ -324,10 +324,10 @@ cursor_T PlayerCursorData;
 // the RUNTIME pane, which is a single struct -- a page that builds its boxes with AddBoxToPane*
 // rather than loading a bp row is bounded only by this one, and pays 4 ints per extra box.
 //
-// The perk tree is the reason they had to split: its largest archetype is 21 perks plus navigation,
+// The perk tree is the reason they had to split: its largest archetype is 35 perks plus navigation,
 // and it lays itself out from the perk table rather than from a fixed rect list.
 #define MAX_MENU_BOXES 20
-#define MAX_PANE_BOXES 32
+#define MAX_PANE_BOXES 48
 struct menu_pane_T {
 	rect_T MenuRectangles[MAX_PANE_BOXES];
 	int cursize;

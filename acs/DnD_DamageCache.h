@@ -439,22 +439,44 @@ void ResetPlayerConversionTable(int pnum) {
 // The re-sum after the clamp is not optional: the pro rata divides truncate, so the row lands a
 // little under 100, and a conv_row_total of a flat 100 would then take damage out of the primary and
 // hand it to nobody.
+// Tormentor / Avatar of Fire, folded in at DERIVE time rather than into conv_raw.
+//
+// conv_raw is accumulated as items are equipped and it survives every cache wipe, so a perk
+// writing into it would have to add and remove itself exactly once -- and a character load,
+// which re-equips everything, would double it. conv_pct is re-derived on every cached block, so
+// reading the perk here is idempotent by construction and needs no bookkeeping at all.
+//
+// Reading it through this accessor rather than at the call sites means the row clamp, the pro
+// rata truncation and conv_row_total all account for the perk without knowing about it.
+int GetEffectiveConversionRaw(int pnum, int source, int dest) {
+	int amt = GetPlayerDamageCache(pnum).conv_raw[source][dest];
+
+	// Occult is skipped because it CANNOT reach fire -- it sits after fire on the ladder and the
+	// walk only runs forward. It is not spared by the perk: the non-fire zero in FactorResists
+	// destroys it outright, which is why the perk text lists the five types it does convert.
+	if(dest == DND_DAMAGECATEGORY_FIRE && source != DND_DAMAGECATEGORY_FIRE &&
+		source != DND_DAMAGECATEGORY_OCCULT)
+		amt += PlayerModData[pnum].vals[PSTAT_AVATAROFFIRE];
+
+	return amt;
+}
+
 void FinalizePlayerConversionRow(int pnum, int source) {
 	pdmg_cache_T module& cache = GetPlayerDamageCache(pnum);
 	int dest, total = 0;
 
 	for(dest = DND_DAMAGECATEGORY_BEGIN; dest < DND_DAMAGECATEGORY_END; ++dest)
-		total += cache.conv_raw[source][dest];
+		total += GetEffectiveConversionRaw(pnum, source, dest);
 
 	if(total <= 100) {
 		for(dest = DND_DAMAGECATEGORY_BEGIN; dest < DND_DAMAGECATEGORY_END; ++dest)
-			cache.conv_pct[source][dest] = cache.conv_raw[source][dest];
+			cache.conv_pct[source][dest] = GetEffectiveConversionRaw(pnum, source, dest);
 	}
 	else {
 		int clamped = 0, biggest = DND_CONV_NOSKIP;
 
 		for(dest = DND_DAMAGECATEGORY_BEGIN; dest < DND_DAMAGECATEGORY_END; ++dest) {
-			cache.conv_pct[source][dest] = cache.conv_raw[source][dest] * 100 / total;
+			cache.conv_pct[source][dest] = GetEffectiveConversionRaw(pnum, source, dest) * 100 / total;
 			clamped += cache.conv_pct[source][dest];
 
 			if(biggest == DND_CONV_NOSKIP || cache.conv_pct[source][dest] > cache.conv_pct[source][biggest])

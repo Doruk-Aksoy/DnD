@@ -185,8 +185,51 @@ enum {
     PERK_PERC_HEATSINKS,
     PERK_PERC_EMERGENCYPROTOCOL,
 
-    // ---- Tormentor: 0 perks, 0 points ----
-    // no perks authored yet -- the menu still gives it a page
+    // ---- Tormentor: 35 perks, 84 points ----
+    // Five ailment lines of seven. Order here is the order the page lists them in.
+    // poison
+    PERK_TORM_STUDENTOFDECAY,
+    PERK_TORM_PROLONGEDTORTURE,
+    PERK_TORM_DEATHSGRIP,
+    PERK_TORM_FLOWOFLIFE,
+    PERK_TORM_CORROSION,
+    PERK_TORM_ACRIMONY,
+    PERK_TORM_SEPTICTOUCH,
+
+    // cold
+    PERK_TORM_BITTERFROST,
+    PERK_TORM_LINGERINGCOLD,
+    PERK_TORM_FLASHFREEZE,
+    PERK_TORM_CRIPPLINGICE,
+    PERK_TORM_BRINGEROFICE,
+    PERK_TORM_BREATHOFRIME,
+    PERK_TORM_PERMAFROST,
+
+    // fire
+    PERK_TORM_SLOWCOOKER,
+    PERK_TORM_DEEPFRIED,
+    PERK_TORM_BLOWBACK,
+    PERK_TORM_COOKEDALIVE,
+    PERK_TORM_WILDFIRE,
+    PERK_TORM_CREMATOR,
+    PERK_TORM_AVATAROFFIRE,
+
+    // overload
+    PERK_TORM_SHOCKER,
+    PERK_TORM_COURSINGCURRENT,
+    PERK_TORM_MAXIMUMOVERDRIVE,
+    PERK_TORM_MUSCLESPASMS,
+    PERK_TORM_POWERUP,
+    PERK_TORM_JOLT,
+    PERK_TORM_SUPERCONDUCTOR,
+
+    // bleed
+    PERK_TORM_WOUNDER,
+    PERK_TORM_BLOODLETTING,
+    PERK_TORM_SWIFTDRAIN,
+    PERK_TORM_SAVAGEWOUNDS,
+    PERK_TORM_CORNEREDPREY,
+    PERK_TORM_MASTEROFWOUNDS,
 
     PERK_COUNT
 };
@@ -778,6 +821,41 @@ str GetPerkLangKey(int id) {
         "PERK_PERC_UNSTOPPABLEFORCE",
         "PERK_PERC_HEATSINKS",
         "PERK_PERC_EMERGENCYPROTOCOL",
+
+        "PERK_TORM_STUDENTOFDECAY",
+        "PERK_TORM_PROLONGEDTORTURE",
+        "PERK_TORM_DEATHSGRIP",
+        "PERK_TORM_FLOWOFLIFE",
+        "PERK_TORM_CORROSION",
+        "PERK_TORM_ACRIMONY",
+        "PERK_TORM_SEPTICTOUCH",
+        "PERK_TORM_BITTERFROST",
+        "PERK_TORM_LINGERINGCOLD",
+        "PERK_TORM_FLASHFREEZE",
+        "PERK_TORM_CRIPPLINGICE",
+        "PERK_TORM_BRINGEROFICE",
+        "PERK_TORM_BREATHOFRIME",
+        "PERK_TORM_PERMAFROST",
+        "PERK_TORM_SLOWCOOKER",
+        "PERK_TORM_DEEPFRIED",
+        "PERK_TORM_BLOWBACK",
+        "PERK_TORM_COOKEDALIVE",
+        "PERK_TORM_WILDFIRE",
+        "PERK_TORM_CREMATOR",
+        "PERK_TORM_AVATAROFFIRE",
+        "PERK_TORM_SHOCKER",
+        "PERK_TORM_COURSINGCURRENT",
+        "PERK_TORM_MAXIMUMOVERDRIVE",
+        "PERK_TORM_MUSCLESPASMS",
+        "PERK_TORM_POWERUP",
+        "PERK_TORM_JOLT",
+        "PERK_TORM_SUPERCONDUCTOR",
+        "PERK_TORM_WOUNDER",
+        "PERK_TORM_BLOODLETTING",
+        "PERK_TORM_SWIFTDRAIN",
+        "PERK_TORM_SAVAGEWOUNDS",
+        "PERK_TORM_CORNEREDPREY",
+        "PERK_TORM_MASTEROFWOUNDS",
     };
 
     if(id < 0 || id >= PERK_COUNT)
@@ -804,10 +882,14 @@ str GetPerkArchLangKey(int arch) {
 // One archetype's perks in display order, plus where its categories break. Built once with the table
 // because the menu walks it every frame and the click handler indexes straight into it.
 //
-// The largest authored archetype is Perception at 21. The cap is the pane's, not the tree's: a page
-// cannot offer more clickable rows than MAX_PANE_BOXES holds, so an archetype that outgrew this
-// would be silently unclickable past the cap rather than merely cramped.
-#define DND_MAX_PERKS_PERARCH 24
+// The largest authored archetype is Tormentor at 35, five categories of seven. The cap is the
+// pane's, not the tree's: a page cannot offer more clickable rows than MAX_PANE_BOXES holds, so an
+// archetype that outgrew this would be silently unclickable past the cap rather than merely cramped.
+//
+// 40 rather than 35 for headroom, and it is also what bounds the menu's row id band -- see the note
+// on DND_PERKROW_IDBASE. Raising this without checking that band silently pushes rows past the
+// range the menu clears each redraw.
+#define DND_MAX_PERKS_PERARCH 40
 
 typedef struct {
     int count;
@@ -1304,6 +1386,71 @@ void SetupPerkStats() {
     // that slot is every explosion the player causes.
     SetPerkStat(PERK_PERC_QUAKER, PSTAT_ARTILLERY_RADIUS, 10, 10);
     SetPerkStat(PERK_PERC_DARKARTS, PSTAT_MAGIC_PERCENT, 10, 15, PERKF_AFFECTSDAMAGE);
+
+    // ================= Tormentor =================
+    // Poison
+    SetPerkStat(PERK_TORM_PROLONGEDTORTURE, PSTAT_POIS_DURATION, 15, 5);
+    SetPerkStat(PERK_TORM_ACRIMONY, PSTAT_DOTMULTI_POISON, 5, 5, PERKF_AFFECTSDAMAGE);
+
+    // Cold. "Effect of cold ailments" is the chill slow, which is what PSTAT_SLOWEFFECT scales.
+    SetPerkStat(PERK_TORM_BREATHOFRIME, PSTAT_SLOWEFFECT, 20, 10);
+    SetPerkStat(PERK_TORM_BREATHOFRIME, PSTAT_PCTDMG_BASE + DND_DAMAGECATEGORY_ICE, 25, 15, PERKF_AFFECTSDAMAGE);
+
+    // Fire. Prolif range is a FIXED POINT FRACTION of DND_BASE_IGNITEPROLIFRANGE, which is 128 --
+    // so the note's "a further 96 units" is 0.75, not 96.
+    SetPerkStat(PERK_TORM_COOKEDALIVE, PSTAT_IGN_CHANCE_FLAT, 5, 5);
+    SetPerkStat(PERK_TORM_WILDFIRE, PSTAT_IGN_PROLIF_CHANCE_FLAT, 10, 0);
+    SetPerkStat(PERK_TORM_WILDFIRE, PSTAT_IGN_PROLIF_RANGE, 0, 0.75);
+
+    // Overload. Duration is fixed point SECONDS, damage increase is a fixed point percent.
+    SetPerkStat(PERK_TORM_SHOCKER, PSTAT_OVERLOAD_DURATION, 1.0, 1.0);
+    SetPerkStat(PERK_TORM_COURSINGCURRENT, PSTAT_OVERLOAD_ZAPCOUNT, 1, 1);
+    SetPerkStat(PERK_TORM_MAXIMUMOVERDRIVE, PSTAT_OVERLOAD_DMGINCREASE, 0.1, 0.1, PERKF_AFFECTSDAMAGE);
+    SetPerkStat(PERK_TORM_POWERUP, PSTAT_POWERCHARGE_ONOVERLOAD, 5, 3);
+
+    // PSTAT_INC_ALLOVERLOAD is what lets ice/fire/poison tics overload at all, which is the whole
+    // perk. The slot doubles as a PENALTY on overload damage at the same magnitude, so this is 1
+    // and not a rounder number -- the perk is not supposed to weaken the overload it unlocks.
+    SetPerkStat(PERK_TORM_SUPERCONDUCTOR, PSTAT_INC_ALLOVERLOAD, 1);
+
+    // Bleed
+    SetPerkStat(PERK_TORM_WOUNDER, PSTAT_BLEED_CHANCE, 5, 5);
+    SetPerkStat(PERK_TORM_BLOODLETTING, PSTAT_BLEED_DMG_PCT, 10, 10, PERKF_AFFECTSDAMAGE);
+    SetPerkStat(PERK_TORM_SAVAGEWOUNDS, PSTAT_DOTMULTI_BLEED, 5, 5, PERKF_AFFECTSDAMAGE);
+
+    SetPerkStat(PERK_TORM_STUDENTOFDECAY, PSTAT_POIS_DMG_PCT, 10, 10, PERKF_AFFECTSDAMAGE);
+    SetPerkStat(PERK_TORM_DEEPFRIED, PSTAT_IGN_DMG_FLAT, 10, 5, PERKF_AFFECTSDAMAGE);
+    SetPerkStat(PERK_TORM_SLOWCOOKER, PSTAT_IGN_DURATION_FLAT, 0.5, 0.25);
+    SetPerkStat(PERK_TORM_BITTERFROST, PSTAT_CHILL_CHANCE_FLAT, 5, 5);
+    SetPerkStat(PERK_TORM_LINGERINGCOLD, PSTAT_CHILL_DURATION, 10, 10);
+    SetPerkStat(PERK_TORM_FLASHFREEZE, PSTAT_FREEZE_CHANCE_FLAT, 4, 3);
+    SetPerkStat(PERK_TORM_CRIPPLINGICE, PSTAT_FREEZE_DURATION, 0.5, 0.25);
+    SetPerkStat(PERK_TORM_SWIFTDRAIN, PSTAT_BLEEDRATE, 4, 3);
+
+    SetPerkStat(PERK_TORM_DEATHSGRIP, PSTAT_FRENZY_ONMAXPOISON, 5, 5);
+    SetPerkStat(PERK_TORM_BLOWBACK, PSTAT_IGN_TICRATE, 5, 5, PERKF_AFFECTSDAMAGE);
+    SetPerkStat(PERK_TORM_FLOWOFLIFE, PSTAT_REGEN_ONPOISONKILL, 8, 4);
+    SetPerkStat(PERK_TORM_CORROSION, PSTAT_POISON_RESISTSHRED, 1, 1, PERKF_AFFECTSDAMAGE);
+    SetPerkStat(PERK_TORM_PERMAFROST, PSTAT_PERMAFROST, 1, -0x7FFFFFFF, PERKF_AFFECTSDAMAGE);
+    SetPerkStat(PERK_TORM_CREMATOR, PSTAT_CREMATOR, 1);
+    SetPerkStat(PERK_TORM_SEPTICTOUCH, PSTAT_SEPTIC_POISONSHARE, 10, 5);
+    SetPerkStat(PERK_TORM_AVATAROFFIRE, PSTAT_AVATAROFFIRE, 50, -0x7FFFFFFF, PERKF_AFFECTSDAMAGE);
+
+    // 4 seconds, then 2 more a point, in tics
+    SetPerkStat(PERK_TORM_BRINGEROFICE, PSTAT_COLDIMMUNE_TICS, 140, 70);
+    SetPerkStat(PERK_TORM_MUSCLESPASMS, PSTAT_OVERLOAD_DMGREDUCE, 4, 3);
+
+    // 2 seconds then half a second a point, in tics -- StunDurationCounter counts down one a tic.
+    SetPerkStat(PERK_TORM_JOLT, PSTAT_OVERLOAD_STUNCHANCE, 15, 5);
+    SetPerkStat(PERK_TORM_JOLT, PSTAT_OVERLOAD_STUNTICS, 70, 17);
+
+    // "Increased" crit chance is a multiplier here, so it is a plain integer percent; the crit
+    // multi half is added points, and only the first point gives it.
+    SetPerkStat(PERK_TORM_CORNEREDPREY, PSTAT_CRITCHANCE_VS_BLEEDING, 0.4, 0.4, PERKF_AFFECTSDAMAGE);
+    SetPerkStat(PERK_TORM_CORNEREDPREY, PSTAT_CRITDAMAGE_VS_BLEEDING, 20, 0);
+
+    SetPerkStat(PERK_TORM_MASTEROFWOUNDS, PSTAT_BLEED_AGGRAVATECHANCE, 10, -0x7FFFFFFF, PERKF_AFFECTSDAMAGE);
+
 }
 
 // Generated from Perk_Notes/. Structural fields only -- archetype, category, point cap, threshold
@@ -1504,7 +1651,69 @@ void SetupPerkTable() {
     DefinePerk(PERK_PERC_EMERGENCYPROTOCOL, PERK_ARCH_PERC, 2, 1, 9);
 
     // ================= Tormentor =================
-    // nothing authored yet
+
+    // -- category 0: poison --
+    DefinePerk(PERK_TORM_STUDENTOFDECAY, PERK_ARCH_TORM, 0, 3);
+    DefinePerk(PERK_TORM_PROLONGEDTORTURE, PERK_ARCH_TORM, 0, 3);
+    DefinePerk(PERK_TORM_DEATHSGRIP, PERK_ARCH_TORM, 0, 3, 6);
+    SetPerkReq(PERK_TORM_DEATHSGRIP, PERK_REQ_ANY, PERK_TORM_STUDENTOFDECAY, 1, PERK_TORM_PROLONGEDTORTURE, 1);
+    DefinePerk(PERK_TORM_FLOWOFLIFE, PERK_ARCH_TORM, 0, 3, 6);
+    SetPerkReq(PERK_TORM_FLOWOFLIFE, PERK_REQ_ANY, PERK_TORM_STUDENTOFDECAY, 1, PERK_TORM_PROLONGEDTORTURE, 1);
+    DefinePerk(PERK_TORM_CORROSION, PERK_ARCH_TORM, 0, 2, 9);
+    SetPerkReq(PERK_TORM_CORROSION, PERK_REQ_ANY, PERK_TORM_DEATHSGRIP, 1, PERK_TORM_FLOWOFLIFE, 1);
+    DefinePerk(PERK_TORM_ACRIMONY, PERK_ARCH_TORM, 0, 2, 9);
+    SetPerkReq(PERK_TORM_ACRIMONY, PERK_REQ_ANY, PERK_TORM_DEATHSGRIP, 1, PERK_TORM_FLOWOFLIFE, 1);
+    DefinePerk(PERK_TORM_SEPTICTOUCH, PERK_ARCH_TORM, 0, 2, 12);
+
+    // -- category 1: cold --
+    DefinePerk(PERK_TORM_BITTERFROST, PERK_ARCH_TORM, 1, 3);
+    DefinePerk(PERK_TORM_LINGERINGCOLD, PERK_ARCH_TORM, 1, 3);
+    DefinePerk(PERK_TORM_FLASHFREEZE, PERK_ARCH_TORM, 1, 3, 6);
+    SetPerkReq(PERK_TORM_FLASHFREEZE, PERK_REQ_ANY, PERK_TORM_BITTERFROST, 1, PERK_TORM_LINGERINGCOLD, 1);
+    DefinePerk(PERK_TORM_CRIPPLINGICE, PERK_ARCH_TORM, 1, 3, 6);
+    SetPerkReq(PERK_TORM_CRIPPLINGICE, PERK_REQ_ANY, PERK_TORM_BITTERFROST, 1, PERK_TORM_LINGERINGCOLD, 1);
+    DefinePerk(PERK_TORM_BRINGEROFICE, PERK_ARCH_TORM, 1, 2, 9);
+    SetPerkReq(PERK_TORM_BRINGEROFICE, PERK_REQ_ANY, PERK_TORM_CRIPPLINGICE, 1, PERK_TORM_FLASHFREEZE, 1);
+    DefinePerk(PERK_TORM_BREATHOFRIME, PERK_ARCH_TORM, 1, 2, 9);
+    SetPerkReq(PERK_TORM_BREATHOFRIME, PERK_REQ_ANY, PERK_TORM_CRIPPLINGICE, 1, PERK_TORM_FLASHFREEZE, 1);
+    DefinePerk(PERK_TORM_PERMAFROST, PERK_ARCH_TORM, 1, 1, 12);
+
+    // -- category 2: fire --
+    DefinePerk(PERK_TORM_SLOWCOOKER, PERK_ARCH_TORM, 2, 3);
+    DefinePerk(PERK_TORM_DEEPFRIED, PERK_ARCH_TORM, 2, 3);
+    DefinePerk(PERK_TORM_BLOWBACK, PERK_ARCH_TORM, 2, 3, 6);
+    SetPerkReq(PERK_TORM_BLOWBACK, PERK_REQ_ANY, PERK_TORM_DEEPFRIED, 1, PERK_TORM_SLOWCOOKER, 1);
+    DefinePerk(PERK_TORM_COOKEDALIVE, PERK_ARCH_TORM, 2, 3, 6);
+    SetPerkReq(PERK_TORM_COOKEDALIVE, PERK_REQ_ANY, PERK_TORM_DEEPFRIED, 1, PERK_TORM_SLOWCOOKER, 1);
+    DefinePerk(PERK_TORM_WILDFIRE, PERK_ARCH_TORM, 2, 2, 9);
+    SetPerkReq(PERK_TORM_WILDFIRE, PERK_REQ_ANY, PERK_TORM_BLOWBACK, 1, PERK_TORM_COOKEDALIVE, 1);
+    DefinePerk(PERK_TORM_CREMATOR, PERK_ARCH_TORM, 2, 1, 9);
+    SetPerkReq(PERK_TORM_CREMATOR, PERK_REQ_ANY, PERK_TORM_BLOWBACK, 1, PERK_TORM_COOKEDALIVE, 1);
+    DefinePerk(PERK_TORM_AVATAROFFIRE, PERK_ARCH_TORM, 2, 1, 12);
+
+    // -- category 3: overload --
+    DefinePerk(PERK_TORM_SHOCKER, PERK_ARCH_TORM, 3, 3);
+    DefinePerk(PERK_TORM_COURSINGCURRENT, PERK_ARCH_TORM, 3, 3);
+    DefinePerk(PERK_TORM_MAXIMUMOVERDRIVE, PERK_ARCH_TORM, 3, 3, 6);
+    SetPerkReq(PERK_TORM_MAXIMUMOVERDRIVE, PERK_REQ_ANY, PERK_TORM_SHOCKER, 1, PERK_TORM_COURSINGCURRENT, 1);
+    DefinePerk(PERK_TORM_MUSCLESPASMS, PERK_ARCH_TORM, 3, 3, 6);
+    SetPerkReq(PERK_TORM_MUSCLESPASMS, PERK_REQ_ANY, PERK_TORM_SHOCKER, 1, PERK_TORM_COURSINGCURRENT, 1);
+    DefinePerk(PERK_TORM_POWERUP, PERK_ARCH_TORM, 3, 2, 9);
+    SetPerkReq(PERK_TORM_POWERUP, PERK_REQ_ANY, PERK_TORM_MAXIMUMOVERDRIVE, 1, PERK_TORM_MUSCLESPASMS, 1);
+    DefinePerk(PERK_TORM_JOLT, PERK_ARCH_TORM, 3, 2, 9);
+    SetPerkReq(PERK_TORM_JOLT, PERK_REQ_ANY, PERK_TORM_MAXIMUMOVERDRIVE, 1, PERK_TORM_MUSCLESPASMS, 1);
+    DefinePerk(PERK_TORM_SUPERCONDUCTOR, PERK_ARCH_TORM, 3, 1, 12);
+
+    // -- category 4: bleed --
+    DefinePerk(PERK_TORM_WOUNDER, PERK_ARCH_TORM, 4, 3);
+    DefinePerk(PERK_TORM_BLOODLETTING, PERK_ARCH_TORM, 4, 3);
+    DefinePerk(PERK_TORM_SWIFTDRAIN, PERK_ARCH_TORM, 4, 3, 6);
+    SetPerkReq(PERK_TORM_SWIFTDRAIN, PERK_REQ_ANY, PERK_TORM_WOUNDER, 1, PERK_TORM_BLOODLETTING, 1);
+    DefinePerk(PERK_TORM_SAVAGEWOUNDS, PERK_ARCH_TORM, 4, 3, 6);
+    SetPerkReq(PERK_TORM_SAVAGEWOUNDS, PERK_REQ_ANY, PERK_TORM_WOUNDER, 1, PERK_TORM_BLOODLETTING, 1);
+    DefinePerk(PERK_TORM_CORNEREDPREY, PERK_ARCH_TORM, 4, 2, 9);
+    SetPerkReq(PERK_TORM_CORNEREDPREY, PERK_REQ_ANY, PERK_TORM_SWIFTDRAIN, 1, PERK_TORM_SAVAGEWOUNDS, 1);
+    DefinePerk(PERK_TORM_MASTEROFWOUNDS, PERK_ARCH_TORM, 4, 1, 12);
 
     // Both last, and in this order: SetPerkStat refuses to touch a perk DefinePerk has not reached
     // yet, and the menu lists are a read of the finished table.

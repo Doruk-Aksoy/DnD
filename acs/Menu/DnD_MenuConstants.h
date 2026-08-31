@@ -310,6 +310,12 @@ enum {
 // in the layout table -- a taller one reaches into the gap below and picks the wrong perk.
 #define DND_PERKROW_HIT      8
 
+// Where the tree's row messages start, counting DOWN from RPGMENUITEMID. Every id a page draws has
+// to land inside the DeleteTextRange the menu runs each redraw, which reaches 45 below -- so the
+// deepest row is DND_PERKROW_IDBASE + DND_MAX_PERKS_PERARCH - 1 and that has to stay under it.
+// At 5 and 40 the deepest is 44. Raising either without the other pushes rows out of the clear.
+#define DND_PERKROW_IDBASE   5
+
 // Which bar drives which region. The list takes bar 0 because that is the one whose position lives
 // in ScrollPos.x, which is what the rest of the menu resets on a page change.
 #define DND_PERKBAR_LIST     0
