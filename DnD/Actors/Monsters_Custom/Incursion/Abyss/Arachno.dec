@@ -71,6 +71,9 @@ Actor AbyssalArachno : DnD_BaseRangedMonster {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald

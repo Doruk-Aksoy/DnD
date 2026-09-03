@@ -105,6 +105,9 @@ Actor Demolisher : DnD_BaseRangedBoss 21187 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -234,6 +237,9 @@ ACTOR Arachnophyte : DnD_BaseRangedBoss 21188 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -430,6 +436,9 @@ actor PsionicQueen : DnD_BaseHybridBoss 21189 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -672,6 +681,9 @@ ACTOR AngelOfDeath : DnD_BaseRangedBoss 21190 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -964,6 +976,9 @@ ACTOR Goldlich : DnD_BaseRangedBoss 21191 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -1324,6 +1339,9 @@ ACTOR IronlichBoss : DnD_BaseRangedBoss 21192 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -1878,6 +1896,9 @@ Actor SpiderOverlord : DnD_BaseRangedBoss 21193 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -2029,6 +2050,9 @@ actor DarkLich : DnD_BaseRangedBoss 21194 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald

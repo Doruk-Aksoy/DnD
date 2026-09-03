@@ -236,10 +236,20 @@ enum {
 	DND_MENUINPUT_NEXTBUTTON,
 	DND_MENUINPUT_USEBUTTON,
 
-	// Jump held while clicking, on the pages that offer a pin. Deliberately NOT one of the two the
-	// click helpers below answer to: it reaches the server like any other input and every page
-	// handler ignores it, which is what stops a pin from also spending a perk point.
-	DND_MENUINPUT_PINCLICK
+	// Jump held while clicking. These carry the gesture, not its meaning -- a pin on the perk trees,
+	// a refund on the stat page -- so the page decides. Deliberately NOT one of the two the click
+	// helpers below answer to: they reach the server like any other input and a page that does not
+	// want them ignores them, which is what stops a pin from also spending a perk point.
+	DND_MENUINPUT_JUMPCLICK,
+	DND_MENUINPUT_JUMPRCLICK
+};
+
+// What holding jump does to a click on the current page. The right button is only taken for REFUND:
+// on the perk trees it is already the refund itself.
+enum {
+	DND_JUMPMOD_NONE,
+	DND_JUMPMOD_PIN,
+	DND_JUMPMOD_REFUND
 };
 
 #define DND_MENU_INPUTDELAYTICS 4
@@ -384,6 +394,14 @@ bool HasLeftClicked(int pnum) {
 
 bool HasRightClicked(int pnum) {
 	return MenuInputData[pnum][DND_MENUINPUT] == DND_MENUINPUT_RCLICK;
+}
+
+bool HasJumpClicked(int pnum) {
+	return MenuInputData[pnum][DND_MENUINPUT] == DND_MENUINPUT_JUMPCLICK;
+}
+
+bool HasJumpRightClicked(int pnum) {
+	return MenuInputData[pnum][DND_MENUINPUT] == DND_MENUINPUT_JUMPRCLICK;
 }
 
 bool HasPressedLeft(int pnum) {
@@ -944,16 +962,20 @@ int CountNewLinesInText(str text, int maxWidth) {
 
         // hard line break
         if(c == '\n') {
-            // commit pending word first
+            // Commit the pending word first, and count the SPACE in front of it exactly as the
+            // space branch below does. A word only ever ends up pending because a space started it,
+            // so dropping that width let a line up to spaceWidth over the limit count as fitting --
+            // one line short, every time, for the last word before a newline. On the item panel that
+            // is one implicit line per row, so the separator was drawn on top of the text it follows.
             if (wordWidth > 0) {
                 if (!currentWidth)
                     currentWidth = wordWidth;
-                else if (currentWidth + wordWidth > maxWidth) {
+                else if (currentWidth + spaceWidth + wordWidth > maxWidth) {
                     lineCount++;
                     currentWidth = wordWidth;
                 }
                 else
-                    currentWidth += wordWidth;
+                    currentWidth += spaceWidth + wordWidth;
 
                 wordWidth = 0;
             }

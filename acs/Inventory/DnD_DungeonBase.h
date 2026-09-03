@@ -52,10 +52,34 @@ enum {
 	DUN_ATTR_GHOST,
 	DUN_ATTR_INCREASEDRESISTS,
 	DUN_ATTR_EXTRASPEED,
+	DUN_ATTR_AILMENTAVOID,
+	DUN_ATTR_INFLICTAILMENT,
 
 	DUN_ATTR_MAX
 };
 #define FIRST_DUNGEON_ATTRIBUTE DUN_ATTR_EXTRAHP
+
+// Which ailment DUN_ATTR_INFLICTAILMENT names. This is rolled into attrib_val -- the only field a
+// dungeon downside has, since attrib_extra is always the paired upside -- so the value IS the
+// selector and carries no magnitude. That is also why the mod is a quality exception below: scaling
+// an index by dungeon quality would just point it somewhere else.
+//
+// Starts at 1, not 0. GetDungeonModRangeWithTier turns a computed 0 into 1 on the way out, so a
+// zero based list would lose its first entry to the entry above it.
+//
+// Ignite is deliberately absent: the design names these five.
+enum {
+	DUN_INFLICT_BLEED = 1,
+	DUN_INFLICT_POISON,
+	DUN_INFLICT_CHILL,
+	DUN_INFLICT_FREEZE,
+	DUN_INFLICT_OVERLOAD,
+
+	DUN_INFLICT_MAX
+};
+
+// The chance is flat rather than rolled, because attrib_val is spent naming the ailment.
+#define DND_DUNGEON_INFLICTAILMENT_CHANCE 20
 
 typedef struct {
 	inv_attrib_T DungeonModTable[DUN_ATTR_MAX];
@@ -177,6 +201,24 @@ void SetupDungeonModTable() {
 	DungeonModData.DungeonModTable[DUN_ATTR_EXTRASPEED].attrib_level_extra_modifier = -1;
 	DungeonModData.DungeonModTable[DUN_ATTR_EXTRASPEED].tags = INV_ATTR_TAG_UTILITY;
 	
+	DungeonModData.DungeonModTable[DUN_ATTR_AILMENTAVOID].attrib_low = 40;
+	DungeonModData.DungeonModTable[DUN_ATTR_AILMENTAVOID].attrib_high = 70;
+	DungeonModData.DungeonModTable[DUN_ATTR_AILMENTAVOID].attrib_extra_low = 15;
+	DungeonModData.DungeonModTable[DUN_ATTR_AILMENTAVOID].attrib_extra_high = 33;
+	DungeonModData.DungeonModTable[DUN_ATTR_AILMENTAVOID].attrib_level_modifier = -1;
+	DungeonModData.DungeonModTable[DUN_ATTR_AILMENTAVOID].attrib_level_extra_modifier = -1;
+	DungeonModData.DungeonModTable[DUN_ATTR_AILMENTAVOID].tags = INV_ATTR_TAG_DEFENSE;
+
+	// low..high spans the ailment list rather than a magnitude. Both level modifiers are -1 so the
+	// dungeon's level cannot shift the selector either.
+	DungeonModData.DungeonModTable[DUN_ATTR_INFLICTAILMENT].attrib_low = DUN_INFLICT_BLEED;
+	DungeonModData.DungeonModTable[DUN_ATTR_INFLICTAILMENT].attrib_high = DUN_INFLICT_MAX - 1;
+	DungeonModData.DungeonModTable[DUN_ATTR_INFLICTAILMENT].attrib_extra_low = 20;
+	DungeonModData.DungeonModTable[DUN_ATTR_INFLICTAILMENT].attrib_extra_high = 50;
+	DungeonModData.DungeonModTable[DUN_ATTR_INFLICTAILMENT].attrib_level_modifier = -1;
+	DungeonModData.DungeonModTable[DUN_ATTR_INFLICTAILMENT].attrib_level_extra_modifier = -1;
+	DungeonModData.DungeonModTable[DUN_ATTR_INFLICTAILMENT].tags = INV_ATTR_TAG_ATTACK;
+
 	/////////////
 	// upsides //
 	/////////////
@@ -232,6 +274,8 @@ bool IsDungeonAttributeQualityException(int attr) {
 		case DUN_ATTR_EXTRAFAST:
 		case DUN_ATTR_GHOST:
 		case DUN_ATTR_EXTRASPEED:
+		// not a magnitude at all -- scaling it would name a different ailment
+		case DUN_ATTR_INFLICTAILMENT:
 		return true;
 	}
 	return false;
@@ -537,6 +581,19 @@ str DungeonAttributeString(
 			else
 				text =  StrParam(s:no_tag, l:text, s:col_tag, d:val, s:"% ", s:no_tag, l:"DUNATTR_12X", s:"\n");
 		break;
+
+		case DUN_ATTR_AILMENTAVOID:
+			if(showDetailedMods) {
+				text = StrParam(s:no_tag, l:text, s:col_tag, d:val, s:GetDetailedDungeonModRange(attr, tier, 0, extra), s:"% ", s:no_tag, l:"DUNATTR_14X", s:"\n");
+			}
+			else
+				text =  StrParam(s:no_tag, l:text, s:col_tag, d:val, s:"% ", s:no_tag, l:"DUNATTR_14X", s:"\n");
+		break;
+
+		// val names the ailment here, so there is no range to detail and no value to print -- the
+		// chance is the same on every roll of this mod.
+		case DUN_ATTR_INFLICTAILMENT:
+			text = StrParam(s:no_tag, l:text, s:col_tag, d:DND_DUNGEON_INFLICTAILMENT_CHANCE, s:"% ", s:no_tag, l:"DUNATTR_15X", s:col_tag, l:GetDungeonInflictAilmentLabel(val), s:no_tag, s:"\n");
 	}
 
 	// use the assigned extra id as a separate thing to draw here, appended to text with a newline
@@ -622,6 +679,40 @@ int HasDungeonAttributeVal(int attr) {
 		if(DungeonInformation.attributes[i].attrib_id == attr)
 			return DungeonInformation.attributes[i].attrib_val;
 	return -1;
+}
+
+// Quality multiplies a rolled percentage, so a high AILMENTAVOID roll on a good key can pass 100 --
+// and a chance that reaches 100 stops being a chance. It would switch every ailment build off for the
+// map instead of taxing it, which no other dungeon downside does. Capped so something always lands.
+#define DND_DUNGEON_MAXAILMENTAVOID 90
+
+// The dungeon's own shrug, rolled per application. Deliberately separate from a monster's ailment
+// immunity trait: the player's ailment ignore chance answers that trait, not the map, so stacking
+// one stat cannot switch this modifier off.
+bool DungeonAvoidsAilment() {
+	int avoid = HasDungeonAttributeVal(DUN_ATTR_AILMENTAVOID);
+	return avoid != -1 && random(1, 100) <= avoid;
+}
+
+// True when the dungeon names this ailment and its roll lands. This is an additional route to the
+// ailment rather than a bonus on the existing one: it does not need the hit to carry the matching
+// damage type or the monster to carry the matching trait, which is the point of the modifier.
+// The player's own avoidance still answers it at every site.
+bool DungeonInflictsAilment(int ailment) {
+	return HasDungeonAttributeVal(DUN_ATTR_INFLICTAILMENT) == ailment &&
+		random(1, 100) <= DND_DUNGEON_INFLICTAILMENT_CHANCE;
+}
+
+// DND_MENU_AILMENT<n> numbering, which is not contiguous with DUN_INFLICT_* because it carries
+// ignite at 3 and this modifier does not roll it.
+str GetDungeonInflictAilmentLabel(int id) {
+	switch(id) {
+		case DUN_INFLICT_CHILL:		return "DND_MENU_AILMENT1";
+		case DUN_INFLICT_FREEZE:	return "DND_MENU_AILMENT2";
+		case DUN_INFLICT_OVERLOAD:	return "DND_MENU_AILMENT4";
+		case DUN_INFLICT_POISON:	return "DND_MENU_AILMENT5";
+	}
+	return "DND_MENU_AILMENT6";
 }
 
 // returns the value of extra when given the id that would be encoded here

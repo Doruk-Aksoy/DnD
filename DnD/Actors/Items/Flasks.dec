@@ -19,6 +19,20 @@ Actor Flask2_Type : Ammo {
     +IGNORESKILL
 }
 
+Actor Flask3_Type : Ammo {
+    inventory.amount 1
+	inventory.maxamount 100
+    ammo.backpackamount 0
+    +IGNORESKILL
+}
+
+Actor Flask4_Type : Ammo {
+    inventory.amount 1
+	inventory.maxamount 100
+    ammo.backpackamount 0
+    +IGNORESKILL
+}
+
 Actor Flask1_CurrentCharges : Ammo {
     inventory.maxamount 100
     inventory.amount 1
@@ -27,6 +41,20 @@ Actor Flask1_CurrentCharges : Ammo {
 }
 
 Actor Flask2_CurrentCharges : Ammo {
+    inventory.maxamount 100
+    inventory.amount 1
+    ammo.backpackamount 0
+    +IGNORESKILL
+}
+
+Actor Flask3_CurrentCharges : Ammo {
+    inventory.maxamount 100
+    inventory.amount 1
+    ammo.backpackamount 0
+    +IGNORESKILL
+}
+
+Actor Flask4_CurrentCharges : Ammo {
     inventory.maxamount 100
     inventory.amount 1
     ammo.backpackamount 0
@@ -47,12 +75,36 @@ Actor Flask2_TicCounter : Ammo {
     +IGNORESKILL
 }
 
+Actor Flask3_TicCounter : Ammo {
+    inventory.maxamount 100
+    inventory.amount 1
+    ammo.backpackamount 0
+    +IGNORESKILL
+}
+
+Actor Flask4_TicCounter : Ammo {
+    inventory.maxamount 100
+    inventory.amount 1
+    ammo.backpackamount 0
+    +IGNORESKILL
+}
+
 Actor Flask1_CritCooldown : PowerProtection {
     damagefactor "normal", 1.0
     powerup.duration 7 // 0.2 sec cd
 }
 
 Actor Flask2_CritCooldown : PowerProtection {
+    damagefactor "normal", 1.0
+    powerup.duration 7 // 0.2 sec cd
+}
+
+Actor Flask3_CritCooldown : PowerProtection {
+    damagefactor "normal", 1.0
+    powerup.duration 7 // 0.2 sec cd
+}
+
+Actor Flask4_CritCooldown : PowerProtection {
     damagefactor "normal", 1.0
     powerup.duration 7 // 0.2 sec cd
 }

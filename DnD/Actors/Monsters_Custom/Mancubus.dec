@@ -90,6 +90,9 @@ Actor Corpulent : DnD_BaseRangedMonster 21148 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -254,6 +257,9 @@ Actor Daedabus : DnD_BaseRangedMonster 21149 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -394,6 +400,9 @@ actor IceFatso : DnD_BaseRangedMonster 21150 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -569,6 +578,9 @@ Actor Mafibus : DnD_BaseRangedMonster 21151 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -769,6 +781,9 @@ ACTOR Paladin : DnD_BaseHybridMonster 21152 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -1071,6 +1086,9 @@ actor Gamon : DnD_BaseHybridMonster 21153 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -1266,6 +1284,9 @@ Actor Mephisto : DnD_BaseRangedMonster 21154 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -1455,6 +1476,9 @@ Actor Abomination : DnD_BaseRangedMonster 21155 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -1681,6 +1705,9 @@ Actor GoldGolem : DnD_BaseHybridMonster 21156 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -1870,6 +1897,9 @@ ACTOR Redeemer : DnD_BaseHybridMonster 21157 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -2117,6 +2147,9 @@ Actor Yeti : DnD_BaseHybridMonster 21158 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald

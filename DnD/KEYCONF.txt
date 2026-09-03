@@ -54,10 +54,15 @@ AddKeySection "DnD Keys" DNDKEYS
 	AddMenuKey "DnD Taunt" dnd_taunt
 	Alias dnd_taunt "pukename \"DnD Taunt\" always"
 
+AddKeySection "DnD Items" DNDKEYS4
 	AddMenuKey "DnD Use Flask #1" dnd_flask1
 	Alias dnd_flask1 "pukename \"DnD Flask Use\" always 0"
 	AddMenuKey "DnD Use Flask #2" dnd_flask2
 	Alias dnd_flask2 "pukename \"DnD Flask Use\" always 1"
+	AddMenuKey "DnD Use Flask #3" dnd_flask3
+	Alias dnd_flask3 "pukename \"DnD Flask Use\" always 2"
+	AddMenuKey "DnD Use Flask #4" dnd_flask4
+	Alias dnd_flask4 "pukename \"DnD Flask Use\" always 3"
 	
 AddKeySection "DnD Hard/Softcore Keys" DNDKEYS2
 	AddMenuKey "Skip character loading" sl

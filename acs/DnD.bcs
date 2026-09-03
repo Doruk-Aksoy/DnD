@@ -1003,6 +1003,11 @@ Script "DND On Kill" KILL {
 	if(flow && CheckActorInventory(this, "DnD_PoisonStacks"))
 		HandlePoisonKillRegen(target - P_TIDSTART, target, flow);
 
+	// Crown of Suffering. ANY kill empties the pool, not just a poisoned one -- the drawback is that
+	// finishing anything costs you the ramp, which is what makes kill order the whole decision.
+	if(HasPlayerFlag(target - P_TIDSTART, PFLAG_POISON_CLEARONKILL))
+		ClearPoisonPool(target - P_TIDSTART);
+
 	int is_demon = IsDemon();
 
 	// Demon Bane check
@@ -1724,8 +1729,9 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite, int
 	//Make sure mob gets to right amount of hp at this point
 	int maxhp, base, add, pcount = InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART], realhp = MonsterData[monsterid].health;
 
-	// reset attachment array to 0
-	ACS_NamedExecuteWithResult("DnD Init Monster Attachments", m_id);
+	// No attachment reset here any more -- see "DnD Clear All Attachments". The reset is
+	// clientside state and this script is not, so dispatching it from here raced the attachment
+	// spawns and could land after them, wiping live entries.
 
 	if(!pcount)
 		pcount = 1;

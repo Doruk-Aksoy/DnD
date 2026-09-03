@@ -50,8 +50,6 @@ dnd_no_reflect 0
 dnd_shop_scale 2
 dnd_shop_wep_scale 1
 dnd_shop_ammo_scale 1
-dnd_shop_artifact_scale 1
-dnd_shop_ability_scale 2
 dnd_shop_talent_scale 1
 dnd_shop_armor_scale 1
 dnd_shop_account_scale 1

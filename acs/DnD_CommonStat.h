@@ -20,6 +20,12 @@
 #define DND_SPREE_PER 10
 
 #define DND_BASE_OVERLOADTICK 5
+
+// Crown of Suffering. The hard ceiling on what a renewing poison stack may keep. The amount
+// itself is rolled on the item; this exists only so the roll can never reach 100, because at
+// 100 the stack renews at full strength forever and a boss poisoned once can be left to die
+// unattended. Integer truncation below 100 is what guarantees it reaches zero and retires.
+#define DND_POISON_NODECAY_MAXKEEP 99
 #define DND_BASE_OVERLOADTIME (175 / DND_BASE_OVERLOADTICK) // 5 seconds -- 175 / 5
 #define DND_BASE_OVERLOADTIME_NOADJ 175
 #define DND_BASE_PLAYEROVERLOADCHANCE 20 // 20%

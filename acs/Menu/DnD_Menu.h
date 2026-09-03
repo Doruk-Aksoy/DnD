@@ -623,7 +623,8 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				
 				if(boxid != MAINBOX_NONE && boxid <= MBOX_3) {
 					SetHudClipRect(184, 208, 256, 64, 256);
-					HudMessage(s:"\cd*\c- ", l:GetAttributeLabel(boxid - 1), s:"\n", l:GetAttributeText(boxid - 1); HUDMSG_PLAIN, RPGMENUITEMID - 14, CR_WHITE, 184.1, 232.1, 0.0, 0.0);
+					HudMessage(s:"\cd*\c- ", l:GetAttributeLabel(boxid - 1), s:"\n", l:GetAttributeText(boxid - 1),
+						s:"\n\cu", l:"DND_MENU_STAT_REFUND1", s:" \ci", k:"+jump", s:"\cu ", l:"DND_MENU_STAT_REFUND2", s:"$", d:GetAttributeRefundCost(pnum); HUDMSG_PLAIN, RPGMENUITEMID - 14, CR_WHITE, 184.1, 232.1 + 8.0 * ScrollPos.x, 0.0, 0.0);
 					SetHudClipRect(0, 0, 0, 0, 0);
 				}
 				
@@ -713,10 +714,13 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			else if(curopt == MENU_LOAD1) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ITEMS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
 				j = 0;
-				for(i = SHOP_FIRSTARTI1_INDEX; i <= SHOP_LASTDRAWNARTI_INDEX; ++i) {
-					k = CheckInventory(GetItemName(i));
+				// Walks ArtifactInfo rather than the shop id range: the shop no longer sells these and the
+				// SHOP_ARTI_* ids are gone, but a player can still be HOLDING one, and this page is what
+				// shows them. The artifact table is the surviving source of truth for what exists.
+				for(i = 0; i < MAXARTIFACTS; ++i) {
+					k = CheckInventory(ArtifactInfo[i][ARTI_NAME]);
 					if(k) {
-						HudMessage(s:"\c[Y5]", l:GetArtifactTag(i - SHOP_FIRSTARTI1_INDEX), s:": \cj", d:k; HUDMSG_PLAIN, RPGMENUITEMID - 1 - i + SHOP_FIRSTARTI1_INDEX, CR_WHITE, 184.1, 64.0 + j, 0.0, 0.0);
+						HudMessage(s:"\c[Y5]", l:GetArtifactTag(i), s:": \cj", d:k; HUDMSG_PLAIN, RPGMENUITEMID - 1 - i, CR_WHITE, 184.1, 64.0 + j, 0.0, 0.0);
 						j += 16.0;
 					}
 				}
@@ -748,9 +752,16 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				DrawArmorBox(boxid, POWERCORE_INDEX + 1, 338.4, 152.0, DND_ITEM_SPECIALTY_DOOMGUY + GetPlayerClass());
 				DrawArmorBox(boxid, BOOT_INDEX + 1, 394.4, 216.0, DND_ITEM_BOOT);
 
-				// flasks
-				DrawFlaskBox(boxid, FLASK1_INDEX + 1, 336.0, 208.0, 0);
-				DrawFlaskBox(boxid, FLASK2_INDEX + 1, 336.0, 256.0, 1);
+				// flasks -- 2x2, and only the slots this player has unlocked get drawn. The hit boxes for
+				// the locked ones stay in the table; the equip check is what actually refuses them, so this
+				// only avoids drawing a box nothing can go into.
+				temp = GetPlayerFlaskSlots(pnum);
+				DrawFlaskBox(boxid, FLASK1_INDEX + 1, DND_FLASKBOX_COL1, DND_FLASKBOX_ROW1, 0);
+				DrawFlaskBox(boxid, FLASK2_INDEX + 1, DND_FLASKBOX_COL2, DND_FLASKBOX_ROW1, 1);
+				if(temp > 2)
+					DrawFlaskBox(boxid, FLASK3_INDEX + 1, DND_FLASKBOX_COL1, DND_FLASKBOX_ROW2, 2);
+				if(temp > 3)
+					DrawFlaskBox(boxid, FLASK4_INDEX + 1, DND_FLASKBOX_COL2, DND_FLASKBOX_ROW2, 3);
 
 				DrawInventoryExploreIcon(boxid, INV_ICON_INDEX + 1, 432.4, 264.0);
 
@@ -1543,6 +1554,24 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, pnum);
 					}
+				}
+				else if((HasJumpClicked(pnum) || HasJumpRightClicked(pnum)) && boxid != MAINBOX_NONE && boxid <= MBOX_3) {
+					// Both buttons already spend, so holding jump flips them into the refund: one
+					// point on left, as many as the credits cover on right.
+					stat_id = boxid - 1 + DND_ATTRIB_BEGIN;
+					stat_pt = GetStatPoints(stat_id);
+					temp = HasJumpClicked(pnum) ? 1 : stat_pt;
+
+					if(RefundAttributePoints(pnum, stat_id, temp)) {
+						LocalAmbientSound("RPG/MenuChoose", 127);
+						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, pnum);
+					}
+					else if(stat_pt)
+						ShowActorPopup(pnum, POPUP_NOFUNDS, false, 0);
+					else
+						// Refunding a stat nothing was ever spent on is not worth a popup, but it
+						// still has to answer.
+						LocalAmbientSound("RPG/MenuError", 127);
 				}
 				else if(HasPressedLeft(pnum))
 					ReturnToMain();

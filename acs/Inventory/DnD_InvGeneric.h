@@ -172,13 +172,32 @@ void SpawnBootWithMods_ForAll(int m1, int m2 = -1, int m3 = -1, int max_level = 
 
 void SpawnHelm(int pnum, int rarity_boost, int pre_id = -1, bool noRandomVelXY = false, int extra = -1) {
     int c = CreateItemSpot();
+	int id = 0;
 	if(c != -1) {
 		int ilvl = RollItemLevel();
         int type = ConstructHelmDataOnField(c, ilvl, pre_id);
-		
-		RollArmorInfo(c, ilvl, pnum, DND_ITEM_HELM, type, MAX_HELM_ATTRIB_DEFAULT);
-        // depending on armor type rolled, spawn its appropriate actor
-        SpawnDrop(GetHelmDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+
+#ifndef ISDEBUGBUILD
+		if(RunDefaultDropChance(pnum, UNIQUE_ARMOR_DROPCHANCE * (100 + rarity_boost) / 100))
+#else
+		if(random(0,1))
+#endif
+		{
+			id = PickUniqueItem(DND_ITEM_HELM);
+			if(UniqueItemList[id].item_level <= ilvl) {
+				ConstructUniqueOnField(c, id, pnum);
+				SpawnDrop(StrParam(s:"UniqueHelm_", d:id - UNIQUE_HELM_BEGIN), 16.0, 16, pnum + 1, c, noRandomVelXY);
+			}
+			else {
+				RollArmorInfo(c, ilvl, pnum, DND_ITEM_HELM, type, MAX_HELM_ATTRIB_DEFAULT);
+				SpawnDrop(GetHelmDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+			}
+		}
+		else {
+			RollArmorInfo(c, ilvl, pnum, DND_ITEM_HELM, type, MAX_HELM_ATTRIB_DEFAULT);
+			// depending on armor type rolled, spawn its appropriate actor
+			SpawnDrop(GetHelmDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+		}
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_HELM);
@@ -187,13 +206,35 @@ void SpawnHelm(int pnum, int rarity_boost, int pre_id = -1, bool noRandomVelXY =
 
 void SpawnHelmDrop(int pnum, int rarity_boost, int max_level = MAX_REGULAR_ILVL, bool noRandomVelXY = false, int extra = -1) {
     int c = CreateItemSpot();
+	int id = 0;
 	if(c != -1) {
 		int ilvl = RollItemLevel(max_level);
+		if(ilvl > GetCVar("dnd_maxmonsterlevel"))
+			ilvl = GetCVar("dnd_maxmonsterlevel");
+
         int type = ConstructHelmDataOnField(c, ilvl, -1);
-		
-		RollArmorInfo(c, ilvl, pnum, DND_ITEM_HELM, type, MAX_HELM_ATTRIB_DEFAULT);
-        // depending on armor type rolled, spawn its appropriate actor
-        SpawnDrop(GetHelmDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+
+#ifndef ISDEBUGBUILD
+		if(RunDefaultDropChance(pnum, UNIQUE_ARMOR_DROPCHANCE * (100 + rarity_boost) / 100))
+#else
+		if(random(0,1))
+#endif
+		{
+			id = PickUniqueItem(DND_ITEM_HELM);
+			if(UniqueItemList[id].item_level <= ilvl) {
+				ConstructUniqueOnField(c, id, pnum);
+				SpawnDrop(StrParam(s:"UniqueHelm_", d:id - UNIQUE_HELM_BEGIN), 16.0, 16, pnum + 1, c, noRandomVelXY);
+			}
+			else {
+				RollArmorInfo(c, ilvl, pnum, DND_ITEM_HELM, type, MAX_HELM_ATTRIB_DEFAULT);
+				SpawnDrop(GetHelmDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+			}
+		}
+		else {
+			RollArmorInfo(c, ilvl, pnum, DND_ITEM_HELM, type, MAX_HELM_ATTRIB_DEFAULT);
+			// depending on armor type rolled, spawn its appropriate actor
+			SpawnDrop(GetHelmDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+		}
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_HELM);

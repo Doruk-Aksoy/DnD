@@ -371,8 +371,10 @@ void Do_Hitscan_Attack(int owner, int pnum, int proj_id, int wepid, int count, i
 	if(makeGhostHitter)
 		proj_name = StrParam(s:proj_name, s:"_GhostHitter");
 		
-	int acc = GetActorProperty(owner, APROP_ACCURACY);
-	acc = Clamp_Between(1.0 - GetPlayerAccuracyFactor(pnum) * acc, 0.0, 10.0);
+	spread_x = GetPlayerBaseSpread(pnum, spread_x);
+	spread_y = GetPlayerBaseSpread(pnum, spread_y);
+
+	int acc = GetPlayerSpreadFactor(pnum, GetActorProperty(owner, APROP_ACCURACY));
 	
 	int sp_x = ANG_TO_DOOM(FixedMul(spread_x, acc));
 	int sp_y = ANG_TO_DOOM(FixedMul(spread_y, acc));
@@ -407,8 +409,10 @@ void Do_Hitscan_Attack_Named(int owner, int pnum, str proj_name, int wepid, int 
 	if(makeGhostHitter)
 		proj_name = StrParam(s:proj_name, s:"_GhostHitter");
 		
-	int acc = GetActorProperty(owner, APROP_ACCURACY);
-	acc = Clamp_Between(1.0 - GetPlayerAccuracyFactor(pnum) * acc, 0.0, 10.0);
+	spread_x = GetPlayerBaseSpread(pnum, spread_x);
+	spread_y = GetPlayerBaseSpread(pnum, spread_y);
+
+	int acc = GetPlayerSpreadFactor(pnum, GetActorProperty(owner, APROP_ACCURACY));
 	
 	int sp_x = ANG_TO_DOOM(FixedMul(spread_x, acc));
 	int sp_y = ANG_TO_DOOM(FixedMul(spread_y, acc));
@@ -499,8 +503,10 @@ int Do_Projectile_Attack
 	// we dont use it beyond here
 	bcs::free(vTemp);
 	
-	int acc = GetActorProperty(owner, APROP_ACCURACY);
-	acc = Clamp_Between(1.0 - GetPlayerAccuracyFactor(pnum) * acc, 0.0, 10.0);
+	spread_x = GetPlayerBaseSpread(pnum, spread_x);
+	spread_y = GetPlayerBaseSpread(pnum, spread_y);
+
+	int acc = GetPlayerSpreadFactor(pnum, GetActorProperty(owner, APROP_ACCURACY));
 	
 	int sp_x = ANG_TO_DOOM(FixedMul(spread_x, acc));
 	int sp_y = ANG_TO_DOOM(FixedMul(spread_y, acc));
@@ -594,8 +600,10 @@ int Do_Projectile_Attack_Named
 	// we dont use it beyond here
 	bcs::free(vTemp);
 	
-	int acc = GetActorProperty(owner, APROP_ACCURACY);
-	acc = Clamp_Between(1.0 - GetPlayerAccuracyFactor(pnum) * acc, 0.0, 10.0);
+	spread_x = GetPlayerBaseSpread(pnum, spread_x);
+	spread_y = GetPlayerBaseSpread(pnum, spread_y);
+
+	int acc = GetPlayerSpreadFactor(pnum, GetActorProperty(owner, APROP_ACCURACY));
 	
 	int sp_x = ANG_TO_DOOM(FixedMul(spread_x, acc));
 	int sp_y = ANG_TO_DOOM(FixedMul(spread_y, acc));

@@ -47,3 +47,5 @@ DUNATTR_10                  =       "Monster projectiles are ";      DUNATTR_10X
 DUNATTR_11                  =       "Monsters are ghosts";
 DUNATTR_12                  =       "Monsters have ";        DUNATTR_12X = "to resistances";
 DUNATTR_13                  =       "Monsters have \cgextra speed\c-";
+DUNATTR_14                  =       "Monsters have ";       DUNATTR_14X = "chance to avoid ailments";
+DUNATTR_15                  =       "Monsters have ";       DUNATTR_15X = "chance to inflict ";

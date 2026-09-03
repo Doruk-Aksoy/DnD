@@ -2867,6 +2867,43 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags, int str_
 	return dmg;
 }
 
+// Choir of Ashes bookkeeping: has this monster ever been lit by a wearer. A bit per monster id
+// rather than a token on the monster, because inventory items on monsters consume NetIDs and those
+// are a limited pool -- this needs one mark per enemy on the map.
+//
+// Owned by an accessor rather than declared at module scope, which is the idiom this codebase uses
+// for a table one pair of functions owns. A static in a module function IS a map array, so it is
+// re-zeroed on every map load and needs no clearing of its own -- all zero is exactly the right
+// empty state here.
+//
+// Deliberately NOT per player: that would be 64 rows to serve the handful of players who own the
+// helm. Wearers share one set, which reads correctly as the ash being spent no matter who spent it,
+// and non wearers are untouched either way -- only a wearer ever reads or writes it.
+#define DND_IGNITEDBEFORE_WORDS ((DND_MAX_MONSTERS + 31) / 32)
+
+int[] module& GetIgnitedBeforeBits() {
+	static int ignited_before[DND_IGNITEDBEFORE_WORDS];
+	return ignited_before;
+}
+
+bool WasIgnitedBefore(int m_id) {
+	if(m_id < 0 || m_id >= DND_MAX_MONSTERS)
+		return false;
+
+	int[] module& bits = GetIgnitedBeforeBits();
+	return !!(bits[m_id >> 5] & (1 << (m_id & 31)));
+}
+
+void MarkIgnitedBefore(int m_id) {
+	if(m_id < 0 || m_id >= DND_MAX_MONSTERS)
+		return;
+
+	// Spelled out rather than auto: auto binds a COPY of a module& return, so the write would land
+	// on a temporary and vanish.
+	int[] module& bits = GetIgnitedBeforeBits();
+	bits[m_id >> 5] |= 1 << (m_id & 31);
+}
+
 // What one tick is worth, priced with the applier's stats and weapon. Pulled out of
 // "DnD Monster Ignite" so an application landing on an ALREADY burning monster can price itself.
 int GetIgniteTickDamage(int pnum, int victim, int wepid, int added_dmg) {
@@ -2877,6 +2914,14 @@ void HandleIgniteEffects(int pnum, int victim, int wepid, int flags, int dmg_wit
 	// addedIgn adds damage to ignite from weapons' base and gives extra ignite chance, scaleIgn is just damage
 	bool addedIgn = !!(flags & DND_DAMAGETICFLAG_ADDEDIGNITE);
 	bool scaleIgn = addedIgn || (flags & DND_DAMAGETICFLAG_SCALEIGNITE);
+
+	// Choir of Ashes. Answered before the roll rather than inside the branch below, because "once,
+	// ever" has to refuse the refresh path too -- extending or improving a burn is still lighting it
+	// a second time. The stamp is only written by a player carrying the mod, so it costs other
+	// players nothing and cannot make their monsters unlightable.
+	bool once_only = HasPlayerFlag(pnum, PFLAG_IGNITE_NOREFRESH);
+	if(once_only && WasIgnitedBefore(victim - DND_MONSTERTID_BEGIN))
+		return;
 	if
 	(
 		CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_MOLTENBLOOD) &&
@@ -2886,6 +2931,9 @@ void HandleIgniteEffects(int pnum, int victim, int wepid, int flags, int dmg_wit
 		int amt = GetIgniteDuration(pnum);
 		int current_ign_time = CheckActorInventory(victim, "DnD_IgniteTimer");
 		int ign_flags = DND_IGNITEFLAG_CANPROLIF;
+
+		if(once_only)
+			MarkIgnitedBefore(victim - DND_MONSTERTID_BEGIN);
 
 		// Tormentor / Cremator. Stamped on the victim at APPLICATION because the death itself has
 		// no idea who lit it -- DECORATE asks the corpse, through "DnD Check Cremator".
@@ -3217,7 +3265,10 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 		if(can_ail && ((tic_flags & DND_DAMAGETICFLAG_FIRE) || (tic_flags & DND_DAMAGETICFLAG_ADDEDIGNITE))) // should be able to ign if it has addedignite flag even if damagetype isnt fire!
 			HandleIgniteEffects(pnum, victim_tid, wepid, tic_flags, GetPlayerIgniteAddedDmg(pnum, wepid, GetIgniteScaleSource(pnum, victim_data, tic_flags)));
 
-		if(can_ail && ((tic_flags & DND_DAMAGETICFLAG_LIGHTNING) || (PlayerModData[pnum].vals[PSTAT_INC_ALLOVERLOAD] && (tic_flags & (DND_DAMAGETICFLAG_ICE | DND_DAMAGETICFLAG_FIRE | DND_DAMAGETICFLAG_POISON)))))
+		// The Halo widens this further than the incursion mod does. That one opens ice, fire and
+		// poison and pays for it with reduced effect and no chaining; this one opens EVERY type and
+		// pays elsewhere, so it deliberately does not go through PSTAT_INC_ALLOVERLOAD.
+		if(can_ail && ((tic_flags & DND_DAMAGETICFLAG_LIGHTNING) || HasPlayerFlag(pnum, PFLAG_OVERLOAD_ANYELEMENT) || (PlayerModData[pnum].vals[PSTAT_INC_ALLOVERLOAD] && (tic_flags & (DND_DAMAGETICFLAG_ICE | DND_DAMAGETICFLAG_FIRE | DND_DAMAGETICFLAG_POISON)))))
 			HandleOverloadEffects(pnum, victim_tid);
 
 		if(can_ail && (tic_flags & DND_DAMAGETICFLAG_PHYSICAL) && !(tic_flags & DND_DAMAGETICFLAG_DOT))
@@ -3243,12 +3294,14 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 
 			oy = !CheckActorInventory(victim_tid, "DnD_PoisonStacks");
 
-			if(CheckActorInventory(victim_tid, "DnD_PoisonStacks") < GetPlayerPoisonStacks(pnum)) {
-				GiveActorInventory(victim_tid, "DnD_PoisonStacks", 1);
-				HandleMaxPoisonStackPerk(pnum, victim_tid);
-			}
+			int pstack_extra = GainPoisonStacks(pnum, victim_tid);
 
 			ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim_tid, ox, wepid, oy);
+
+			// Every stack the shared pool granted on top of the usual one owes its own cache entry,
+			// or the lift would raise the counter and deal nothing. Never entered without the helm.
+			while(pstack_extra-- > 0)
+				ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim_tid, ox, wepid, 0);
 			//printbold(s:"poison received by ", d:victim);
 		}
 		
@@ -3393,6 +3446,14 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid, int firstEntry) {
 	int tic_temp = trigger_tic;
 	int counter = 0;
 	int stacks = CheckActorInventory(victim, "DnD_PoisonStacks");
+
+	// time_limit is reused as a scratch counter once the loop starts, so the duration a re-armed
+	// stack goes back to has to be kept under its own name.
+	int poison_full_time = time_limit;
+	// How much of its damage a renewing stack keeps, rolled on the item. Zero for anyone without
+	// it, which is what switches the renewal off entirely. Clamped rather than trusted: the roll
+	// only happens to top out below 100 today, and 100 is a poison that never ends.
+	int poison_keep = Min(PlayerModData[pnum].vals[PSTAT_EX_POISON_NODECAY_KEEP], DND_POISON_NODECAY_MAXKEEP);
 	int temp, i;
 	int mid = victim - DND_MONSTERTID_BEGIN;
 
@@ -3468,11 +3529,31 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid, int firstEntry) {
 					// tic the dot, if its the final tic of it we need to mark it as removed
 					dot_cache[mid][i].tics -= tic_temp;
 					if(dot_cache[mid][i].tics <= 0) {
-						// removed
-						dot_cache[mid][i].dmg = 0;
-						dot_cache[mid][i].tics = 0;
-						TakeActorInventory(victim, "DnD_PoisonStacks", 1);
-						//printbold(s:"time ran out, stacks: ", d:CheckActorInventory(victim, "DnD_PoisonStacks"));
+						// Crown of Suffering. The stack renews itself instead of retiring -- but each
+						// renewal keeps only DND_POISON_NODECAY_FALLOFF percent of its damage, so the
+						// poison FADES rather than running forever.
+						//
+						// The falloff is not a balance dial, it is what makes the mod safe: renewing
+						// at full strength means a boss poisoned once keeps taking damage until it
+						// dies, so the fight can be won by walking away. Integer truncation drives
+						// the damage to zero in a bounded number of renewals, and zero drops through
+						// to the retire path below, so the stack still ends and the loop still exits.
+						//
+						// Re-application is unaffected: a fresh hit seeds a new entry at full damage,
+						// so the fade only shows once you STOP attacking. That is the ramp the mod is
+						// for -- stacks you built stay up between hits instead of guttering.
+						if(poison_keep > 0)
+							dot_cache[mid][i].dmg = dot_cache[mid][i].dmg * poison_keep / 100;
+
+						if(poison_keep > 0 && dot_cache[mid][i].dmg > 0)
+							dot_cache[mid][i].tics = poison_full_time;
+						else {
+							// removed
+							dot_cache[mid][i].dmg = 0;
+							dot_cache[mid][i].tics = 0;
+							TakeActorInventory(victim, "DnD_PoisonStacks", 1);
+							//printbold(s:"time ran out, stacks: ", d:CheckActorInventory(victim, "DnD_PoisonStacks"));
+						}
 					}
 
 					//printbold(s:"finish loop? ", d:time_limit, s:" vs ", d:stacks);
@@ -3616,12 +3697,13 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid, int firstEntry) {
 					//printbold(s:"prolif to ", d:tlist[pnum][i].tid);
 					counter = !CheckActorInventory(dot_cache[pnum][i].dmg, "DnD_PoisonStacks");
 
-					if(CheckActorInventory(dot_cache[pnum][i].dmg, "DnD_PoisonStacks") < GetPlayerPoisonStacks(source - P_TIDSTART)) {
-						GiveActorInventory(dot_cache[pnum][i].dmg, "DnD_PoisonStacks", 1);
-						HandleMaxPoisonStackPerk(source - P_TIDSTART, dot_cache[pnum][i].dmg);
-					}
+					int pstack_extra = GainPoisonStacks(source - P_TIDSTART, dot_cache[pnum][i].dmg);
 
 					ACS_NamedExecuteWithResult("DnD Do Poison Damage", dot_cache[pnum][i].dmg, dmg, wepid, counter);
+
+					// same debt as the hit path -- a lifted counter with no entry behind it is inert
+					while(pstack_extra-- > 0)
+						ACS_NamedExecuteWithResult("DnD Do Poison Damage", dot_cache[pnum][i].dmg, dmg, wepid, 0);
 
 					// abort if we reached our count
 					++j;
@@ -3715,12 +3797,6 @@ Script "DnD Monster Slow Ticker" (int victim) {
 // non-zero and nothing in DECORATE decrements it, so the countdown has to live here. Clearing it on
 // death matters: the state machine is gone by then and a stale counter would stun the next monster
 // to reuse the tid.
-// Tormentor / Cremator. Activator is the MONSTER -- call it from Death.FireDOT and jump on a
-// non zero result. The answer is stamped on the monster when the burn is applied, so this stays
-// correct even though the killing tic has no attacker to ask.
-// Tormentor / Septic Touch. Same dispatch as DnD Wanderer Explosions: spawn on a reserved per
-// player tid, hand the actor its damage through user_dmg, point it at the player so the kill is
-// credited, then release the tid. The actor owns the radius and the FX.
 void SpawnSepticCloud(int pnum, int victim, int tic_dmg) {
 	int share = PlayerModData[pnum].vals[PSTAT_SEPTIC_POISONSHARE];
 	if(!share)
@@ -4001,11 +4077,9 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int tick_dmg)
 
 			i = HandleDamageDeal(source, victim, next_dmg, DND_DAMAGETYPE_FIRE, wepid, DND_DAMAGEFLAG_NOIGNITESTACK | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_ISDAMAGEOVERTIME | DND_ACTORFLAG_PAINLESS);
 
-			// Special_NoPain, not SkipHandle. The handler treats both identically; the only difference is
-			// the pain table, and only Special_NoPain has an entry (MonsterBase.dec). SkipHandle fell
-			// through to the monster's default pain chance, so every tick rolled to stagger it.
+			// IgniteNoPain is Special_NoPain for ignite
 			if(i > 0)
-				Thing_Damage2(victim, i, "Special_NoPain");
+				Thing_Damage2(victim, i, "IgniteNoPain");
 
 			// This ailment cannot hurt this monster -- drop it instead of holding its slot. See
 			// IsAilmentTicWasted. DND_AILMENT_DEADTICS is 2 so the earliest break is the second
@@ -4048,7 +4122,7 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int tick_dmg)
 		// Cremator leaves with the burn it came from, but ONLY when the monster survived it --
 		// otherwise the next player to set it alight without the perk would inherit the stamp.
 		//
-		// Deliberately not cleared on death: that stamp is exactly what Death.FireDOT is about to
+		// Deliberately not cleared on death: that stamp is exactly what Death.IgniteNoPain is about to
 		// read, and this teardown runs a full ignite tic after the killing blow. Clearing it here
 		// would race the state, and a longer cremate state would lose the race more often. The
 		// corpse takes the token with it.
@@ -4066,7 +4140,29 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int tick_dmg)
 		int prolif_count = GetIgniteProlifCount(pnum);
 		
 		// clear ignite prolif from subsequent ignites from this monster jumping, we don't want that, too laggy
-		ign_flags &= ~DND_IGNITEFLAG_CANPROLIF;
+		//
+		// Choir of Ashes is exactly this clear not happening. It is only safe from looping because the
+		// helm also carries the one-light-ever rule: without it a hop would walk back into a monster
+		// whose script had ended and bounce forever.
+		if(!HasPlayerFlag(pnum, PFLAG_IGNITE_CHAINS))
+			ign_flags &= ~DND_IGNITEFLAG_CANPROLIF;
+
+		// Choir of Ashes. Applied once, here, so the decay compounds per hop rather than per target:
+		// an unlimited chain carrying full strength would be a free map wipe, and this is what prices
+		// it. Everything below spreads base_dmg, so scaling it here reaches every target of this hop.
+		// A RETENTION factor and never an amplifier, so it is clamped rather than trusted: the slot is
+		// a summed pool and the roll only happens to top out at 100 today. If anything ever fed it
+		// past that the failure mode is exponential, not linear -- an unlimited chain multiplying the
+		// burn UP at every hop, which is the one shape this mechanic must never take.
+		int spread_retain = PlayerModData[pnum].vals[PSTAT_EX_IGNITE_SPREADRETAIN];
+		if(spread_retain > 0)
+			base_dmg = base_dmg * Min(spread_retain, 100) / 100;
+
+		// Read once for the sweep below. A hop is an application like any other, so it owes the same
+		// rule -- and with chaining on, this is the only thing stopping a burn from walking back into
+		// a monster whose script has ended and bouncing between the two forever.
+		bool once_only = HasPlayerFlag(pnum, PFLAG_IGNITE_NOREFRESH);
+
 		next_dmg = 0; // used as temp variable
 		inc_by = 0; // same as above
 		dmg_tic_buff = 0; // same as above...
@@ -4089,7 +4185,8 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int tick_dmg)
 				// blood monster that is supposed to be unignitable: it plays the fire FX and takes
 				// nothing, and the nonzero timer it now carries makes every legitimate fire hit for
 				// the rest of that duration take the "already burning" branch instead of igniting it.
-				if(next_dmg < prolif_dist && CheckSight(victim, i, CSF_NOBLOCKALL) && CheckAilmentImmunity(pnum, i - DND_MONSTERTID_BEGIN, DND_MOLTENBLOOD)) {
+				if(next_dmg < prolif_dist && CheckSight(victim, i, CSF_NOBLOCKALL) && CheckAilmentImmunity(pnum, i - DND_MONSTERTID_BEGIN, DND_MOLTENBLOOD) &&
+					!(once_only && WasIgnitedBefore(i - DND_MONSTERTID_BEGIN))) {
 					// insert sorted
 					inc_by = dmg_tic_buff;
 					// while our calc dist > alloc dist, keep going -- we add things to the end
@@ -4155,6 +4252,9 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int tick_dmg)
 
 						// claim before launching -- see the same call in HandleIgniteEffects
 						GiveActorInventory(tlist[pnum][i].tid, "DnD_IgniteScripts", 1);
+
+						if(once_only)
+							MarkIgnitedBefore(tlist[pnum][i].tid - DND_MONSTERTID_BEGIN);
 
 						// we don't proliferate from the proliferated targets... that'd be busted
 						// note: WAIT AND SEE IF ITS OP!
@@ -4258,6 +4358,12 @@ Script "DnD Monster Overload Zap" (int this, int killer) {
 	int zap_count = PlayerModData[pnum].vals[PSTAT_OVERLOAD_ZAPCOUNT] + 1;
 	int cur_count = 0;
 	static int zap_tids[MAXPLAYERS][DND_MAX_OVERLOADTARGETS];
+
+	// Faraday Halo. The arc stops being a local jump and becomes one circuit: every monster still
+	// carrying an overload is a node on it, wherever it is, rather than only those standing close
+	// enough to have been marked a zap candidate.
+	bool chain_self = HasPlayerFlag(pnum, PFLAG_OVERLOAD_CHAINSTOSELF);
+	str zap_marker = chain_self ? "DnD_OverloadTimer" : "DnD_OverloadZapCandidate";
 	for(i = 0; i < zap_count; ++i)
 		zap_tids[pnum][i] = 0;
 	
@@ -4266,10 +4372,31 @@ Script "DnD Monster Overload Zap" (int this, int killer) {
 	for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER] && zap_count; ++mn) {
 		// if currently alive and received the checker item
 		i = UsedMonsterTIDs[mn];
-		if(CheckActorInventory(i, "DnD_OverloadZapCandidate") && isActorAlive(i) && CheckFlag(i, "ISMONSTER") && i != this)
+		// The count guard is not the Halo's: cur_count was never bounded, and zap_count is tested
+		// but never decremented, so a crowded map could already write past this player's row and
+		// into the next one. Widening the net to every overloaded monster makes that reachable
+		// rather than merely possible.
+		if(cur_count >= DND_MAX_OVERLOADTARGETS)
+			break;
+
+		if(CheckActorInventory(i, zap_marker) && isActorAlive(i) && CheckFlag(i, "ISMONSTER") && i != this)
 			zap_tids[pnum][cur_count++] = i;
 	}
 	
+	// Faraday Halo. Everything the circuit banked, emptied in one pass and split across the nodes,
+	// so a long chain detonates together instead of trickling. Taken BEFORE the loop because the
+	// loop delays between targets and a monster that dies partway would otherwise take its charge
+	// out of the pool with it.
+	int pool = 0;
+	if(chain_self) {
+		pool = TakeOverloadBank(this);
+		for(i = 0; i < cur_count; ++i)
+			pool += TakeOverloadBank(zap_tids[pnum][i]);
+
+		if(cur_count > 0)
+			pool /= cur_count;
+	}
+
 	for(i = 0; i < cur_count; ++i) {
 		// no more zap fx
 		// ACS_NamedExecuteAlways("DnD Overload Zap FX", 0, this, zap_tids[pnum][i]);
@@ -4284,19 +4411,53 @@ Script "DnD Monster Overload Zap" (int this, int killer) {
 		if(isActorAlive(zap_tids[pnum][i])) {
 			PlaySound(zap_tids[pnum][i], "Overload/Zap", CHAN_ITEM, 1.0);
 
-			if(!CheckActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer")) {
-				SetActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer", GetOverloadTime(pnum));
-				// overload damage amp is set to maximum of whatever the monster might have had (from another player) or this new instance of overload
-				SetActorInventory(zap_tids[pnum][i], "DnD_OverloadDamage", Max((PlayerModData[pnum].vals[PSTAT_OVERLOAD_DMGINCREASE] * 100) >> 16, CheckActorInventory(zap_tids[pnum][i], "DnD_OverloadDamage")));
-				ACS_NamedExecuteWithResult("DnD Monster Overload", zap_tids[pnum][i]);
+			// A chained application is still an application, so the dungeon rolls against it too.
+			// The lock stays outside: a shrugged zap has still been spent on this monster.
+			if(!DungeonAvoidsAilment()) {
+				if(!CheckActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer")) {
+					SetActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer", GetOverloadTime(pnum));
+					// overload damage amp is set to maximum of whatever the monster might have had (from another player) or this new instance of overload
+					SetActorInventory(zap_tids[pnum][i], "DnD_OverloadDamage", Max((PlayerModData[pnum].vals[PSTAT_OVERLOAD_DMGINCREASE] * 100) >> 16, CheckActorInventory(zap_tids[pnum][i], "DnD_OverloadDamage")));
+					ACS_NamedExecuteWithResult("DnD Monster Overload", zap_tids[pnum][i]);
+				}
+				else
+					SetActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer", GetOverloadTime(pnum));
 			}
-			else
-				SetActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer", GetOverloadTime(pnum));
 			GiveActorInventory(zap_tids[pnum][i], "DnD_OverloadLockTime", 1);
+
+			// the node's share of the discharge, dealt as lightning so it meets lightning resists
+			if(pool > 0)
+				HandleDamageDeal(killer, zap_tids[pnum][i], pool, DND_DAMAGETYPE_LIGHTNING, 0, 0,
+					GetActorX(this), GetActorY(this), GetActorZ(this),
+					DND_ACTORFLAG_FOILINVUL | DND_ACTORFLAG_FORCEPAIN);
 		}
 		SetActivator(this);
 		
 		Delay(const:DND_BASE_OVERLOADZAPDELAY);
+	}
+
+	// Faraday Halo. You are a node too -- the circuit closes through you, so discharging it leaves
+	// YOU overloaded rather than merely hurt. Same debuff the monsters are carrying, which is the
+	// point: for its duration you take the amplified damage you have been dealing out.
+	//
+	// Rolled against the player's own overload avoidance like any other application of the ailment,
+	// which is what gives the helm something to build against: avoid-overload gear stops being dead
+	// weight and becomes the counter-build that lets you hold the circuit open.
+	i = PlayerModData[pnum].vals[PSTAT_EX_OVERLOAD_SELFTIME];
+	if(pool > 0 && i > 0 && IsActorAlive(killer)) {
+		SetActivator(killer);
+
+		if(GetPlayerElementalAvoidChance(pnum, DND_PAVOID_OVERLOAD) < random(1, 100)) {
+			HandleRiskAversion();
+
+			// The mod is authored in SECONDS because that is what the tooltip shows; the timer
+			// counts DND_BASE_OVERLOADTICK steps, and the buff loop decrements one per step. Longest
+			// of what is already running and what is owed, so a second discharge extends the debuff
+			// rather than cutting it short.
+			i = i * TICRATE / DND_BASE_OVERLOADTICK;
+			SetInventory("DnD_OverloadTimer", Max(i, CheckInventory("DnD_OverloadTimer")));
+			ACS_NamedExecuteWithResult("DnD Give Buff", DND_DEBUFF_OVERLOAD, DEBUFF_F_PLAYERISACTIVATOR | DEBUFF_F_OWNERISTARGET);
+		}
 	}
 }
 
@@ -4782,8 +4943,11 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	if(m_id != -1 && !isDot && dmg) {
 		if
 		(
-			(dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL) && !(dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) && 
-			random(1, 100) <= GetMonsterBleedChance(m_id, pnum, dmg_string == "Melee", dmg_data & DND_DAMAGETYPEFLAG_HITSCAN) &&
+			(
+				((dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL) && !(dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) &&
+				random(1, 100) <= GetMonsterBleedChance(m_id, pnum, dmg_string == "Melee", dmg_data & DND_DAMAGETYPEFLAG_HITSCAN)) ||
+				DungeonInflictsAilment(DUN_INFLICT_BLEED)
+			) &&
 			GetPlayerBleedAvoidChance(pnum) < random(1, 100)
 		)
 		{
@@ -4804,8 +4968,11 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		
 		if
 		(
-			((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) || HasMonsterTrait(m_id, DND_VOLTAIC)) && 
-			random(1, 100) <= GetMonsterOverloadChance(m_id, pnum) &&
+			(
+				(((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) || HasMonsterTrait(m_id, DND_VOLTAIC)) &&
+				random(1, 100) <= GetMonsterOverloadChance(m_id, pnum)) ||
+				DungeonInflictsAilment(DUN_INFLICT_OVERLOAD)
+			) &&
 			GetPlayerElementalAvoidChance(pnum, DND_PAVOID_OVERLOAD) < random(1, 100)
 		)
 		{
@@ -4816,7 +4983,10 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		
 		if
 		(
-			((dmg_data & DND_DAMAGETYPEFLAG_POISON) || HasMonsterTrait(m_id, DND_VENOMANCER)) &&
+			(
+				((dmg_data & DND_DAMAGETYPEFLAG_POISON) || HasMonsterTrait(m_id, DND_VENOMANCER)) ||
+				DungeonInflictsAilment(DUN_INFLICT_POISON)
+			) &&
 			GetPlayerElementalAvoidChance(pnum, DND_PAVOID_POISON) < random(1, 100)
 		)
 		{
@@ -5414,7 +5584,8 @@ bool IsDamageEventException(str dt) {
 		return true;
 	}
 	
-	return 	dt == "Suicide" || dt == "Perish" || dt == "Special_NoPain" || dt == "SkipHandle" || dt == "ForcedPainBypass";
+	return 	dt == "Suicide" || dt == "Perish" || dt == "Special_NoPain" || dt == "SkipHandle" ||
+			dt == "ForcedPainBypass" || dt == "IgniteNoPain";
 }
 
 Script "DnD Cold Immunity Ticker" (int pnum) {
@@ -5435,7 +5606,14 @@ void HandlePlayerChill(int pnum, int m_id, int dmg_received, int dmg_data) {
 
 	// PlayerHitGainedFlags carries the touch traits' contribution: our caller only ever had the
 	// attack's own type flags, so a RIMETOUCH monster's cold would be invisible here without it.
-	if(m_id != -1 && ((dmg_data & DND_DAMAGETYPEFLAG_ICE) || (PlayerHitGainedFlags[pnum] & DND_DAMAGETYPEFLAG_ICE) || HasMonsterTrait(m_id, DND_FRIGID))) {
+	// Rolled once, before the ice gate, because both answers are needed in three places below and
+	// every call is its own roll. A named freeze opens the cold block the same way chill does: freeze
+	// is reached through chill everywhere else in the mod, so it applies the stack on the way in.
+	bool dungeon_chill = DungeonInflictsAilment(DUN_INFLICT_CHILL);
+	bool dungeon_freeze = DungeonInflictsAilment(DUN_INFLICT_FREEZE);
+	bool dungeon_cold = dungeon_chill || dungeon_freeze;
+
+	if(m_id != -1 && (dungeon_cold || (dmg_data & DND_DAMAGETYPEFLAG_ICE) || (PlayerHitGainedFlags[pnum] & DND_DAMAGETYPEFLAG_ICE) || HasMonsterTrait(m_id, DND_FRIGID))) {
 		// Only the cold part of the hit gets to chill. 100 for a plain ice hit and for a FRIGID
 		// monster whose attack carries no ice at all, so both keep the whole number as before.
 		dmg_received = MulPercent_Exact(dmg_received, PlayerHitIceShare[pnum]);
@@ -5447,8 +5625,8 @@ void HandlePlayerChill(int pnum, int m_id, int dmg_received, int dmg_data) {
 		// if hpdiff >= threshold
 		if
 		(
-			GetPlayerElementalAvoidChance(pnum, DND_PAVOID_CHILLFREEZE) < random(1, 100) && 
-			dmg_received >= health_cap * GetMonsterChillThreshold(m_id) / 100
+			GetPlayerElementalAvoidChance(pnum, DND_PAVOID_CHILLFREEZE) < random(1, 100) &&
+			(dungeon_cold || dmg_received >= health_cap * GetMonsterChillThreshold(m_id) / 100)
 		)
 		{
 			HandleRiskAversion();
@@ -5463,8 +5641,11 @@ void HandlePlayerChill(int pnum, int m_id, int dmg_received, int dmg_data) {
 			}
 			
 			// freeze checks
+			//
+			// Wanderlust guards THIS roll and not the block above it. The outer avoid covers chill and
+			// freeze together, and the mod says frozen -- a player wearing it still takes the slow.
 			health_cap = GetMonsterFreezeChance(m_id, CheckInventory("DnD_ChillStacks"));
-			if(random(1, 100) <= health_cap) {
+			if(!HasPlayerFlag(pnum, PFLAG_CANNOTBEFROZEN) && (dungeon_freeze || random(1, 100) <= health_cap)) {
 				stacks = DND_BASE_FREEZETIMER;
 				
 				// set freeze timer and run script
@@ -6216,6 +6397,12 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 				if(dmg > 0)
 					dmg = HandleDamageDeal(shooter, victim, dmg, temp, m_id, dmg_data, ox, oy, oz, actor_flags, (m_id < 0) || (dmg_data & DND_DAMAGEFLAG_ISSPELL), 0);
+
+				// Faraday Halo. The one point the final number is known, and the last before it is
+				// gone. Gated on the stat rather than inside the helper so a player without the helm
+				// pays a single array read on the hot path.
+				if(dmg > 0 && PlayerModData[pnum].vals[PSTAT_EX_OVERLOAD_STOREDMG])
+					BankOverloadDamage(pnum, victim, dmg);
 
 				// failsafe -- hopefully not necessary anymore
 				if(GetActorProperty(victim, APROP_HEALTH) > MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp) {

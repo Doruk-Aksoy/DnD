@@ -107,6 +107,7 @@ DND_ARTILLERYRADIUS		=	"Artillery Explosion Radius";
 DND_MENU_PERK_EMPTY		=	"Not designed yet.";
 DND_MENU_PERK_PICKARCH	=	"Pick an archetype to open its tree.";
 DND_MENU_PERK_PINHELP1	=	"Hold";		DND_MENU_PERK_PINHELP2 = "and click to pin description in place.";
+DND_MENU_STAT_REFUND1	=	"Hold";		DND_MENU_STAT_REFUND2 = "and click to refund a point for ";
 DND_MENU_PERK_REFUND	=	"refunds a point for";
 DND_MENU_PERK_REFUNDLOCKS =	"Cannot refund, it would lock";
 DND_MENU_PERK_REFUNDPOOR =	"Cannot afford to refund a point";

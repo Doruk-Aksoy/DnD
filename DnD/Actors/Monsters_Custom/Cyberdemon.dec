@@ -166,6 +166,9 @@ ACTOR Cardinal : DnD_BaseRangedBoss 21178 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -427,6 +430,9 @@ ACTOR TerminatorX : DnD_BaseRangedBoss 21179 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -836,6 +842,9 @@ Actor Thamuz : DnD_BaseRangedBoss 21180 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -1275,6 +1284,9 @@ actor Azazel : DnD_BaseHybridBoss 21181 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -1905,6 +1917,9 @@ ACTOR HellsmithX : DnD_BaseHybridBoss 21182 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -2523,12 +2538,21 @@ ACTOR AvatarOfChaos : DnD_BaseRangedBoss 21183 {
 			"####" "#" 0 A_CustomMissile("SorcBall3Projectile", 90, 0, 120, CMF_AIMDIRECTION)
 			"####" "#" 0 A_KillChildren("Perish")
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Monster State Syncer", 0, 10)
+			"####" "#" 0 A_CustomMissile("SorcBall1Projectile", 90, 0, 0, CMF_AIMDIRECTION)
+			"####" "#" 0 A_CustomMissile("SorcBall2Projectile", 90, 0, 60, CMF_AIMDIRECTION)
+			"####" "#" 0 A_CustomMissile("SorcBall3Projectile", 90, 0, 120, CMF_AIMDIRECTION)
+			"####" "#" 0 A_KillChildren("Perish")
+			"####" "#" 0 A_KillMaster("Perish")
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD Monster State Syncer", 0, 10)
 			"####" "#" 0 A_CustomMissile("SorcBall1Projectile", 90, 0, 0, CMF_AIMDIRECTION)
 			"####" "#" 0 A_CustomMissile("SorcBall2Projectile", 90, 0, 60, CMF_AIMDIRECTION)
 			"####" "#" 0 A_CustomMissile("SorcBall3Projectile", 90, 0, 120, CMF_AIMDIRECTION)
 			"####" "#" 0 A_KillChildren("Perish")
+			"####" "#" 0 A_KillMaster("Perish")
 		Goto Super::Death.Emerald
 		Death.Ice:
 		Death.P_Ice:
@@ -2537,6 +2561,7 @@ ACTOR AvatarOfChaos : DnD_BaseRangedBoss 21183 {
 			"####" "#" 0 A_CustomMissile("SorcBall2Projectile", 90, 0, 60, CMF_AIMDIRECTION)
 			"####" "#" 0 A_CustomMissile("SorcBall3Projectile", 90, 0, 120, CMF_AIMDIRECTION)
 			"####" "#" 0 A_KillChildren("Perish")
+			"####" "#" 0 A_KillMaster("Perish")
 		Goto Super::Death.Ice
    }
 }
@@ -3678,6 +3703,9 @@ Actor Thanatos : DnD_BaseRangedBoss 21184 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -4110,6 +4138,9 @@ actor Cerberus : DnD_BaseRangedBoss 21185 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -4280,6 +4311,9 @@ ACTOR DeathWyvern : DnD_BaseRangedBoss 21186 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald

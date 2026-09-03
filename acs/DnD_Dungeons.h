@@ -162,6 +162,11 @@ void SetupCurrentDungeonData(int pnum, int item_pos, int sel_dungeon_id) {
 		else
 			DungeonInformation.attributes[i].attrib_val = d_item.attributes[i].attrib_val;
 
+		// Capped where quality is applied rather than where it is rolled, so the value stored, the
+		// value drawn and the value rolled against are all the same number.
+		if(DungeonInformation.attributes[i].attrib_id == DUN_ATTR_AILMENTAVOID)
+			DungeonInformation.attributes[i].attrib_val = Min(DungeonInformation.attributes[i].attrib_val, DND_DUNGEON_MAXAILMENTAVOID);
+
 		// the value of extra is in << 16
 		DungeonInformation.attributes[i].attrib_extra = d_item.attributes[i].attrib_extra;
 		int id = DungeonInformation.attributes[i].attrib_extra & 0xFFFF;

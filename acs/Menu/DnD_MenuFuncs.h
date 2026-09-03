@@ -58,7 +58,7 @@ void ClearTempItemInventory() {
 
 // includes left right shortcuts
 // works clientside
-void ListenInput(int listenflag, int condx_min, int condx_max, int curr_res_page = -1, bool allow_pin = false) {
+void ListenInput(int listenflag, int condx_min, int condx_max, int curr_res_page = -1, int jumpmod = DND_JUMPMOD_NONE) {
 	int bpress = GetPlayerInput(-1, INPUT_BUTTONS);
 	int obpress = GetPlayerInput(-1, INPUT_OLDBUTTONS);
 	int curposx = CheckInventory("MenuPosX");
@@ -145,16 +145,21 @@ void ListenInput(int listenflag, int condx_min, int condx_max, int curr_res_page
 			if(CheckInventory("DnD_SellConfirm"))
 				ACS_NamedExecuteAlways("DnD Menu Sell Popup Clear", 0);
 
-			// Jump held makes it a pin on the pages that offer one, and an ordinary click everywhere
-			// else -- nowhere else is hovering fighting the cursor, so nowhere else needs the gesture.
-			if(allow_pin && IsButtonHeld(bpress, BT_JUMP))
-				SetInventory("MenuInput", DND_MENUINPUT_PINCLICK);
+			// Jump held hands the click to whatever the page uses the gesture for, and is an
+			// ordinary click on every page that asked for nothing.
+			if(jumpmod != DND_JUMPMOD_NONE && IsButtonHeld(bpress, BT_JUMP))
+				SetInventory("MenuInput", DND_MENUINPUT_JUMPCLICK);
 			else
 				SetInventory("MenuInput", DND_MENUINPUT_LCLICK);
 		}
 		else if(IsButtonPressed(bpress, obpress, BT_ALTATTACK)) {
 			GiveInventory("DnD_ClickTicker", 1);
-			SetInventory("MenuInput", DND_MENUINPUT_RCLICK);
+			// Only a refund page takes the right button too, and it has to: right click already
+			// means "all of them" there, so jump+right would otherwise spend the lot by accident.
+			if(jumpmod == DND_JUMPMOD_REFUND && IsButtonHeld(bpress, BT_JUMP))
+				SetInventory("MenuInput", DND_MENUINPUT_JUMPRCLICK);
+			else
+				SetInventory("MenuInput", DND_MENUINPUT_RCLICK);
 		}
 	}
 }
@@ -193,10 +198,6 @@ int GetItemFlags(int itemid) {
 		return GetWeaponDrawInfo(itemid - SHOP_WEAPON_BEGIN).flags;
 		case TYPE_AMMO:
 		return GetAmmoDrawInfo(itemid - SHOP_FIRSTAMMO_INDEX).flags;
-		case TYPE_ARTI:
-		return GetArtifactDrawInfo(itemid - SHOP_FIRSTARTI1_INDEX).flags;
-		case TYPE_ABILITY:
-		return GetAbilityDrawInfo(itemid - SHOP_ABILITY1_BEGIN).flags;
 		case TYPE_ACCOUNT:
 		return OBJ_RESEARCH;
 	}
@@ -544,6 +545,12 @@ bool HandlePageListening(int curopt, int boxid) {
 			redraw = ListenScroll(-24, 0, 1, 36);
 		break;
 
+		case MENU_STAT1:
+			// The attribute panel is the only thing here that can overflow and it exists only while
+			// a stat is hovered, so the bar stands down the moment the cursor leaves those rows.
+			if(boxid != MAINBOX_NONE && boxid <= MBOX_3)
+				redraw = ListenScroll(-2, 0, 8, 64);
+		break;
 		case MENU_STAT2_DEFENSE:
 			redraw = ListenScroll(ScrollPos.y - 8, 0, 6, 196);
 		break;
@@ -694,19 +701,6 @@ void DrawWeaponIconCorner(int itemid) {
 	}
 }
 
-void DrawArtifactIconCorner(int boxid) {
-	draw_info_T module& arti_info = GetArtifactDrawInfo(boxid);
-	str toshow = GetTextWithResearch(ArtifactInfo[boxid][ARTI_ICON], "", arti_info.res_id, RES_KNOWN, arti_info.flags);
-
-	if(StrCmp(toshow, "")) {
-		SetFont(toshow);
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 92.1, 56.1, 0.0, 0.0);
-		SetFont("NMENUFNT");
-	}
-	else
-		DeleteText(RPGMENUHELPCORNERID);
-}
-
 // curopt is the pageid
 void HandleItemInfoPanel(int curopt, int boxid, bool redraw) {
 	static int ypos = 0;
@@ -843,10 +837,6 @@ int ShopScale(int amount, int id) {
 		return amount * Clamp_Between(GetCVar("dnd_shop_wep_scale"), 1, SHOP_SCALE_MAX);
 		case TYPE_AMMO:
 		return amount * Clamp_Between(GetCVar("dnd_shop_ammo_scale"), 1, SHOP_SCALE_MAX);
-		case TYPE_ABILITY:
-		return amount * Clamp_Between(GetCVar("dnd_shop_ability_scale"), 1, SHOP_SCALE_MAX);
-		case TYPE_ARTI:
-		return amount * Clamp_Between(GetCVar("dnd_shop_artifact_scale"), 1, SHOP_SCALE_MAX);
 		case TYPE_ACCOUNT:
 		return amount * Clamp_Between(GetCVar("dnd_shop_account_scale"), 1, SHOP_SCALE_MAX);
 	}
@@ -907,27 +897,15 @@ int CanTrade (int pnum, int id, int tradeflag, int price) {
 	
 	type = GetItemType(id);
 	
-	if(type == TYPE_ARTI)
-		item = ArtifactInfo[id - SHOP_FIRSTARTI1_INDEX][ARTI_NAME]; // put it in the artifact info range
-	else {
-		item = GetItemName(id);
-		wepcheck = GetWeaponCondition(id);
-	}
+	item = GetItemName(id);
+	wepcheck = GetWeaponCondition(id);
 	
 	if(tradeflag & TRADE_BUY) {
 		if(type == TYPE_AMMO) { // ammo
 			cond2 = (CheckInventory(item) < GetAmmoCapacity(item)) && !PlayerModData[pnum].vals[PSTAT_EX_CANNOTPICKAMMO];
 			cond4 = GlobalData.ShopStockRemaining[PlayerNumber()][id] > 0;
 		}
-		else if(type != TYPE_WEAPON && type != TYPE_ABILITY) { // item
-			if(id != SHOP_ARTI_BACKPACK) {
-				cond2 = (CheckInventory(item) < GetShopItemInfo(id, DND_SHOPINFO_MAX));
-				cond4 = GlobalData.ShopStockRemaining[PlayerNumber()][id] > 0;
-			}
-			else
-				cond2 = !IsBackpackLimitReached();
-		}
-		else { // weapon or ability
+		else { // weapon or account
 			if(type == TYPE_WEAPON && HasClassPerk_Fast(DND_PLAYER_BERSERKER, 1)) {
 				if(id <= SHOP_WEAPON_SLOT1END) {
 					cond3 = !CheckInventory(item);
@@ -1031,10 +1009,6 @@ void DrawShopItemTag(str weptype, str toshow, int id, int objflag, int onposy) {
 		tag = GetShopWeaponTag(id);
 	else if(objflag & OBJ_AMMO)
 		tag = GetAmmoTag(id);
-	else if(objflag & OBJ_ABILITY)
-		tag = GetAbilityTag(id - SHOP_ABILITY1_BEGIN);
-	else if(objflag & OBJ_ARTI)
-		tag = GetArtifactTag(id - SHOP_FIRSTARTI1_INDEX);
 	else if(objflag & OBJ_ACCOUNT)
 		tag = GetAccountPurchaseTag(id - SHOP_ACCOUNT_BEGIN);
 	
@@ -1089,7 +1063,7 @@ void DrawToggledImage(int pnum, int itemid, int boxid, int onposy, int objectfla
 			// if not ammo, talent or armor
 			if(!(objectflag & (OBJ_AMMO | OBJ_ARMOR))) {
 				// if not artifact and owning it (basically has weapon)
-				if(!(objectflag & (OBJ_ARTI | OBJ_ACCOUNT)) && CheckInventory(GetItemName(itemid))) {
+				if(!(objectflag & OBJ_ACCOUNT) && CheckInventory(GetItemName(itemid))) {
 					color = oncolor;
 					colorprefix = "\c[M3]";
 					toshow = "\c[M3]";
@@ -1101,10 +1075,7 @@ void DrawToggledImage(int pnum, int itemid, int boxid, int onposy, int objectfla
 						colorprefix = "\c[G8]";
 						toshow = "\c[G8]";
 					} // if I have options color others
-					else if( (!(HasClassPerk_Fast(DND_PLAYER_BERSERKER, 1) && itemid <= SHOP_WEAPON_SLOT1END) && CheckInventory(choicename) == choicecount) || 
-							 (itemid == SHOP_ARTI_BACKPACK && IsBackpackLimitReached()) ||
-							 (objectflag & OBJ_ARTI && IsSet(CheckInventory("DnD_Artifact_MapBits"), itemid - SHOP_FIRSTARTI1_INDEX))
-						   ) 
+					else if((!(HasClassPerk_Fast(DND_PLAYER_BERSERKER, 1) && itemid <= SHOP_WEAPON_SLOT1END) && CheckInventory(choicename) == choicecount)) 
 					{
 						// if has choice and count met or this is a backpack and limit reached on it (backpack limit has to be checked dynamically due to classic backpack cvar)
 						color = choicecolor;
@@ -1171,22 +1142,6 @@ void DrawToggledImage(int pnum, int itemid, int boxid, int onposy, int objectfla
 				res_state = GetBulkPriceForAmmo(itemid);
 				if(res_state)
 					HudMessage(s:toshow, l:"DND_MENU_INBULK", s:":\c- ", s:colorprefix, d:res_state; HUDMSG_PLAIN, RPGMENUITEMID - 43, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
-			}
-			else if(objectflag & OBJ_ARTI) {
-				SetHudClipRect(192, 224, 256, 64, 256);
-				HudMessage(s:"\cd*\c- ", l:GetArtifactText(itemid - SHOP_FIRSTARTI1_INDEX); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
-				SetHudClipRect(0, 0, 0, 0, 0);
-				
-				// update corner panel info
-				DrawArtifactIconCorner(itemid - SHOP_FIRSTARTI1_INDEX);
-			}
-			else if(objectflag & OBJ_ABILITY) {
-				SetHudClipRect(192, 208, 256, 64, 256);
-				if(objectflag & OBJ_USESCROLL)
-					HudMessage(s:"\cd*\c- ", l:GetAbilityHelpText(itemid - SHOP_ABILITY1_BEGIN); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 216.1 * 1.0 + ScrollPos.x, 0.0, 0.0);
-				else
-					HudMessage(s:"\cd*\c- ", l:GetAbilityHelpText(itemid - SHOP_ABILITY1_BEGIN); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 216.1, 0.0, 0.0);
-				SetHudClipRect(0, 0, 0, 0, 0);
 			}
 			else if(objectflag & OBJ_ACCOUNT) {
 				SetHudClipRect(192, 208, 256, 64, 256);
@@ -1318,8 +1273,6 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 								SetInventory(StrParam(s:"SpecialAmmoMode", s:GetSpecialAmmoSuffix(SpecialAmmoFixWeapons[fix][1])), SpecialAmmoRanges[SpecialAmmoFixWeapons[fix][2]][0]);
 							}
 						}
-						if(tradeflag & TRADE_ARTIFACT)
-							SetInventory("DnD_Artifact_MapBits", SetBit(CheckInventory("DnD_Artifact_MapBits"), itemid - SHOP_FIRSTARTI1_INDEX));
 						--GlobalData.ShopStockRemaining[pnum][itemid];
 					}
 				} while (givefull && !buystatus);
@@ -1332,7 +1285,7 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 						LocalAmbientSound("weapons/pickup", 127);
 					else if(tradeflag & TRADE_AMMO)
 						LocalAmbientSound("items/ammo", 127);
-					else if(tradeflag & (TRADE_ABILITY | TRADE_ARTIFACT | TRADE_ACCOUNT)) {
+					else if(tradeflag & TRADE_ACCOUNT) {
 						LocalAmbientSound("Bonus/Received", 127);
 						if(itemid == SHOP_ACCOUNT_STASHTAB)
 							++PlayerActivities[pnum].stash_pages;
@@ -1770,9 +1723,12 @@ rect_T module& LoadRect(int menu_page, int id) {
 			{ 167.0, 193.0, 117.0, 143.0 },
 			{ 112.0, 129.0, 62.0, 79.0 },
 
-			// flasks -- 2 for now
-			{ 164.0, 132.0, 124.0, 94.0 },
-			{ 164.0, 84.0, 124.0, 46.0 },
+			// flasks -- 2x2, mirrored like every rect here (480 - screen x, 320 - screen y), so the
+			// LARGER number is the top left. 32px boxes centred on the grid constants.
+			{ 184.0, 125.0, 152.0, 93.0 },
+			{ 148.0, 125.0, 116.0, 93.0 },
+			{ 184.0, 85.0, 152.0, 53.0 },
+			{ 148.0, 85.0, 116.0, 53.0 },
 
 			// inv explore icon
 			{ 58.0, 66.0, 38.0, 48.0 },
@@ -2924,7 +2880,7 @@ bool IsCursorBelowPerkDivider() {
 bool HandlePerkPin(int arch, int boxid, int input) {
 	perk_scroll_T module& ps = GetPerkScroll();
 
-	if(input == DND_MENUINPUT_PINCLICK) {
+	if(input == DND_MENUINPUT_JUMPCLICK) {
 		EnsurePerkArchLists();
 
 		perk_arch_list_T module& plist = GetPerkArchList(arch);
@@ -3352,13 +3308,22 @@ void DrawCharmBox(int charm_type, int boxid, int thisboxid, int hudx, int hudy) 
 	SetFont("NMENUFNT");
 }
 
+// Flasks have their own border art now rather than borrowing the small charm's. The charm box is
+// 40px and two of those cannot fit side by side in the band the flasks live in -- see the grid
+// constants in DnD_MenuConstants.h. FLBNOR/FLBSEL are the same box at 32px.
+str GetFlaskBoxLabel(bool isSelected) {
+	if(!isSelected)
+		return "FLBNOR";
+	return "FLBSEL";
+}
+
 void DrawFlaskBox(int boxid, int thisboxid, int hudx, int hudy, int flask_id) {
-	str borderpic = GetCharmBoxLabel(DND_CHARM_SMALL, boxid == thisboxid);
+	str borderpic = GetFlaskBoxLabel(boxid == thisboxid);
 	int pnum = PlayerNumber();
 
 	// fixes background being lit on first row boxes
 	if(CheckInventory("DnD_InventoryView"))
-		borderpic = GetCharmBoxLabel(DND_CHARM_SMALL, false);
+		borderpic = GetFlaskBoxLabel(false);
 
 	auto item = GetUsedItem(pnum, thisboxid - 1);
 	
@@ -3372,7 +3337,7 @@ void DrawFlaskBox(int boxid, int thisboxid, int hudx, int hudy, int flask_id) {
 	}
 	else {
 		SetFont("FLASKBAK");
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - 1, CR_WHITE, hudx, hudy, 0.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - 1, CR_WHITE, hudx, hudy - 2.0, 0.0, 0.0);
 	}
 	SetFont(borderpic);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid, CR_WHITE, hudx, hudy, 0.0, 0.0);
@@ -3963,6 +3928,8 @@ void HandleItemPageInputs(int pnum, int boxid) {
 						break;
 						case FLASK1_INDEX:
 						case FLASK2_INDEX:
+						case FLASK3_INDEX:
+						case FLASK4_INDEX:
 							item_type = DND_ITEM_FLASK;
 						break;
 					}
@@ -5862,10 +5829,19 @@ void GetInputOnMenuPage(int opt) {
 		ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0);
 	else if(opt >= SHOP_RESPAGE_BEGIN && opt <= SHOP_RESPAGE_END)
 		ListenInput(LISTEN_LEFT | LISTEN_RIGHT | LISTEN_FASTLR | LISTEN_SKIPKNOWNRES, 0, MENU_MAXRES_PERPAGE, opt - SHOP_RESPAGE_BEGIN);
-	else
-		// Only the perk trees take a pin: their rows ARE the hover targets, so reading a long
-		// description means holding the cursor still on the very row you are scrolling away from.
-		ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, -1, IsPerkTreePage(opt));
+	else {
+		// Two pages read the jump modifier. The perk trees pin a description with it: their rows ARE
+		// the hover targets, so reading a long one means holding the cursor still on the very row you
+		// are scrolling away from. The stat page turns a spend into a refund, both buttons being
+		// spent already.
+		int jumpmod = DND_JUMPMOD_NONE;
+		if(IsPerkTreePage(opt))
+			jumpmod = DND_JUMPMOD_PIN;
+		else if(opt == MENU_STAT1)
+			jumpmod = DND_JUMPMOD_REFUND;
+
+		ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0, -1, jumpmod);
+	}
 }
 
 int GetAmmoSlotAndIndexFromShop(int index) {
@@ -7083,12 +7059,6 @@ void DrawPlayerStats(int pnum, int category) {
 			// "what unique effects am I carrying", so a mod that also feeds a derived number on another
 			// page still belongs on this one.
 			for(i = UNIQUE_ATTRIB_BEGIN; i <= UNIQUE_ATTRIB_END; ++i) {
-				// Not a magnitude, and no longer storage either -- the powers it used to pack now live
-				// in PlayerModData.pflags. It is also the one id in the range with no IATTR_TX text of
-				// its own, so it would print blank even if it did hold something. Decoded below.
-				if(i == INV_EX_PLAYERPOWERSET1)
-					continue;
-
 				val = ReadPlayerModValue(pnum, i);
 				if(val) {
 					pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(i, 0, 0, val, ReadPlayerModExtra(pnum, i)), s:"\n");
@@ -7430,6 +7400,14 @@ bool IsBoxChangeException(int curopt, int boxid) {
 			return CheckResearchStatus(RES_ACCESSORY) != RES_DONE && boxid < MBOX_6;
 		return CheckResearchStatus(RES_ACCESSORY) != RES_DONE && boxid < MBOX_3;
 	}
+
+	// Flask slots the player has not unlocked. The rects live in a static table and the unlock
+	// does not, so the box is refused here rather than removed -- which is also what keeps the
+	// hover sound and the tooltip off it, since this is checked exactly where the box changes.
+	if(curopt == MENU_LOAD_CHARM && boxid <= FLASK4_INDEX + 1 &&
+		boxid > FLASK1_INDEX + GetPlayerFlaskSlots(PlayerNumber()))
+		return true;
+
 	return false;
 }
 

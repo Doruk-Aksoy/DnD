@@ -338,3 +338,38 @@ Graphic "SUNGLW03", 23, 12
 	YScale 0.8
 	Patch "SUNGL03", 0, 0
 }
+
+Graphic "UBOO3", 50, 48
+{
+	XScale 1.425
+	YScale 1.425
+	Patch "UBOO3", 0, 0
+}
+
+Graphic "UHELM1", 44, 75
+{
+	XScale 2.125
+	YScale 2.25
+	Patch "UHELM1", 0, 0
+}
+
+Graphic "UHELM2", 64, 69
+{
+	XScale 2.25
+	YScale 2.25
+	Patch "UHELM2", 0, 0
+}
+
+Graphic "UHELM3", 78, 52
+{
+	XScale 2.25
+	YScale 2.25
+	Patch "UHELM3", 0, 0
+}
+
+Graphic "UHELM4", 67, 75
+{
+	XScale 2.25
+	YScale 2.25
+	Patch "UHELM4", 0, 0
+}

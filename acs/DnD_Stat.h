@@ -309,7 +309,12 @@ int GetPlayerEstimatedArmorProtect(int pnum, int cap) {
 
 void GiveStat(int stat_id, int amt) {
 	amt = Clamp_Between(CheckInventory(StatData[stat_id]) + amt, 0, DND_STAT_FULLMAX) - CheckInventory(StatData[stat_id]);
-	GiveInventory(StatData[stat_id], amt);
+	// GiveInventory drops a negative amount on the floor instead of subtracting, so the refund has
+	// to take the stat back off explicitly. The clamp above is already signed.
+	if(amt < 0)
+		TakeInventory(StatData[stat_id], -amt);
+	else
+		GiveInventory(StatData[stat_id], amt);
 	UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTE, amt, stat_id);
 
 	// visual updates
@@ -507,6 +512,51 @@ void ConsumeAttributePointOn(int pnum, int stat, int amt) {
 	TakeInventory("AttributePoint", amt);
 
 	CalculateUnity(pnum);
+}
+
+// Priced per point and far below a perk respec: attribute points arrive every level, so this is a
+// brake on idle fiddling rather than a real credit sink.
+#define DND_STATREFUND_BASECOST     120
+#define DND_STATREFUND_LEVELSCALE   6
+
+int GetAttributeRefundCost(int pnum) {
+	return DND_STATREFUND_BASECOST * (100 + DND_STATREFUND_LEVELSCALE * GetActorLevel(pnum + P_TIDSTART)) / 100;
+}
+
+// The inverse of ConsumeAttributePointOn, step for step. Safe to run against the stat counters
+// directly because ConsumeAttributePointOn is the only thing that ever feeds GiveStat -- item and
+// perk bonuses live elsewhere, so what is here is exactly what the player paid points for.
+void RefundAttributePointFrom(int pnum, int stat, int amt) {
+	GiveStat(stat, -amt);
+	UpdateActivity(pnum, DND_ACTIVITY_ATTRIBUTEPOINT, amt, 0);
+
+	if(stat == STAT_INT)
+		UpdateEnergyShieldVisual(GetPlayerEnergyShieldCap(pnum));
+
+	GiveInventory("AttributePoint", amt);
+
+	CalculateUnity(pnum);
+}
+
+// What can actually come back: what was asked for, what is on the stat, and what the credits cover.
+// Refunding fewer than asked beats refusing outright -- a right click that half empties a stat is
+// still the direction the player wanted.
+int GetAffordableAttributeRefund(int pnum, int stat, int amt) {
+	int cost = GetAttributeRefundCost(pnum);
+	if(cost <= 0)
+		return 0;
+	return Min(Min(amt, GetStatPoints(stat)), GetPlayerCredit(pnum) / cost);
+}
+
+// Refund first, charge after, and charge for what came back rather than what was asked for.
+bool RefundAttributePoints(int pnum, int stat, int amt) {
+	amt = GetAffordableAttributeRefund(pnum, stat, amt);
+	if(amt <= 0)
+		return false;
+
+	RefundAttributePointFrom(pnum, stat, amt);
+	TakeCredit(amt * GetAttributeRefundCost(pnum));
+	return true;
 }
 
 bool ReachedAccessoryLimit() {
@@ -1320,6 +1370,18 @@ int MapDamageCategoryToFlatBonus(int pnum, int talent, int flags) {
 // and is consulted at equip time only.
 
 // Flat added damage this player deals as "category", before any effectiveness or scaling.
+// Sightless Vigil. How much accuracy buys one point of flat damage.
+#define DND_VIGIL_ACCPER 100
+
+// The helm's payout. Physical only, and through the BULLET slot for the reason the accessor below
+// documents: an added component is never the weapon's own swing.
+int GetPlayerAccuracyFlatDamage(int pnum) {
+	int per = PlayerModData[pnum].vals[PSTAT_EX_FLATDMG_PERACCURACY];
+	if(per <= 0)
+		return 0;
+	return per * (GetActorProperty(pnum + P_TIDSTART, APROP_ACCURACY) / DND_VIGIL_ACCPER);
+}
+
 int GetPlayerAddedFlatDamage(int pnum, int category) {
 	// Physical added damage occupies the BULLET slot and answers for MELEE too. The two old mappers
 	// disagreed here on purpose and this preserves it: an added component is never the weapon's own
@@ -1327,7 +1389,14 @@ int GetPlayerAddedFlatDamage(int pnum, int category) {
 	if(category == DND_DAMAGECATEGORY_MELEE)
 		category = DND_DAMAGECATEGORY_BULLET;
 
-	return PlayerModData[pnum].vals[PSTAT_ADDEDFLAT_BASE + category];
+	int res = PlayerModData[pnum].vals[PSTAT_ADDEDFLAT_BASE + category];
+
+	// Joins the pool rather than sitting beside it, so it converts, resists and dispatches ailments
+	// exactly like any other added physical -- and so comp_mask picks the category up on its own.
+	if(category == DND_DAMAGECATEGORY_BULLET)
+		res += GetPlayerAccuracyFlatDamage(pnum);
+
+	return res;
 }
 
 // One bit per damage category the player currently adds damage in. Zero for anyone without a single
@@ -1484,6 +1553,93 @@ int GetPlayerPoisonStacks(int pnum) {
 // Tormentor / Flow of Life. A percent of the REGEN cap rather than of max health, and bounded by
 // that same cap -- the perk tops you up toward where regeneration would have taken you anyway,
 // so it must not carry you past it. HealthBonusX is what the regen loop itself gives.
+// Faraday Halo. What each overloaded monster has banked, keyed by monster id rather than held as
+// inventory on the monster -- items on monsters consume NetIDs and those are a limited pool. Map
+// scoped and zeroed, which is the right empty state: a new map starts every capacitor discharged.
+//
+// Not per player. The bank belongs to the OVERLOAD, and the overload is already a single shared
+// state on the monster -- DnD_OverloadDamage is explicitly a max across players. Splitting the bank
+// per player would have two owners of one capacitor disagreeing about how full it is.
+int[] module& GetOverloadBankTable() {
+	static int overload_bank[DND_MAX_MONSTERS];
+	return overload_bank;
+}
+
+// Banks a share of a hit on an already overloaded monster. Gated by the caller on the stat being
+// present, so a player without the helm pays one array read and nothing else.
+void BankOverloadDamage(int pnum, int victim, int dmg) {
+	int m_id = victim - DND_MONSTERTID_BEGIN;
+	if(m_id < 0 || m_id >= DND_MAX_MONSTERS || !CheckActorInventory(victim, "DnD_OverloadTimer"))
+		return;
+
+	int[] module& bank = GetOverloadBankTable();
+	bank[m_id] += dmg * PlayerModData[pnum].vals[PSTAT_EX_OVERLOAD_STOREDMG] / 100;
+}
+
+// Reads a monster's bank and empties it in one go -- a capacitor discharges once, and leaving it
+// charged would let the same damage be spent again by the next chain that reaches it.
+int TakeOverloadBank(int victim) {
+	int m_id = victim - DND_MONSTERTID_BEGIN;
+	if(m_id < 0 || m_id >= DND_MAX_MONSTERS)
+		return 0;
+
+	int[] module& bank = GetOverloadBankTable();
+	int res = bank[m_id];
+	bank[m_id] = 0;
+	return res;
+}
+
+// Crown of Suffering. The pack's high water mark of poison stacks, one per player. Map scoped and
+// zeroed like every static, which is the right empty state -- a new map starts the ramp over.
+int[] module& GetPoisonPoolTable() {
+	static int poison_pool[MAXPLAYERS];
+	return poison_pool;
+}
+
+int GetPoisonPool(int pnum) {
+	int[] module& pool = GetPoisonPoolTable();
+	return pool[pnum];
+}
+
+void RaisePoisonPool(int pnum, int stacks) {
+	int[] module& pool = GetPoisonPoolTable();
+	if(stacks > pool[pnum])
+		pool[pnum] = stacks;
+}
+
+void ClearPoisonPool(int pnum) {
+	int[] module& pool = GetPoisonPoolTable();
+	pool[pnum] = 0;
+}
+
+// Adds the stack a poison application is worth, and answers how many EXTRA ones came with it.
+//
+// The count and the damage are two halves of the same thing: DnD_PoisonStacks gates re-application
+// and feeds the max-stack perks, while the dot_cache entries are what actually tick. Lifting the
+// count without seeding entries would be a stack that does nothing, so the caller owes one poison
+// script call per extra returned.
+int GainPoisonStacks(int pnum, int victim) {
+	int cap = GetPlayerPoisonStacks(pnum);
+	int cur = CheckActorInventory(victim, "DnD_PoisonStacks");
+	if(cur >= cap)
+		return 0;
+
+	int want = cur + 1;
+	bool shared = HasPlayerFlag(pnum, PFLAG_POISON_SHAREDSTACKS);
+
+	// a fresh victim walks in already carrying whatever the pack has reached
+	if(shared)
+		want = Max(want, Min(GetPoisonPool(pnum), cap));
+
+	GiveActorInventory(victim, "DnD_PoisonStacks", want - cur);
+	HandleMaxPoisonStackPerk(pnum, victim);
+
+	if(shared)
+		RaisePoisonPool(pnum, want);
+
+	return want - cur - 1;
+}
+
 void HandlePoisonKillRegen(int pnum, int tid, int pct) {
 	int lim = GetRegenCap(pnum);
 	int cap = CheckActorInventory(tid, "PlayerHealthCap");
@@ -1563,8 +1719,13 @@ int GetLifestealLifeRecovery(int pnum, int cap) {
 	return cap;
 }
 
-// returns true if monster isn't ailment immune, or we can bypass it
+// returns true if the ailment may be applied: the dungeon did not shrug it off, and the monster
+// either is not immune or we bypassed its immunity. Every ailment -- chill, freeze, bleed, overload,
+// ignite and poison -- asks here before it is placed, which is why the dungeon roll lives here too.
 bool CheckAilmentImmunity(int pnum, int m_id, int ailment_mod) {
+	if(DungeonAvoidsAilment())
+		return false;
+
 	// is not immune or if it is, we rolled ailment ignore chance
 	return !HasMonsterTrait(m_id, ailment_mod) || random(1, 100) < PlayerModData[pnum].vals[PSTAT_AILMENT_IGNORECHANCE];
 }
@@ -1910,6 +2071,14 @@ int GetPlayerElementalAvoidChance(int pnum, int avoid_id) {
 	if((HasActorClassPerk_Fast(ptid, DND_PLAYER_WANDERER, 3) && CheckActorInventory(ptid, "EShieldAmount")))
 		return 100;
 
+	// Emberwake. Answered here rather than at the application site so the stat page reads 100%
+	// too -- this gate is exactly "can the player be ignited", so full avoidance IS the mod.
+	//
+	// Its cold twin cannot be done this way. DND_PAVOID_CHILLFREEZE gates chill and freeze
+	// together, and Wanderlust says frozen, not chilled -- see HandlePlayerChill.
+	if(avoid_id == DND_PAVOID_IGNITE && HasPlayerFlag(pnum, PFLAG_CANNOTBEIGNITED))
+		return 100;
+
 	// was + RISK_AVERSION_VALUE per RiskAversion point
 	return PlayerModData[pnum].vals[PSTAT_AVOID_BASE + avoid_id] + PlayerModData[pnum].vals[PSTAT_AVOID_ELEALL];
 }
@@ -1968,6 +2137,40 @@ int GetPlayerAccuracyFactor(int pnum) {
 	if(HasPlayerFlag(pnum, PFLAG_ACCURACY_REVERSED))
 		base *= -1;
 	return base;
+}
+
+// Sightless Vigil. What a weapon with no spread of its own gets handed, so a pinpoint weapon is not
+// simply exempt from the penalty. Comparable to DND_EXTRAPROJ_SPREADANG, and it is multiplied by the
+// penalty like any other spread -- so this is the number before x2.5..x3, not after.
+#define DND_VIGIL_BASESPREAD 3.0
+
+// The spread MULTIPLIER for this shot, replacing the four hand-rolled copies of this expression that
+// used to sit in DnD_Attack.h. Folded into one function because the helm has to change it in two
+// different ways and four divergent copies is how one of them silently keeps the old behaviour.
+int GetPlayerSpreadFactor(int pnum, int acc) {
+	// Accuracy normally BUYS a tighter cone here. The helm severs exactly that: the stat still exists,
+	// still caps, still feeds the damage bonus -- it just no longer pays out as precision.
+	int res = 1.0;
+	if(!HasPlayerFlag(pnum, PFLAG_ACCURACY_NOSPREAD))
+		res = 1.0 - GetPlayerAccuracyFactor(pnum) * acc;
+
+	// Increased, so additive percent: 200 is x3. Applied after the accuracy term rather than instead
+	// of it, so the mod stays meaningful on its own if it ever rolls without the flag.
+	int pen = PlayerModData[pnum].vals[PSTAT_EX_SPREAD_PENALTY];
+	if(pen > 0)
+		res = res * (100 + pen) / 100;
+
+	// the 10.0 ceiling is the pre-existing one, and the penalty is well inside it
+	return Clamp_Between(res, 0.0, 10.0);
+}
+
+// A weapon that fires perfectly straight would otherwise ignore the drawback entirely, so it is
+// handed a cone to be penalised. Only while the penalty is actually held -- everything else keeps
+// its pinpoint behaviour, including the projectile rotate that is gated on this being nonzero.
+int GetPlayerBaseSpread(int pnum, int spread_val) {
+	if(!spread_val && PlayerModData[pnum].vals[PSTAT_EX_SPREAD_PENALTY])
+		return DND_VIGIL_BASESPREAD;
+	return spread_val;
 }
 
 int GetPlayerStaminaRecoveryRate(int pnum) {

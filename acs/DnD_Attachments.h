@@ -89,14 +89,19 @@ Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 	SetResultValue(res);
 }
 
-void InitAttachments(int m_id) {
-	GetMonsterAttachmentsUsed(m_id).val = 0;
-}
-
-Script "DnD Init Monster Attachments" (int m_id) CLIENTSIDE {
-	InitAttachments(m_id);
-	SetResultValue(0);
-}
+// No reset lives here on purpose.
+//
+// There used to be a per monster one, dispatched from "DnD Monster Scale". That was a
+// Zandronum trap: this bitfield is written by CLIENTSIDE scripts, so it lives in the CLIENT's
+// copy of these statics, while Monster Scale runs on the SERVER. The reset it dispatched
+// arrived AFTER the attachment spawns queued earlier in the same run and cleared a field that
+// already held live entries. DisposeAttachments finds actors only through these bits, so
+// every sparkle and reflect shield stayed welded to the corpse forever.
+//
+// Nothing replaces it. MonsterAttachmentUsed is a plain static, not one of the "global N:"
+// arrays that survive a map change, so the engine zeroes it on every map load already.
+// Within a map, DisposeAttachments shifts a slot down to 0 as it walks, so a monster that
+// dies leaves its slot clean for the next m_id to reuse.
 
 // do not send tid here, send monster id (tid - DND_MONSTERTID_BEGIN)
 int CreateMonsterAttachment(int tid, str actor_name, int xoff = 0, int yoff = 0, int zoff = 0, int angle = 0) {

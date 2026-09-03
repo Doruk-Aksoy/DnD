@@ -1108,7 +1108,7 @@ Actor SMGPickup : CustomInventory
 			MPPU A -1
 		Stop
 		Pickup:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_SMG << 8), "NoPick")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_SMG), "NoPick")
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_SMG), "Success")
 		Fail
 		Success:

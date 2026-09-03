@@ -2,7 +2,15 @@
 #define DND_TEMPWEAPONS_IN
 
 #define TEMPBEGIN DND_WEAPON_SAWEDOFF
-#define MAXTEMPWEPS (MAXWEPS - TEMPBEGIN + 1)
+// Counted off LAST_SLOT9_WEAPON, not MAXWEPS. MAXWEPS runs past the slot 9 range -- ASCENSION
+// and ADMINPISTOL sit above RIPPERCANNON and are not temporary weapons -- and the old form
+// added a spurious +1 on top of that, since MAXWEPS is already last+1. The result was 16 for
+// a 13 row TemporaryWeaponData, so every loop over this ran three rows past the real data.
+//
+// 13 is what the table holds and what the discard preference cycle in DnD_Activity.h already
+// assumes (its modulus is LAST_SLOT9 - FIRST + 3), so this brings the last of the three into
+// agreement with the other two.
+#define MAXTEMPWEPS (LAST_SLOT9_WEAPON - TEMPBEGIN + 1)
 #define UNUSEDWEPS 0 // this is remaining slots out of 2^(nearest power of 2 to maxweps) - maxweps
 
 #define TEMPWEP_BLOODFIENDSPINE_DROPCHANCE 0.6

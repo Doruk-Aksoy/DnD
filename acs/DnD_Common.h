@@ -21,6 +21,7 @@
 // the tree page draws from, so an empty one is an empty page.
 //#define VERBOSE_PERK_SETUP
 
+
 #ifdef ISDEBUGBUILD
 int test_counter = 0;
 #endif
@@ -462,7 +463,12 @@ enum {
 	PSTAT_EX_CHARGEDURATIONHALVED,
 	PSTAT_EX_MOREDAMAGEPERCHARGE,
 	PSTAT_EX_COUNTASHAVINGMAXCHARGEOF,
-	PSTAT_EX_PLAYERPOWERSET1,
+	PSTAT_EX_IGNITE_SPREADRETAIN,   // Choir of Ashes. percent of the burn a spread hop keeps
+	PSTAT_EX_FLATDMG_PERACCURACY,   // Sightless Vigil. flat damage per DND_VIGIL_ACCPER accuracy
+	PSTAT_EX_SPREAD_PENALTY,        // Sightless Vigil. percent INCREASED spread, so 200 is x3
+	PSTAT_EX_OVERLOAD_STOREDMG,     // Faraday Halo. percent of damage an overloaded enemy banks
+	PSTAT_EX_OVERLOAD_SELFTIME,     // Faraday Halo. overload ticks you take on discharging
+	PSTAT_EX_POISON_NODECAY_KEEP,   // Crown of Suffering. percent a renewing poison stack keeps
 
 	// everything else (regular rollables)
 	PSTAT_FLASKLIFERECOVERYRATE,
@@ -709,13 +715,12 @@ enum {
 // Player boolean flags -- PlayerModData.pflags[] / .pflag_rc[]
 //
 // Mods whose value is only ever tested for truth. As ints they cost a full slot each; as bits they
-// cost 1/32 of one. These replace the hand rolled bitfield that lived in INV_EX_PLAYERPOWERSET1.
+// cost 1/32 of one.
 //
-// Each flag carries a REFCOUNT alongside its bit. That is not decoration: the powerset bitfield this
-// replaces did `|= bit` on equip and `&= ~bit` on unequip, which cannot tell "two items grant Cyber"
-// from "one does", so unequipping either one stripped the power off a player still wearing the
-// other. The int-valued mods never had that bug because +1/-1 refcounts for free; moving to bits
-// means carrying the count explicitly or reintroducing it.
+// Each flag carries a REFCOUNT alongside its bit, and that is not decoration. A bare `|= bit` on
+// equip and `&= ~bit` on unequip cannot tell "two items grant Cyber" from "one does", so
+// unequipping either one would strip the power off a player still wearing the other. The
+// int-valued mods get that right for free through +1/-1; bits have to carry the count explicitly.
 enum {
 	PFLAG_CYBER,
 	PFLAG_ESHIELDBLOCKALL,
@@ -741,6 +746,29 @@ enum {
 	PFLAG_ACCURACY_REVERSED,
 	PFLAG_KNOCKBACK_IMMUNITY,
 	PFLAG_PELLETS_FIRE_CIRCLE,
+
+	// Unique boot immunities, both 1..1 and both tested for truth. Absolute, not a chance, which
+	// is why they are flags rather than another PSTAT_AVOID_* slot.
+	PFLAG_CANNOTBEFROZEN,
+	PFLAG_CANNOTBEIGNITED,
+
+	// Choir of Ashes. The pair is deliberate: chaining without the one-light rule would let a burn
+	// walk back into a monster whose script has ended and loop across the map forever.
+	PFLAG_IGNITE_CHAINS,
+	PFLAG_IGNITE_NOREFRESH,
+
+	// Sightless Vigil. Accuracy keeps every other thing it does -- it just stops being spent on
+	// tightening the cone, which is what frees it to be read as damage instead.
+	PFLAG_ACCURACY_NOSPREAD,
+
+	// Crown of Suffering. The pack shares a stack pool and a kill empties it. The third piece of
+	// the mechanic, how much a renewing stack keeps, carries a rolled value and lives in a stat slot.
+	PFLAG_POISON_SHAREDSTACKS,
+	PFLAG_POISON_CLEARONKILL,
+
+	// Faraday Halo.
+	PFLAG_OVERLOAD_CHAINSTOSELF,
+	PFLAG_OVERLOAD_ANYELEMENT,
 
 	PFLAG_COUNT
 };

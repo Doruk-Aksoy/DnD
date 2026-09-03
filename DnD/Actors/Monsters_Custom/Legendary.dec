@@ -141,6 +141,9 @@ Actor DreamingGod : DnD_BaseRangedBoss 22000 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -1216,6 +1219,9 @@ Actor Torrasque : DnD_BaseHybridBoss 22001 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -1611,6 +1617,9 @@ Actor Mordecqai : DnD_BaseRangedBoss 22002 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -2119,6 +2128,9 @@ Actor GodSlayer : DnD_BaseRangedBoss 22003 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald
@@ -2897,6 +2909,9 @@ Actor Golgoth : DnD_BaseHybridBoss 22004 {
 		Death.MagicSealing:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.MagicSealing
+		Death.IgniteNoPain:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.IgniteNoPain
 		Death.Emerald:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Emerald

@@ -101,6 +101,15 @@ DND_UARMIMG3		=	"UARM3";
 
 // unique boots
 DND_UBOOIMG1		=	"UBOO1";
+DND_UBOOIMG2		=	"UBOO2";
+DND_UBOOIMG3		=	"UBOO3";
+
+// unique helms
+DND_UHELMIMG1       =   "UHELM1";
+DND_UHELMIMG2       =   "UHELM2";
+DND_UHELMIMG3       =   "UHELM3";
+DND_UHELMIMG4       =   "UHELM4";
+DND_UHELMIMG4       =   "UHELM4";
 	
 // orbs
 DND_OIMG1			=	"ORB1D0";
@@ -238,17 +247,6 @@ DND_KIMG2			=	"SBKGB0";
 DND_KIMG3			=	"SBKGC0";
 
 ///////////////////////////////////////////////////////
-DND_ARTI1			=	"Field Kit";
-DND_ARTI2			=	"Salvation Sphere";
-DND_ARTI3			=	"Portable Shield";
-DND_ARTI4			=	"Blood Rune";
-DND_ARTI5			=	"Triple Damage";
-DND_ARTI6			=	"Blade Vortex";
-DND_ARTI7			=	"Book of the Dead";
-DND_ARTI8			=	"Auto Map";
-DND_ARTI9			=	"Backpack";
-DND_ARTI10			=	"Stat Reset";
-DND_ARTI11			=	"Portable Radsuit";
 
 DND_ITEM_UNIQUE		=	"Unique";
 DND_ITEM_CHARM		=	"Charm";
@@ -319,6 +317,14 @@ DND_UARM_NAME3			=	"Baron's Den";
 
 // unique boots
 DND_UBOOT_NAME1			=	"Death Trail";
+DND_UBOOT_NAME2         =   "Wanderlust";
+DND_UBOOT_NAME3         =   "Emberwake";
+
+// unique helms
+DND_UHELM_NAME1         =   "Choir of Ashes";
+DND_UHELM_NAME2         =   "Sightless Vigil";
+DND_UHELM_NAME3         =   "Crown of Suffering";
+DND_UHELM_NAME4         =   "Stormseeker";
 
 // inventory attribute table
 IATTR_T0 			= "Health";
@@ -704,6 +710,23 @@ IATTR_TX69			= "chance to gain"; IATTR_TX69S = "charge on hitting a boss or elit
 IATTR_TX70			= "Your charge duration is halved";
 IATTR_TX71			= "more damage per charge on you";
 IATTR_TX72			= "Count as having maximum number of";
+IATTR_TX73          = "Cannot be frozen";
+IATTR_TX74          = "Cannot be ignited";
+IATTR_TX75          = "Proliferated ignites can proliferate again";
+IATTR_TX76          = "of the burn is kept each time ignite proliferates";
+IATTR_TX77          = "of physical damage converted to fire";
+IATTR_TX78          = "\c[D4]Enemies can only ever be ignited once";
+IATTR_TX79          = "Accuracy no longer tightens your weapon spread";
+IATTR_TX80          = "added physical damage per 100 accuracy";
+IATTR_TX81          = "\c[D4]increased weapon spread, and weapons without any gain 3.0x3.0 spread.";
+IATTR_TX82          = "Poisoned enemies all carry the same stacks";
+IATTR_TX83          = "of the damage is retained each time a poison would wear off until zero";
+IATTR_TX84          = "\c[D4]Any kill resets the shared poison stacks";
+IATTR_TX85          = "to maximum poison stacks on enemies";
+IATTR_TX86          = "Killing an overloaded enemy arcs from you to every other one, discharging the damage split between them";
+IATTR_TX87          = "of the damage you deal to an overloaded enemy is stored";
+IATTR_TX88          = "All your damage can apply overload";
+IATTR_TX89          = "\c[D4]seconds of overload inflicted on you on discharge";
 
 // exotic attribute strings
 IATTR_MAXHEALTH				= "maximum health";

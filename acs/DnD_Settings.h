@@ -100,7 +100,7 @@ int GetDefaultSettingAcceptedValue(int id) {
 	return FlagAcceptedValues[id];
 }
 
-#define MAXDNDFLAGS 49
+#define MAXDNDFLAGS 47
 
 str GetDnDSettingString(int id) {
 	static str DNDFlagCheckList[MAXDNDFLAGS] = {
@@ -130,8 +130,6 @@ str GetDnDSettingString(int id) {
 		"dnd_shop_scale",
 		"dnd_shop_wep_scale",
 		"dnd_shop_ammo_scale",
-		"dnd_shop_artifact_scale",
-		"dnd_shop_ability_scale",
 		"dnd_shop_talent_scale",
 		"dnd_shop_account_scale",
 		
@@ -194,8 +192,6 @@ int GetDnDSettingAcceptedValue(int id) {
 		2,
 		1,
 		1,
-		1,
-		2,
 		1,
 		1,
 		

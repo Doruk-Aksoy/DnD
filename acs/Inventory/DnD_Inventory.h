@@ -6,7 +6,12 @@
 #define MAX_LARGE_CHARMS_USED 1
 #define MAX_ARMORS_USED 3 // BOOT BODY HELM
 #define MAX_POWERCORES_USED 1
-#define MAX_FLASK_SLOTS 2
+// The STORAGE cap, not what a player can use. Slots past the base two are unlocked by research
+// -- see GetPlayerFlaskSlots -- and the extra headroom is here so a later source can grant a
+// fourth without moving anything. FLASK*_INDEX is the LAST group in the equipped slot enum, so
+// growing this appends indices and shifts nothing above it.
+#define MAX_FLASK_SLOTS 4
+#define BASE_FLASK_SLOTS 2
 #define MAX_ITEMS_EQUIPPABLE (MAX_SMALL_CHARMS_USED + MAX_MEDIUM_CHARMS_USED + MAX_LARGE_CHARMS_USED + MAX_ARMORS_USED + MAX_POWERCORES_USED + MAX_FLASK_SLOTS)
 
 #define MAX_EXTRA_INVENTORY_PAGES 10
@@ -144,6 +149,8 @@ enum {
 
 	FLASK1_INDEX,
 	FLASK2_INDEX,
+	FLASK3_INDEX,
+	FLASK4_INDEX,
 
 	INV_ICON_INDEX // not an item just the icon index
 };
@@ -606,14 +613,20 @@ int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target
 	if(target_type == DND_CHARM_SMALL && (i = PlayerModData[pnum].vals[PSTAT_EX_LIMITEDSMALLCHARMS]) && i != MAX_SMALL_CHARMS_USED && i == CountPlayerSmallCharms(pnum))
 		return POPUP_NOMORESMALLCHARMS;
 
+	// A slot past what this player has unlocked is not a slot yet.
+	if(item_type == DND_ITEM_FLASK && use_id >= FLASK1_INDEX + GetPlayerFlaskSlots(pnum))
+		return POPUP_ONLYONEFLASK;
+
 	// check if player is trying to equip another of the same utility flask if it is utility
 	if(item_type == DND_ITEM_FLASK && IsUtilityFlask(item.item_subtype)) {
-		// check if the other flask is the exact same subtype
-		i = FLASK1_INDEX;
-		if(use_id == FLASK1_INDEX)
-			i = FLASK2_INDEX;
-		if(GlobalItemStorage.Items_Used[pnum][i].item_subtype == item.item_subtype)
-			return POPUP_ONLYONEFLASK;
+		// Every OTHER slot, not just the one opposite. This used to name FLASK1/FLASK2 outright,
+		// which silently stopped covering everything the moment a third slot existed.
+		for(i = 0; i < MAX_FLASK_SLOTS; ++i) {
+			if(FLASK1_INDEX + i == use_id)
+				continue;
+			if(GlobalItemStorage.Items_Used[pnum][FLASK1_INDEX + i].item_subtype == item.item_subtype)
+				return POPUP_ONLYONEFLASK;
+		}
 	}
 
 	// if has forbid armor but has equipped body armor, don't allow that item to be put, and vice versa if has no armor and has forbid armor etc.
@@ -2206,6 +2219,8 @@ void DropItemToField(int player_index, int pitem_index, bool forAll, int source)
 			droptype = StrParam(s:"UniqueArmor_", d:utype - UNIQUE_BODYARMOR_BEGIN);
 		else if(itype == DND_ITEM_BOOT)
 			droptype = StrParam(s:"UniqueBoot_", d:utype - UNIQUE_BOOT_BEGIN);
+		else if(itype == DND_ITEM_HELM)
+			droptype = StrParam(s:"UniqueHelm_", d:utype - UNIQUE_HELM_BEGIN);
 		else if(itype == DND_ITEM_SPECIALTY_CYBORG)
 			droptype = StrParam(s:"PowercoreDrop_Unique", d:utype - UNIQUE_POWERCORE_BEGIN);
 	}
@@ -2851,6 +2866,59 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 			SetPlayerFlag(pnum, PFLAG_LUCKYCRIT, remove);
 		break;
 
+		// Wanderlust and Emberwake. Here and not in ProcessItemImplicit, for the reason given on
+		// INV_EX_ELEPENHARMONY above: that one only ever sees INV_IMP_* ids, so a unique attribute
+		// cased there would compile, read correctly, and never once run.
+		case INV_EX_CANNOTBEFROZEN:
+			SetPlayerFlag(pnum, PFLAG_CANNOTBEFROZEN, remove);
+		break;
+
+		case INV_EX_CANNOTBEIGNITED:
+			SetPlayerFlag(pnum, PFLAG_CANNOTBEIGNITED, remove);
+		break;
+
+		// Choir of Ashes.
+		case INV_EX_IGNITE_CHAINS_ONSPREAD:
+			SetPlayerFlag(pnum, PFLAG_IGNITE_CHAINS, remove);
+		break;
+
+		case INV_EX_IGNITE_CANNOT_REFRESH:
+			SetPlayerFlag(pnum, PFLAG_IGNITE_NOREFRESH, remove);
+		break;
+
+		// Sightless Vigil.
+		case INV_EX_ACCURACY_NOSPREAD:
+			SetPlayerFlag(pnum, PFLAG_ACCURACY_NOSPREAD, remove);
+		break;
+
+		// Crown of Suffering.
+		case INV_EX_POISON_SHAREDSTACKS:
+			SetPlayerFlag(pnum, PFLAG_POISON_SHAREDSTACKS, remove);
+		break;
+
+
+		case INV_EX_POISON_CLEARS_ONKILL:
+			SetPlayerFlag(pnum, PFLAG_POISON_CLEARONKILL, remove);
+		break;
+
+		// Faraday Halo.
+		case INV_EX_OVERLOAD_CHAINS_TOSELF:
+			SetPlayerFlag(pnum, PFLAG_OVERLOAD_CHAINSTOSELF, remove);
+		break;
+
+		case INV_EX_OVERLOAD_ONANYELEMENT:
+			SetPlayerFlag(pnum, PFLAG_OVERLOAD_ANYELEMENT, remove);
+		break;
+
+		// Feeds the same conversion table the corruption mod does, so the ladder, Avatar of Fire and
+		// every fire multiplier pick it up for free. Two rungs because physical is two categories --
+		// one attribute value covering both is the whole point of not reusing INV_CORR_DAMAGECONVERSION,
+		// which names a single pair in its extra. aval is already negated on removal.
+		case INV_EX_CONVERT_PHYSTOFIRE:
+			IncPlayerConversionPercent(pnum, DND_DAMAGECATEGORY_MELEE, DND_DAMAGECATEGORY_FIRE, aval);
+			IncPlayerConversionPercent(pnum, DND_DAMAGECATEGORY_BULLET, DND_DAMAGECATEGORY_FIRE, aval);
+		break;
+
 		case INV_INC_ACCURACYREVERSED:
 			SetPlayerFlag(pnum, PFLAG_ACCURACY_REVERSED, remove);
 		break;
@@ -2925,11 +2993,9 @@ bool ItemIsCybernetic(int pnum, int item_index, int attrib_count, int source) {
 	return false;
 }
 
-// Was: OR the bit in on equip, AND-NOT it out on unequip, all packed into INV_EX_PLAYERPOWERSET1.
-// That could not tell "two equipped items grant Cyber" from "one does", so unequipping either one
-// stripped the power off a player still wearing the other -- with no way to get it back short of
-// re-equipping. SetPlayerFlag carries a source count per flag, so the bit only clears once the last
-// source is gone. The int-valued mods never had this bug because +1/-1 refcounts for free.
+// SetPlayerFlag carries a source count per flag, so the bit only clears once the LAST item granting
+// it comes off. Plain set/clear cannot tell "two equipped items grant Cyber" from "one does", and
+// would strip the power off a player still wearing the other one.
 void HandleAttributePowerset(int pnum, int flag, bool remove) {
 	SetPlayerFlag(pnum, flag, remove);
 }
@@ -3791,6 +3857,11 @@ int PickUniqueItem(int item_type, int unique_id = -1) {
 			end = UNIQUE_BOOT_END;
 			w = MAX_UNIQUE_BOOT_WEIGHT;
 		break;
+		case DND_ITEM_HELM:
+			beg = UNIQUE_HELM_BEGIN;
+			end = UNIQUE_HELM_END;
+			w = MAX_UNIQUE_HELM_WEIGHT;
+		break;
 		default:
 			beg = UNIQUE_CHARM_BEGIN;
 			end = UNIQUE_CHARM_END;
@@ -3817,6 +3888,8 @@ int PickUniqueItem(int item_type, int unique_id = -1) {
 				i = UITEM_DRAGONFANG;
 				//i = random(UITEM_UNITY, UITEM_MINDFORGE);
 			}
+			else
+				i = random(beg, end);
 		#endif
 	}
 	else

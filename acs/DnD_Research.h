@@ -242,6 +242,14 @@ void CompleteResearch(int res_id) {
 	
 	if(res_id == RES_DOUBLESPECIALCAP)
 		DoubleSpecialAmmoCapacity();
+
+	// Granted ONCE, here, rather than pulled the way most researches are. Perk points are a
+	// spendable pool held as inventory, not a derived number, so there is nothing to re-read --
+	// and this is the one place that runs exactly once per character. A character load restores
+	// the Research_Done bitfields directly instead of replaying this, and PerkPoint is saved
+	// alongside them, so the grant persists without ever landing twice.
+	if(res_id == RES_KNOWLEDGE)
+		GivePerkPoints(PlayerNumber(), DND_RESEARCH_KNOWLEDGE_POINTS);
 }
 
 bool HasIncompleteResearches() {

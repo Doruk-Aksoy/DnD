@@ -55,6 +55,14 @@ struct flaskData_T {
 
 global flaskData_T 34: FlaskData[MAXPLAYERS][MAX_FLASK_SLOTS];
 
+// What this player may actually equip and use, as opposed to what the arrays can hold. Pulled
+// from the research rather than granted, the way most researches work -- there is nothing to
+// hand out, only a slot that starts being allowed.
+int GetPlayerFlaskSlots(int pnum) {
+	int slots = BASE_FLASK_SLOTS + (CheckActorResearchStatus(pnum + P_TIDSTART, RES_EXTRAFLASK) == RES_DONE);
+	return Min(slots, MAX_FLASK_SLOTS);
+}
+
 void ResetFlask(int pnum, int i) {
 	FlaskData[pnum][i].flask_type = -1;
 	FlaskData[pnum][i].max_charges = 0;

@@ -1105,6 +1105,15 @@ str GetItemAttributeText(
 		case INV_EX_WEAPONSUSEHEALTH:
 		case INV_EX_RIPPERSRIPALL:
 		case INV_EX_MIRROROTHERMEDIUM:
+		case INV_EX_CANNOTBEFROZEN:
+		case INV_EX_CANNOTBEIGNITED:
+		case INV_EX_IGNITE_CHAINS_ONSPREAD:
+		case INV_EX_IGNITE_CANNOT_REFRESH:
+		case INV_EX_ACCURACY_NOSPREAD:
+		case INV_EX_POISON_SHAREDSTACKS:
+		case INV_EX_POISON_CLEARS_ONKILL:
+		case INV_EX_OVERLOAD_CHAINS_TOSELF:
+		case INV_EX_OVERLOAD_ONANYELEMENT:
 			if(showDetailedMods)
 				return StrParam(l:text, s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 			return StrParam(l:text);
@@ -1133,6 +1142,8 @@ str GetItemAttributeText(
 		case INV_EX_FLATDMG_ALL:
 		case INV_EX_FLATDOT:
 		case INV_EX_FLATPERSHOTGUNOWNED:
+		case INV_EX_FLATDMG_PERACCURACY:
+		case INV_EX_MAXPOISONSTACK:
 			if(showDetailedMods) {
 				return StrParam(
 					s:"+\c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:text,
@@ -1156,6 +1167,7 @@ str GetItemAttributeText(
 			
 		// negative effects are shown with different color -- these are % ones of those, these are positive numerically
 		case INV_EX_DMGINCREASE_TAKEN:
+		case INV_EX_SPREAD_PENALTY:
 			if(showDetailedMods) {
 				return StrParam(s:"+\cg", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c[D4] ", l:text,
 					s:" - ", s:GetModTierText(attr, item_type, tier, extra)
@@ -1165,12 +1177,13 @@ str GetItemAttributeText(
 
 		// negative effect without any %
 		case INV_EX_AMMOCOSTMULTIPLIER:
+		case INV_EX_OVERLOAD_SELFOVERLOAD:
 			if(showDetailedMods) {
 				return StrParam(s:"+\cg", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c[D4] ", l:text,
 					s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
-			return StrParam(s:"+\cg", d:val1, s:"%\c[D4] ", l:text);
+			return StrParam(s:"+\cg", d:val1, s:"\c[D4] ", l:text);
 
 		case INV_EX_MOREAMMOUSE:
 			if(showDetailedMods)

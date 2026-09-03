@@ -151,11 +151,11 @@ RES_DESC48				= "With this groundbreaking research, we can now utilize powers of
 RES_LABEL49 			= "Slot 8 Weapons";
 RES_DESC49				= "Powerful demons can teach us a lot of things. Now we can utilize their immense power for even better weapons! Unlocks slot 8 weapons.";
 
-RES_LABEL50 			= "Nano Technology";
-RES_DESC50				= "Nano-technology is finally here! Unlocks cybernetic abilities.";	
+RES_LABEL50 			= "Talent Boost";
+RES_DESC50				= "With the recent break-through in nanotechnology, we can implant knowledge you never had directly in your brain! Grants two perk points.";	
 
-RES_LABEL51 			= "Occult Artifacts";
-RES_DESC51				= "Artifacts have always been an elusive aspect. However with demon technology we can harness even more! Unlocks certain artifacts.";
+RES_LABEL51 			= "Pocket Space";
+RES_DESC51				= "An additional pocket on your belt could make all the difference out on the field. Grants an additional flask slot.";
 
 RES_LABEL52				= "Destruction Generator (7)";
 RES_DESC52				= "UAC hesitantly complies allowing use of this utterly destructive weapon, as it can wreak absolute havoc to friend and foe alike. Unlocks Destruction Generator (7).";

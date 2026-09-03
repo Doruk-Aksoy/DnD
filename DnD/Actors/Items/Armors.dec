@@ -712,6 +712,23 @@ Actor UniqueBoot_0 : ArmorDrop {
 	}
 }
 
+Actor UniqueBoot_1 : ArmorDrop {
+	States {
+		Spawn:
+			UBO0 B 0
+		Goto SpawnInit
+	}
+}
+
+Actor UniqueBoot_2 : ArmorDrop {
+	Scale 0.666
+	States {
+		Spawn:
+			UBO0 C 0
+		Goto SpawnInit
+	}
+}
+
 // HELMS
 
 Actor HelmDrop_0 : ArmorDrop {
@@ -784,6 +801,43 @@ Actor HelmDrop_8 : ArmorDrop {
 	States {
 		Spawn:
 			HELM I 0
+		Goto SpawnInit
+	}
+}
+
+Actor UniqueHelm_0 : ArmorDrop {
+	XScale 0.35
+	YScale 0.333
+	States {
+		Spawn:
+			UHE0 A 0
+		Goto SpawnInit
+	}
+}
+
+Actor UniqueHelm_1 : ArmorDrop {
+	Scale 0.333
+	States {
+		Spawn:
+			UHE0 B 0
+		Goto SpawnInit
+	}
+}
+
+Actor UniqueHelm_2 : ArmorDrop {
+	Scale 0.333
+	States {
+		Spawn:
+			UHE0 C 0
+		Goto SpawnInit
+	}
+}
+
+Actor UniqueHelm_3 : ArmorDrop {
+	Scale 0.333
+	States {
+		Spawn:
+			UHE0 D 0
 		Goto SpawnInit
 	}
 }

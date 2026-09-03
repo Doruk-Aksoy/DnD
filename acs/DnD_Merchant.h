@@ -104,6 +104,11 @@ int PickUniqueItemMerchant(int item_pos) {
 			end = UNIQUE_BOOT_END;
 			w = MAX_UNIQUE_BOOT_WEIGHT;
 		break;
+		case DND_ITEM_HELM:
+			beg = UNIQUE_HELM_BEGIN;
+			end = UNIQUE_HELM_END;
+			w = MAX_UNIQUE_HELM_WEIGHT;
+		break;
 		default:
 			beg = UNIQUE_CHARM_BEGIN;
 			end = UNIQUE_CHARM_END;

@@ -121,10 +121,6 @@ enum {
 	MENU_SHOP_AMMO_4_2,
 	MENU_SHOP_AMMO_SPECIAL1,
 	
-	// The ability and artifact shop pages are gone. Everything they sold still exists and still
-	// works when granted -- the actors, the SHOP_ABILITY_* / SHOP_ARTI_* ids, their table rows and
-	// every hook that reads them. There is simply no counter selling them any more.
-	
 	MENU_SHOP_ACCOUNT,
 	
 	MENU_RESEARCH,
@@ -172,12 +168,6 @@ enum {
 
 #define SHOP_FIRSTAMMOSPECIAL_INDEX SHOP_AMMO_FLECHETTE
 #define SHOP_FIRSTAMMOSPECIAL_GRENADE_INDEX SHOP_AMMO_SONICGRENADE
-
-#define SHOP_FIRSTARTI1_INDEX SHOP_ARTI_KIT
-#define SHOP_FIRSTARTI2_INDEX SHOP_ARTI_RADSUIT
-
-#define SHOP_ABILITY1_BEGIN SHOP_ABILITY_PARRY
-#define SHOP_ABILITY2_BEGIN SHOP_ABILITY_TEMPORAL
 
 #define SHOP_ACCOUNT_BEGIN SHOP_ACCOUNT_STASHTAB
 
@@ -234,11 +224,18 @@ enum {
 #define SHOP_LASTAMMO_SPECIALINDEX SHOP_AMMO_HEGRENADE
 #define SHOP_LASTAMMO_NORMALINDEX SHOP_AMMO_SNIPER
 #define SHOP_LASTWEP_INDEX SHOP_WEP_REAVER
-#define SHOP_ABILITY1_END SHOP_ABILITY_REGEN
-#define SHOP_LASTABILITY_INDEX SHOP_ABILITY_SOUL
-#define SHOP_ARTIFACT1_END SHOP_ARTI_RESET
-#define SHOP_LASTARTI_INDEX SHOP_ARTI_RADSUIT
-#define SHOP_LASTDRAWNARTI_INDEX SHOP_ARTI_BOOK
+
+// Flask grid on the equipment page. Two columns of two, in the band between the small charms
+// (right edge ~284) and the armor column (left edge ~368). The draw coordinate is the box
+// CENTRE, not its corner -- flask 1 used to sit at 336 and its hit box spans 316..356.
+//
+// 32px boxes at a 36px pitch: columns span 296..328 and 332..364, so the grid clears the charms
+// on the left and the armors on the right with a couple of pixels to spare. The old single
+// column used the 40px charm box, which is why two of those could never fit side by side.
+#define DND_FLASKBOX_COL1 312.0
+#define DND_FLASKBOX_COL2 348.0
+#define DND_FLASKBOX_ROW1 211.0
+#define DND_FLASKBOX_ROW2 251.0
 
 #define SHOP_RESPAGE_BEGIN MENU_RESEARCH_BODY
 #define SHOP_RESPAGE_END MENU_RESEARCH_UTILITY
