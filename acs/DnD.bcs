@@ -1008,6 +1008,13 @@ Script "DND On Kill" KILL {
 	if(HasPlayerFlag(target - P_TIDSTART, PFLAG_POISON_CLEARONKILL))
 		ClearPoisonPool(target - P_TIDSTART);
 
+	// Vaultstride. A kill hands a charge back, so a chain of kills keeps you moving and a missed one
+	// drops you to the cooldown. Capped, or a long fight would bank dashes without limit.
+	// No cap test needed: spent cannot fall below zero, so a full bank simply has nothing to give
+	// back and the take is a no-op.
+	if(HasPlayerFlag(target - P_TIDSTART, PFLAG_DASH_KILLREFUND))
+		TakeActorInventory(target, "DnD_DashSpent", 1);
+
 	int is_demon = IsDemon();
 
 	// Demon Bane check
@@ -3792,7 +3799,33 @@ Script 997 (void) NET {
 	// The dash is Acrobacy / Tactical Dash and nothing else. Ability_Dash no longer grants it, and the
 	// ability entry stays in the enum only so the tags and help text survive for the spell rework --
 	// nothing reads it any more now that abilities are neither sold nor saved.
-	if(PlayerModData[pnum].vals[PSTAT_DASH_UNLOCK] && !CheckInventory("DnD_PerkDashCooldown") && GetActorVelZ(0) >= 0.0 && !CheckInventory("DashDisabled") && !CheckInventory("P_Frozen") && GetActorProperty(0, APROP_HEALTH) > 0) {
+	// Undertow. A live anchor turns the next dash press into the return trip. Checked before the
+	// ordinary gate and bypassing the cooldown entirely: the cost was paid when the anchor was
+	// dropped, and a round trip you cannot afford to finish is not a round trip.
+	//
+	// The window is DnD_DashedRecently, which every dash already sets and which already ticks down --
+	// a second timer would be one more thing to keep in step with the first.
+	if(HasPlayerFlag(pnum, PFLAG_DASH_ANCHOR) && CheckInventory("DnD_DashedRecently") && HasDashAnchor(pnum)) {
+		ActivatorSound("Player/Dash", SD_SOUNDVOLUME);
+		ReturnToDashAnchor(pnum);
+		Terminate;
+	}
+
+	// Vaultstride. The boots REPLACE the dash cooldown with charges rather than adding a second
+	// resource beside it: one base dash plus the rolled extras, each spent and recovered on its own.
+	// The cooldown gate would otherwise still be there, forcing every charge to be spent in the one
+	// window before the timer cleared -- all at once or not at all.
+	//
+	// The token counts charges SPENT, not held. Inventory starts at zero and nothing seeds it on
+	// equip, so "held" read as an empty bank the moment the boots went on. Spent counts up from that
+	// natural zero, which makes a fresh pair a full one.
+	int dash_extra = PlayerModData[pnum].vals[PSTAT_EX_DASH_CHARGES];
+	int dash_max = 1 + dash_extra;
+	bool dash_ready = dash_extra ?
+		CheckInventory("DnD_DashSpent") < dash_max :
+		!CheckInventory("DnD_PerkDashCooldown");
+
+	if(PlayerModData[pnum].vals[PSTAT_DASH_UNLOCK] && dash_ready && GetActorVelZ(0) >= 0.0 && !CheckInventory("DashDisabled") && !CheckInventory("P_Frozen") && GetActorProperty(0, APROP_HEALTH) > 0) {
 		// Acrobacy / Enhanced Joints. Scales the impulse, which is what "dash range" means for a
 		// velocity based dash -- there is no distance to extend, only how hard the push is.
 		int range_factor = 1.0 + ((PlayerModData[pnum].vals[PSTAT_DASH_RANGE] << 16) / 100);
@@ -3822,10 +3855,34 @@ Script 997 (void) NET {
 				}
 				GiveInventory("DashEffect", 1);
 
-				int cd = DND_PERKDASH_COOLDOWN *
-					(100 - PlayerModData[pnum].vals[PSTAT_DASH_COOLDOWNREDUCE]) / 100;
-				SetInventory("DnD_PerkDashCooldown", Max(1, cd));
-				ACS_NamedExecuteAlways("DnD Perk Dash Cooldown", 0);
+				// Guarded on !dashed because this loop runs once per held movement key: re-setting a
+				// cooldown twice was harmless, but spending two charges for one dash is not.
+				if(!dashed) {
+					int cd = GetPerkDashCooldown(pnum);
+
+					if(dash_extra) {
+						GiveInventory("DnD_DashSpent", 1);
+
+						// Vaultstride. The timer runs continuously while anything is owed and returns
+						// one charge each time it completes, so a dash taken while it is already
+						// running neither restarts nor extends it. That is what lets the charges be
+						// spent at any pace -- one now, one a while later -- instead of only in a
+						// burst before the timer clears.
+						if(!CheckInventory("DnD_PerkDashCooldown")) {
+							SetInventory("DnD_PerkDashCooldown", Max(1, cd));
+							ACS_NamedExecuteAlways("DnD Perk Dash Cooldown", 0);
+						}
+					}
+					else {
+						SetInventory("DnD_PerkDashCooldown", Max(1, cd));
+						ACS_NamedExecuteAlways("DnD Perk Dash Cooldown", 0);
+					}
+				}
+
+				// Undertow. Dropped here, inside the branch that actually dashed, so a refused dash
+				// leaves the previous anchor alone.
+				if(!dashed && HasPlayerFlag(pnum, PFLAG_DASH_ANCHOR))
+					SetDashAnchor(pnum);
 
 				// "Recently dashed", read by the perks that key off a dash. A plain countdown rather than
 				// a timestamp, because ACS has no clock a client and server would agree on.
@@ -3870,6 +3927,22 @@ Script "DnD Perk Dash Cooldown" (void) {
 	}
 
 	SetInventory("DnD_PerkDashCooldown", 0);
+
+	// Vaultstride. ONE charge per cooldown, not the whole bank at once, and the timer restarts while
+	// the bank is still short -- so charges come back at the same rate the dash itself does instead
+	// of all reappearing together. Refilled here rather than on a timer of its own: the cooldown
+	// ending IS the recharge, so the two cannot drift apart.
+	int dash_pnum = PlayerNumber();
+	int dash_cap = PlayerModData[dash_pnum].vals[PSTAT_EX_DASH_CHARGES];
+	if(dash_cap && CheckInventory("DnD_DashSpent") > 0) {
+		TakeInventory("DnD_DashSpent", 1);
+
+		// still owed one, so run the timer again for the next
+		if(CheckInventory("DnD_DashSpent") > 0) {
+			SetInventory("DnD_PerkDashCooldown", GetPerkDashCooldown(dash_pnum));
+			ACS_NamedExecuteAlways("DnD Perk Dash Cooldown", 0);
+		}
+	}
 }
 
 // Rage decay. The grace period is refreshed by every gain, so the drain only starts once the player
@@ -3906,7 +3979,7 @@ Script "DnD Flash Parry Shockwave" (int ptid, int pnum) {
 	int dmg = PlayerModData[pnum].vals[PSTAT_PARRY_SHOCKDMG] +
 			GetSpawnHealth() * DND_FLASHPARRY_HEALTHPCT / 100;
 
-	int range = DND_FLASHPARRY_BASERANGE;
+	int range = ScalePlayerAoERadius(pnum, DND_FLASHPARRY_BASERANGE, DND_AOESRC_NONWEAPON);
 	int temp = PlayerModData[pnum].vals[PSTAT_PARRY_SHOCKRANGE];
 	if(temp)
 		range = range * (100 + temp) / 100;
@@ -4295,6 +4368,7 @@ Script "DnD Dash Crash Course" (void) {
 				((DND_CRASHCOURSE_DEXFACTOR * GetDexterity(pnum)) >> 16);
 
 	int stun = PlayerModData[pnum].vals[PSTAT_DASH_CRASHSTUN];
+	int radius = ScalePlayerAoERadius(pnum, DND_CRASHCOURSE_RADIUS, DND_AOESRC_NONWEAPON);
 
 	for(int t = 0; t < DND_CRASHCOURSE_WATCHTICS; ++t) {
 		if(!isActorAlive(ptid))
@@ -4308,7 +4382,7 @@ Script "DnD Dash Crash Course" (void) {
 			if(!m_tid || !isActorAlive(m_tid))
 				continue;
 
-			if(AproxDistance(GetActorX(m_tid) - GetActorX(ptid), GetActorY(m_tid) - GetActorY(ptid)) > DND_CRASHCOURSE_RADIUS)
+			if(AproxDistance(GetActorX(m_tid) - GetActorX(ptid), GetActorY(m_tid) - GetActorY(ptid)) > radius)
 				continue;
 
 			if(!CheckSight(ptid, m_tid, CSF_NOBLOCKALL))
@@ -4343,12 +4417,168 @@ Script "DnD Dash Evade Timer" (void) {
 // Shared "recently dashed" window. Kinetic Pads reads the COOLDOWN instead, since its wording is
 // "until dash is available" rather than a fixed window.
 Script "DnD Dashed Recently Timer" (void) {
+	int pnum = PlayerNumber();
+
 	while(CheckInventory("DnD_DashedRecently") && GetActorProperty(0, APROP_HEALTH) > 0) {
 		TakeInventory("DnD_DashedRecently", 1);
 		Delay(const:1);
 	}
 
 	SetInventory("DnD_DashedRecently", 0);
+
+	// Undertow. The window closing is what makes the anchor unreachable, so the marker goes with it.
+	// The anchor itself is left alone: nothing reads it without the window, and clearing it here
+	// would race the return that may be resolving on this very tic.
+	if(HasPlayerFlag(pnum, PFLAG_DASH_ANCHOR))
+		ACS_NamedExecuteAlways("DnD Dash Anchor Marker Clear", 0, pnum);
+}
+
+// Emberwake. Drops burning ground behind a moving player, and sets them alight when they stop.
+//
+// One loop per wearer, started by the equip case and ended by the flag going away, rather than a
+// permanent per player ticker: a player without the boots runs nothing at all.
+// Which segment of the ring each player writes next. Map scoped and zeroed, which is the right
+// empty state -- a new map starts the ring over.
+int trail_slot[MAXPLAYERS];
+
+Script "DnD Ember Trail" (int pnum) {
+	SetActivator(pnum + P_TIDSTART);
+
+	// Re-equipping must not stack a second loop on top of the first.
+	if(CheckInventory("DnD_EmberTrailRunning"))
+		Terminate;
+	GiveInventory("DnD_EmberTrailRunning", 1);
+
+	// Standing still has to be SUSTAINED before it burns. The loop samples an instant, and an
+	// instant reads slow for all sorts of reasons that are not standing still -- a strafe reversal,
+	// a landing, a step into a wall -- so a single low sample used to be enough to set you alight
+	// while running. Reset on any movement, counted down only while genuinely still.
+	int ptid = pnum + P_TIDSTART;
+	int dmg, spd, burn_wait = DND_EMBERTRAIL_BURNRATE;
+
+	while(PlayerModData[pnum].vals[PSTAT_EX_IGNITETRAIL] > 0 && IsAlive()) {
+		spd = GetPVelocity();
+		if(spd < 0)
+			spd = -spd;
+
+		if(spd >= DND_EMBERTRAIL_MINSPEED) {
+			dmg = PlayerModData[pnum].vals[PSTAT_EX_IGNITETRAIL];
+
+			// Emberwake. Linear from nothing extra at DND_EMBERTRAIL_MINSPEED to double at
+			// DND_EMBERTRAIL_FULLSPEED, which is what the mod text promises. Capped, or a speed
+			// stacked build would scale the trail without limit.
+			if(HasPlayerFlag(pnum, PFLAG_TRAIL_SPEEDSCALES)) {
+				int over = spd - DND_EMBERTRAIL_MINSPEED;
+				int span = DND_EMBERTRAIL_FULLSPEED - DND_EMBERTRAIL_MINSPEED;
+				if(over > span)
+					over = span;
+				dmg += (dmg * over) / span;
+			}
+
+			int ttid = DND_EMBERTRAIL_TID + pnum * DND_EMBERTRAIL_PERPLAYER + trail_slot[pnum];
+			trail_slot[pnum] = (trail_slot[pnum] + 1) % DND_EMBERTRAIL_PERPLAYER;
+
+			// The slot is reused, so whatever is standing in it goes first -- the ring is what bounds
+			// how many segments one player can have alive at once.
+			Thing_Remove(ttid);
+			if(SpawnForced("DnD_EmberTrail", GetActorX(0), GetActorY(0), GetActorZ(0), ttid)) {
+				SetActorInventory(ttid, "DnD_TrailOwner", pnum + 1);
+				SetActorInventory(ttid, "DnD_TrailDamage", dmg);
+
+				// The TARGET pointer is what credits the damage: "DnD Scale Non Weapon Damage" reads
+				// the owner off APROP_TARGETTID, so without this every segment would scale against
+				// player 0 no matter who dropped it. The inventory values only carry numbers.
+				//
+				// The TID is deliberately NOT cleared afterwards the way the Wanderer explosion does:
+				// the ring needs it to remove this segment when the slot comes round again.
+				SetActivator(ttid);
+				SetPointer(AAPTR_TARGET, ptid);
+				SetActivator(ptid);
+			}
+
+			burn_wait = DND_EMBERTRAIL_BURNRATE;
+		}
+		else if(CheckInventory("DnD_IntermissionState") || CheckInventory("ShowingMenu") ||
+			CheckInventory("ShowingPrompt")) {
+			// Held still by the game rather than by choice: the end of level scoreboard, the RPG menu,
+			// an NPC prompt. All three freeze the player, so the speed check alone reads them as
+			// standing still. The timer RESETS rather than pausing -- closing a menu should not drop
+			// you straight into a burn you had no chance to walk out of.
+			//
+			// Only this mod is gated on it. Nothing else about burning changes.
+			burn_wait = DND_EMBERTRAIL_BURNRATE;
+		}
+		else if(IsPlayerMoving(pnum, ptid)) {
+			// Moving, just not fast enough to leave anything behind. Reads the movement BUTTONS as
+			// well as velocity, which is what makes it survive the instants GetPVelocity dips through.
+			burn_wait = DND_EMBERTRAIL_BURNRATE;
+		}
+		else if(HasPlayerFlag(pnum, PFLAG_TRAIL_BURNSSTILL)) {
+			// Standing still sets YOU alight, once per DND_EMBERTRAIL_BURNRATE rather than once per
+			// pass -- this loop runs at the trail's spawn rate, four times faster than a burn ticks.
+			burn_wait -= DND_EMBERTRAIL_RATE;
+			if(burn_wait <= 0) {
+				burn_wait = DND_EMBERTRAIL_BURNRATE;
+
+				// Rolled against your own ignite avoidance and reduced by your elemental resist, so
+				// the drawback is real but never unanswerable.
+				//
+				// Delivered as SkipHandle rather than through RegisterDoTDamage. That path credits a
+				// MONSTER owner: with the player as their own owner the damage event falls into the
+				// self branch, which decodes arg1 as a packed weapon word -- a plain number sent that
+				// way reads as a weapon id and resolves to nothing at all.
+				if(GetPlayerElementalAvoidChance(pnum, DND_PAVOID_IGNITE) < random(1, 100)) {
+					int burn = Max(1, PlayerModData[pnum].vals[PSTAT_EX_IGNITETRAIL] / 2);
+					burn = ApplyPlayerDamageResist(pnum, burn, DND_PRESIST_ELEM);
+					if(burn > 0) {
+						ACS_NamedExecuteAlways("DnD Monster Ignite FX", 0, ptid, random(3, 5));
+						Thing_Damage2(ptid, burn, "SkipHandle");
+					}
+				}
+			}
+		}
+
+		Delay(const:DND_EMBERTRAIL_RATE);
+	}
+
+	TakeInventory("DnD_EmberTrailRunning", 1);
+}
+
+Script "DnD Ember Trail Damage" (void) {
+	int this = ActivatorTID();
+	int owner = CheckInventory("DnD_TrailOwner") - 1;
+	int dmg = CheckInventory("DnD_TrailDamage");
+	int res = 0;
+	if(owner >= 0 && dmg > 0)
+		res = dmg;
+
+	SetResultValue(res);
+}
+
+// Undertow. The marker is CLIENTSIDE and drawn only for the player it belongs to -- an anchor is a
+// private promise about where you can get back to, and everyone else's would be noise.
+//
+// The position is passed in rather than read from the anchor table: that table is a plain static, so
+// the client's copy of it is empty. The three coordinates are exactly the three arguments a named
+// script gets, which is why nothing else rides along.
+Script "DnD Dash Anchor Marker" (int pnum, int ax, int ay, int az) CLIENTSIDE {
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+
+	// One marker per player: a second dash moves the anchor, so the old marker must go rather than
+	// leaving two on the map with only one of them real.
+	int mtid = DND_ANCHORMARKER_TID + pnum;
+	SetActorState(mtid, "Remove");
+	SpawnForced("DnD_DashAnchorMarker", ax, ay, az, mtid);
+
+	SetResultValue(0);
+}
+
+Script "DnD Dash Anchor Marker Clear" (int pnum) CLIENTSIDE {
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+
+	SetActorState(DND_ANCHORMARKER_TID + pnum, "Remove");
 }
 
 // reload script -- rewrite sometime
@@ -5440,12 +5670,20 @@ Script "DnD Lootbox Opened" (int for_player, int guaranteed_orb) {
 	}
 }
 
-Script "DnD Explosion Radius Retrieve" (int r_base, int noSecondExp) {
+Script "DnD Explosion Radius Retrieve" (int r_base, int noSecondExp, int src) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	if(!isPlayer(owner))
 		owner = GetActorProperty(0, APROP_SCORE);
 
 	int pnum = owner - P_TIDSTART;
+
+	// An explosion whose owner does not resolve to a player -- a pet's, or one spawned with no
+	// pointer chain -- has no stats to read. Hand back the base rather than indexing on junk.
+	if(pnum < 0 || pnum >= MAXPLAYERS) {
+		SetResultValue(r_base);
+		Terminate;
+	}
+
 	int orig = r_base;
 	
 	// AREA, not radius. Area goes with r^2, so scaling the radius by the percentage squared the
@@ -5455,9 +5693,13 @@ Script "DnD Explosion Radius Retrieve" (int r_base, int noSecondExp) {
 	// is nowhere near overflow.
 	// The artillery term is added here and NOT inside GetPlayerAoEIncrease: that one is also what
 	// APROP_SCORE and the stat page carry, and both of those describe the player rather than one
-	// explosion, so neither can answer "is the weapon in hand artillery".
-	r_base = sqrt_z(r_base * r_base *
-		(100 + GetPlayerAoEIncrease(pnum) + GetPlayerArtilleryAoEIncrease(pnum, owner)) / 100);
+	// explosion, so neither can answer "is the weapon in hand artillery". It is weapon sourced by
+	// definition, so a non weapon explosion does not get it either.
+	int aoe = GetPlayerAoEIncrease(pnum, src);
+	if(src == DND_AOESRC_WEAPON)
+		aoe += GetPlayerArtilleryAoEIncrease(pnum, owner);
+
+	r_base = sqrt_z(r_base * r_base * (100 + aoe) / 100);
 
 	// less mods
 	if(!noSecondExp) {
@@ -5480,6 +5722,34 @@ Script "DnD Explosion Radius Retrieve" (int r_base, int noSecondExp) {
 	// adjust base size accordingly
 	SetActorProperty(0, APROP_SCALEX, GetActorProperty(0, APROP_SCALEX) * r_base / orig);
 	SetActorProperty(0, APROP_SCALEY, GetActorProperty(0, APROP_SCALEY) * r_base / orig);
+
+	SetResultValue(r_base);
+}
+
+// The same scaling for areas that are NOT explosions -- A_RadiusGive scans and the like. Separate
+// from the script above because that one also resizes the actor's sprite to match its blast, which
+// a scan actor must not do.
+Script "DnD AoE Radius Retrieve" (int r_base, int src) {
+	// Runs either ON the player -- an inventory effector's own state -- or on an actor they own.
+	int pnum = PlayerNumber();
+	int owner = pnum + P_TIDSTART;
+	if(pnum < 0) {
+		owner = GetActorProperty(0, APROP_TARGETTID);
+		if(!isPlayer(owner))
+			owner = GetActorProperty(0, APROP_SCORE);
+
+		pnum = owner - P_TIDSTART;
+	}
+
+	if(pnum >= 0 && pnum < MAXPLAYERS) {
+		int aoe = GetPlayerAoEIncrease(pnum, src);
+		if(src == DND_AOESRC_WEAPON)
+			aoe += GetPlayerArtilleryAoEIncrease(pnum, owner);
+
+		// AREA, not radius -- see "DnD Explosion Radius Retrieve".
+		if(aoe)
+			r_base = sqrt_z(r_base * r_base * (100 + aoe) / 100);
+	}
 
 	SetResultValue(r_base);
 }
@@ -5533,6 +5803,12 @@ Script "DnD Force Damage Cache Recalculation" (int pnum) {
 		pnum = PlayerNumber();
 
 	ForcePlayerDamageCaching(pnum);
+
+	// Emberwake. Started from here rather than from the attribute switch: this script already fires
+	// on every equip and unequip, and the trail loop only needs to know that the stat is now there.
+	// It ends itself when the stat goes away, so unequipping needs no counterpart.
+	if(PlayerModData[pnum].vals[PSTAT_EX_IGNITETRAIL] > 0)
+		ACS_NamedExecuteAlways("DnD Ember Trail", 0, pnum);
 }
 
 Script "DnD Pet Monster Scale" (int petid, int trait1, int trait2) {

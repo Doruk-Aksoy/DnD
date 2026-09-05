@@ -96,6 +96,14 @@ enum {
 	DND_DAMAGEFLAG_FOILINVUL = 1073741824,
 };
 
+// Which area of effect stat the radius scripts answer with. Mirrors DND_AOESRC_* in DnD_Common.h --
+// an explosion a weapon did not cause gets only the universal term, never the weapon one and never
+// the artillery one.
+enum {
+	DND_AOESRC_WEAPON,
+	DND_AOESRC_NONWEAPON
+};
+
 enum {
 	DND_SCANNER_BFG,
 	DND_SCANNER_BFGUPGRADED,

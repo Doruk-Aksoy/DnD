@@ -86,6 +86,10 @@ enum {
     BTI_F_REMOVE            = 0b10,
     BTI_F_USEINITIALSOURCE  = 0b100,
     BTI_F_ISCURSE           = 0b1000,
+
+    // Archangel Beacon. Set on a shared copy. This is the recursion guard: without it two wearers standing
+    // together would hand the same buff back and forth forever, each application spawning another.
+    BTI_F_ISSHARED          = 0b10000,
 };
 
 #define DND_GRANITE_ARMORBUFF 1000
@@ -111,7 +115,38 @@ enum {
 
 // by default assumes the source of buff to be activator of the script calling this, initiator may not always be activator of script
 // returns duration for blends
-int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, int script_flags = 0, int update = 0, int new_duration = 0, int inc_effect = 0) {
+// Archangel Beacon. Cost is the whole design constraint here: this sits on the path every buff in the
+// game takes, and buffs are gained constantly.
+//
+//  - Nothing below runs unless the wearer actually holds the charm. For everyone else the cost is a
+//    single array read at the call site, which is why the gate lives there and not in here.
+//  - Single player leaves before the loop; there is nobody to share with.
+//  - The walk is over MAXPLAYERS -- 64 ints -- not over actors, and every cheap test comes before
+//    the distance measurement, which is the only expensive one.
+//  - The copies carry BTI_F_ISSHARED, so a copy never shares again. That is what stops two wearers
+//    standing together from bouncing one buff between them forever.
+void ShareBuffToNearby(int pnum, int buff_table_index, int script_flags, int update) {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		return;
+
+	int potency = PlayerModData[pnum].vals[PSTAT_EX_SHAREDBUFF_POTENCY];
+	int ptid = pnum + P_TIDSTART;
+	int range = ScalePlayerAoERadius(pnum, DND_ARCHANGELBEACON_RANGE, DND_AOESRC_NONWEAPON);
+
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		if(i == pnum || !PlayerInGame(i) || PlayerIsSpectator(i))
+			continue;
+
+		int otid = i + P_TIDSTART;
+		if(!isActorAlive(otid) || fdistance(ptid, otid) > range)
+			continue;
+
+		HandlePlayerBuffAssignment(i, ptid, buff_table_index,
+			script_flags | BTI_F_ISSHARED | BTI_F_USEINITIALSOURCE, update, 0, 0, potency);
+	}
+}
+
+int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, int script_flags = 0, int update = 0, int new_duration = 0, int inc_effect = 0, int shared_potency = 0) {
     // GivePlayerBuff and RemoveBuffMatching both WALK the buff list, and a virgin
     // pbuffs global has the dummy head linked to itself (see RemoveAllBuffs). The
     // "DnD Player Buff" script already gates on this, but the many direct callers
@@ -767,6 +802,16 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
         tic_duration = tic_duration * (100 - DND_WANDERER_PERK5_DEBUFFREDUCE) / 100;
     }
 
+    // Archangel Beacon. The wearer's own buffs run short. Not applied to a curse -- shortening those would
+    // be an upside -- and not to a shared copy, which is somebody else's buff and pays its own way.
+    if(!(script_flags & (BTI_F_ISCURSE | BTI_F_ISSHARED))) {
+        int bw_short = PlayerModData[pnum].vals[PSTAT_EX_BUFF_SHORTER];
+        if(bw_short > 0) {
+            bduration = bduration * (100 - bw_short) / 100;
+            tic_duration = tic_duration * (100 - bw_short) / 100;
+        }
+    }
+
     if(!(script_flags & BTI_F_REMOVE)) {
         if(update) {
             // update with this if there is
@@ -777,7 +822,28 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
         if(isShotgunSlow)
             bvalue = bvalue * (100 - PlayerModData[pnum].vals[PSTAT_IMP_REDUCEDSLOWSHOTGUNS]) / 100;
 
+        // Archangel Beacon. A shared copy is weaker. Scaled here rather than through inc_effect because
+        // that parameter is only read by a handful of the cases above -- this reaches every buff.
+        if(shared_potency > 0)
+            bvalue = bvalue * shared_potency / 100;
+
         GivePlayerBuff(pnum, bsource, btype, buff_table_index, bvalue, bflags, bduration, update);
+
+        // Archangel Beacon. After the wearer's own copy has landed, and only for something that can be
+        // shared safely:
+        //
+        //   BUFF_F_TICKERREQUIRED -- the buff expires ON ITS OWN. Everything without it is ended by
+        //     an explicit RemoveBuffMatching when some condition lapses, and that call goes to the
+        //     player whose condition it was. An ally who caught a copy and then walked away would
+        //     never be told to drop it, so a charge or a stance would sit on them permanently.
+        //   bduration > 0 -- belt and braces on the same point: a ticking buff with no time on it
+        //     has nothing to count down.
+        //   bvalue > 0 -- this table stores the weapon slows as NEGATIVE values, and handing an ally
+        //     a movement slow every time the wearer fires a minigun is not support.
+        if((bflags & BUFF_F_TICKERREQUIRED) && bduration > 0 && bvalue > 0
+            && !(script_flags & (BTI_F_ISCURSE | BTI_F_ISSHARED))
+            && PlayerModData[pnum].vals[PSTAT_EX_SHAREDBUFF_POTENCY] > 0)
+            ShareBuffToNearby(pnum, buff_table_index, script_flags, update);
     }
     else {
         if(update) {

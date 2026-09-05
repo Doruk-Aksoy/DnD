@@ -516,6 +516,10 @@ Actor DnD_PoisonShred : DnD_Info { }
 Actor DnD_Permafrost : DnD_Info { }
 Actor DnD_ColdImmuneTimer : DnD_Info { }
 Actor DnD_Cremated : DnD_Info { }
+Actor DnD_DashSpent : DnD_Info { }
+Actor DnD_EmberTrailRunning : DnD_Info { }
+Actor DnD_TrailOwner : DnD_Info { }
+Actor DnD_TrailDamage : DnD_Info { }
 Actor DnD_EssenceTheft : DnD_Info { }
 Actor DnD_EssenceTheftTimer : DnD_Info { }
 Actor DnD_AilmentImmune : DnD_Info { }
@@ -835,7 +839,7 @@ Actor Septic_Cloud : DnD_ExplosiveBase {
 			)
 		DoDmg:
 			FXPG A 0 A_SetUserVar("user_expdmg", Args[0])
-			FXPG A 0 A_SetUserVar("user_expradius", 108)
+			FXPG A 0 A_SetUserVar("user_expradius", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", 108, 1, DND_AOESRC_NONWEAPON))
 			FXPG A 0 A_SetUserVar("user_fullexpradius", user_expradius)
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
@@ -857,6 +861,145 @@ Actor CrematorDeathFX {
 	States {
 		Spawn:
 			FXPO ABBCDEFGHIJKLM 1 Bright A_FadeOut(0.05)
+		Stop
+	}
+}
+
+Actor DnD_DashAnchorMarker {
+	Height 4
+	Radius 2
+
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+
+	const int amt = 24;
+	var int user_count;
+
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetUserVar("user_count", 0)
+		SpawnInit:
+			TNT1 A 0 A_CustomMissile("DnD_AnchorParticle", 2, 0, user_count * 360 / amt, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			//TNT1 A 0 A_SpawnItemEx("DnD_AnchorParticle", 0, 0, 0, 0, 0, 0, user_count * 16, SXF_SETMASTER)
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+			TNT1 A 0 A_JumpIf(user_count >= amt, "SpawnInner")
+		Loop
+		SpawnInner:
+			TNT1 A 0 A_SetUserVar("user_count", 0)
+		SpawnInnerLoop:
+			TNT1 A 0 A_CustomMissile("DnD_AnchorParticle_Inner", 2, 0, user_count * 720 / amt, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			//TNT1 A 0 A_SpawnItemEx("DnD_AnchorParticle", 0, 0, 0, 0, 0, 0, user_count * 16, SXF_SETMASTER)
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+			TNT1 A 0 A_JumpIf(user_count >= amt / 2, "SpawnLoop")
+		Loop
+		SpawnLoop:
+			TNT1 A 5
+		Loop
+		Remove:
+			TNT1 A 17 A_GiveInventory("DnD_Boolean", 1)
+		Stop
+	}
+}
+
+Actor DnD_AnchorParticle {
+	Scale 0.15
+	Renderstyle Add
+	Alpha 0.875
+	Height 2
+	Radius 1
+
+	+MISSILE
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+
+	const int ang_inc = 2;
+	const int r = 48;
+
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 3 A_Warp(AAPTR_TARGET, r, 0, 2, ang_inc, WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+		SpawnLoop:
+			OGLP P 1 Bright A_Warp(AAPTR_TARGET, r, 0, 2, ang_inc, WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+		Loop
+		Fade:
+			OGLP P 1 A_FadeOut(0.0875)
+		Loop
+	}
+}
+
+Actor DnD_AnchorParticle_Inner : DnD_AnchorParticle {
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 3 A_Warp(AAPTR_TARGET, r / 2, 0, 2, -ang_inc, WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+		SpawnLoop:
+			OGLP P 1 Bright A_Warp(AAPTR_TARGET, r / 2, 0, 2, -ang_inc, WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+		Loop
+		Fade:
+			OGLP P 1 A_FadeOut(0.0875)
+		Loop
+	}
+}
+
+Actor DnD_EmberTrail : DnD_ExplosiveBase {
+	Renderstyle "Add"
+	Height 1
+	Radius 1
+	Scale 5.0
+	Speed 0
+	Stamina 18874368 // scales ignite and non weapon
+	+THRUACTORS
+	+PAINLESS
+	-NOGRAVITY
+	
+	var int user_dmg;
+	var int user_count;
+
+	const int iters = 7;
+	
+	States {
+		SpawnState:
+			TNT1 A 0 A_SetUserVar("user_count", 0)
+			TNT1 A 0 A_SetUserVar("user_dmg", ACS_NamedExecuteWithResult("DnD Ember Trail Damage"))
+			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_NONWEAPON | DND_DAMAGEFLAG_ISRADIUSDMG | DND_DAMAGEFLAG_SCALEIGNITE)
+		Death:
+			TNT1 A 0 A_Jump(128, "DeathCont")
+			TNT1 A 1 A_PlaySound("vile/firecrkl")
+		DeathCont:
+			TNT1 A 0 A_SetArg(
+				0, 
+				(DND_DAMAGETYPE_FIRE << NONWEP_DMG_SHIFT) | ACS_NamedExecuteWithResult("DnD Scale Non Weapon Damage", user_dmg, DND_DAMAGETYPE_FIRE, user_expflags)
+			)
+		DoDmg:
+			TNT1 A 0 A_SetUserVar("user_expdmg", Args[0])
+			TNT1 A 0 A_SetUserVar("user_expradius", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", 80, 1, DND_AOESRC_NONWEAPON))
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius * 0.666)
+		Goto DoExplosionDamage
+		ContinueFromExplosion:
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+			TNT1 A 0 A_JumpIf(user_count == iters, "Finish")
+			AURA H 10 Bright A_SpawnItemEx("DnD_EmberTrail_FireFx", frandom(-user_expradius, user_expradius), frandom(-user_expradius, user_expradius), 1, frandom(-0.5, 0.5), frandom(-0.5, 0.5), frandom(0.1, 0.5))
+		Goto DoExplosionDamage
+		Finish:
+			TNT1 A 0 A_SetScale(scalex - 0.01, scaley - 0.01)
+			AURA H 1 Bright A_FadeOut(0.0875)
+		Loop
+	}
+}
+
+Actor DnD_EmberTrail_FireFx {
+	Renderstyle Add
+	Alpha 0.01
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			FIRE AAAAAAAAAAAAAA 1 Bright A_FadeIn(0.07)
+			TNT1 A 0 A_ChangeVelocity(velx, vely, frandom(0.5, 1.25), CVF_REPLACE)
+			FIRE BCDEFGH 3 Bright
 		Stop
 	}
 }

@@ -19,6 +19,9 @@
 #define DND_SPREE_AMOUNT (4 * TICRATE) // 4 * 35
 #define DND_SPREE_PER 10
 
+// Archangel Beacon. How close an ally has to stand to catch a shared buff.
+#define DND_ARCHANGELBEACON_RANGE 384.0
+
 #define DND_BASE_OVERLOADTICK 5
 
 // Crown of Suffering. The hard ceiling on what a renewing poison stack may keep. The amount
@@ -478,6 +481,10 @@ int GetBonusPlayerSpeed(int pnum) {
 	int ptid = pnum + P_TIDSTART;
 	int res = PlayerModData[pnum].vals[PSTAT_SPEED_INCREASE] + GetPlayerFrenzyCharges(ptid, pnum) * DND_FRENZYCHARGE_SPEEDBONUS;
 
+	// Vaultstride. Subtracted from the same pool every speed bonus adds to, so speed rolls and the
+	// boots net out against each other instead of the boots being a separate multiplier.
+	res -= PlayerModData[pnum].vals[PSTAT_EX_REDUCED_MOVESPEED];
+
 	// Acrobacy / Head Start. A token rather than a PSTAT because it is a temporary window, and a
 	// PSTAT would have to be added and removed symmetrically -- a missed removal is permanent.
 	res += CheckActorInventory(ptid, "DnD_HeadStartSpeed");
@@ -750,8 +757,15 @@ int GetPlayerArtilleryAoEIncrease(int pnum, int tid) {
 		PlayerModData[pnum].vals[PSTAT_ARTILLERY_RAMP] * CheckActorInventory(tid, "DnD_ArtilleryRamp");
 }
 
-int GetPlayerAoEIncrease(int pnum) {
-	int base = PlayerModData[pnum].vals[PSTAT_EXPLOSION_RADIUS];
+// Two stats, not one. The weapon term answers only for explosions a weapon caused; the universal
+// term answers for all of them, which is what makes it worth more than the weapon one at equal roll.
+// The corruption is a "more" on whichever increase applies -- it can land on any item, not just a
+// weapon, so scoping it to the weapon half would make it dead on most of the items that roll it.
+int GetPlayerAoEIncrease(int pnum, int src) {
+	int base = PlayerModData[pnum].vals[PSTAT_ALLAOE_RADIUS];
+	if(src == DND_AOESRC_WEAPON)
+		base += PlayerModData[pnum].vals[PSTAT_WEAPONAOE_RADIUS];
+
 	int temp = PlayerModData[pnum].vals[PSTAT_CORR_MOREAOE];
 	if(temp)
 		base = base * (100 + (((temp + 0.005) * 100) >> 16)) / 100;
@@ -759,13 +773,26 @@ int GetPlayerAoEIncrease(int pnum) {
 	return base;
 }
 
+// Fixed point radii, for the areas that live in ACS rather than in a DECORATE explosion.
+//
+// AREA, not radius -- the same correction "DnD Explosion Radius Retrieve" makes on the integer side.
+// The factor is taken first and multiplied in instead of squaring the radius: FixedMul(r, r)
+// overflows past 181.0 and several of these are larger than that.
+int ScalePlayerAoERadius(int pnum, int r, int src) {
+	int aoe = GetPlayerAoEIncrease(pnum, src);
+	if(!aoe)
+		return r;
+
+	return FixedMul(r, fsqrt(((100 + aoe) << 16) / 100));
+}
+
 // Generic Player RPG Stat restore function
 void RestoreRPGStat (int statflag) {
 	int pnum = PlayerNumber();
 	if(statflag & RES_ACCURACY)
 		CalculatePlayerAccuracy(pnum);
-	if((statflag & RES_EXPLOSIONRADIUS) && GetPlayerAoEIncrease(pnum))
-		SetActorProperty(0, APROP_SCORE, GetPlayerAoEIncrease(pnum));
+	if((statflag & RES_EXPLOSIONRADIUS) && GetPlayerAoEIncrease(pnum, DND_AOESRC_WEAPON))
+		SetActorProperty(0, APROP_SCORE, GetPlayerAoEIncrease(pnum, DND_AOESRC_WEAPON));
 	if(statflag & RES_PLAYERSPEED)
 		SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(pnum));
 		

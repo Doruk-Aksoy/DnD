@@ -738,7 +738,7 @@ void HandleFallImpact(int pnum) {
 		return;
 
 	int dmg = (DND_THUMPER_BASEDMG + ((DND_THUMPER_STRFACTOR * GetStrength(pnum)) >> 16)) * power / 100;
-	int radius = FixedMul(DND_THUMPER_BASERADIUS, (power << 16) / 100);
+	int radius = ScalePlayerAoERadius(pnum, FixedMul(DND_THUMPER_BASERADIUS, (power << 16) / 100), DND_AOESRC_NONWEAPON);
 
 	int vuln = PlayerModData[pnum].vals[PSTAT_THUMPER_VULN];
 	int vuln_time = PlayerModData[pnum].vals[PSTAT_THUMPER_VULNTIME];
@@ -6448,7 +6448,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					arg1 = GetActorProperty(0, APROP_STAMINA);
 					SetActorProperty(0, APROP_STAMINA, dmg_data ^ DND_DAMAGEFLAG_ISMELEE);
 
-					arg2 = GetPlayerMeleeRange(pnum, DND_BERSERKER_PERK40_SPLASHRADIUS);
+					arg2 = GetPlayerMeleeRange(pnum, ScalePlayerAoERadius(pnum, DND_BERSERKER_PERK40_SPLASHRADIUS, DND_AOESRC_WEAPON));
 
 					// Martialist / Fervent Reach. After GetPlayerMeleeRange, so it compounds with melee
 					// range the way "splash effects can occur further" reads -- reach extending reach.

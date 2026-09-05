@@ -591,6 +591,13 @@ int MapAttributeToPStat(int mod) {
 		case INV_EX_OVERLOAD_STORES_DAMAGE:         return PSTAT_EX_OVERLOAD_STOREDMG;
 		case INV_EX_OVERLOAD_SELFOVERLOAD:          return PSTAT_EX_OVERLOAD_SELFTIME;
 		case INV_EX_POISON_STACKS_NODECAY:          return PSTAT_EX_POISON_NODECAY_KEEP;
+		case INV_EX_DASH_CHARGES:                   return PSTAT_EX_DASH_CHARGES;
+		case INV_EX_REDUCED_MOVESPEED:              return PSTAT_EX_REDUCED_MOVESPEED;
+		case INV_EX_SHARED_BUFF_POTENCY:            return PSTAT_EX_SHAREDBUFF_POTENCY;
+		case INV_EX_BUFFS_SHORTER:                  return PSTAT_EX_BUFF_SHORTER;
+		case INV_EX_ANCHOR_RESTORES_HP:             return PSTAT_EX_ANCHOR_RESTOREHP;
+		case INV_EX_DASH_COOLDOWN_LONG:             return PSTAT_EX_DASH_COOLDOWN_LONG;
+		case INV_EX_IGNITETRAIL:                    return PSTAT_EX_IGNITETRAIL;
 
 		// everything else (regular rollables)
 		case INV_FLASKLIFERECOVERYRATE:             return PSTAT_FLASKLIFERECOVERYRATE;
@@ -605,7 +612,8 @@ int MapAttributeToPStat(int mod) {
 		case INV_FLAT_SHOTGUN:                      return PSTAT_FLAT_SHOTGUN;
 		case INV_FLAT_AUTOMATIC:                    return PSTAT_FLAT_AUTOMATIC;
 		case INV_FLAT_ARTILLERY:                    return PSTAT_FLAT_ARTILLERY;
-		case INV_EXPLOSION_RADIUS:                  return PSTAT_EXPLOSION_RADIUS;
+		case INV_WEAPONAOE_RADIUS:                  return PSTAT_WEAPONAOE_RADIUS;
+		case INV_ALLAOE_RADIUS:                     return PSTAT_ALLAOE_RADIUS;
 		case INV_SHOPSTOCK_INCREASE:                return PSTAT_SHOPSTOCK_INCREASE;
 		case INV_REGENCAP_INCREASE:                 return PSTAT_REGENCAP_INCREASE;
 		case INV_DAMAGEPERCENT_MORE:                return PSTAT_DAMAGEPERCENT_MORE;
@@ -681,6 +689,10 @@ int MapAttributeToPFlag(int mod) {
 		case INV_EX_POISON_CLEARS_ONKILL:         	return PFLAG_POISON_CLEARONKILL;
 		case INV_EX_OVERLOAD_CHAINS_TOSELF:       	return PFLAG_OVERLOAD_CHAINSTOSELF;
 		case INV_EX_OVERLOAD_ONANYELEMENT:        	return PFLAG_OVERLOAD_ANYELEMENT;
+		case INV_EX_DASH_RESETS_ONKILL:           	return PFLAG_DASH_KILLREFUND;
+		case INV_EX_DASH_ANCHOR:                  	return PFLAG_DASH_ANCHOR;
+		case INV_EX_TRAIL_SCALES_WITHSPEED:       	return PFLAG_TRAIL_SPEEDSCALES;
+		case INV_EX_BURNS_WHILE_STILL:            	return PFLAG_TRAIL_BURNSSTILL;
 	}
 	return DND_PFLAG_UNMAPPED;
 }

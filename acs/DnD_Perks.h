@@ -1382,7 +1382,7 @@ void SetupPerkStats() {
     // fixed point crit chance, integer crit multiplier -- the two halves use different slots
     SetPerkStat(PERK_PERC_LUCKYBULLET, PSTAT_LASTROUND_CRIT, 0.025, -0x7FFFFFFF, PERKF_AFFECTSDAMAGE);
     SetPerkStat(PERK_PERC_LUCKYBULLET, PSTAT_LASTROUND_CRITDMG, 25);
-    // The artillery-only slot, not PSTAT_EXPLOSION_RADIUS: the note says artillery weapons, and
+    // The artillery-only slot, not PSTAT_WEAPONAOE_RADIUS: the note says artillery weapons, and
     // that slot is every explosion the player causes.
     SetPerkStat(PERK_PERC_QUAKER, PSTAT_ARTILLERY_RADIUS, 10, 10);
     SetPerkStat(PERK_PERC_DARKARTS, PSTAT_MAGIC_PERCENT, 10, 15, PERKF_AFFECTSDAMAGE);

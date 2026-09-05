@@ -6042,8 +6042,15 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 			
-			// exp rad
-			val = GetPlayerAoEIncrease(pnum);
+			// exp rad. Two lines rather than one sum, for the same reason artillery is listed apart:
+			// they answer for different explosions, so one number could only be right for one of them.
+			int aoe_all = GetPlayerAoEIncrease(pnum, DND_AOESRC_NONWEAPON);
+			if(aoe_all) {
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:aoe_all, s:"%\c- ", l:"IATTR_T161", s:"\n");
+				++k;
+			}
+
+			val = GetPlayerAoEIncrease(pnum, DND_AOESRC_WEAPON) - aoe_all;
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"IATTR_T31", s:"\n");
 				++k;

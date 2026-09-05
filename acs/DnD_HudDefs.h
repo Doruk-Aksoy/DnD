@@ -237,6 +237,26 @@ enum {
 	MBOX_16
 };
 
+// Vaultstride dash charges. Two message ids per slot -- the dark plate and the lit reveal over it --
+// so DND_DASHHUD_MAXSLOTS is the cap the id block reserves, not a gameplay limit.
+#define DND_DASHHUD_ID          4800
+#define DND_DASHHUD_MAXSLOTS    8
+
+// Drawn on the HUDMAX grid, the same one the menu uses. X and Y are the TOP LEFT of the first icon.
+#define DND_DASHHUD_ICON        "DASHCOOL"
+#define DND_DASHHUD_W           16
+#define DND_DASHHUD_H           16
+#define DND_DASHHUD_X           8
+#define DND_DASHHUD_Y           252
+#define DND_DASHHUD_STEP        20          // >= _W, or neighbouring icons overlap
+#define DND_DASHHUD_REFRESH     3           // tics between redraws
+#define DND_DASHHUD_HOLD        0.4         // longer than the refresh, so it never blinks
+
+// The spent half is DIMMED rather than colour translated. CR_BLACK does not reliably darken an
+// arbitrary graphic -- both passes came out identical, so the icon never appeared to change.
+// Alpha needs no second lump and no palette cooperation.
+#define DND_DASHHUD_DIMALPHA    0.25
+
 // MENU IDS
 // Moved here because of dependencies
 enum {

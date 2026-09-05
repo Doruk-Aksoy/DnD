@@ -1114,6 +1114,11 @@ str GetItemAttributeText(
 		case INV_EX_POISON_CLEARS_ONKILL:
 		case INV_EX_OVERLOAD_CHAINS_TOSELF:
 		case INV_EX_OVERLOAD_ONANYELEMENT:
+		case INV_EX_DASH_RESETS_ONKILL:
+		case INV_EX_BUFFS_SHARE_NEARBY:
+		case INV_EX_DASH_ANCHOR:
+		case INV_EX_TRAIL_SCALES_WITHSPEED:
+		case INV_EX_BURNS_WHILE_STILL:
 			if(showDetailedMods)
 				return StrParam(l:text, s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 			return StrParam(l:text);
@@ -1137,6 +1142,11 @@ str GetItemAttributeText(
 
 		case INV_EX_COUNTASHAVINGMAXCHARGEOF:
 			return StrParam(l:text, s:" ", l:StrParam(s:"LCHARGE_NOPRE_", d:val2));
+
+		case INV_EX_IGNITETRAIL:
+			if(showDetailedMods)
+				return StrParam(l:text, s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_TX99S", s:" - ", s:GetModTierText(attr, item_type, tier, extra));
+			return StrParam(l:text, s:col_tag, s:" ", d:val1, s:"\c- ", l:"IATTR_TX99S");
 		
 		case INV_EX_ALLSTATS:
 		case INV_EX_FLATDMG_ALL:
@@ -1144,6 +1154,7 @@ str GetItemAttributeText(
 		case INV_EX_FLATPERSHOTGUNOWNED:
 		case INV_EX_FLATDMG_PERACCURACY:
 		case INV_EX_MAXPOISONSTACK:
+		case INV_EX_DASH_CHARGES:
 			if(showDetailedMods) {
 				return StrParam(
 					s:"+\c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:text,
@@ -1168,6 +1179,9 @@ str GetItemAttributeText(
 		// negative effects are shown with different color -- these are % ones of those, these are positive numerically
 		case INV_EX_DMGINCREASE_TAKEN:
 		case INV_EX_SPREAD_PENALTY:
+		case INV_EX_REDUCED_MOVESPEED:
+		case INV_EX_BUFFS_SHORTER:
+		case INV_EX_DASH_COOLDOWN_LONG:
 			if(showDetailedMods) {
 				return StrParam(s:"+\cg", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c[D4] ", l:text,
 					s:" - ", s:GetModTierText(attr, item_type, tier, extra)
@@ -1175,7 +1189,7 @@ str GetItemAttributeText(
 			}
 			return StrParam(s:"+\cg", d:val1, s:"%\c[D4] ", l:text);
 
-		// negative effect without any %
+		// negative effect without any percentage symbol
 		case INV_EX_AMMOCOSTMULTIPLIER:
 		case INV_EX_OVERLOAD_SELFOVERLOAD:
 			if(showDetailedMods) {

@@ -169,6 +169,41 @@ enum {
 // A player holding BOTH keeps two independent cooldowns, which is intended: the ability recharges in
 // a second and the perk version in six, so they are not the same dash wearing one timer.
 #define DND_PERKDASH_COOLDOWN (6 * TICRATE)
+
+// The dash cooldown in tics, in ONE place. Three things need this exact number -- the dash that arms
+// the timer, the recharge that re-arms it, and the HUD bar that measures against it -- and when they
+// were three copies of the expression, a mod that changed the length reached some and not others.
+// Undertow made that a live problem: its longer cooldown would have stretched the timer while the
+// bar still filled against the old length, then stalled full.
+// Emberwake. The trail is spawned from ACS and does its damage from ACS, but the ACTOR is pure
+// DECORATE -- see the layout note. The contract between them is three things: the trail carries
+// DnD_TrailOwner (pnum + 1, so zero stays "nobody") and DnD_TrailDamage, and it calls
+// "DnD Ember Trail Burn" on itself once per burn tick.
+#define DND_EMBERTRAIL_TID      31000   // one contiguous block, clear of every other range
+#define DND_EMBERTRAIL_PERPLAYER 12     // segments alive at once, per player -- a ring, oldest reused
+#define DND_EMBERTRAIL_RATE     9       // tics between segments dropped while moving
+// GetPVelocity returns map units per tic as a PLAIN INT, not fixed point -- it ends in >> 16. A
+// running player reads about 16, a walk about 8. These were written as 3.0 and 12.0, which made the
+// moving branch unreachable and every tick take the standing still path.
+#define DND_EMBERTRAIL_MINSPEED 3       // below this you count as standing still
+#define DND_EMBERTRAIL_FULLSPEED 12     // at or above this the segment burns at full strength
+#define DND_EMBERTRAIL_BURNRATE 26      // tics between self burns, matching the FireDOT damage tick
+
+// Undertow. One marker TID per player, above every range the mod already hands out. The actor is
+// spawned and removed CLIENTSIDE, so these TIDs only ever exist on the machine that can see them.
+#define DND_ANCHORMARKER_TID    30000
+
+int GetPerkDashCooldown(int pnum) {
+	int cd = DND_PERKDASH_COOLDOWN * (100 - PlayerModData[pnum].vals[PSTAT_DASH_COOLDOWNREDUCE]) / 100;
+
+	// Applied AFTER the reduction, so Tactical Dash still buys something: the boots lengthen whatever
+	// the perks arrived at rather than overwriting it.
+	int longer = PlayerModData[pnum].vals[PSTAT_EX_DASH_COOLDOWN_LONG];
+	if(longer > 0)
+		cd = cd * (100 + longer) / 100;
+
+	return Max(1, cd);
+}
 #define DND_PERKDASH_RECENT_TICS (4 * TICRATE)   // Swift Reflexes' window, and "recently" generally
 #define DND_PERKDASH_EVADE_TICS (3 * TICRATE)    // Evasive Maneuvers' base window
 #define DND_PERKDASH_KILLWINDOW TICRATE          // Unending Rush: "within the second of dashing"

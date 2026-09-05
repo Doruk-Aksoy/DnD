@@ -721,10 +721,38 @@ Actor UniqueBoot_1 : ArmorDrop {
 }
 
 Actor UniqueBoot_2 : ArmorDrop {
-	Scale 0.666
+	Scale 0.5
 	States {
 		Spawn:
 			UBO0 C 0
+		Goto SpawnInit
+	}
+}
+
+Actor UniqueBoot_3 : ArmorDrop {
+	XScale 0.75
+	YScale 0.7
+	States {
+		Spawn:
+			UBO0 D 0
+		Goto SpawnInit
+	}
+}
+
+Actor UniqueBoot_4 : ArmorDrop {
+	Scale 0.33
+	States {
+		Spawn:
+			UBO0 E 0
+		Goto SpawnInit
+	}
+}
+
+Actor UniqueBoot_5 : ArmorDrop {
+	Scale 0.33
+	States {
+		Spawn:
+			UBO0 F 0
 		Goto SpawnInit
 	}
 }

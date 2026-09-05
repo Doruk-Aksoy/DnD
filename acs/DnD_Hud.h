@@ -1356,6 +1356,93 @@ void DrawBigBossHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 	HudMessage(s:"\c[D1]", l:"DND_EMOD_DUNGEONBOSS"; HUDMSG_FADEOUT, MONSTER_TRAITID, CR_WHITE, 400.4, 84.1, MONSTERINFO_HOLDTIME);
 }
 
+// Vaultstride. One icon per charge the item rolled: lit for a charge in the bank, dark for a spent
+// one, and the next one back fills from the bottom as its cooldown runs.
+//
+// Done in ACS rather than SBARINFO because the number of slots is a ROLLED item value. SBARINFO
+// would need a fixed drawbar line per slot and has no way to ask how many the player actually has.
+void DrawDashCharges(int pnum) {
+	// Drawn for anyone who HAS a dash, not only for the boots: the perk dash is a cooldown worth
+	// watching in its own right. That is one slot on its own, and the base plus the rolled extras
+	// once the boots turn it into charges.
+	if(!PlayerModData[pnum].vals[PSTAT_DASH_UNLOCK])
+		return;
+
+	int extra = PlayerModData[pnum].vals[PSTAT_EX_DASH_CHARGES];
+	int cap = 1 + extra;
+	if(cap > DND_DASHHUD_MAXSLOTS)
+		cap = DND_DASHHUD_MAXSLOTS;
+
+	int ptid = pnum + P_TIDSTART;
+
+	int cd = CheckActorInventory(ptid, "DnD_PerkDashCooldown");
+
+	// Availability is read from whichever resource this build actually spends. With the boots that
+	// is the spent counter -- which counts UP from zero, so a player who has never dashed shows a
+	// full row rather than an empty one. Without them the dash is the plain cooldown, so the single
+	// slot is simply lit or not.
+	int have;
+	if(extra > 0) {
+		have = cap - CheckActorInventory(ptid, "DnD_DashSpent");
+		if(have < 0)
+			have = 0;
+	}
+	else
+		have = cd ? 0 : 1;
+
+	// How far through the current recharge we are. The full length is recomputed the same way the
+	// dash sets it, so a cooldown reduction shortens the bar instead of making it fill early.
+	int full = GetPerkDashCooldown(pnum);
+
+	int filled = DND_DASHHUD_H;
+	if(cd > 0)
+		filled = DND_DASHHUD_H * (full - cd) / full;
+	if(filled < 0)
+		filled = 0;
+
+	SetHudSize(HUDMAX_X, HUDMAX_Y, 0);
+	SetFont(DND_DASHHUD_ICON);
+
+	for(int i = 0; i < cap; ++i) {
+		int x = DND_DASHHUD_X + i * DND_DASHHUD_STEP;
+
+		// The dim plate is always drawn, so a spent slot still reads as a slot rather than as
+		// nothing at all -- the count of icons is what tells you the item's roll.
+		HudMessage(s:"a"; HUDMSG_PLAIN | HUDMSG_ALPHA, DND_DASHHUD_ID + i, CR_UNTRANSLATED,
+			(x << 16) + 0.1, (DND_DASHHUD_Y << 16) + 0.1, DND_DASHHUD_HOLD, DND_DASHHUD_DIMALPHA);
+
+		int reveal = 0;
+		if(i < have)
+			reveal = DND_DASHHUD_H;             // banked
+		else if(i == have && cd > 0)
+			reveal = filled;                    // the one currently coming back
+
+		if(reveal > 0) {
+			// Revealed from the BOTTOM, so the icon looks like it is filling rather than sliding.
+			SetHudClipRect(x, DND_DASHHUD_Y + DND_DASHHUD_H - reveal, DND_DASHHUD_W, reveal, DND_DASHHUD_W);
+			HudMessage(s:"a"; HUDMSG_PLAIN | HUDMSG_ALPHA, DND_DASHHUD_ID + DND_DASHHUD_MAXSLOTS + i, CR_UNTRANSLATED,
+				(x << 16) + 0.1, (DND_DASHHUD_Y << 16) + 0.1, DND_DASHHUD_HOLD, 1.0);
+			SetHudClipRect(0, 0, 0, 0, 0);
+		}
+	}
+}
+
+// Only the console player's own charges are drawn, and only while the item is on -- the messages
+// carry a hold time longer than the refresh, so dropping out of the loop clears them by expiry
+// rather than needing a teardown pass.
+Script "DnD Dash Charge Display" ENTER CLIENTSIDE {
+	int cpn = ConsolePlayerNumber();
+	if(cpn != PlayerNumber())
+		Terminate;
+
+	while(true) {
+		if(PlayerModData[cpn].vals[PSTAT_DASH_UNLOCK])
+			DrawDashCharges(cpn);
+
+		Delay(const:DND_DASHHUD_REFRESH);
+	}
+}
+
 Script "DnD Boss HP FX Overlay" (int tid) CLIENTSIDE {
 	int m_id = tid - DND_MONSTERTID_BEGIN;
 	int counter = 0, alpha;

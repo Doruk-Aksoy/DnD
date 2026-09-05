@@ -469,6 +469,13 @@ enum {
 	PSTAT_EX_OVERLOAD_STOREDMG,     // Faraday Halo. percent of damage an overloaded enemy banks
 	PSTAT_EX_OVERLOAD_SELFTIME,     // Faraday Halo. overload ticks you take on discharging
 	PSTAT_EX_POISON_NODECAY_KEEP,   // Crown of Suffering. percent a renewing poison stack keeps
+	PSTAT_EX_DASH_CHARGES,          // Vaultstride. dashes bankable past the cooldown
+	PSTAT_EX_REDUCED_MOVESPEED,     // Vaultstride. percent SUBTRACTED from movement speed
+	PSTAT_EX_SHAREDBUFF_POTENCY,    // Archangel Beacon. percent strength a shared buff copy lands at
+	PSTAT_EX_BUFF_SHORTER,          // Archangel Beacon. percent off the wearer's OWN buff durations
+	PSTAT_EX_ANCHOR_RESTOREHP,      // Undertow. percent of the anchored health the return gives back
+	PSTAT_EX_DASH_COOLDOWN_LONG,    // Undertow. percent ADDED to the dash cooldown
+	PSTAT_EX_IGNITETRAIL,           // Emberwake. base damage a trail tick deals
 
 	// everything else (regular rollables)
 	PSTAT_FLASKLIFERECOVERYRATE,
@@ -483,7 +490,8 @@ enum {
 	PSTAT_FLAT_SHOTGUN,
 	PSTAT_FLAT_AUTOMATIC,
 	PSTAT_FLAT_ARTILLERY,
-	PSTAT_EXPLOSION_RADIUS,
+	PSTAT_WEAPONAOE_RADIUS,         // only explosions a weapon caused
+	PSTAT_ALLAOE_RADIUS,            // every area of effect the player makes
 	PSTAT_SHOPSTOCK_INCREASE,
 	PSTAT_REGENCAP_INCREASE,
 	PSTAT_DAMAGEPERCENT_MORE,
@@ -695,6 +703,13 @@ enum {
 	PSTAT_COUNT
 };
 
+// Which area of effect stat answers for a hit. Weapon sourced gets both terms, non weapon gets
+// only the universal one. Values match the argument DECORATE passes to the radius script.
+enum {
+	DND_AOESRC_WEAPON,
+	DND_AOESRC_NONWEAPON
+};
+
 // Perk tree sizing. Here rather than in DnD_Perks.h because player_item_mod_data_T is sized by these
 // and is declared first -- bcs resolves macros in preprocessor order, so a forward reference silently
 // expands to nothing. Everything else about perks lives in DnD_Perks.h.
@@ -769,6 +784,16 @@ enum {
 	// Faraday Halo.
 	PFLAG_OVERLOAD_CHAINSTOSELF,
 	PFLAG_OVERLOAD_ANYELEMENT,
+
+	// Vaultstride.
+	PFLAG_DASH_KILLREFUND,
+
+	// Undertow.
+	PFLAG_DASH_ANCHOR,
+
+	// Emberwake.
+	PFLAG_TRAIL_SPEEDSCALES,
+	PFLAG_TRAIL_BURNSSTILL,
 
 	PFLAG_COUNT
 };

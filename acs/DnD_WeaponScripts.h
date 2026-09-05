@@ -1637,7 +1637,14 @@ Script "DND Thunderstaff Lightning" (void) {
 
 Script "DND Thunder Range" (void) {
 	// adding a +18 to match the center radius of the special fx
-	SetResultValue(DND_THUNDERSTAFF_BASERANGE + DND_THUNDER_RADIUSPERCOUNT * CheckInventory("ThunderRangeCounter") + 16);
+	int r = DND_THUNDERSTAFF_BASERANGE + DND_THUNDER_RADIUSPERCOUNT * CheckInventory("ThunderRangeCounter") + 16;
+
+	// PlayerNumber is -1 when this is not run on the wielder, which leaves the range unscaled.
+	int pnum = PlayerNumber();
+	if(pnum >= 0)
+		r = ScalePlayerAoERadius(pnum, r << 16, DND_AOESRC_WEAPON) >> 16;
+
+	SetResultValue(r);
 }
 
 Script "DnD DeathRay Marker TID" (void) {

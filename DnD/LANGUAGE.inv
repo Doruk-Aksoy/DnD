@@ -84,6 +84,7 @@ DND_UCIMG19			=	"UCHRM19";
 DND_UCIMG20			=	"UCHRM20";
 DND_UCIMG21			=	"UCHRM21";
 DND_UCIMG22			=	"UCHRM22";
+DND_UCIMG23			=	"UCHRM23";
 
 DND_UDCIMG1			=	"UDCHRM1";
 DND_UDCIMG2			=	"UDCHRM2";
@@ -103,6 +104,9 @@ DND_UARMIMG3		=	"UARM3";
 DND_UBOOIMG1		=	"UBOO1";
 DND_UBOOIMG2		=	"UBOO2";
 DND_UBOOIMG3		=	"UBOO3";
+DND_UBOOIMG4        =   "UBOO4";
+DND_UBOOIMG5        =   "UBOO5";
+DND_UBOOIMG6        =   "UBOO6";
 
 // unique helms
 DND_UHELMIMG1       =   "UHELM1";
@@ -300,6 +304,7 @@ DND_UNIQUE19			=	"Slayer Special";
 DND_UNIQUE20			=	"Deathwing's Fang";
 DND_UNIQUE21 			=	"Mirror of Eternity";
 DND_UNIQUE22			=	"Kingmaker";
+DND_UNIQUE23			=	"Archangel's Beacon";
 
 DND_DROP_UNIQUE1		=	"Elemental Harmony";
 DND_DROP_UNIQUE2		=	"Steelbark";
@@ -318,7 +323,10 @@ DND_UARM_NAME3			=	"Baron's Den";
 // unique boots
 DND_UBOOT_NAME1			=	"Death Trail";
 DND_UBOOT_NAME2         =   "Wanderlust";
-DND_UBOOT_NAME3         =   "Emberwake";
+DND_UBOOT_NAME3         =   "Cinderstep";
+DND_UBOOT_NAME4         =   "Vaultstride";
+DND_UBOOT_NAME5         =   "Undertow";
+DND_UBOOT_NAME6         =   "Emberwake";
 
 // unique helms
 DND_UHELM_NAME1         =   "Choir of Ashes";
@@ -530,6 +538,7 @@ IATTR_T157          = "added fire damage to attacks";
 IATTR_T158          = "added cold damage to attacks";
 IATTR_T159          = "added lightning damage to attacks";
 IATTR_T160          = "added poison damage to attacks";
+IATTR_T161          = "increased area of effect";
 
 // corrupt implicits
 IATTR_TC1			= "more weapon damage to";
@@ -727,6 +736,18 @@ IATTR_TX86          = "Killing an overloaded enemy arcs from you to every other 
 IATTR_TX87          = "of the damage you deal to an overloaded enemy is stored";
 IATTR_TX88          = "All your damage can apply overload";
 IATTR_TX89          = "\c[D4]seconds of overload inflicted on you on discharge";
+IATTR_TX90          = "extra dashes you can hold at once";
+IATTR_TX91          = "Kills return a dash you have spent";
+IATTR_TX92          = "\c[D4]reduced movement speed";
+IATTR_TX93          = "Your buffs also apply to nearby allies";
+IATTR_TX94          = "strength on the copy your allies receive";
+IATTR_TX95          = "\c[D4]shorter duration on your own buffs";
+IATTR_TX96          = "Dashing marks the spot, dash again within \cd4\c- seconds to return to it";
+IATTR_TX97          = "of the health you left with is restored on returning";
+IATTR_TX98          = "\c[D4]longer dash cooldown";
+IATTR_TX99          = "You leave burning ground in your wake, dealing"; IATTR_TX99S = "fire damage";
+IATTR_TX100         = "The trail deals up to double damage, scaling with how fast you move";
+IATTR_TX101         = "\c[D4]Standing still ignites you";
 
 // exotic attribute strings
 IATTR_MAXHEALTH				= "maximum health";

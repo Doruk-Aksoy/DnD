@@ -116,8 +116,12 @@ int PickUniqueItemMerchant(int item_pos) {
 		break;
 	}
 
+#ifndef ISDEBUGBUILD
 	int roll = random(1, w);
 	for(i = beg; i <= end && roll > UniqueItemList[i].weight; ++i);
+#else
+	i = random(beg, end);
+#endif
 
 	// i is the unique id
 	return i;

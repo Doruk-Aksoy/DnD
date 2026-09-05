@@ -1589,6 +1589,71 @@ int TakeOverloadBank(int victim) {
 	return res;
 }
 
+// Undertow. Where the wearer was, and how much health they had, when they dashed. Flat rather than
+// 2D because the module& idiom hands back a one dimensional array reference.
+#define DND_ANCHOR_X        0
+#define DND_ANCHOR_Y        1
+#define DND_ANCHOR_Z        2
+#define DND_ANCHOR_HP       3
+#define DND_ANCHOR_LIVE     4
+#define DND_ANCHOR_FIELDS   5
+
+int[] module& GetDashAnchorTable() {
+	static int dash_anchor[MAXPLAYERS * DND_ANCHOR_FIELDS];
+	return dash_anchor;
+}
+
+bool HasDashAnchor(int pnum) {
+	int[] module& a = GetDashAnchorTable();
+	return !!a[pnum * DND_ANCHOR_FIELDS + DND_ANCHOR_LIVE];
+}
+
+// Taken at the moment of the dash, before the impulse has moved anything.
+void SetDashAnchor(int pnum) {
+	int[] module& a = GetDashAnchorTable();
+	int base = pnum * DND_ANCHOR_FIELDS;
+	int ptid = pnum + P_TIDSTART;
+
+	a[base + DND_ANCHOR_X] = GetActorX(ptid);
+	a[base + DND_ANCHOR_Y] = GetActorY(ptid);
+	a[base + DND_ANCHOR_Z] = GetActorZ(ptid);
+	a[base + DND_ANCHOR_HP] = GetActorProperty(ptid, APROP_HEALTH);
+	a[base + DND_ANCHOR_LIVE] = 1;
+
+	// The marker is the only way the player can see where the return goes, so it is spawned from the
+	// same call that drops the anchor -- the two cannot disagree about where it is.
+	ACS_NamedExecuteWithResult("DnD Dash Anchor Marker", pnum,
+		a[base + DND_ANCHOR_X], a[base + DND_ANCHOR_Y], a[base + DND_ANCHOR_Z]);
+}
+
+// The rewind. Consumes the anchor, so the trip is one way and cannot be replayed.
+void ReturnToDashAnchor(int pnum) {
+	int[] module& a = GetDashAnchorTable();
+	int base = pnum * DND_ANCHOR_FIELDS;
+	int ptid = pnum + P_TIDSTART;
+
+	a[base + DND_ANCHOR_LIVE] = 0;
+
+	// A blocked destination would drop the player inside geometry, so a refused move leaves them
+	// where they are rather than teleporting them into a wall -- the health is still restored,
+	// because the cooldown was spent either way.
+	SetActorPosition(ptid, a[base + DND_ANCHOR_X], a[base + DND_ANCHOR_Y], a[base + DND_ANCHOR_Z], false);
+
+	// A SHARE of the health you left with, and only ever upward: a rewind that could take health away
+	// would punish you for healing during the trip.
+	int want = a[base + DND_ANCHOR_HP] * PlayerModData[pnum].vals[PSTAT_EX_ANCHOR_RESTOREHP] / 100;
+	int cur = GetActorProperty(ptid, APROP_HEALTH);
+	int cap = CheckActorInventory(ptid, "PlayerHealthCap");
+	if(want > cap)
+		want = cap;
+
+	if(want > cur)
+		GiveActorInventory(ptid, "HealthBonusX", want - cur);
+
+	// Consumed, so the marker goes with it.
+	ACS_NamedExecuteAlways("DnD Dash Anchor Marker Clear", 0, pnum);
+}
+
 // Crown of Suffering. The pack's high water mark of poison stacks, one per player. Map scoped and
 // zeroed like every static, which is the right empty state -- a new map starts the ramp over.
 int[] module& GetPoisonPoolTable() {
@@ -1831,7 +1896,8 @@ bool CheckIgniteProlifChance(int pnum) {
 
 int GetIgniteProlifRange(int pnum) {
 	//return DND_BASE_IGNITEPROLIFRANGE * (100 + PlayerModData[pnum].vals[PSTAT_IGN_PROLIF_RANGE]) / 100;
-	return FixedMul(DND_BASE_IGNITEPROLIFRANGE, 1.0 + PlayerModData[pnum].vals[PSTAT_IGN_PROLIF_RANGE]);
+	return FixedMul(ScalePlayerAoERadius(pnum, DND_BASE_IGNITEPROLIFRANGE, DND_AOESRC_NONWEAPON),
+		1.0 + PlayerModData[pnum].vals[PSTAT_IGN_PROLIF_RANGE]);
 }
 
 int GetIgniteProlifCount(int pnum) {
@@ -2071,7 +2137,7 @@ int GetPlayerElementalAvoidChance(int pnum, int avoid_id) {
 	if((HasActorClassPerk_Fast(ptid, DND_PLAYER_WANDERER, 3) && CheckActorInventory(ptid, "EShieldAmount")))
 		return 100;
 
-	// Emberwake. Answered here rather than at the application site so the stat page reads 100%
+	// Cinderstep. Answered here rather than at the application site so the stat page reads 100%
 	// too -- this gate is exactly "can the player be ignited", so full avoidance IS the mod.
 	//
 	// Its cold twin cannot be done this way. DND_PAVOID_CHILLFREEZE gates chill and freeze

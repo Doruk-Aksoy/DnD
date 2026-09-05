@@ -346,6 +346,27 @@ Graphic "UBOO3", 50, 48
 	Patch "UBOO3", 0, 0
 }
 
+Graphic "UBOO4", 36, 45
+{
+	XScale 1.2875
+	YScale 1.2875
+	Patch "UBOO4", 0, 0
+}
+
+Graphic "UBOO5", 78, 59
+{
+	XScale 2.0
+	YScale 2.0
+	Patch "UBOO5", 0, 0
+}
+
+Graphic "UBOO6", 51, 80
+{
+	XScale 2.4
+	YScale 2.4
+	Patch "UBOO6", 0, 0
+}
+
 Graphic "UHELM1", 44, 75
 {
 	XScale 2.125

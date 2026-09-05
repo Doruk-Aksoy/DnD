@@ -2503,9 +2503,10 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 			for(i = 0; i < DND_MAX_MAGAZINES; ++i)
 				SetAmmoCapacity(WeaponMagazineList[i], GetMagazineCap(pnum, i));
 		break;
-		case INV_EXPLOSION_RADIUS:
+		case INV_WEAPONAOE_RADIUS:
+		case INV_ALLAOE_RADIUS:
 			IncPlayerModValue(pnum, atype, aval);
-			SetActorProperty(0, APROP_SCORE, ReadPlayerModValue(pnum, atype));
+			SetActorProperty(0, APROP_SCORE, GetPlayerAoEIncrease(pnum, DND_AOESRC_WEAPON));
 		break;
 		
 		// these are all accuracy mod groups
@@ -2866,7 +2867,7 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 			SetPlayerFlag(pnum, PFLAG_LUCKYCRIT, remove);
 		break;
 
-		// Wanderlust and Emberwake. Here and not in ProcessItemImplicit, for the reason given on
+		// Wanderlust and Cinderstep. Here and not in ProcessItemImplicit, for the reason given on
 		// INV_EX_ELEPENHARMONY above: that one only ever sees INV_IMP_* ids, so a unique attribute
 		// cased there would compile, read correctly, and never once run.
 		case INV_EX_CANNOTBEFROZEN:
@@ -2908,6 +2909,24 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 
 		case INV_EX_OVERLOAD_ONANYELEMENT:
 			SetPlayerFlag(pnum, PFLAG_OVERLOAD_ANYELEMENT, remove);
+		break;
+
+		// Vaultstride.
+		case INV_EX_DASH_RESETS_ONKILL:
+			SetPlayerFlag(pnum, PFLAG_DASH_KILLREFUND, remove);
+		break;
+
+		// Undertow.
+		case INV_EX_DASH_ANCHOR:
+			SetPlayerFlag(pnum, PFLAG_DASH_ANCHOR, remove);
+		break;
+
+		// Emberwake.
+		case INV_EX_TRAIL_SCALES_WITHSPEED:
+			SetPlayerFlag(pnum, PFLAG_TRAIL_SPEEDSCALES, remove);
+		break;
+		case INV_EX_BURNS_WHILE_STILL:
+			SetPlayerFlag(pnum, PFLAG_TRAIL_BURNSSTILL, remove);
 		break;
 
 		// Feeds the same conversion table the corruption mod does, so the ladder, Avatar of Fire and
@@ -3888,6 +3907,8 @@ int PickUniqueItem(int item_type, int unique_id = -1) {
 				i = UITEM_DRAGONFANG;
 				//i = random(UITEM_UNITY, UITEM_MINDFORGE);
 			}
+			else if(item_type == DND_ITEM_BOOT)
+				i = UNIQUE_BOOT_END;
 			else
 				i = random(beg, end);
 		#endif
