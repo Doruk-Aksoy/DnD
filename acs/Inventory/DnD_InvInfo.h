@@ -492,7 +492,7 @@ enum {
 	UITEM_SIGHTLESSVIGIL,
 	UITEM_CROWNOFSUFFERING,
 	UITEM_FARADAYHALO,
-	UITEM_HELM_RESERVED5,
+	UITEM_ANATHEMA,
 	UITEM_HELM_RESERVED6,
 	UITEM_HELM_RESERVED7,
 	UITEM_HELM_RESERVED8,
@@ -522,6 +522,13 @@ enum {
 
 #define UNIQUE_HELM_BEGIN UITEM_CHOIROFASH
 #define UNIQUE_HELM_END UITEM_FARADAYHALO
+
+// Reward only. UNIQUE_HELM_END deliberately stops BEFORE this, which is the whole mechanism:
+// PickUniqueItem and the merchant both walk BEGIN..END, so nothing can roll what sits past it.
+// The same trick keeps the drop-only charms out of the shop -- see UNIQUE_CHARM_REGULARDROP_END.
+// Hand it out with SpawnUniqueRewardDrop(pnum, UITEM_ANATHEMA, DND_ITEM_HELM).
+#define UNIQUE_HELM_REWARDONLY_BEGIN UITEM_ANATHEMA
+#define UNIQUE_HELM_LAST UITEM_ANATHEMA
 
 // this is used to construct items
 typedef struct it_con {

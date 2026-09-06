@@ -869,3 +869,12 @@ Actor UniqueHelm_3 : ArmorDrop {
 		Goto SpawnInit
 	}
 }
+
+Actor UniqueHelm_4 : ArmorDrop {
+	Scale 0.2
+	States {
+		Spawn:
+			UHE0 E 0
+		Goto SpawnInit
+	}
+}

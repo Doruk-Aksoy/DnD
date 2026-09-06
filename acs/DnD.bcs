@@ -7,6 +7,7 @@
 #include "Inventory/DnD_Orbs.h"
 #include "DnD.h"
 #include "DnD_Prompts.h"
+#include "DnD_Ultimatum.h"
 
 #define DND_LOOTBOX_ORBDROPCHANCE1 0.25
 #define DND_LOOTBOX_ORBDROPCHANCE2 0.5
@@ -3077,10 +3078,12 @@ Script "DnD On Respawn" RESPAWN {
 	ACS_NamedExecuteWithResult("DnD Player Weapon Discard Sync", pnum, PlayerActivities[pnum].discarded_weapons);
 
 	int temp = GetPlayerEnergyShieldCap(pnum);
-	if(CheckInventory("EShieldAmount") < temp) {
+	if(CheckInventory("EShieldAmount") < temp)
 		SetEnergyShield(temp);
-		HandleEShieldChange(pnum, false);
-	}
+
+	// remove = true so this clamps DOWN as well. A dungeon that lowers the cap has to bring a shield
+	// the player walked in with down to meet it; the branch above only ever tops up.
+	HandleEShieldChange(pnum, true);
 
 	ConditionalCalculateUnity(pnum);
 	SetInventory("DnD_Stamina", GetAmmoCapacity("DnD_Stamina"));
@@ -3209,6 +3212,9 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("SphereMade", 0);
 	SetInventory("OrbUseType", 0);
 	SetInventory("OrbResult", 0);
+
+	// fixes the weird hammer bug
+	GiveInventory("HammerAmmo", 1);
 
 	// Running scripts do not survive a level change but these counters are inventory and do, so a
 	// vision effect still going as the map ended would arrive on the next one as a timer nothing is
@@ -4686,6 +4692,8 @@ Script "DnD Periodic Regeneration" ENTER {
 				// cyborg perk
 				if(HasClassPerk_Fast(DND_PLAYER_CYBORG, 1))
 					amt += amt * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV;
+
+				amt = ApplyDungeonReduction(DUN_ATTR_REDUCEDHEALING, amt);
 				
 				if((!CheckInventory("DnD_Hit_CombatTimer") || PlayerModData[pnum].vals[PSTAT_CORR_DMGDOESNTSTOPREGEN] || PlayerModData[pnum].vals[PSTAT_INC_HPREGENINTERRUPT]) && cur < lim) {
 					if(cur + amt < lim)
@@ -7191,6 +7199,8 @@ Script 68 (int x) NET {
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_REFINEMENT, true, true, 250);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true, true, 250);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_PHANTASMAL, true, true, 250);
+
+			SpawnUniqueRewardDrop(0, UITEM_ANATHEMA, DND_ITEM_HELM);
 
 			SpawnSpecialtyItem(0, 0, 0, 0, random(DND_ITEM_SPECIALTY_DOOMGUY, DND_ITEM_SPECIALTY_TRICKSTER));
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_SIN, true, true, 100);

@@ -54,6 +54,10 @@ enum {
 	DUN_ATTR_EXTRASPEED,
 	DUN_ATTR_AILMENTAVOID,
 	DUN_ATTR_INFLICTAILMENT,
+	DUN_ATTR_NOLIFESTEAL,
+	DUN_ATTR_REDUCEDHEALING,
+	DUN_ATTR_REDUCEDESHIELDRECOVERYRATE,
+	DUN_ATTR_LESSDEFENCES,
 
 	DUN_ATTR_MAX
 };
@@ -219,6 +223,39 @@ void SetupDungeonModTable() {
 	DungeonModData.DungeonModTable[DUN_ATTR_INFLICTAILMENT].attrib_level_extra_modifier = -1;
 	DungeonModData.DungeonModTable[DUN_ATTR_INFLICTAILMENT].tags = INV_ATTR_TAG_ATTACK;
 
+	DungeonModData.DungeonModTable[DUN_ATTR_NOLIFESTEAL].attrib_low = 1;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOLIFESTEAL].attrib_high = 1;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOLIFESTEAL].attrib_extra_low = 10;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOLIFESTEAL].attrib_extra_high = 40;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOLIFESTEAL].attrib_level_modifier = -1;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOLIFESTEAL].attrib_level_extra_modifier = -1;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOLIFESTEAL].tags = INV_ATTR_TAG_ATTACK;
+
+	DungeonModData.DungeonModTable[DUN_ATTR_REDUCEDHEALING].attrib_low = 5;
+	DungeonModData.DungeonModTable[DUN_ATTR_REDUCEDHEALING].attrib_high = 10;
+	DungeonModData.DungeonModTable[DUN_ATTR_REDUCEDHEALING].attrib_extra_low = 8;
+	DungeonModData.DungeonModTable[DUN_ATTR_REDUCEDHEALING].attrib_extra_high = 16;
+	DungeonModData.DungeonModTable[DUN_ATTR_REDUCEDHEALING].attrib_level_modifier = 0;
+	DungeonModData.DungeonModTable[DUN_ATTR_REDUCEDHEALING].attrib_level_extra_modifier = 0;
+	DungeonModData.DungeonModTable[DUN_ATTR_REDUCEDHEALING].tags = INV_ATTR_TAG_LIFE;
+
+	DungeonModData.DungeonModTable[DUN_ATTR_REDUCEDESHIELDRECOVERYRATE].attrib_low = 5;
+	DungeonModData.DungeonModTable[DUN_ATTR_REDUCEDESHIELDRECOVERYRATE].attrib_high = 10;
+	DungeonModData.DungeonModTable[DUN_ATTR_REDUCEDESHIELDRECOVERYRATE].attrib_extra_low = 8;
+	DungeonModData.DungeonModTable[DUN_ATTR_REDUCEDESHIELDRECOVERYRATE].attrib_extra_high = 16;
+	DungeonModData.DungeonModTable[DUN_ATTR_REDUCEDESHIELDRECOVERYRATE].attrib_level_modifier = 0;
+	DungeonModData.DungeonModTable[DUN_ATTR_REDUCEDESHIELDRECOVERYRATE].attrib_level_extra_modifier = 0;
+	DungeonModData.DungeonModTable[DUN_ATTR_REDUCEDESHIELDRECOVERYRATE].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ENERGY;
+
+	DungeonModData.DungeonModTable[DUN_ATTR_LESSDEFENCES].attrib_low = 1;
+	DungeonModData.DungeonModTable[DUN_ATTR_LESSDEFENCES].attrib_high = 5;
+	DungeonModData.DungeonModTable[DUN_ATTR_LESSDEFENCES].attrib_extra_low = 4;
+	DungeonModData.DungeonModTable[DUN_ATTR_LESSDEFENCES].attrib_extra_high = 9;
+	DungeonModData.DungeonModTable[DUN_ATTR_LESSDEFENCES].attrib_level_modifier = 0;
+	DungeonModData.DungeonModTable[DUN_ATTR_LESSDEFENCES].attrib_level_extra_modifier = 0;
+	DungeonModData.DungeonModTable[DUN_ATTR_LESSDEFENCES].tags = INV_ATTR_TAG_DEFENSE;
+
+
 	/////////////
 	// upsides //
 	/////////////
@@ -276,6 +313,7 @@ bool IsDungeonAttributeQualityException(int attr) {
 		case DUN_ATTR_EXTRASPEED:
 		// not a magnitude at all -- scaling it would name a different ailment
 		case DUN_ATTR_INFLICTAILMENT:
+		case DUN_ATTR_NOLIFESTEAL:
 		return true;
 	}
 	return false;
@@ -555,6 +593,7 @@ str DungeonAttributeString(
 		case DUN_ATTR_EXTRAFAST:
 		case DUN_ATTR_GHOST:
 		case DUN_ATTR_EXTRASPEED:
+		case DUN_ATTR_NOLIFESTEAL:
 			text = StrParam(s:no_tag, l:text, s:"\n");
 		break;
 
@@ -588,6 +627,18 @@ str DungeonAttributeString(
 			}
 			else
 				text =  StrParam(s:no_tag, l:text, s:col_tag, d:val, s:"% ", s:no_tag, l:"DUNATTR_14X", s:"\n");
+		break;
+
+		// "X% reduced ..." / "X% less ...". The value leads and the text already carries the
+		// direction, so these take no plus sign.
+		case DUN_ATTR_REDUCEDHEALING:
+		case DUN_ATTR_REDUCEDESHIELDRECOVERYRATE:
+		case DUN_ATTR_LESSDEFENCES:
+			if(showDetailedMods) {
+				text = StrParam(s:col_tag, d:val, s:GetDetailedDungeonModRange(attr, tier, 0, extra), s:"% ", s:no_tag, l:text, s:"\n");
+			}
+			else
+				text =  StrParam(s:col_tag, d:val, s:"% ", s:no_tag, l:text, s:"\n");
 		break;
 
 		// val names the ailment here, so there is no range to detail and no value to print -- the
@@ -713,6 +764,27 @@ str GetDungeonInflictAilmentLabel(int id) {
 		case DUN_INFLICT_POISON:	return "DND_MENU_AILMENT5";
 	}
 	return "DND_MENU_AILMENT6";
+}
+
+// The downsides that shave a percentage off a player stat. All three read the same way, so they
+// share one helper: take the dungeon's number off whatever the rest of the game computed, at the
+// point that number is finally used, so every source feeding it is covered at once.
+//
+// HasDungeonAttributeVal answers -1 when the dungeon does not carry the mod, hence the <= 0 test.
+// The clamp matters because quality MULTIPLIES the roll -- an unclamped value past 100 would flip
+// the sign of whatever it scales and hand out armor for being in a bad dungeon.
+int ApplyDungeonReduction(int attr, int val) {
+	int less = HasDungeonAttributeVal(attr);
+	if(less <= 0)
+		return val;
+
+	return val * (100 - Min(less, 100)) / 100;
+}
+
+// "Players cannot lifesteal". A boolean rather than a magnitude -- which is why it rolls 1 to 1 and
+// sits in IsDungeonAttributeQualityException -- so presence is the whole answer.
+bool DungeonBlocksLifesteal() {
+	return HasDungeonAttributeVal(DUN_ATTR_NOLIFESTEAL) != -1;
 }
 
 // returns the value of extra when given the id that would be encoded here

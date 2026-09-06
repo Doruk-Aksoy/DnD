@@ -128,6 +128,22 @@ str GetModTierText(int attr, int item_type, int tier, int extra) {
 // Bound to AILMENT_ID, NOT MAX_ATTRIB_TAG_GROUPS -- that constant stops at LIGHTNING_ID because it
 // sizes the ORB FORCEABLE subset, and bounding here would silently hide stamina, flask, armor,
 // eshield, mitigation and ailment. Bound to the thing you are iterating.
+// The ailment Anathema allows, by name. Four of the five ARE the menu's ailment names, so they are
+// read from there instead of copied -- one rename keeps both in step.
+//
+// Cold is the one that needs a line of its own: chill and freeze share DND_FROSTBLOOD, so the gate
+// cannot tell them apart and the label must not promise that it can.
+str GetAnathemaAilmentLabel(int id) {
+	switch(id) {
+		case DND_ANATHEMA_BLEED:		return "DND_MENU_AILMENT6";
+		case DND_ANATHEMA_POISON:		return "DND_MENU_AILMENT5";
+		case DND_ANATHEMA_COLD:			return "DND_ANATHEMA_AILCOLD";
+		case DND_ANATHEMA_FIRE:			return "DND_MENU_AILMENT3";
+		case DND_ANATHEMA_LIGHTNING:	return "DND_MENU_AILMENT4";
+	}
+	return "DND_MENU_AILMENT6";
+}
+
 str GetModTagText(int attr) {
 	if(attr < 0 || attr >= UNIQUE_ATTRIB_ID_BEGIN || !ItemModTable[attr].tags)
 		return "";
@@ -1119,6 +1135,8 @@ str GetItemAttributeText(
 		case INV_EX_DASH_ANCHOR:
 		case INV_EX_TRAIL_SCALES_WITHSPEED:
 		case INV_EX_BURNS_WHILE_STILL:
+		case INV_EX_AILMENTS_PIERCE_IMMUNITY:
+		case INV_EX_AILMENTS_CANNOTBEAVOIDED:
 			if(showDetailedMods)
 				return StrParam(l:text, s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 			return StrParam(l:text);
@@ -1139,6 +1157,11 @@ str GetItemAttributeText(
 			if(val1 > 1)
 				return StrParam(l:text, s:col_tag, s:" ", d:val1, s: "\c- ", l:"IATTR_TX29_2");
 			return StrParam(l:text, s:col_tag, s:" ", d:val1, s: "\c- ", l:"IATTR_TX29_2S");
+
+		// val1 NAMES an ailment here, so there is no range to detail and no number to print --
+		// the same shape DUN_ATTR_INFLICTAILMENT uses on the dungeon panel.
+		case INV_EX_AILMENT_SINGLETYPE:
+			return StrParam(l:text, s:" ", s:col_tag, l:GetAnathemaAilmentLabel(val1), s:"\c-");
 
 		case INV_EX_COUNTASHAVINGMAXCHARGEOF:
 			return StrParam(l:text, s:" ", l:StrParam(s:"LCHARGE_NOPRE_", d:val2));

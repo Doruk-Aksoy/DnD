@@ -394,3 +394,10 @@ Graphic "UHELM4", 67, 75
 	YScale 2.25
 	Patch "UHELM4", 0, 0
 }
+
+Graphic "UHELM5", 114, 156
+{
+	XScale 4.5
+	YScale 4.5
+	Patch "UHELM5", 0, 0
+}

@@ -2921,6 +2921,14 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 			SetPlayerFlag(pnum, PFLAG_DASH_ANCHOR, remove);
 		break;
 
+		// Anathema.
+		case INV_EX_AILMENTS_PIERCE_IMMUNITY:
+			SetPlayerFlag(pnum, PFLAG_AILMENT_PIERCEIMMUNE, remove);
+		break;
+		case INV_EX_AILMENTS_CANNOTBEAVOIDED:
+			SetPlayerFlag(pnum, PFLAG_AILMENT_NOAVOID, remove);
+		break;
+
 		// Emberwake.
 		case INV_EX_TRAIL_SCALES_WITHSPEED:
 			SetPlayerFlag(pnum, PFLAG_TRAIL_SPEEDSCALES, remove);
@@ -3937,19 +3945,26 @@ void ConstructUniqueOnField(int fieldpos, int unique_id, int pnum) {
 	item.quality = 0;
 
 	for(int i = 0; i < item.attrib_count; ++i) {
-		item.attributes[i].attrib_id = UniqueItemList[unique_id].attrib_id_list[i];
+		int aid = UniqueItemList[unique_id].attrib_id_list[i];
+		item.attributes[i].attrib_id = aid;
 		item.attributes[i].attrib_tier = 0;
 		
 		// we must roll the value once dropped
+		//
+		// The selector tests are the same ones RollUniqueAttributeValue and RollUniqueAttributeExtra
+		// make. This function duplicates their formulas inline rather than calling them, so a guard
+		// added there alone would only ever have covered the crafting orb and never the drop.
 		bool makeWellRolled = CheckWellRolled(pnum);
-		if(!makeWellRolled) {
+
+		if(!makeWellRolled || IsUniqueSelectorMod(aid))
 			item.attributes[i].attrib_val = random(UniqueItemList[unique_id].rolls[i].attrib_low, UniqueItemList[unique_id].rolls[i].attrib_high);
-			item.attributes[i].attrib_extra = random(UniqueItemList[unique_id].rolls[i].attrib_extra_low, UniqueItemList[unique_id].rolls[i].attrib_extra_high);
-		}
-		else {
+		else
 			item.attributes[i].attrib_val = random((UniqueItemList[unique_id].rolls[i].attrib_low + UniqueItemList[unique_id].rolls[i].attrib_high) / 2, UniqueItemList[unique_id].rolls[i].attrib_high);
+
+		if(!makeWellRolled || IsUniqueSelectorExtra(aid))
+			item.attributes[i].attrib_extra = random(UniqueItemList[unique_id].rolls[i].attrib_extra_low, UniqueItemList[unique_id].rolls[i].attrib_extra_high);
+		else
 			item.attributes[i].attrib_extra = random((UniqueItemList[unique_id].rolls[i].attrib_extra_low + UniqueItemList[unique_id].rolls[i].attrib_extra_high) / 2, UniqueItemList[unique_id].rolls[i].attrib_extra_high);
-		}
 	}
 }
 

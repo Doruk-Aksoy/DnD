@@ -204,6 +204,31 @@ void SpawnHelm(int pnum, int rarity_boost, int pre_id = -1, bool noRandomVelXY =
 	}
 }
 
+// Hands a NAMED unique to a player, bypassing the roll completely. This is how a reward-only
+// unique reaches the world: it sits outside every BEGIN..END drop range, so nothing can roll it and
+// nothing but an explicit call like this one will ever produce it.
+void SpawnUniqueRewardDrop(int pnum, int unique_id, int item_type, bool noRandomVelXY = false) {
+	int c = CreateItemSpot();
+	if(c == -1)
+		return;
+
+	ConstructUniqueOnField(c, unique_id, pnum);
+
+	str drop = "UniqueCharmDrop";
+	if(item_type == DND_ITEM_BODYARMOR)
+		drop = StrParam(s:"UniqueArmor_", d:unique_id - UNIQUE_BODYARMOR_BEGIN);
+	else if(item_type == DND_ITEM_BOOT)
+		drop = StrParam(s:"UniqueBoot_", d:unique_id - UNIQUE_BOOT_BEGIN);
+	else if(item_type == DND_ITEM_HELM)
+		drop = StrParam(s:"UniqueHelm_", d:unique_id - UNIQUE_HELM_BEGIN);
+	else if(item_type == DND_ITEM_SPECIALTY_CYBORG)
+		drop = StrParam(s:"PowercoreDrop_Unique", d:unique_id - UNIQUE_POWERCORE_BEGIN);
+
+	SpawnDrop(drop, 16.0, 16, pnum + 1, c, noRandomVelXY);
+	SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+	ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, item_type);
+}
+
 void SpawnHelmDrop(int pnum, int rarity_boost, int max_level = MAX_REGULAR_ILVL, bool noRandomVelXY = false, int extra = -1) {
     int c = CreateItemSpot();
 	int id = 0;

@@ -58,3 +58,11 @@ map DND01 "Void Keep" {
 	lightmode = 3 // dark
 	AirControl = 0.25
 }
+
+map DNDBOS1 "Trials of Chaos" {
+	music = "DNDM02"
+   sky1 = "HNX_533"
+	SmoothLighting
+	lightmode = 3 // dark
+	AirControl = 0.25
+}

@@ -1736,7 +1736,8 @@ ACTOR PurebredDemon_Elite : PurebredDemon {
 	}
 }
 
-ACTOR Sabreclaw : DnD_BaseMeleeMonster 21075 { 
+ACTOR Sabreclaw : DnD_BaseMeleeMonster 21075 {
+	//$Sprite CLNKA1
     Health 0x7FFFFFFF
 	GibHealth -50
     Speed 16

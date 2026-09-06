@@ -598,6 +598,8 @@ int MapAttributeToPStat(int mod) {
 		case INV_EX_ANCHOR_RESTORES_HP:             return PSTAT_EX_ANCHOR_RESTOREHP;
 		case INV_EX_DASH_COOLDOWN_LONG:             return PSTAT_EX_DASH_COOLDOWN_LONG;
 		case INV_EX_IGNITETRAIL:                    return PSTAT_EX_IGNITETRAIL;
+		case INV_EX_AILMENT_SINGLETYPE:             return PSTAT_EX_AILMENT_SINGLETYPE;
+		case INV_EX_AILMENT_MORE_DOTDAMAGE:         return PSTAT_EX_AILMENT_MORE_DOTDAMAGE;
 
 		// everything else (regular rollables)
 		case INV_FLASKLIFERECOVERYRATE:             return PSTAT_FLASKLIFERECOVERYRATE;
@@ -693,6 +695,8 @@ int MapAttributeToPFlag(int mod) {
 		case INV_EX_DASH_ANCHOR:                  	return PFLAG_DASH_ANCHOR;
 		case INV_EX_TRAIL_SCALES_WITHSPEED:       	return PFLAG_TRAIL_SPEEDSCALES;
 		case INV_EX_BURNS_WHILE_STILL:            	return PFLAG_TRAIL_BURNSSTILL;
+		case INV_EX_AILMENTS_PIERCE_IMMUNITY:     	return PFLAG_AILMENT_PIERCEIMMUNE;
+		case INV_EX_AILMENTS_CANNOTBEAVOIDED:      	return PFLAG_AILMENT_NOAVOID;
 	}
 	return DND_PFLAG_UNMAPPED;
 }
@@ -1250,6 +1254,8 @@ bool IsAttributeQualityException(int attr) {
 		case INV_FLASK_IMP_QUARTZ:
 		case INV_EX_LIMITEDSMALLCHARMS:
 		case INV_EX_COUNTASHAVINGMAXCHARGEOF:
+		// Anathema. This one names an ailment; scaling it by quality points it somewhere else.
+		case INV_EX_AILMENT_SINGLETYPE:
 		return true;
 	}
 	return false;
@@ -1299,6 +1305,10 @@ int ApplyQualityToAttribExtra(int extra, int qual, int attr) {
 bool IsUniqueModRerollException(int attr) {
 	switch(attr) {
 		case INV_EX_COUNTASHAVINGMAXCHARGEOF:
+
+		// Anathema. Rerolling this would let a player spin the orb until the ailment they wanted
+		// came up, which turns the item's one real cost into a shopping list.
+		case INV_EX_AILMENT_SINGLETYPE:
 		return true;
 	}
 	return false;
@@ -1461,8 +1471,37 @@ int RollAttributeExtra(int attr, int tier, bool isWellRolled, int item_type, int
 	return temp;
 }
 
+// The value NAMES something rather than measuring it, so every bias that reads it as a magnitude
+// has to leave it alone. Deliberately its own list rather than reusing one of the three beside it:
+// IsAttributeQualityException answers "does quality scale this", IsUniqueModRerollException answers
+// "may crafting change this", and a mod can want one and not the other.
+bool IsUniqueSelectorMod(int attr) {
+	switch(attr) {
+		case INV_EX_AILMENT_SINGLETYPE:
+		return true;
+	}
+	return false;
+}
+
+// The EXTRA half of the same question. DND_CHARGE_FRENZY is 0, so the top-of-range bias made a
+// well rolled or Reveranced charm land on random(1, 2) -- it could never name frenzy charges at all.
+bool IsUniqueSelectorExtra(int attr) {
+	switch(attr) {
+		case INV_EX_CHANCEGAINXCHARGE:
+		case INV_EX_COUNTASHAVINGMAXCHARGEOF:
+		return true;
+	}
+	return false;
+}
+
 int RollUniqueAttributeValue(int unique_id, int attr, bool isWellRolled) {
 	bool reverance = CheckInventory("ReveranceUsed");
+
+	// A well rolled or Reveranced item rolls the TOP of the range. On a selector that is not "better",
+	// it just pins the answer -- a Reveranced Anathema could only ever name lightning.
+	if(IsUniqueSelectorMod(UniqueItemList[unique_id].attrib_id_list[attr]))
+		return random(UniqueItemList[unique_id].rolls[attr].attrib_low, UniqueItemList[unique_id].rolls[attr].attrib_high);
+
 	if(!isWellRolled && !reverance)
 		return random(UniqueItemList[unique_id].rolls[attr].attrib_low, UniqueItemList[unique_id].rolls[attr].attrib_high);
 	if(!reverance)
@@ -1472,6 +1511,12 @@ int RollUniqueAttributeValue(int unique_id, int attr, bool isWellRolled) {
 
 int RollUniqueAttributeExtra(int unique_id, int attr, bool isWellRolled) {
 	bool reverance = CheckInventory("ReveranceUsed");
+
+	// see the note on IsUniqueSelectorMod -- an extra that names a thing is not improved by rolling
+	// the top of its range, it is only pinned there
+	if(IsUniqueSelectorExtra(UniqueItemList[unique_id].attrib_id_list[attr]))
+		return random(UniqueItemList[unique_id].rolls[attr].attrib_extra_low, UniqueItemList[unique_id].rolls[attr].attrib_extra_high);
+
 	if(!isWellRolled && !reverance)
 		return random(UniqueItemList[unique_id].rolls[attr].attrib_extra_low, UniqueItemList[unique_id].rolls[attr].attrib_extra_high);
 	if(!reverance)

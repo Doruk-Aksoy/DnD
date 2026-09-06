@@ -2675,6 +2675,13 @@ Script "DnD Handle Hitbeep" (int dmg, int orig_dmg, int type_override) CLIENTSID
 }
 
 void ResolveLifesteal(int pnum, int amt, int spawn_health) {
+	// "Players cannot lifesteal". Blocked at the one function both leech routes -- the ordinary hit
+	// and the Punisher overkill -- come through, and blocked BEFORE the pool is added to rather than
+	// at the drain loop that spends it. Stopping only the drain would let the dungeon bank leech and
+	// hand it over on the way out, which is postponing the healing rather than denying it.
+	if(DungeonBlocksLifesteal())
+		return;
+
 	// give up to the lifesteal limit
 	int ptid = pnum + P_TIDSTART;
 	int toAdd = CheckActorInventory(ptid, "LifeStealAmount");
@@ -2710,7 +2717,10 @@ void ResolveLifesteal(int pnum, int amt, int spawn_health) {
 		// take a bit away from this
 		cap = amt * cap / 100;
 		if(cap) {
+			// The pool is spent in full and only what REACHES the player is cut, so the dungeon
+			// shrinks the heal without handing the difference back as leech left over.
 			amt -= cap;
+			cap = ApplyDungeonReduction(DUN_ATTR_REDUCEDHEALING, cap);
 
 			// give player instant leech here
 			if(toCompare + cap < spawn_health) {
@@ -4413,7 +4423,7 @@ Script "DnD Monster Overload Zap" (int this, int killer) {
 
 			// A chained application is still an application, so the dungeon rolls against it too.
 			// The lock stays outside: a shrugged zap has still been spent on this monster.
-			if(!DungeonAvoidsAilment()) {
+			if(!AilmentAvoidedByDungeon(pnum)) {
 				if(!CheckActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer")) {
 					SetActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer", GetOverloadTime(pnum));
 					// overload damage amp is set to maximum of whatever the monster might have had (from another player) or this new instance of overload

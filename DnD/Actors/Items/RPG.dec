@@ -950,23 +950,23 @@ Actor DnD_EmberTrail : DnD_ExplosiveBase {
 	Radius 1
 	Scale 5.0
 	Speed 0
-	Stamina 18874368 // scales ignite and non weapon
+	Stamina 2359296 // added ignite and non weapon
 	+THRUACTORS
 	+PAINLESS
 	-NOGRAVITY
 	
 	var int user_dmg;
-	var int user_count;
+	var int user_reps;
 
 	const int iters = 7;
 	
 	States {
 		SpawnState:
-			TNT1 A 0 A_SetUserVar("user_count", 0)
+			TNT1 A 0 A_SetUserVar("user_reps", 0)
 			TNT1 A 0 A_SetUserVar("user_dmg", ACS_NamedExecuteWithResult("DnD Ember Trail Damage"))
-			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_NONWEAPON | DND_DAMAGEFLAG_ISRADIUSDMG | DND_DAMAGEFLAG_SCALEIGNITE)
+			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_NONWEAPON | DND_DAMAGEFLAG_ISRADIUSDMG | DND_DAMAGEFLAG_ADDEDIGNITE)
 		Death:
-			TNT1 A 0 A_Jump(128, "DeathCont")
+			TNT1 A 0 A_Jump(168, "DeathCont")
 			TNT1 A 1 A_PlaySound("vile/firecrkl")
 		DeathCont:
 			TNT1 A 0 A_SetArg(
@@ -979,8 +979,8 @@ Actor DnD_EmberTrail : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius * 0.666)
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
-			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-			TNT1 A 0 A_JumpIf(user_count == iters, "Finish")
+			TNT1 A 0 A_SetUserVar("user_reps", user_reps + 1)
+			TNT1 A 0 A_JumpIf(user_reps == iters, "Finish")
 			AURA H 10 Bright A_SpawnItemEx("DnD_EmberTrail_FireFx", frandom(-user_expradius, user_expradius), frandom(-user_expradius, user_expradius), 1, frandom(-0.5, 0.5), frandom(-0.5, 0.5), frandom(0.1, 0.5))
 		Goto DoExplosionDamage
 		Finish:

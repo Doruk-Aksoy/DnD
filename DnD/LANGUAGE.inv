@@ -113,7 +113,7 @@ DND_UHELMIMG1       =   "UHELM1";
 DND_UHELMIMG2       =   "UHELM2";
 DND_UHELMIMG3       =   "UHELM3";
 DND_UHELMIMG4       =   "UHELM4";
-DND_UHELMIMG4       =   "UHELM4";
+DND_UHELMIMG5       =   "UHELM5";
 	
 // orbs
 DND_OIMG1			=	"ORB1D0";
@@ -333,6 +333,7 @@ DND_UHELM_NAME1         =   "Choir of Ashes";
 DND_UHELM_NAME2         =   "Sightless Vigil";
 DND_UHELM_NAME3         =   "Crown of Suffering";
 DND_UHELM_NAME4         =   "Stormseeker";
+DND_UHELM_NAME5         =   "Anathema";
 
 // inventory attribute table
 IATTR_T0 			= "Health";
@@ -748,6 +749,14 @@ IATTR_TX98          = "\c[D4]longer dash cooldown";
 IATTR_TX99          = "You leave burning ground in your wake, dealing"; IATTR_TX99S = "fire damage";
 IATTR_TX100         = "The trail deals up to double damage, scaling with how fast you move";
 IATTR_TX101         = "\c[D4]Standing still ignites you";
+IATTR_TX102         = "Your ailments ignore monster ailment immunity";
+IATTR_TX103         = "Your ailments cannot be avoided";
+IATTR_TX104         = "more ailment damage over time";
+IATTR_TX105         = "\c[D4]You can inflict no ailment other than";
+
+// Anathema names the ailment itself; the other four come from the DND_MENU_AILMENT list. This one
+// has no entry there because chill and freeze are one answer to it.
+DND_ANATHEMA_AILCOLD = "Chill and Freeze";
 
 // exotic attribute strings
 IATTR_MAXHEALTH				= "maximum health";

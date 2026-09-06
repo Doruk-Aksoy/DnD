@@ -477,6 +477,9 @@ enum {
 	PSTAT_EX_DASH_COOLDOWN_LONG,    // Undertow. percent ADDED to the dash cooldown
 	PSTAT_EX_IGNITETRAIL,           // Emberwake. base damage a trail tick deals
 
+	PSTAT_EX_AILMENT_SINGLETYPE,    // Anathema. DND_ANATHEMA_* + 1, so zero still means "no item"
+	PSTAT_EX_AILMENT_MORE_DOTDAMAGE,// Anathema. a MORE multiplier, applied apart from the DoT sum
+
 	// everything else (regular rollables)
 	PSTAT_FLASKLIFERECOVERYRATE,
 	PSTAT_DROPCHANCE_INCREASE,
@@ -703,6 +706,17 @@ enum {
 	PSTAT_COUNT
 };
 
+// The single ailment Anathema allows. Stored as this + 1 so an empty slot still reads as "no
+// Anathema equipped", and rolled 1..DND_ANATHEMA_COUNT on the item for the same reason.
+enum {
+	DND_ANATHEMA_BLEED = 1,
+	DND_ANATHEMA_POISON,
+	DND_ANATHEMA_COLD,
+	DND_ANATHEMA_FIRE,
+	DND_ANATHEMA_LIGHTNING
+};
+#define DND_ANATHEMA_COUNT DND_ANATHEMA_LIGHTNING
+
 // Which area of effect stat answers for a hit. Weapon sourced gets both terms, non weapon gets
 // only the universal one. Values match the argument DECORATE passes to the radius script.
 enum {
@@ -794,6 +808,10 @@ enum {
 	// Emberwake.
 	PFLAG_TRAIL_SPEEDSCALES,
 	PFLAG_TRAIL_BURNSSTILL,
+
+	// Anathema.
+	PFLAG_AILMENT_PIERCEIMMUNE,
+	PFLAG_AILMENT_NOAVOID,
 
 	PFLAG_COUNT
 };

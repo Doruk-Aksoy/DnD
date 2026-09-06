@@ -140,6 +140,11 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget, bool noMedkitStor
 
 	// consider healing bonuses from quests
 	amt = amt * (100 + bonus) / 100;
+
+	// The dungeon's cut lands on the ceiling rather than on toGive, so the medkit store's overflow
+	// to flask charges is measured against the reduced number too -- taking it off toGive alone
+	// would have converted the lost healing into charges and given it straight back.
+	amt = ApplyDungeonReduction(DUN_ATTR_REDUCEDHEALING, amt);
 	
 	// health bonus
 	if(isspecial == 6) { // +100 above cap
@@ -150,8 +155,8 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget, bool noMedkitStor
 		toGive = healthcap * 2 - curhp;
 	}
 	else if(isspecial == 3) {
-		// map toast heal
-		amt = healthcap - curhp;
+		// map toast heal -- overwrites amt, so it takes the cut of its own
+		amt = ApplyDungeonReduction(DUN_ATTR_REDUCEDHEALING, healthcap - curhp);
 	    GiveInventory("HealthBonusX", amt);
 		GiveInventory("Research_Body_Hp_1_Tracker", amt);
 	    return;
@@ -266,6 +271,8 @@ int GetPlayerEnergyShieldRecoveryRate(int pnum, int cap) {
 
 	if(HasPlayerFlag(pnum, PFLAG_ESHIELD_NOINTERRUPT))
 		res /= 2;
+
+	res = ApplyDungeonReduction(DUN_ATTR_REDUCEDESHIELDRECOVERYRATE, res);
 
 	if(!res)
 		res = 1;
@@ -614,7 +621,10 @@ int GetPlayerArmor(int pnum) {
 	amt += (amt * CheckInventory("CelestialCheck") * CELESTIAL_BOOST) / 100;
 	amt += (amt * GetResearchArmorBonuses()) / 100;
 	amt += (amt * PlayerModData[pnum].vals[PSTAT_ARMOR_PCT]) / 100;
-	return amt;
+
+	// This is the rating GetArmorRatingEffect works from as well as the pickup number, so the
+	// dungeon's cut lands on both from here.
+	return ApplyDungeonReduction(DUN_ATTR_LESSDEFENCES, amt);
 }
 
 int Calculate_Stats() {
@@ -1504,6 +1514,8 @@ int GetFireDOTDamage(int pnum, int bonus = 0, int victim = -1, int wepid = -1) {
 	// dot multi;
 	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid, PSTAT_DOTMULTI_FIRE)) / 100;
 	
+	dmg = ApplyAilmentMoreDamage(pnum, dmg);
+
 	// hellfire amulet -- moved here for ignite calculation specifically
 	if(IsAccessoryEquipped(pnum + P_TIDSTART, DND_ACCESSORY_AMULETHELLFIRE))
 		dmg = MulPercent_Exact(dmg, DND_AMULETHELL_AMP, DND_AMULETHELL_FACTOR);
@@ -1528,6 +1540,7 @@ int GetPoisonDOTDamage(int pnum, int base_poison, int victim = -1, int wepid = -
 	
 	// dot multi
 	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid, PSTAT_DOTMULTI_POISON)) / 100;
+	dmg = ApplyAilmentMoreDamage(pnum, dmg);
 	
 	return dmg;
 }
@@ -1541,6 +1554,7 @@ int GetGenericDoTDamage(int pnum, int base, int victim = -1, int wepid = -1) {
 	
 	// dot multi
 	base = base * (100 + GetPlayerDOTMulti(pnum, victim, wepid)) / 100;
+	base = ApplyAilmentMoreDamage(pnum, base);
 
 	return base;
 }
@@ -1648,7 +1662,8 @@ void ReturnToDashAnchor(int pnum) {
 		want = cap;
 
 	if(want > cur)
-		GiveActorInventory(ptid, "HealthBonusX", want - cur);
+		GiveActorInventory(ptid, "HealthBonusX",
+			ApplyDungeonReduction(DUN_ATTR_REDUCEDHEALING, want - cur));
 
 	// Consumed, so the marker goes with it.
 	ACS_NamedExecuteAlways("DnD Dash Anchor Marker Clear", 0, pnum);
@@ -1715,7 +1730,7 @@ void HandlePoisonKillRegen(int pnum, int tid, int pct) {
 	if(cur >= lim)
 		return;
 
-	int amt = lim * pct / 100;
+	int amt = ApplyDungeonReduction(DUN_ATTR_REDUCEDHEALING, lim * pct / 100);
 	if(cur + amt > lim)
 		amt = lim - cur;
 
@@ -1778,21 +1793,56 @@ int GetLifestealLifeRecovery(int pnum, int cap) {
 	}
 
 	cap = cap * (100 + bonus + PlayerModData[pnum].vals[PSTAT_LIFESTEAL_RECOVERY]) / 100;
+	cap = ApplyDungeonReduction(DUN_ATTR_REDUCEDHEALING, cap);
 	if(cap <= 0)
 		cap = 1;
 	
 	return cap;
 }
 
+// Anathema. The one ailment the player may inflict, answered as the monster IMMUNITY trait that
+// names it -- which is exactly what CheckAilmentImmunity is already handed, so the comparison needs
+// no translation table and no new argument at any of its six call sites.
+//
+// Cold is a single answer because chill and freeze share DND_FROSTBLOOD. That is the item working as
+// written rather than a gap: it names a damage family, not one of the six ailments.
+int GetAnathemaTrait(int pnum) {
+	switch(PlayerModData[pnum].vals[PSTAT_EX_AILMENT_SINGLETYPE]) {
+		case DND_ANATHEMA_BLEED:		return DND_STONECREATURE;
+		case DND_ANATHEMA_POISON:		return DND_TOXICBLOOD;
+		case DND_ANATHEMA_COLD:			return DND_FROSTBLOOD;
+		case DND_ANATHEMA_FIRE:			return DND_MOLTENBLOOD;
+		case DND_ANATHEMA_LIGHTNING:	return DND_INSULATED;
+	}
+
+	// zero is "no Anathema equipped", which is why the roll starts at 1
+	return -1;
+}
+
+// Anathema. "Your ailments cannot be avoided" -- the dungeon's shrug is the only roll that stands
+// between a player's ailment and a target it is otherwise allowed to land on, so this is read
+// wherever that roll is made rather than only inside the gate below. The overload chain is the other
+// site: it applies to monsters it reaches by chaining, which never pass through CheckAilmentImmunity.
+bool AilmentAvoidedByDungeon(int pnum) {
+	return !HasPlayerFlag(pnum, PFLAG_AILMENT_NOAVOID) && DungeonAvoidsAilment();
+}
+
 // returns true if the ailment may be applied: the dungeon did not shrug it off, and the monster
 // either is not immune or we bypassed its immunity. Every ailment -- chill, freeze, bleed, overload,
 // ignite and poison -- asks here before it is placed, which is why the dungeon roll lives here too.
 bool CheckAilmentImmunity(int pnum, int m_id, int ailment_mod) {
-	if(DungeonAvoidsAilment())
+	// Anathema names one ailment and refuses the rest. Asked FIRST, so no amount of ignore chance
+	// or immunity piercing can talk the others back in -- the restriction is the item's whole cost.
+	int only = GetAnathemaTrait(pnum);
+	if(only != -1 && only != ailment_mod)
 		return false;
 
-	// is not immune or if it is, we rolled ailment ignore chance
-	return !HasMonsterTrait(m_id, ailment_mod) || random(1, 100) < PlayerModData[pnum].vals[PSTAT_AILMENT_IGNORECHANCE];
+	if(AilmentAvoidedByDungeon(pnum))
+		return false;
+
+	// is not immune, we pierce immunity outright, or we rolled ailment ignore chance
+	return HasPlayerFlag(pnum, PFLAG_AILMENT_PIERCEIMMUNE) ||
+		!HasMonsterTrait(m_id, ailment_mod) || random(1, 100) < PlayerModData[pnum].vals[PSTAT_AILMENT_IGNORECHANCE];
 }
 
 #define DND_BASE_BLEEDCHANCE_MELEE 20
@@ -1847,6 +1897,7 @@ int GetBleedDamage(int pnum, int wepid, int dmg, int victim = -1) {
 	
 	// dot multi;
 	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid, PSTAT_DOTMULTI_BLEED) + CheckActorInventory(victim, "DnD_OpenWounds") * DND_OPENWOUNDS_BLEEDMULTIBONUS) / 100;
+	dmg = ApplyAilmentMoreDamage(pnum, dmg);
 
 	return dmg;
 }
@@ -1884,6 +1935,17 @@ int GetIgniteChance(int pnum, int flat_bonus = 0) {
 
 int CheckIgniteChance(int pnum, int flat_bonus = 0) {
 	return random(1, 100) <= GetIgniteChance(pnum, flat_bonus);
+}
+
+// Anathema. A MORE multiplier, so it multiplies the finished number instead of joining the
+// additive pile in PSTAT_DOT_INCREASED -- see the increased/more convention. Applied to the four
+// damage-over-time formulas; chill and freeze deal none, so a cold roll buys reach, not damage.
+int ApplyAilmentMoreDamage(int pnum, int dmg) {
+	int more = PlayerModData[pnum].vals[PSTAT_EX_AILMENT_MORE_DOTDAMAGE];
+	if(!more)
+		return dmg;
+
+	return dmg * (100 + more) / 100;
 }
 
 int GetIgniteProlifChance(int pnum) {

@@ -981,7 +981,11 @@ int GetPlayerEnergyShieldCap(int pnum) {
 	base += spawn_health * (PlayerModData[pnum].vals[PSTAT_EX_HPTOESHIELD] + HasActorClassPerk_Fast(pnum + P_TIDSTART, DND_PLAYER_CYBORG, 5) * 50) / 100;
 
 	base = (base * (100 + PlayerModData[pnum].vals[PSTAT_SHIELD_PCT] + int_bonus)) / 100;
-	return base;
+
+	// The shield is CAPPED rather than scaled at the point of use: this is the one function every
+	// reader of the pool goes through, so lowering it here lowers the pool itself, and the clamp on
+	// spawn brings a shield the player walked in with down to meet it.
+	return ApplyDungeonReduction(DUN_ATTR_LESSDEFENCES, base);
 }
 
 #define DND_MIT_PER_DEX 0.2
@@ -1010,7 +1014,9 @@ int GetMitigationChance(int pnum, bool forcedReturn = false) {
 	if(base >= DND_MIT_MAXCHANCE)
 		base = DND_MIT_MAXCHANCE;
 
-	return base;
+	// AFTER the cap, not before. Taken off the raw sum first, a player already over 100% would land
+	// back on the cap and the dungeon would have done nothing to the build it is meant to tax.
+	return ApplyDungeonReduction(DUN_ATTR_LESSDEFENCES, base);
 }
 
 bool CouldMitigateDamage(int pnum) {

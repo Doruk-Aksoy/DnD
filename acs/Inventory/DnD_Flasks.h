@@ -617,6 +617,10 @@ Script "DnD Flask Use" (int flask_id) NET {
 		if(FlaskData[pnum][flask_id].quality)
 			toGive_total = toGive_total * (100 + FlaskData[pnum][flask_id].quality) / 100;
 
+		// on the total rather than the per step amount: the loop divides and carries a remainder,
+		// so cutting the total keeps the drip even instead of rounding the cut away each step.
+		toGive_total = ApplyDungeonReduction(DUN_ATTR_REDUCEDHEALING, toGive_total);
+
 		int toGive = toGive_total / total_time;
 		int currGiven = 0;
 		
