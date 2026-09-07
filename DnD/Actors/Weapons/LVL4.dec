@@ -742,7 +742,6 @@ Actor "Upgraded Machine Gun2" : DnDWeapon {
 		Ready:
 			QUAG A 0 A_StopSound(CHAN_WEAPON)
 			QUAG A 0 A_GiveInventory("H_WeaponSlot4", 1)
-			QUAG A 0 A_GiveInventory("DnD_UsingEnergy", 1)
 			QUAG A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_LEADSPITTER)
 			QUAG A 0 A_GiveInventory("LeadSoundChecker", 1)
 		ReadyLoop:
@@ -751,7 +750,6 @@ Actor "Upgraded Machine Gun2" : DnDWeapon {
 		Deselect:
 			TNT1 A 0 A_StopSound(CHAN_WEAPON)
 			QUAH A 0 A_StopSoundEx("Weapon")
-			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot4", 1)
 			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
@@ -2474,7 +2472,6 @@ ACTOR MPPB : DnDWeapon {
 	
 		Ready:
 			MPPB A 0 A_GiveInventory("H_WeaponSlot4", 1)
-			MPPB A 0 A_GiveInventory("DnD_UsingEnergy", 1)
 			MPPB A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_MPPB)
 		ReadyLoop:
 			MPPB A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_MPPB, BTI_F_REMOVE)
@@ -2491,7 +2488,6 @@ ACTOR MPPB : DnDWeapon {
 		Deselect:
 			MPPB A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_MPPB, BTI_F_REMOVE)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot4", 1)
-			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 A_ClearRefire
 			TNT1 A 0 A_StopSound(CHAN_WEAPON)
 			TNT1 A 0 A_StopSound(7)

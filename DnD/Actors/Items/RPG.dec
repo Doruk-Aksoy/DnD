@@ -52,7 +52,6 @@ Actor SummonedZombiePets : Inventory {
 
 Actor Menu_Setup : DnD_Boolean { }
 
-Actor QuestWasPicked : DnD_Boolean { }
 
 // Holds character index of this logged in player
 Actor DnD_CharacterID : DnD_Info { }
@@ -93,10 +92,6 @@ Actor Budget : Ammo {
 	inventory.amount 1
 	inventory.maxamount 1000
 	+IGNORESKILL
-}
-
-Actor ActiveQuestID : Inventory {
-	inventory.maxamount 0xFF
 }
 
 Actor CreditGiver : Credit { // test actor

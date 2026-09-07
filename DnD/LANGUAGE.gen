@@ -74,7 +74,6 @@ DND_TEXT_DISCOVEREDRES					= "You have discovered the following research";
 DND_TEXT_INCURSION						= "Dangerous foes from the great beyond have stepped into this realm...";
 DND_TEXT_TRADEREQUEST					= "You have a trade request from";
 
-DND_TEXT_NOACTIVEQUEST					= "No active quest found!";
 
 DND_TEXT_NOTIFICATION					= "NOTIFICATION";
 DND_TEXT_INVENTORYFULL					= "INVENTORY IS FULL";

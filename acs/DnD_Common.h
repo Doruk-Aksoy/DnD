@@ -1264,6 +1264,7 @@ enum {
 
 	LEVELINFO_ISDUNGEON,
 	LEVELINFO_DUNGEONMUSTRESET,
+	LEVELINFO_ISULTIMATUM,
 
 	// keeps at what tid we are left off
 	LEVELINFO_TID_MONSTER,
@@ -1298,6 +1299,7 @@ void ResetPlayerInformationLevel() {
 	InformationInLevel[LEVELINFO_MAXPLAYERLEVEL] = bcs::INT_MIN;
 	InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART] = 0;
 	InformationInLevel[LEVELINFO_PLAYERLEVELATSTART] = 0;
+	InformationInLevel[LEVELINFO_ISULTIMATUM] = 0;
 
 	pinfo_pending_reset = false;
 

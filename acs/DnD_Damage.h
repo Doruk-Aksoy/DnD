@@ -1165,7 +1165,7 @@ int ApplyNonWeaponBaseDamageBonus(int tid, int dmg, int damage_type, int flags) 
 		factor += temp;
 
 	// THESE ARE MULTIPLICATIVE STACKING BONUSES BELOW -- HAVE KEYWORD: MORE
-	// quest or accessory bonuses	
+	// accessory bonuses	
 	// is occult (add demon bane bonus)
 	
 	if(damage_category == DND_DAMAGECATEGORY_OCCULT)
@@ -1431,7 +1431,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 			if(typed)
 				InsertCacheFactor_Typed(pnum, slot, dmgid, cat, typed, true);
 
-			// MULTIPLICATIVE -- quest or accessory bonuses
+			// MULTIPLICATIVE -- accessory bonuses
 			// is occult (add demon bane bonus)
 			if((flags & DND_DAMAGEFLAG_COUNTSASMAGIC || cat == DND_DAMAGECATEGORY_OCCULT) && has_demonbane)
 				InsertCacheFactor_Typed(pnum, slot, dmgid, cat, 100 + DND_DEMONBANE_GAIN, false);

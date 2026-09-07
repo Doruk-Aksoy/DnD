@@ -39,7 +39,6 @@ const int SPECIAL_FX_TID = 2147483647;
 #include "Actors/Items/MonsterInfo.dec"
 #include "Actors/Items/BudgetDrops.dec"
 #include "Actors/Items/Buttons.dec"
-#include "Actors/Items/Quests.dec"
 #include "Actors/Items/Charms.dec"
 #include "Actors/Items/Flasks.dec"
 #include "Actors/Items/Armors.dec"

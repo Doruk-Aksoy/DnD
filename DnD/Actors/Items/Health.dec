@@ -112,7 +112,6 @@ Actor NewHealthBonus : CustomInventory replaces HealthBonus {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("TaltosUp", 1, "Failed")
 		    TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 1, 5)
-			TNT1 A 0 A_GiveInventory("DnD_UseNoHealth", 1)
 		Stop
 		Failed:
 			TNT1 A 0

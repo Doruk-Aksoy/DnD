@@ -42,7 +42,6 @@ dnd_gainonlyinrange 1
 dnd_allresearchesfound 0
 dnd_disablelevelbonus 0
 dnd_usesmartmonsterspawner 1
-dnd_enable_quests 1
 dnd_enable_elites 1
 dnd_enable_limiteditems 1
 dnd_no_immunity 0
@@ -60,8 +59,6 @@ dnd_accessory_droprate 3
 dnd_credit_droprateadd 0
 dnd_gainrange 768
 dnd_orb_dropchanceadd 0
-dnd_quest_chance 20
-dnd_quest_avglevel 25
 dnd_elite_spawnchance 10
 dnd_elite_spawnlevel 20
 dnd_elite_runedrop_chance 15

@@ -1895,7 +1895,6 @@ actor "Enforcer Rifle" : DnDWeapon {
 		Goto ReadyLoop
 		Ready:
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
-			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_ENFORCERRIFLE)
 		ReadyLoop:
 			ENRI A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
@@ -1908,7 +1907,6 @@ actor "Enforcer Rifle" : DnDWeapon {
 		Deselect: 
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
-			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			ENRI A 1 A_Lower
@@ -3685,7 +3683,6 @@ actor "Plasma Bolter" : DnDWeapon {
 		Goto ReadyLoop
 		Ready:
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
-			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_PLASMABOLTER)
 		ReadyLoop:
 			PBL9 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
@@ -3698,7 +3695,6 @@ actor "Plasma Bolter" : DnDWeapon {
 		Deselect: 
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
-			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			PBL9 E 1 A_Lower

@@ -100,7 +100,7 @@ int GetDefaultSettingAcceptedValue(int id) {
 	return FlagAcceptedValues[id];
 }
 
-#define MAXDNDFLAGS 47
+#define MAXDNDFLAGS 46
 
 str GetDnDSettingString(int id) {
 	static str DNDFlagCheckList[MAXDNDFLAGS] = {
@@ -121,7 +121,6 @@ str GetDnDSettingString(int id) {
 		"dnd_allresearchesfound",
 		"dnd_disablelevelbonus",
 		"dnd_usesmartmonsterspawner",
-		"dnd_enable_quests",
 		"dnd_enable_elites",
 		"dnd_enable_limiteditems",
 		"dnd_no_immunity",
@@ -182,7 +181,6 @@ int GetDnDSettingAcceptedValue(int id) {
 		1,
 		0,
 		0,
-		1,
 		1,
 		1,
 		1,

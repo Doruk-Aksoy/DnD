@@ -24,13 +24,25 @@ enum {
 	DW_CHALLENGE1,
 	DW_CHALLENGE2,
 	DW_CHALLENGE3,
-	DW_CHALLENGE4,
+
+	DW_ULTIMATUM_ASK1,
+	DW_ULTIMATUM_ASK2,
+	DW_ULTIMATUM_ASK3,
+
+	// match order of ultimatum challenges
+	DW_ULTIMATUM_EXTRAELEDMG,
+	DW_ULTIMATUM_SAWBLADES,
+    DW_ULTIMATUM_MIASMA,
+    DW_ULTIMATUM_CRACKLINGPAIN,
+    DW_ULTIMATUM_STORMCALL,
+    DW_ULTIMATUM_FIRESKULLS,
 
 	MRCH_GREET,
 
 	MAX_PROMPTED_LINES
 };
 #define DW_CHALLENGE_BEGIN DW_CHALLENGE1
+#define DW_ULTIMATUM_CHALLENGE_BEGIN DW_ULTIMATUM_EXTRAELEDMG
 
 enum {
 	NPC_OFFER_NA,
@@ -161,6 +173,10 @@ void NPC_Setup() {
 
 str GetPromptText(int id) {
 	return StrParam(s:"DND_PROMPT", d:id + 1);
+}
+
+str GetUltimatumPromptText(int id) {
+	return StrParam(s:"DND_ULTIMATUM", d:id + 1);
 }
 
 void ClosePrompt(bool non_npc_use = false) {
@@ -623,7 +639,7 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 	bool voting_ongoing = n_state != NPC_STATE_VOTE_DECLINE && n_state != NPC_STATE_VOTE_ACCEPT;
 	int yOff = 384.0;
 	
-	if(first_time) {
+	if(first_time && !InformationInLevel[LEVELINFO_ISULTIMATUM]) {
 		if(n_state != NPC_STATE_VOTE_ACCEPT) {
 			HudMessage(
 				l:GetPromptText(DW_GREET_FIRST_TIME1), 
@@ -651,12 +667,23 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 		}
 	}
 	else if(n_state != NPC_STATE_VOTE_ACCEPT) {
-		HudMessage(
-			l:GetPromptText(CheckInventory("ReceivedDialogID")),
-			s:"\n\n\c[Y5]---------------------------------------\n\n",
-			s:"\c[W3]", l:"DND_CHALLENGE", s:":\n\n", l:GetPromptText(DW_CHALLENGE_BEGIN + offer_id - 1);
-			HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 160.1, 128.1, 0.0, 0.0
-		);
+		if(!InformationInLevel[LEVELINFO_ISULTIMATUM]) {
+			HudMessage(
+				l:GetPromptText(CheckInventory("ReceivedDialogID")),
+				s:"\n\n\c[Y5]---------------------------------------\n\n",
+				s:"\c[W3]", l:"DND_CHALLENGE", s:":\n\n", l:GetPromptText(DW_CHALLENGE_BEGIN + offer_id - 1);
+				HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 160.1, 128.1, 0.0, 0.0
+			);
+		}
+		else {
+			// show the ultimatum offers
+			HudMessage(
+				l:GetPromptText(CheckInventory("ReceivedDialogID")),
+				s:"\n\n\c[Y5]---------------------------------------\n\n",
+				s:"\c[W3]", l:"DND_CHALLENGE", s:":\n\n", l:GetUltimatumPromptText(offer_id);
+				HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 160.1, 128.1, 0.0, 0.0
+			);
+		}
 		
 		if(voting_ongoing) {
 			AddBoxToPane_Points(CurrentPane, 340.0, 196.0, 300.0, 188.0);

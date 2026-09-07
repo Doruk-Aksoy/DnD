@@ -39,7 +39,6 @@ server noarchive bool dnd_gainonlyinrange = false;
 server noarchive bool dnd_allresearchesfound = false;
 server noarchive bool dnd_disablelevelbonus = false;
 server noarchive bool dnd_usesmartmonsterspawner = false;
-server noarchive bool dnd_enable_quests = true;
 server noarchive bool dnd_enable_elites = true;
 server noarchive bool dnd_enable_limiteditems = true;
 server noarchive bool dnd_no_immunity = false;

@@ -915,6 +915,9 @@ Script "DND On Kill" KILL {
 
 	MonsterProperties[m_id].killer_tid = target;
 
+	if(InformationInLevel[LEVELINFO_ISULTIMATUM])
+		IncrementCurrentUltimatumTally();
+
 	// Acrobacy / Unending Rush. Here rather than in HandleMonsterDeathConfirm because that one only
 	// knows the victim; this is where the killer has already been resolved to a player.
 	if(!killerWasntPlayer && IsPlayer(target)) {
@@ -1349,11 +1352,15 @@ Script 895 (int val, int this) {
 					
 					bool first_time = false;
 					// the inventory check makes sure you see greeting text even if you dont partake
-					if((!HasMetNPC(DND_NPC_DARKWANDERER) || CheckInventory("DarkWandererFirstTime"))) {
+					if((!HasMetNPC(DND_NPC_DARKWANDERER) || CheckInventory("DarkWandererFirstTime")) && !InformationInLevel[LEVELINFO_ISULTIMATUM]) {
 						GiveInventory("DarkWandererFirstTime", 1);
 						first_time = true;
 					}
 					else {
+						// you now met him!
+						if(InformationInLevel[LEVELINFO_ISULTIMATUM])
+							GiveInventory("DarkWandererFirstTime", 1);
+							
 						// we met before, roll a specific dialog id that remains for the map
 						SetInventory("ReceivedDialogID", NPC_States[DND_NPC_DARKWANDERER].dialog);
 					}

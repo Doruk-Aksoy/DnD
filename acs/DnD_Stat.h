@@ -466,7 +466,6 @@ void GiveCredit(int amt) {
 	GiveInventory("Credit", amt);
 	GiveInventory("DnD_LevelCredit", amt);
 	ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
-	GiveInventory("DnD_MoneySpentQuest", amt);
 	UpdateActivity(pnum, DND_ACTIVITY_CREDIT, amt, 0);
 }
 

@@ -22,7 +22,6 @@ Actor ResBFG1 : DnDWeapon {
 		Stop
 		Ready:
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot7", 1)
-			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_IONCANNON)
 		ReadyLoopInit:
 			RW04 A 0 A_StopSound(CHAN_7)
@@ -35,7 +34,6 @@ Actor ResBFG1 : DnDWeapon {
 		Deselect:
 			TNT1 A 0 A_StopSound(7)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot7", 1)
-			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			RW04 A 1 A_Lower

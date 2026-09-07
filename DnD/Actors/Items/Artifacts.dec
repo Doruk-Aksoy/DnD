@@ -17,7 +17,6 @@ Actor FieldKit : CustomInventory
 	Use:
 		TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DnD Can Pick Health Item", 1), "Failed")
 		TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 25 + 13 * ACS_ExecuteWithResult(918, 2, 1))
-		TNT1 A 0 A_GiveInventory("DnD_UseNoArtifact", 1)
 		TNT1 A 0 A_GiveInventory("RemoveAilments", 1)
 		TNT1 A 0 ACS_NamedExecuteAlways("DnD On Artifact Use")
 	Stop
@@ -80,7 +79,6 @@ actor Salvationsphere : CustomInventory {
 		ContinueUse:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100 + 50 * ACS_ExecuteWithResult(918, 2, 1), 1)
 			TNT1 A 0 A_GiveInventory("Salvate")
-			TNT1 A 0 A_GiveInventory("DnD_UseNoArtifact", 1)
 			TNT1 A 0 A_GiveInventory("SalvationEffectGiver")
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Artifact Use")
 		Stop
@@ -115,7 +113,6 @@ Actor PortableShield : CustomInventory
 	Use:
 		TNT1 A 0 A_JumpIfInventory("Invulnerable_Better", 1, "Failed") // invul sphere
 		TNT1 A 0 A_JumpIfInventory("P_Invulnerable", 1, "Failed")
-		TNT1 A 0 A_GiveInventory("DnD_UseNoArtifact", 1)
 		TNT1 A 0 A_JumpIfInventory("Ability_Arcanery", 1, "Better")
 		TNT1 A 0 A_GiveInventory("ShieldPowerupGiver", 1)
 		TNT1 A 0 ACS_NamedExecuteAlways("DnD On Artifact Use")
@@ -172,7 +169,6 @@ Actor BloodRune : CustomInventory
 			ELPD A -1
 		Stop
 		Use:
-			TNT1 A 0 A_GiveInventory("DnD_UseNoArtifact", 1)
 			TNT1 A 1 ACS_NamedExecuteAlways("DnD Blood Rune", 0, 0)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Artifact Use")
 		Stop
@@ -195,7 +191,6 @@ Actor TripleDamage : CustomInventory
 			TNT1 A 1
 		Stop
 		Use:
-			TNT1 A 0 A_GiveInventory("DnD_UseNoArtifact", 1)
 			TNT1 A 0 A_JumpIfInventory("Ability_Arcanery", 1, "Better")
 			TNT1 A 0 A_GiveInventory("TripleDamagePower", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_TRIPLEDAMAGE)
@@ -262,7 +257,6 @@ Actor BookofTheDead : CustomInventory
 		Stop
 		Use:
 			TNT1 A 0 A_AlertMonsters
-			TNT1 A 0 A_GiveInventory("DnD_UseNoArtifact", 1)
 			TNT1 A 0 A_SpawnItemEx("UndeadParticleFX2", 32, 0)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Artifact Use")
 			TNT1 A 0 ACS_NamedExecuteWithResult(
@@ -320,7 +314,6 @@ Actor BladeVortex : CustomInventory
 			TNT1 A 1
 		Stop
 		Use:
-			TNT1 A 0 A_GiveInventory("DnD_UseNoArtifact", 1)
 			TNT1 A 0 A_AlertMonsters
 			TNT1 A 0 A_SetBlend("FF FF FF", 1.0, 35)
 			TNT1 A 0 A_JumpIfInventory("Ability_Arcanery", 1, "Better")

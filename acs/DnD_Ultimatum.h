@@ -7,26 +7,30 @@ namespace ultimatum {
         MAX_WAVE_FORMATIONS = 16,
         MAX_VARIANTS = 4,
 
-        TP_TID_GROUND = 4005,
+        TP_TID_GROUND_BEGIN = 4005,
+        TP_TID_GROUND_END = 4010,
         TP_SECTOR_GROUND = 22,
 
-        TP_TID_SIDEROOF1 = 4003,
-        TP_TID_SIDEROOF2 = 4004,
+        TP_TID_SIDEROOF_BEGIN = 4011,
+        TP_TID_SIDEROOF_END = 4016,
         TP_SECTOR_SIDEROOF = 8,
 
-        TP_TID_FLIERS = 4002,
+        TP_TID_FLIERS_BEGIN = 4017,
+        TP_TID_FLIERS_END = 4040,
         TP_SECTOR_FLIERS = 6,
 
-        TP_TID_GROUNDBOSS = 4006,
+        TP_TID_GROUNDBOSS = 4046,
         TP_SECTOR_GROUNDBOSS = 26,
 
-        TP_TID_BACKBOSS = 4000,
+        TP_TID_BACKBOSS_BEGIN = 4000,
+        TP_TID_BACKBOSS_END = 4004,
         TP_SECTOR_BACKBOSS = 27,
 
-        TP_TID_WINDOWS = 4001,
+        TP_TID_WINDOWS_BEGIN = 4041,
+        TP_TID_WINDOWS_END = 4044,
         TP_SECTOR_WINDOWS = 28,
 
-        TP_TID_REWARDS = 4029
+        TP_TID_MIDSECTION = 4045                // used for spawning rewards, the NPC etc.
     };
 
     enum {
@@ -59,13 +63,21 @@ typedef struct {
 
 typedef struct {
     ultimatum_formation_T info[ultimatum::MAX_VARIANTS][ultimatum::MAX_WAVE_FORMATIONS];
-    int formation_count;
+    int formation_count[ultimatum::MAX_VARIANTS];
     int variants;
     int formation_types_used;  // the formation types featured in the wave
+    int total_monsters[ultimatum::MAX_VARIANTS];
 } ultimatum_wave_T;
 
+typedef struct {
+    int kills;
+    int total_kills;
+    int req_kills_wave;
+    int curr_wave;
+} ultimatum_curr_tally_T;
+
 void AddFormationToWave(ultimatum_wave_T module& w, int variant, str actor, int amt, int del, int type) {
-    int count = w.formation_count;
+    int count = w.formation_count[variant];
     w.info[variant][count].actor_name = actor;
     w.info[variant][count].amount = amt;
     w.info[variant][count].spawn_delay = del;
@@ -74,7 +86,8 @@ void AddFormationToWave(ultimatum_wave_T module& w, int variant, str actor, int 
     w.formation_types_used |= type;
 
     // only count those coming from the 1st variant, all variants MUST provide the same amount of actor types
-    w.formation_count += !variant;
+    ++w.formation_count[variant];
+    w.total_monsters[variant] += amt;
 }
 
 int GetUltimatumSpawnSpotTID(int type) {
@@ -82,20 +95,25 @@ int GetUltimatumSpawnSpotTID(int type) {
 
     switch(type) {
         case WAVE_FORMATION_GROUND:
-        return TP_TID_GROUND;
+        return random(TP_TID_GROUND_BEGIN, TP_TID_GROUND_END);
+
         case WAVE_FORMATION_FLIER:
-        return TP_TID_FLIERS;
+        return random(TP_TID_FLIERS_BEGIN, TP_TID_FLIERS_END);
+
         case WAVE_FORMATION_SIDELINE_WINDOWS:
-        return TP_TID_WINDOWS;
+        return random(TP_TID_WINDOWS_BEGIN, TP_TID_WINDOWS_END);
+
         case WAVE_FORMATION_SIDELINE_ROOFS:
-        return random(TP_TID_SIDEROOF1, TP_TID_SIDEROOF2);
+        return random(TP_TID_SIDEROOF_BEGIN, TP_TID_SIDEROOF_END);
+
         case WAVE_FORMATION_BOSS_BACKLINE:
-        return TP_TID_BACKBOSS;
+        return random(TP_TID_BACKBOSS_BEGIN, TP_TID_BACKBOSS_END);
+
         case WAVE_FORMATION_BOSS_GROUND:
         return TP_TID_GROUNDBOSS;
     }
 
-    return TP_TID_GROUND;
+    return TP_TID_GROUND_BEGIN;
 }
 
 ultimatum_wave_T module& GetUltimatumWaveInfo(int id) {
@@ -110,21 +128,35 @@ ultimatum_wave_T module& GetUltimatumWaveInfo(int id) {
         // variant 1-N, waves 1-10
         auto curr_wave = waves[0];
         curr_wave.variants = 3;
-        AddFormationToWave(curr_wave, 0, "Sabreclaw", 16, TICRATE * 3, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "EarthGolem", 10, TICRATE * 4, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "Devil2", 12, TICRATE * 6, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "AxeKnight", 8, TICRATE * 10, WAVE_FORMATION_SIDELINE_ROOFS);
+        AddFormationToWave(curr_wave, 0, "Sabreclaw", 1, TICRATE / 3, WAVE_FORMATION_GROUND);
+        AddFormationToWave(curr_wave, 0, "EarthGolem", 1, TICRATE / 3, WAVE_FORMATION_GROUND);
+        AddFormationToWave(curr_wave, 0, "Devil2", 1, TICRATE / 3, WAVE_FORMATION_GROUND);
+        AddFormationToWave(curr_wave, 0, "AxeKnight", 1, TICRATE * 3 / 2, WAVE_FORMATION_SIDELINE_ROOFS);
 
-        AddFormationToWave(curr_wave, 1, "Nhumcign", 16, TICRATE * 3, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "Shadow", 16, TICRATE * 4, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "Lurker", 10, TICRATE * 6, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "AxeKnight", 8, TICRATE * 10, WAVE_FORMATION_SIDELINE_ROOFS);
+        AddFormationToWave(curr_wave, 1, "Nhumcign", 1, TICRATE / 3, WAVE_FORMATION_GROUND);
+        AddFormationToWave(curr_wave, 1, "Shadow", 1, TICRATE / 3, WAVE_FORMATION_GROUND);
+        AddFormationToWave(curr_wave, 1, "Lurker", 1, TICRATE / 3, WAVE_FORMATION_GROUND);
+        AddFormationToWave(curr_wave, 1, "AxeKnight", 1, TICRATE * 3 / 2, WAVE_FORMATION_SIDELINE_ROOFS);
 
-        AddFormationToWave(curr_wave, 2, "Nhumcign", 16, TICRATE * 3, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "Shadow", 16, TICRATE * 4, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "Lurker", 10, TICRATE * 6, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "AxeKnight", 8, TICRATE * 10, WAVE_FORMATION_SIDELINE_ROOFS);
+        AddFormationToWave(curr_wave, 2, "SoulEater", 1, TICRATE / 3, WAVE_FORMATION_GROUND);
+        AddFormationToWave(curr_wave, 2, "Roach", 1, TICRATE / 3, WAVE_FORMATION_GROUND);
+        AddFormationToWave(curr_wave, 2, "Devourer", 1, TICRATE / 2, WAVE_FORMATION_GROUND);
+        AddFormationToWave(curr_wave, 2, "AxeKnight", 1, TICRATE * 3 / 2, WAVE_FORMATION_SIDELINE_ROOFS);
+        /*AddFormationToWave(curr_wave, 0, "Sabreclaw", 32, TICRATE / 3, WAVE_FORMATION_GROUND);
+        AddFormationToWave(curr_wave, 0, "EarthGolem", 20, TICRATE / 3, WAVE_FORMATION_GROUND);
+        AddFormationToWave(curr_wave, 0, "Devil2", 24, TICRATE / 3, WAVE_FORMATION_GROUND);
+        AddFormationToWave(curr_wave, 0, "AxeKnight", 16, TICRATE * 3 / 2, WAVE_FORMATION_SIDELINE_ROOFS);
 
+        AddFormationToWave(curr_wave, 1, "Nhumcign", 32, TICRATE / 3, WAVE_FORMATION_GROUND);
+        AddFormationToWave(curr_wave, 1, "Shadow", 32, TICRATE / 3, WAVE_FORMATION_GROUND);
+        AddFormationToWave(curr_wave, 1, "Lurker", 20, TICRATE / 3, WAVE_FORMATION_GROUND);
+        AddFormationToWave(curr_wave, 1, "AxeKnight", 16, TICRATE * 3 / 2, WAVE_FORMATION_SIDELINE_ROOFS);
+
+        AddFormationToWave(curr_wave, 2, "SoulEater", 32, TICRATE / 3, WAVE_FORMATION_GROUND);
+        AddFormationToWave(curr_wave, 2, "Roach", 32, TICRATE / 3, WAVE_FORMATION_GROUND);
+        AddFormationToWave(curr_wave, 2, "Devourer", 20, TICRATE / 2, WAVE_FORMATION_GROUND);
+        AddFormationToWave(curr_wave, 2, "AxeKnight", 16, TICRATE * 3 / 2, WAVE_FORMATION_SIDELINE_ROOFS);
+*/
         curr_wave = waves[1];
         curr_wave.variants = 3;
         AddFormationToWave(curr_wave, 0, "MoonSatyr", 8, TICRATE * 8, WAVE_FORMATION_GROUND);
@@ -342,14 +374,97 @@ ultimatum_wave_T module& GetUltimatumWaveInfo(int id) {
     return waves[id];
 }
 
+ultimatum_curr_tally_T module& GetCurrentUltimatumTally() {
+    static ultimatum_curr_tally_T tally;
+    return tally;
+}
+
+void IncrementCurrentUltimatumTally() {
+    auto curr_tally = GetCurrentUltimatumTally();
+    ++curr_tally.kills;
+    ++curr_tally.total_kills;
+
+    // next wave can proceed + present challenge
+    if(curr_tally.kills >= curr_tally.req_kills_wave) {
+        ACS_NamedExecuteAlways("DnD Ultimatum Wave Completed", 0);
+    }
+}
+
+// call this script in OPEN after some tic delay, like 35 * 5 for the ResetPlayerLevelInfo to kick in
+Script "DnD Init Ultimatum" (void) {
+    // just for it to be filled out
+    GetUltimatumWaveInfo(0);
+    InformationInLevel[LEVELINFO_ISULTIMATUM] = 1;
+}
+
+Script "DnD Init Ultimatum - CS" (void) CLIENTSIDE {
+    InformationInLevel[LEVELINFO_ISULTIMATUM] = 1;
+}
+
 Script "DnD Start Ultimatum Wave" (int wave) {
     auto w = GetUltimatumWaveInfo(wave);
     int var = random(0, w.variants - 1);
 
+    Delay(const:1);
+
     using ultimatum;
 
+    auto curr_tally = GetCurrentUltimatumTally();
+    curr_tally.curr_wave = wave;
+    curr_tally.kills = 0;
+    curr_tally.req_kills_wave = w.total_monsters[var];
+
+    if(w.formation_types_used & WAVE_FORMATION_GROUND) {
+        if(GetSectorFloorZ(21, 0, 0) != -280.0) {
+            Floor_RaiseByValue(21, 8, 8);
+            Floor_RaiseByValue(22, 8, 8);
+        }
+
+        ChangeFloor(21, "HTX_1549");
+        ChangeFloor(22, "HTX_1556");
+    }
+    else {
+        if(GetSectorFloorZ(21, 0, 0) != -288.0) {
+            Floor_LowerByValue(21, 8, 8);
+            Floor_LowerByValue(22, 8, 8);
+        }
+
+        ChangeFloor(21, "HNX_838");
+        ChangeFloor(22, "HNX_838");
+    }
+
+    if(w.formation_types_used & WAVE_FORMATION_SIDELINE_WINDOWS)
+        Ceiling_RaiseToNearest(4, 32);
+    else
+        Ceiling_LowerToFloor(4, 32);
+
+    if(w.formation_types_used & WAVE_FORMATION_BOSS_BACKLINE)
+        Ceiling_RaiseToNearest(7, 32);
+    else
+        Ceiling_LowerToFloor(7, 32);
+
+    if(w.formation_types_used & WAVE_FORMATION_BOSS_GROUND) {
+        if(GetSectorFloorZ(26, 0, 0) != -280.0) {
+            Floor_RaiseByValue(29, 8, 8);
+            Floor_RaiseByValue(26, 8, 8);
+        }
+
+        ChangeFloor(29, "HTX_1549");
+        ChangeFloor(26, "HNX_878");
+    }
+    else {
+        if(GetSectorFloorZ(29, 0, 0) != -288.0) {
+            Floor_LowerToLowest(29, 32);
+            Delay(const:1);
+            Floor_LowerToLowest(26, 32);
+        }
+
+        ChangeFloor(21, "HNX_838");
+        ChangeFloor(26, "HNX_838");
+    }
+
     // start dispatching the variants
-    for(int i = 0; i < w.formation_count; ++i) {
+    for(int i = 0; i < w.formation_count[var]; ++i) {
         ACS_NamedExecuteAlways("DnD Ultimatum Wave Dispatch", 0, wave, var, i);
     }
 }
@@ -366,11 +481,27 @@ Script "DnD Ultimatum Wave Dispatch" (int wave, int variant, int formation_id) {
             int spot_tid = GetUltimatumSpawnSpotTID(info.formation_type);
             can_spawn = SpawnSpotFacing(info.actor_name, spot_tid);
             if(!can_spawn)
-                Delay(const:TICRATE);
+                Delay(const:TICRATE / 2);
         } while(!can_spawn);
         SpawnSpot("TeleportFog", spot_tid);
         Delay(info.spawn_delay);
     }
+}
+
+Script "DnD Ultimatum Wave Completed" (void) {
+    using ultimatum;
+
+    auto curr_tally = GetCurrentUltimatumTally();
+
+    NPC_States[DND_NPC_DARKWANDERER].aux_data = 0;
+    NPC_States[DND_NPC_DARKWANDERER].dialog = random(DW_ULTIMATUM_ASK1, DW_ULTIMATUM_ASK3);
+    NPC_States[DND_NPC_DARKWANDERER].offer = PickUltimatumChallengeOffer();
+
+    for(int i = 0; i < MAXPLAYERS; ++i)
+        NPC_States[DND_NPC_DARKWANDERER].voters[i] = 0;
+    ACS_NamedExecuteWithResult("DnD NPC Vote Sync", -1, -1, DND_NPC_DARKWANDERER);
+
+    ACS_NamedExecuteWithResult("DnD Try Spawn Area", TP_TID_MIDSECTION, "DarkWanderer", DND_NPC_TID, 96 | (4 << 16) | (22 << 24));
 }
 
 Script "DnD Handle Ultimatum Finish" (void) {
@@ -385,6 +516,11 @@ typedef struct {
 ultimatum_option_T module& GetUltimatumOptionsMade() {
     static ultimatum_option_T opts;
     return opts;
+}
+
+// pick a challenge based on its tier and whatever is left
+int PickUltimatumChallengeOffer() {
+    return random(ULTIMATUM_OPTION_EXTRA_ELE_DAMAGE, ULTIMATUM_OPTION_COUNT - 1);
 }
 
 #endif
