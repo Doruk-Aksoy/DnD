@@ -26,8 +26,7 @@ void SpawnArmor(int pnum, int rarity_boost, int tiers = 0, bool noRandomVelXY = 
 				ilvl = 1 + random(InformationInLevel[LEVELINFO_MINPLAYERLEVEL] / 2, InformationInLevel[LEVELINFO_MINPLAYERLEVEL] - 1);
 		}
 
-		if(ilvl > GetCVar("dnd_maxmonsterlevel"))
-			ilvl = GetCVar("dnd_maxmonsterlevel");
+		ilvl = Min(ilvl, GetItemLevelCap());
 
         int type = ConstructArmorDataOnField(c, ilvl, tiers, extra);
 
@@ -64,8 +63,7 @@ void SpawnArmorDrop(int pnum, int rarity_boost, int max_level = MAX_REGULAR_ILVL
 	int id = 0;
 	if(c != -1) {
 		int ilvl = RollItemLevel(max_level);
-		if(ilvl > GetCVar("dnd_maxmonsterlevel"))
-			ilvl = GetCVar("dnd_maxmonsterlevel");
+		ilvl = Min(ilvl, GetItemLevelCap());
 
         int type = ConstructArmorDataOnField(c, ilvl, 0, extra);
 
@@ -234,8 +232,7 @@ void SpawnHelmDrop(int pnum, int rarity_boost, int max_level = MAX_REGULAR_ILVL,
 	int id = 0;
 	if(c != -1) {
 		int ilvl = RollItemLevel(max_level);
-		if(ilvl > GetCVar("dnd_maxmonsterlevel"))
-			ilvl = GetCVar("dnd_maxmonsterlevel");
+		ilvl = Min(ilvl, GetItemLevelCap());
 
         int type = ConstructHelmDataOnField(c, ilvl, -1);
 

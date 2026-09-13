@@ -4,6 +4,7 @@
 #include "DnD_Common.h"
 #include "DnD_Incursion.h"
 #include "DnD_MerchantGUI.h"
+#include "DnD_Ultimatum.h"
 
 #define DND_ARTIFACT_BASETIME 60
 #define DND_ARTIFACT_TIME_PER 30
@@ -79,11 +80,18 @@ typedef struct npc_info {
 	int aux_data;
 	int interaction_count;
 	int voters[MAXPLAYERS];		// index is player_id, value is what vote they cast, 1 for accept -1 for decline
+
+	// ultimatum: both option buttons are an ACCEPT, so this settles WHICH one won. -1 is none
+	int voter_choice[MAXPLAYERS];
+	int chosen_option;
 } npc_info_T;
 
 npc_info_T NPC_States[MAX_DND_NPCS] = { { false, 0, 0, 0, 0, 0, 0, 0 } };
 
 #define DND_VOTE_TIME 30 // seconds
+
+// button row for the ultimatum offer -- lower than the plain one, the body is six lines longer
+#define DND_ULTIMATUM_PROMPT_YOFF 336.0
 
 void MarkNPCMet(int npc) {
 	SetInventory("DnD_NPC_Meet", CheckInventory("DnD_NPC_Meet") | (1 << (npc + 1)));
@@ -179,6 +187,191 @@ str GetUltimatumPromptText(int id) {
 	return StrParam(s:"DND_ULTIMATUM", d:id + 1);
 }
 
+// short button label. the lump above is the long description
+str GetUltimatumOptionName(int id) {
+	return StrParam(s:"DND_ULTIMATUM_NAME", d:id + 1);
+}
+
+// what THIS tier adds. one lump per option per tier -- keep in step with the apply hook
+str GetUltimatumTierText(int id, int tier) {
+	return StrParam(s:"DND_ULTIMATUM", d:id + 1, s:"_T", d:tier);
+}
+
+// which of the two the group picked. ties go to the first, so a split never stalls
+int ResolveUltimatumVoteChoice(int npc_id) {
+	int opt1 = GetUltimatumOfferOption(NPC_States[npc_id].offer, 0);
+	int opt2 = GetUltimatumOfferOption(NPC_States[npc_id].offer, 1);
+
+	int c1 = 0, c2 = 0;
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		if(NPC_States[npc_id].voters[i] != 1)
+			continue;
+
+		if(opt2 != -1 && NPC_States[npc_id].voter_choice[i] == opt2)
+			++c2;
+		else if(NPC_States[npc_id].voter_choice[i] == opt1)
+			++c1;
+	}
+
+	if(opt2 != -1 && c2 > c1)
+		return opt2;
+
+	return opt1;
+}
+
+// TRADBTN is a 77x16 graphic with no tileable middle, so a long label is fitted by STRETCHING it.
+// FITCHARS is what one plate holds; capped so neighbouring buttons cannot overlap. Both are dials.
+#define TRADBTN_W 77
+#define TRADBTN_FITCHARS 8
+#define TRADBTN_MAXW 152
+
+int GetPromptButtonWidth(str lump) {
+	// StrParam resolves the lump, so this measures what is DRAWN, not the key
+	int chars = StrLen(StrParam(l:lump));
+	if(chars <= TRADBTN_FITCHARS)
+		return TRADBTN_W;
+
+	return Min(TRADBTN_W * chars / TRADBTN_FITCHARS, TRADBTN_MAXW);
+}
+
+// cursor space is the draw space mirrored and halved: c = max - draw / 2. holds for all three
+// vanilla boxes, so a button's hitbox is derived from where it is drawn instead of hand placed.
+void AddPromptButtonBox(menu_pane_T module& p, int dx, int dy, int w) {
+	int cx = 480.0 - dx / 2, cy = 320.0 - dy / 2, hw = (w << 16) / 4;
+	AddBoxToPane_Points(p, cx + hw, cy + 4.0, cx - hw, cy - 4.0);
+}
+
+// the plate is stretched by drawing it in a NARROWER virtual hud, so its fixed 77 units cover more
+// of the screen. x moves into that space with it; height and everything after are untouched.
+void DrawPromptButtonPlate(int plate_id, int x, int y, int w) {
+	if(w <= TRADBTN_W) {
+		HudMessage(s:"A"; HUDMSG_PLAIN, plate_id, CR_WHITE, x, y, 0.0, 0.0);
+		return;
+	}
+
+	// the FRACTION of a hud coordinate picks the alignment, so only the integer part scales --
+	// multiplying the whole thing turns .4 into .098 and the plate aligns differently to its label
+	int nx = ((FixedMul(x & 0xFFFF0000, FixedDiv(TRADBTN_W, w)) + 0.5) & 0xFFFF0000) | (x & 0xFFFF);
+
+	SetHudSize(TRADBTN_W * HUDMAX_X_PROMPT / w, HUDMAX_Y_PROMPT, 1);
+	HudMessage(s:"A"; HUDMSG_PLAIN, plate_id, CR_WHITE, nx, y, 0.0, 0.0);
+	SetHudSize(HUDMAX_X_PROMPT, HUDMAX_Y_PROMPT, 1);
+}
+
+// one prompt button, same shape the accept/decline pair uses. state: 0 idle, 1 hover, 2 picked
+void DrawPromptButton(str lump, int state, int label_id, int plate_id, int x, int y) {
+	SetFont("SMALLFONT");
+	if(state == 2) {
+		HudMessage(l:lump; HUDMSG_PLAIN, label_id, CR_GREEN, x, y, 0.0, 0.0);
+		SetFont("TRADBTNC");
+	}
+	else if(state == 1) {
+		HudMessage(s:"\c[M3]", l:lump; HUDMSG_PLAIN, label_id, CR_WHITE, x, y, 0.0, 0.0);
+		SetFont("TRADBTNH");
+	}
+	else {
+		HudMessage(s:"\c[Y5]", l:lump; HUDMSG_PLAIN, label_id, CR_WHITE, x, y, 0.0, 0.0);
+		SetFont("TRADBTN");
+	}
+	DrawPromptButtonPlate(plate_id, x, y, GetPromptButtonWidth(lump));
+}
+
+// ---- reward pool view --------------------------------------------------------------------------
+// Cells are drawn in the 480x320 hud with x their LEFT edge and y their CENTRE -- the geometry the
+// merchant grid uses, so a hitbox is that space mirrored.
+#define DND_ULTREWARD_CELL 40.0
+#define DND_ULTREWARD_PERROW 5
+#define DND_ULTREWARD_STEPX 44.0
+#define DND_ULTREWARD_STEPY 48.0
+#define DND_ULTREWARD_GRIDX 120.1
+#define DND_ULTREWARD_GRIDY 90.0
+
+// this round's reward and the button that opens the bank, on their own row under the vote buttons
+#define DND_ULTREWARD_OFFERX 198.1
+#define DND_ULTREWARD_OFFERY 248.0
+#define DND_ULTREWARD_BTNX 526.4
+#define DND_ULTREWARD_BTNY 496.0
+
+// clear of the voter list, which runs down to RPGMENUITEMID - 20 - MAXPLAYERS
+#define DND_ULTREWARD_HUDID (RPGMENUITEMID - 24 - MAXPLAYERS)
+
+void AddUltimatumRewardCellBox(menu_pane_T module& p, int x, int y) {
+	int l = 480.0 - GetIntegerBits(x);
+	AddBoxToPane_Points(p, l, 320.0 - y + DND_ULTREWARD_CELL / 2, l - DND_ULTREWARD_CELL, 320.0 - y - DND_ULTREWARD_CELL / 2);
+}
+
+// frame behind, icon in front -- lower id draws on top
+void DrawUltimatumRewardCell(int slot, int x, int y, bool hovered, int id) {
+	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+
+	if(GetUltimatumRewardItemType(slot) != DND_ITEM_NULL) {
+		auto item = GetUltimatumRewardItem(slot);
+		SetFont(GetItemImage(item.item_image));
+		HudMessage(s:"A"; HUDMSG_PLAIN, id - 1, CR_WHITE, GetIntegerBits(x) + DND_ULTREWARD_CELL / 2 + 0.4, y, 0.0, 0.0);
+	}
+	else
+		DeleteText(id - 1);
+
+	SetFont(GetCharmBoxLabel(DND_CHARM_SMALL, hovered));
+	HudMessage(s:"A"; HUDMSG_PLAIN, id, CR_WHITE, x, y, 0.0, 0.0);
+	SetHudSize(HUDMAX_X_PROMPT, HUDMAX_Y_PROMPT, 1);
+}
+
+// The label on box 5. The bank is a modal LOOK -- the way out is the only thing in it you can click.
+str GetUltimatumBankButtonLump(bool showbank) {
+	return showbank ? "DND_ULTIMATUM_REWARDBACK" : "DND_ULTIMATUM_REWARDS";
+}
+
+// Box ids are POSITIONAL, so every slot is registered whether or not it is used: 1-2 the challenges,
+// 3 decline, 4 this round's reward, 5 the bank toggle, 6+ one per banked reward while it is open.
+void BuildUltimatumOfferPane(menu_pane_T module& p, int offer_id, int yOff, bool showbank) {
+	ResetPane(p);
+
+	// The challenge is not reachable from inside the bank -- its buttons come off the screen, so
+	// their boxes go with them. The three SLOTS stay: a box id is its position in the pane.
+	if(showbank) {
+		AddBoxToPane_Points(p, -1, -1, -1, -1);
+		AddBoxToPane_Points(p, -1, -1, -1, -1);
+		AddBoxToPane_Points(p, -1, -1, -1, -1);
+	}
+	else {
+		AddPromptButtonBox(p, 320.4, yOff, GetPromptButtonWidth(GetUltimatumOptionName(GetUltimatumOfferOption(offer_id, 0))));
+		if(GetUltimatumOfferOption(offer_id, 1) != -1)
+			AddPromptButtonBox(p, 480.4, yOff, GetPromptButtonWidth(GetUltimatumOptionName(GetUltimatumOfferOption(offer_id, 1))));
+		else
+			AddBoxToPane_Points(p, -1, -1, -1, -1);
+		AddPromptButtonBox(p, 640.4, yOff, GetPromptButtonWidth("DND_DECLINE"));
+	}
+
+	AddUltimatumRewardCellBox(p, DND_ULTREWARD_OFFERX, DND_ULTREWARD_OFFERY);
+	AddPromptButtonBox(p, DND_ULTREWARD_BTNX, DND_ULTREWARD_BTNY, GetPromptButtonWidth(GetUltimatumBankButtonLump(showbank)));
+
+	if(showbank) {
+		int n = GetUltimatumRewardCount();
+		for(int i = 0; i < n; ++i) {
+			AddUltimatumRewardCellBox(p,
+				DND_ULTREWARD_GRIDX + (i % DND_ULTREWARD_PERROW) * DND_ULTREWARD_STEPX,
+				DND_ULTREWARD_GRIDY + (i / DND_ULTREWARD_PERROW) * DND_ULTREWARD_STEPY);
+		}
+	}
+}
+
+// the offer text and the bank share the body area, so showing one clears the other
+void DrawUltimatumBody(str body, bool showbank) {
+	SetHudSize(HUDMAX_X_PROMPT, HUDMAX_Y_PROMPT, 1);
+	SetFont("SMALLFONT");
+	SetHudClipRect(160, 128, 532, 600, 532);
+
+	if(!showbank)
+		HudMessage(s:body; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 160.1, 128.1, 0.0, 0.0);
+	else if(GetUltimatumRewardCount())
+		HudMessage(s:"\c[W3]", l:"DND_ULTIMATUM_REWARDBANK"; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 160.1, 128.1, 0.0, 0.0);
+	else
+		HudMessage(s:"\c[W3]", l:"DND_ULTIMATUM_REWARDBANK", s:"\c-\n\n", l:"DND_ULTIMATUM_REWARDNONE"; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 160.1, 128.1, 0.0, 0.0);
+
+	SetHudClipRect(0, 0, 0, 0);
+}
+
 void ClosePrompt(bool non_npc_use = false) {
 	if(!non_npc_use) {
 		TakeInventory("NPC_Offer_Accepted", 1);
@@ -214,8 +407,13 @@ void ConcludeVoting(int npc_id, int result) {
 	}
 	
 	// set npc state to go back state
-	if(result == NPC_STATE_VOTE_DECLINE)
+	if(result == NPC_STATE_VOTE_DECLINE) {
 		SetActorState(DND_NPC_TID, "GoBack", false);
+
+		// declining an ultimatum ENDS it. here, not in the vote, so the timeout path lands too
+		if(InformationInLevel[LEVELINFO_ISULTIMATUM])
+			ACS_NamedExecuteAlways("DnD Handle Ultimatum Finish", 0);
+	}
 		
 	// restore activator
 	SetActivator(curr_activator);
@@ -638,6 +836,14 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 	// vote state isnt concluded
 	bool voting_ongoing = n_state != NPC_STATE_VOTE_DECLINE && n_state != NPC_STATE_VOTE_ACCEPT;
 	int yOff = 384.0;
+
+	// ultimatum offers, unpacked once. locals are function scoped in BCS, hence up here
+	int ult_opt1 = -1, ult_opt2 = -1;
+	str ult_body = "";
+	int declined = 0;
+	// the bank view is local to this client -- nothing about looking at it concerns the server
+	bool ult_showbank = false;
+	int ult_banked = 0, ult_cell = -1;
 	
 	if(first_time && !InformationInLevel[LEVELINFO_ISULTIMATUM]) {
 		if(n_state != NPC_STATE_VOTE_ACCEPT) {
@@ -676,27 +882,72 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 			);
 		}
 		else {
-			// show the ultimatum offers
-			HudMessage(
+			// both offers, described. built as a string since the second half is conditional
+			ult_opt1 = GetUltimatumOfferOption(offer_id, 0);
+			ult_opt2 = GetUltimatumOfferOption(offer_id, 1);
+
+			ult_body = StrParam(
 				l:GetPromptText(CheckInventory("ReceivedDialogID")),
 				s:"\n\n\c[Y5]---------------------------------------\n\n",
-				s:"\c[W3]", l:"DND_CHALLENGE", s:":\n\n", l:GetUltimatumPromptText(offer_id);
-				HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 160.1, 128.1, 0.0, 0.0
+				s:"\c[W3]", l:"DND_CHALLENGE", s:":\n\n"
 			);
+
+			ult_body = StrParam(
+				s:ult_body,
+				s:"\c[Y5]1) \c[W3]", l:GetUltimatumOptionName(ult_opt1), s:"\c-\n     ",
+				l:GetUltimatumPromptText(ult_opt1), s:"\n     \ck",
+				l:GetUltimatumTierText(ult_opt1, GetUltimatumOptionTier(ult_opt1) + 1), s:"\c-\n\n"
+			);
+
+			if(ult_opt2 != -1) {
+				ult_body = StrParam(
+					s:ult_body,
+					s:"\c[Y5]2) \c[W3]", l:GetUltimatumOptionName(ult_opt2), s:"\c-\n     ",
+					l:GetUltimatumPromptText(ult_opt2), s:"\n     \ck",
+					l:GetUltimatumTierText(ult_opt2, GetUltimatumOptionTier(ult_opt2) + 1), s:"\c-\n"
+				);
+			}
+
+			HudMessage(s:ult_body; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 160.1, 128.1, 0.0, 0.0);
 		}
 		
 		if(voting_ongoing) {
-			AddBoxToPane_Points(CurrentPane, 340.0, 196.0, 300.0, 188.0);
-			AddBoxToPane_Points(CurrentPane, 260.0, 196.0, 220.0, 188.0);
+			if(!InformationInLevel[LEVELINFO_ISULTIMATUM]) {
+				AddBoxToPane_Points(CurrentPane, 340.0, 196.0, 300.0, 188.0);
+				AddBoxToPane_Points(CurrentPane, 260.0, 196.0, 220.0, 188.0);
+			}
+			else
+				BuildUltimatumOfferPane(CurrentPane, offer_id, DND_ULTIMATUM_PROMPT_YOFF, false);
 		}
 		
-		yOff = 256.0;
+		yOff = InformationInLevel[LEVELINFO_ISULTIMATUM] ? DND_ULTIMATUM_PROMPT_YOFF : 256.0;
 	}
-	else {
+	else if(!InformationInLevel[LEVELINFO_ISULTIMATUM]) {
 		HudMessage(
 			s:"\c[W3]", l:"DND_CHALLENGE", s:" - \cd", l:"DND_ACCEPTED", s:"\c[W3]:\n\n", l:GetPromptText(DW_CHALLENGE_BEGIN + offer_id - 1);
 			HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 160.1, 128.1, 0.0, 0.0
 		);
+		
+		yOff = 192.0;
+	}
+	else {
+		// An ultimatum offer_id is a PACKED PAIR, not a challenge id, so it must never reach the
+		// challenge lookup above -- that is what printed a raw DND_PROMPT lump name. Reachable by
+		// anyone who opens the prompt between a vote settling and the next round arming the npc.
+		ult_opt1 = NPC_States[DND_NPC_DARKWANDERER].voter_choice[PlayerNumber()];
+		if(ult_opt1 != -1) {
+			HudMessage(
+				s:"\c[W3]", l:"DND_CHALLENGE", s:" - \cd", l:"DND_ACCEPTED", s:"\c[W3]:\n\n",
+				s:"\c[Y5]", l:GetUltimatumOptionName(ult_opt1), s:"\c-\n     ", l:GetUltimatumPromptText(ult_opt1);
+				HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 160.1, 128.1, 0.0, 0.0
+			);
+		}
+		else {
+			HudMessage(
+				s:"\c[W3]", l:"DND_CHALLENGE", s:" - \cd", l:"DND_ACCEPTED", s:"\c[W3]";
+				HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 160.1, 128.1, 0.0, 0.0
+			);
+		}
 		
 		yOff = 192.0;
 	}
@@ -728,7 +979,91 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 		voting_ongoing = n_state != NPC_STATE_VOTE_DECLINE && n_state != NPC_STATE_VOTE_ACCEPT;
 		
 		// accept
-		if(voting_ongoing) {
+		if(voting_ongoing && InformationInLevel[LEVELINFO_ISULTIMATUM]) {
+			// the bank is modal, so the challenge is off the screen entirely while it is up
+			if(!ult_showbank) {
+				// picked state comes off the SYNCED choice -- the token only says a vote was cast
+				i = NPC_States[DND_NPC_DARKWANDERER].voter_choice[pnum];
+				j = CheckInventory("NPC_Offer_Accepted");
+
+				DrawPromptButton(
+					GetUltimatumOptionName(ult_opt1),
+					(j && i == ult_opt1) ? 2 : (boxid == MBOX_1 ? 1 : 0),
+					RPGMENUITEMID - 3, RPGMENUITEMID - 1, 320.4, yOff
+				);
+
+				if(ult_opt2 != -1) {
+					DrawPromptButton(
+						GetUltimatumOptionName(ult_opt2),
+						(j && i == ult_opt2) ? 2 : (boxid == MBOX_2 ? 1 : 0),
+						RPGMENUITEMID - 4, RPGMENUITEMID - 2, 480.4, yOff
+					);
+				}
+
+				DrawPromptButton(
+					"DND_DECLINE",
+					CheckInventory("NPC_Offer_Declined") ? 2 : (boxid == MBOX_3 ? 1 : 0),
+					RPGMENUITEMID - 7, RPGMENUITEMID - 6, 640.4, yOff
+				);
+
+				// who sits under which button
+				SetFont("SMALLFONT");
+				j = 0;
+				k = 0;
+				declined = 0;
+				for(i = 0; i < MAXPLAYERS; ++i) {
+					if(NPC_States[DND_NPC_DARKWANDERER].voters[i] == 1) {
+						if(ult_opt2 != -1 && NPC_States[DND_NPC_DARKWANDERER].voter_choice[i] == ult_opt2) {
+							HudMessage(n:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - 20 - i, CR_UNTRANSLATED, 480.4, yOff + 16.0 * (k + 1), 0.0, 0.0);
+							++k;
+						}
+						else {
+							HudMessage(n:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - 20 - i, CR_UNTRANSLATED, 320.4, yOff + 16.0 * (j + 1), 0.0, 0.0);
+							++j;
+						}
+					}
+					else if(NPC_States[DND_NPC_DARKWANDERER].voters[i] == -1) {
+						HudMessage(n:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - 20 - i, CR_UNTRANSLATED, 640.4, yOff + 16.0 * (declined + 1), 0.0, 0.0);
+						++declined;
+					}
+				}
+			}
+
+			// what this round pays, and the way in and out of the bank
+			DrawUltimatumRewardCell(ULTIMATUM_REWARD_PENDING, DND_ULTREWARD_OFFERX, DND_ULTREWARD_OFFERY, boxid == MBOX_4, DND_ULTREWARD_HUDID);
+			DrawPromptButton(
+				GetUltimatumBankButtonLump(ult_showbank),
+				boxid == MBOX_5 ? 1 : 0,
+				RPGMENUITEMID - 9, RPGMENUITEMID - 8, DND_ULTREWARD_BTNX, DND_ULTREWARD_BTNY
+			);
+
+			// look only -- the cells take no click, so nothing here changes any state
+			if(ult_showbank) {
+				for(i = 0; i < ult_banked; ++i) {
+					DrawUltimatumRewardCell(i,
+						DND_ULTREWARD_GRIDX + (i % DND_ULTREWARD_PERROW) * DND_ULTREWARD_STEPX,
+						DND_ULTREWARD_GRIDY + (i / DND_ULTREWARD_PERROW) * DND_ULTREWARD_STEPY,
+						boxid == MBOX_5 + 1 + i, DND_ULTREWARD_HUDID - 2 * (i + 1));
+				}
+			}
+
+			// the full item tooltip, but only while an icon cell is actually under the cursor
+			ult_cell = -1;
+			if(boxid == MBOX_4)
+				ult_cell = ULTIMATUM_REWARD_PENDING;
+			else if(ult_showbank && boxid > MBOX_5 && boxid - MBOX_5 - 1 < ult_banked)
+				ult_cell = boxid - MBOX_5 - 1;
+
+			i = ult_cell != -1 ? GetUltimatumRewardItemType(ult_cell) : DND_ITEM_NULL;
+			if(i != DND_ITEM_NULL) {
+				UpdateCursorHoverData(ult_cell, DND_SYNC_ITEMSOURCE_TRADEVIEW, i, ULTIMATUM_REWARD_OWNER, 0, HUDMAX_X, HUDMAX_Y);
+				DrawInventoryInfo(ULTIMATUM_REWARD_OWNER);
+				SetHudSize(HUDMAX_X_PROMPT, HUDMAX_Y_PROMPT, 1);
+			}
+			else if(PlayerCursorData.itemHovered != -1)
+				ResetCursorHoverData();
+		}
+		else if(voting_ongoing) {
 			SetFont("SMALLFONT");
 			if(CheckInventory("NPC_Offer_Accepted")) {
 				HudMessage(l:"DND_ACCEPT"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_GREEN, 320.4, yOff, 0.0, 0.0);
@@ -771,18 +1106,45 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 				}
 				else if(NPC_States[DND_NPC_DARKWANDERER].voters[i] == -1) {
 					HudMessage(n:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - 6 - j - k, CR_UNTRANSLATED, 480.4, yOff + 16.0 * (k + 1), 0.0, 0.0);
-					++j;
+					// was ++j -- k is this column's counter
+					++k;
 				}
 			}
 		}
 		
-		// users can make only one valid click (accept or decline, no spam)
-		if(!CheckInventory("DnD_PromptLocked")) {
-			// check inputs
-			ListenMouseInput();
-			sendInput = CheckInventory("MenuInput") != 0;
-			if(sendInput && !CheckInventory("DnD_ClickTicker")) {
-				GiveInventory("DnD_ClickTicker", 1);
+		// check inputs
+		ListenMouseInput();
+		sendInput = CheckInventory("MenuInput") != 0;
+		if(sendInput && !CheckInventory("DnD_ClickTicker")) {
+			GiveInventory("DnD_ClickTicker", 1);
+
+			// Every reward box is local to this client -- looking at your own spoils is nobody's
+			// business but yours -- so they are handled ahead of the lockout and stay usable after a
+			// vote. USE still has to close the prompt, hence the button check.
+			if(InformationInLevel[LEVELINFO_ISULTIMATUM] && boxid >= MBOX_4 &&
+				CheckInventory("MenuInput") != DND_MENUINPUT_USEBUTTON) {
+				if(boxid == MBOX_5) {
+					ult_showbank = !ult_showbank;
+					ult_banked = GetUltimatumRewardCount();
+					LocalAmbientSound("RPG/MenuChoose", 127);
+
+					// the grid and the offer text share the body, and the pane has to match what shows
+					DeleteTextRange(DND_ULTREWARD_HUDID - 2 * MAX_ULTIMATUM_REWARD_SLOTS - 1, DND_ULTREWARD_HUDID - 2);
+
+					// A hud message with no hold time stays until something replaces it, so the
+					// challenge buttons and the vote tally have to be taken down by hand. Skipping
+					// RPGMENUITEMID - 5, which is the "press use to close" hint.
+					DeleteTextRange(RPGMENUITEMID - 4, RPGMENUITEMID - 1);
+					DeleteTextRange(RPGMENUITEMID - 7, RPGMENUITEMID - 6);
+					DeleteTextRange(RPGMENUITEMID - 19 - MAXPLAYERS, RPGMENUITEMID - 20);
+
+					DrawUltimatumBody(ult_body, ult_showbank);
+					BuildUltimatumOfferPane(CurrentPane, offer_id, yOff, ult_showbank);
+				}
+				SetInventory("MenuInput", 0);
+			}
+			// users can make only one valid click (accept or decline, no spam)
+			else if(!CheckInventory("DnD_PromptLocked")) {
 				// server gets a few extra info in boxid
 				// recomputed per send: latching it meant a second click inside one round trip
 				// re-sent the first box. DnD_PromptLocked already holds this to one real decision,
@@ -798,20 +1160,26 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 					SetInventory("MenuInput", 0);
 				}
 			}
-			
-			Delay(const:1);
-			
-			// retry ack
-			if(CheckInventory("DND_ACK")) {
-				sendInput = false;
+			else
 				SetInventory("MenuInput", 0);
-				//Log(s:"reset input data");
-				MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = 0;
-				MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] = 0;
-			}
 		}
-		else
-			Delay(const:1);
+
+		Delay(const:1);
+
+		// retry ack
+		if(CheckInventory("DND_ACK")) {
+			sendInput = false;
+			SetInventory("MenuInput", 0);
+			//Log(s:"reset input data");
+			MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = 0;
+			MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] = 0;
+		}
+	}
+
+	if(InformationInLevel[LEVELINFO_ISULTIMATUM]) {
+		// the reward cells sit below the range ClearMenuDisplay sweeps
+		DeleteTextRange(DND_ULTREWARD_HUDID - 2 * MAX_ULTIMATUM_REWARD_SLOTS - 1, DND_ULTREWARD_HUDID);
+		ResetCursorHoverData();
 	}
 }
 
@@ -834,8 +1202,41 @@ Script "DND Server Box Receive - NPC" (int pnum, int boxid, int npc_id) NET {
 		}
 		else if(boxid != MAINBOX_NONE) {
 			if(npc_id != -1) {
+				// two challenges and a way out -- first two boxes are both an accept
+				if(InformationInLevel[LEVELINFO_ISULTIMATUM]) {
+					int picked = -1;
+					if(boxid == MBOX_1)
+						picked = GetUltimatumOfferOption(NPC_States[npc_id].offer, 0);
+					else if(boxid == MBOX_2)
+						picked = GetUltimatumOfferOption(NPC_States[npc_id].offer, 1);
+
+					if(boxid == MBOX_1 || boxid == MBOX_2) {
+						// empty second slot is not a button
+						if(picked != -1) {
+							// written here -- Vote Register is at the 3 arg limit already
+							NPC_States[npc_id].voter_choice[pnum] = picked;
+							ACS_NamedExecuteWithResult("DnD NPC Choice Sync", pnum, picked, npc_id);
+
+							ACS_NamedExecuteWithResult("DnD NPC Vote Register", 1, npc_id, pnum);
+							LocalAmbientSound("RPG/MenuChoose", 127);
+							GiveInventory("NPC_Offer_Accepted", 1);
+							TakeInventory("NPC_Offer_Declined", 1);
+							GiveInventory("DnD_PromptLocked", 1);
+						}
+					}
+					else if(boxid == MBOX_3) {
+						NPC_States[npc_id].voter_choice[pnum] = -1;
+						ACS_NamedExecuteWithResult("DnD NPC Choice Sync", pnum, -1, npc_id);
+
+						ACS_NamedExecuteWithResult("DnD NPC Vote Register", -1, npc_id, pnum);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+						GiveInventory("NPC_Offer_Declined", 1);
+						TakeInventory("NPC_Offer_Accepted", 1);
+						GiveInventory("DnD_PromptLocked", 1);
+					}
+				}
 				// any npc that offers challenges here
-				if(boxid == MBOX_1) {
+				else if(boxid == MBOX_1) {
 					// in case of accept, declare a vote and wait majority or if only player in game, skip this phase
 					ACS_NamedExecuteWithResult("DnD NPC Vote Register", 1, npc_id, pnum);
 					LocalAmbientSound("RPG/MenuChoose", 127);
@@ -892,7 +1293,14 @@ Script "DnD NPC Vote Register" (int vote, int npc_id, int pnum) {
 		SetFont("DBIGFONT");
 		SetHUDSize(HUDMAX_X, HUDMAX_Y, 1);
 		HudMessageBold(l:"DND_VOTEPASSED", s:"!"; HUDMSG_FADEOUT, RPGMENUBACKGROUNDID + 1, CR_GREEN, 240.4, 16.0, 1.0, 1.0);
-		
+
+		// Settled BEFORE ConcludeVoting, which is the only moment the tally still exists: it fires
+		// "DnD Close Prompt Delayed" per voter, that runs INLINE up to its delay, and the first thing
+		// it does is zero voters[]. Resolved after, every vote reads as uncast and the tie branch hands
+		// the win to the first option every single round.
+		if(InformationInLevel[LEVELINFO_ISULTIMATUM])
+			NPC_States[npc_id].chosen_option = ResolveUltimatumVoteChoice(npc_id);
+
 		ConcludeVoting(npc_id, NPC_STATE_VOTE_ACCEPT);
 		
 		// handle npc completion
@@ -902,7 +1310,10 @@ Script "DnD NPC Vote Register" (int vote, int npc_id, int pnum) {
 		// send the npc away, no more interaction
 		SetActorState(DND_NPC_TID, "Succeed", false);
 
-		HandleNPC(npc_id);
+		if(!InformationInLevel[LEVELINFO_ISULTIMATUM])
+			HandleNPC(npc_id);
+		else
+			HandleNPCChallenges();
 	}
 	else {
 		// check if majority actually declined instead of accepted, so we can close voting early
@@ -963,12 +1374,22 @@ Script "DnD NPC Voting" (int npc_id) {
 	}
 }
 
+// vote sync carries the yes/no, this carries WHICH option
+Script "DnD NPC Choice Sync" (int pnum, int choice, int npc_id) CLIENTSIDE {
+	if(pnum >= 0 && pnum < MAXPLAYERS)
+		NPC_States[npc_id].voter_choice[pnum] = choice;
+	SetResultValue(0);
+}
+
 Script "DnD NPC Vote Sync" (int pnum, int vote, int npc_id) CLIENTSIDE {
 	if(pnum == -1) {
-		// reset
+		// reset. was voters[pnum], and pnum is -1 here -- it cleared nothing and wrote over the
+		// field in front of the array, so last round's votes stayed on screen.
 		NPC_States[npc_id].vote_count = 0;
-		for(int i = 0; i < MAXPLAYERS; ++i)
-			NPC_States[npc_id].voters[pnum] = 0;
+		for(int i = 0; i < MAXPLAYERS; ++i) {
+			NPC_States[npc_id].voters[i] = 0;
+			NPC_States[npc_id].voter_choice[i] = -1;
+		}
 	}
 	else {
 		// update
@@ -978,9 +1399,36 @@ Script "DnD NPC Vote Sync" (int pnum, int vote, int npc_id) CLIENTSIDE {
 	SetResultValue(0);
 }
 
-// this => monster's TID
-void HandleNPCChallenges(int this, int m_id) {
+// pass the accepted challenge modifier id here later
+void HandleNPCChallenges() {
+	using ultimatum;
 
+	auto curr_tally = GetCurrentUltimatumTally();
+	// not final wave that we finished
+	if(curr_tally.curr_wave != MAX_ULTIMATUM_WAVES - 1) {
+		// apply the challenge modifier, and continue
+		// tier is bumped HERE once, so a repeat pick arrives as tier 2 rather than twice at tier 1
+		int chosen = NPC_States[DND_NPC_DARKWANDERER].chosen_option;
+		if(chosen != -1) {
+			// The option is armed for the wave that is ABOUT to run, but the wave that just ended is
+			// still flagged complete until "DnD Start Ultimatum Wave" gets its turn a second later. The
+			// hook runs INLINE, so everything it starts reads that stale 1 and shuts itself down on the
+			// spot -- the saw loop breaks on it before spawning any blade, and the miasma's own
+			// A_JumpIf(CallACS("DnD Is Ultimatum Complete")) sends it to Vanish on its first tic.
+			curr_tally.is_wave_complete = 0;
+
+			int tier = AddUltimatumOptionTier(chosen);
+			ACS_NamedExecuteWithResult("DnD Ultimatum Apply Option", chosen, tier);
+
+			// taking a challenge earns the round's reward -- collected when the run ends
+			BankUltimatumPendingReward();
+		}
+
+		ACS_NamedExecuteAlways("DnD Start Ultimatum Wave", 0, curr_tally.curr_wave + 1, TICRATE);
+	}
+	else {
+		ACS_NamedExecuteAlways("DnD Handle Ultimatum Finish", 0);
+	}
 }
 
 #endif

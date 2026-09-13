@@ -216,5 +216,7 @@ const int SPECIAL_FX_TID = 2147483647;
 #include "Actors/Spawners/EliteSpawners/SpiderBossSpawner.dec"
 #include "Actors/Spawners/EliteSpawners/CyberdemonSpawner.dec"
 
+#include "Actors/Maps/Ultimatum.dec"
+
 #include "Actors/NPC/DarkWanderer.dec"
 #include "Actors/NPC/Merchant.dec"

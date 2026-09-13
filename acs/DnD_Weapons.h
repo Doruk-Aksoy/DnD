@@ -143,12 +143,28 @@ int TakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt, int flags = 0) {
 			amt = amt * 5 / 2;
 	}
 
+	// Ultimatum / Crackling Pain. Priced off what the shot ACTUALLY costs, so the consumption
+	// multipliers above are already in it -- and taken here because the health branch below zeroes
+	// amt, which would leave a weapons-use-health build paying nothing for it.
+	int crackle = GetUltimatumCracklePainMult() * amt;
+
 	if(!PlayerModData[pnum].vals[PSTAT_EX_WEAPONSUSEHEALTH])
 		TakeInventory(ammo, amt);
-	else if(!CheckActorInventory(pnum + P_TIDSTART, "Invulnerable_Better")) {
+	else if(!CheckInventory("Invulnerable_Better")) {
 		// we let the invul bypass this
 		Thing_Damage2(pnum + P_TIDSTART, amt, "SkipHandle");
 		amt = 0;
+	}
+
+	// SkipHandle with the resist applied by hand: a player cannot be their own damage source, so the
+	// event would read arg1 as a packed weapon word and resolve to nothing. Same shape the ember
+	// trail's self burn uses. Invulnerability bypasses it, as it does the health cost above.
+	if(crackle > 0 && !CheckInventory("Invulnerable_Better")) {
+		crackle = ApplyPlayerDamageResist(pnum, crackle, DND_PRESIST_ELEM);
+		if(crackle > 0) {
+			Thing_Damage2(pnum + P_TIDSTART, crackle, "SkipHandle");
+			GiveInventory("DnD_CrackleFXSpawner", 1);
+		}
 	}
 
 	HandleMagazinePerks(pnum, ammo);

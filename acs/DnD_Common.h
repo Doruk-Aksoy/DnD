@@ -7,7 +7,7 @@
 
 #define SIZEOF_INT 4
 
-#define ISDEBUGBUILD
+//#define ISDEBUGBUILD
 //#define WANTCURSORPOS
 #define VERBOSE_TID_SETUP
 //#define WANT_BUFF_LOG
@@ -575,7 +575,7 @@ enum {
 	// poison, lightning and occult can never reach it there. See dnd-damage-conversion.
 	PSTAT_AVATAROFFIRE,
 	PSTAT_SEPTIC_POISONSHARE,       // Septic Touch. percent of the poison tic the cloud carries
-	PSTAT_CREMATOR,                 // Cremator. read by DECORATE through DnD Check Cremator
+	PSTAT_CREMATOR,                 // Cremator. stamped on the victim as DnD_Cremated, read by Death.IgniteNoPain
 	PSTAT_REGEN_ONPOISONKILL,       // Flow of Life. percent of the REGEN cap, not of max health
 	PSTAT_IGN_TICRATE,              // Blowback. percent FASTER, so it shortens the burn tic
 	PSTAT_POISON_RESISTSHRED,       // Corrosion. per poison STACK per second, capped
@@ -705,17 +705,6 @@ enum {
 
 	PSTAT_COUNT
 };
-
-// The single ailment Anathema allows. Stored as this + 1 so an empty slot still reads as "no
-// Anathema equipped", and rolled 1..DND_ANATHEMA_COUNT on the item for the same reason.
-enum {
-	DND_ANATHEMA_BLEED = 1,
-	DND_ANATHEMA_POISON,
-	DND_ANATHEMA_COLD,
-	DND_ANATHEMA_FIRE,
-	DND_ANATHEMA_LIGHTNING
-};
-#define DND_ANATHEMA_COUNT DND_ANATHEMA_LIGHTNING
 
 // Which area of effect stat answers for a hit. Weapon sourced gets both terms, non weapon gets
 // only the universal one. Values match the argument DECORATE passes to the radius script.
@@ -1065,6 +1054,10 @@ enum {
 	// used for shit like elite sparkles or reflect shields that are attached to a monster
 	// DND_MAX_MONSTERS * DND_MAX_MONSTER_ATTACHMENTS is the skip for next
 	DND_MONSTER_ATTACHMENT_TID_BEGIN = DND_INCURSIONPORTAL_TID + DND_MAX_INCURSION_PORTALS,
+
+	DND_ULTIMATUM_TEMPTID,
+	DND_ULTIMATUM_STORMCALL_TID,
+	DND_ULTIMATUM_STORMCALL_TEMPTID = DND_ULTIMATUM_STORMCALL_TID + 16,
 	
 	DND_TORCH_TEMP_TID = bcs::INT_MAX - 2,
 	DND_DROP_TID,

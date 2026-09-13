@@ -354,8 +354,7 @@ int ConstructFlaskDataOnField(int item_pos, int item_tier, int pnum, int flask =
 	else
 		res = flask;
 
-	if(item_tier > GetCVar("dnd_maxmonsterlevel"))
-		item_tier = GetCVar("dnd_maxmonsterlevel");
+	item_tier = Min(item_tier, GetItemLevelCap());
 
 	auto item = GetFieldItem(item_pos);	
 

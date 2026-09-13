@@ -7,7 +7,6 @@
 #include "Inventory/DnD_Orbs.h"
 #include "DnD.h"
 #include "DnD_Prompts.h"
-#include "DnD_Ultimatum.h"
 
 #define DND_LOOTBOX_ORBDROPCHANCE1 0.25
 #define DND_LOOTBOX_ORBDROPCHANCE2 0.5
@@ -987,8 +986,6 @@ Script "DND On Kill" KILL {
 	
 	// set activator back to the monster
 	SetActivator(this);
-
-	//HandleNPCChallenges(this, m_id);
 	
 	// 25% chance to explode
 	if(!random(0, 3) && HasActorClassPerk_Fast(target, DND_PLAYER_WANDERER, 4))
@@ -1097,6 +1094,7 @@ Script "DND On Kill" KILL {
 	(
 		CheckUniquePropertyOnPlayer(pnum, PUP_SLAINENEMIESRIP) || 
 		HasClassPerk_Fast(DND_PLAYER_DOOMGUY, 5) ||
+		InformationInLevel[LEVELINFO_ISULTIMATUM] ||
 		PlayerModData[pnum].vals[PSTAT_INC_ENEMYRIPCHANCE] >= random(1, 100) ||
 		HasMonsterTrait(m_id, DND_MARKOFCHAOS)
 	)

@@ -174,6 +174,11 @@ int ConstructArmorDataOnField(int item_pos, int item_tier, int tiers = 0, int ex
 	else if(tiers < 0)
 		res = -tiers;
 
+	// The other four Construct paths clamp here; body armor relied on its drop callers doing it
+	// instead, which left every caller that does not -- SpawnArmorWithMods, and the ultimatum reward
+	// roll -- unbounded.
+	item_tier = Min(item_tier, GetItemLevelCap());
+
 	auto item = GetFieldItem(item_pos);
 
 	item.item_level = item_tier;
@@ -216,8 +221,7 @@ int ConstructBootDataOnField(int item_pos, int item_tier) {
 	res = BOOTS_WARRIORSABATON;
 #endif*/
 
-	if(item_tier > GetCVar("dnd_maxmonsterlevel"))
-		item_tier = GetCVar("dnd_maxmonsterlevel");
+	item_tier = Min(item_tier, GetItemLevelCap());
 
 	auto item = GetFieldItem(item_pos);
 
@@ -264,8 +268,7 @@ int ConstructHelmDataOnField(int item_pos, int item_tier, int helm = -1) {
 
 	//res = HELMS_ELDER;
 
-	if(item_tier > GetCVar("dnd_maxmonsterlevel"))
-		item_tier = GetCVar("dnd_maxmonsterlevel");
+	item_tier = Min(item_tier, GetItemLevelCap());
 
 	auto item = GetFieldItem(item_pos);
 
@@ -293,7 +296,11 @@ int ConstructHelmDataOnField(int item_pos, int item_tier, int helm = -1) {
 	return res;
 }
 
-void RollArmorInfo(int item_pos, int item_tier, int pnum, int item_type, int armor_type, int max_attr) {
+// synergy_boost is a PERCENT on DND_SYNERGYITEM_CHANCE, or -1 for no synergy at all -- which is the
+// default, so an ordinary drop rolls exactly as it always has: synergy_roll never leaves -2 and the
+// PickRandomAttribute call below is the same one it made before. Charms have had this via
+// RollCharmInfo all along; this is the same mechanic for the armor family.
+void RollArmorInfo(int item_pos, int item_tier, int pnum, int item_type, int armor_type, int max_attr, int synergy_boost = -1) {
 	// only for rolling body armors we access the array for item_tier, as that can be changed in ConstructArmorDataOnField to level this down for lower level players
 	int i = 0, roll;
 	int count = random(1, max_attr);
@@ -301,9 +308,18 @@ void RollArmorInfo(int item_pos, int item_tier, int pnum, int item_type, int arm
 
 	auto item = GetFieldItem(item_pos);
 
+	// -2 is "not locked on yet". CheckItemSynergy only acts while it holds that, so once a tag is
+	// picked every remaining mod chases it -- that is what makes a run of synergistic rolls.
+	int synergy_roll = -2;
+	int max_tries = 10;
+
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(item_type, armor_type, special_roll, item.implicit[0].attrib_id, -2, item.item_base, item.item_level);
+			roll = PickRandomAttribute(item_type, armor_type, special_roll, item.implicit[0].attrib_id, synergy_roll, item.item_base, item.item_level);
+
+			// an unlucky tag can starve the draw, so give up on it rather than loop
+			if(max_tries-- < 0)
+				synergy_roll = -2;
 		} while(roll != -1 && CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 
 		// nothing eligible left to draw, so stop rather than adding a non-mod
@@ -311,6 +327,10 @@ void RollArmorInfo(int item_pos, int item_tier, int pnum, int item_type, int arm
 			break;
 
 		AddAttributeToFieldItem(item_pos, roll, pnum, count);
+
+		if(synergy_boost != -1)
+			synergy_roll = CheckItemSynergy(synergy_roll, item_pos, synergy_boost);
+
 		++i;
 	}
 }

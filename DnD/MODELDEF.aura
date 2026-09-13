@@ -106,3 +106,51 @@ Model DnD_EmberTrail {
 	
 	FrameIndex AURA H 0 3
 }
+
+Model DnD_Ultimatum_Stormcall_Tier1 {
+	Path "Models/Auras"   
+	Model 0 "flat.md3"   
+	Skin 0 "STRMCALL.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 1
+	ROTATING
+	//DONTCULLBACKFACES
+	
+	FrameIndex AURA I 0 3
+}
+
+Model DnD_Ultimatum_Stormcall_Tier2 {
+	Path "Models/Auras"   
+	Model 0 "flat.md3"   
+	Skin 0 "STRMCALL.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 1
+	ROTATING
+	//DONTCULLBACKFACES
+	
+	FrameIndex AURA I 0 3
+}
+
+Model DnD_Ultimatum_Stormcall_Tier3 {
+	Path "Models/Auras"   
+	Model 0 "flat.md3"   
+	Skin 0 "STRMCALL.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 1
+	ROTATING
+	//DONTCULLBACKFACES
+	
+	FrameIndex AURA I 0 3
+}
+
+Model DnD_Ultimatum_Stormcall_Tier4 {
+	Path "Models/Auras"   
+	Model 0 "flat.md3"   
+	Skin 0 "STRMCALL.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 1
+	ROTATING
+	//DONTCULLBACKFACES
+	
+	FrameIndex AURA I 0 3
+}

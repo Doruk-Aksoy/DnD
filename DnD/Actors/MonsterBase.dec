@@ -243,12 +243,21 @@ Actor DnD_BaseMonster {
 		Wait
 
 		// has to have same shape as above
+		// An ignite kill lands here whoever made it, so the destruction has to be gated on the stamp
+		// DnD_Cremated -- without Cremator the monster dies its ordinary death.
 		Death.IgniteNoPain:
+			"####" "#" 0 A_StopSound(CHAN_ITEM)
+			"####" "#" 0 A_KillMaster
+			"####" "#" 0 A_JumpIfInventory("DnD_Cremated", 1, "Cremated")
+			"####" "#" 0 A_Jump(256, "DeathState")
+			"####" "#" 35
+		Wait
+
+		Cremated:
 			"####" "#" 0 A_TakeInventory("DnD_Cremated", 1)
 			"####" "#" 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			"####" "#####" 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
 			"####" "#######" 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 360))
-			"####" "#" 0 A_KillMaster
 			"####" "#" 1 A_PlaySound("CrematorExplosion", CHAN_7)
 			"####" "#" 1 A_SpawnItemEx("CrematorDeathFX", 0, 0, height / 2)
 			"####" "#####" 1 A_FadeOut(0.2)
@@ -1371,3 +1380,11 @@ ACTOR StealthZombieMan_DnD : RandomSpawner replaces StealthZombieMan
 {
 	Dropitem "ZombieMan"
 }
+
+Actor DnD_MonsterEventBlocker : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 20
+}
+
+Actor DnD_MonsterEventUseCount : DnD_Info { }
+Actor DnD_MonsterEventBan : DnD_Boolean { }

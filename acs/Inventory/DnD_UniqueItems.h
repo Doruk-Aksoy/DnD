@@ -76,6 +76,10 @@ str GetUniqueCreatorName(int itype, int id) {
 #define MAX_UNIQUE_BOOT_WEIGHT UniqueItemList[UNIQUE_BOOT_END].weight
 #define MAX_UNIQUE_HELM_WEIGHT UniqueItemList[UNIQUE_HELM_END].weight
 
+// Weights are cumulative, so reaching the reward-only tail means rolling against ITS running total
+// rather than the drop pool's. Only a caller that has earned the tail may use this.
+#define MAX_UNIQUE_HELM_REWARD_WEIGHT UniqueItemList[UNIQUE_HELM_LAST].weight
+
 // initializes all uniques
 void SetupUniqueItems() {
 	// construct unique list to copy from
@@ -464,8 +468,13 @@ void SetupUniqueItems() {
 
 	// declare from here for drop only uniques
 	img = IIMG_UHELM_5;
+	// A real weight, where the rest of the tail would use 0. Reachable ONLY through
+	// MAX_UNIQUE_HELM_REWARD_WEIGHT: PickUniqueItem and the merchant both roll against
+	// MAX_UNIQUE_HELM_WEIGHT, which still stops at UNIQUE_HELM_END, so the drop pool cannot see it.
+	// Share of the ultimatum helm pool is this weight over the pool total, so 50 against the 1250
+	// the four rollable helms carry is about 4%. verify_ultscale.py prints the end to end odds.
 	START_UNIQUE_DATA(UITEM_ANATHEMA);
-	UNIQUE_DATA_ENTRY(0, 1, 1, DND_ITEM_HELM, HELMS_CRUSADER, 50, 4);
+	UNIQUE_DATA_ENTRY(50, 1, 1, DND_ITEM_HELM, HELMS_CRUSADER, 50, 4);
 	UNIQUE_ATTR_ENTRY(INV_EX_AILMENTS_PIERCE_IMMUNITY, 1, 1, 0, 0);
 	UNIQUE_ATTR_ENTRY(INV_EX_AILMENTS_CANNOTBEAVOIDED, 1, 1, 0, 0);
 	UNIQUE_ATTR_ENTRY(INV_EX_AILMENT_MORE_DOTDAMAGE, 50, 100, 0, 0);

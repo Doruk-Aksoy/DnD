@@ -66,6 +66,10 @@ inventory_T global:20& GetMerchantItem(int id) {
 	return GlobalItemStorage.TradeViewList[MAXPLAYERS][id];
 }
 
+inventory_T global:20& GetUltimatumRewardItem(int id) {
+	return GlobalItemStorage.TradeViewList[ULTIMATUM_REWARD_OWNER][id];
+}
+
 inventory_T global:20& GetSortScratchItem(int id) {
 	return GlobalItemStorage.SortScratchList[id];
 }
@@ -160,6 +164,9 @@ void SetItemToAnother(inventory_T* to, inventory_T* from) {
 void AllocateNonPlayerItemStorageMemory() {
 	// merchant
 	GlobalItemStorage.TradeViewList[MAXPLAYERS] = bcs::arrNew(MAX_INVENTORY_BOXES, INVENTORY_T_INTS);
+
+	// ultimatum reward pool
+	GlobalItemStorage.TradeViewList[ULTIMATUM_REWARD_OWNER] = bcs::arrNew(MAX_INVENTORY_BOXES, INVENTORY_T_INTS);
 
 	GlobalItemStorage.Inventories_On_Field = bcs::arrNew(MAX_INVENTORIES_ON_FIELD, INVENTORY_T_INTS);
 

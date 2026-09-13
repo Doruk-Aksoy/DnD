@@ -37,6 +37,32 @@ typedef struct {
 
 global dungeon_data_T 38: DungeonInformation;
 
+// The ceiling an item roll may reach. dnd_maxmonsterlevel describes an ORDINARY map and is the
+// server's map-wide setting; a dungeon carries a level of its own and scales its monsters to it
+// (see ScaleMonster), so the items it pays out are measured against that same number instead. -1 is
+// the "not a dungeon" value DungeonInformation rests at, which is the test ScaleMonster makes too.
+//
+// Every item level clamp goes through here, so a level type that wants its own ceiling -- Ultimatum
+// among them, once it reports as a dungeon -- only has to set DungeonInformation.level.
+// A ceiling for one roll already under way, 0 for the ordinary one. Set immediately before a
+// Construct/Roll call and cleared straight after: an ACS function cannot Delay, so the roll runs to
+// completion with nothing interleaved and no other caller can observe it set. Same scoping rule --
+// and the same reasoning -- as WellRolledChanceOverride in DnD_Stat.h.
+int ItemLevelCapOverride = 0;
+
+int GetItemLevelCap() {
+	if(ItemLevelCapOverride)
+		return ItemLevelCapOverride;
+
+	if(DungeonInformation.level == -1)
+		return GetCVar("dnd_maxmonsterlevel");
+
+	// DUN_UPSIDE_ITEMLEVELBONUS raises what a dungeon's items are allowed to reach, and RollItemLevel
+	// already lifts its own max by it. Without the same lift here the clamp would take back exactly
+	// what the modifier grants, and the upside would read as doing nothing.
+	return Min(DungeonInformation.level + HasDungeonUpside(DUN_UPSIDE_ITEMLEVELBONUS), MAX_ITEM_LEVEL);
+}
+
 enum {
 	DUN_ATTR_EXTRAHP,
 	DUN_ATTR_FORTIFIED,

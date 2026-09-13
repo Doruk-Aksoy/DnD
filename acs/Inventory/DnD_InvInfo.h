@@ -545,7 +545,11 @@ typedef struct it_con {
 	inv_attrib_T rolls[MAX_ITEM_ATTRIBUTES];		// contains roll information of the attributes (level modifier isn't used here)
 } inventory_constructor_T;
 
-#define MAX_UNIQUE_ITEMS (UNIQUE_HELM_END - UNIQUE_CHARM_BEGIN + 1)
+// UNIQUE_HELM_LAST, not UNIQUE_HELM_END: END stops before the reward-only tail on purpose, so
+// sizing the array by it left UITEM_ANATHEMA one index PAST the end -- SetupUniqueItems wrote it out
+// of bounds and every read of it was garbage. The roll ranges are what keep reward-only items out of
+// the drop pool; the array still has to hold them.
+#define MAX_UNIQUE_ITEMS (UNIQUE_HELM_LAST - UNIQUE_CHARM_BEGIN + 1)
 global inventory_constructor_T 53: UniqueItemList[MAX_UNIQUE_ITEMS];
 
 #define CHARMSTR_COLORCODE 0

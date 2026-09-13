@@ -356,8 +356,16 @@ void SpawnPlayerDropAtActor(int pnum, int dest, str actor, int zoffset, int thru
 	SpawnDropAtActor(dest, actor, zoffset, thrust, setspecial, setspecial2, noRandomVelXY);
 }
 
+// A well roll chance for a roll already under way; 0 means the ordinary odds. Set immediately
+// before a Construct/Roll call and cleared immediately after -- an ACS function cannot Delay, so
+// the roll runs to completion with nothing interleaved and no other caller can observe it set.
+int WellRolledChanceOverride = 0;
+
 bool CheckWellRolled(int pnum) {
-	return CheckActorInventory(pnum + P_TIDSTART, "ReveranceUsed") || random(0, 1.0) <= DND_WELLROLL_ODDS;
+	if(CheckActorInventory(pnum + P_TIDSTART, "ReveranceUsed"))
+		return true;
+
+	return random(0, 1.0) <= (WellRolledChanceOverride ? WellRolledChanceOverride : DND_WELLROLL_ODDS);
 }
 
 void CalculateExpRatio() {

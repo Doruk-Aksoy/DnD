@@ -43,8 +43,7 @@ str GetCharmBoxLabel(int charm_type, bool isSelected) {
 
 // returns type of charm as result
 int ConstructCharmDataOnField(int charm_pos, int charm_tier) {
-	if(charm_tier > GetCVar("dnd_maxmonsterlevel"))
-		charm_tier = GetCVar("dnd_maxmonsterlevel");
+	charm_tier = Min(charm_tier, GetItemLevelCap());
 
 	int res = random(DND_CHARM_SMALL, DND_CHARM_LARGE);
 	auto item = GetFieldItem(charm_pos);

@@ -8,6 +8,17 @@
 // be forward referenced the way a function can.
 #include "DnD_Perks.h"
 
+// The single ailment Anathema allows. Stored as this + 1 so an empty slot still reads as "no
+// Anathema equipped", and rolled 1..DND_ANATHEMA_COUNT on the item for the same reason.
+enum {
+	DND_ANATHEMA_BLEED = 1,
+	DND_ANATHEMA_POISON,
+	DND_ANATHEMA_COLD,
+	DND_ANATHEMA_FIRE,
+	DND_ANATHEMA_LIGHTNING
+};
+#define DND_ANATHEMA_COUNT DND_ANATHEMA_LIGHTNING
+
 #define DND_ACCURACY_CAP 100000
 
 #define DND_SHIFTBITS_FOR_SLOTFROMFLAG 13 // 8192 must return 0 to us
@@ -140,6 +151,10 @@ enum {
 	// ignite is sized off the fire in the hit but still has to ROLL the chance -- ADDEDIGNITE above
 	// does that AND makes the ignite guaranteed. Keep in step with DamageTypes.dec (16777216).
 	DND_DAMAGEFLAG_SCALEIGNITE			=			0b1000000000000000000000000,
+
+	// NOTE: a LEVEL hazard is flagged in the OTHER word -- see DND_DAMAGETYPEFLAG_LEVELHAZARD. This
+	// set describes a player's own attack; an actor's Stamina carries the DND_DAMAGETYPEFLAG_* set,
+	// and dmg_data means whichever of the two the hit came from.
 
 	// below are special things that are cleared after a certain point in HandleImpactDamage function
 	DND_DAMAGEFLAG_ISREFLECTED			=			67108864,

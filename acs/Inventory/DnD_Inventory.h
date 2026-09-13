@@ -33,6 +33,8 @@ enum {
 #define MAX_POINTERS (PTR_FREEITEMWORLD + 1)
 #define MAX_INVENTORIES_ON_FIELD 4096
 
+#define ULTIMATUM_REWARD_OWNER (MAXPLAYERS + 1)
+
 typedef struct {
 	int PointerIndexTable[MAX_POINTERS];
 
@@ -44,7 +46,9 @@ typedef struct {
 
 	inventory_T[]* PlayerInventoryList[MAXPLAYERS]; //[MAXPLAYERS][MAX_INVENTORY_BOXES];			// holds inventories of all players
 
-	inventory_T[]* TradeViewList[MAXPLAYERS + 1]; //[MAXPLAYERS + 1][MAX_INVENTORY_BOXES]; 			// merchant's item list is on MAXPLAYERS index of this
+	// merchant is on MAXPLAYERS, the ultimatum reward pool on the one after -- riding this array
+	// means item sync, cursor hover and item drawing all work on both with no new plumbing
+	inventory_T[]* TradeViewList[MAXPLAYERS + 2]; //[MAXPLAYERS + 2][MAX_INVENTORY_BOXES]
 
 	inventory_T[]* PlayerStashList[MAXPLAYERS][MAX_EXTRA_INVENTORY_PAGES + 1];//[MAX_INVENTORY_BOXES];
 
@@ -2199,16 +2203,9 @@ void CopyItemToField(int fieldpos, int player_index, int item_index, int source)
 	SyncItemData_Field(fieldpos);
 }
 
-void DropItemToField(int player_index, int pitem_index, bool forAll, int source) {
-	int c = CreateItemSpot();
-	
-	// note to self here: subtype should always be looked up on TOPLEFTBOX property... that one index only has the fully synced info, rest dont
-	int itype = GetItemSyncValue(player_index, DND_SYNC_ITEMTYPE, pitem_index, -1, source);
-	int topboxid = GetItemSyncValue(player_index, DND_SYNC_ITEMTOPLEFTBOX, pitem_index, -1, source) - 1;
-	int stype = GetItemSyncValue(player_index, DND_SYNC_ITEMSUBTYPE, topboxid, -1, source);
-
-	// copy now
-	CopyItemToField(c, player_index, pitem_index, source);
+// the drop actor for an item. itype is the raw type word -- a unique carries its id in the high
+// half, so it must not be masked before it gets here.
+str GetItemDropClass(int itype, int stype) {
 	str droptype = "CharmDrop";
 	if(itype > UNIQUE_BEGIN) {
 		int utype = (itype >> 16) - 1;
@@ -2242,6 +2239,19 @@ void DropItemToField(int player_index, int pitem_index, bool forAll, int source)
 		droptype = GetFlaskDropClass(stype);
 	else if(itype == DND_ITEM_DUNGEONKEY)
 		droptype = GetInventoryName(stype + DUNGEONKEY_BEGIN);
+	return droptype;
+}
+
+void DropItemToField(int player_index, int pitem_index, bool forAll, int source) {
+	int c = CreateItemSpot();
+
+	// subtype is only fully synced on the TOPLEFTBOX index, so look it up through that
+	int itype = GetItemSyncValue(player_index, DND_SYNC_ITEMTYPE, pitem_index, -1, source);
+	int topboxid = GetItemSyncValue(player_index, DND_SYNC_ITEMTOPLEFTBOX, pitem_index, -1, source) - 1;
+	int stype = GetItemSyncValue(player_index, DND_SYNC_ITEMSUBTYPE, topboxid, -1, source);
+
+	CopyItemToField(c, player_index, pitem_index, source);
+	str droptype = GetItemDropClass(itype, stype);
 	forAll ? SpawnDropFacing(droptype, 16.0, 16, 256, c) : SpawnDropFacing(droptype, 16.0, 16, player_index + 1, c);
 }
 

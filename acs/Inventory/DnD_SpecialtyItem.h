@@ -147,8 +147,7 @@ int ConstructSpecialtyDataOnField(int item_pos, int item_tier, int item_type) {
 
 	item.item_image = i + res;
 
-	if(item_tier > GetCVar("dnd_maxmonsterlevel"))
-		item_tier = GetCVar("dnd_maxmonsterlevel");
+	item_tier = Min(item_tier, GetItemLevelCap());
 
 	item.item_level = item_tier;
 	item.item_stack = 0;

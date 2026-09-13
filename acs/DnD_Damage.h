@@ -100,6 +100,11 @@ enum {
 	DND_DAMAGETYPEFLAG_ISBLEED = 8192,
 	DND_DAMAGETYPEFLAG_IGNORERESISTS = 16384,
 
+	// Damage the LEVEL deals -- an ultimatum hazard, with neither a monster nor a weapon behind it.
+	// It lives in THIS enum because this is the word an actor's Stamina holds; the DND_DAMAGEFLAG_*
+	// set describes a player's own attack and never reaches the event from a hazard.
+	DND_DAMAGETYPEFLAG_LEVELHAZARD = 32768,
+
 	DND_DAMAGETYPEFLAG_HURTSPECIES = 268435456,
 	DND_DAMAGETYPEFLAG_USEMASTER = 536870912,
 	DND_DAMAGETYPEFLAG_REFLECTABLE = 1073741824
@@ -2946,7 +2951,7 @@ void HandleIgniteEffects(int pnum, int victim, int wepid, int flags, int dmg_wit
 			MarkIgnitedBefore(victim - DND_MONSTERTID_BEGIN);
 
 		// Tormentor / Cremator. Stamped on the victim at APPLICATION because the death itself has
-		// no idea who lit it -- DECORATE asks the corpse, through "DnD Check Cremator".
+		// no idea who lit it -- Death.IgniteNoPain reads it back off the corpse.
 		if(PlayerModData[pnum].vals[PSTAT_CREMATOR])
 			SetActorInventory(victim, "DnD_Cremated", 1);
 
@@ -4754,7 +4759,12 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	// never DoT ticks -- the hit that applied the DoT already gained, and gaining again on every
 	// tick would compound it. Reflected damage is the player's own coming back, so a monster's
 	// traits have no claim on that either.
-	if(m_id != -1 && !isDot && !isReflected && MonsterHasAnyTouchTrait(m_id)) {
+	// Ultimatum / Elemental Fury is a gain every monster carries rather than a rolled trait, so it
+	// has to widen the gate below -- exactly the case the NOTE further down warns about. Read once,
+	// behind the same guard, so an ordinary map pays one array lookup per monster hit and no more.
+	int ult_ele = (m_id != -1 && !isDot && !isReflected) ? GetUltimatumExtraElePercent() : 0;
+
+	if(m_id != -1 && !isDot && !isReflected && (MonsterHasAnyTouchTrait(m_id) || ult_ele)) {
 		// Percent is accumulated per DESTINATION element, then turned into portions -- not one
 		// portion per source. Two sources naming the same element (a rolled RIMETOUCH at 20% and a
 		// dungeon granting 10% cold) become a single 30% cold portion, so cold meets the player's
@@ -4772,6 +4782,14 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		for(int t = DND_FIRST_TOUCHTRAIT; t <= DND_LAST_TOUCHTRAIT; ++t)
 			if(HasMonsterTrait(m_id, t))
 				gain_pct[GetTouchTraitElement(t)] += GetMonsterTouchGainPercent(m_id);
+
+		// Ultimatum / Elemental Fury. Rolled per hit rather than fixed per monster, so the same
+		// attacker threatens a different resist each time. From FIRE up, because PHYSICAL sits at
+		// index 0 and is not an element -- bounding it by the enum end means a new element joins the
+		// draw on its own. It lands on the same accumulator as a trait, so a monster that also carries
+		// the matching touch trait gets one merged portion rather than two.
+		if(ult_ele)
+			gain_pct[random(DND_TICELEM_FIRE, DND_MAX_TICELEMS - 1)] += ult_ele;
 
 		// A dungeon granted gain joins here, on the same array, and stacks with a rolled trait of
 		// the same element for free. A source-typed one ("physical gained as cold") gates itself on
@@ -4948,15 +4966,38 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		// distribute this damage to other pets
 	}
 
+	// A LEVEL HAZARD reaches here with m_id -1: no monster threw it, so nothing keyed on a monster
+	// may be read. Three rules hold throughout the block below.
+	//
+	//   from_monster  -- guards every HasMonsterTrait read (MonsterProperties[-1] otherwise) and
+	//                    every DungeonInflictsAilment: a dungeon modifier acts through its MONSTERS,
+	//                    and the arena's own traps are deliberately left out of it.
+	//   dot_owner     -- who the dot is credited to. A hazard has nobody, so the victim owns it.
+	//   the TYPE half -- (dmg_data & POISON) and friends are properties of the hit, not the thrower,
+	//                    so those apply to a hazard exactly as they do to a monster.
+	//
+	// Everything else in here already ignores m_id: the bleed, overload chance and time helpers all
+	// return constants today. If one ever starts reading it, every -1 caller needs revisiting.
+	bool from_monster = m_id != -1;
+	int dot_owner = from_monster ? m_id + DND_MONSTERTID_BEGIN : pnum + P_TIDSTART;
+
+	// The saw's own bleed chance, which is what a hazard has instead of GetMonsterBleedChance.
+	// PHYSICAL is what tells a blade from the miasma sharing the same hazard bit -- gas does not
+	// make anyone bleed.
+	int ult_bleed = 0;
+	if((dmg_data & DND_DAMAGETYPEFLAG_LEVELHAZARD) && (dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL))
+		ult_bleed = GetUltimatumSawBleedChance();
+
 	// final thing to check after damage reductions are applied, DoTs
 	// do not register more instances on dots from dots themselves as well
-	if(m_id != -1 && !isDot && dmg) {
+	if((from_monster || (dmg_data & DND_DAMAGETYPEFLAG_LEVELHAZARD)) && !isDot && dmg) {
 		if
 		(
 			(
-				((dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL) && !(dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) &&
+				(from_monster && (dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL) && !(dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) &&
 				random(1, 100) <= GetMonsterBleedChance(m_id, pnum, dmg_string == "Melee", dmg_data & DND_DAMAGETYPEFLAG_HITSCAN)) ||
-				DungeonInflictsAilment(DUN_INFLICT_BLEED)
+				(from_monster && DungeonInflictsAilment(DUN_INFLICT_BLEED)) ||
+				(ult_bleed && random(1, 100) <= ult_bleed)
 			) &&
 			GetPlayerBleedAvoidChance(pnum) < random(1, 100)
 		)
@@ -4971,7 +5012,7 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 				temp,
 				GetMonsterBleedDuration(m_id, pnum),
 				DND_DAMAGETYPEFLAG_PHYSICAL | DND_DAMAGETYPEFLAG_DOT | DND_DAMAGETYPEFLAG_ISBLEED, 
-				m_id + DND_MONSTERTID_BEGIN,
+				dot_owner,
 				inflictor_class
 			);
 		}
@@ -4979,9 +5020,9 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		if
 		(
 			(
-				(((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) || HasMonsterTrait(m_id, DND_VOLTAIC)) &&
+				(((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) || (from_monster && HasMonsterTrait(m_id, DND_VOLTAIC))) &&
 				random(1, 100) <= GetMonsterOverloadChance(m_id, pnum)) ||
-				DungeonInflictsAilment(DUN_INFLICT_OVERLOAD)
+				(from_monster && DungeonInflictsAilment(DUN_INFLICT_OVERLOAD))
 			) &&
 			GetPlayerElementalAvoidChance(pnum, DND_PAVOID_OVERLOAD) < random(1, 100)
 		)
@@ -4994,8 +5035,8 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		if
 		(
 			(
-				((dmg_data & DND_DAMAGETYPEFLAG_POISON) || HasMonsterTrait(m_id, DND_VENOMANCER)) ||
-				DungeonInflictsAilment(DUN_INFLICT_POISON)
+				((dmg_data & DND_DAMAGETYPEFLAG_POISON) || (from_monster && HasMonsterTrait(m_id, DND_VENOMANCER))) ||
+				(from_monster && DungeonInflictsAilment(DUN_INFLICT_POISON))
 			) &&
 			GetPlayerElementalAvoidChance(pnum, DND_PAVOID_POISON) < random(1, 100)
 		)
@@ -5009,14 +5050,14 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 				temp, 
 				random(DND_MONSTER_POISONDOT_MINTIME, DND_MONSTER_POISONDOT_MAXTIME),
 				DND_DAMAGETYPEFLAG_POISON, 
-				m_id + DND_MONSTERTID_BEGIN,
+				dot_owner,
 				inflictor_class
 			);
 		}
 		
 		if
 		(
-			((dmg_data & DND_DAMAGETYPEFLAG_FIRE) || HasMonsterTrait(m_id, DND_SCORCHED)) && 
+			((dmg_data & DND_DAMAGETYPEFLAG_FIRE) || (from_monster && HasMonsterTrait(m_id, DND_SCORCHED))) && 
 			random(0, 1.0) < DND_PLAYER_BURNING_CHANCE &&
 			GetPlayerElementalAvoidChance(pnum, DND_PAVOID_IGNITE) < random(1, 100)
 		) 
@@ -5029,7 +5070,7 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 				temp, 
 				random(DND_PLAYER_BURNING_MINTIME, DND_PLAYER_BURNING_MAXTIME),
 				DND_DAMAGETYPEFLAG_FIRE, 
-				m_id + DND_MONSTERTID_BEGIN,
+				dot_owner,
 				inflictor_class
 			);
 		}
@@ -6515,6 +6556,12 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			SetResultValue(dmg);
 		}
 		else if(IsMonster(victim) && dmg_data) {
+			// level hazards are aimed at players, they don't fight the wave
+			if(dmg_data & DND_DAMAGETYPEFLAG_LEVELHAZARD) {
+				SetResultValue(0);
+				Terminate;
+			}
+
 			// last option, player hurt monster in here --- we normally don't handle this here but for reflection we can
 			// if we have dmg_data, currently it can only come from monster projectile
 			SetActivator(GetActorProperty(shooter, APROP_MASTERTID));
@@ -6533,14 +6580,38 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				Terminate;
 			}
 
+			// The hazard block below reads pnum, and nothing on the way here has set it -- the two
+			// assignments are both inside branches this path never takes, and this branch's own is
+			// further down. So every map hazard was deducting player 0's shield whoever it hit.
+			pnum = PlayerNumber();
+
+			// A level hazard is neither a monster nor the player's own weapon, so IsMonster(shooter)
+			// skipped the whole player damage pipeline and it landed here with nothing to do: the
+			// miasma is radius damage and got zeroed on the BLASTSELF test below, and the saw had its
+			// arg1 unpacked as a packed weapon word. Caught here, ahead of both.
+			bool isHazard = (dmg_data & DND_DAMAGETYPEFLAG_LEVELHAZARD) != 0;
+
 			// exception for map related hazards
-			if(arg2 == "Slime" || arg2 == "Crush" || arg2 == "Drowning" || arg2 == "Telefrag" || arg2 == "Suicide" || arg2 == "InstantDeath" || arg2 == "Exit" || arg2 == "Trap") {
+			if(isHazard || arg2 == "Slime" || arg2 == "Crush" || arg2 == "Drowning" || arg2 == "Telefrag" || arg2 == "Suicide" || arg2 == "InstantDeath" || arg2 == "Exit" || arg2 == "Trap") {
 				// apply eshield to these only
-				if(arg2 == "Slime" || arg2 == "Crush" || arg2 == "Drowning" || arg2 == "Trap") {
-					// scale these up by player level -- more if its a trap
-					dmg = dmg * (100 + GetBasicMonsterDMGScaling(GetActorLevel(victim), arg2 == "Trap")) / 100;
-					
-					dmg = ApplyTrueDamageDeductions(pnum, dmg, arg2, 0);
+				if(isHazard || arg2 == "Slime" || arg2 == "Crush" || arg2 == "Drowning" || arg2 == "Trap") {
+					// scale these up by player level -- more if its a trap. A hazard belongs to the arena
+					// rather than to whoever walked into it, so it scales on the DUNGEON's level instead.
+					int hz_lvl = GetActorLevel(victim);
+					if(isHazard && DungeonInformation.level != -1)
+						hz_lvl = DungeonInformation.level;
+
+					dmg = dmg * (100 + GetBasicMonsterDMGScaling(hz_lvl, arg2 == "Trap")) / 100;
+
+					// A hazard pays the full defensive chain -- it is real damage with a real type, so
+					// the miasma's poison has to meet poison resist. m_id -1 is the documented "not a
+					// monster hit" value. The vanilla map types keep their eshield-only path untouched.
+					if(isHazard) {
+						dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data, false, "DnD_UltimatumHazard", -1);
+						dmg = HandlePlayerArmor(pnum, dmg, arg2, dmg_data, isArmorPiercing);
+					}
+
+					dmg = ApplyTrueDamageDeductions(pnum, dmg, arg2, isHazard ? dmg_data : 0);
 				}
 				if(!HasActorClassPerk_Fast(victim, DND_PLAYER_CYBORG, 2) || random(0, 1.0) <= DND_CYBORG_REGENCONTCHANCE)
 					GiveActorInventory(victim, "DnD_Hit_CombatTimer", 1);
@@ -6551,7 +6622,6 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 			// the above check was necessary
 			// hurt self -- handleplayerselfdamage is ran in explosion side of things, we run additional stuff that isnt handled by that here, like resists and armor
-			pnum = PlayerNumber();
 
 			if(dmg_data & DND_DAMAGEFLAG_ISRADIUSDMG) {
 				SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
