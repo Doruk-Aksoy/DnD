@@ -75,6 +75,8 @@ enum {
     BTI_GOLGOTH_SLOW,
     BTI_GOLGOTH_WEAKEN,
 
+    BTI_ULTIMATUM_FLASKSLOW,
+
     // KEEP LAST -- sizes the bt_index presence mask. Add new entries ABOVE this,
     // and above the debuff marker if the entry is a buff rather than a debuff.
     BTI_MAX
@@ -622,6 +624,15 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             tic_duration = bduration * TICRATE;
         break;
 
+        // Ultimatum / Hindering Flasks -- see DND_ULTIMATUM8. Self inflicted, so no
+        // MONSTERSOURCE; NODUPLICATE so drinking again refreshes rather than stacking.
+        case BTI_ULTIMATUM_FLASKSLOW:
+            btype = BUFF_SPEED;
+            bflags |= BUFF_F_NODUPLICATE | BUFF_F_MORETYPE;
+            bvalue = -0.5;
+            bduration = 4;
+            tic_duration = bduration * TICRATE;
+        break;
         case BTI_CHILL:
             btype = BUFF_SPEED;
             bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_ADDIFNODUPLICATE | BUFF_F_MORETYPE;

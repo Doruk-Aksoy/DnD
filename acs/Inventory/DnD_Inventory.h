@@ -137,6 +137,9 @@ void ClearTradeItemOrigins(int pnum) {
 #define MAX_WEAKEN_VAL 200
 
 #define DND_SYNERGYITEM_CHANCE 0.125
+// what an ordinary drop gets, as a percent of the above. callers that pass their own percent
+// -- Ultimatum rewards, chests, lootboxes -- are not affected by it
+#define DND_SYNERGY_NATURALDROP_PCT 50
 
 enum {
 	SMALLCHARM_INDEX1,
@@ -4172,9 +4175,9 @@ Script "DnD Check Item Collision" (void) {
 int CheckItemSynergy(int synergy_roll, int item_pos, int synergy_boost) {
 	static int tags_found[MAX_ATTRIB_TAG_GROUPS];
 
-	int chance = DND_SYNERGYITEM_CHANCE;
-	if(synergy_boost != -1)
-		chance = chance * synergy_boost / 100;
+	// -1 is "no boost given", ie. an ordinary drop, which rolls at the reduced rate
+	int chance = DND_SYNERGYITEM_CHANCE *
+		(synergy_boost != -1 ? synergy_boost : DND_SYNERGY_NATURALDROP_PCT) / 100;
 
 	auto item = GetFieldItem(item_pos);
 

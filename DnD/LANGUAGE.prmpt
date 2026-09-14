@@ -27,7 +27,7 @@ DND_PROMPT10		=	"A favorable result, luck seems to be on your side... for now. W
 DND_PROMPT11		=	"It seems your luck has not yet run out. Shall we continue, or is this your limit?";
 DND_PROMPT12		=	"Playing with chance is a dangerous game, but, it can also prove to be enriching. Do you wish to pursue further greatness, or live to tell the tale?";
 
-DND_ULTIMATUM1      =   "Monsters gain 30% additional elemental damage.";
+DND_ULTIMATUM1      =   "Any monster damage dealt also gets a bonus of 30% as that of a random element.";
 DND_ULTIMATUM2      =   "Occasional blood-soaked blades fly across the room.";
 DND_ULTIMATUM3      =   "A viscious cloud of deadly miasma slowly seeks you.";
 DND_ULTIMATUM4      =   "Take x20 of ammo costs as lightning damage each time you fire a weapon.";
@@ -72,30 +72,31 @@ DND_ULTIMATUM_NAME19 =   "Gluttonous Tide";
 DND_ULTIMATUM_NAME20 =   "Rapid Exhaustion";
 DND_ULTIMATUM_NAME21 =   "Taste the Pain";
 
-// what each tier adds on top -- placeholders, fill these as the apply hook is written
-DND_ULTIMATUM1_T1    =   "Tier 1\nAny monster damage dealt also gets a bonus of 30% as that of a random element.";
+// what each option adds per tier
+DND_ULTIMATUM2_T1    =   "Saw blades periodically spawn and fly towards you after a delay.";
+DND_ULTIMATUM2_T2    =   "Saw blades inflict 20% more damage, and 30% extra chance to inflict bleeding.";
+DND_ULTIMATUM2_T3    =   "5 additional blades spawn each time and are 25% faster.";
+DND_ULTIMATUM2_T4    =   "The saw blades have 100% chance to inflict bleeding.";
 
-DND_ULTIMATUM2_T1    =   "Tier 1\nSaw blades periodically spawn and fly towards you after a delay.";
-DND_ULTIMATUM2_T2    =   "Tier 2\nSaw blades inflict 20% more damage, and 30% extra chance to inflict bleeding.";
-DND_ULTIMATUM2_T3    =   "Tier 3\n5 additional blades spawn each time and are 25% faster.";
-DND_ULTIMATUM2_T4    =   "Tier 4\nThe saw blades have 100% chance to inflict bleeding.";
+DND_ULTIMATUM3_T1    =   "A slow moving cloud of miasma starts chasing after you, dealing constant poison damage while in it.";
+DND_ULTIMATUM3_T2    =   "The cloud moves 25% faster.";
+DND_ULTIMATUM3_T3    =   "The cloud gets 25% bigger and faster.";
+DND_ULTIMATUM3_T4    =   "The cloud gets 33% bigger and slows you if it deals damage for 20%.";
 
-DND_ULTIMATUM3_T1    =   "Tier 1\nA slow moving cloud of miasma starts chasing after you, dealing constant poison damage while in it.";
-DND_ULTIMATUM3_T2    =   "Tier 2\nThe cloud moves 25% faster.";
-DND_ULTIMATUM3_T3    =   "Tier 3\nThe cloud gets 25% bigger and faster.";
-DND_ULTIMATUM3_T4    =   "Tier 4\nThe cloud gets 33% bigger and slows you if it deals damage for 20%.";
+DND_ULTIMATUM5_T1    =   "Random places in the ground get marked, waiting for lightning to strike if stayed in for too long.";
+DND_ULTIMATUM5_T2    =   "The lightning takes 25% less time to strike.";
+DND_ULTIMATUM5_T3    =   "Twice as many lightning strikes occur when time runs out.";
+DND_ULTIMATUM5_T4    =   "3 additional marked grounds appear.";
 
-DND_ULTIMATUM4_T1    =   "Tier 1\nEach time you fire a weapon, you suffer x20 the ammo cost as lightning damage.";
+DND_ULTIMATUM6_T1    =   "Two vengeful, unstoppable spirits chase after you, breathing fire.";
+DND_ULTIMATUM6_T2    =   "The spirits fire an additional wave of fire.";
+DND_ULTIMATUM6_T3    =   "The fire pierces 15% of your resistance.";
+DND_ULTIMATUM6_T4    =   "There is an additional spirit chasing you, and they fire 2 additional projectiles.";
 
-DND_ULTIMATUM5_T1    =   "Tier 1\nRandom places in the ground get marked, waiting for lightning to strike if stayed in for too long.";
-DND_ULTIMATUM5_T2    =   "Tier 2\nThe lightning takes 25% less time to strike.";
-DND_ULTIMATUM5_T3    =   "Tier 3\nTwice as many lightning strikes occur when time runs out.";
-DND_ULTIMATUM5_T4    =   "Tier 4\n3 additional marked grounds appear.";
-
-DND_ULTIMATUM6_T1    =   "Tier 1\nVengeful, unstoppable spirits chase after you, breathing fire.";
-DND_ULTIMATUM6_T2    =   "Tier 2\nThe spirits fire an additional wave of fire.";
-DND_ULTIMATUM6_T3    =   "Tier 3\nThe fire pierces 15% of your resistance.";
-DND_ULTIMATUM6_T4    =   "Tier 4\nThere is an additional spirit chasing you, and they fire 2 additional projectiles.";
+DND_ULTIMATUM7_T1    =   "Frozen pustules will periodically appear, dealing heavy cold damage on contact after a short delay.";
+DND_ULTIMATUM7_T2    =   "50% more pustules will appear and deal 33% more damage.";
+DND_ULTIMATUM7_T3    =   "Pustules always chill and explode 25% faster.";
+DND_ULTIMATUM7_T4    =   "Pustules always freeze.";
 
 DND_ULTIMATUM_REWARDS    =   "Rewards";
 DND_ULTIMATUM_REWARDBACK =   "Back";

@@ -12,7 +12,10 @@
 #define DND_CHARM_SIZEFACTOR 4 // 25%
 
 #define DND_CHARM_BAGCOLORSMAX 3
-#define DND_CHARM_SPECIALTYBOOST_BASE 10 // 10%
+#define DND_CHARM_SPECIALTYBOOST_BASE 8 // 8% per chest tier
+// where a chest starts, as a percent of DND_SYNERGYITEM_CHANCE. under 100 but well clear of the
+// 50 an ordinary drop gets, and it keeps every chest under the merchant
+#define DND_CHARM_SPECIALTYBOOST_ANCHOR 60
 
 str GetCharmDropLabel(int worth) {
 	if(worth > DND_CHARM_BAGCOLORSMAX)

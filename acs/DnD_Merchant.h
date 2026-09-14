@@ -48,7 +48,7 @@
 
 #define DND_MERCHANT_ITEMFRACTURECHANCE 0.025 // 2.5% to offer fractured
 
-#define DND_MERCHANT_SYNERGYITEM_CHANCE 0.1 // 10% chance for an item to have really synergistic mods (mods of same mod pool)
+#define DND_MERCHANT_SYNERGYITEM_CHANCE 0.15 // per mod until it locks on, vs 6.25% on a natural drop
 
 #define DND_MERCHANT_UNIQUECHANCE 0.1 // 10% to offer uniques
 

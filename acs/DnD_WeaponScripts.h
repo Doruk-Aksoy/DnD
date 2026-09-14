@@ -1051,6 +1051,12 @@ Script "DnD Melee Weapon Cooldown" (int cd_id, int val) {
 	wep_cd_T module& wep_cd = GetMeleeWeaponCooldowns(cd_id);
 	if(!wep_cd.cd) {
 		val = val * 100 / (100 + PlayerModData[PlayerNumber()].vals[PSTAT_MELEE_ATKCDR]);
+
+		// Ultimatum / Rapid Exhaustion. After the reduction, so cooldown reduction still helps.
+		int longer = GetUltimatumMeleeCooldownLonger();
+		if(longer)
+			val = val * (100 + longer) / 100;
+
 		wep_cd.cd = val;
 
 		str toTake = "";

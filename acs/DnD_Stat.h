@@ -254,7 +254,7 @@ int GetPlayerEnergyShieldRechargeDelay(int pnum) {
 }
 
 int GetPlayerEnergyShieldRecoveryRate(int pnum, int cap) {
-	int bonus = 1;
+	int bonus = 1, temp;
 	if(HasPlayerFlag(pnum, PFLAG_CYBER))
 		bonus = 2;
 	
@@ -273,6 +273,11 @@ int GetPlayerEnergyShieldRecoveryRate(int pnum, int cap) {
 		res /= 2;
 
 	res = ApplyDungeonReduction(DUN_ATTR_REDUCEDESHIELDRECOVERYRATE, res);
+
+	// Ultimatum / Fleeting Life. res is an AMOUNT per tick, so less of it is slower recovery.
+	temp = GetUltimatumRecoveryLess();
+	if(temp)
+		res = res * (100 - temp) / 100;
 
 	if(!res)
 		res = 1;
@@ -1085,6 +1090,11 @@ bool CheckCritChance(int pnum, int victim, int wepid, bool isLightning, bool noT
 	//printbold(s:"running crit chance: ", f:chance);
 	
 	res = chance > random(0, 1.0);
+
+	// Ultimatum / Diminished Lethality. The mirror of the lucky reroll below -- a successful
+	// roll has to survive a second one. Lucky crits can still rescue it, so the two cancel.
+	if(res && UltimatumHasUnluckyCrits())
+		res = chance > random(0, 1.0);
 	
 	// reroll if bad luck and lucky crit is on
 	if(!res && CheckUniquePropertyOnPlayer(pnum, PUP_LUCKYCRITS))
@@ -1203,6 +1213,11 @@ int GetCritModifier(int pnum, int victim, int wepid, bool forcedReturn = false) 
 	forcedReturn = PlayerModData[pnum].vals[PSTAT_INC_EXCESSCRIT];
 	if(forcedReturn && (temp = GetCritChance(pnum, victim, wepid, IsWeaponLightningType(wepid))) > 1.0)
 		base = FixedMul(base, temp);
+
+	// Ultimatum / Diminished Lethality. Takes it off the crit BONUS rather than off the hit --
+	// the clamp below already refuses a crit that would deal less than a normal one.
+	if((temp = GetUltimatumCritLessPercent()) && base > 100)
+		base = 100 + (base - 100) * (100 - temp) / 100;
 
 	// damage is returned as it is if its 100, makes no sense for it to be less than 100 (it'd actually lower damage for critting...)
 	if(base < 100)
@@ -2310,6 +2325,12 @@ int GetPlayerBaseSpread(int pnum, int spread_val) {
 
 int GetPlayerStaminaRecoveryRate(int pnum) {
 	int base = DND_BASE_STAMINA_RECOVERYRATE * (100 - PlayerModData[pnum].vals[PSTAT_INC_STAMINARECOVERYRATE]) / 100;
+
+	// Ultimatum / Rapid Exhaustion. base is a tic DELAY -- the line above already reads a
+	// recovery increase as a smaller number -- so reduced recovery makes it bigger.
+	int less = GetUltimatumStaminaRecoveryLess();
+	if(less)
+		base = base * 100 / Max(1, 100 - less);
 	if(base <= 0)
 		base = 3; // minimum value is 3 for tic delay here
 	return base;

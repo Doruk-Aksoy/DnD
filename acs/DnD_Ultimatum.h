@@ -44,6 +44,15 @@ namespace ultimatum {
         TP_TID_STORMCALL_BEGIN = 6010,
         TP_TID_STORMCALL_END = 6030,
         TP_STORMCALL_COUNT = TP_TID_STORMCALL_END - TP_TID_STORMCALL_BEGIN + 1,
+
+        TP_TID_PUSTULE_BEGIN = 6031,
+        TP_TID_PUSTULE_END = 6062,
+        TP_PUSTULE_COUNT = TP_TID_PUSTULE_END - TP_TID_PUSTULE_BEGIN + 1,
+
+        TP_TID_RAGINGDEAD_BEGIN = 6063,
+        TP_TID_RAGINGDEAD_END = 6078,
+        TP_RAGINGDEAD_COUNT = TP_TID_RAGINGDEAD_END - TP_TID_RAGINGDEAD_BEGIN + 1,
+
     };
 
     enum {
@@ -62,6 +71,21 @@ namespace ultimatum {
         ULTIMATUM_OPTION_CRACKLINGPAIN,
         ULTIMATUM_OPTION_STORMCALL,
         ULTIMATUM_OPTION_FIRESKULLS,
+        ULTIMATUM_OPTION_BLISTERINGCOLD,
+        ULTIMATUM_OPTION_HINDERINGFLASKS,
+        ULTIMATUM_OPTION_DROUGHT,
+        ULTIMATUM_OPTION_ESCALATINGFRAGILITY,
+        ULTIMATUM_OPTION_OCCASIONALIMPOTENCE,
+        ULTIMATUM_OPTION_OVERWHELMINGMONSTERS,
+        ULTIMATUM_OPTION_PRECISEMONSTERS,
+        ULTIMATUM_OPTION_FEEBLEREACH,
+        ULTIMATUM_OPTION_SIPHONINGMONSTERS,
+        ULTIMATUM_OPTION_DIMINISHEDLETHALITY,
+        ULTIMATUM_OPTION_UNSTOPPABLETIDE,
+        ULTIMATUM_OPTION_FLEETINGLIFE,
+        ULTIMATUM_OPTION_GLUTTONOUSTIDE,
+        ULTIMATUM_OPTION_RAPIDEXHAUSTION,
+        ULTIMATUM_OPTION_TASTETHEPAIN,
 
         ULTIMATUM_OPTION_COUNT
     };
@@ -618,7 +642,22 @@ int GetUltimatumOptionMaxTier(int opt) {
         4,      // ULTIMATUM_OPTION_MIASMA
         1,      // ULTIMATUM_OPTION_CRACKLINGPAIN
         4,      // ULTIMATUM_OPTION_STORMCALL
-        4       // ULTIMATUM_OPTION_FIRESKULLS
+        4,      // ULTIMATUM_OPTION_FIRESKULLS
+        4,      // ULTIMATUM_OPTION_BLISTERINGCOLD
+        1,      // ULTIMATUM_OPTION_HINDERINGFLASKS
+        1,      // ULTIMATUM_OPTION_DROUGHT
+        1,      // ULTIMATUM_OPTION_ESCALATINGFRAGILITY
+        1,      // ULTIMATUM_OPTION_OCCASIONALIMPOTENCE
+        1,      // ULTIMATUM_OPTION_OVERWHELMINGMONSTERS
+        1,      // ULTIMATUM_OPTION_PRECISEMONSTERS
+        1,      // ULTIMATUM_OPTION_FEEBLEREACH
+        1,      // ULTIMATUM_OPTION_SIPHONINGMONSTERS
+        1,      // ULTIMATUM_OPTION_DIMINISHEDLETHALITY
+        1,      // ULTIMATUM_OPTION_UNSTOPPABLETIDE
+        1,      // ULTIMATUM_OPTION_FLEETINGLIFE
+        1,      // ULTIMATUM_OPTION_GLUTTONOUSTIDE
+        1,      // ULTIMATUM_OPTION_RAPIDEXHAUSTION
+        1       // ULTIMATUM_OPTION_TASTETHEPAIN
     };
 
     if(opt < 0 || opt >= ULTIMATUM_OPTION_COUNT)
@@ -752,6 +791,199 @@ int PickUltimatumChallengeOffer() {
 
 // percent ON TOP of the ordinary unique chance
 #define DND_ULTIMATUM_REWARD_UNIQUEBONUS_LATE 300
+
+// Every single-tier option is read through this. Same reason the accessors below are functions and
+// not the enum members: DnD_Damage.h and the rest are parsed long before this file, and an enum does
+// not forward reference in BCS. False on an ordinary map -- the tier table is a map array and
+// nothing outside an ultimatum writes it.
+bool UltimatumHasOption(int opt) {
+    return InformationInLevel[LEVELINFO_ISULTIMATUM] && GetUltimatumOptionTier(opt) > 0;
+}
+
+// ULTIMATUM_OPTION_FIRESKULLS -- see DND_ULTIMATUM6. How many spirits are placed, and the
+// share of resistance their fire ignores at tier 3. The percent matches the penetrator elite
+// trait deliberately -- it is the same effect wearing a different hat.
+#define DND_ULTIMATUM_RAGINGDEAD_BASECOUNT 2
+#define DND_ULTIMATUM_RAGINGDEAD_PIERCETIER 3
+#define DND_ULTIMATUM_RAGINGDEAD_PIERCE 15
+
+int GetUltimatumFirePiercePercent() {
+    using ultimatum;
+
+    if(!InformationInLevel[LEVELINFO_ISULTIMATUM])
+        return 0;
+
+    if(GetUltimatumOptionTier(ULTIMATUM_OPTION_FIRESKULLS) < DND_ULTIMATUM_RAGINGDEAD_PIERCETIER)
+        return 0;
+
+    return DND_ULTIMATUM_RAGINGDEAD_PIERCE;
+}
+
+// ULTIMATUM_OPTION_BLISTERINGCOLD -- see DND_ULTIMATUM7_T3 and _T4. A pustule is a level
+// hazard, and HandlePlayerChill is monster only, so the chill and freeze those tiers promise
+// have to come off this rather than through the usual ailment path.
+#define DND_ULTIMATUM_PUSTULE_BASECOUNT 8
+#define DND_ULTIMATUM_PUSTULE_CHILLTIER 3
+#define DND_ULTIMATUM_PUSTULE_FREEZETIER 4
+
+int GetUltimatumColdTier() {
+    using ultimatum;
+
+    if(!InformationInLevel[LEVELINFO_ISULTIMATUM])
+        return 0;
+
+    return GetUltimatumOptionTier(ULTIMATUM_OPTION_BLISTERINGCOLD);
+}
+
+// Asked rather than the tier itself: DnD_Damage.h is parsed before this file, and a macro does
+// not forward reference in BCS while a function does.
+bool UltimatumPustuleAlwaysChills() {
+    return GetUltimatumColdTier() >= DND_ULTIMATUM_PUSTULE_CHILLTIER;
+}
+
+bool UltimatumPustuleAlwaysFreezes() {
+    return GetUltimatumColdTier() >= DND_ULTIMATUM_PUSTULE_FREEZETIER;
+}
+
+// ULTIMATUM_OPTION_ESCALATINGFRAGILITY -- see DND_ULTIMATUM10. Increased damage taken, per wave
+// cleared, capped. Additive with itself only; it is one term, so there is nothing to compose.
+#define DND_ULTIMATUM_FRAGILITY_PCT 8
+#define DND_ULTIMATUM_FRAGILITY_MAX 40
+
+int GetUltimatumFragilityPercent() {
+    using ultimatum;
+
+    if(!UltimatumHasOption(ULTIMATUM_OPTION_ESCALATINGFRAGILITY))
+        return 0;
+
+    // curr_wave is 1 based and is the wave being fought, so the first wave under it adds nothing
+    auto tally = GetCurrentUltimatumTally();
+    return Min(DND_ULTIMATUM_FRAGILITY_MAX, DND_ULTIMATUM_FRAGILITY_PCT * Max(0, tally.curr_wave - 1));
+}
+
+// ULTIMATUM_OPTION_OCCASIONALIMPOTENCE -- see DND_ULTIMATUM11. A dead window on a fixed cycle, read
+// off the level timer so every client agrees without anything being synced.
+#define DND_ULTIMATUM_IMPOTENCE_PERIOD (8 * TICRATE)
+#define DND_ULTIMATUM_IMPOTENCE_WINDOW (2 * TICRATE)
+
+bool IsUltimatumImpotenceActive() {
+    using ultimatum;
+
+    if(!UltimatumHasOption(ULTIMATUM_OPTION_OCCASIONALIMPOTENCE))
+        return false;
+
+    return (Timer() % DND_ULTIMATUM_IMPOTENCE_PERIOD) < DND_ULTIMATUM_IMPOTENCE_WINDOW;
+}
+
+// ULTIMATUM_OPTION_FEEBLEREACH -- see DND_ULTIMATUM14. "less", so it multiplies rather than joining
+// the increased pool -- see the increased/more convention.
+#define DND_ULTIMATUM_FEEBLEREACH_LESS 60
+
+int GetUltimatumFeebleReachLess() {
+    using ultimatum;
+
+    return UltimatumHasOption(ULTIMATUM_OPTION_FEEBLEREACH) ? DND_ULTIMATUM_FEEBLEREACH_LESS : 0;
+}
+
+// Folds the reduction into an AoE increase percent. Called at the CONSUMPTION points rather
+// than inside GetPlayerAoEIncrease, so the artillery term added after it is reduced too.
+// The whole (100 + aoe) factor is scaled, not the bonus -- this is an area multiplier.
+int ApplyUltimatumFeebleReach(int aoe) {
+    int less = GetUltimatumFeebleReachLess();
+    if(!less)
+        return aoe;
+
+    // floored so (100 + aoe) can never go negative under the roots downstream
+    return Max(-100, (100 + aoe) * (100 - less) / 100 - 100);
+}
+
+// ULTIMATUM_OPTION_SIPHONINGMONSTERS -- see DND_ULTIMATUM15. Percent of the hit taken as ammo and
+// energy shield.
+#define DND_ULTIMATUM_SIPHON_PCT 10
+
+int GetUltimatumSiphonPercent() {
+    using ultimatum;
+
+    return UltimatumHasOption(ULTIMATUM_OPTION_SIPHONINGMONSTERS) ? DND_ULTIMATUM_SIPHON_PCT : 0;
+}
+
+// ULTIMATUM_OPTION_DIMINISHEDLETHALITY -- see DND_ULTIMATUM16. Percent a crit loses against a
+// monster. The "unlucky" half is a second roll taken at the crit check itself.
+#define DND_ULTIMATUM_CRITLESS_PCT 50
+
+int GetUltimatumCritLessPercent() {
+    using ultimatum;
+
+    return UltimatumHasOption(ULTIMATUM_OPTION_DIMINISHEDLETHALITY) ? DND_ULTIMATUM_CRITLESS_PCT : 0;
+}
+
+// same option, the "unlucky" half -- a crit roll has to succeed twice
+bool UltimatumHasUnluckyCrits() {
+    using ultimatum;
+
+    return UltimatumHasOption(ULTIMATUM_OPTION_DIMINISHEDLETHALITY);
+}
+
+// ULTIMATUM_OPTION_FLEETINGLIFE / _RAPIDEXHAUSTION -- see DND_ULTIMATUM18 and 20. Percent taken OFF
+// a recovery rate, and percent ADDED to a melee cooldown.
+#define DND_ULTIMATUM_FLEETINGLIFE_LESS 50
+#define DND_ULTIMATUM_EXHAUSTION_LESS 50
+#define DND_ULTIMATUM_EXHAUSTION_CDLONGER 100
+
+int GetUltimatumRecoveryLess() {
+    using ultimatum;
+
+    return UltimatumHasOption(ULTIMATUM_OPTION_FLEETINGLIFE) ? DND_ULTIMATUM_FLEETINGLIFE_LESS : 0;
+}
+
+int GetUltimatumStaminaRecoveryLess() {
+    using ultimatum;
+
+    return UltimatumHasOption(ULTIMATUM_OPTION_RAPIDEXHAUSTION) ? DND_ULTIMATUM_EXHAUSTION_LESS : 0;
+}
+
+int GetUltimatumMeleeCooldownLonger() {
+    using ultimatum;
+
+    return UltimatumHasOption(ULTIMATUM_OPTION_RAPIDEXHAUSTION) ? DND_ULTIMATUM_EXHAUSTION_CDLONGER : 0;
+}
+
+// The plain "was this taken" reads. Named so a call site says what it means rather than repeating
+// the enum member inline.
+bool UltimatumIgnoresArmor() {
+    using ultimatum;
+    return UltimatumHasOption(ULTIMATUM_OPTION_OVERWHELMINGMONSTERS);
+}
+
+bool UltimatumIgnoresResists() {
+    using ultimatum;
+    return UltimatumHasOption(ULTIMATUM_OPTION_PRECISEMONSTERS);
+}
+
+bool UltimatumBlocksFlaskCharges() {
+    using ultimatum;
+    return UltimatumHasOption(ULTIMATUM_OPTION_DROUGHT);
+}
+
+bool UltimatumHindersFlasks() {
+    using ultimatum;
+    return UltimatumHasOption(ULTIMATUM_OPTION_HINDERINGFLASKS);
+}
+
+bool UltimatumMonstersUnstoppable() {
+    using ultimatum;
+    return UltimatumHasOption(ULTIMATUM_OPTION_UNSTOPPABLETIDE);
+}
+
+bool UltimatumReflectsAilments() {
+    using ultimatum;
+    return UltimatumHasOption(ULTIMATUM_OPTION_TASTETHEPAIN);
+}
+
+bool UltimatumBuffsElites() {
+    using ultimatum;
+    return UltimatumHasOption(ULTIMATUM_OPTION_GLUTTONOUSTIDE);
+}
 
 // ULTIMATUM_OPTION_EXTRA_ELE_DAMAGE. Percent of a monster's hit gained as a random element, per
 // tier -- see DND_ULTIMATUM1_T1.
@@ -1102,7 +1334,31 @@ Script "DnD Ultimatum Apply Option" (int option, int tier) {
         break;
 
         case ULTIMATUM_OPTION_FIRESKULLS:
-            // tier raises the number of spirits and their speed
+            // tier raises how many spirits chase and how much fire each throws
+            ACS_NamedExecuteAlways("DnD Ultimatum Raging Dead Spawn", 0, tier);
+        break;
+
+        case ULTIMATUM_OPTION_BLISTERINGCOLD:
+            // tier raises how many pustules appear, how hard they burst and how fast
+            ACS_NamedExecuteAlways("DnD Ultimatum Pustule Spawn", 0, tier);
+        break;
+
+        // The rest place nothing in the map. The tier bump IS the effect -- each is read out
+        // of the accessors above by whatever code path owns it, on every hit or use.
+        case ULTIMATUM_OPTION_HINDERINGFLASKS:
+        case ULTIMATUM_OPTION_DROUGHT:
+        case ULTIMATUM_OPTION_ESCALATINGFRAGILITY:
+        case ULTIMATUM_OPTION_OCCASIONALIMPOTENCE:
+        case ULTIMATUM_OPTION_OVERWHELMINGMONSTERS:
+        case ULTIMATUM_OPTION_PRECISEMONSTERS:
+        case ULTIMATUM_OPTION_FEEBLEREACH:
+        case ULTIMATUM_OPTION_SIPHONINGMONSTERS:
+        case ULTIMATUM_OPTION_DIMINISHEDLETHALITY:
+        case ULTIMATUM_OPTION_UNSTOPPABLETIDE:
+        case ULTIMATUM_OPTION_FLEETINGLIFE:
+        case ULTIMATUM_OPTION_GLUTTONOUSTIDE:
+        case ULTIMATUM_OPTION_RAPIDEXHAUSTION:
+        case ULTIMATUM_OPTION_TASTETHEPAIN:
         break;
     }
 
@@ -1143,7 +1399,13 @@ Script "DnD Ultimatum Saw Spawn" (int tier) {
             if(chase == -1)
                 break;
 
-            SpawnSpotFacing(saw_actor, saw_spot_tid, DND_ULTIMATUM_TEMPTID);
+            Spawn(
+                saw_actor,
+                GetActorX(saw_spot_tid) + random(-24.0, 24.0),
+                GetActorY(saw_spot_tid) + random(-24.0, 24.0),
+                GetActorZ(saw_spot_tid) + random(-24.0, 24.0),
+                DND_ULTIMATUM_TEMPTID
+            );
             SetActorProperty(DND_ULTIMATUM_TEMPTID, APROP_ACCURACY, chase + P_TIDSTART);
             Thing_ChangeTID(DND_ULTIMATUM_TEMPTID, 0);
             Delay(const:5);
@@ -1186,7 +1448,13 @@ Script "DnD Ultimatum Storm Call Spawn" (int tier) {
             stormcall_spot_tid = random(TP_TID_STORMCALL_BEGIN, TP_TID_STORMCALL_END);
             --max_tries;
         } while(picked_spots[stormcall_spot_tid - TP_TID_STORMCALL_BEGIN] && max_tries);
-        SpawnSpotFacing(storm_actor, stormcall_spot_tid, DND_ULTIMATUM_STORMCALL_TID + i);
+        Spawn(
+            storm_actor, 
+            GetActorX(stormcall_spot_tid) + random(-16.0, 16.0),
+            GetActorY(stormcall_spot_tid) + random(-16.0, 16.0),
+            GetActorZ(stormcall_spot_tid),
+            DND_ULTIMATUM_STORMCALL_TID + i
+        );
         Delay(const:1);
     }
 
@@ -1198,6 +1466,133 @@ Script "DnD Ultimatum Storm Call Spawn" (int tier) {
 
     for(i = 0; i < spawn_count; ++i)
         SetActorState(DND_ULTIMATUM_STORMCALL_TID + i, "CriticalFinish");
+}
+
+Script "DnD Ultimatum Raging Dead Spawn" (int tier) {
+    using ultimatum;
+
+    auto curr_tally = GetCurrentUltimatumTally();
+
+    // the tier is already 1 based -- see the note on the miasma actor name
+    str spirit_actor = StrParam(s:"DnD_Ultimatum_RagingDead_Tier", d:tier);
+
+    // tier 4 is "an additional spirit" -- see DND_ULTIMATUM6_T4. The extra projectiles that
+    // tier also promises are the actor's own Missile state, not this.
+    int spawn_count = DND_ULTIMATUM_RAGINGDEAD_BASECOUNT;
+    if(tier >= 4)
+        ++spawn_count;
+
+    spawn_count = Min(spawn_count, TP_RAGINGDEAD_COUNT);
+
+    int picked[TP_RAGINGDEAD_COUNT];
+    int i, spot, max_tries;
+
+    for(i = 0; i < TP_RAGINGDEAD_COUNT; ++i)
+        picked[i] = 0;
+
+    // Placed once and never refilled: a spirit is unkillable and stays for the wave, so there
+    // is nothing to replace. No two share a starting spot.
+    for(i = 0; i < spawn_count; ++i) {
+        max_tries = 10;
+        do {
+            spot = random(0, TP_RAGINGDEAD_COUNT - 1);
+            --max_tries;
+        } while(picked[spot] && max_tries);
+
+        picked[spot] = 1;
+        SpawnSpotFacing(spirit_actor, TP_TID_RAGINGDEAD_BEGIN + spot, DND_ULTIMATUM_RAGINGDEAD_TID + i);
+        Delay(const:1);
+    }
+
+    do {
+        Delay(const:TICRATE);
+        curr_tally = GetCurrentUltimatumTally();
+    } while(!curr_tally.is_wave_complete);
+
+    // Their own Disappear jump reads this. Handed over rather than Thing_Remove so they fade
+    // out through the states the actor already has instead of blinking out.
+    for(i = 0; i < spawn_count; ++i)
+        GiveActorInventory(DND_ULTIMATUM_RAGINGDEAD_TID + i, "DnD_Boolean", 1);
+}
+
+Script "DnD Ultimatum Pustule Spawn" (int tier) {
+    using ultimatum;
+
+    auto curr_tally = GetCurrentUltimatumTally();
+
+    // the tier is already 1 based -- see the note on the miasma actor name
+    str pustule_actor = StrParam(s:"DnD_Ultimatum_Pustule_Tier", d:tier);
+
+    // tier 2 is "50% more pustules" -- see DND_ULTIMATUM7_T2. This is how many may be ALIVE at
+    // once, not a total: the loop refills as they pop. The damage half of that tier is the actor's
+    // own bigger A_Explode, and the speed half of tier 3 is its shorter timer.
+    int max_alive = DND_ULTIMATUM_PUSTULE_BASECOUNT;
+    if(tier >= 2)
+        max_alive = max_alive * 3 / 2;
+
+    // one pustule per spot, so the spots the map placed are the real ceiling
+    max_alive = Min(max_alive, TP_PUSTULE_COUNT);
+
+    // Spot i carries the actor at DND_ULTIMATUM_PUSTULE_TID + i while it is taken. Keyed by SPOT
+    // rather than a free list, so "never two in the same place" is the shape of the data itself
+    // and the tid to reap is implied by the index.
+    int occupied[TP_PUSTULE_COUNT];
+    int free_spots[TP_PUSTULE_COUNT];
+    int i, alive = 0, free_count, spot, spot_tid;
+
+    for(i = 0; i < TP_PUSTULE_COUNT; ++i)
+        occupied[i] = 0;
+
+    do {
+        // Reap first, so a spot freed this tick can be drawn again below. A pustule is gone once
+        // its burst states run out -- it stays counted through the burst, which is wanted: the
+        // explosion is still happening there.
+        for(i = 0; i < TP_PUSTULE_COUNT; ++i) {
+            if(occupied[i] && !ThingCount(T_NONE, DND_ULTIMATUM_PUSTULE_TID + i)) {
+                occupied[i] = 0;
+                --alive;
+            }
+        }
+
+        // At the cap nothing spawns -- the loop just waits for one to pop.
+        if(alive < max_alive) {
+            // drawn from the free spots only, rather than retried until one lands, so a nearly
+            // full arena still places instantly instead of burning tries
+            free_count = 0;
+            for(i = 0; i < TP_PUSTULE_COUNT; ++i) {
+                if(!occupied[i])
+                    free_spots[free_count++] = i;
+            }
+
+            if(free_count) {
+                spot = free_spots[random(0, free_count - 1)];
+                spot_tid = TP_TID_PUSTULE_BEGIN + spot;
+
+                // a spot the map never placed answers 0 here; the reap above clears it right back
+                Spawn(
+                    pustule_actor,
+                    GetActorX(spot_tid) + random(-16.0, 16.0),
+                    GetActorY(spot_tid) + random(-16.0, 16.0),
+                    GetActorZ(spot_tid),
+                    DND_ULTIMATUM_PUSTULE_TID + spot
+                );
+
+                occupied[spot] = 1;
+                ++alive;
+            }
+        }
+
+        Delay(random(TICRATE / 2, TICRATE * 5));
+
+        curr_tally = GetCurrentUltimatumTally();
+    } while(!curr_tally.is_wave_complete);
+
+    // whatever is still sitting there when the wave ends -- the pustule has no quiet exit state of
+    // its own, and leaving them would carry the hazard into the offer between rounds
+    for(i = 0; i < TP_PUSTULE_COUNT; ++i) {
+        if(occupied[i])
+            Thing_Remove(DND_ULTIMATUM_PUSTULE_TID + i);
+    }
 }
 
 Script "DnD Ultimatum Master Boolean" (void) CLIENTSIDE {

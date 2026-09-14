@@ -181,6 +181,7 @@ DND_WEPSOWNED							= "Weapons Owned";
 DND_PLAYERNOTPLAYING					= "Player isn't currently playing";
 
 DND_MAPDIFF		=	"Tier";	
+DND_TIER		=	"Tier";
 
 // database messages
 DND_DBERR1A		= "LOAD CHAR ERROR: Loading failed due to non-existent character! Character slot number should be between";

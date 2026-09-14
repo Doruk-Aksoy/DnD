@@ -523,6 +523,10 @@ int GetPetMonsterTraits(int monster_id, int segment) {
 }
 
 void DecideEliteTraits(int tid, int m_id, int count) {
+	// Ultimatum / Gluttonous Tide. Here rather than at the four call sites, which is also what
+	// makes it cover the magic ("tough") rolls as well as the elite ones.
+	count += UltimatumBuffsElites();
+
 	int tries = 0;
 	alias_table_T? elite_alias_table = EliteTraitData.alias_tables[MapEliteLevelToThresholdID(MonsterProperties[m_id].level)];
 

@@ -794,7 +794,7 @@ int GetPlayerAoEIncrease(int pnum, int src) {
 // The factor is taken first and multiplied in instead of squaring the radius: FixedMul(r, r)
 // overflows past 181.0 and several of these are larger than that.
 int ScalePlayerAoERadius(int pnum, int r, int src) {
-	int aoe = GetPlayerAoEIncrease(pnum, src);
+	int aoe = ApplyUltimatumFeebleReach(GetPlayerAoEIncrease(pnum, src));
 	if(!aoe)
 		return r;
 

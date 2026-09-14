@@ -4400,7 +4400,7 @@ Script "DnD Dash Crash Course" (void) {
 				continue;
 
 			// reuses the stun Cranium Bash drives, so there is one stun in the game rather than two
-			if(!CheckActorInventory(m_tid, "StunDurationCounter")) {
+			if(CanStunMonster(m_tid)) {
 				SetActorInventory(m_tid, "StunDurationCounter", stun);
 				SetActorState(m_tid, "Stunned");
 				ACS_NamedExecuteAlways("DnD Monster Stun Ticker", 0, m_tid);
@@ -4684,6 +4684,11 @@ Script "DnD Periodic Regeneration" ENTER {
 
 				amt = amt * (DND_REGEN_PERCENT + regen_amt) / 100;
 				amt = amt * (100 + PlayerModData[pnum].vals[PSTAT_REGENRATE]) / 100;
+
+				// Ultimatum / Fleeting Life, the life half of it
+				int life_less = GetUltimatumRecoveryLess();
+				if(life_less)
+					amt = amt * (100 - life_less) / 100;
 
 				regen_amt = pbuffs[pnum].buff_net_values[BUFF_HEALTHREGEN].multiplicative;
 				if(regen_amt != 1.0) {
@@ -5711,6 +5716,9 @@ Script "DnD Explosion Radius Retrieve" (int r_base, int noSecondExp, int src) {
 	int aoe = GetPlayerAoEIncrease(pnum, src);
 	if(src == DND_AOESRC_WEAPON)
 		aoe += GetPlayerArtilleryAoEIncrease(pnum, owner);
+
+	// Ultimatum / Feeble Reach. After artillery, so that term is reduced as well.
+	aoe = ApplyUltimatumFeebleReach(aoe);
 
 	r_base = sqrt_z(r_base * r_base * (100 + aoe) / 100);
 

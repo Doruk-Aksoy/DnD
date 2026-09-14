@@ -2432,7 +2432,7 @@ Actor OmniLightningBlastFX {
 	+CLIENTSIDEONLY
 	States {
 		Spawn:
-			LFX2 FFFFF 1 Bright A_FadeIn(0.2)
+			LFX2 FFFFFF 1 Bright A_FadeIn(0.2)
 			LFX2 GHIJ 2 Bright A_FadeOut(0.1875)
 		Stop
 	}

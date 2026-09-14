@@ -141,6 +141,16 @@ int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int
 		spd = FixedMul(spd, g);
 	}
 
+	// Ultimatum / Feeble Reach. Its own block because the one above only runs when the player
+	// HAS projectile speed, and this has to apply either way.
+	if(isPlayer(owner) && (g = GetUltimatumFeebleReachLess())) {
+		g = ((100 - g) << 16) / 100;
+		velocity.x = FixedMul(velocity.x, g);
+		velocity.y = FixedMul(velocity.y, g);
+		velocity.z = FixedMul(velocity.z, g);
+		spd = FixedMul(spd, g);
+	}
+
 	SetActorVelocity(TEMPORARY_ATTACK_TID, velocity.x, velocity.y, velocity.z, 0, 0);
 	
 	// remove NOGRAVITY

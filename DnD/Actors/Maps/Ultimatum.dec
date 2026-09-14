@@ -17,22 +17,29 @@ Actor DnD_Ultimatum_Saw_Tier1 {
     Height 24
     Radius 12
     Scale 1.666
+    Renderstyle Translucent
+    Alpha 0.01
     +RIPPER
     +DONTREFLECT
     States {
         Spawn:
-            ULT0 A 9
-            ULT0 B 8
-            ULT0 C 7
-            ULT0 D 6
+            ULT0 A 3 NoDelay A_FadeIn(0.0875)
+            TNT1 A 0 A_PlaySound("Ultimatum/Saw/Fadein")
+            ULT0 AA 3 A_FadeIn(0.0875)
+            ULT0 BBBB 2 A_FadeIn(0.0875)
+            ULT0 CCC 2 A_FadeIn(0.0875)
+            ULT0 C 1 A_FadeIn(0.0875)
+            ULT0 DD 3 A_FadeIn(0.0875)
             ULT0 E 5
             ULT0 F 4
             ULT0 G 3
             ULT0 H 2
+            ULT0 ABCD 2
+            TNT1 A 0 A_PlaySound("Ultimatum/Saw/Fly")
             TNT1 A 0 ACS_NamedExecuteAlways("DnD Sawblade Track", 0, 36)
         Goto SpawnLoop
         SpawnLoop:
-            ULT0 ABCDEFGH 2
+            ULT0 EFGHABCD 2
         Loop
         Death:
             TNT1 A 1
@@ -47,15 +54,20 @@ Actor DnD_Ultimatum_Saw_Tier2 : DnD_Ultimatum_Saw_Tier1 {
 Actor DnD_Ultimatum_Saw_Tier3 : DnD_Ultimatum_Saw_Tier2 {
     States {
         Spawn:
-            ULT0 A 9
-            ULT0 B 8
-            ULT0 C 7
-            ULT0 D 6
+            ULT0 A 3 NoDelay A_FadeIn(0.0875)
+            TNT1 A 0 A_PlaySound("Ultimatum/Saw/Fadein")
+            ULT0 AA 3 A_FadeIn(0.0875)
+            ULT0 BBBB 2 A_FadeIn(0.0875)
+            ULT0 CCC 2 A_FadeIn(0.0875)
+            ULT0 C 1 A_FadeIn(0.0875)
+            ULT0 DD 3 A_FadeIn(0.0875)
             ULT0 E 5
             ULT0 F 4
             ULT0 G 3
             ULT0 H 2
-            TNT1 A 0 ACS_NamedExecuteAlways("DnD Sawblade Track", 0, 45)
+            ULT0 ABCD 2
+            TNT1 A 0 A_PlaySound("Ultimatum/Saw/Fly")
+            TNT1 A 0 ACS_NamedExecuteAlways("DnD Sawblade Track", 0, 36)
         Goto SpawnLoop
     }
 }
@@ -69,7 +81,7 @@ Actor DnD_Ultimatum_Miasma_Tier1 {
     Radius 4
     Height 8
     Speed 4
-    Scale 0.75
+    Scale 0.01
     DamageType "Poison"
     Stamina 32896 // poison + LEVELHAZARD, see DND_DAMAGETYPEFLAG_LEVELHAZARD
     Renderstyle Translucent
@@ -80,12 +92,17 @@ Actor DnD_Ultimatum_Miasma_Tier1 {
     -COUNTKILL
     +LOOKALLAROUND
     +NOCLIP
+    +NOGRAVITY
     States {
         Spawn:
             TNT1 A 0 NoDelay A_SetUserVar("user_spd", 4)
+            TNT1 A 0 A_PlaySound("Ultimatum/Miasma/Start")
             TNT1 A 1 A_SetUserVar("user_r", 128)
         Goto SpawnWait
         SpawnWait:
+            DB58 OOOPPPQQQRRRSSSTTTUUUVVVWWWXXXYYYZZZ 1 A_SetScale(scalex + 0.025, scaley + 0.025)
+            TNT1 A 0 A_PlaySound("Ultimatum/Miasma/Loop", CHAN_ITEM, 1.0, true)
+        SpawnLook:
             TNT1 A 5 A_Look
         Loop
         See:
@@ -94,58 +111,59 @@ Actor DnD_Ultimatum_Miasma_Tier1 {
             // is the player this cloud just acquired -- and P_RadiusAttack skips the source
             // unless XF_HURTSOURCE, so it dealt nothing at all
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
-            DB58 B 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), -user_spd * sin(pitch), CVF_REPLACE)
+            DB58 B 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
             DB58 C 3 A_FaceTarget(ang, 0)
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
-            DB58 D 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), -user_spd * sin(pitch), CVF_REPLACE)
+            DB58 D 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
             DB58 E 3 A_FaceTarget(ang, 0)
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
-            DB58 F 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), -user_spd * sin(pitch), CVF_REPLACE)
+            DB58 F 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
             DB58 G 3 A_FaceTarget(ang, 0)
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
-            DB58 H 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), -user_spd * sin(pitch), CVF_REPLACE)
+            DB58 H 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
             DB58 I 3 A_FaceTarget(ang, 0)
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
-            DB58 J 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), -user_spd * sin(pitch), CVF_REPLACE)
+            DB58 J 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
             DB58 K 3 A_FaceTarget(ang, 0)
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
-            DB58 L 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), -user_spd * sin(pitch), CVF_REPLACE)
+            DB58 L 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
             DB58 M 3 A_FaceTarget(ang, 0)
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
-            DB58 N 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), -user_spd * sin(pitch), CVF_REPLACE)
+            DB58 N 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
             DB58 O 3 A_FaceTarget(ang, 0)
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
-            DB58 P 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), -user_spd * sin(pitch), CVF_REPLACE)
+            DB58 P 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
             DB58 Q 3 A_FaceTarget(ang, 0)
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
-            DB58 R 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), -user_spd * sin(pitch), CVF_REPLACE)
+            DB58 R 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
             DB58 S 3 A_FaceTarget(ang, 0)
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
-            DB58 T 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), -user_spd * sin(pitch), CVF_REPLACE)
+            DB58 T 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
             DB58 U 3 A_FaceTarget(ang, 0)
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
-            DB58 V 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), -user_spd * sin(pitch), CVF_REPLACE)
+            DB58 V 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
             DB58 W 3 A_FaceTarget(ang, 0)
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
-            DB58 X 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), -user_spd * sin(pitch), CVF_REPLACE)
+            DB58 X 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
             DB58 Y 3 A_FaceTarget(ang, 0)
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
-            DB58 Z 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), -user_spd * sin(pitch), CVF_REPLACE)
+            DB58 Z 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
         Loop
         Vanish:
+            "####" "#" 0 A_StopSound(CHAN_ITEM)
             "####" "########" 1 A_FadeOut(0.1) 
         Stop
     }
@@ -155,6 +173,7 @@ Actor DnD_Ultimatum_Miasma_Tier2 : DnD_Ultimatum_Miasma_Tier1 {
     States {
         Spawn:
             TNT1 A 0 NoDelay A_SetUserVar("user_spd", 5)
+            TNT1 A 0 A_PlaySound("Ultimatum/Miasma/Start")
             TNT1 A 0 A_SetUserVar("user_r", 128) // redeclaring Spawn drops Tier1's, and 0 radius explodes on nothing
         Goto SpawnWait
     }
@@ -165,6 +184,7 @@ Actor DnD_Ultimatum_Miasma_Tier3 : DnD_Ultimatum_Miasma_Tier2 {
     States {
         Spawn:
             TNT1 A 0 NoDelay A_SetUserVar("user_spd", 6)
+            TNT1 A 0 A_PlaySound("Ultimatum/Miasma/Start")
             TNT1 A 0 A_SetUserVar("user_r", 160)
         Goto SpawnWait
     }
@@ -175,6 +195,7 @@ Actor DnD_Ultimatum_Miasma_Tier4 : DnD_Ultimatum_Miasma_Tier3 {
     States {
         Spawn:
             TNT1 A 0 NoDelay A_SetUserVar("user_spd", 6)
+            TNT1 A 0 A_PlaySound("Ultimatum/Miasma/Start")
             TNT1 A 0 A_SetUserVar("user_r", 212)
         Goto SpawnWait
     }
@@ -215,7 +236,7 @@ Actor DnD_Ultimatum_Storrmcall_Particle {
     }
 }
 
-Actor DnD_Ultimatum_StormcallExplosion {
+Actor DnD_Ultimatum_Stormcall_Explosion {
     Alpha 0.85
     Renderstyle Add
     +MISSILE
@@ -223,14 +244,31 @@ Actor DnD_Ultimatum_StormcallExplosion {
     +NOINTERACTION
     States {
         Spawn:
-            TNT1 A 1
-            TNT1 A 0 A_PlaySound("MagicExplosion")
+            TNT1 A 2
+            TNT1 A 2 A_SpawnItemEx("DnD_Ultimatum_Stormcall_Lightning")
+            TNT1 A 0 A_PlaySound("Ultimatum/StormCall/Explode")
             TNT1 A 0 A_Explode(80, 96, XF_NOTMISSILE, 0, 48)
 			D2FX GHI 4 Bright
 			D2FX JK 3 Bright
 			D2FX L 2 Bright
         Stop
     }
+}
+
+Actor DnD_Ultimatum_Stormcall_Lightning {
+	Renderstyle Add
+	Alpha 0.01
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+            TNT1 A 0
+			LFX2 FFFF 1 Bright A_FadeIn(0.2)
+            TNT1 A 0 A_PlaySound("Ultimatum/Stormcall/Strike")
+            LFX2 F 1 Bright A_FadeIn(0.2)
+			LFX2 GHIJ 2 Bright A_FadeOut(0.1875)
+		Stop
+	}
 }
 
 Actor DnD_Ultimatum_Stormcall_Tier1 {
@@ -269,7 +307,7 @@ Actor DnD_Ultimatum_Stormcall_Tier1 {
         Critical:
             TNT1 A 0 A_JumpIf(user_expcount <= 0, "CriticalFinish")
             TNT1 A 0 A_SetUserVar("user_expcount", user_expcount - 1)
-            AURA I 4 A_SpawnItemEx("DnD_Ultimatum_StormcallExplosion", 8 * frandom(-r_prox / 8, r_prox / 8), 8 * frandom(-r_prox / 8, r_prox / 8), frandom(2, 8))
+            AURA I 4 A_SpawnItemEx("DnD_Ultimatum_Stormcall_Explosion", 8 * frandom(-r_prox / 8, r_prox / 8), 8 * frandom(-r_prox / 8, r_prox / 8), frandom(2, 8))
         Loop
         CriticalFinish:
             TNT1 A 0 ACS_NamedExecuteWithResult("DnD Boolean Sync")
@@ -302,10 +340,154 @@ Actor DnD_Ultimatum_Stormcall_Tier3 : DnD_Ultimatum_Stormcall_Tier2 {
         CriticalLoop:
             TNT1 A 0 A_JumpIf(user_expcount <= 0, "CriticalFinish")
             TNT1 A 0 A_SetUserVar("user_expcount", user_expcount - 1)
-            TNT1 A 0 A_SpawnItemEx("DnD_Ultimatum_StormcallExplosion", 8 * frandom(-r_prox / 8, r_prox / 8), 8 * frandom(-r_prox / 8, r_prox / 8), frandom(2, 8))
-            AURA I 4 A_SpawnItemEx("DnD_Ultimatum_StormcallExplosion", 8 * frandom(-r_prox / 8, r_prox / 8), 8 * frandom(-r_prox / 8, r_prox / 8), frandom(2, 8))
+            TNT1 A 0 A_SpawnItemEx("DnD_Ultimatum_Stormcall_Explosion", 8 * frandom(-r_prox / 8, r_prox / 8), 8 * frandom(-r_prox / 8, r_prox / 8), frandom(2, 8))
+            AURA I 4 A_SpawnItemEx("DnD_Ultimatum_Stormcall_Explosion", 8 * frandom(-r_prox / 8, r_prox / 8), 8 * frandom(-r_prox / 8, r_prox / 8), frandom(2, 8))
         Loop
     }
 }
 
 Actor DnD_Ultimatum_Stormcall_Tier4 : DnD_Ultimatum_Stormcall_Tier3 { }
+
+Actor DnD_RagingDead_Cooldown : PowerProtection {
+    damagefactor "normal", 1.0
+    powerup.duration -4
+}
+
+Actor DnD_Ultimatum_RagingDead_Tier1 {
+    MONSTER
+    Height 56
+    Radius 20
+    Speed 6
+    Stamina 33824
+    Obituary "%o was scorched by a Raging Spirit."
+    -SOLID
+    -SHOOTABLE
+    -COUNTKILL
+    +DONTREFLECT
+    +DONTBLAST
+    +LOOKALLAROUND
+    +NOGRAVITY
+    +FLOAT
+
+    States {
+        Spawn:
+            ULT1 AABB 4 Bright A_Look
+        Loop
+        See:
+            TNT1 A 0 A_JumpIfInventory("DnD_RagingDead_Cooldown", 1, "NoAttack")
+            TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Disappear")
+            ULT1 AABBCCDD 2 Bright A_Chase
+        Loop
+        NoAttack:
+            TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Disappear")
+            ULT1 AABBCCDD 2 Bright A_Chase("", "")
+        Goto See
+        Missile:
+            TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Disappear")
+            ULT1 ST 6 Bright A_FaceTarget
+            ULT1 U 6 Bright A_CustomMissile("Ultimatum_RagingDeadFire", 44)
+        Goto See
+        Death:
+        Disappear:
+            ULT1 A 0 A_NoGravity
+            ULT1 I 6 Bright
+            ULT1 J 5 Bright
+            ULT1 KLMNOPQR 4 Bright
+        Stop
+    }
+}
+
+Actor DnD_Ultimatum_RagingDead_Tier2 : DnD_Ultimatum_RagingDead_Tier1 {
+    States {
+        Missile:
+            TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Disappear")
+            ULT1 ST 6 Bright A_FaceTarget
+            TNT1 A 0 A_CustomMissile("Ultimatum_RagingDeadFire", 44, 0, 12, CMF_AIMOFFSET)
+            ULT1 U 6 Bright A_CustomMissile("Ultimatum_RagingDeadFire", 44)
+        Goto See
+    }
+}
+
+Actor DnD_Ultimatum_RagingDead_Tier3 : DnD_Ultimatum_RagingDead_Tier2 { }
+
+Actor DnD_Ultimatum_RagingDead_Tier4 : DnD_Ultimatum_RagingDead_Tier3 {
+    States {
+        Missile:
+            TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Disappear")
+            ULT1 ST 6 Bright A_FaceTarget
+            TNT1 A 0 A_CustomMissile("Ultimatum_RagingDeadFire", 44, 0, 12, CMF_AIMOFFSET)
+            TNT1 A 0 A_CustomMissile("Ultimatum_RagingDeadFire", 44, 0, -12, CMF_AIMOFFSET)
+            TNT1 A 0 A_CustomMissile("Ultimatum_RagingDeadFire", 44, 0, 24, CMF_AIMOFFSET)
+            ULT1 U 6 Bright A_CustomMissile("Ultimatum_RagingDeadFire", 44)
+        Goto See
+    }
+}
+
+Actor DnD_Ultimatum_Pustule_Tier1 {
+	MONSTER
+    -COUNTKILL
+	Height 8
+	Radius 4
+	DamageType "Ice"
+	Stamina 33856
+    Renderstyle Translucent
+    Alpha 1.0
+    +NOINTERACTION
+    +LOOKALLAROUND
+    +NOGRAVITY
+    var int user_exp_timer;
+	Deathsound "MoonSatyr/MeteorExplode"
+	Scale 2.0
+	Speed 0
+	States {
+        Spawn:
+            TNT1 A 0 NoDelay A_SetUserVar("user_exp_timer", 20)
+        Goto SpawnLoop
+        SpawnLoop:
+            MSX0 AABBCC 2 A_LookEx(0, 0, 160)
+            "####" "#" 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Disappear")
+        Loop
+        See:
+            "####" "#" 0 A_JumpIf(user_exp_timer <= 0, "Burst")
+            "####" "#" 0 A_SetUserVar("user_exp_timer", user_exp_timer - 1)
+            MSX0 AAABBBCCC 1 A_ChangeVelocity(frandom(-1, 1), frandom(-1, 1), frandom(-1, 1), CVF_REPLACE)
+        Loop
+        Burst:
+            "####" "################" 1 A_SetScale(scalex * 1.015, scaley * 1.015)
+            TNT1 A 0 A_Explode(96, 160, XF_NOTMISSILE, 0, 72)
+        Goto BurstFX
+        BurstFX:
+			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 AAAAAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 360))
+			TNT1 AAAAAAAAAAAAAAAA 0 A_SpawnItemEx("BlueParticleNoGravityFastVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-6,6),Random(-6,6),Random(-6,6),Random(-20,20),128)
+			TNT1 A 0 A_SetTranslucent(1,1)
+			MSX0 DEFGHI 2 Bright
+		Stop
+        Disappear:
+            MSX0 DDEEFFGGHHII 1 A_FadeOut(0.0875)
+        Stop
+	}
+}
+
+Actor DnD_Ultimatum_Pustule_Tier2 : DnD_Ultimatum_Pustule_Tier1 {
+    States {
+        Burst:
+            "####" "################" 1 A_SetScale(scalex * 1.015, scaley * 1.015)
+            TNT1 A 0 A_Explode(128, 160, XF_NOTMISSILE, 0, 72)
+        Goto BurstFX
+    }
+}
+
+Actor DnD_Ultimatum_Pustule_Tier3 : DnD_Ultimatum_Pustule_Tier2 {
+    States {
+        Spawn:
+            TNT1 A 0 NoDelay A_SetUserVar("user_exp_timer", 15)
+        Goto SpawnLoop
+        Burst:
+            "####" "############" 1 A_SetScale(scalex * 1.354, scaley * 1.354)
+            TNT1 A 0 A_Explode(128, 160, XF_NOTMISSILE, 0, 72)
+        Goto BurstFX
+    }
+}
+
+Actor DnD_Ultimatum_Pustule_Tier4 : DnD_Ultimatum_Pustule_Tier3 { }

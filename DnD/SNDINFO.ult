@@ -1,0 +1,39 @@
+$pitchshiftrange 2
+
+Ultimatum/Saw/FadeIn1           ULTSAWF1
+Ultimatum/Saw/FadeIn2           ULTSAWF2
+Ultimatum/Saw/FadeIn3           ULTSAWF3
+Ultimatum/Saw/FadeIn4           ULTSAWF4
+$random Ultimatum/Saw/FadeIn { Ultimatum/Saw/FadeIn1 Ultimatum/Saw/FadeIn2 Ultimatum/Saw/FadeIn3 Ultimatum/Saw/FadeIn4 }
+
+Ultimatum/Saw/Fly1              ULTSAWS1
+Ultimatum/Saw/Fly2              ULTSAWS2
+Ultimatum/Saw/Fly3              ULTSAWS3
+Ultimatum/Saw/Fly4              ULTSAWS4
+$random Ultimatum/Saw/Fly { Ultimatum/Saw/Fly1 Ultimatum/Saw/Fly2 Ultimatum/Saw/Fly3 Ultimatum/Saw/Fly4 }
+
+Ultimatum/Miasma/Start1         ULTMIAS1
+Ultimatum/Miasma/Start2         ULTMIAS2
+Ultimatum/Miasma/Start3         ULTMIAS3
+Ultimatum/Miasma/Start4         ULTMIAS4
+$random Ultimatum/Miasma/Start { Ultimatum/Miasma/Start1 Ultimatum/Miasma/Start2 Ultimatum/Miasma/Start3 Ultimatum/Miasma/Start4 }
+
+Ultimatum/Miasma/Loop1          ULTMIAL1
+Ultimatum/Miasma/Loop2          ULTMIAL2
+$random Ultimatum/Miasma/Loop { Ultimatum/Miasma/Loop1 Ultimatum/Miasma/Loop2 }
+
+Ultimatum/StormCall/Explode1    ULTLIGS1
+Ultimatum/StormCall/Explode2    ULTLIGS2
+Ultimatum/StormCall/Explode3    ULTLIGS3
+Ultimatum/StormCall/Explode4    ULTLIGS4
+Ultimatum/StormCall/Explode5    ULTLIGS5
+Ultimatum/StormCall/Explode6    ULTLIGS6
+$random Ultimatum/StormCall/Explode { Ultimatum/StormCall/Explode1 Ultimatum/StormCall/Explode2 Ultimatum/StormCall/Explode3 Ultimatum/StormCall/Explode4 Ultimatum/StormCall/Explode5 Ultimatum/StormCall/Explode6 }
+
+Ultimatum/StormCall/Strike1    ULTLIGX1
+Ultimatum/StormCall/Strike2    ULTLIGX2
+Ultimatum/StormCall/Strike3    ULTLIGX3
+Ultimatum/StormCall/Strike4    ULTLIGX4
+Ultimatum/StormCall/Strike5    ULTLIGX5
+Ultimatum/StormCall/Strike6    ULTLIGX6
+$random Ultimatum/StormCall/Strike { Ultimatum/StormCall/Strike1 Ultimatum/StormCall/Strike2 Ultimatum/StormCall/Strike3 Ultimatum/StormCall/Strike4 Ultimatum/StormCall/Strike5 Ultimatum/StormCall/Strike6 }

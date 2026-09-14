@@ -888,7 +888,7 @@ void HandleChestDrops(int ctype) {
 
 	// 25% chance to spawn a charm that has boosted synergy chance
 	if(RunDefaultDropChance(pnum, 0.25))
-		SpawnCharmForAll(0, (ctype + 1) * DND_CHARM_SPECIALTYBOOST_BASE);
+		SpawnCharmForAll(0, DND_CHARM_SPECIALTYBOOST_ANCHOR + (ctype + 1) * DND_CHARM_SPECIALTYBOOST_BASE);
 	
 	// common to all chests, an extra orb can drop with 33% chance and another with 20%
 	if(RunDefaultDropChance(pnum, 0.33))

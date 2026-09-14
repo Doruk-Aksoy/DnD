@@ -491,6 +491,11 @@ int GetFlaskEffectModifiers(int pnum, inventory_T? flask) {
 void HandleCommonFlaskActivationEffects(int pnum, inventory_T? flask) {
 	int tid = pnum + P_TIDSTART;
 
+	// Ultimatum / Hindering Flasks. Both use branches funnel through here, so this is the one
+	// place a drink can be charged for.
+	if(UltimatumHindersFlasks())
+		HandlePlayerBuffAssignment(pnum, 0, BTI_ULTIMATUM_FLASKSLOW);
+
 	// Cunning / Potent Salve. RemoveAilments is the existing catch-all the DoT paths already honour,
 	// so "a random ailment" is served by clearing whatever happens to be running rather than by
 	// picking one -- the player has at most a handful and picking would need them enumerated first.
@@ -748,6 +753,11 @@ Script "DnD Flask Item Pickup" (int sp) {
 
 // Depending on monster killed player can gain charges, and if they have more charges gained mods or such they can gain even more
 void HandleFlaskChargeGain(int pnum, int m_id) {
+	// Ultimatum / Drought. This is the only monster driven charge source, so the option is
+	// the whole of it -- orbs and the map still give charges.
+	if(UltimatumBlocksFlaskCharges())
+		return;
+
 	int base = 1;
 	if(MonsterProperties[m_id].flags & DND_MONFLAG_ISELITE)
 		base = 5;

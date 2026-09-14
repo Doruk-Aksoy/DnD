@@ -71,6 +71,8 @@ enum {
     BTI_GOLGOTH_SLOW,
     BTI_GOLGOTH_WEAKEN,
 
+    BTI_ULTIMATUM_FLASKSLOW,
+
     // KEEP LAST -- sizes the bt_index presence mask on the ACS side.
     BTI_MAX
 };

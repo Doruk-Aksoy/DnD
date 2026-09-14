@@ -1753,7 +1753,37 @@ void HandleColdImmunityPerk(int pnum) {
 		ACS_NamedExecuteAlways("DnD Cold Immunity Ticker", 0, pnum);
 }
 
+// Ultimatum / Taste the Pain -- see DND_ULTIMATUM21. An ailment the player just put on a
+// monster is mirrored back through the same DoT path a monster hit uses. A share rather than
+// the whole thing: the monster side scales with the player's own damage, which is unbounded.
+#define DND_ULTIMATUM_REFLECTAIL_PCT 25
+#define DND_ULTIMATUM_REFLECTAIL_TIME 5
+
+void ReflectUltimatumAilment(int pnum, int dmg, int dmg_type) {
+	if(dmg <= 0 || !UltimatumReflectsAilments())
+		return;
+
+	// One inflictor for every type: the dedupe key is (owner, inflictor, type), so a volley
+	// refreshes one dot per type rather than filling the table.
+	RegisterDoTDamage(
+		Max(1, dmg * DND_ULTIMATUM_REFLECTAIL_PCT / 100),
+		DND_ULTIMATUM_REFLECTAIL_TIME,
+		dmg_type | DND_DAMAGETYPEFLAG_DOT,
+		pnum + P_TIDSTART,
+		"DnD_UltimatumReflect"
+	);
+}
+
+// The "already stunned" test every stun site shared, plus Ultimatum / Unstoppable Tide.
+bool CanStunMonster(int victim) {
+	return !UltimatumMonstersUnstoppable() && !CheckActorInventory(victim, "StunDurationCounter");
+}
+
 void HandleChillEffects(int pnum, int victim) {
+	// Ultimatum / Unstoppable Tide. Chill IS the monster slow, and freeze hangs off it below.
+	if(UltimatumMonstersUnstoppable())
+		return;
+
 	// not ailment immune
 	if(CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_FROSTBLOOD)) {
 		// check health thresholds --- get missing health
@@ -1878,7 +1908,7 @@ void HandleMeleeSubTypeEffects(int pnum, int victim, int wepid) {
 	// all this does is fill the counter and push the monster into it.
 	if(IsBluntWeapon(wepid)) {
 		temp = PlayerModData[pnum].vals[PSTAT_STUNCHANCE_BLUNT];
-		if(temp && random(1, 100) <= temp && !CheckActorInventory(victim, "StunDurationCounter")) {
+		if(temp && random(1, 100) <= temp && CanStunMonster(victim)) {
 			SetActorInventory(victim, "StunDurationCounter", DND_CRANIUMBASH_STUNTICS);
 			SetActorState(victim, "Stunned");
 			ACS_NamedExecuteAlways("DnD Monster Stun Ticker", 0, victim);
@@ -1953,7 +1983,7 @@ void HandleOverloadEffects(int pnum, int victim) {
 			// roll needs no bookkeeping of its own. Same three-step stun as Cranium Bash, and it
 			// defers to a stun already running rather than restarting one.
 			temp = PlayerModData[pnum].vals[PSTAT_OVERLOAD_STUNCHANCE];
-			if(temp && random(1, 100) <= temp && !CheckActorInventory(victim, "StunDurationCounter")) {
+			if(temp && random(1, 100) <= temp && CanStunMonster(victim)) {
 				SetActorInventory(victim, "StunDurationCounter", PlayerModData[pnum].vals[PSTAT_OVERLOAD_STUNTICS]);
 				SetActorState(victim, "Stunned");
 				ACS_NamedExecuteAlways("DnD Monster Stun Ticker", 0, victim);
@@ -2313,6 +2343,11 @@ void HandleTargetPicking(int montid) {
 // This is strictly for player doing damage to other monsters or shootables!
 // All damage factors here are applied in the "more" method, ie. multiplicative
 int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid, int flags, int ox, int oy, int oz, int actor_flags, bool wep_neg = false, bool oneTimeRipperHack = false) {
+	// Ultimatum / Occasional Impotence. Every point of player damage passes through here, so the
+	// dead window is one test. Read off the level timer, so nothing has to be synced for it.
+	if(IsUltimatumImpotenceActive())
+		return 0;
+
 	str s_damagetype = DamageTypeList[damage_type];
 	bool forced_full = false;
 	bool no_ignite_stack = flags & DND_DAMAGEFLAG_NOIGNITESTACK;
@@ -3279,6 +3314,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 
 		if(can_ail && ((tic_flags & DND_DAMAGETICFLAG_FIRE) || (tic_flags & DND_DAMAGETICFLAG_ADDEDIGNITE))) // should be able to ign if it has addedignite flag even if damagetype isnt fire!
 			HandleIgniteEffects(pnum, victim_tid, wepid, tic_flags, GetPlayerIgniteAddedDmg(pnum, wepid, GetIgniteScaleSource(pnum, victim_data, tic_flags)));
+			ReflectUltimatumAilment(pnum, GetTicElementDamage(pnum, victim_data, DND_TICELEM_FIRE), DND_DAMAGETYPEFLAG_FIRE);
 
 		// The Halo widens this further than the incursion mod does. That one opens ice, fire and
 		// poison and pays for it with reduced effect and no chaining; this one opens EVERY type and
@@ -3286,11 +3322,23 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 		if(can_ail && ((tic_flags & DND_DAMAGETICFLAG_LIGHTNING) || HasPlayerFlag(pnum, PFLAG_OVERLOAD_ANYELEMENT) || (PlayerModData[pnum].vals[PSTAT_INC_ALLOVERLOAD] && (tic_flags & (DND_DAMAGETICFLAG_ICE | DND_DAMAGETICFLAG_FIRE | DND_DAMAGETICFLAG_POISON)))))
 			HandleOverloadEffects(pnum, victim_tid);
 
+		// Taste the Pain, overload half. Not a DoT, so it takes the same route the player side
+		// takes rather than ReflectUltimatumAilment.
+		if(can_ail && (tic_flags & DND_DAMAGETICFLAG_LIGHTNING) && UltimatumReflectsAilments()) {
+			SetActorInventory(pnum + P_TIDSTART, "DnD_OverloadTimer", GetMonsterOverloadTime(-1, pnum));
+			ACS_NamedExecuteWithResult("DnD Give Buff", DND_DEBUFF_OVERLOAD, DEBUFF_F_PLAYERISACTIVATOR | DEBUFF_F_OWNERISTARGET);
+		}
+
 		if(can_ail && (tic_flags & DND_DAMAGETICFLAG_PHYSICAL) && !(tic_flags & DND_DAMAGETICFLAG_DOT))
 			HandleBleedEffects(pnum, victim_tid, wepid, GetTicElementDamage(pnum, victim_data, DND_TICELEM_PHYSICAL));
 			HandleMeleeSubTypeEffects(pnum, victim_tid, wepid);
 			HandleFlaskHitEffects(pnum, victim_tid, PlayerModData[pnum].vals[PSTAT_FLASK_VULNTIME]);
 			HandleAutoResistShred(pnum, victim_tid, wepid);
+
+		// NOTE: the three calls above are NOT inside the bleed if -- it has no braces. Left as
+		// found; this one is its own statement so the reflection is actually conditional.
+		if(can_ail && (tic_flags & DND_DAMAGETICFLAG_PHYSICAL) && !(tic_flags & DND_DAMAGETICFLAG_DOT))
+			ReflectUltimatumAilment(pnum, GetTicElementDamage(pnum, victim_data, DND_TICELEM_PHYSICAL), DND_DAMAGETYPEFLAG_PHYSICAL | DND_DAMAGETYPEFLAG_ISBLEED);
 
 		if(can_ail && (tic_flags & (DND_DAMAGETICFLAG_POISON | DND_DAMAGETICFLAG_INFLICTPOISON)) && !(tic_flags & DND_DAMAGETICFLAG_NOPOISONSTACK) && CheckAilmentImmunity(pnum, victim_data, DND_TOXICBLOOD)) {
 			// poison damage deals 10% of its damage per stack over 3 seconds
@@ -3312,6 +3360,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 			int pstack_extra = GainPoisonStacks(pnum, victim_tid);
 
 			ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim_tid, ox, wepid, oy);
+			ReflectUltimatumAilment(pnum, ox, DND_DAMAGETYPEFLAG_POISON);
 
 			// Every stack the shared pool granted on top of the usual one owes its own cache entry,
 			// or the lift would raise the counter and deal nothing. Never entered without the helm.
@@ -4675,6 +4724,12 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	if(temp)
 		mult = CombineFactors(mult, (temp << 16) / 100);
 
+	// Ultimatum / Escalating Fragility. "increased", so it joins the ADDITIVE pool -- it is one
+	// term and multiplying it would compound with every other less-multiplier on the hit.
+	temp = GetUltimatumFragilityPercent();
+	if(temp)
+		add += (temp << 16) / 100;
+
 	// Elusive's avoidance. Folded into the same dodge the perk-side avoidance uses, and scaled by how
 	// much of the effect is left -- that decay is the whole character of Elusive.
 	// Placed with the damage-taken block rather than in GetDodgeChance because the scaling needs the
@@ -4704,6 +4759,12 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 
 	if(m_id != -1 && HasMonsterTrait(m_id, DND_PENETRATOR))
 		res_bonus += DND_PENETRATOR_PIERCE;
+
+	// Ultimatum / Raging Dead tier 3. Same field and sign as the trait above -- this one is
+	// carried by the HIT rather than by a monster, which is what lets a level hazard have it.
+	if((dmg_data & DND_DAMAGETYPEFLAG_FIRE) && (dmg_data & DND_DAMAGETYPEFLAG_LEVELHAZARD) &&
+		(temp = GetUltimatumFirePiercePercent()))
+		res_bonus -= temp << 16;
 
 	// Cunning / Surging Vitality. Same field the penetrator trait uses, opposite sign -- one is a
 	// resistance the player gains and the other one the monster removes, and they belong in the same
@@ -4894,8 +4955,11 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		// exact, saturating, and yields 0 for a total-negation factor
 		amt = MulPercent_Exact(amt, combined, 1.0);
 
-		// finally include resists as their own multiplicative factor
-		amt = ApplyPlayerDamageResist(pnum, amt, res_to_apply, res_bonus);
+		// finally include resists as their own multiplicative factor.
+		// Ultimatum / Precise Monsters skips it -- for a MONSTER hit only, the arena's own
+		// hazards still meet resists.
+		if(!(m_id != -1 && UltimatumIgnoresResists()))
+			amt = ApplyPlayerDamageResist(pnum, amt, res_to_apply, res_bonus);
 
 		if(isReflected)
 			amt = ApplyPlayerDamageResist(pnum, amt, DND_PRESIST_REFL, 0);
@@ -4991,6 +5055,33 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	// final thing to check after damage reductions are applied, DoTs
 	// do not register more instances on dots from dots themselves as well
 	if((from_monster || (dmg_data & DND_DAMAGETYPEFLAG_LEVELHAZARD)) && !isDot && dmg) {
+		// Ultimatum / Blistering Cold tiers 3 and 4 -- see DND_ULTIMATUM7_T3 and _T4. "Always",
+		// so no roll. A hazard cannot reach HandlePlayerChill, which is monster only.
+		if((dmg_data & DND_DAMAGETYPEFLAG_LEVELHAZARD) && (dmg_data & DND_DAMAGETYPEFLAG_ICE)) {
+			if(UltimatumPustuleAlwaysFreezes())
+				HandlePlayerBuffAssignment(pnum, 0, BTI_FREEZE);
+			else if(UltimatumPustuleAlwaysChills())
+				HandlePlayerBuffAssignment(pnum, 0, BTI_CHILL);
+		}
+
+		// Ultimatum / Siphoning Monsters. A share of what the player still HAS, not of the hit.
+		// Monsters only -- the arena hazards are not monsters.
+		if(from_monster && (temp = GetUltimatumSiphonPercent())) {
+			int ptid = pnum + P_TIDSTART;
+
+			int steal = CheckActorInventory(ptid, "EShieldAmount") * temp / 100;
+			if(steal > 0)
+				TakeActorEnergyShield(ptid, steal);
+
+			// the weapon in hand, so the loss is felt now rather than spread over every pool
+			str siphon_ammo = Weapons_Data[GetCurrentWeaponID()].ammo_name1;
+			if(siphon_ammo != "") {
+				steal = CheckActorInventory(ptid, siphon_ammo) * temp / 100;
+				if(steal > 0)
+					TakeActorInventory(ptid, siphon_ammo, steal);
+			}
+		}
+
 		if
 		(
 			(
@@ -5139,8 +5230,11 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 		// retrieve and convert factor to an integer, we convert ex: 0.417 to 417, we will apply damage factor safe method
 		// dmg here is the one to be dealt to the player's health pool
 
-		// apply armor effect on this damage
-		dmg = GetArmorRatingEffect(pnum, dmg, armor_id, dmg_data, isArmorPiercing);
+		// apply armor effect on this damage.
+		// Ultimatum / Overwhelming Monsters bypasses the RATING only -- the armor's own effects
+		// below still apply, which is what "ignore your armor rating" says.
+		if(!UltimatumIgnoresArmor())
+			dmg = GetArmorRatingEffect(pnum, dmg, armor_id, dmg_data, isArmorPiercing);
 		
 		// special armor cases: Knight gives more reduction if using melee weapon, Duelist negates all hitscan 100% at cost of armor
 		if(armor_id == BODYARMOR_KNIGHT && IsUsingMeleeWeapon())

@@ -192,9 +192,15 @@ str GetUltimatumOptionName(int id) {
 	return StrParam(s:"DND_ULTIMATUM_NAME", d:id + 1);
 }
 
-// what THIS tier adds. one lump per option per tier -- keep in step with the apply hook
+// what THIS tier adds, header and all -- keep in step with the apply hook. returns the whole
+// segment including its separator so a single tier option can drop out without leaving one
 str GetUltimatumTierText(int id, int tier) {
-	return StrParam(s:"DND_ULTIMATUM", d:id + 1, s:"_T", d:tier);
+	// one tier means the description above already says the whole thing
+	if(GetUltimatumOptionMaxTier(id) <= 1)
+		return "";
+
+	str lump = StrParam(s:"DND_ULTIMATUM", d:id + 1, s:"_T", d:tier);
+	return StrParam(s:"\n     \ck", l:"DND_TIER", s:" ", d:tier, s:"\n", l:lump, s:"\c-");
 }
 
 // which of the two the group picked. ties go to the first, so a split never stalls
@@ -895,16 +901,16 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 			ult_body = StrParam(
 				s:ult_body,
 				s:"\c[Y5]1) \c[W3]", l:GetUltimatumOptionName(ult_opt1), s:"\c-\n     ",
-				l:GetUltimatumPromptText(ult_opt1), s:"\n     \ck",
-				l:GetUltimatumTierText(ult_opt1, GetUltimatumOptionTier(ult_opt1) + 1), s:"\c-\n\n"
+				l:GetUltimatumPromptText(ult_opt1),
+				s:GetUltimatumTierText(ult_opt1, GetUltimatumOptionTier(ult_opt1) + 1), s:"\n\n"
 			);
 
 			if(ult_opt2 != -1) {
 				ult_body = StrParam(
 					s:ult_body,
 					s:"\c[Y5]2) \c[W3]", l:GetUltimatumOptionName(ult_opt2), s:"\c-\n     ",
-					l:GetUltimatumPromptText(ult_opt2), s:"\n     \ck",
-					l:GetUltimatumTierText(ult_opt2, GetUltimatumOptionTier(ult_opt2) + 1), s:"\c-\n"
+					l:GetUltimatumPromptText(ult_opt2),
+					s:GetUltimatumTierText(ult_opt2, GetUltimatumOptionTier(ult_opt2) + 1), s:"\n"
 				);
 			}
 
