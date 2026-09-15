@@ -34,3 +34,5 @@ Brightmap Sprite ERWEE0 {
 	map "graphics/brightmaps/DeathRay/ERWEBME.png"
 	disablefullbright
 }
+
+#include "GlDefs/Brightmaps/Ultimatum.txt"

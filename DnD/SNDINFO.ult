@@ -37,3 +37,219 @@ Ultimatum/StormCall/Strike4    ULTLIGX4
 Ultimatum/StormCall/Strike5    ULTLIGX5
 Ultimatum/StormCall/Strike6    ULTLIGX6
 $random Ultimatum/StormCall/Strike { Ultimatum/StormCall/Strike1 Ultimatum/StormCall/Strike2 Ultimatum/StormCall/Strike3 Ultimatum/StormCall/Strike4 Ultimatum/StormCall/Strike5 Ultimatum/StormCall/Strike6 }
+
+Ultimatum/RagingSpirit/Fire1    ULTFIRS1
+Ultimatum/RagingSpirit/Fire2    ULTFIRS2
+Ultimatum/RagingSpirit/Fire3    ULTFIRS3
+Ultimatum/RagingSpirit/Fire4    ULTFIRS4
+$random Ultimatum/RagingSpirit/Fire { Ultimatum/RagingSpirit/Fire1 Ultimatum/RagingSpirit/Fire2 Ultimatum/RagingSpirit/Fire3 Ultimatum/RagingSpirit/Fire4 }
+
+Ultimatum/RagingSpirit/Charge1  ULTFIRC1
+Ultimatum/RagingSpirit/Charge2  ULTFIRC2
+Ultimatum/RagingSpirit/Charge3  ULTFIRC3
+Ultimatum/RagingSpirit/Charge4  ULTFIRC4
+$random Ultimatum/RagingSpirit/Charge { Ultimatum/RagingSpirit/Charge1 Ultimatum/RagingSpirit/Charge2 Ultimatum/RagingSpirit/Charge3 Ultimatum/RagingSpirit/Charge4 }
+
+/////////////
+// CHOICES //
+/////////////
+
+// ELEMENTAL DAMAGE
+Ultimatum/Choice1_A          ULT_C1A
+Ultimatum/Choice1_B          ULT_C1B
+Ultimatum/Choice1_C          ULT_C1C
+Ultimatum/Choice1_D          ULT_C1D
+$random Ultimatum/Choice1 { Ultimatum/Choice1_A Ultimatum/Choice1_B Ultimatum/Choice1_C Ultimatum/Choice1_D }
+
+// SAWS
+Ultimatum/Choice2_T1_A          ULT_C2A
+Ultimatum/Choice2_T1_B          ULT_C2B
+$random Ultimatum/Choice2_T1 { Ultimatum/Choice2_T1_A Ultimatum/Choice2_T1_B }
+
+Ultimatum/Choice2_T2_A          ULT_C2E
+Ultimatum/Choice2_T2_B          ULT_C2F
+$random Ultimatum/Choice2_T2 { Ultimatum/Choice2_T2_A Ultimatum/Choice2_T2_B }
+
+Ultimatum/Choice2_T3_A          ULT_C2I
+Ultimatum/Choice2_T3_B          ULT_C2J
+$random Ultimatum/Choice2_T3 { Ultimatum/Choice2_T3_A Ultimatum/Choice2_T3_B }
+
+Ultimatum/Choice2_T4_A          ULT_C2M
+Ultimatum/Choice2_T4_B          ULT_C2N
+Ultimatum/Choice2_T4_C          ULT_C2O
+Ultimatum/Choice2_T4_D          ULT_C2P
+$random Ultimatum/Choice2_T4 { Ultimatum/Choice2_T4_A Ultimatum/Choice2_T4_B Ultimatum/Choice2_T4_C Ultimatum/Choice2_T4_D }
+
+// MIASMA
+Ultimatum/Choice3_T1_A          ULT_C3A
+Ultimatum/Choice3_T1_B          ULT_C3B
+Ultimatum/Choice3_T1_C          ULT_C3C
+Ultimatum/Choice3_T1_D          ULT_C3D
+$random Ultimatum/Choice3_T1 { Ultimatum/Choice3_T1_A Ultimatum/Choice3_T1_B Ultimatum/Choice3_T1_C Ultimatum/Choice3_T1_D }
+
+Ultimatum/Choice3_T2_A          ULT_C3E
+Ultimatum/Choice3_T2_B          ULT_C3F
+Ultimatum/Choice3_T2_C          ULT_C3G
+Ultimatum/Choice3_T2_D          ULT_C3H
+$random Ultimatum/Choice3_T2 { Ultimatum/Choice3_T2_A Ultimatum/Choice3_T2_B Ultimatum/Choice3_T2_C Ultimatum/Choice3_T2_D }
+
+Ultimatum/Choice3_T3_A          ULT_C3I
+Ultimatum/Choice3_T3_B          ULT_C3J
+Ultimatum/Choice3_T3_C          ULT_C3K
+Ultimatum/Choice3_T3_D          ULT_C3L
+$random Ultimatum/Choice3_T3 { Ultimatum/Choice3_T3_A Ultimatum/Choice3_T3_B Ultimatum/Choice3_T3_C Ultimatum/Choice3_T3_D }
+
+Ultimatum/Choice3_T4_A          ULT_C3M
+Ultimatum/Choice3_T4_B          ULT_C3N
+Ultimatum/Choice3_T4_C          ULT_C3O
+Ultimatum/Choice3_T4_D          ULT_C3P
+$random Ultimatum/Choice3_T4 { Ultimatum/Choice3_T4_A Ultimatum/Choice3_T4_B Ultimatum/Choice3_T4_C Ultimatum/Choice3_T4_D }
+
+// LIGHTNING COILING
+Ultimatum/Choice4_A          ULT_C4A
+Ultimatum/Choice4_B          ULT_C4B
+Ultimatum/Choice4_C          ULT_C4C
+Ultimatum/Choice4_D          ULT_C4D
+$random Ultimatum/Choice4 { Ultimatum/Choice4_A Ultimatum/Choice4_B Ultimatum/Choice4_C Ultimatum/Choice4_D }
+
+// STORM CALL
+Ultimatum/Choice5_T1_A          ULT_C5A
+Ultimatum/Choice5_T1_B          ULT_C5B
+Ultimatum/Choice5_T1_C          ULT_C5C
+Ultimatum/Choice5_T1_D          ULT_C5D
+$random Ultimatum/Choice5_T1 { Ultimatum/Choice5_T1_A Ultimatum/Choice5_T1_B Ultimatum/Choice5_T1_C Ultimatum/Choice5_T1_D }
+
+Ultimatum/Choice5_T2_A          ULT_C5E
+Ultimatum/Choice5_T2_B          ULT_C5F
+Ultimatum/Choice5_T2_C          ULT_C5G
+Ultimatum/Choice5_T2_D          ULT_C5H
+$random Ultimatum/Choice5_T2 { Ultimatum/Choice5_T2_A Ultimatum/Choice5_T2_B Ultimatum/Choice5_T2_C Ultimatum/Choice5_T2_D }
+
+Ultimatum/Choice5_T3_A          ULT_C5I
+Ultimatum/Choice5_T3_B          ULT_C5J
+Ultimatum/Choice5_T3_C          ULT_C5K
+Ultimatum/Choice5_T3_D          ULT_C5L
+$random Ultimatum/Choice5_T3 { Ultimatum/Choice5_T3_A Ultimatum/Choice5_T3_B Ultimatum/Choice5_T3_C Ultimatum/Choice5_T3_D }
+
+Ultimatum/Choice5_T4_A          ULT_C5M
+Ultimatum/Choice5_T4_B          ULT_C5N
+Ultimatum/Choice5_T4_C          ULT_C5O
+Ultimatum/Choice5_T4_D          ULT_C5P
+$random Ultimatum/Choice5_T4 { Ultimatum/Choice5_T4_A Ultimatum/Choice5_T4_B Ultimatum/Choice5_T4_C Ultimatum/Choice5_T4_D }
+
+// RAGING DEAD
+Ultimatum/Choice6_T1_A          ULT_C6A
+Ultimatum/Choice6_T1_B          ULT_C6B
+Ultimatum/Choice6_T1_C          ULT_C6C
+Ultimatum/Choice6_T1_D          ULT_C6D
+$random Ultimatum/Choice6_T1 { Ultimatum/Choice6_T1_A Ultimatum/Choice6_T1_B Ultimatum/Choice6_T1_C Ultimatum/Choice6_T1_D }
+
+Ultimatum/Choice6_T2_A          ULT_C6E
+Ultimatum/Choice6_T2_B          ULT_C6F
+Ultimatum/Choice6_T2_C          ULT_C6G
+Ultimatum/Choice6_T2_D          ULT_C6H
+$random Ultimatum/Choice6_T2 { Ultimatum/Choice6_T2_A Ultimatum/Choice6_T2_B Ultimatum/Choice6_T2_C Ultimatum/Choice6_T2_D }
+
+Ultimatum/Choice6_T3_A          ULT_C6I
+Ultimatum/Choice6_T3_B          ULT_C6J
+Ultimatum/Choice6_T3_C          ULT_C6K
+Ultimatum/Choice6_T3_D          ULT_C6L
+$random Ultimatum/Choice6_T3 { Ultimatum/Choice6_T3_A Ultimatum/Choice6_T3_B Ultimatum/Choice6_T3_C Ultimatum/Choice6_T3_D }
+
+Ultimatum/Choice6_T4_A          ULT_C6M
+Ultimatum/Choice6_T4_B          ULT_C6N
+Ultimatum/Choice6_T4_C          ULT_C6O
+Ultimatum/Choice6_T4_D          ULT_C6P
+$random Ultimatum/Choice6_T4 { Ultimatum/Choice6_T4_A Ultimatum/Choice6_T4_B Ultimatum/Choice6_T4_C Ultimatum/Choice6_T4_D }
+
+// FROZEN PUSTULES
+Ultimatum/Choice7_T1_A          ULT_C7A
+Ultimatum/Choice7_T1_B          ULT_C7B
+Ultimatum/Choice7_T1_C          ULT_C7C
+$random Ultimatum/Choice7_T1 { Ultimatum/Choice7_T1_A Ultimatum/Choice7_T1_B Ultimatum/Choice7_T1_C }
+
+Ultimatum/Choice7_T2_A          ULT_C7E
+Ultimatum/Choice7_T2_B          ULT_C7F
+Ultimatum/Choice7_T2_C          ULT_C7G
+$random Ultimatum/Choice7_T2 { Ultimatum/Choice7_T2_A Ultimatum/Choice7_T2_B Ultimatum/Choice7_T2_C }
+
+Ultimatum/Choice7_T3_A          ULT_C7I
+Ultimatum/Choice7_T3_B          ULT_C7J
+Ultimatum/Choice7_T3_C          ULT_C7K
+$random Ultimatum/Choice7_T3 { Ultimatum/Choice7_T3_A Ultimatum/Choice7_T3_B Ultimatum/Choice7_T3_C }
+
+Ultimatum/Choice7_T4_A          ULT_C7M
+Ultimatum/Choice7_T4_B          ULT_C7N
+Ultimatum/Choice7_T4_C          ULT_C7O
+$random Ultimatum/Choice7_T4 { Ultimatum/Choice7_T4_A Ultimatum/Choice7_T4_B Ultimatum/Choice7_T4_C }
+
+// HINDERING FLASKS
+Ultimatum/Choice8_A          ULT_C8A
+Ultimatum/Choice8_B          ULT_C8B
+$random Ultimatum/Choice8 { Ultimatum/Choice8_A Ultimatum/Choice8_B }
+
+// NO FLASK CHARGES
+Ultimatum/Choice9_A          ULT_C9A
+Ultimatum/Choice9_B          ULT_C9B
+$random Ultimatum/Choice9 { Ultimatum/Choice9_A Ultimatum/Choice9_B }
+
+// VULNERABILITY
+Ultimatum/Choice10_A          ULT_C10A
+Ultimatum/Choice10_B          ULT_C10B
+$random Ultimatum/Choice10 { Ultimatum/Choice10_A Ultimatum/Choice10_B }
+
+// IMPOTENCE
+Ultimatum/Choice11_A          ULT_C11A
+Ultimatum/Choice11_B          ULT_C11B
+$random Ultimatum/Choice11 { Ultimatum/Choice11_A Ultimatum/Choice11_B }
+
+// NO ARMOR
+Ultimatum/Choice12_A          ULT_C12A
+Ultimatum/Choice12_B          ULT_C12B
+$random Ultimatum/Choice12 { Ultimatum/Choice12_A Ultimatum/Choice12_B }
+
+// NO MITIGATION
+Ultimatum/Choice13_A          ULT_C13A
+Ultimatum/Choice13_B          ULT_C13B
+$random Ultimatum/Choice13 { Ultimatum/Choice13_A Ultimatum/Choice13_B }
+
+// LESS AOE AND SPEED PROJ
+Ultimatum/Choice14_A          ULT_C14A
+Ultimatum/Choice14_B          ULT_C14B
+$random Ultimatum/Choice14 { Ultimatum/Choice14_A Ultimatum/Choice14_B }
+
+// STOLEN ENERGY SHIELD
+Ultimatum/Choice15_A          ULT_C15A
+Ultimatum/Choice15_B          ULT_C15B
+$random Ultimatum/Choice15 { Ultimatum/Choice15_A Ultimatum/Choice15_B }
+
+// CRIT DIMINISH
+Ultimatum/Choice16_A          ULT_C16A
+Ultimatum/Choice16_B          ULT_C16B
+$random Ultimatum/Choice16 { Ultimatum/Choice16_A Ultimatum/Choice16_B }
+
+// MONSTERS CANNOT BE SLOWED OR STUNNED
+Ultimatum/Choice17_A          ULT_C17A
+Ultimatum/Choice17_B          ULT_C17B
+$random Ultimatum/Choice17 { Ultimatum/Choice17_A Ultimatum/Choice17_B }
+
+// REDUCED RECOVERY
+Ultimatum/Choice18_A          ULT_C18A
+Ultimatum/Choice18_B          ULT_C18B
+$random Ultimatum/Choice18 { Ultimatum/Choice18_A Ultimatum/Choice18_B }
+
+// LETHAL SPECIAL ENEMIES
+Ultimatum/Choice19_A          ULT_C19A
+Ultimatum/Choice19_B          ULT_C19B
+Ultimatum/Choice19_C          ULT_C19C
+$random Ultimatum/Choice19 { Ultimatum/Choice19_A Ultimatum/Choice19_B Ultimatum/Choice19_C }
+
+// LESS STAMINA
+Ultimatum/Choice20_A          ULT_C20A
+Ultimatum/Choice20_B          ULT_C20B
+$random Ultimatum/Choice20 { Ultimatum/Choice20_A Ultimatum/Choice20_B }
+
+// AILMENT REFLECTION
+Ultimatum/Choice21_A          ULT_C21A
+Ultimatum/Choice21_B          ULT_C21B
+$random Ultimatum/Choice21 { Ultimatum/Choice21_A Ultimatum/Choice21_B }

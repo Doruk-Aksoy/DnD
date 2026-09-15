@@ -196,3 +196,17 @@ Model ChaingunnerBullet_Abyssal {
    PITCHFROMMOMENTUM
    FrameIndex TRAC A 0 0
 }
+
+Model Ultimatum_RagingDeadFire {
+	Path "Models/Proj"
+	Model 0 "FireTrail.md3"
+	Skin 0 "slash0.png"
+	Scale 1.0 1.0 1.0
+	Offset -40 0 0
+	AngleOffset 225
+	
+	PITCHFROMMOMENTUM
+	//DONTCULLBACKFACES
+
+	FrameIndex SLSH A 0 0
+}

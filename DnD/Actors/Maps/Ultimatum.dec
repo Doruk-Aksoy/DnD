@@ -89,6 +89,8 @@ Actor DnD_Ultimatum_Miasma_Tier1 {
     const int ang = 15;
     var int user_spd;
     var int user_r;
+    -SHOOTABLE
+    -SOLID
     -COUNTKILL
     +LOOKALLAROUND
     +NOCLIP
@@ -111,54 +113,67 @@ Actor DnD_Ultimatum_Miasma_Tier1 {
             // is the player this cloud just acquired -- and P_RadiusAttack skips the source
             // unless XF_HURTSOURCE, so it dealt nothing at all
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
+            TNT1 A 0 A_Explode(5, user_r / 2, XF_NOTMISSILE, 0, user_r / 2)
             DB58 B 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
             DB58 C 3 A_FaceTarget(ang, 0)
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
+            TNT1 A 0 A_Explode(5, user_r / 2, XF_NOTMISSILE, 0, user_r / 2)
             DB58 D 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
             DB58 E 3 A_FaceTarget(ang, 0)
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
+            TNT1 A 0 A_Explode(5, user_r / 2, XF_NOTMISSILE, 0, user_r / 2)
             DB58 F 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
             DB58 G 3 A_FaceTarget(ang, 0)
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
+            TNT1 A 0 A_Explode(5, user_r / 2, XF_NOTMISSILE, 0, user_r / 2)
             DB58 H 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
             DB58 I 3 A_FaceTarget(ang, 0)
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
+            TNT1 A 0 A_Explode(5, user_r / 2, XF_NOTMISSILE, 0, user_r / 2)
             DB58 J 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
             DB58 K 3 A_FaceTarget(ang, 0)
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
+            TNT1 A 0 A_Explode(5, user_r / 2, XF_NOTMISSILE, 0, user_r / 2)
             DB58 L 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
             DB58 M 3 A_FaceTarget(ang, 0)
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
+            TNT1 A 0 A_Explode(5, user_r / 2, XF_NOTMISSILE, 0, user_r / 2)
             DB58 N 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
             DB58 O 3 A_FaceTarget(ang, 0)
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
+            TNT1 A 0 A_Explode(5, user_r / 2, XF_NOTMISSILE, 0, user_r / 2)
             DB58 P 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
             DB58 Q 3 A_FaceTarget(ang, 0)
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
+            TNT1 A 0 A_Explode(5, user_r / 2, XF_NOTMISSILE, 0, user_r / 2)
             DB58 R 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
             DB58 S 3 A_FaceTarget(ang, 0)
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
+            TNT1 A 0 A_Explode(5, user_r / 2, XF_NOTMISSILE, 0, user_r / 2)
             DB58 T 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
             DB58 U 3 A_FaceTarget(ang, 0)
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
+            TNT1 A 0 A_Explode(5, user_r / 2, XF_NOTMISSILE, 0, user_r / 2)
             DB58 V 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
             DB58 W 3 A_FaceTarget(ang, 0)
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
+            TNT1 A 0 A_Explode(5, user_r / 2, XF_NOTMISSILE, 0, user_r / 2)
             DB58 X 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
             DB58 Y 3 A_FaceTarget(ang, 0)
             TNT1 A 0 A_Explode(10, user_r, XF_NOTMISSILE, 0, user_r)
+            TNT1 A 0 A_Explode(5, user_r / 2, XF_NOTMISSILE, 0, user_r / 2)
             DB58 Z 3 A_ChangeVelocity(user_spd * cos(angle), user_spd * sin(angle), user_spd * sin(pitch), CVF_REPLACE)
             TNT1 A 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Vanish")
         Loop
@@ -279,6 +294,8 @@ Actor DnD_Ultimatum_Stormcall_Tier1 {
     Radius 2
     MONSTER
     -COUNTKILL
+    -SHOOTABLE
+    -SOLID
     var int user_wait;
     var int user_wait_time;
     var int user_expcount;
@@ -353,6 +370,58 @@ Actor DnD_RagingDead_Cooldown : PowerProtection {
     powerup.duration -4
 }
 
+Actor Ultimatum_RagingDead_FireFX {
+    Scale 0.5
+    Renderstyle Add
+    Alpha 0.9
+    +NOINTERACTION
+    +CLIENTSIDEONLY
+    States {
+        Spawn:
+            TNT1 A 0 A_Jump(256, "1", "2", "3", "4")
+        1:
+            X052 ABCDEFGHIJKLMNOPQRS 2 Bright
+        Stop
+        2:
+            X053 ABCDEFGHIJKLMNOPQRSTU 2 Bright
+        Stop
+        3:
+            X054 ABCDEFGHIJKLMNOPQRS 2 Bright
+        Stop
+        4:
+            X056 ABCDEFGHIJKLMNOPQR 2 Bright
+        Stop
+    }
+}
+
+Actor Ultimatum_RagingDeadFire {
+    PROJECTILE
+    // LEVELHAZARD | SPELL | FIRE | ONETIMERIPPER -- the last one is why the two vars below
+    // exist; it rips through but only burns each player once.
+    Stamina 99360
+    var int user_hitmask_lo;
+    var int user_hitmask_hi;
+    Speed 21
+    Damage (30 + 5 * random(-1, 1))
+    Height 8
+    Radius 18
+    XScale 2.75
+    YScale 2.5
+    Renderstyle Add
+    Alpha 0.9875
+    SeeSound "Ultimatum/RagingSpirit/Fire"
+    +RIPPER
+    +BLOODLESSIMPACT
+    States {
+        Spawn:
+            SLSH A 1 A_SpawnItemEx("Ultimatum_RagingDead_FireFX", frandom(-24, -12), frandom(-48, 48), frandom(-4, 4))
+        Loop
+        Death:
+            SLSH A 1
+        Stop
+    }
+}
+
 Actor DnD_Ultimatum_RagingDead_Tier1 {
     MONSTER
     Height 56
@@ -384,12 +453,15 @@ Actor DnD_Ultimatum_RagingDead_Tier1 {
         Goto See
         Missile:
             TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Disappear")
-            ULT1 ST 6 Bright A_FaceTarget
+            TNT1 A 0 A_GiveInventory("DnD_RagingDead_Cooldown", 1)
+            ULT1 S 1 A_PlaySound("Ultimatum/RagingSpirit/Charge", CHAN_6)
+            ULT1 SSSSSSSS 5 Bright A_FaceTarget
+            ULT1 T 6 Bright A_FaceTarget
+            TNT1 A 0 A_StopSound(CHAN_6)
             ULT1 U 6 Bright A_CustomMissile("Ultimatum_RagingDeadFire", 44)
         Goto See
         Death:
         Disappear:
-            ULT1 A 0 A_NoGravity
             ULT1 I 6 Bright
             ULT1 J 5 Bright
             ULT1 KLMNOPQR 4 Bright
@@ -401,7 +473,10 @@ Actor DnD_Ultimatum_RagingDead_Tier2 : DnD_Ultimatum_RagingDead_Tier1 {
     States {
         Missile:
             TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Disappear")
-            ULT1 ST 6 Bright A_FaceTarget
+            TNT1 A 0 A_GiveInventory("DnD_RagingDead_Cooldown", 1)
+            ULT1 S 1 A_PlaySound("Ultimatum/RagingSpirit/Charge", CHAN_6)
+            ULT1 SSSSSSSS 5 Bright A_FaceTarget
+            ULT1 T 6 Bright A_FaceTarget
             TNT1 A 0 A_CustomMissile("Ultimatum_RagingDeadFire", 44, 0, 12, CMF_AIMOFFSET)
             ULT1 U 6 Bright A_CustomMissile("Ultimatum_RagingDeadFire", 44)
         Goto See
@@ -414,7 +489,10 @@ Actor DnD_Ultimatum_RagingDead_Tier4 : DnD_Ultimatum_RagingDead_Tier3 {
     States {
         Missile:
             TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Disappear")
-            ULT1 ST 6 Bright A_FaceTarget
+            TNT1 A 0 A_GiveInventory("DnD_RagingDead_Cooldown", 1)
+            ULT1 S 1 A_PlaySound("Ultimatum/RagingSpirit/Charge", CHAN_6)
+            ULT1 SSSSSSSS 5 Bright A_FaceTarget
+            ULT1 T 6 Bright A_FaceTarget
             TNT1 A 0 A_CustomMissile("Ultimatum_RagingDeadFire", 44, 0, 12, CMF_AIMOFFSET)
             TNT1 A 0 A_CustomMissile("Ultimatum_RagingDeadFire", 44, 0, -12, CMF_AIMOFFSET)
             TNT1 A 0 A_CustomMissile("Ultimatum_RagingDeadFire", 44, 0, 24, CMF_AIMOFFSET)
@@ -435,25 +513,27 @@ Actor DnD_Ultimatum_Pustule_Tier1 {
     +NOINTERACTION
     +LOOKALLAROUND
     +NOGRAVITY
+    -SHOOTABLE
+    -SOLID
     var int user_exp_timer;
 	Deathsound "MoonSatyr/MeteorExplode"
 	Scale 2.0
 	Speed 0
 	States {
         Spawn:
-            TNT1 A 0 NoDelay A_SetUserVar("user_exp_timer", 20)
+            TNT1 A 0 NoDelay A_SetUserVar("user_exp_timer", 8)
         Goto SpawnLoop
         SpawnLoop:
-            MSX0 AABBCC 2 A_LookEx(0, 0, 160)
+            MSX0 AABBCC 2 Bright A_LookEx(0, 0, 160)
             "####" "#" 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Disappear")
         Loop
         See:
             "####" "#" 0 A_JumpIf(user_exp_timer <= 0, "Burst")
             "####" "#" 0 A_SetUserVar("user_exp_timer", user_exp_timer - 1)
-            MSX0 AAABBBCCC 1 A_ChangeVelocity(frandom(-1, 1), frandom(-1, 1), frandom(-1, 1), CVF_REPLACE)
+            MSX0 AABBCC 1 Bright A_ChangeVelocity(frandom(-1, 1), frandom(-1, 1), frandom(-1, 1), CVF_REPLACE)
         Loop
         Burst:
-            "####" "################" 1 A_SetScale(scalex * 1.015, scaley * 1.015)
+            "####" "################" 1 Bright A_SetScale(scalex * 1.015, scaley * 1.015)
             TNT1 A 0 A_Explode(96, 160, XF_NOTMISSILE, 0, 72)
         Goto BurstFX
         BurstFX:
@@ -464,7 +544,7 @@ Actor DnD_Ultimatum_Pustule_Tier1 {
 			MSX0 DEFGHI 2 Bright
 		Stop
         Disappear:
-            MSX0 DDEEFFGGHHII 1 A_FadeOut(0.0875)
+            MSX0 DDEEFFGGHHII 1 Bright A_FadeOut(0.0875)
         Stop
 	}
 }
@@ -472,7 +552,7 @@ Actor DnD_Ultimatum_Pustule_Tier1 {
 Actor DnD_Ultimatum_Pustule_Tier2 : DnD_Ultimatum_Pustule_Tier1 {
     States {
         Burst:
-            "####" "################" 1 A_SetScale(scalex * 1.015, scaley * 1.015)
+            "####" "################" 1 Bright A_SetScale(scalex * 1.015, scaley * 1.015)
             TNT1 A 0 A_Explode(128, 160, XF_NOTMISSILE, 0, 72)
         Goto BurstFX
     }
@@ -481,10 +561,10 @@ Actor DnD_Ultimatum_Pustule_Tier2 : DnD_Ultimatum_Pustule_Tier1 {
 Actor DnD_Ultimatum_Pustule_Tier3 : DnD_Ultimatum_Pustule_Tier2 {
     States {
         Spawn:
-            TNT1 A 0 NoDelay A_SetUserVar("user_exp_timer", 15)
+            TNT1 A 0 NoDelay A_SetUserVar("user_exp_timer", 6)
         Goto SpawnLoop
         Burst:
-            "####" "############" 1 A_SetScale(scalex * 1.354, scaley * 1.354)
+            "####" "############" 1 Bright A_SetScale(scalex * 1.354, scaley * 1.354)
             TNT1 A 0 A_Explode(128, 160, XF_NOTMISSILE, 0, 72)
         Goto BurstFX
     }

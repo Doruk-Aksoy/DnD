@@ -1,0 +1,461 @@
+BrightMap Sprite ULT1A1
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITA1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1A2A8
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITA2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1A3A7
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITA3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1A4A6
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITA4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1A5
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITA5.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1B1
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITB1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1B2B8
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITB2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1B3B7
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITB3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1B4B6
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITB4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1B5
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITB5.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1C1
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITC1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1C2C8
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITC2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1C3C7
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITC3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1C4C6
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITC4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1C5
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITC5.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1D1
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITD1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1D2D8
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITD2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1D3D7
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITD3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1D4D6
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITD4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1D5
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITD5.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1E1
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITE1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1E2E8
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITE2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1E3E7
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITE3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1E4E6
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITE4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1E5
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITE5.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1F1
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITF1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1F2F8
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITF2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1F3F7
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITF3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1F4F6
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITF4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1F5
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITF5.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1G1
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITG1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1G2G8
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITG2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1G3G7
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITG3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1G4G6
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITG4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1G5
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITG5.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1H1
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITH1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1H2
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITH2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1H3
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITH3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1H4
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITH4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1H5
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITH5.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1H6
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITH6.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1H7
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITH7.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1H8
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITH8.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1I0
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITI0.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1J0
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITJ0.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1K0
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITK0.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1L0
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITL0.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1M0
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITM0.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1N0
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITN0.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1O0
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITO0.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1P0
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITP0.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1Q0
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITQ0.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1R0
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITR0.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1S1
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITS1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1S2
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITS2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1S3
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITS3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1S4
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITS4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1S5
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITS5.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1S6
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITS6.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1S7
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITS7.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1S8
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITS8.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1T1
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITT1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1T2
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITT2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1T3
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITT3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1T4
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITT4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1T5
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITT5.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1T6
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITT6.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1T7
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITT7.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1T8
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITT8.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1U1
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITU1.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1U2
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITU2.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1U3
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITU3.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1U4
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITU4.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1U5
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITU5.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1U6
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITU6.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1U7
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITU7.png"
+	DisableFullBright
+}
+
+BrightMap Sprite ULT1U8
+{
+    Map "Graphics/Brightmaps/Ultimatum/BMFRITU8.png"
+	DisableFullBright
+}

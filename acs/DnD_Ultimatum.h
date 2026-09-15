@@ -466,6 +466,56 @@ Script "DnD Init Ultimatum - CS" (void) CLIENTSIDE {
     InformationInLevel[LEVELINFO_ISULTIMATUM] = 1;
 }
 
+// The map side of an option: the actors it puts in the arena.
+//
+// Called at the START of every wave for every option taken so far, NOT once when the option
+// is accepted. A tier is permanent but the actors are not -- every spawner runs for one wave,
+// cleans up after itself and terminates, so a challenge picked in round 2 vanished for round 3
+// and never came back.
+void StartUltimatumMapHazard(int option, int tier) {
+    using ultimatum;
+
+    switch(option) {
+        case ULTIMATUM_OPTION_SAWBLADES:
+            // tier raises how many blades fly and how fast
+            ACS_NamedExecuteAlways("DnD Ultimatum Saw Spawn", 0, tier);
+        break;
+
+        case ULTIMATUM_OPTION_MIASMA:
+            // The tier is already 1 based, so the actor suffix IS the tier -- a +1 here starts
+            // at Tier2 and asks for a Tier5 that does not exist at the cap.
+            SpawnSpot(StrParam(s:"DnD_Ultimatum_Miasma_Tier", d:tier), TP_TID_MIASMA);
+        break;
+
+        case ULTIMATUM_OPTION_STORMCALL:
+            // tier raises how many spots get marked and how fast they strike
+            ACS_NamedExecuteAlways("DnD Ultimatum Storm Call Spawn", 0, tier);
+        break;
+
+        case ULTIMATUM_OPTION_FIRESKULLS:
+            // tier raises how many spirits chase and how much fire each throws
+            ACS_NamedExecuteAlways("DnD Ultimatum Raging Dead Spawn", 0, tier);
+        break;
+
+        case ULTIMATUM_OPTION_BLISTERINGCOLD:
+            // tier raises how many pustules appear, how hard they burst and how fast
+            ACS_NamedExecuteAlways("DnD Ultimatum Pustule Spawn", 0, tier);
+        break;
+    }
+}
+
+// Every option taken so far, placed again for the wave that is starting. Options with no actors
+// fall straight through the switch -- they are read from their accessors on every hit instead.
+void StartUltimatumMapHazards() {
+    using ultimatum;
+
+    for(int i = ULTIMATUM_OPTION_EXTRA_ELE_DAMAGE; i < ULTIMATUM_OPTION_COUNT; ++i) {
+        int tier = GetUltimatumOptionTier(i);
+        if(tier)
+            StartUltimatumMapHazard(i, tier);
+    }
+}
+
 Script "DnD Start Ultimatum Wave" (int wave, int del) {
     if(del)
         Delay(del);
@@ -482,6 +532,10 @@ Script "DnD Start Ultimatum Wave" (int wave, int del) {
     curr_tally.curr_wave = wave;
     curr_tally.kills = 0;
     curr_tally.req_kills_wave = w.total_monsters[var];
+
+    // After is_wave_complete is cleared, not before: every spawner polls it and would shut
+    // itself down on its first tic otherwise.
+    StartUltimatumMapHazards();
 
     if(w.formation_types_used & WAVE_FORMATION_GROUND) {
         if(GetSectorFloorZ(21, 0, 0) != -280.0) {
@@ -571,13 +625,8 @@ Script "DnD Ultimatum Wave Completed" (void) {
         Terminate;
     }
 
+    // we have so many options it can't max out
     int offer = PickUltimatumChallengeOffer();
-
-    // all maxed -- no menu worth showing
-    if(!offer) {
-        ACS_NamedExecuteAlways("DnD Start Ultimatum Wave", 0, curr_tally.curr_wave + 1, TICRATE);
-        Terminate;
-    }
 
     // what this round is worth, shown alongside the offer
     RollUltimatumReward(ULTIMATUM_REWARD_PENDING);
@@ -737,29 +786,70 @@ int GetUltimatumOfferOption(int packed, int which) {
 }
 
 // two DISTINCT options with a tier left. 0 means all maxed -- caller skips the NPC
+// A multi-tier option can be picked again to deepen it, so it stays interesting for the whole
+// run; a single-tier one is spent the moment it is taken. Weights rather than a rule -- the flat
+// ones are still offered, just less often.
+#define DND_ULTIMATUM_OFFERWEIGHT_TIERED 3
+#define DND_ULTIMATUM_OFFERWEIGHT_FLAT 1
+
+// Added per TIER already taken, so a challenge the players have committed to keeps coming back
+// to be deepened, and one taken twice is likelier again than one taken once. Only multi-tier
+// options ever carry it: a single-tier one is maxed the moment it is taken and leaves the pool.
+#define DND_ULTIMATUM_OFFERWEIGHT_TAKEN 3
+
+int GetUltimatumOptionWeight(int opt) {
+    int w = GetUltimatumOptionMaxTier(opt) > 1 ?
+        DND_ULTIMATUM_OFFERWEIGHT_TIERED : DND_ULTIMATUM_OFFERWEIGHT_FLAT;
+
+    return w + GetUltimatumOptionTier(opt) * DND_ULTIMATUM_OFFERWEIGHT_TAKEN;
+}
+
 int PickUltimatumChallengeOffer() {
     using ultimatum;
-    
+
     int pool[ULTIMATUM_OPTION_COUNT];
-    int count = 0;
-    for(int i = ULTIMATUM_OPTION_EXTRA_ELE_DAMAGE; i < ULTIMATUM_OPTION_COUNT; ++i) {
-        if(!IsUltimatumOptionMaxed(i))
+    int count = 0, total = 0;
+    int i;
+
+    for(i = ULTIMATUM_OPTION_EXTRA_ELE_DAMAGE; i < ULTIMATUM_OPTION_COUNT; ++i) {
+        if(!IsUltimatumOptionMaxed(i)) {
             pool[count++] = i;
+            total += GetUltimatumOptionWeight(i);
+        }
     }
 
     if(!count)
         return 0;
 
-    int a = random(0, count - 1);
-    if(count == 1)
-        return PackUltimatumOffer(pool[a], -1);
+    // Two weighted draws, the first struck out of the pool before the second so they cannot
+    // collide. The old "pick out of what is LEFT and shift past it" trick only holds for a flat
+    // draw -- with weights the shifted index no longer means the same thing.
+    //
+    // One option left simply leaves the second at -1, which is what a single-offer round packs.
+    int picked[2];
+    picked[0] = -1;
+    picked[1] = -1;
 
-    // picked out of what is LEFT, so the two can never collide
-    int b = random(0, count - 2);
-    if(b >= a)
-        ++b;
+    for(int n = 0; n < 2 && count; ++n) {
+        int roll = random(1, total), acc = 0, at = count - 1;
 
-    return PackUltimatumOffer(pool[a], pool[b]);
+        // walk the running total; the last entry catches any rounding at the top of the range
+        for(i = 0; i < count; ++i) {
+            acc += GetUltimatumOptionWeight(pool[i]);
+            if(roll <= acc) {
+                at = i;
+                break;
+            }
+        }
+
+        picked[n] = pool[at];
+
+        // pull the tail over it -- order in the pool carries no meaning
+        total -= GetUltimatumOptionWeight(pool[at]);
+        pool[at] = pool[--count];
+    }
+
+    return PackUltimatumOffer(picked[0], picked[1]);
 }
 
 // ---- reward pool -------------------------------------------------------------------------------
@@ -781,6 +871,67 @@ int PickUltimatumChallengeOffer() {
 
 // percent ON TOP of a normal stack, so 200 means the last offer pays triple
 #define DND_ULTIMATUM_REWARD_STACKBONUS_LATE 200
+
+// On top of the depth bonus above, a stackable pays for its own rarity: the commoner it is the
+// bigger the pile. Percent OF the depth-scaled stack, so the two compose rather than replace.
+#define DND_ULTIMATUM_STACK_COMMON 100
+#define DND_ULTIMATUM_STACK_UNCOMMON 60
+#define DND_ULTIMATUM_STACK_RARE 30
+
+// Orbs already carry a rarity axis in the tier predicates, and it covers the special orbs too.
+int GetUltimatumOrbStackPct(int orb) {
+    if(IsHighTierOrb(orb))
+        return DND_ULTIMATUM_STACK_RARE;
+    if(IsMidTierOrb(orb))
+        return DND_ULTIMATUM_STACK_UNCOMMON;
+    return DND_ULTIMATUM_STACK_COMMON;
+}
+
+// A token has no tiers, so its own drop weight stands in for one. ItemDropWeights is stored
+// CUMULATIVE -- SET_ITEM_WEIGHT writes running totals -- so a token's own weight is the gap to
+// the entry before it. Measured against the commonest token rather than against the total, so
+// the answer does not shrink every time another token joins the pool.
+int GetUltimatumTokenStackPct(int token) {
+    int best = 1, mine = 1, own;
+
+    for(int i = 0; i < MAX_TOKENS; ++i) {
+        own = ItemDropWeights[DND_DROPPEDITEM_TOKEN][i];
+        if(i)
+            own -= ItemDropWeights[DND_DROPPEDITEM_TOKEN][i - 1];
+
+        if(own > best)
+            best = own;
+        if(i == token)
+            mine = own;
+    }
+
+    return Clamp_Between(
+        DND_ULTIMATUM_STACK_RARE + (DND_ULTIMATUM_STACK_COMMON - DND_ULTIMATUM_STACK_RARE) * mine / best,
+        DND_ULTIMATUM_STACK_RARE,
+        DND_ULTIMATUM_STACK_COMMON
+    );
+}
+
+// never rounds a reward away to nothing
+int ApplyUltimatumStackRarity(int stack, int pct) {
+    return Max(1, stack * pct / 100);
+}
+
+// The three orbs that otherwise only drop from specific monsters. The ultimatum is the other
+// way in, but only once the run is deep enough to have earned it. Their ids are adjacent in
+// DND_ORB_*, which is what lets the draw be a range -- verify_ultstack.py holds that.
+#define DND_ULTIMATUM_SPECIALORB_WAVE 6
+#define DND_ULTIMATUM_SPECIALORB_CHANCE 0.2
+
+int PickUltimatumRewardOrb(int pnum) {
+    auto tally = GetCurrentUltimatumTally();
+
+    if(tally.curr_wave >= DND_ULTIMATUM_SPECIALORB_WAVE && random(0, 1.0) <= DND_ULTIMATUM_SPECIALORB_CHANCE)
+        return random(DND_ORB_ORDER, DND_ORB_REVERANCE);
+
+    // the player's own weighted table, which stops short of the monster-only orbs
+    return PickPlayerOrb(pnum);
+}
 
 // Percent applied to DND_SYNERGYITEM_CHANCE, which is checked after each mod until it locks onto a
 // tag -- everything rolled after that chases it. 100 is the base rate, so an early reward synergises
@@ -1208,7 +1359,8 @@ void RollUltimatumReward(int slot) {
     ItemLevelCapOverride = MAX_BOSS_ILVL;
     WellRolledChanceOverride = ScaleUltimatumReward(DND_ULTIMATUM_REWARD_WELLROLLCHANCE, DND_ULTIMATUM_REWARD_WELLROLLCHANCE_LATE, p);
 
-    // stackables pay their depth in size rather than in mods, since they have none to roll
+    // Stackables pay their depth in size rather than in mods, since they have none to roll.
+    // This is the depth half only -- the rarity half needs the thing picked first.
     int stack = GetOrbDropStack(ilvl) * (100 + ScaleUltimatumReward(0, DND_ULTIMATUM_REWARD_STACKBONUS_LATE, p)) / 100;
     if(stack < 1)
         stack = 1;
@@ -1227,12 +1379,14 @@ void RollUltimatumReward(int slot) {
         else
             RollUltimatumRewardCharm(c, ilvl, pnum, p);
     }
-    else if(roll <= DND_ULTIMATUM_REWARD_ORBCHANCE)
-        RollOrbInfo(c, PickPlayerOrb(pnum), stack);
+    else if(roll <= DND_ULTIMATUM_REWARD_ORBCHANCE) {
+        t = PickUltimatumRewardOrb(pnum);
+        RollOrbInfo(c, t, ApplyUltimatumStackRarity(stack, GetUltimatumOrbStackPct(t)));
+    }
     else {
         t = random(1, MAX_TOKEN_WEIGHT);
         for(roll = 0; roll < MAX_TOKENS && ItemDropWeights[DND_DROPPEDITEM_TOKEN][roll] < t; ++roll);
-        RollTokenInfo(c, roll, true, stack);
+        RollTokenInfo(c, roll, true, ApplyUltimatumStackRarity(stack, GetUltimatumTokenStackPct(roll)));
     }
 
     WellRolledChanceOverride = 0;
@@ -1299,68 +1453,29 @@ void DropUltimatumRewards() {
 
 // map side of an accepted option -- spawn the blades, start the miasma, mark the ground.
 // tier is the NEW tier; a repeat pick re-enters higher rather than applying twice.
+// How long the next wave holds off after a choice is taken, so the line below is not immediately
+// talked over by the wave starting on top of it. Declining says nothing and keeps the short delay.
+#define DND_ULTIMATUM_CHOICEVOICE_MINDELAY (3 * TICRATE)
+#define DND_ULTIMATUM_CHOICEVOICE_MAXDELAY (4 * TICRATE)
+
+// "Ultimatum/ChoiceX_TY". X is the option's LANGUAGE number -- the same + 1 the prompt lumps
+// use, so the sound for an option sits under the same number as its text. Y is the tier just
+// reached. A single tier option has no _TY half at all, the same rule the offer pane uses for
+// its tier line.
+str GetUltimatumChoiceSound(int option, int tier) {
+    if(GetUltimatumOptionMaxTier(option) <= 1)
+        return StrParam(s:"Ultimatum/Choice", d:option + 1);
+
+    return StrParam(s:"Ultimatum/Choice", d:option + 1, s:"_T", d:tier);
+}
+
+// What accepting an option does RIGHT NOW. The tier itself is bumped by the caller, and the
+// effect of every option is read from that: the accessors answer on the next hit, and the map
+// options are placed by StartUltimatumMapHazards when the wave begins. So all that is left
+// here is the announcement.
 Script "DnD Ultimatum Apply Option" (int option, int tier) {
-    using ultimatum;
-
-    str actor;
-
-    switch(option) {
-        case ULTIMATUM_OPTION_EXTRA_ELE_DAMAGE:
-            // Nothing to place in the map. The tier bump IS the effect: HandlePlayerResists reads it
-            // through GetUltimatumExtraElePercent on every monster hit from here on.
-        break;
-
-        case ULTIMATUM_OPTION_SAWBLADES:
-            // tier raises how many blades fly and how fast
-            ACS_NamedExecuteAlways("DnD Ultimatum Saw Spawn", 0, tier);
-        break;
-
-        case ULTIMATUM_OPTION_MIASMA:
-            // tier raises the cloud's speed and radius
-            // AddUltimatumOptionTier already answers 1 on a first pick, so the actor suffix IS the
-            // tier -- a +1 here starts at Tier2 and asks for a Tier5 that does not exist at the cap.
-            actor = StrParam(s:"DnD_Ultimatum_Miasma_Tier", d:tier);
-            SpawnSpot(actor, TP_TID_MIASMA);
-        break;
-
-        case ULTIMATUM_OPTION_CRACKLINGPAIN:
-            // Nothing to place in the map. The tier bump IS the effect: TakeAmmoFromPlayer, the one
-            // choke point every shot passes through, reads it through GetUltimatumCracklePainMult.
-        break;
-
-        case ULTIMATUM_OPTION_STORMCALL:
-            // tier raises how many spots get marked and how fast they strike
-            ACS_NamedExecuteAlways("DnD Ultimatum Storm Call Spawn", 0, tier);
-        break;
-
-        case ULTIMATUM_OPTION_FIRESKULLS:
-            // tier raises how many spirits chase and how much fire each throws
-            ACS_NamedExecuteAlways("DnD Ultimatum Raging Dead Spawn", 0, tier);
-        break;
-
-        case ULTIMATUM_OPTION_BLISTERINGCOLD:
-            // tier raises how many pustules appear, how hard they burst and how fast
-            ACS_NamedExecuteAlways("DnD Ultimatum Pustule Spawn", 0, tier);
-        break;
-
-        // The rest place nothing in the map. The tier bump IS the effect -- each is read out
-        // of the accessors above by whatever code path owns it, on every hit or use.
-        case ULTIMATUM_OPTION_HINDERINGFLASKS:
-        case ULTIMATUM_OPTION_DROUGHT:
-        case ULTIMATUM_OPTION_ESCALATINGFRAGILITY:
-        case ULTIMATUM_OPTION_OCCASIONALIMPOTENCE:
-        case ULTIMATUM_OPTION_OVERWHELMINGMONSTERS:
-        case ULTIMATUM_OPTION_PRECISEMONSTERS:
-        case ULTIMATUM_OPTION_FEEBLEREACH:
-        case ULTIMATUM_OPTION_SIPHONINGMONSTERS:
-        case ULTIMATUM_OPTION_DIMINISHEDLETHALITY:
-        case ULTIMATUM_OPTION_UNSTOPPABLETIDE:
-        case ULTIMATUM_OPTION_FLEETINGLIFE:
-        case ULTIMATUM_OPTION_GLUTTONOUSTIDE:
-        case ULTIMATUM_OPTION_RAPIDEXHAUSTION:
-        case ULTIMATUM_OPTION_TASTETHEPAIN:
-        break;
-    }
+    // the whole arena hears the choice land, so AmbientSound rather than the Local variant
+    AmbientSound(GetUltimatumChoiceSound(option, tier), 127);
 
     SetResultValue(0);
 }

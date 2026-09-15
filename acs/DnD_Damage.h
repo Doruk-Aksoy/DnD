@@ -105,6 +105,11 @@ enum {
 	// set describes a player's own attack and never reaches the event from a hazard.
 	DND_DAMAGETYPEFLAG_LEVELHAZARD = 32768,
 
+	// A RIPPER that may only hurt a given player ONCE in its lifetime. The projectile keeps its
+	// own record of who it has hit, so the actor carrying this MUST declare user_hitmask_lo and
+	// user_hitmask_hi -- without them the read answers 0 and every pass counts as the first.
+	DND_DAMAGETYPEFLAG_ONETIMERIPPER = 65536,
+
 	DND_DAMAGETYPEFLAG_HURTSPECIES = 268435456,
 	DND_DAMAGETYPEFLAG_USEMASTER = 536870912,
 	DND_DAMAGETYPEFLAG_REFLECTABLE = 1073741824
@@ -5064,24 +5069,6 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 				HandlePlayerBuffAssignment(pnum, 0, BTI_CHILL);
 		}
 
-		// Ultimatum / Siphoning Monsters. A share of what the player still HAS, not of the hit.
-		// Monsters only -- the arena hazards are not monsters.
-		if(from_monster && (temp = GetUltimatumSiphonPercent())) {
-			int ptid = pnum + P_TIDSTART;
-
-			int steal = CheckActorInventory(ptid, "EShieldAmount") * temp / 100;
-			if(steal > 0)
-				TakeActorEnergyShield(ptid, steal);
-
-			// the weapon in hand, so the loss is felt now rather than spread over every pool
-			str siphon_ammo = Weapons_Data[GetCurrentWeaponID()].ammo_name1;
-			if(siphon_ammo != "") {
-				steal = CheckActorInventory(ptid, siphon_ammo) * temp / 100;
-				if(steal > 0)
-					TakeActorInventory(ptid, siphon_ammo, steal);
-			}
-		}
-
 		if
 		(
 			(
@@ -5449,7 +5436,11 @@ int HandlePercentDamageFromEnemy(int victim, int dmg, int dmg_data) {
 }
 
 void OnPlayerHit(int this, int pnum, int target, bool isMonster, bool isDot = false) {
+	// cur_ammo is shared by the thief trait and the ultimatum siphon below. An ACS local is
+	// allocated for the whole function regardless of the block it appears in, so hoisting the
+	// declaration costs nothing and saves the siphon needing a second string.
 	int m_id, val;
+	str cur_ammo;
 
 	if(CheckActorInventory(this, "HateCheck") && target != this && isMonster)
 		GiveActorInventory(target, "HateWeakness", 1);
@@ -5545,7 +5536,7 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster, bool isDot = fa
 		if(HasMonsterTrait(m_id, DND_THIEF)) {
 			// get current weapon's ammo and steal it if possible
 			temp = random(0, 1);
-			str cur_ammo = GetWeaponAmmoType(GetActorWeaponID(this), temp);
+			cur_ammo = GetWeaponAmmoType(GetActorWeaponID(this), temp);
 			
 			// if we picked no ammo, flip to check the other one using negation
 			if(cur_ammo == "")
@@ -5567,6 +5558,36 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster, bool isDot = fa
 			}
 		}
 		
+		// Ultimatum / Siphoning Monsters -- see DND_ULTIMATUM15. Unlike the thief trait above,
+		// what it takes it KEEPS: both halves become fortify on the monster, the same conversion
+		// energy leech does. Stolen ammo converts 1:1, so a full clip is worth its count in hp.
+		if((val = GetUltimatumSiphonPercent())) {
+			temp = CheckActorInventory(this, "EShieldAmount") * val / 100;
+			if(temp)
+				TakeActorEnergyShield(this, temp);
+
+			// the weapon in hand, either slot -- the same pick the thief trait makes above
+			cur_ammo = GetWeaponAmmoType(GetActorWeaponID(this), 0);
+			if(cur_ammo == "")
+				cur_ammo = GetWeaponAmmoType(GetActorWeaponID(this), 1);
+
+			if(cur_ammo != "") {
+				val = CheckActorInventory(this, cur_ammo) * val / 100;
+				if(val) {
+					TakeActorInventory(this, cur_ammo, val);
+					temp += val;
+				}
+			}
+
+			// One grant and ONE clamp for the pair: capping each half on its own would let the two
+			// together step over maxhp.
+			if(temp) {
+				GiveActorInventory(target, "MonsterFortifyCount", temp);
+				if(CheckActorInventory(target, "MonsterFortifyCount") > MonsterProperties[m_id].maxhp)
+					SetActorInventory(target, "MonsterFortifyCount", MonsterProperties[m_id].maxhp);
+			}
+		}
+
 		// shocker check
 		if(HasMonsterTrait(m_id, DND_SHOCKER))
 			GiveActorInventory(this, "PlayerStopper", 1);
@@ -6036,8 +6057,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				// Endurance / Dense Exoskeleton. ACS cannot set an actor flag in Zandronum, so the window
 				// is opened by a CustomInventory whose pickup state flips DONTRIP on the owner and a
 				// second one that flips it back.
-				int riptemp = PlayerModData[pnum].vals[PSTAT_RIPIMMUNE_TICS];
-				if(riptemp && random(1, 100) <= riptemp && !CheckActorInventory(victim, "DnD_RipImmuneTimer")) {
+				temp = PlayerModData[pnum].vals[PSTAT_RIPIMMUNE_TICS];
+				if(temp && random(1, 100) <= temp && !CheckActorInventory(victim, "DnD_RipImmuneTimer")) {
 					SetActorInventory(victim, "DnD_RipImmuneTimer", DND_RIPIMMUNE_TICS);
 					ACS_NamedExecuteAlways("DnD Rip Immunity", 0, victim);
 				}
@@ -6423,10 +6444,12 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 						
 						// Martialist / Ramping Assault. Reads the count BEFORE HandleMeleeSubTypeEffects bumps
 						// it, so the bonus lands on the hit that completes the run rather than the one after.
-						int ramp = 0;
+						// on factor rather than its own local -- an ACS local costs a slot for the whole
+						// script. swift below keeps one because the two are added together further down.
+						factor = 0;
 						if(PlayerModData[pnum].vals[PSTAT_RAMPING_HITS] &&
 							CheckActorInventory(victim, "DnD_RampingHits") + 1 >= PlayerModData[pnum].vals[PSTAT_RAMPING_HITS])
-							ramp = PlayerModData[pnum].vals[PSTAT_RAMPING_BONUS];
+							factor = PlayerModData[pnum].vals[PSTAT_RAMPING_BONUS];
 
 						// Acrobacy / Swift Reflexes. Consumed HERE rather than in the post-damage hook, because it
 						// has to be spent by the hit it buffs -- reading it after the fact would let one armed flag
@@ -6440,7 +6463,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 						dmg = dmg * (
 							100 + 
 							PlayerModData[pnum].vals[PSTAT_MELEEDAMAGE] + 
-							swift + ramp + 
+							swift + factor + 
 							CheckActorInventory(victim, "DnD_ParryWeakness") * DND_PARRY_DAMAGEWEAKNESS
 						) / 100;
 
@@ -6513,10 +6536,11 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					// the other half is the ripper running out of rips, which the perk says nothing about
 					// and which would be unbounded piercing if it could be skipped.
 					if(isArmorPiercing != MAX_RIPCOUNT && (HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_HARDENED_SKIN) || isReflected >= isArmorPiercing)) {
-						int survive = PlayerModData[pnum].vals[PSTAT_RIPPER_SURVIVECHANCE];
-						bool skinned = HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_HARDENED_SKIN) && isReflected < isArmorPiercing;
+						// factor holds the survive chance; the skinned test is inlined, it was read once
+						factor = PlayerModData[pnum].vals[PSTAT_RIPPER_SURVIVECHANCE];
 
-						if(!skinned || !survive || random(1, 100) > survive)
+						if(!(HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_HARDENED_SKIN) && isReflected < isArmorPiercing) ||
+							!factor || random(1, 100) > factor)
 							GiveInventory("TakeRipperAway", 1);
 					}
 					isArmorPiercing = PlayerModData[pnum].vals[PSTAT_RIPDAMAGE];
@@ -6679,6 +6703,28 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// further down. So every map hazard was deducting player 0's shield whoever it hit.
 			pnum = PlayerNumber();
 
+			// A ripper re-enters the damage event on every pass over the same actor. The projectile
+			// itself remembers who it has already burned, so a repeat pass costs that player nothing.
+			//
+			// TWO masks because MAXPLAYERS is 64 and a user var is one int: a single 1 << pnum would
+			// wrap at 32 and alias player 32 onto player 0, who would then never be hit again.
+			if(dmg_data & DND_DAMAGETYPEFLAG_ONETIMERIPPER) {
+				// temp and factor are the script's scratch pair and are both dead here -- every use
+				// of either below this point is an assignment first. A local declared in here would
+				// cost a slot for the WHOLE script, not just this block.
+				factor = 1 << (pnum & 31);
+
+				SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
+				temp = GetUserVariable(0, pnum < 32 ? "user_hitmask_lo" : "user_hitmask_hi");
+				SetUserVariable(0, pnum < 32 ? "user_hitmask_lo" : "user_hitmask_hi", temp | factor);
+				SetActivator(0, AAPTR_DAMAGE_TARGET);
+
+				if(temp & factor) {
+					SetResultValue(0);
+					Terminate;
+				}
+			}
+
 			// A level hazard is neither a monster nor the player's own weapon, so IsMonster(shooter)
 			// skipped the whole player damage pipeline and it landed here with nothing to do: the
 			// miasma is radius damage and got zeroed on the BLASTSELF test below, and the saw had its
@@ -6691,11 +6737,12 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				if(isHazard || arg2 == "Slime" || arg2 == "Crush" || arg2 == "Drowning" || arg2 == "Trap") {
 					// scale these up by player level -- more if its a trap. A hazard belongs to the arena
 					// rather than to whoever walked into it, so it scales on the DUNGEON's level instead.
-					int hz_lvl = GetActorLevel(victim);
+					// temp rather than a local of its own -- see the note on the ripper block above
+					temp = GetActorLevel(victim);
 					if(isHazard && DungeonInformation.level != -1)
-						hz_lvl = DungeonInformation.level;
+						temp = DungeonInformation.level;
 
-					dmg = dmg * (100 + GetBasicMonsterDMGScaling(hz_lvl, arg2 == "Trap")) / 100;
+					dmg = dmg * (100 + GetBasicMonsterDMGScaling(temp, arg2 == "Trap")) / 100;
 
 					// A hazard pays the full defensive chain -- it is real damage with a real type, so
 					// the miasma's poison has to meet poison resist. m_id -1 is the documented "not a
