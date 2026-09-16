@@ -1091,13 +1091,20 @@ bool CheckCritChance(int pnum, int victim, int wepid, bool isLightning, bool noT
 	
 	res = chance > random(0, 1.0);
 
-	// Ultimatum / Diminished Lethality. The mirror of the lucky reroll below -- a successful
-	// roll has to survive a second one. Lucky crits can still rescue it, so the two cancel.
-	if(res && UltimatumHasUnluckyCrits())
-		res = chance > random(0, 1.0);
-	
-	// reroll if bad luck and lucky crit is on
-	if(!res && CheckUniquePropertyOnPlayer(pnum, PUP_LUCKYCRITS))
+	// Lucky takes the BETTER of two rolls, unlucky (Ultimatum / Diminished Lethality) the
+	// WORSE. A roll that is BOTH is neither: they cancel and it stays a single roll.
+	//
+	// Each has to test the other for that to hold. Applied in sequence they do NOT cancel --
+	// unlucky squares the chance and lucky then rerolls the failure, which at a 50% chance
+	// lands on 62.5%, ie. carrying both came out BETTER than carrying neither.
+	bool lucky = CheckUniquePropertyOnPlayer(pnum, PUP_LUCKYCRITS);
+	bool unlucky = UltimatumHasUnluckyCrits();
+
+	if(res) {
+		if(unlucky && !lucky)
+			res = chance > random(0, 1.0);
+	}
+	else if(lucky && !unlucky)
 		res = chance > random(0, 1.0);
 	
 	// rolled crit or has source of a guaranteed crit

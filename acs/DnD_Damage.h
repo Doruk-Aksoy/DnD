@@ -2108,6 +2108,11 @@ int FactorResists(int source, int victim, int wepid, int dmg, int damage_type, i
 	if(CheckActorInventory(victim, "Aura_Ward_Token"))
 		resist += DND_AURAWARD_RESIST;
 
+	// Ultimatum / Walled Off. Here rather than as a damagefactor for exactly the reasons given
+	// just above: added to the true resist it is ordinary resistance, so penetration reduces it
+	// and the immunity cap contains it.
+	resist += GetUltimatumMonsterResistBonus();
+
 	int temp;
 	int pct_val = 0;
 

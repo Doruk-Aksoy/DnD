@@ -278,6 +278,7 @@ Actor OSWallTorch : SwitchableDecoration 12508
   Active:
     WLTR I 0 A_PlaySound("torch/light")
     WLTR I 0 A_Jump(256, "Spawn")
+    "####" "#" 35
     Wait
   Inactive:
     WLTX A 0 A_RemoveChildren(1)
@@ -546,6 +547,7 @@ Actor OSShortTorchRed : SwitchableDecoration 10550
   Active:
     STRC A 0 A_PlaySound("torch/light")
     STRC A 0 A_Jump(256, "Spawn")
+    "####" "#" 35
     Wait
   Inactive:
     STRX A 0 A_RemoveChildren(1)
@@ -814,6 +816,7 @@ Actor OSTallTorchRed : OSShortTorchRed 10549
   Active:
     TTRC A 0 A_PlaySound("torch/light")
     TTRC A 0 A_Jump(256, "Spawn")
+    "####" "#" 35
     Wait
   Inactive:
     TTRX A 0 A_RemoveChildren(1)
@@ -1084,6 +1087,7 @@ Actor OSCeilingTorch : OSWallTorch 12514
   Active:
     CCAU A 0 A_PlaySound("torch/light")
     CCAU A 0 A_Jump(256, "Spawn")
+    "####" "#" 35
     Wait
   Inactive:
     CCAX A 0 A_RemoveChildren(1)

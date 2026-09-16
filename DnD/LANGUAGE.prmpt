@@ -26,6 +26,16 @@ DND_PROMPT9			=	"A certain very powerful monster roams the land. It has been giv
 DND_PROMPT10		=	"A favorable result, luck seems to be on your side... for now. Will you continue, or is it enough?";
 DND_PROMPT11		=	"It seems your luck has not yet run out. Shall we continue, or is this your limit?";
 DND_PROMPT12		=	"Playing with chance is a dangerous game, but, it can also prove to be enriching. Do you wish to pursue further greatness, or live to tell the tale?";
+DND_PROMPT13        =   "Well done challenger. Now you face another choice: further commit to a more difficult challenge, or balk?";
+
+// DW_ULTIMATUM_INTRO1..3 -- the wanderer's FIRST ultimatum offer, before any wave has run.
+DND_PROMPT21		=	"Greetings, challenger. This is the ultimate arena!";
+DND_PROMPT22		=	"I see you've proven yourself worthy for this great challenge.";
+DND_PROMPT23		=	"Time has come to finally prove your mettle.";
+
+DND_PROMPT24        =   "Face the trials of Chaos and pursue your fate. You might die here, now, or you might someday rival the gods themselves. "
+                        "There will be ten waves of enemies surrounding you from every angle. At the start of each wave is a choice you have to make. "
+                        "Will you play it safe and go for a meager reward, or risk it all for ungodly riches?";
 
 DND_ULTIMATUM1      =   "Any monster damage dealt also gets a bonus of 30% as that of a random element.";
 DND_ULTIMATUM2      =   "Occasional blood-soaked blades fly across the room.";
@@ -44,10 +54,11 @@ DND_ULTIMATUM14     =   "60% less area of effect and projectile speed.";
 DND_ULTIMATUM15     =   "Monsters steal 10% of your ammo and energy shield on hits.";
 DND_ULTIMATUM16     =   "Your critical strike chance is unlucky and monsters take 50% less damage from critical strikes.";
 DND_ULTIMATUM17     =   "Monsters cannot be slowed or stunned.";
-DND_ULTIMATUM18     =   "You have reduced recovery rate of life and energy shield.";
+DND_ULTIMATUM18     =   "You have 60% reduced recovery rate of life and energy shield.";
 DND_ULTIMATUM19     =   "Elite and tough enemies have an additional modifier.";
-DND_ULTIMATUM20     =   "You have reduced recovery rate of stamina, and melee cooldowns take much longer to recharge.";
+DND_ULTIMATUM20     =   "You have 50% reduced recovery rate of stamina, and melee cooldowns take thrice as long to recharge.";
 DND_ULTIMATUM21     =   "Your ailments are reflected to you.";
+DND_ULTIMATUM22     =   "Monsters gain +50% to all resists";
 
 // short labels for the offer buttons
 DND_ULTIMATUM_NAME1  =   "Elemental Fury";
@@ -71,6 +82,7 @@ DND_ULTIMATUM_NAME18 =   "Fleeting Life";
 DND_ULTIMATUM_NAME19 =   "Gluttonous Tide";
 DND_ULTIMATUM_NAME20 =   "Rapid Exhaustion";
 DND_ULTIMATUM_NAME21 =   "Taste the Pain";
+DND_ULTIMATUM_NAME22 =   "Walled Off";
 
 // what each option adds per tier
 DND_ULTIMATUM2_T1    =   "Saw blades periodically spawn and fly towards you after a delay.";

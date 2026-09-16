@@ -38,6 +38,13 @@ Ultimatum/StormCall/Strike5    ULTLIGX5
 Ultimatum/StormCall/Strike6    ULTLIGX6
 $random Ultimatum/StormCall/Strike { Ultimatum/StormCall/Strike1 Ultimatum/StormCall/Strike2 Ultimatum/StormCall/Strike3 Ultimatum/StormCall/Strike4 Ultimatum/StormCall/Strike5 Ultimatum/StormCall/Strike6 }
 
+Ultimatum/Stormcall/ChargeLoop  ULTLIGUL
+
+Ultimatum/Stormcall/Loop1       ULTLIGL1
+Ultimatum/Stormcall/Loop2       ULTLIGL2
+Ultimatum/Stormcall/Loop3       ULTLIGL3
+$random Ultimatum/Stormcall/Loop { Ultimatum/Stormcall/Loop1 Ultimatum/Stormcall/Loop2 Ultimatum/Stormcall/Loop3 }
+
 Ultimatum/RagingSpirit/Fire1    ULTFIRS1
 Ultimatum/RagingSpirit/Fire2    ULTFIRS2
 Ultimatum/RagingSpirit/Fire3    ULTFIRS3
@@ -49,6 +56,24 @@ Ultimatum/RagingSpirit/Charge2  ULTFIRC2
 Ultimatum/RagingSpirit/Charge3  ULTFIRC3
 Ultimatum/RagingSpirit/Charge4  ULTFIRC4
 $random Ultimatum/RagingSpirit/Charge { Ultimatum/RagingSpirit/Charge1 Ultimatum/RagingSpirit/Charge2 Ultimatum/RagingSpirit/Charge3 Ultimatum/RagingSpirit/Charge4 }
+
+Ultimatum/Pustule/Idle1         ULTICEL1
+Ultimatum/Pustule/Idle2         ULTICEL2
+Ultimatum/Pustule/Idle3         ULTICEL3
+Ultimatum/Pustule/Idle4         ULTICEL4
+$random Ultimatum/Pustule/Idle { Ultimatum/Pustule/Idle1 Ultimatum/Pustule/Idle2 Ultimatum/Pustule/Idle3 Ultimatum/Pustule/Idle4 }
+
+Ultimatum/Pustule/Charge1       ULTICEC1
+Ultimatum/Pustule/Charge2       ULTICEC2
+Ultimatum/Pustule/Charge3       ULTICEC3
+Ultimatum/Pustule/Charge4       ULTICEC4
+$random Ultimatum/Pustule/Charge { Ultimatum/Pustule/Charge1 Ultimatum/Pustule/Charge2 Ultimatum/Pustule/Charge3 Ultimatum/Pustule/Charge4 }
+
+Ultimatum/Pustule/Explode1       ULTICEE1
+Ultimatum/Pustule/Explode2       ULTICEE2
+Ultimatum/Pustule/Explode3       ULTICEE3
+Ultimatum/Pustule/Explode4       ULTICEE4
+$random Ultimatum/Pustule/Explode { Ultimatum/Pustule/Explode1 Ultimatum/Pustule/Explode2 Ultimatum/Pustule/Explode3 Ultimatum/Pustule/Explode4 }
 
 /////////////
 // CHOICES //
@@ -253,3 +278,8 @@ $random Ultimatum/Choice20 { Ultimatum/Choice20_A Ultimatum/Choice20_B }
 Ultimatum/Choice21_A          ULT_C21A
 Ultimatum/Choice21_B          ULT_C21B
 $random Ultimatum/Choice21 { Ultimatum/Choice21_A Ultimatum/Choice21_B }
+
+// WALLED OFF
+Ultimatum/Choice22_A          ULT_C22A
+Ultimatum/Choice22_B          ULT_C22B
+$random Ultimatum/Choice22 { Ultimatum/Choice22_A Ultimatum/Choice22_B }

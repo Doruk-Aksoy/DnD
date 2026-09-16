@@ -4,6 +4,17 @@
 #include "DnD_Common.h"
 #include "DnD_Incursion.h"
 #include "DnD_MerchantGUI.h"
+// BEFORE the include: DnD_Ultimatum.h picks a line from these ranges, and a macro does not
+// forward reference in BCS. The enum members they name are declared below and resolve at the
+// expansion site, which is all a textual define needs.
+//
+// Extending an ASK run renumbers every lump under it. The INTRO run is last in the enum, so
+// growing that one shifts nothing.
+#define DW_ULTIMATUM_ASK_BEGIN DW_ULTIMATUM_ASK1
+#define DW_ULTIMATUM_ASK_END DW_ULTIMATUM_ASK4
+#define DW_ULTIMATUM_INTRO_BEGIN DW_ULTIMATUM_INTRO1
+#define DW_ULTIMATUM_INTRO_END DW_ULTIMATUM_INTRO3
+
 #include "DnD_Ultimatum.h"
 
 #define DND_ARTIFACT_BASETIME 60
@@ -26,9 +37,11 @@ enum {
 	DW_CHALLENGE2,
 	DW_CHALLENGE3,
 
+	// The between-wave offer lines.
 	DW_ULTIMATUM_ASK1,
 	DW_ULTIMATUM_ASK2,
 	DW_ULTIMATUM_ASK3,
+	DW_ULTIMATUM_ASK4,
 
 	// match order of ultimatum challenges
 	DW_ULTIMATUM_EXTRAELEDMG,
@@ -39,6 +52,19 @@ enum {
     DW_ULTIMATUM_FIRESKULLS,
 
 	MRCH_GREET,
+
+	// The OPENING ultimatum offer, armed before any wave has run -- the ordinary set greets a
+	// wave just survived, which does not fit the first time he appears.
+	//
+	// Appended deliberately. GetPromptText builds DND_PROMPT<id + 1>, so inserting these any
+	// higher up would silently renumber every lump below them.
+	DW_ULTIMATUM_INTRO1,
+	DW_ULTIMATUM_INTRO2,
+	DW_ULTIMATUM_INTRO3,
+
+	// Printed UNDER whichever of the three above was picked, not instead of one -- the three
+	// are greetings and this is the explanation they all share.
+	DW_ULTIMATUM_INTRO_COMMON,
 
 	MAX_PROMPTED_LINES
 };
@@ -58,6 +84,7 @@ enum {
 
 enum {
 	DND_NPC_DARKWANDERER,
+	DND_NPC_MERCHANT,
 };
 #define MAX_DND_NPCS (DND_NPC_DARKWANDERER + 1)
 #define NPC_APPEAR_CHANCE 0.15 // 15%
@@ -203,26 +230,35 @@ str GetUltimatumTierText(int id, int tier) {
 	return StrParam(s:"\n     \ck", l:"DND_TIER", s:" ", d:tier, s:"\n", l:lump, s:"\c-");
 }
 
-// which of the two the group picked. ties go to the first, so a split never stalls
+// which of the offered options the group picked. Ties go to the EARLIER slot, so a split never
+// stalls -- strictly greater is what keeps slot 1 winning a draw.
 int ResolveUltimatumVoteChoice(int npc_id) {
-	int opt1 = GetUltimatumOfferOption(NPC_States[npc_id].offer, 0);
-	int opt2 = GetUltimatumOfferOption(NPC_States[npc_id].offer, 1);
+	int tally[ULTIMATUM_OFFER_SLOTS];
+	int i;
 
-	int c1 = 0, c2 = 0;
-	for(int i = 0; i < MAXPLAYERS; ++i) {
+	for(i = 0; i < ULTIMATUM_OFFER_SLOTS; ++i)
+		tally[i] = 0;
+
+	for(i = 0; i < MAXPLAYERS; ++i) {
 		if(NPC_States[npc_id].voters[i] != 1)
 			continue;
 
-		if(opt2 != -1 && NPC_States[npc_id].voter_choice[i] == opt2)
-			++c2;
-		else if(NPC_States[npc_id].voter_choice[i] == opt1)
-			++c1;
+		for(int s = 0; s < ULTIMATUM_OFFER_SLOTS; ++s) {
+			int opt = GetUltimatumOfferOption(NPC_States[npc_id].offer, s);
+			if(opt != -1 && NPC_States[npc_id].voter_choice[i] == opt) {
+				++tally[s];
+				break;
+			}
+		}
 	}
 
-	if(opt2 != -1 && c2 > c1)
-		return opt2;
+	int best = 0;
+	for(i = 1; i < ULTIMATUM_OFFER_SLOTS; ++i) {
+		if(GetUltimatumOfferOption(NPC_States[npc_id].offer, i) != -1 && tally[i] > tally[best])
+			best = i;
+	}
 
-	return opt1;
+	return GetUltimatumOfferOption(NPC_States[npc_id].offer, best);
 }
 
 // TRADBTN is a 77x16 graphic with no tileable middle, so a long label is fitted by STRETCHING it.
@@ -232,11 +268,22 @@ int ResolveUltimatumVoteChoice(int npc_id) {
 
 // At 152 the longest option names ran well past their plate -- "Overwhelming Monsters" wants 202
 // and was drawn on a 152 one.
-#define TRADBTN_MAXW 232
+// A fourth button means the row is wider: at the cap, 4 plates plus 3 gaps have to stay inside
+// the 960 hud AND inside the cursor space once mirrored. 216 is what that allows; the longest
+// label in the game wants 202.
+#define TRADBTN_MAXW 216
 
 // Gap between neighbouring offer plates, and the point the row is centred on.
 #define DND_ULTBTN_GAP 24
 #define DND_ULTBTN_CENTRE 480
+
+// the offered options, plus decline on the end
+#define DND_ULTBTN_COUNT (ULTIMATUM_OFFER_SLOTS + 1)
+
+// A box id is its POSITION in the pane, so the two that follow the button row move whenever the
+// row grows. Named off the count rather than written out, which is what went wrong last time.
+#define DND_ULTBOX_CELL (MBOX_1 + DND_ULTBTN_COUNT)
+#define DND_ULTBOX_BANKBTN (DND_ULTBOX_CELL + 1)
 
 int GetPromptButtonWidth(str lump) {
 	// StrParam resolves the lump, so this measures what is DRAWN, not the key
@@ -247,7 +294,7 @@ int GetPromptButtonWidth(str lump) {
 	return Min(TRADBTN_W * chars / TRADBTN_FITCHARS, TRADBTN_MAXW);
 }
 
-// Centre x for one of the three offer buttons: slot 0 left, 1 on the centre, 2 right.
+// Centre x for one of the offer buttons -- the options in slot order, then decline last.
 //
 // The pitch is sized to the WIDEST of the three in THIS offer rather than to the longest name in
 // the game, so a row of short labels closes up instead of sitting marooned. Uniform pitch rather
@@ -258,13 +305,17 @@ int GetPromptButtonWidth(str lump) {
 int GetUltimatumOfferButtonX(int offer_id, int slot) {
 	int w = GetPromptButtonWidth("DND_DECLINE"), t;
 
-	for(int i = 0; i < 2; ++i) {
+	for(int i = 0; i < ULTIMATUM_OFFER_SLOTS; ++i) {
 		t = GetUltimatumOfferOption(offer_id, i);
 		if(t != -1 && (t = GetPromptButtonWidth(GetUltimatumOptionName(t))) > w)
 			w = t;
 	}
 
-	return ((DND_ULTBTN_CENTRE + (slot - 1) * (w + DND_ULTBTN_GAP)) << 16) + 0.4;
+	// Centred as a row of DND_ULTBTN_COUNT. Doubled so an EVEN count lands on half pitches --
+	// with four buttons nothing sits on the centre line, and rounding to whole pitches would
+	// shove the whole row half a button off.
+	return ((DND_ULTBTN_CENTRE +
+		(2 * slot - (DND_ULTBTN_COUNT - 1)) * (w + DND_ULTBTN_GAP) / 2) << 16) + 0.4;
 }
 
 // cursor space is the draw space mirrored and halved: c = max - draw / 2. holds for all three
@@ -362,18 +413,25 @@ void BuildUltimatumOfferPane(menu_pane_T module& p, int offer_id, int yOff, bool
 
 	// The challenge is not reachable from inside the bank -- its buttons come off the screen, so
 	// their boxes go with them. The three SLOTS stay: a box id is its position in the pane.
+	int bi;
 	if(showbank) {
-		AddBoxToPane_Points(p, -1, -1, -1, -1);
-		AddBoxToPane_Points(p, -1, -1, -1, -1);
-		AddBoxToPane_Points(p, -1, -1, -1, -1);
+		for(bi = 0; bi < DND_ULTBTN_COUNT; ++bi)
+			AddBoxToPane_Points(p, -1, -1, -1, -1);
 	}
 	else {
-		AddPromptButtonBox(p, GetUltimatumOfferButtonX(offer_id, 0), yOff, GetPromptButtonWidth(GetUltimatumOptionName(GetUltimatumOfferOption(offer_id, 0))));
-		if(GetUltimatumOfferOption(offer_id, 1) != -1)
-			AddPromptButtonBox(p, GetUltimatumOfferButtonX(offer_id, 1), yOff, GetPromptButtonWidth(GetUltimatumOptionName(GetUltimatumOfferOption(offer_id, 1))));
-		else
-			AddBoxToPane_Points(p, -1, -1, -1, -1);
-		AddPromptButtonBox(p, GetUltimatumOfferButtonX(offer_id, 2), yOff, GetPromptButtonWidth("DND_DECLINE"));
+		// An empty slot still takes its box: an id is a POSITION in the pane, so skipping one
+		// slides decline up onto it.
+		for(bi = 0; bi < ULTIMATUM_OFFER_SLOTS; ++bi) {
+			int bo = GetUltimatumOfferOption(offer_id, bi);
+			if(bo != -1)
+				AddPromptButtonBox(p, GetUltimatumOfferButtonX(offer_id, bi), yOff,
+					GetPromptButtonWidth(GetUltimatumOptionName(bo)));
+			else
+				AddBoxToPane_Points(p, -1, -1, -1, -1);
+		}
+
+		AddPromptButtonBox(p, GetUltimatumOfferButtonX(offer_id, ULTIMATUM_OFFER_SLOTS), yOff,
+			GetPromptButtonWidth("DND_DECLINE"));
 	}
 
 	AddUltimatumRewardCellBox(p, DND_ULTREWARD_OFFERX, DND_ULTREWARD_OFFERY);
@@ -871,7 +929,10 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 	int yOff = 384.0;
 
 	// ultimatum offers, unpacked once. locals are function scoped in BCS, hence up here
-	int ult_opt1 = -1, ult_opt2 = -1;
+	int i, j, k;
+	int ult_opts[ULTIMATUM_OFFER_SLOTS];
+	int ult_col[DND_ULTBTN_COUNT];
+	int ult_dialog = -1;
 	str ult_body = "";
 	int declined = 0;
 	// the bank view is local to this client -- nothing about looking at it concerns the server
@@ -916,28 +977,33 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 		}
 		else {
 			// both offers, described. built as a string since the second half is conditional
-			ult_opt1 = GetUltimatumOfferOption(offer_id, 0);
-			ult_opt2 = GetUltimatumOfferOption(offer_id, 1);
+			for(i = 0; i < ULTIMATUM_OFFER_SLOTS; ++i)
+				ult_opts[i] = GetUltimatumOfferOption(offer_id, i);
+
+			ult_dialog = CheckInventory("ReceivedDialogID");
+			ult_body = StrParam(l:GetPromptText(ult_dialog));
+
+			// The opening offer is a greeting picked from three, then the explanation all three
+			// share. Every other round is one line and adds nothing.
+			if(ult_dialog >= DW_ULTIMATUM_INTRO_BEGIN && ult_dialog <= DW_ULTIMATUM_INTRO_END)
+				ult_body = StrParam(s:ult_body, s:"\n\n", l:GetPromptText(DW_ULTIMATUM_INTRO_COMMON));
 
 			ult_body = StrParam(
-				l:GetPromptText(CheckInventory("ReceivedDialogID")),
+				s:ult_body,
 				s:"\n\n\c[Y5]---------------------------------------\n\n",
 				s:"\c[W3]", l:"DND_CHALLENGE", s:":\n\n"
 			);
 
-			ult_body = StrParam(
-				s:ult_body,
-				s:"\c[Y5]1) \c[W3]", l:GetUltimatumOptionName(ult_opt1), s:"\c-\n     ",
-				l:GetUltimatumPromptText(ult_opt1),
-				s:GetUltimatumTierText(ult_opt1, GetUltimatumOptionTier(ult_opt1) + 1), s:"\n\n"
-			);
+			// numbered by SLOT, so the text and the button under it always carry the same number
+			for(i = 0; i < ULTIMATUM_OFFER_SLOTS; ++i) {
+				if(ult_opts[i] == -1)
+					continue;
 
-			if(ult_opt2 != -1) {
 				ult_body = StrParam(
 					s:ult_body,
-					s:"\c[Y5]2) \c[W3]", l:GetUltimatumOptionName(ult_opt2), s:"\c-\n     ",
-					l:GetUltimatumPromptText(ult_opt2),
-					s:GetUltimatumTierText(ult_opt2, GetUltimatumOptionTier(ult_opt2) + 1), s:"\n"
+					s:"\c[Y5]", d:i + 1, s:") \c[W3]", l:GetUltimatumOptionName(ult_opts[i]), s:"\c-\n     ",
+					l:GetUltimatumPromptText(ult_opts[i]),
+					s:GetUltimatumTierText(ult_opts[i], GetUltimatumOptionTier(ult_opts[i]) + 1), s:"\n\n"
 				);
 			}
 
@@ -964,14 +1030,14 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 		yOff = 192.0;
 	}
 	else {
-		// An ultimatum offer_id is a PACKED PAIR, not a challenge id, so it must never reach the
+		// An ultimatum offer_id is a PACKED SET of options, not a challenge id, so it must never reach the
 		// challenge lookup above -- that is what printed a raw DND_PROMPT lump name. Reachable by
 		// anyone who opens the prompt between a vote settling and the next round arming the npc.
-		ult_opt1 = NPC_States[DND_NPC_DARKWANDERER].voter_choice[PlayerNumber()];
-		if(ult_opt1 != -1) {
+		i = NPC_States[DND_NPC_DARKWANDERER].voter_choice[PlayerNumber()];
+		if(i != -1) {
 			HudMessage(
 				s:"\c[W3]", l:"DND_CHALLENGE", s:" - \cd", l:"DND_ACCEPTED", s:"\c[W3]:\n\n",
-				s:"\c[Y5]", l:GetUltimatumOptionName(ult_opt1), s:"\c-\n     ", l:GetUltimatumPromptText(ult_opt1);
+				s:"\c[Y5]", l:GetUltimatumOptionName(i), s:"\c-\n     ", l:GetUltimatumPromptText(i);
 				HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 160.1, 128.1, 0.0, 0.0
 			);
 		}
@@ -989,7 +1055,6 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 	PlayerCursorData.posy = HUDMAX_YF / 2;
 
 	int boxid = MAINBOX_NONE, boxid_prev = MAINBOX_NONE;
-	int i, j, k;
 	int pnum = PlayerNumber();
 	bool sendInput = false;
 	while(isAlive() && CheckInventory("ShowingPrompt") && !CheckInventory("ShowingMenu")) {
@@ -1005,8 +1070,12 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 		// button id recognition
 		// Cursor space is the draw space MIRRORED, so the LEFTMOST button carries the highest cursor
 		// x -- and the 348 default cut it off entirely once the offer row widened. The class menu and
-		// the merchant override this the same way. 432 clears the widest row the offer can lay out.
-		boxid = GetTriggeredBoxOnPane(CurrentPane, PlayerCursorData.posx, PlayerCursorData.posy, 432.0);
+		// the merchant override this the same way.
+		//
+		// A four button row reaches 474 at the width cap, so this is simply the whole cursor space:
+		// GetCursorPos clamps to HUDMAX_X, and a box only exists where one was added, so opening it
+		// up adds reach rather than phantom targets.
+		boxid = GetTriggeredBoxOnPane(CurrentPane, PlayerCursorData.posx, PlayerCursorData.posy, HUDMAX_XF);
 		if(boxid != boxid_prev && boxid != MAINBOX_NONE)
 			LocalAmbientSound("RPG/MenuMove", 127);
 			
@@ -1022,54 +1091,58 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 				i = NPC_States[DND_NPC_DARKWANDERER].voter_choice[pnum];
 				j = CheckInventory("NPC_Offer_Accepted");
 
-				DrawPromptButton(
-					GetUltimatumOptionName(ult_opt1),
-					(j && i == ult_opt1) ? 2 : (boxid == MBOX_1 ? 1 : 0),
-					RPGMENUITEMID - 3, RPGMENUITEMID - 1, GetUltimatumOfferButtonX(offer_id, 0), yOff
-				);
+				// two hud ids per button, label and plate, walked down so they never collide
+				for(k = 0; k < ULTIMATUM_OFFER_SLOTS; ++k) {
+					if(ult_opts[k] == -1)
+						continue;
 
-				if(ult_opt2 != -1) {
 					DrawPromptButton(
-						GetUltimatumOptionName(ult_opt2),
-						(j && i == ult_opt2) ? 2 : (boxid == MBOX_2 ? 1 : 0),
-						RPGMENUITEMID - 4, RPGMENUITEMID - 2, GetUltimatumOfferButtonX(offer_id, 1), yOff
+						GetUltimatumOptionName(ult_opts[k]),
+						(j && i == ult_opts[k]) ? 2 : (boxid == MBOX_1 + k ? 1 : 0),
+						RPGMENUITEMID - 3 - 2 * k, RPGMENUITEMID - 1 - 2 * k,
+						GetUltimatumOfferButtonX(offer_id, k), yOff
 					);
 				}
 
 				DrawPromptButton(
 					"DND_DECLINE",
-					CheckInventory("NPC_Offer_Declined") ? 2 : (boxid == MBOX_3 ? 1 : 0),
-					RPGMENUITEMID - 7, RPGMENUITEMID - 6, GetUltimatumOfferButtonX(offer_id, 2), yOff
+					CheckInventory("NPC_Offer_Declined") ? 2 : (boxid == MBOX_1 + ULTIMATUM_OFFER_SLOTS ? 1 : 0),
+					RPGMENUITEMID - 3 - 2 * ULTIMATUM_OFFER_SLOTS, RPGMENUITEMID - 1 - 2 * ULTIMATUM_OFFER_SLOTS,
+					GetUltimatumOfferButtonX(offer_id, ULTIMATUM_OFFER_SLOTS), yOff
 				);
 
 				// who sits under which button
 				SetFont("SMALLFONT");
-				j = 0;
-				k = 0;
-				declined = 0;
+				for(k = 0; k < DND_ULTBTN_COUNT; ++k)
+					ult_col[k] = 0;
+
 				for(i = 0; i < MAXPLAYERS; ++i) {
+					// a vote of 1 is for one of the options, -1 is the decline column on the end
 					if(NPC_States[DND_NPC_DARKWANDERER].voters[i] == 1) {
-						if(ult_opt2 != -1 && NPC_States[DND_NPC_DARKWANDERER].voter_choice[i] == ult_opt2) {
-							HudMessage(n:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - 20 - i, CR_UNTRANSLATED, GetUltimatumOfferButtonX(offer_id, 1), yOff + 16.0 * (k + 1), 0.0, 0.0);
-							++k;
-						}
-						else {
-							HudMessage(n:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - 20 - i, CR_UNTRANSLATED, GetUltimatumOfferButtonX(offer_id, 0), yOff + 16.0 * (j + 1), 0.0, 0.0);
-							++j;
+						k = 0;
+						for(j = 0; j < ULTIMATUM_OFFER_SLOTS; ++j) {
+							if(ult_opts[j] != -1 && NPC_States[DND_NPC_DARKWANDERER].voter_choice[i] == ult_opts[j]) {
+								k = j;
+								break;
+							}
 						}
 					}
-					else if(NPC_States[DND_NPC_DARKWANDERER].voters[i] == -1) {
-						HudMessage(n:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - 20 - i, CR_UNTRANSLATED, GetUltimatumOfferButtonX(offer_id, 2), yOff + 16.0 * (declined + 1), 0.0, 0.0);
-						++declined;
-					}
+					else if(NPC_States[DND_NPC_DARKWANDERER].voters[i] == -1)
+						k = ULTIMATUM_OFFER_SLOTS;
+					else
+						continue;
+
+					HudMessage(n:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - 20 - i, CR_UNTRANSLATED,
+						GetUltimatumOfferButtonX(offer_id, k), yOff + 16.0 * (ult_col[k] + 1), 0.0, 0.0);
+					++ult_col[k];
 				}
 			}
 
 			// what this round pays, and the way in and out of the bank
-			DrawUltimatumRewardCell(ULTIMATUM_REWARD_PENDING, DND_ULTREWARD_OFFERX, DND_ULTREWARD_OFFERY, boxid == MBOX_4, DND_ULTREWARD_HUDID);
+			DrawUltimatumRewardCell(ULTIMATUM_REWARD_PENDING, DND_ULTREWARD_OFFERX, DND_ULTREWARD_OFFERY, boxid == DND_ULTBOX_CELL, DND_ULTREWARD_HUDID);
 			DrawPromptButton(
 				GetUltimatumBankButtonLump(ult_showbank),
-				boxid == MBOX_5 ? 1 : 0,
+				boxid == DND_ULTBOX_BANKBTN ? 1 : 0,
 				RPGMENUITEMID - 9, RPGMENUITEMID - 8, DND_ULTREWARD_BTNX, DND_ULTREWARD_BTNY
 			);
 
@@ -1085,10 +1158,10 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 
 			// the full item tooltip, but only while an icon cell is actually under the cursor
 			ult_cell = -1;
-			if(boxid == MBOX_4)
+			if(boxid == DND_ULTBOX_CELL)
 				ult_cell = ULTIMATUM_REWARD_PENDING;
-			else if(ult_showbank && boxid > MBOX_5 && boxid - MBOX_5 - 1 < ult_banked)
-				ult_cell = boxid - MBOX_5 - 1;
+			else if(ult_showbank && boxid > DND_ULTBOX_BANKBTN && boxid - DND_ULTBOX_BANKBTN - 1 < ult_banked)
+				ult_cell = boxid - DND_ULTBOX_BANKBTN - 1;
 
 			i = ult_cell != -1 ? GetUltimatumRewardItemType(ult_cell) : DND_ITEM_NULL;
 			if(i != DND_ITEM_NULL) {
@@ -1157,9 +1230,9 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 			// Every reward box is local to this client -- looking at your own spoils is nobody's
 			// business but yours -- so they are handled ahead of the lockout and stay usable after a
 			// vote. USE still has to close the prompt, hence the button check.
-			if(InformationInLevel[LEVELINFO_ISULTIMATUM] && boxid >= MBOX_4 &&
+			if(InformationInLevel[LEVELINFO_ISULTIMATUM] && boxid >= DND_ULTBOX_CELL &&
 				CheckInventory("MenuInput") != DND_MENUINPUT_USEBUTTON) {
-				if(boxid == MBOX_5) {
+				if(boxid == DND_ULTBOX_BANKBTN) {
 					ult_showbank = !ult_showbank;
 					ult_banked = GetUltimatumRewardCount();
 					LocalAmbientSound("RPG/MenuChoose", 127);
@@ -1238,15 +1311,13 @@ Script "DND Server Box Receive - NPC" (int pnum, int boxid, int npc_id) NET {
 		}
 		else if(boxid != MAINBOX_NONE) {
 			if(npc_id != -1) {
-				// two challenges and a way out -- first two boxes are both an accept
+				// the option boxes are all an accept, and decline is the one after them
 				if(InformationInLevel[LEVELINFO_ISULTIMATUM]) {
 					int picked = -1;
-					if(boxid == MBOX_1)
-						picked = GetUltimatumOfferOption(NPC_States[npc_id].offer, 0);
-					else if(boxid == MBOX_2)
-						picked = GetUltimatumOfferOption(NPC_States[npc_id].offer, 1);
+					if(boxid >= MBOX_1 && boxid < MBOX_1 + ULTIMATUM_OFFER_SLOTS)
+						picked = GetUltimatumOfferOption(NPC_States[npc_id].offer, boxid - MBOX_1);
 
-					if(boxid == MBOX_1 || boxid == MBOX_2) {
+					if(boxid >= MBOX_1 && boxid < MBOX_1 + ULTIMATUM_OFFER_SLOTS) {
 						// empty second slot is not a button
 						if(picked != -1) {
 							// written here -- Vote Register is at the 3 arg limit already
@@ -1260,7 +1331,7 @@ Script "DND Server Box Receive - NPC" (int pnum, int boxid, int npc_id) NET {
 							GiveInventory("DnD_PromptLocked", 1);
 						}
 					}
-					else if(boxid == MBOX_3) {
+					else if(boxid == MBOX_1 + ULTIMATUM_OFFER_SLOTS) {
 						NPC_States[npc_id].voter_choice[pnum] = -1;
 						ACS_NamedExecuteWithResult("DnD NPC Choice Sync", pnum, -1, npc_id);
 
@@ -1473,6 +1544,28 @@ void HandleNPCChallenges() {
 	else {
 		ACS_NamedExecuteAlways("DnD Handle Ultimatum Finish", 0);
 	}
+}
+
+Script "DnD Spawn NPC Spot" (int stid, int npc_type) {
+	int newtid = 0;
+	str actortype = "";
+	if(npc_type == DND_NPC_DARKWANDERER) {
+		newtid = DND_NPC_TID;
+		actortype = "DarkWanderer";
+	}
+	else if(npc_type == DND_NPC_MERCHANT) {
+		newtid = DND_MERCHANT_TID;
+		actortype = "DnD_Merchant";
+	}
+
+	SpawnSpotFacing(actortype, stid, newtid);
+
+	if(npc_type == DND_NPC_DARKWANDERER)
+		SetThingSpecial(newtid, ACS_ExecuteAlways, 895, 0, 0, DND_NPC_TID);
+	else if(npc_type == DND_NPC_MERCHANT)
+		SetThingSpecial(newtid, ACS_ExecuteAlways, 895, 0, 1, DND_MERCHANT_TID);
+
+	SetResultValue(0);
 }
 
 #endif

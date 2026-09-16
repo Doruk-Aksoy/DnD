@@ -59,8 +59,8 @@ map DND01 "Void Keep" {
 	AirControl = 0.25
 }
 
-map DNDBOS1 "Trials of Chaos" {
-	music = "DNDM02"
+map DNDULTIM "Trials of Chaos" {
+	music = ""
    sky1 = "HNX_533"
 	SmoothLighting
 	lightmode = 3 // dark

@@ -33,6 +33,7 @@ namespace ultimatum {
         TP_TID_MIDSECTION = 4045,                // used for spawning rewards, the NPC etc.
 
         ULTIMATUM_RATE_MULT = 0.1,
+        ULTIMATUM_RATE_INC_PER_WAVE = 0.05,
         ULTIMATUM_WAKECHANCE = 0.6,
 
         TP_TID_SAWBLADE_BEGIN = 6000,
@@ -86,6 +87,7 @@ namespace ultimatum {
         ULTIMATUM_OPTION_GLUTTONOUSTIDE,
         ULTIMATUM_OPTION_RAPIDEXHAUSTION,
         ULTIMATUM_OPTION_TASTETHEPAIN,
+        ULTIMATUM_OPTION_WALLEDOFF,
 
         ULTIMATUM_OPTION_COUNT
     };
@@ -121,11 +123,11 @@ typedef struct {
     int is_wave_complete;
 } ultimatum_curr_tally_T;
 
-void AddFormationToWave(ultimatum_wave_T module& w, int variant, str actor, int amt, int del, int type) {    
+void AddFormationToWave(ultimatum_wave_T module& w, int variant, str actor, int amt, int del, int type, int wave_id) {    
     int count = w.formation_count[variant];
     w.info[variant][count].actor_name = actor;
     w.info[variant][count].amount = amt;
-    w.info[variant][count].spawn_delay = (del * ultimatum::ULTIMATUM_RATE_MULT) >> 16;
+    w.info[variant][count].spawn_delay = (del * (ultimatum::ULTIMATUM_RATE_MULT + ultimatum::ULTIMATUM_RATE_INC_PER_WAVE * wave_id)) >> 16;
     w.info[variant][count].formation_type = type;
 
     w.formation_types_used |= type;
@@ -198,235 +200,245 @@ ultimatum_wave_T module& GetUltimatumWaveInfo(int id) {
         init = true;
 
         // variant 1-N, waves 1-10
-        auto curr_wave = waves[0];
+        int wave_id = 0;
+        auto curr_wave = waves[wave_id];
         curr_wave.variants = 3;
-        AddFormationToWave(curr_wave, 0, "Sabreclaw", 32, TICRATE, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "EarthGolem", 20, TICRATE, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "Devil2", 24, TICRATE, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "AxeKnight", 16, TICRATE * 3, WAVE_FORMATION_SIDELINE_ROOFS);
+        AddFormationToWave(curr_wave, 0, "Sabreclaw", 32, TICRATE, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "EarthGolem", 20, TICRATE, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "Devil2", 24, TICRATE, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "AxeKnight", 16, TICRATE * 3, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
 
-        AddFormationToWave(curr_wave, 1, "Nhumcign", 32, TICRATE, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "Shadow", 32, TICRATE, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "Lurker", 20, TICRATE, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "AxeKnight", 16, TICRATE * 3, WAVE_FORMATION_SIDELINE_ROOFS);
+        AddFormationToWave(curr_wave, 1, "Nhumcign", 32, TICRATE, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "Shadow", 32, TICRATE, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "Lurker", 20, TICRATE, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "AxeKnight", 16, TICRATE * 3, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
 
-        AddFormationToWave(curr_wave, 2, "SoulEater", 32, TICRATE, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "Roach", 32, TICRATE, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "Devourer", 20, TICRATE, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "AxeKnight", 16, TICRATE * 3, WAVE_FORMATION_SIDELINE_ROOFS);
+        AddFormationToWave(curr_wave, 2, "SoulEater", 32, TICRATE, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "Roach", 32, TICRATE, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "Devourer", 20, TICRATE, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "AxeKnight", 16, TICRATE * 3, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
 
-        curr_wave = waves[1];
+        ++wave_id;
+        curr_wave = waves[wave_id];
         curr_wave.variants = 3;
-        AddFormationToWave(curr_wave, 0, "MoonSatyr", 12, TICRATE * 4, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "BloodSatyr", 20, TICRATE * 2, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "HellsFury", 16, TICRATE * 3, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "Shadow", 32, TICRATE * 4, WAVE_FORMATION_SIDELINE_ROOFS);
+        AddFormationToWave(curr_wave, 0, "MoonSatyr", 12, TICRATE * 4, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "BloodSatyr", 20, TICRATE * 2, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "HellsFury", 16, TICRATE * 3, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "Shadow", 32, TICRATE * 4, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
 
-        AddFormationToWave(curr_wave, 1, "IceGolem", 14, TICRATE * 4, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "ShadowBeast", 16, TICRATE * 2, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "ChaosSerpent", 16, TICRATE * 3, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "AxeKnight", 16, TICRATE * 4, WAVE_FORMATION_SIDELINE_ROOFS);
+        AddFormationToWave(curr_wave, 1, "IceGolem", 14, TICRATE * 4, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "ShadowBeast", 16, TICRATE * 2, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "ChaosSerpent", 16, TICRATE * 3, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "AxeKnight", 16, TICRATE * 4, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
 
-        AddFormationToWave(curr_wave, 2, "SludgeGiant", 20, TICRATE * 3, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "Yeti", 12, TICRATE * 5, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "AxeKnight", 24, TICRATE * 4, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "ChaosSerpent", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_ROOFS);
+        AddFormationToWave(curr_wave, 2, "SludgeGiant", 20, TICRATE * 3, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "Yeti", 12, TICRATE * 5, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "AxeKnight", 24, TICRATE * 4, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "ChaosSerpent", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
     
-        curr_wave = waves[2];
+        ++wave_id;
+        curr_wave = waves[wave_id];
         curr_wave.variants = 3;
-        AddFormationToWave(curr_wave, 0, "ShadowBeast", 16, TICRATE * 4, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "Nhumcign", 30, TICRATE * 2, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "BloodGolem", 6, TICRATE * 8, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "Wicked", 20, TICRATE * 3, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 0, "ChaosSerpent", 12, TICRATE * 5, WAVE_FORMATION_SIDELINE_ROOFS);
+        AddFormationToWave(curr_wave, 0, "ShadowBeast", 16, TICRATE * 4, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "Nhumcign", 30, TICRATE * 2, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "BloodGolem", 6, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "Wicked", 20, TICRATE * 3, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 0, "ChaosSerpent", 12, TICRATE * 5, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
 
-        AddFormationToWave(curr_wave, 1, "IceGolem", 20, TICRATE * 4, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "Lurker", 24, TICRATE * 2, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "BloodGolem", 6, TICRATE * 7, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "Cacolich", 16, TICRATE * 3, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 1, "AxeKnight", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_ROOFS);
+        AddFormationToWave(curr_wave, 1, "IceGolem", 20, TICRATE * 4, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "Lurker", 24, TICRATE * 2, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "BloodGolem", 6, TICRATE * 7, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "Cacolich", 16, TICRATE * 3, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 1, "AxeKnight", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
 
-        AddFormationToWave(curr_wave, 2, "SludgeGiant", 20, TICRATE * 4, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "BloodSatyr", 16, TICRATE * 2, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "BloodGolem", 6, TICRATE * 7, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "EarthLich", 16, TICRATE * 3, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 2, "Draugr", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_ROOFS);
+        AddFormationToWave(curr_wave, 2, "SludgeGiant", 20, TICRATE * 4, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "BloodSatyr", 16, TICRATE * 2, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "BloodGolem", 6, TICRATE * 7, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "EarthLich", 16, TICRATE * 3, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 2, "Draugr", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
 
-        curr_wave = waves[3];
+        ++wave_id;
+        curr_wave = waves[wave_id];
         curr_wave.variants = 3;
-        AddFormationToWave(curr_wave, 0, "BlackKnight", 32, TICRATE * 5, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "DreadKnight", 12, TICRATE * 3, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "BloodGolem", 12, TICRATE * 8, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "Wicked", 20, TICRATE * 4, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 0, "Draugr", 12, TICRATE * 5, WAVE_FORMATION_SIDELINE_ROOFS);
-        AddFormationToWave(curr_wave, 0, "Corpulent", 6, TICRATE * 4, WAVE_FORMATION_SIDELINE_WINDOWS);
+        AddFormationToWave(curr_wave, 0, "BlackKnight", 32, TICRATE * 5, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "DreadKnight", 12, TICRATE * 3, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "BloodGolem", 12, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "Wicked", 20, TICRATE * 4, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 0, "Draugr", 12, TICRATE * 5, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
+        AddFormationToWave(curr_wave, 0, "Corpulent", 6, TICRATE * 4, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
 
-        AddFormationToWave(curr_wave, 1, "ChaosSerpent", 24, TICRATE * 5, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "MagmaSerpent", 18, TICRATE * 3, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "BloodGolem", 12, TICRATE * 8, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "Cacolich", 16, TICRATE * 4, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 1, "AxeKnight", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_ROOFS);
-        AddFormationToWave(curr_wave, 1, "Vore", 6, TICRATE * 4, WAVE_FORMATION_SIDELINE_WINDOWS);
+        AddFormationToWave(curr_wave, 1, "ChaosSerpent", 24, TICRATE * 5, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "MagmaSerpent", 18, TICRATE * 3, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "BloodGolem", 12, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "Cacolich", 16, TICRATE * 4, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 1, "AxeKnight", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
+        AddFormationToWave(curr_wave, 1, "Vore", 6, TICRATE * 4, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
     
-        AddFormationToWave(curr_wave, 2, "SkullWizard", 36, TICRATE * 5, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "MagmaGolem", 12, TICRATE * 3, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "BloodGolem", 12, TICRATE * 8, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "EarthLich", 16, TICRATE * 4, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 2, "DarkServant", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_ROOFS);
-        AddFormationToWave(curr_wave, 2, "Gamon", 6, TICRATE * 4, WAVE_FORMATION_SIDELINE_WINDOWS);
+        AddFormationToWave(curr_wave, 2, "SkullWizard", 36, TICRATE * 5, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "MagmaGolem", 12, TICRATE * 3, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "BloodGolem", 12, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "EarthLich", 16, TICRATE * 4, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 2, "DarkServant", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
+        AddFormationToWave(curr_wave, 2, "Gamon", 6, TICRATE * 4, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
    
-        curr_wave = waves[4];
+        ++wave_id;
+        curr_wave = waves[wave_id];
         curr_wave.variants = 3;
-        AddFormationToWave(curr_wave, 0, "DarkServant", 20, TICRATE * 12, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "DarkServant", 12, TICRATE * 6, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "DarkZealot", 12, TICRATE * 9, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "Wicked", 24, TICRATE * 4, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 0, "HellArbiter", 10, TICRATE * 9, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 0, "Draugr", 12, TICRATE * 9, WAVE_FORMATION_SIDELINE_ROOFS);
-        AddFormationToWave(curr_wave, 0, "Corpulent", 9, TICRATE * 3, WAVE_FORMATION_SIDELINE_WINDOWS);
+        AddFormationToWave(curr_wave, 0, "DarkServant", 20, TICRATE * 12, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "DarkServant", 12, TICRATE * 6, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "DarkZealot", 12, TICRATE * 9, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "Wicked", 24, TICRATE * 4, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 0, "HellArbiter", 10, TICRATE * 9, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 0, "Draugr", 12, TICRATE * 9, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
+        AddFormationToWave(curr_wave, 0, "Corpulent", 9, TICRATE * 3, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
 
-        AddFormationToWave(curr_wave, 1, "HellWarrior", 18, TICRATE * 12, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "Kjaroch", 10, TICRATE * 6, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "FleshWizard", 12, TICRATE * 9, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "EarthLich", 20, TICRATE * 4, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 1, "BloodLich", 8, TICRATE * 9, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 1, "Crawler", 16, TICRATE * 9, WAVE_FORMATION_SIDELINE_ROOFS);
-        AddFormationToWave(curr_wave, 1, "Vore", 9, TICRATE * 4, WAVE_FORMATION_SIDELINE_WINDOWS);
+        AddFormationToWave(curr_wave, 1, "HellWarrior", 18, TICRATE * 12, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "Kjaroch", 10, TICRATE * 6, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "FleshWizard", 12, TICRATE * 9, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "EarthLich", 20, TICRATE * 4, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 1, "BloodLich", 8, TICRATE * 9, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 1, "Crawler", 16, TICRATE * 9, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
+        AddFormationToWave(curr_wave, 1, "Vore", 9, TICRATE * 4, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
 
-        AddFormationToWave(curr_wave, 2, "IceGolem", 16, TICRATE * 12, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "Lavademon", 10, TICRATE * 7, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "Hierophant", 12, TICRATE * 9, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "ShadowPriest", 20, TICRATE * 7, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 2, "DESentinel", 8, TICRATE * 8, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 2, "AxeKnight", 16, TICRATE * 9, WAVE_FORMATION_SIDELINE_ROOFS);
-        AddFormationToWave(curr_wave, 2, "HellforgeSpider", 9, TICRATE * 4, WAVE_FORMATION_SIDELINE_WINDOWS);
+        AddFormationToWave(curr_wave, 2, "IceGolem", 16, TICRATE * 12, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "Lavademon", 10, TICRATE * 7, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "Hierophant", 12, TICRATE * 9, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "ShadowPriest", 20, TICRATE * 7, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 2, "DESentinel", 8, TICRATE * 8, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 2, "AxeKnight", 16, TICRATE * 9, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
+        AddFormationToWave(curr_wave, 2, "HellforgeSpider", 9, TICRATE * 4, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
     
-        curr_wave = waves[5];
+        ++wave_id;
+        curr_wave = waves[wave_id];
         curr_wave.variants = 3;
-        AddFormationToWave(curr_wave, 0, "GoldGolem", 16, TICRATE * 12, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "BloodGolem", 12, TICRATE * 8, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "IceGolem", 12, TICRATE * 9, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "ShadowPriest", 20, TICRATE * 5, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 0, "ShadowDisciple", 8, TICRATE * 12, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 0, "AvatarOfChaos", 1, TICRATE * 4, WAVE_FORMATION_BOSS_GROUND);
+        AddFormationToWave(curr_wave, 0, "GoldGolem", 16, TICRATE * 12, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "BloodGolem", 12, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "IceGolem", 12, TICRATE * 9, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "ShadowPriest", 20, TICRATE * 5, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 0, "ShadowDisciple", 8, TICRATE * 12, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 0, "AvatarOfChaos", 1, TICRATE * 4, WAVE_FORMATION_BOSS_GROUND, wave_id);
     
-        AddFormationToWave(curr_wave, 1, "Gamon", 16, TICRATE * 12, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "MoonSatyr", 12, TICRATE * 8, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "BloodSatyr", 12, TICRATE * 9, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "Inferno", 24, TICRATE * 6, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 1, "Helemental", 10, TICRATE * 12, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 1, "HellsmithX", 1, TICRATE * 4, WAVE_FORMATION_BOSS_GROUND);
+        AddFormationToWave(curr_wave, 1, "Gamon", 16, TICRATE * 12, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "MoonSatyr", 12, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "BloodSatyr", 12, TICRATE * 9, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "Inferno", 24, TICRATE * 6, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 1, "Helemental", 10, TICRATE * 12, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 1, "HellsmithX", 1, TICRATE * 4, WAVE_FORMATION_BOSS_GROUND, wave_id);
 
-        AddFormationToWave(curr_wave, 2, "BlackKnight", 16, TICRATE * 8, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "DreadKnight", 12, TICRATE * 12, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "DeathKnight", 4, TICRATE * 8, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "Wicked", 20, TICRATE * 6, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 2, "Defiler", 8, TICRATE * 12, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 2, "PsionicQueen", 1, TICRATE * 4, WAVE_FORMATION_BOSS_GROUND);
+        AddFormationToWave(curr_wave, 2, "BlackKnight", 16, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "DreadKnight", 12, TICRATE * 12, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "DeathKnight", 4, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "Wicked", 20, TICRATE * 6, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 2, "Defiler", 8, TICRATE * 12, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 2, "PsionicQueen", 1, TICRATE * 4, WAVE_FORMATION_BOSS_GROUND, wave_id);
 
-        curr_wave = waves[6];
+        ++wave_id;
+        curr_wave = waves[wave_id];
         curr_wave.variants = 3;
-        AddFormationToWave(curr_wave, 0, "Nhumcign", 32, TICRATE * 2, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "ArchVile2", 4, TICRATE * 8, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "Inferno", 20, TICRATE * 4, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 0, "Draugr", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_WINDOWS);
-        AddFormationToWave(curr_wave, 0, "Guru", 12, TICRATE * 8, WAVE_FORMATION_SIDELINE_ROOFS);
-        AddFormationToWave(curr_wave, 0, "HellsmithX", 3, TICRATE * 24, WAVE_FORMATION_BOSS_GROUND);
+        AddFormationToWave(curr_wave, 0, "Nhumcign", 32, TICRATE * 2, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "ArchVile2", 4, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "Inferno", 20, TICRATE * 4, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 0, "Draugr", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
+        AddFormationToWave(curr_wave, 0, "Guru", 12, TICRATE * 8, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
+        AddFormationToWave(curr_wave, 0, "HellsmithX", 3, TICRATE * 24, WAVE_FORMATION_BOSS_GROUND, wave_id);
 
-        AddFormationToWave(curr_wave, 1, "Lurker", 32, TICRATE * 2, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "ArchVile2", 4, TICRATE * 8, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "ShadowPriest", 20, TICRATE * 4, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 1, "AxeKnight", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_WINDOWS);
-        AddFormationToWave(curr_wave, 1, "Horshacker", 12, TICRATE * 8, WAVE_FORMATION_SIDELINE_ROOFS);
-        AddFormationToWave(curr_wave, 1, "AvatarOfChaos", 3, TICRATE * 24, WAVE_FORMATION_BOSS_GROUND);
+        AddFormationToWave(curr_wave, 1, "Lurker", 32, TICRATE * 2, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "ArchVile2", 4, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "ShadowPriest", 20, TICRATE * 4, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 1, "AxeKnight", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
+        AddFormationToWave(curr_wave, 1, "Horshacker", 12, TICRATE * 8, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
+        AddFormationToWave(curr_wave, 1, "AvatarOfChaos", 3, TICRATE * 24, WAVE_FORMATION_BOSS_GROUND, wave_id);
 
-        AddFormationToWave(curr_wave, 2, "Gravedigger", 32, TICRATE * 2, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "ArchVile2", 4, TICRATE * 8, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "EarthLich", 20, TICRATE * 4, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 2, "Yeti", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_WINDOWS);
-        AddFormationToWave(curr_wave, 2, "Hierophant", 12, TICRATE * 8, WAVE_FORMATION_SIDELINE_ROOFS);
-        AddFormationToWave(curr_wave, 2, "DarkLich", 3, TICRATE * 24, WAVE_FORMATION_BOSS_GROUND);
+        AddFormationToWave(curr_wave, 2, "Gravedigger", 32, TICRATE * 2, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "ArchVile2", 4, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "EarthLich", 20, TICRATE * 4, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 2, "Yeti", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
+        AddFormationToWave(curr_wave, 2, "Hierophant", 12, TICRATE * 8, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
+        AddFormationToWave(curr_wave, 2, "DarkLich", 3, TICRATE * 24, WAVE_FORMATION_BOSS_GROUND, wave_id);
 
-        curr_wave = waves[7];
+        ++wave_id;
+        curr_wave = waves[wave_id];
         curr_wave.variants = 3;
-        AddFormationToWave(curr_wave, 0, "BloodGolem", 16, TICRATE * 4, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "BloodSeeker", 6, TICRATE * 8, WAVE_FORMATION_SIDELINE_ROOFS);
-        AddFormationToWave(curr_wave, 0, "Corpulent", 8, TICRATE * 5, WAVE_FORMATION_SIDELINE_WINDOWS);
-        AddFormationToWave(curr_wave, 0, "BloodLich", 10, TICRATE * 3, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 0, "GoldLich", 3, TICRATE * 12, WAVE_FORMATION_BOSS_GROUND);
-        AddFormationToWave(curr_wave, 0, "DarkLich", 2, TICRATE * 6, WAVE_FORMATION_BOSS_BACKLINE);
+        AddFormationToWave(curr_wave, 0, "BloodGolem", 16, TICRATE * 4, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "BloodSeeker", 6, TICRATE * 8, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
+        AddFormationToWave(curr_wave, 0, "Corpulent", 8, TICRATE * 5, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
+        AddFormationToWave(curr_wave, 0, "BloodLich", 10, TICRATE * 3, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 0, "GoldLich", 3, TICRATE * 12, WAVE_FORMATION_BOSS_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "DarkLich", 2, TICRATE * 6, WAVE_FORMATION_BOSS_BACKLINE, wave_id);
 
-        AddFormationToWave(curr_wave, 1, "BloodGolem", 16, TICRATE * 4, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "Lavademon", 6, TICRATE * 8, WAVE_FORMATION_SIDELINE_ROOFS);
-        AddFormationToWave(curr_wave, 1, "Vore", 8, TICRATE * 5, WAVE_FORMATION_SIDELINE_WINDOWS);
-        AddFormationToWave(curr_wave, 1, "DESentinel", 10, TICRATE * 3, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 1, "DarkLich", 3, TICRATE * 12, WAVE_FORMATION_BOSS_GROUND);
-        AddFormationToWave(curr_wave, 1, "PsionicQueen", 2, TICRATE * 6, WAVE_FORMATION_BOSS_BACKLINE);
+        AddFormationToWave(curr_wave, 1, "BloodGolem", 16, TICRATE * 4, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "Lavademon", 6, TICRATE * 8, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
+        AddFormationToWave(curr_wave, 1, "Vore", 8, TICRATE * 5, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
+        AddFormationToWave(curr_wave, 1, "DESentinel", 10, TICRATE * 3, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 1, "DarkLich", 3, TICRATE * 12, WAVE_FORMATION_BOSS_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "PsionicQueen", 2, TICRATE * 6, WAVE_FORMATION_BOSS_BACKLINE, wave_id);
 
-        AddFormationToWave(curr_wave, 2, "BloodGolem", 16, TICRATE * 4, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "Lavademon", 6, TICRATE * 8, WAVE_FORMATION_SIDELINE_ROOFS);
-        AddFormationToWave(curr_wave, 2, "HellforgeSpider", 8, TICRATE * 5, WAVE_FORMATION_SIDELINE_WINDOWS);
-        AddFormationToWave(curr_wave, 2, "HellArbiter", 10, TICRATE * 3, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 2, "GoldLich", 3, TICRATE * 12, WAVE_FORMATION_BOSS_GROUND);
-        AddFormationToWave(curr_wave, 2, "IronLichBoss", 2, TICRATE * 6, WAVE_FORMATION_BOSS_BACKLINE);
+        AddFormationToWave(curr_wave, 2, "BloodGolem", 16, TICRATE * 4, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "Lavademon", 6, TICRATE * 8, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
+        AddFormationToWave(curr_wave, 2, "HellforgeSpider", 8, TICRATE * 5, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
+        AddFormationToWave(curr_wave, 2, "HellArbiter", 10, TICRATE * 3, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 2, "GoldLich", 3, TICRATE * 12, WAVE_FORMATION_BOSS_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "IronLichBoss", 2, TICRATE * 6, WAVE_FORMATION_BOSS_BACKLINE, wave_id);
 
-        curr_wave = waves[8];
+        ++wave_id;
+        curr_wave = waves[wave_id];
         curr_wave.variants = 3;
-        AddFormationToWave(curr_wave, 0, "MagmaSerpent", 32, TICRATE * 8, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "ShadowBeast", 20, TICRATE * 2, WAVE_FORMATION_SIDELINE_ROOFS);
-        AddFormationToWave(curr_wave, 0, "Draugr", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_WINDOWS);
-        AddFormationToWave(curr_wave, 0, "Wicked", 12, TICRATE * 3, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 0, "ShadowPriest", 12, TICRATE * 3, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 0, "AvatarOfChaos", 1, TICRATE * 12, WAVE_FORMATION_BOSS_GROUND);
-        AddFormationToWave(curr_wave, 0, "IronLichBoss", 1, TICRATE * 8, WAVE_FORMATION_BOSS_BACKLINE);
-        AddFormationToWave(curr_wave, 0, "GoldLich", 1, TICRATE * 8, WAVE_FORMATION_BOSS_BACKLINE);
+        AddFormationToWave(curr_wave, 0, "MagmaSerpent", 32, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "ShadowBeast", 20, TICRATE * 2, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
+        AddFormationToWave(curr_wave, 0, "Draugr", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
+        AddFormationToWave(curr_wave, 0, "Wicked", 12, TICRATE * 3, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 0, "ShadowPriest", 12, TICRATE * 3, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 0, "AvatarOfChaos", 2, TICRATE * 12, WAVE_FORMATION_BOSS_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "IronLichBoss", 1, TICRATE * 8, WAVE_FORMATION_BOSS_BACKLINE, wave_id);
+        AddFormationToWave(curr_wave, 0, "GoldLich", 2, TICRATE * 8, WAVE_FORMATION_BOSS_BACKLINE, wave_id);
 
-        AddFormationToWave(curr_wave, 1, "ChaosSerpent", 32, TICRATE * 8, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "Bloodseeker", 20, TICRATE * 2, WAVE_FORMATION_SIDELINE_ROOFS);
-        AddFormationToWave(curr_wave, 1, "AxeKnight", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_WINDOWS);
-        AddFormationToWave(curr_wave, 1, "Inferno", 12, TICRATE * 3, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 1, "EarthLich", 12, TICRATE * 3, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 1, "HellsmithX", 1, TICRATE * 12, WAVE_FORMATION_BOSS_GROUND);
-        AddFormationToWave(curr_wave, 1, "DarkLich", 1, TICRATE * 8, WAVE_FORMATION_BOSS_BACKLINE);
-        AddFormationToWave(curr_wave, 1, "IronLichBoss", 1, TICRATE * 8, WAVE_FORMATION_BOSS_BACKLINE);
+        AddFormationToWave(curr_wave, 1, "ChaosSerpent", 32, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "Bloodseeker", 20, TICRATE * 2, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
+        AddFormationToWave(curr_wave, 1, "AxeKnight", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
+        AddFormationToWave(curr_wave, 1, "Inferno", 12, TICRATE * 3, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 1, "EarthLich", 12, TICRATE * 3, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 1, "HellsmithX", 2, TICRATE * 12, WAVE_FORMATION_BOSS_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "DarkLich", 1, TICRATE * 8, WAVE_FORMATION_BOSS_BACKLINE, wave_id);
+        AddFormationToWave(curr_wave, 1, "IronLichBoss", 2, TICRATE * 8, WAVE_FORMATION_BOSS_BACKLINE, wave_id);
     
-        AddFormationToWave(curr_wave, 2, "BlackKnight", 32, TICRATE * 8, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 2, "Kjaroch", 20, TICRATE * 2, WAVE_FORMATION_SIDELINE_ROOFS);
-        AddFormationToWave(curr_wave, 2, "Yeti", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_WINDOWS);
-        AddFormationToWave(curr_wave, 2, "CacoLich", 12, TICRATE * 3, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 2, "DeathWhisperer", 12, TICRATE * 3, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 2, "Cerberus", 1, TICRATE * 12, WAVE_FORMATION_BOSS_GROUND);
-        AddFormationToWave(curr_wave, 2, "DarkLich", 1, TICRATE * 8, WAVE_FORMATION_BOSS_BACKLINE);
-        AddFormationToWave(curr_wave, 2, "GoldLich", 1, TICRATE * 8, WAVE_FORMATION_BOSS_BACKLINE);
+        AddFormationToWave(curr_wave, 2, "BlackKnight", 32, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "Kjaroch", 20, TICRATE * 2, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
+        AddFormationToWave(curr_wave, 2, "Yeti", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
+        AddFormationToWave(curr_wave, 2, "CacoLich", 12, TICRATE * 3, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 2, "DeathWhisperer", 12, TICRATE * 3, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 2, "Cerberus", 2, TICRATE * 12, WAVE_FORMATION_BOSS_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "DarkLich", 1, TICRATE * 8, WAVE_FORMATION_BOSS_BACKLINE, wave_id);
+        AddFormationToWave(curr_wave, 2, "GoldLich", 2, TICRATE * 8, WAVE_FORMATION_BOSS_BACKLINE, wave_id);
 
         // final wave
-        curr_wave = waves[9];
+        ++wave_id;
+        curr_wave = waves[wave_id];
         curr_wave.variants = 2;
-        AddFormationToWave(curr_wave, 0, "Lavademon", 16, TICRATE * 8, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "BloodGolem", 12, TICRATE * 2, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "DeathVile", 3, TICRATE * 16, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "FleshWizard", 1, TICRATE * 16, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 0, "DarkZealot", 18, TICRATE * 3, WAVE_FORMATION_SIDELINE_ROOFS);
-        AddFormationToWave(curr_wave, 0, "Ophidian", 16, TICRATE * 3, WAVE_FORMATION_SIDELINE_WINDOWS);
-        AddFormationToWave(curr_wave, 0, "DESentinel", 12, TICRATE * 6, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 0, "EarthLich", 12, TICRATE * 3, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 0, "BloodLich", 4, TICRATE * 12, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 0, "AvatarOfChaos", 2, TICRATE * 16, WAVE_FORMATION_BOSS_GROUND);
-        AddFormationToWave(curr_wave, 0, "HellsmithX", 1, TICRATE * 16, WAVE_FORMATION_BOSS_GROUND);
-        AddFormationToWave(curr_wave, 0, "IronLichBoss", 3, TICRATE * 10, WAVE_FORMATION_BOSS_BACKLINE);
+        AddFormationToWave(curr_wave, 0, "Lavademon", 16, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "BloodGolem", 12, TICRATE * 2, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "DeathVile", 3, TICRATE * 16, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "FleshWizard", 1, TICRATE * 16, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "DarkZealot", 18, TICRATE * 3, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
+        AddFormationToWave(curr_wave, 0, "Ophidian", 16, TICRATE * 3, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
+        AddFormationToWave(curr_wave, 0, "DESentinel", 12, TICRATE * 6, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 0, "EarthLich", 12, TICRATE * 3, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 0, "BloodLich", 4, TICRATE * 12, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 0, "AvatarOfChaos", 2, TICRATE * 16, WAVE_FORMATION_BOSS_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "HellsmithX", 2, TICRATE * 16, WAVE_FORMATION_BOSS_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "IronLichBoss", 4, TICRATE * 10, WAVE_FORMATION_BOSS_BACKLINE, wave_id);
 
-        AddFormationToWave(curr_wave, 1, "Bloodseeker", 16, TICRATE * 8, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "BloodGolem", 12, TICRATE * 2, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "DeathVile", 3, TICRATE * 16, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "FleshWizard", 1, TICRATE * 16, WAVE_FORMATION_GROUND);
-        AddFormationToWave(curr_wave, 1, "DarkZealot", 18, TICRATE * 3, WAVE_FORMATION_SIDELINE_ROOFS);
-        AddFormationToWave(curr_wave, 1, "Ophidian", 16, TICRATE * 3, WAVE_FORMATION_SIDELINE_WINDOWS);
-        AddFormationToWave(curr_wave, 1, "HellArbiter", 12, TICRATE * 6, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 1, "Inferno", 12, TICRATE * 3, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 1, "DESentinel", 4, TICRATE * 12, WAVE_FORMATION_FLIER);
-        AddFormationToWave(curr_wave, 1, "IronLichBoss", 2, TICRATE * 16, WAVE_FORMATION_BOSS_GROUND);
-        AddFormationToWave(curr_wave, 1, "DarkLich", 1, TICRATE * 16, WAVE_FORMATION_BOSS_GROUND);
-        AddFormationToWave(curr_wave, 1, "AvatarOfChaos", 3, TICRATE * 10, WAVE_FORMATION_BOSS_BACKLINE);
+        AddFormationToWave(curr_wave, 1, "Bloodseeker", 16, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "BloodGolem", 12, TICRATE * 2, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "DeathVile", 3, TICRATE * 16, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "FleshWizard", 1, TICRATE * 16, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "DarkZealot", 18, TICRATE * 3, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
+        AddFormationToWave(curr_wave, 1, "Ophidian", 16, TICRATE * 3, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
+        AddFormationToWave(curr_wave, 1, "HellArbiter", 12, TICRATE * 6, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 1, "Inferno", 12, TICRATE * 3, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 1, "DESentinel", 4, TICRATE * 12, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 1, "IronLichBoss", 2, TICRATE * 16, WAVE_FORMATION_BOSS_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "DarkLich", 2, TICRATE * 16, WAVE_FORMATION_BOSS_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "AvatarOfChaos", 4, TICRATE * 10, WAVE_FORMATION_BOSS_BACKLINE, wave_id);
     }
 
     return waves[id];
@@ -448,6 +460,11 @@ void IncrementCurrentUltimatumTally() {
     }
 }
 
+// Passed to "DnD Ultimatum Wave Completed" when the wanderer is ALREADY in the map. The opening
+// offer is armed before any wave has run and the map places him itself, so that one must not put
+// a second one on top of him. An ordinary wave completion passes nothing and gets 0.
+#define DND_ULTIMATUM_NPC_PRESPAWNED 1
+
 // call this script in OPEN after some tic delay, like 35 * 5 for the ResetPlayerLevelInfo to kick in
 Script "DnD Init Ultimatum" (void) {
     // just for it to be filled out
@@ -460,6 +477,15 @@ Script "DnD Init Ultimatum" (void) {
     while(!IsSetupComplete(SETUP_STATE1, SETUP_ITEMTABLES))
         Delay(const:10);
     ClearUltimatumRewards();
+
+    // The hand-off starts the next wave at curr_wave + 1, so arming an offer before ANY wave has
+    // run has to leave this at -1 -- from 0 the opening wave is skipped and the run is 9 long.
+    auto curr_tally = GetCurrentUltimatumTally();
+    curr_tally.curr_wave = -1;
+
+    // After ClearUltimatumRewards, so the pending reward is rolled into a cleared bank rather
+    // than one last run left behind.
+    ACS_NamedExecuteAlways("DnD Ultimatum Wave Completed", 0, DND_ULTIMATUM_NPC_PRESPAWNED);
 }
 
 Script "DnD Init Ultimatum - CS" (void) CLIENTSIDE {
@@ -613,7 +639,7 @@ Script "DnD Ultimatum Wave Dispatch" (int wave, int variant, int formation_id) {
     }
 }
 
-Script "DnD Ultimatum Wave Completed" (void) {
+Script "DnD Ultimatum Wave Completed" (int npc_placed) {
     using ultimatum;
 
     auto curr_tally = GetCurrentUltimatumTally();
@@ -632,7 +658,9 @@ Script "DnD Ultimatum Wave Completed" (void) {
     RollUltimatumReward(ULTIMATUM_REWARD_PENDING);
 
     NPC_States[DND_NPC_DARKWANDERER].aux_data = 0;
-    NPC_States[DND_NPC_DARKWANDERER].dialog = random(DW_ULTIMATUM_ASK1, DW_ULTIMATUM_ASK3);
+    // curr_wave is still -1 on the opening offer -- the wave that ANSWERS it is the one that
+    // moves it to 0, so this is the one moment he has nothing to refer back to.
+    NPC_States[DND_NPC_DARKWANDERER].dialog = curr_tally.curr_wave < 0 ? random(DW_ULTIMATUM_INTRO_BEGIN, DW_ULTIMATUM_INTRO_END) : random(DW_ULTIMATUM_ASK_BEGIN, DW_ULTIMATUM_ASK_END);
     NPC_States[DND_NPC_DARKWANDERER].offer = offer;
     NPC_States[DND_NPC_DARKWANDERER].chosen_option = -1;
 
@@ -666,7 +694,8 @@ Script "DnD Ultimatum Wave Completed" (void) {
         Delay(const:1);
     }
 
-    ACS_NamedExecuteWithResult("DnD Try Spawn Area", TP_TID_MIDSECTION, "DarkWanderer", DND_NPC_TID, 96 | (4 << 16) | (22 << 24));
+    if(npc_placed != DND_ULTIMATUM_NPC_PRESPAWNED)
+        ACS_NamedExecuteWithResult("DnD Try Spawn Area", TP_TID_MIDSECTION, "DarkWanderer", DND_NPC_TID, 96 | (4 << 16) | (22 << 24));
 }
 
 Script "DnD Is Ultimatum Complete" (void) {
@@ -677,6 +706,9 @@ Script "DnD Is Ultimatum Complete" (void) {
 Script "DnD Handle Ultimatum Finish" (void) {
     // reached on a decline and on the last wave alike, so the bank pays out from one place
     DropUltimatumRewards();
+    
+    Floor_LowerToLowest(3, 32);
+    Floor_LowerToLowest(25, 32);
 
     // decide whether boss can appear or we concluded
 }
@@ -706,7 +738,8 @@ int GetUltimatumOptionMaxTier(int opt) {
         1,      // ULTIMATUM_OPTION_FLEETINGLIFE
         1,      // ULTIMATUM_OPTION_GLUTTONOUSTIDE
         1,      // ULTIMATUM_OPTION_RAPIDEXHAUSTION
-        1       // ULTIMATUM_OPTION_TASTETHEPAIN
+        1,      // ULTIMATUM_OPTION_TASTETHEPAIN
+        1       // ULTIMATUM_OPTION_WALLEDOFF
     };
 
     if(opt < 0 || opt >= ULTIMATUM_OPTION_COUNT)
@@ -768,21 +801,22 @@ int AddUltimatumOptionTier(int opt) {
 }
 
 // both offers ride in npc_info_T.offer. +1 so a pair never reads as NPC_OFFER_NA, and an
-// absent second option is a clean 0 in the high word
-#define ULTIMATUM_OFFER_BITS 16
-#define ULTIMATUM_OFFER_MASK 0xFFFF
+// Three options packed into one int, an absent one a clean 0 in its field. 8 bits each, so
+// three fit with room to spare -- ULTIMATUM_OPTION_COUNT would have to pass 255 to overflow
+// a field, and the whole offer still sits inside 24 bits.
+#define ULTIMATUM_OFFER_BITS 8
+#define ULTIMATUM_OFFER_MASK 0xFF
+#define ULTIMATUM_OFFER_SLOTS 3
 
-int PackUltimatumOffer(int first, int second) {
+int PackUltimatumOffer(int first, int second, int third) {
     return ((first + 1) & ULTIMATUM_OFFER_MASK) |
-            (((second + 1) & ULTIMATUM_OFFER_MASK) << ULTIMATUM_OFFER_BITS);
+            (((second + 1) & ULTIMATUM_OFFER_MASK) << ULTIMATUM_OFFER_BITS) |
+            (((third + 1) & ULTIMATUM_OFFER_MASK) << (ULTIMATUM_OFFER_BITS * 2));
 }
 
-// which: 0 first, 1 second. -1 means empty
+// which: 0..ULTIMATUM_OFFER_SLOTS - 1. -1 means empty
 int GetUltimatumOfferOption(int packed, int which) {
-    if(which)
-        return ((packed >> ULTIMATUM_OFFER_BITS) & ULTIMATUM_OFFER_MASK) - 1;
-
-    return (packed & ULTIMATUM_OFFER_MASK) - 1;
+    return ((packed >> (ULTIMATUM_OFFER_BITS * which)) & ULTIMATUM_OFFER_MASK) - 1;
 }
 
 // two DISTINCT options with a tier left. 0 means all maxed -- caller skips the NPC
@@ -821,16 +855,17 @@ int PickUltimatumChallengeOffer() {
     if(!count)
         return 0;
 
-    // Two weighted draws, the first struck out of the pool before the second so they cannot
+    // One weighted draw per slot, each struck out of the pool before the next, so they cannot
     // collide. The old "pick out of what is LEFT and shift past it" trick only holds for a flat
     // draw -- with weights the shifted index no longer means the same thing.
     //
-    // One option left simply leaves the second at -1, which is what a single-offer round packs.
-    int picked[2];
-    picked[0] = -1;
-    picked[1] = -1;
+    // A pool smaller than the slot count simply leaves the rest at -1, which the pane already
+    // treats as "no button here".
+    int picked[ULTIMATUM_OFFER_SLOTS];
+    for(int n = 0; n < ULTIMATUM_OFFER_SLOTS; ++n)
+        picked[n] = -1;
 
-    for(int n = 0; n < 2 && count; ++n) {
+    for(n = 0; n < ULTIMATUM_OFFER_SLOTS && count; ++n) {
         int roll = random(1, total), acc = 0, at = count - 1;
 
         // walk the running total; the last entry catches any rounding at the top of the range
@@ -849,7 +884,7 @@ int PickUltimatumChallengeOffer() {
         pool[at] = pool[--count];
     }
 
-    return PackUltimatumOffer(picked[0], picked[1]);
+    return PackUltimatumOffer(picked[0], picked[1], picked[2]);
 }
 
 // ---- reward pool -------------------------------------------------------------------------------
@@ -996,6 +1031,17 @@ bool UltimatumPustuleAlwaysFreezes() {
     return GetUltimatumColdTier() >= DND_ULTIMATUM_PUSTULE_FREEZETIER;
 }
 
+// ULTIMATUM_OPTION_WALLEDOFF -- see DND_ULTIMATUM22. Flat percent ADDED to a monster's true
+// resist, in the same units and at the same point the ward aura uses: penetration still
+// answers it, and DND_IMMUNITY_FACTOR still caps what it can reach.
+#define DND_ULTIMATUM_MONSTERRESIST 50
+
+int GetUltimatumMonsterResistBonus() {
+    using ultimatum;
+
+    return UltimatumHasOption(ULTIMATUM_OPTION_WALLEDOFF) ? DND_ULTIMATUM_MONSTERRESIST : 0;
+}
+
 // ULTIMATUM_OPTION_ESCALATINGFRAGILITY -- see DND_ULTIMATUM10. Increased damage taken, per wave
 // cleared, capped. Additive with itself only; it is one term, so there is nothing to compose.
 #define DND_ULTIMATUM_FRAGILITY_PCT 8
@@ -1077,9 +1123,9 @@ bool UltimatumHasUnluckyCrits() {
 
 // ULTIMATUM_OPTION_FLEETINGLIFE / _RAPIDEXHAUSTION -- see DND_ULTIMATUM18 and 20. Percent taken OFF
 // a recovery rate, and percent ADDED to a melee cooldown.
-#define DND_ULTIMATUM_FLEETINGLIFE_LESS 50
+#define DND_ULTIMATUM_FLEETINGLIFE_LESS 60
 #define DND_ULTIMATUM_EXHAUSTION_LESS 50
-#define DND_ULTIMATUM_EXHAUSTION_CDLONGER 100
+#define DND_ULTIMATUM_EXHAUSTION_CDLONGER 200   // x3, ie. 200% ADDED to the cooldown
 
 int GetUltimatumRecoveryLess() {
     using ultimatum;
@@ -1719,7 +1765,7 @@ Script "DnD Ultimatum Storm Call Particle" (int tid, int r, int count, int max_c
     // make client aware of this tid
     Thing_ChangeTID(0, tid);
     SpawnForced(
-        "DnD_Ultimatum_Storrmcall_Particle",
+        "DnD_Ultimatum_Stormcall_Particle",
         GetActorX(0) + r * cos(count * 1.0 / max_count),
         GetActorY(0) + r * sin(count * 1.0 / max_count),
         GetActorZ(0) + 8.0,
