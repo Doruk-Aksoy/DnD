@@ -401,3 +401,10 @@ Graphic "UHELM5", 114, 156
 	YScale 4.5
 	Patch "UHELM5", 0, 0
 }
+
+Graphic "DNGTK01", 68, 69
+{
+	XScale 2.0
+	YScale 2.0
+	Patch "DNGTK01", 0, 0
+}

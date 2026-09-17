@@ -259,6 +259,8 @@ enum {
 	// dungeon keys -- in matching order with dnd_dungeons.h enum
 	IIMG_DUNGEONKEY_VOIDKEEP = 4000,
 
+	IIMG_DUNGEONKEY_ULTIMATUM = 4500,
+
 	MAX_ITEM_IMAGES
 };
 
@@ -275,6 +277,9 @@ enum {
 
 #define ITEM_IMAGE_DUNGEONKEY_BEGIN IIMG_DUNGEONKEY_VOIDKEEP
 #define ITEM_IMAGE_DUNGEONKEY_END IIMG_DUNGEONKEY_VOIDKEEP
+
+#define ITEM_IMAGE_DUNGEONKEY_SPECIAL_BEGIN IIMG_DUNGEONKEY_ULTIMATUM
+#define ITEM_IMAGE_DUNGEONKEY_SPECIAL_END IIMG_DUNGEONKEY_ULTIMATUM
 
 #define ITEM_IMAGE_ARMOR_BEGIN IIMG_ARM_1
 #define ITEM_IMAGE_ARMOR_END IIMG_ARM_18
@@ -448,13 +453,27 @@ str GetItemImage(int id, bool wide = false) {
 		img_prefix = "FL";
 		suffix = id - ITEM_IMAGE_FLASK_BEGIN + 1;
 	}
-	else {
+	else if(id <= ITEM_IMAGE_DUNGEONKEY_END) {
 		// dungeon key
 		img_prefix = "DK";
 		suffix = id - ITEM_IMAGE_DUNGEONKEY_BEGIN + 1;
 	}
+	else {
+		// special dungeon key
+		img_prefix = "DKSP";
+		suffix = id - ITEM_IMAGE_DUNGEONKEY_SPECIAL_BEGIN + 1;
+	}
 	//Log(l:StrParam(d:id, s:" ==>", s:"DND_", s:img_prefix, s:"IMG", d:suffix));
 	return StrParam(l:StrParam(s:"DND_", s:img_prefix, s:"IMG", d:suffix));
+}
+
+// The image id for a dungeon key subtype, the same split GetDungeonKeyInventoryId makes. It lives
+// here and not beside the rest of that family in DnD_DungeonBase.h because ITEM_IMAGE_DUNGEONKEY_*
+// is defined in this file, which is parsed after that one -- a macro does not forward reference.
+int GetDungeonKeyImageId(int isubt) {
+	if(IsSpecialDungeon(isubt))
+		return ITEM_IMAGE_DUNGEONKEY_SPECIAL_BEGIN + isubt - DND_FIRST_SPECIALDUNGEONID;
+	return ITEM_IMAGE_DUNGEONKEY_BEGIN + isubt - DND_FIRST_DUNGEONID;
 }
 
 #endif

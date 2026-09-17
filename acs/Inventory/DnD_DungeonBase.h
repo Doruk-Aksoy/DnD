@@ -3,8 +3,17 @@
 
 enum {
 	DND_DUNGEON_VOIDKEEP,
+
+	// special, specific drop only dungeons here
+	DND_DUNGEON_ULTIMATUM = 500 // keep difference to 500 here, same as ISUBT_ULTIMATUM
 };
 #define DND_FIRST_DUNGEONID DND_DUNGEON_VOIDKEEP
+#define DND_FIRST_SPECIALDUNGEONID DND_DUNGEON_ULTIMATUM
+#define DND_LAST_SPECIALDUNGEONID DND_DUNGEON_ULTIMATUM
+
+// what GetDungeonMapLump's table of hand authored map names is sized to. Move
+// DND_LAST_SPECIALDUNGEONID with the enum and the table has to grow to match.
+#define MAX_SPECIAL_DUNGEONS (DND_LAST_SPECIALDUNGEONID - DND_FIRST_SPECIALDUNGEONID + 1)
 
 #define MAX_DUNGEONKEY_ATTRIB_DEFAULT 3
 
@@ -728,6 +737,9 @@ int GetDungeonMonsterTypes(int id) {
 	switch(id) {
 		case DND_DUNGEON_VOIDKEEP:
 		return DUNGEON_MONTYPE_DEMON | DUNGEON_MONTYPE_ELDRITCH | DUNGEON_MONTYPE_UNDEAD;
+
+		case DND_DUNGEON_ULTIMATUM:
+		return DUNGEON_MONTYPE_DEMON | DUNGEON_MONTYPE_MAGICAL | DUNGEON_MONTYPE_UNDEAD;
 	}
 	return 0;
 }
@@ -816,6 +828,58 @@ bool DungeonBlocksLifesteal() {
 // returns the value of extra when given the id that would be encoded here
 int HasDungeonUpside(int id) {
 	return DungeonInformation.upside_vals[id];
+}
+
+// ---- dungeon id mapping -------------------------------------------------------------------
+// A dungeon id and a dungeon key's item_subtype are the same numbering, DND_DUNGEON_*. The special
+// ones -- DND_FIRST_SPECIALDUNGEONID and up -- own a SEPARATE range everywhere they are looked up:
+// the lumps DND_DUNGEONKEYSPN / SPTEXT / SP / DKSPIMG and DND_DUNGEONSPNAME, each numbered from 1
+// inside that range rather than continuing the ordinary one, and GetDungeonMapLump's table of hand
+// authored map names.
+//
+// So every site that turns an id into a lump, an ISUBT id or a map has to make the same two decisions
+// -- which range, and what index inside it -- and open-coding them is what produced DND_DUNGEONKEYN2
+// on the ultimatum key's tooltip and DND_DUNGEONKEYSP-498 when one was dropped. They are answered
+// here once, and nothing else is allowed to add a base by hand.
+//
+// Adding a second special dungeon needs no change to these two: it lands after DND_DUNGEON_ULTIMATUM
+// in the enum, its ISUBT after DND_ISUBT_DUNGEONKEY_ULTIMATUM, and every index follows. Only
+// DND_LAST_SPECIALDUNGEONID and the map table have to move with it.
+bool IsSpecialDungeon(int id) {
+	return id >= DND_FIRST_SPECIALDUNGEONID;
+}
+
+// 1 based index INSIDE the dungeon's own range: what every lump suffix wants, and what the special
+// map table is indexed by.
+// The ordinary subtraction is a no-op while DND_FIRST_DUNGEONID is 0; it is written out so the two
+// branches read the same and so a non-zero first id cannot silently shift the suffixes.
+int GetDungeonRangeIndex(int id) {
+	if(IsSpecialDungeon(id))
+		return id - DND_FIRST_SPECIALDUNGEONID + 1;
+	return id - DND_FIRST_DUNGEONID + 1;
+}
+
+// The absolute DND_ISUBT_DUNGEONKEY_* id. The GetInventory* family keys off that, not off a subtype,
+// and picks its own branch from the value -- so handing it the wrong base is what makes it answer
+// with a negative suffix rather than with nothing.
+int GetDungeonKeyInventoryId(int isubt) {
+	if(IsSpecialDungeon(isubt))
+		return DUNGEONKEY_SPECIAL_BEGIN + isubt - DND_FIRST_SPECIALDUNGEONID;
+	return DUNGEONKEY_BEGIN + isubt - DND_FIRST_DUNGEONID;
+}
+
+// The item's displayed name and its flavour line. Both return the LUMP NAME for the caller to look
+// up with l:, the way GetInventoryTag does, rather than the resolved text.
+str GetDungeonKeyTagLump(int isubt) {
+	if(IsSpecialDungeon(isubt))
+		return StrParam(s:"DND_DUNGEONKEYSPN", d:GetDungeonRangeIndex(isubt));
+	return StrParam(s:"DND_DUNGEONKEYN", d:GetDungeonRangeIndex(isubt));
+}
+
+str GetDungeonKeyTextLump(int isubt) {
+	if(IsSpecialDungeon(isubt))
+		return StrParam(s:"DND_DUNGEONKEYSPTEXT", d:GetDungeonRangeIndex(isubt));
+	return StrParam(s:"DND_DUNGEONKEYTEXT", d:GetDungeonRangeIndex(isubt));
 }
 
 #endif

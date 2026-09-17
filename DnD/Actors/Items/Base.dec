@@ -438,7 +438,7 @@ ACTOR ProjBullet : FastProjectile {
 			TNT1 A 4 A_SpawnItemEx("NewBulletPuff")
 		Stop
 		XDeath:
-			TNT1 A 4 A_SpawnItemEx("RealBlood", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
+			TNT1 A 4 A_SpawnItemEx("NashGore_Blood", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
 		Stop
 	}
 }

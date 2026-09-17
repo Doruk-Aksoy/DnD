@@ -1,1 +1,5 @@
 HardwareShader Texture H_BGLEFW   { Shader "GLDefs/Shaders/Pulse_Phasing.fp" }
+
+HardwareShader Texture PROMPT {
+	Shader "GLDefs/Shaders/PromptBG.fp"
+}

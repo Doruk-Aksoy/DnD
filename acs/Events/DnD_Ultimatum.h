@@ -952,6 +952,40 @@ int ApplyUltimatumStackRarity(int stack, int pct) {
     return Max(1, stack * pct / 100);
 }
 
+// Where the dungeon the ultimatum is being run in gets to pay. It lands on the stack half and not
+// on the item half for the same reason the depth bonus does: a stackable has no mods to improve, so
+// size is the only axis it owns. Two factors, and they compose:
+//
+//   quality lifts the DEPTH bonus. That bonus is an upside the run itself grants, and quality is
+//   defined as the multiplier on a dungeon's upsides -- so it multiplies that and nothing else. The
+//   base stack stays untouched: quality has never scaled a plain drop, and a reward is not the
+//   place for it to start.
+//
+//   DUN_UPSIDE_QUANT scales the finished stack. It is the upside GetPlayerDropQuantity spends on
+//   how MANY items a kill drops, and an offer is always exactly one item, so the only quantity it
+//   can pay out is how big that one item is.
+//
+// QUANT must NOT be scaled by quality on the way through here. SetupCurrentDungeonData multiplies
+// every attrib_extra by quality BEFORE RebuildDungeonUpsides sums them, so upside_vals already
+// arrives quality scaled -- applying it again is the same double count the dungeon menu panel
+// hands a 0 quality to avoid.
+//
+// Both factors read 0 when DungeonInformation holds no dungeon, so an ultimatum reached without a
+// key pays exactly what it paid before. That is the "if applicable", and it needs no branch.
+int GetUltimatumRewardStack(int ilvl, int p) {
+    int quality = 0;
+    if(DungeonInformation.level != -1)
+        quality = DungeonInformation.quality;
+
+    int bonus = ScaleUltimatumReward(0, DND_ULTIMATUM_REWARD_STACKBONUS_LATE, p) * (100 + quality) / 100;
+
+    int stack = GetOrbDropStack(ilvl) * (100 + bonus) / 100;
+    stack = stack * (100 + HasDungeonUpside(DUN_UPSIDE_QUANT)) / 100;
+
+    // never rounds a reward away to nothing, same as the rarity half above
+    return Max(1, stack);
+}
+
 // The three orbs that otherwise only drop from specific monsters. The ultimatum is the other
 // way in, but only once the run is deep enough to have earned it. Their ids are adjacent in
 // DND_ORB_*, which is what lets the draw be a range -- verify_ultstack.py holds that.
@@ -1406,10 +1440,8 @@ void RollUltimatumReward(int slot) {
     WellRolledChanceOverride = ScaleUltimatumReward(DND_ULTIMATUM_REWARD_WELLROLLCHANCE, DND_ULTIMATUM_REWARD_WELLROLLCHANCE_LATE, p);
 
     // Stackables pay their depth in size rather than in mods, since they have none to roll.
-    // This is the depth half only -- the rarity half needs the thing picked first.
-    int stack = GetOrbDropStack(ilvl) * (100 + ScaleUltimatumReward(0, DND_ULTIMATUM_REWARD_STACKBONUS_LATE, p)) / 100;
-    if(stack < 1)
-        stack = 1;
+    // Depth and the dungeon's own generosity only -- the rarity half needs the thing picked first.
+    int stack = GetUltimatumRewardStack(ilvl, p);
 
     int roll = random(0, 1.0), t;
     if(roll <= DND_ULTIMATUM_REWARD_ITEMCHANCE) {

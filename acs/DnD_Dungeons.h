@@ -3,7 +3,7 @@
 
 #include "Inventory/DnD_InvInfo.h"
 
-void LogDungeonUpsideState(str who) {
+/*void LogDungeonUpsideState(str who) {
 	Log(s:"[dun][", s:who, s:"] count ", d:DungeonInformation.attrib_count, s:" quality ", d:DungeonInformation.quality, s:" dungeon ", d:DungeonInformation.dungeon_id);
 	for(int i = 0; i < DungeonInformation.attrib_count; ++i) {
 		Log(
@@ -17,7 +17,7 @@ void LogDungeonUpsideState(str who) {
 	for(i = 0; i < DUN_UPSIDE_MAX; ++i)
 		if(DungeonInformation.upside_vals[i])
 			Log(s:"[dun][", s:who, s:"]   SUM upside ", d:i, s:" = ", d:DungeonInformation.upside_vals[i]);
-}
+}*/
 
 void RollDungeonKeyInfo(int item_pos, int keytype, int pnum) {
 	// roll random attributes for the key
@@ -28,7 +28,8 @@ void RollDungeonKeyInfo(int item_pos, int keytype, int pnum) {
 	item.item_subtype = keytype;
 	item.width = 1;
 	item.height = 1;
-	item.item_image = ITEM_IMAGE_DUNGEONKEY_BEGIN + keytype;
+
+	item.item_image = GetDungeonKeyImageId(keytype);
 
 	int count = random(1, MAX_DUNGEONKEY_ATTRIB_DEFAULT);
 
@@ -45,11 +46,30 @@ void RollDungeonKeyInfo(int item_pos, int keytype, int pnum) {
 	}
 }
 
+// Takes a DND_DUNGEON_* id like every other dungeon helper. The 1 based suffix is applied here
+// rather than by the caller, which is what left the one caller passing id + 1 and reading the
+// ordinary lump for a special dungeon -- an ultimatum announced itself as the Void Keep.
 str GetDungeonName(int id) {
-	return StrParam(s:"DND_DUNGEONNAME", d:id);
+	if(IsSpecialDungeon(id))
+		return StrParam(s:"DND_DUNGEONSPNAME", d:GetDungeonRangeIndex(id));
+	return StrParam(s:"DND_DUNGEONNAME", d:GetDungeonRangeIndex(id));
 }
 
+// An ordinary dungeon sits on DND01, DND02, ... so its lump is derived from its id. The special
+// ones are hand authored maps with names of their own and nothing to derive, so they are listed
+// instead, indexed by their position INSIDE the special range.
+//
+// The table is sized to MAX_SPECIAL_DUNGEONS so a new special dungeon cannot be added to the enum
+// without a name landing here: leave the slot empty and ChangeLevel is handed "", which the engine
+// reads as the current map and the run never leaves it.
 str GetDungeonMapLump(int id) {
+	static str special_maps[MAX_SPECIAL_DUNGEONS] = {
+		DND_MAPLUMP_ULTIMATUM
+	};
+
+	if(IsSpecialDungeon(id))
+		return special_maps[GetDungeonRangeIndex(id) - 1];
+
 	// lumps start from DND01 so 1 based index
 	++id;
 	if(id < 10)
@@ -99,7 +119,17 @@ void SpawnDungeonKey(int pnum) {
 		// c is the index on the field now
 		RollDungeonKeyInfo(c, res, pnum);
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		SpawnDrop(GetInventoryName(res + DUNGEONKEY_BEGIN), 24.0, 16, pnum + 1, c);
+		SpawnDrop(GetInventoryName(GetDungeonKeyInventoryId(res)), 24.0, 16, pnum + 1, c);
+	}
+}
+
+void SpawnSpecificDungeonKey(int pnum, int id) {
+	int c = CreateItemSpot();
+	if(c != -1) {
+		// c is the index on the field now
+		RollDungeonKeyInfo(c, id, pnum);
+		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+		SpawnDrop(GetInventoryName(GetDungeonKeyInventoryId(id)), 24.0, 16, pnum + 1, c);
 	}
 }
 

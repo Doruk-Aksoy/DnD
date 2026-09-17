@@ -130,6 +130,10 @@ void HandlePlayerDeathSound(int pclass, bool isXDeath) {
 	PlaySound(0, snd, CHAN_BODY, 1.0);
 }
 
+bool IsNoChestSpawnLevel() {
+	return InformationInLevel[LEVELINFO_ISULTIMATUM];
+}
+
 enum {
 	PAINBLEND_RED,
 	PAINBLEND_GREEN,
@@ -819,7 +823,7 @@ void UpdateLevelChestLimit() {
 }
 
 void HandleChestSpawn(int chance_penalty) {
-	if(CurrentLevelData[LEVELDATA_CHESTSPAWNED] > CurrentLevelData[LEVELDATA_MAXCHESTS])
+	if(CurrentLevelData[LEVELDATA_CHESTSPAWNED] > CurrentLevelData[LEVELDATA_MAXCHESTS] || IsNoChestSpawnLevel())
 		return;
 		
 	if(!chance_penalty)

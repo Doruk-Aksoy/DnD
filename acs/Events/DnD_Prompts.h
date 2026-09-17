@@ -1,7 +1,7 @@
 #ifndef DND_PROMPT_IN
 #define DND_PROMPT_IN
 
-#include "DnD_Common.h"
+#include "../DnD_Common.h"
 #include "DnD_Incursion.h"
 #include "DnD_MerchantGUI.h"
 // BEFORE the include: DnD_Ultimatum.h picks a line from these ranges, and a macro does not
@@ -118,7 +118,19 @@ npc_info_T NPC_States[MAX_DND_NPCS] = { { false, 0, 0, 0, 0, 0, 0, 0 } };
 #define DND_VOTE_TIME 30 // seconds
 
 // button row for the ultimatum offer -- lower than the plain one, the body is six lines longer
-#define DND_ULTIMATUM_PROMPT_YOFF 336.0
+// The challenge list grows with the offer, so the vote row is placed under whatever the text came
+// out as rather than at a fixed height. TEXTTOP is where the body is drawn, LINEH is SMALLFONT in
+// this hud, and WRAPCHARS is the clip rect's wrap expressed in characters -- the same approximation
+// of a variable width font that the button widths use.
+#define DND_PROMPT_TEXTTOP 128.0
+#define DND_PROMPT_LINEH 9.0
+#define DND_PROMPT_WRAPW 512
+#define DND_ULTIMATUM_PROMPT_BTNPAD 4.0
+
+// a floor, and a ceiling that keeps the row off the reward cell under it -- that cell is drawn in
+// the 480x320 hud at DND_ULTREWARD_OFFERY, so its top edge is 456 in this one
+#define DND_ULTIMATUM_PROMPT_YMIN 256.0
+#define DND_ULTIMATUM_PROMPT_YMAX 440.0
 
 void MarkNPCMet(int npc) {
 	SetInventory("DnD_NPC_Meet", CheckInventory("DnD_NPC_Meet") | (1 << (npc + 1)));
@@ -267,18 +279,23 @@ int ResolveUltimatumVoteChoice(int npc_id) {
 #define TRADBTN_FITCHARS 8
 
 // At 152 the longest option names ran well past their plate -- "Overwhelming Monsters" wants 202
-// and was drawn on a 152 one.
-// A fourth button means the row is wider: at the cap, 4 plates plus 3 gaps have to stay inside
-// the 960 hud AND inside the cursor space once mirrored. 216 is what that allows; the longest
-// label in the game wants 202.
-#define TRADBTN_MAXW 216
+// and was drawn on a 152 one. 202 is that longest label, and capping there is what bounds the row:
+// three of them plus decline plus the gaps is 731, inside the 760 the background is wide.
+#define TRADBTN_MAXW 202
 
 // Gap between neighbouring offer plates, and the point the row is centred on.
-#define DND_ULTBTN_GAP 24
+#define DND_ULTBTN_GAP 16
 #define DND_ULTBTN_CENTRE 480
 
 // the offered options, plus decline on the end
 #define DND_ULTBTN_COUNT (ULTIMATUM_OFFER_SLOTS + 1)
+
+// A button needs two hud ids, and they have to come from DISJOINT blocks. Interleaved as -3-2k
+// and -1-2k they overlap at a stride of 2: button k's plate landed on button k+1's label and wiped
+// the text off the whole row. Plates first to match the accept/decline pair. 10 upward is clear of
+// the close hint at -5 and the bank button at -8/-9, and stops short of the voters at -20.
+#define DND_ULTBTN_PLATEID(k) (RPGMENUITEMID - 10 - (k))
+#define DND_ULTBTN_LABELID(k) (RPGMENUITEMID - 10 - DND_ULTBTN_COUNT - (k))
 
 // A box id is its POSITION in the pane, so the two that follow the button row move whenever the
 // row grows. Named off the count rather than written out, which is what went wrong last time.
@@ -294,28 +311,126 @@ int GetPromptButtonWidth(str lump) {
 	return Min(TRADBTN_W * chars / TRADBTN_FITCHARS, TRADBTN_MAXW);
 }
 
-// Centre x for one of the offer buttons -- the options in slot order, then decline last.
+// Plate width for one button of THIS offer -- the options in slot order, then decline last.
+// An unused slot measures 0 so it takes no room in the row.
+int GetUltimatumOfferButtonWidth(int offer_id, int slot) {
+	if(slot >= ULTIMATUM_OFFER_SLOTS)
+		return GetPromptButtonWidth("DND_DECLINE");
+
+	int o = GetUltimatumOfferOption(offer_id, slot);
+	return o == -1 ? 0 : GetPromptButtonWidth(GetUltimatumOptionName(o));
+}
+
+// Centre x for one of the offer buttons.
 //
-// The pitch is sized to the WIDEST of the three in THIS offer rather than to the longest name in
-// the game, so a row of short labels closes up instead of sitting marooned. Uniform pitch rather
-// than per-button gaps -- an even row reads as deliberate where ragged spacing reads as a bug.
+// Each button takes its OWN width with an even gap between, and the packed row is centred. A
+// uniform pitch sized to the widest plate was 880 across at four buttons, which hung off both
+// ends of the 760 wide background.
 //
 // The plate, the hitbox and the voter column under each button all call this, which is what stops
 // them drifting apart. The .4 is the alignment fraction -- see DrawPromptButtonPlate.
 int GetUltimatumOfferButtonX(int offer_id, int slot) {
-	int w = GetPromptButtonWidth("DND_DECLINE"), t;
+	int i, t, total = 0, x = 0, mine = 0;
 
-	for(int i = 0; i < ULTIMATUM_OFFER_SLOTS; ++i) {
-		t = GetUltimatumOfferOption(offer_id, i);
-		if(t != -1 && (t = GetPromptButtonWidth(GetUltimatumOptionName(t))) > w)
-			w = t;
+	for(i = 0; i < DND_ULTBTN_COUNT; ++i) {
+		t = GetUltimatumOfferButtonWidth(offer_id, i);
+		if(!t)
+			continue;
+
+		if(i < slot)
+			x += t + DND_ULTBTN_GAP;
+		else if(i == slot)
+			mine = t;
+
+		total += t + DND_ULTBTN_GAP;
 	}
 
-	// Centred as a row of DND_ULTBTN_COUNT. Doubled so an EVEN count lands on half pitches --
-	// with four buttons nothing sits on the centre line, and rounding to whole pitches would
-	// shove the whole row half a button off.
-	return ((DND_ULTBTN_CENTRE +
-		(2 * slot - (DND_ULTBTN_COUNT - 1)) * (w + DND_ULTBTN_GAP) / 2) << 16) + 0.4;
+	// one gap too many was added above, then step from the row's left edge to this plate's centre
+	if(total)
+		total -= DND_ULTBTN_GAP;
+
+	return ((x + DND_ULTBTN_CENTRE - total / 2 + mine / 2) << 16) + 0.4;
+}
+
+// SMALLFONT glyph widths, straight out of the STCFN lumps in Font.wad, indexed by character minus
+// 32. The font carries its own lowercase, so nothing is folded. verify_promptrow.py regenerates
+// this from the wad and fails if the two drift apart.
+#define DND_SMALLFONT_FIRSTCHAR 32
+#define DND_SMALLFONT_LASTCHAR 122
+
+int GetSmallFontCharWidth(int c) {
+	static int w[DND_SMALLFONT_LASTCHAR - DND_SMALLFONT_FIRSTCHAR + 1] = {
+		4, 5, 7, 7, 7, 10, 8, 4, 6, 6, 7, 7,// sp..+
+		4, 6, 4, 8, 10, 10, 10, 10, 10, 10, 10, 10,// ,..7
+		10, 10, 4, 4, 5, 5, 5, 9, 9, 11, 10, 9,// 8..C
+		11, 9, 9, 11, 11, 5, 9, 10, 9, 12, 11, 11,// D..O
+		9, 11, 9, 9, 9, 11, 11, 12, 9, 11, 9, 5,// P..[
+		8, 5, 7, 8, 4, 9, 9, 9, 9, 9, 9, 9,// \..g
+		9, 4, 9, 9, 9, 10, 9, 9, 9, 9, 9, 8,// h..s
+		8, 9, 8, 10, 9, 9, 8 // t..z
+	};
+
+	if(c < DND_SMALLFONT_FIRSTCHAR || c > DND_SMALLFONT_LASTCHAR)
+		return w[0];
+
+	return w[c - DND_SMALLFONT_FIRSTCHAR];
+}
+
+// How many lines the body renders as. Greedy word wrap on the real glyph widths -- counting
+// characters instead was four lines short on a full offer, which is what put the vote row back
+// on top of the text. Colour escapes carry no width, so they are stepped over: 28 is
+// TEXTCOLOR_ESCAPE, written as \cX or \c[Name].
+int CountPromptBodyLines(str body) {
+	int len = StrLen(body), n = 1, w = 0, wordw = 0, i, c, cw;
+
+	for(i = 0; i < len; ++i) {
+		c = GetChar(body, i);
+
+		if(c == 10) {
+			++n;
+			w = 0;
+			wordw = 0;
+			continue;
+		}
+
+		if(c == 28) {
+			if(GetChar(body, ++i) == '[')
+				while(i < len && GetChar(body, i) != ']')
+					++i;
+			continue;
+		}
+
+		cw = GetSmallFontCharWidth(c);
+		w += cw;
+
+		// a space is where the next break can happen, so the word restarts there
+		if(c == 32) {
+			wordw = 0;
+			continue;
+		}
+
+		wordw += cw;
+
+		if(w > DND_PROMPT_WRAPW) {
+			++n;
+
+			// the word in hand moves down with the break, unless it IS the whole line
+			if(wordw < w)
+				w = wordw;
+			else {
+				w = cw;
+				wordw = cw;
+			}
+		}
+	}
+
+	return n;
+}
+
+// the vote row sits under the text, clamped so a long offer cannot push it onto the reward cell
+int GetUltimatumPromptButtonY(str body) {
+	return Clamp_Between(DND_PROMPT_TEXTTOP + CountPromptBodyLines(body) * DND_PROMPT_LINEH +
+		DND_ULTIMATUM_PROMPT_BTNPAD, DND_ULTIMATUM_PROMPT_YMIN, DND_ULTIMATUM_PROMPT_YMAX);
 }
 
 // cursor space is the draw space mirrored and halved: c = max - draw / 2. holds for all three
@@ -425,13 +540,13 @@ void BuildUltimatumOfferPane(menu_pane_T module& p, int offer_id, int yOff, bool
 			int bo = GetUltimatumOfferOption(offer_id, bi);
 			if(bo != -1)
 				AddPromptButtonBox(p, GetUltimatumOfferButtonX(offer_id, bi), yOff,
-					GetPromptButtonWidth(GetUltimatumOptionName(bo)));
+					GetUltimatumOfferButtonWidth(offer_id, bi));
 			else
 				AddBoxToPane_Points(p, -1, -1, -1, -1);
 		}
 
 		AddPromptButtonBox(p, GetUltimatumOfferButtonX(offer_id, ULTIMATUM_OFFER_SLOTS), yOff,
-			GetPromptButtonWidth("DND_DECLINE"));
+			GetUltimatumOfferButtonWidth(offer_id, ULTIMATUM_OFFER_SLOTS));
 	}
 
 	AddUltimatumRewardCellBox(p, DND_ULTREWARD_OFFERX, DND_ULTREWARD_OFFERY);
@@ -1010,16 +1125,18 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 			HudMessage(s:ult_body; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 160.1, 128.1, 0.0, 0.0);
 		}
 		
+		// settled before the pane is built, so the hitboxes land on the drawn row
+		yOff = InformationInLevel[LEVELINFO_ISULTIMATUM] ?
+			GetUltimatumPromptButtonY(ult_body) : 256.0;
+
 		if(voting_ongoing) {
 			if(!InformationInLevel[LEVELINFO_ISULTIMATUM]) {
 				AddBoxToPane_Points(CurrentPane, 340.0, 196.0, 300.0, 188.0);
 				AddBoxToPane_Points(CurrentPane, 260.0, 196.0, 220.0, 188.0);
 			}
 			else
-				BuildUltimatumOfferPane(CurrentPane, offer_id, DND_ULTIMATUM_PROMPT_YOFF, false);
+				BuildUltimatumOfferPane(CurrentPane, offer_id, yOff, false);
 		}
-		
-		yOff = InformationInLevel[LEVELINFO_ISULTIMATUM] ? DND_ULTIMATUM_PROMPT_YOFF : 256.0;
 	}
 	else if(!InformationInLevel[LEVELINFO_ISULTIMATUM]) {
 		HudMessage(
@@ -1091,7 +1208,6 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 				i = NPC_States[DND_NPC_DARKWANDERER].voter_choice[pnum];
 				j = CheckInventory("NPC_Offer_Accepted");
 
-				// two hud ids per button, label and plate, walked down so they never collide
 				for(k = 0; k < ULTIMATUM_OFFER_SLOTS; ++k) {
 					if(ult_opts[k] == -1)
 						continue;
@@ -1099,7 +1215,7 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 					DrawPromptButton(
 						GetUltimatumOptionName(ult_opts[k]),
 						(j && i == ult_opts[k]) ? 2 : (boxid == MBOX_1 + k ? 1 : 0),
-						RPGMENUITEMID - 3 - 2 * k, RPGMENUITEMID - 1 - 2 * k,
+						DND_ULTBTN_LABELID(k), DND_ULTBTN_PLATEID(k),
 						GetUltimatumOfferButtonX(offer_id, k), yOff
 					);
 				}
@@ -1107,7 +1223,7 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 				DrawPromptButton(
 					"DND_DECLINE",
 					CheckInventory("NPC_Offer_Declined") ? 2 : (boxid == MBOX_1 + ULTIMATUM_OFFER_SLOTS ? 1 : 0),
-					RPGMENUITEMID - 3 - 2 * ULTIMATUM_OFFER_SLOTS, RPGMENUITEMID - 1 - 2 * ULTIMATUM_OFFER_SLOTS,
+					DND_ULTBTN_LABELID(ULTIMATUM_OFFER_SLOTS), DND_ULTBTN_PLATEID(ULTIMATUM_OFFER_SLOTS),
 					GetUltimatumOfferButtonX(offer_id, ULTIMATUM_OFFER_SLOTS), yOff
 				);
 
@@ -1241,10 +1357,9 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 					DeleteTextRange(DND_ULTREWARD_HUDID - 2 * MAX_ULTIMATUM_REWARD_SLOTS - 1, DND_ULTREWARD_HUDID - 2);
 
 					// A hud message with no hold time stays until something replaces it, so the
-					// challenge buttons and the vote tally have to be taken down by hand. Skipping
-					// RPGMENUITEMID - 5, which is the "press use to close" hint.
-					DeleteTextRange(RPGMENUITEMID - 4, RPGMENUITEMID - 1);
-					DeleteTextRange(RPGMENUITEMID - 7, RPGMENUITEMID - 6);
+					// challenge buttons and the vote tally have to be taken down by hand. One range
+					// because the plate and label blocks are adjacent.
+					DeleteTextRange(DND_ULTBTN_LABELID(DND_ULTBTN_COUNT - 1), DND_ULTBTN_PLATEID(0));
 					DeleteTextRange(RPGMENUITEMID - 19 - MAXPLAYERS, RPGMENUITEMID - 20);
 
 					DrawUltimatumBody(ult_body, ult_showbank);

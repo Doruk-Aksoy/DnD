@@ -42,7 +42,7 @@ DND_ULTIMATUM2      =   "Occasional blood-soaked blades fly across the room.";
 DND_ULTIMATUM3      =   "A viscious cloud of deadly miasma slowly seeks you.";
 DND_ULTIMATUM4      =   "Take x20 of ammo costs as lightning damage each time you fire a weapon.";
 DND_ULTIMATUM5      =   "Random places in the ground get marked, waiting for lightning to strike.";
-DND_ULTIMATUM6      =   "Vengeful, unstoppable spirits chase after you, breathing fire.";
+DND_ULTIMATUM6      =   "Vengeful, unstoppable spirits chase after you, throwing flames.";
 DND_ULTIMATUM7      =   "Frozen pustules will periodically appear and explode when you approach.";
 DND_ULTIMATUM8      =   "Using a flask slows you down by 50% for 4 seconds.";
 DND_ULTIMATUM9      =   "Gain no flask charges from monsters.";
@@ -100,9 +100,9 @@ DND_ULTIMATUM5_T2    =   "The lightning takes 25% less time to strike.";
 DND_ULTIMATUM5_T3    =   "Twice as many lightning strikes occur when time runs out.";
 DND_ULTIMATUM5_T4    =   "3 additional marked grounds appear.";
 
-DND_ULTIMATUM6_T1    =   "Two vengeful, unstoppable spirits chase after you, breathing fire.";
-DND_ULTIMATUM6_T2    =   "The spirits fire an additional wave of fire.";
-DND_ULTIMATUM6_T3    =   "The fire pierces 15% of your resistance.";
+DND_ULTIMATUM6_T1    =   "Two spirits spawn, throwing waves of flame at you.";
+DND_ULTIMATUM6_T2    =   "The spirits fire an additional wave of flame.";
+DND_ULTIMATUM6_T3    =   "The flame pierces 15% of your resistance.";
 DND_ULTIMATUM6_T4    =   "There is an additional spirit chasing you, and they fire 2 additional projectiles.";
 
 DND_ULTIMATUM7_T1    =   "Frozen pustules will periodically appear, dealing heavy cold damage on contact after a short delay.";

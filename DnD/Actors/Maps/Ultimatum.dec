@@ -534,7 +534,7 @@ Actor DnD_Ultimatum_Pustule_Tier1 {
             "####" "#" 0 A_JumpIf(CallACS("DnD Is Ultimatum Complete"), "Disappear")
         Loop
         See:
-            "####" "#" 1 A_JumpIfCloser(r_prox, "GottaBlast")
+            "####" "#" 1 A_JumpIfCloser(160, "GottaBlast")
         Goto ClearTarg
         ClearTarg:
             "####" "#" 1 A_ClearTarget

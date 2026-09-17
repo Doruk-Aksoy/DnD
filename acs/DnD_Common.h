@@ -7,7 +7,7 @@
 
 #define SIZEOF_INT 4
 
-//#define ISDEBUGBUILD
+#define ISDEBUGBUILD
 //#define WANTCURSORPOS
 #define VERBOSE_TID_SETUP
 //#define WANT_BUFF_LOG
@@ -1300,7 +1300,6 @@ void ResetPlayerInformationLevel() {
 	InformationInLevel[LEVELINFO_MAXPLAYERLEVEL] = bcs::INT_MIN;
 	InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART] = 0;
 	InformationInLevel[LEVELINFO_PLAYERLEVELATSTART] = 0;
-	InformationInLevel[LEVELINFO_ISULTIMATUM] = 0;
 
 	pinfo_pending_reset = false;
 
@@ -1317,12 +1316,20 @@ void ResetTIDCounts() {
 	InformationInLevel[LEVELINFO_TID_INCURSIONMARKERS] = 0;
 }
 
+// The special dungeons are hand authored maps, so their lump is a name and not a formula. It is
+// spelled once here because both the map picker (GetDungeonMapLump) and the test below need it,
+// and they must never disagree -- a rename that missed one would leave the ultimatum map running
+// without LEVELINFO_ISULTIMATUM set. Defined this early because DnD_Common.h is parsed long before
+// DnD_DungeonBase.h, and a macro is the only thing that reaches both.
+#define DND_MAPLUMP_ULTIMATUM "DNDULTIM"
+
 void UpdateLevelInformation() {
 	// get this map's lump name, dungeon names follow "DNDXX"
 	str map_lump = StrParam(n:PRINTNAME_LEVEL);
 
 	//Log(s:"lump name: ", s:map_lump);
 
+	InformationInLevel[LEVELINFO_ISULTIMATUM] = map_lump == DND_MAPLUMP_ULTIMATUM;
 	InformationInLevel[LEVELINFO_ISDUNGEON] = StrLen(map_lump) > 3 && GetChar(map_lump, 0) == 'D' && GetChar(map_lump, 1) == 'N' && GetChar(map_lump, 2) == 'D';
 
 	//Log(s:"Map is dungeon: ", d:InformationInLevel[LEVELINFO_ISDUNGEON]);

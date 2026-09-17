@@ -93,3 +93,12 @@ Actor DungeonKey_0 : DungeonKeyBase {
 		Goto SpawnInit
     }
 }
+
+Actor DungeonKey_Ultimatum : DungeonKeyBase {
+	Scale 0.35
+    States {
+		Spawn:
+			DTK0 B 0
+		Goto SpawnInit
+    }
+}

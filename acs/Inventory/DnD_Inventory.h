@@ -1760,7 +1760,7 @@ void TransferTradeItems(int from, int to) {
 	ClearTradeItemOrigins(from);
 }
 
-int GetInventoryInfoOffset(int itype) {
+int GetInventoryInfoOffset(int itype, int isubtype = 0) {
 	switch(itype) {
 		case DND_ITEM_CHESTKEY:
 		return CHESTKEY_BEGIN;
@@ -1769,7 +1769,12 @@ int GetInventoryInfoOffset(int itype) {
 		case DND_ITEM_TOKEN:
 		return TOKEN_BEGIN;
 		case DND_ITEM_DUNGEONKEY:
-		return DUNGEONKEY_BEGIN;
+			// the offset is the base MINUS the first id in that range, or it lands one past
+			// the key. unreachable while a key is not IsStackedItem, but it is the same split
+			// GetDungeonKeyInventoryId makes and it has no business disagreeing with it
+			if(isubtype >= DND_FIRST_SPECIALDUNGEONID)
+				return DUNGEONKEY_SPECIAL_BEGIN - DND_FIRST_SPECIALDUNGEONID;
+		return DUNGEONKEY_BEGIN - DND_FIRST_DUNGEONID;
 	}
 	return 0;
 }
@@ -1873,7 +1878,7 @@ void DrawInventoryText(
 			item_vsync_data.attr_lines_count = 0;
 		}
 
-		temp = isubt + GetInventoryInfoOffset(itype);
+		temp = isubt + GetInventoryInfoOffset(itype, isubt);
 		if(item_vsync_data.isDirty) {
 			tmp_text = StrParam(s:"\c[Y5]", l:GetInventoryTag(temp), s:"\n\n", l:GetInventoryText(temp));
 			item_vsync_data.isDirty = false;
@@ -2098,7 +2103,7 @@ void DrawInventoryText(
 			// this check is important, unique items have itype as the id of the unique at this point and it can just so happen for it to be equal to DND_ITEM_DUNGEONKEY
 			if(!isUnique && itype == DND_ITEM_DUNGEONKEY) {
 				tmp_text = StrParam(
-					s:tmp_text, s:"\n\n\c[K9]", l:StrParam(s:"DND_DUNGEONKEYTEXT", d:isubt + 1),
+					s:tmp_text, s:"\n\n\c[K9]", l:GetDungeonKeyTextLump(isubt),
 					s:"\n", s:GetDungeonMonsterTypeString(isubt)
 				);
 			}
@@ -2241,7 +2246,7 @@ str GetItemDropClass(int itype, int stype) {
 	else if(itype == DND_ITEM_FLASK)
 		droptype = GetFlaskDropClass(stype);
 	else if(itype == DND_ITEM_DUNGEONKEY)
-		droptype = GetInventoryName(stype + DUNGEONKEY_BEGIN);
+		droptype = GetInventoryName(GetDungeonKeyInventoryId(stype));
 	return droptype;
 }
 

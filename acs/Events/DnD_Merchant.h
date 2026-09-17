@@ -868,6 +868,9 @@ Script "DnD Merchant Items" (void) {
 }
 
 void SpawnMerchant() {
+	if(IsNoChestSpawnLevel())
+		return;
+
 	ACS_NamedExecuteWithResult("DnD Try Spawn Area", 0, "DnD_Merchant", DND_MERCHANT_TID, 32 | (4 << 16) | (22 << 24));
 	ACS_NamedExecuteWithResult("DnD Merchant Items");
 }

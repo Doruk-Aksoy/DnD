@@ -292,7 +292,7 @@ enum {
 
 global int 4: MapData[DND_MAX_MAPDATA];
 
-#include "DnD_MapEvents.h"
+#include "Events/DnD_MapEvents.h"
 
 str MapDifficultyLabel(int id) {
 	str col = "\cd";

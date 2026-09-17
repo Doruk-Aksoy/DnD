@@ -879,7 +879,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				// if there is an item here, draw it
 				k = GetSelectedDungeonData(pnum).id;
 				if(k != -1) {
-					SetFont(GetItemImage(k + ITEM_IMAGE_DUNGEONKEY_BEGIN));
+					SetFont(GetItemImage(GetDungeonKeyImageId(k)));
 
 					HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 316.4, 80.0, 0.0, 0.0);
 					

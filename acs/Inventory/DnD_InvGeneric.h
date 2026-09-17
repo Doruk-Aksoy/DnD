@@ -530,7 +530,7 @@ str GetItemTagName(int itype, int isubt) {
 		return StrParam(s:"DND_FLASK", d:isubt + 1);
 
 		case DND_ITEM_DUNGEONKEY:
-		return StrParam(s:"DND_DUNGEONKEYN", d:isubt + 1);
+		return GetDungeonKeyTagLump(isubt);
 	}
 	return "NULL";
 }
