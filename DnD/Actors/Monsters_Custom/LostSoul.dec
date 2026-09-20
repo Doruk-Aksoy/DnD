@@ -5,7 +5,7 @@ ACTOR BabyCaco : DnD_BaseHybridMonster 21083 {
 	Height 56
 	Mass 200
 	Speed 9
-	PainChance 176
+	PainChance 0
 	SeeSound "BabyCaco/Sight"
 	PainSound "BabyCaco/Pain"
 	DeathSound "BabyCaco/Death"
@@ -108,7 +108,7 @@ Actor Fleshspawn : DnD_BaseRangedMonster 21084 {
 	damage (2 * random(1, 8))
 	DamageType "Melee"
 	Stamina 1
-	painchance 224
+	PainChance 0
 	missiletype "Fleshspawnball"
 	bloodcolor "blue"
 	attacksound "flesh/melee"
@@ -361,7 +361,7 @@ ACTOR ESoul : DnD_BaseRangedMonster_NoRes 21085 {
 	damage (5 * random(1,8))
 	DamageType "Melee"
 	Stamina 1
-	painchance 128
+	PainChance 0
 	renderstyle Add
 	Alpha 0.4
 	attacksound "skull/melee"
@@ -475,7 +475,7 @@ Actor GuardianCube : DnD_BaseRangedMonster_NoRes 21086 {
 	Height 56
 	Mass 150
 	Speed 8
-	PainChance 128
+	PainChance 0
 	Obituary "%o got fried by a Guardian Cube."
 	+ISMONSTER
 	+NoGravity
@@ -595,7 +595,7 @@ Actor ForgottenOne : DnD_BaseRangedMonster_NoRes 21087 {
 	Height 56
 	Mass 50
 	Speed 8
-	PainChance 230
+	PainChance 0
 	Scale 0.9
 	PainSound "Forgotten/Pain"
 	DeathSound "Forgotten/Death"
@@ -676,7 +676,7 @@ ACTOR Watcher : DnD_BaseHybridMonster 21088 {
 	Height 40 
 	Mass 150 
 	Speed 10 
-	PainChance 160
+	PainChance 0
 	MeleeRange 40
 	SeeSound "monster/watsit" 
 	PainSound "monster/watpai" 

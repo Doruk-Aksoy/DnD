@@ -119,6 +119,8 @@ void SpawnBoot(int pnum, int rarity_boost, int max_level = MAX_REGULAR_ILVL, boo
 	int id = 0;
 	if(c != -1) {
 		int ilvl = RollItemLevel(max_level);
+		ilvl = Min(ilvl, GetItemLevelCap());
+
         int type = ConstructBootDataOnField(c, ilvl);
 
 #ifndef ISDEBUGBUILD
@@ -225,6 +227,45 @@ void SpawnUniqueRewardDrop(int pnum, int unique_id, int item_type, bool noRandom
 	SpawnDrop(drop, 16.0, 16, pnum + 1, c, noRandomVelXY);
 	SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 	ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, item_type);
+}
+
+// ---- test spawners ------------------------------------------------------------------------
+// Hand out a unique by id alone, for trying one without farming for it. The base is derived, so a
+// test only has to know the UITEM_* name.
+//
+// False means the id names nothing: out of range, or a RESERVED slot SetupUniqueItems never wrote.
+// That check is the point of the wrapper -- UniqueItemList is a global and therefore all zeros
+// until filled, so ConstructUniqueOnField would happily build an item out of an empty entry and
+// hand back something with no type, no size and no mods.
+bool SpawnUniqueById(int pnum, int unique_id) {
+	if(unique_id < UNIQUE_CHARM_BEGIN || unique_id > UNIQUE_HELM_LAST)
+		return false;
+
+	// a filled entry always carries its own id in the high half, so this can never be 0
+	if(!UniqueItemList[unique_id].item_type)
+		return false;
+
+	SpawnUniqueRewardDrop(pnum, unique_id, GetUniqueItemBaseType(unique_id));
+	return true;
+}
+
+// one each for everybody still playing
+bool SpawnUniqueByIdForAll(int unique_id) {
+	bool any = false;
+	for(int i = 0; i < MAXPLAYERS; ++i)
+		if(IsActivePlayer(i))
+			any = SpawnUniqueById(i, unique_id) || any;
+	return any;
+}
+
+// Every filled id in a range, for sweeping a whole base at once -- checking that each one's icon,
+// name and mod text resolve is far quicker in one pass than one spawn at a time. Reserved and
+// empty slots are skipped rather than counted.
+int SpawnUniqueRange(int pnum, int from_id, int to_id) {
+	int n = 0;
+	for(int i = from_id; i <= to_id; ++i)
+		n += SpawnUniqueById(pnum, i);
+	return n;
 }
 
 void SpawnHelmDrop(int pnum, int rarity_boost, int max_level = MAX_REGULAR_ILVL, bool noRandomVelXY = false, int extra = -1) {

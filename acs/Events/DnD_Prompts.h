@@ -302,6 +302,13 @@ int ResolveUltimatumVoteChoice(int npc_id) {
 #define DND_ULTBOX_CELL (MBOX_1 + DND_ULTBTN_COUNT)
 #define DND_ULTBOX_BANKBTN (DND_ULTBOX_CELL + 1)
 
+// Banked reward cell k. Derived for the same reason the two above are: the cells follow the bank
+// button, which follows the button row, so a written-out MBOX_ here goes stale the moment the row
+// changes size. It did -- the row is DND_ULTBTN_COUNT (4) wide and the hover test still said
+// MBOX_5, which drew the highlight frame one cell along from the item the tooltip was describing
+// and let the bank button itself light up cell 0.
+#define DND_ULTBOX_REWARDCELL(k) (DND_ULTBOX_BANKBTN + 1 + (k))
+
 int GetPromptButtonWidth(str lump) {
 	// StrParam resolves the lump, so this measures what is DRAWN, not the key
 	int chars = StrLen(StrParam(l:lump));
@@ -997,16 +1004,15 @@ Script "DnD Dark Wanderer Challenge Track" (void) {
 	NPC_States[DND_NPC_DARKWANDERER].offer_progress = 0;
 }
 
+// One chest for every offer. What the offer was no longer changes the payout -- the chest rolls its
+// own weighted pile (SpawnChallengeChestRewards) instead of the plain lootbox contents plus one
+// guaranteed orb. Kept as a function so the single call site above still reads for itself, and so an
+// offer that wants its own chest again has somewhere obvious to go.
+//
+// The three chests this used to return were the only source of Order / Destiny / Reverance outside
+// the Ultimatum; those three are now Ultimatum only, deliberately.
 str GetDarkWandererReward() {
-	switch(NPC_States[DND_NPC_DARKWANDERER].offer) {
-		case NPC_OFFER_SLAYCHAOSMARK:
-		return "LootChest_ForPlayer_Reverance";
-		case NPC_OFFER_COLLECTARTIFACT:
-		return "LootChest_ForPlayer_Destiny";
-		case NPC_OFFER_SUPERDEMON:
-		return "LootChest_ForPlayer_Order";
-	}
-	return "LootChest_ForPlayer";
+	return "LootChest_ForPlayer_Challenge";
 }
 
 Script "DnD NPC Artifact Pickup" (void) {
@@ -1268,7 +1274,7 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 					DrawUltimatumRewardCell(i,
 						DND_ULTREWARD_GRIDX + (i % DND_ULTREWARD_PERROW) * DND_ULTREWARD_STEPX,
 						DND_ULTREWARD_GRIDY + (i / DND_ULTREWARD_PERROW) * DND_ULTREWARD_STEPY,
-						boxid == MBOX_5 + 1 + i, DND_ULTREWARD_HUDID - 2 * (i + 1));
+						boxid == DND_ULTBOX_REWARDCELL(i), DND_ULTREWARD_HUDID - 2 * (i + 1));
 				}
 			}
 
@@ -1276,8 +1282,8 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 			ult_cell = -1;
 			if(boxid == DND_ULTBOX_CELL)
 				ult_cell = ULTIMATUM_REWARD_PENDING;
-			else if(ult_showbank && boxid > DND_ULTBOX_BANKBTN && boxid - DND_ULTBOX_BANKBTN - 1 < ult_banked)
-				ult_cell = boxid - DND_ULTBOX_BANKBTN - 1;
+			else if(ult_showbank && boxid >= DND_ULTBOX_REWARDCELL(0) && boxid < DND_ULTBOX_REWARDCELL(ult_banked))
+				ult_cell = boxid - DND_ULTBOX_REWARDCELL(0);
 
 			i = ult_cell != -1 ? GetUltimatumRewardItemType(ult_cell) : DND_ITEM_NULL;
 			if(i != DND_ITEM_NULL) {

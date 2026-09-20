@@ -276,12 +276,28 @@ void MarkVSyncItemDirty() {
 }
 
 Script "DnD Item Dirty Mark" (void) CLIENTSIDE {
-	if(ConsolePlayerNumber() != PlayerNumber())
+	// An activator that is not a player means a SHARED pool changed -- the merchant stock or an
+	// ultimatum reward, re-rolled from a server script with nobody behind it. PlayerNumber() is
+	// -1 there, so the old test excluded every client and the mark reached nobody: the item data
+	// arrived (the syncer is told its pnum explicitly) while the tooltip cache stayed stale.
+	//
+	// So skip only when the activator IS a player and it is not this one.
+	int pnum = PlayerNumber();
+	if(pnum != -1 && ConsolePlayerNumber() != pnum)
 		Terminate;
 
-	auto item = GetItemVSyncData(DND_SYNCINDEX_ITEM);
-	if(item.topleftboxid != -1 && item.source != -1)
-		item.isDirty = true;
+	// EVERY index, not just DND_SYNCINDEX_ITEM. The two caches are picked apart by
+	// IsStackedItem at draw time, and marking only one left a re-synced ORB showing the text of
+	// whatever orb was in that slot before -- an ultimatum reward re-rolled between waves kept
+	// its old name until the hovered box id changed and invalidated the cache the other way.
+	for(int i = 0; i < DND_MAXSYNCINDICES; ++i) {
+		auto item = GetItemVSyncData(i);
+
+		// -1/-1 is a cache that has never drawn anything; leave it alone so it still counts as
+		// fresh-on-first-hover rather than being rebuilt against a box that is not hovered
+		if(item.topleftboxid != -1 && item.source != -1)
+			item.isDirty = true;
+	}
 
 	SetResultValue(0);
 }
@@ -451,6 +467,9 @@ enum {
 	UITEM_HEATBREAKER,
 	UITEM_THORNVEIN,
 
+	// reward only charms below -- see UNIQUE_CHARM_REWARDONLY_BEGIN
+	UITEM_NULLFORCE,
+
 	// add new powercores here
 	UITEM_TESSERACT = 256,
 	UITEM_PCORE_RES1,
@@ -487,6 +506,11 @@ enum {
 	UITEM_VAULTSTRIDE,
 	UITEM_UNDERTOW,
 	UITEM_EMBERWAKE,
+
+	// reward only boots below -- see UNIQUE_BOOT_REWARDONLY_BEGIN
+	UITEM_KINETICRUSHERS,
+	UITEM_HELLSVANGUARD,
+
 	UITEM_BOOT_RESERVED7,
 	UITEM_BOOT_RESERVED8,
 	UITEM_BOOT_RESERVED9,
@@ -522,6 +546,12 @@ enum {
 #define UNIQUE_CHARM_REGULARDROP_END UITEM_ARCHANGELBEACON
 #define UNIQUE_CHARM_DROPONLY_BEGIN UITEM_ELEMENTALHARMONY
 
+// Reward only, exactly as UNIQUE_HELM_REWARDONLY_BEGIN is. UNIQUE_CHARM_END stops before this, and
+// every drop and shop path rolls to UNIQUE_CHARM_REGULARDROP_END or UNIQUE_CHARM_END, so nothing
+// outside PickUltimatumUniqueItem can reach it.
+#define UNIQUE_CHARM_REWARDONLY_BEGIN UITEM_NULLFORCE
+#define UNIQUE_CHARM_LAST UITEM_NULLFORCE
+
 #define UNIQUE_POWERCORE_BEGIN UITEM_TESSERACT
 #define UNIQUE_POWERCORE_END UITEM_TESSERACT
 
@@ -530,6 +560,10 @@ enum {
 
 #define UNIQUE_BOOT_BEGIN UITEM_DEATHTRAIL
 #define UNIQUE_BOOT_END UITEM_EMBERWAKE
+
+// Reward only. Same mechanism as the helm tail: END stops before these on purpose.
+#define UNIQUE_BOOT_REWARDONLY_BEGIN UITEM_KINETICRUSHERS
+#define UNIQUE_BOOT_LAST UITEM_HELLSVANGUARD
 
 #define UNIQUE_HELM_BEGIN UITEM_CHOIROFASH
 #define UNIQUE_HELM_END UITEM_FARADAYHALO
@@ -561,6 +595,10 @@ typedef struct it_con {
 // of bounds and every read of it was garbage. The roll ranges are what keep reward-only items out of
 // the drop pool; the array still has to hold them.
 #define MAX_UNIQUE_ITEMS (UNIQUE_HELM_LAST - UNIQUE_CHARM_BEGIN + 1)
+
+// The boot and charm reward-only tails sit inside their own 128 wide blocks, well below
+// UNIQUE_HELM_LAST, so they need no change to the size above -- unlike Anathema, which WAS the
+// last id and had to move it. A future reward-only HELM still would.
 global inventory_constructor_T 53: UniqueItemList[MAX_UNIQUE_ITEMS];
 
 #define CHARMSTR_COLORCODE 0

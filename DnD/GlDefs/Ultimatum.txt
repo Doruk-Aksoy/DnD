@@ -1,0 +1,125 @@
+flickerlight2 PUSTULE_LIGHT1 {
+    color 0.65 0.65 1.0
+    size 36
+    secondarySize 40
+    interval 1
+    offset 0 16 0
+}
+
+flickerlight PUSTULE_LIGHT2 {
+    color 0.65 0.65 1.0
+    size 40
+    secondarySize 48
+    chance 0.5
+    offset 0 16 0
+}
+
+pointlight PUSTULE_LIGHT3 {
+    color 0.65 0.65 1.0
+    size 64
+}
+
+pointlight PUSTULE_LIGHT4 {
+    color 0.65 0.65 1.0
+    size 56
+}
+
+pointlight PUSTULE_LIGHT5 {
+    color 0.65 0.65 1.0
+    size 40
+}
+
+pointlight PUSTULE_LIGHT6 {
+    color 0.65 0.65 1.0
+    size 32
+}
+
+pointlight PUSTULE_LIGHT7 {
+    color 0.65 0.65 1.0
+    size 16
+}
+
+object DnD_Ultimatum_Pustule_Tier1 {
+    frame MSX0A { light PUSTULE_LIGHT1 }
+    frame MSX0B { light PUSTULE_LIGHT1 }
+    frame MSX0C { light PUSTULE_LIGHT1 }
+
+    frame MSX0D { light PUSTULE_LIGHT3 }
+    frame MSX0E { light PUSTULE_LIGHT4 }
+    frame MSX0F { light PUSTULE_LIGHT5 }
+    frame MSX0G { light PUSTULE_LIGHT6 }
+    frame MSX0H { light PUSTULE_LIGHT6 }
+}
+
+object DnD_Ultimatum_Pustule_Tier2 {
+    frame MSX0A { light PUSTULE_LIGHT1 }
+    frame MSX0B { light PUSTULE_LIGHT1 }
+    frame MSX0C { light PUSTULE_LIGHT1 }
+
+    frame MSX0D { light PUSTULE_LIGHT3 }
+    frame MSX0E { light PUSTULE_LIGHT4 }
+    frame MSX0F { light PUSTULE_LIGHT5 }
+    frame MSX0G { light PUSTULE_LIGHT6 }
+    frame MSX0H { light PUSTULE_LIGHT6 }
+}
+
+object DnD_Ultimatum_Pustule_Tier3 {
+    frame MSX0A { light PUSTULE_LIGHT1 }
+    frame MSX0B { light PUSTULE_LIGHT1 }
+    frame MSX0C { light PUSTULE_LIGHT1 }
+
+    frame MSX0D { light PUSTULE_LIGHT3 }
+    frame MSX0E { light PUSTULE_LIGHT4 }
+    frame MSX0F { light PUSTULE_LIGHT5 }
+    frame MSX0G { light PUSTULE_LIGHT6 }
+    frame MSX0H { light PUSTULE_LIGHT6 }
+}
+
+object DnD_Ultimatum_Pustule_Tier4 {
+    frame MSX0A { light PUSTULE_LIGHT1 }
+    frame MSX0B { light PUSTULE_LIGHT1 }
+    frame MSX0C { light PUSTULE_LIGHT1 }
+
+    frame MSX0D { light PUSTULE_LIGHT3 }
+    frame MSX0E { light PUSTULE_LIGHT4 }
+    frame MSX0F { light PUSTULE_LIGHT5 }
+    frame MSX0G { light PUSTULE_LIGHT6 }
+    frame MSX0H { light PUSTULE_LIGHT6 }
+}
+
+pulselight MIASMA_LIGHT {
+    color 0.15 1.0 0.15
+    size 36
+    secondarySize 42
+    interval 2.0
+}
+
+pulselight MIASMA_LIGHT2 {
+    color 0.15 1.0 0.15
+    size 48
+    secondarySize 55
+    interval 2.0
+}
+
+pulselight MIASMA_LIGHT3 {
+    color 0.15 1.0 0.15
+    size 64
+    secondarySize 80
+    interval 2.0
+}
+
+object DnD_Ultimatum_Miasma_Tier1 {
+    frame DB58 { light MIASMA_LIGHT }
+}
+
+object DnD_Ultimatum_Miasma_Tier2 {
+    frame DB58 { light MIASMA_LIGHT }
+}
+
+object DnD_Ultimatum_Miasma_Tier3 {
+    frame DB58 { light MIASMA_LIGHT2 }
+}
+
+object DnD_Ultimatum_Miasma_Tier4 {
+    frame DB58 { light MIASMA_LIGHT3 }
+}

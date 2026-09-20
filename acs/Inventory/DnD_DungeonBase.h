@@ -53,15 +53,28 @@ global dungeon_data_T 38: DungeonInformation;
 //
 // Every item level clamp goes through here, so a level type that wants its own ceiling -- Ultimatum
 // among them, once it reports as a dungeon -- only has to set DungeonInformation.level.
-// A ceiling for one roll already under way, 0 for the ordinary one. Set immediately before a
-// Construct/Roll call and cleared straight after: an ACS function cannot Delay, so the roll runs to
-// completion with nothing interleaved and no other caller can observe it set. Same scoping rule --
-// and the same reasoning -- as WellRolledChanceOverride in DnD_Stat.h.
-int ItemLevelCapOverride = 0;
+// A ceiling for one roll already under way, 0 for the ordinary one. Behind an accessor and scoped
+// exactly like the two overrides in DnD_Stat.h -- see the block comment there for why none of these
+// is a bare file scope variable.
+int ItemLevelCapOverrideAccess(bool write, int val) {
+	static int stored;
+	if(write)
+		stored = val;
+	return stored;
+}
+
+void SetItemLevelCapOverride(int val) {
+	ItemLevelCapOverrideAccess(true, val);
+}
+
+int GetItemLevelCapOverride() {
+	return ItemLevelCapOverrideAccess(false, 0);
+}
 
 int GetItemLevelCap() {
-	if(ItemLevelCapOverride)
-		return ItemLevelCapOverride;
+	int over = GetItemLevelCapOverride();
+	if(over)
+		return over;
 
 	if(DungeonInformation.level == -1)
 		return GetCVar("dnd_maxmonsterlevel");

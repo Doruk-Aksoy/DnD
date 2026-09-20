@@ -317,6 +317,7 @@ void HandleMonsterClassInnates(int mid, int id) {
 			case MONSTER_CHEX_SUPERCYCLOPS:
 			case MONSTER_ABYSS_CACODEMON:
 			case MONSTER_ABYSS_NIGHTMARECACO:
+			case MONSTER_DUNGEON_DEMENTOR:
 				MonsterProperties[mid].class = MONSTERCLASS_CACODEMON;
 			break;
 			case MONSTER_ABYSS_PAINELEMENTAL:
@@ -712,7 +713,6 @@ void LoadMonsterTraits(int tid, int monsterid) {
 	// which is what a recycled monster id needs
 	CopyMonsterDataTraits(tid, monsterid);
 
-
 	// some of the flags are inherent in actor info, so do make use of that
 	AddMonsterTrait(tid, DND_GHOST, CheckFlag(0, "GHOST"));
 	AddMonsterTrait(tid, DND_EXPLOSIVE_IMMUNE, CheckFlag(0, "NORADIUSDMG"));
@@ -1010,484 +1010,697 @@ str LegendaryMonsters[DND_MAX_LEGENDARY] = {
 };
 
 void SetupMonsterData() {
+
 	MonsterData[MONSTER_ZOMBIEMAN].health = 20;
 	MonsterData[MONSTER_ZOMBIEMAN].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_ZOMBIEMAN].painchance = 200;
 	MonsterData[MONSTER_SHOTGUNNER].health = 30;
 	MonsterData[MONSTER_SHOTGUNNER].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_SHOTGUNNER].painchance = 170;
 	MonsterData[MONSTER_CHAINGUNNER].health = 70;
 	MonsterData[MONSTER_CHAINGUNNER].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_CHAINGUNNER].painchance = 170;
 	MonsterData[MONSTER_DEMON].health = 150;
 	MonsterData[MONSTER_DEMON].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_DEMON].painchance = 180;
 	MonsterData[MONSTER_SPECTRE].health = 150;
 	MonsterData[MONSTER_SPECTRE].flags = DND_MTYPE_DEMON_POW;
 	MonsterData[MONSTER_IMP].health = 60;
 	MonsterData[MONSTER_IMP].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_IMP].painchance = 200;
 	MonsterData[MONSTER_CACODEMON].health = 400;
 	MonsterData[MONSTER_CACODEMON].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_CACODEMON].painchance = 128;
 	MonsterData[MONSTER_PAINELEMENTAL].health = 400;
 	MonsterData[MONSTER_PAINELEMENTAL].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_PAINELEMENTAL].painchance = 128;
 	MonsterData[MONSTER_LOSTSOUL].health = 50;
 	MonsterData[MONSTER_LOSTSOUL].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_LOSTSOUL].painchance = 256;
 	MonsterData[MONSTER_REVENANT].health = 300;
 	MonsterData[MONSTER_REVENANT].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_REVENANT].painchance = 100;
 	MonsterData[MONSTER_HELLKNIGHT].health = 500;
 	MonsterData[MONSTER_HELLKNIGHT].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_HELLKNIGHT].painchance = 50;
 	MonsterData[MONSTER_BARON].health = 1000;
 	MonsterData[MONSTER_BARON].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_BARON].painchance = 50;
 	MonsterData[MONSTER_FATSO].health = 600;
 	MonsterData[MONSTER_FATSO].flags = DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_FATSO].painchance = 80;
 	MonsterData[MONSTER_SPIDER].health = 500;
 	MonsterData[MONSTER_SPIDER].flags = DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_SPIDER].painchance = 128;
 	MonsterData[MONSTER_VILE].health = 700;
 	MonsterData[MONSTER_VILE].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_VILE].painchance = 10;
 	MonsterData[MONSTER_MASTERMIND].health = 3000;
 	MonsterData[MONSTER_MASTERMIND].flags = DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_MASTERMIND].painchance = 40;
 	MonsterData[MONSTER_CYBERDEMON].health = 4000;
 	MonsterData[MONSTER_CYBERDEMON].flags = DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_CYBERDEMON].painchance = 20;
 	MonsterData[MONSTER_NAZI].health = 50;
 	MonsterData[MONSTER_NAZI].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_NAZI].painchance = 170;
 
 	// zombieman
 	MonsterData[MONSTER_ZOMBIEMANGRAY].health = 40;
 	MonsterData[MONSTER_ZOMBIEMANGRAY].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_ZOMBIEMANGRAY].painchance = 200;
 	MonsterData[MONSTER_ZOMBIERANGER].health = 45;
 	MonsterData[MONSTER_ZOMBIERANGER].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_ZOMBIERANGER].painchance = 170;
 	MonsterData[MONSTER_ZOMBIESMG].health = 35;
 	MonsterData[MONSTER_ZOMBIESMG].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_ZOMBIESMG].painchance = 200;
 	MonsterData[MONSTER_ZOMBIERAPID].health = 30;
 	MonsterData[MONSTER_ZOMBIERAPID].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_ZOMBIERAPID].painchance = 200;
 	MonsterData[MONSTER_ZOMBIEMARINE].health = 45;
 	MonsterData[MONSTER_ZOMBIEMARINE].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_ZOMBIEMARINE].painchance = 200;
 	MonsterData[MONSTER_ZOMBIELOS].health = 45;
 	MonsterData[MONSTER_ZOMBIELOS].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_ZOMBIELOS].painchance = 200;
 	MonsterData[MONSTER_ZOMBIEPISTOL].health = 25;
 	MonsterData[MONSTER_ZOMBIEPISTOL].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_ZOMBIEPISTOL].painchance = 200;
 	MonsterData[MONSTER_ZOMBIEQUAKE1].health = 55;
 	MonsterData[MONSTER_ZOMBIEQUAKE1].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_ZOMBIEQUAKE1].painchance = 200;
 	MonsterData[MONSTER_ZOMBIEHUNTER].health = 65;
 	MonsterData[MONSTER_ZOMBIEHUNTER].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_ZOMBIEHUNTER].painchance = 30;
 	MonsterData[MONSTER_ZOMBIEPROPHET].health = 50;
 	MonsterData[MONSTER_ZOMBIEPROPHET].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_ZOMBIEPROPHET].painchance = 184;
 	
 	// shotgunner
 	MonsterData[MONSTER_SSGLOS].health = 50;
 	MonsterData[MONSTER_SSGLOS].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_SSGLOS].painchance = 200;
 	MonsterData[MONSTER_ZSPECSG].health = 50;
 	MonsterData[MONSTER_ZSPECSG].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_ZSPECSG].painchance = 192;
 	MonsterData[MONSTER_SGLOS].health = 50;
 	MonsterData[MONSTER_SGLOS].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_SGLOS].painchance = 170;
 	MonsterData[MONSTER_SAWEDOFF1].health = 50;
 	MonsterData[MONSTER_SAWEDOFF1].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_SAWEDOFF1].painchance = 255;
 	MonsterData[MONSTER_SAWEDOFF2].health = 50;
 	MonsterData[MONSTER_SAWEDOFF2].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_SAWEDOFF2].painchance = 224;
 	MonsterData[MONSTER_ROGUE].health = 65;
 	MonsterData[MONSTER_ROGUE].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_ROGUE].painchance = 30;
 	MonsterData[MONSTER_ZOMBIEQUAKE2].health = 70;
 	MonsterData[MONSTER_ZOMBIEQUAKE2].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_ZOMBIEQUAKE2].painchance = 200;
 	MonsterData[MONSTER_ZOMBIESSG].health = 75;
 	MonsterData[MONSTER_ZOMBIESSG].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_ZOMBIESSG].painchance = 170;
 
 	// chaingunguy
 	MonsterData[MONSTER_ZOMBIEQUAKE3].health = 85;
 	MonsterData[MONSTER_ZOMBIEQUAKE3].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_ZOMBIEQUAKE3].painchance = 160;
 	MonsterData[MONSTER_ZOMBIEMG].health = 85;
 	MonsterData[MONSTER_ZOMBIEMG].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_ZOMBIEMG].painchance = 170;
 	MonsterData[MONSTER_INITIATE].health = 65;
 	MonsterData[MONSTER_INITIATE].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_INITIATE].painchance = 30;
 	MonsterData[MONSTER_DOUBLEGUNNER].health = 100;
 	MonsterData[MONSTER_DOUBLEGUNNER].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_DOUBLEGUNNER].painchance = 150;
 	MonsterData[MONSTER_CGMAJOR].health = 110;
 	MonsterData[MONSTER_CGMAJOR].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_CGMAJOR].painchance = 96;
 	MonsterData[MONSTER_MRROBOT].health = 100;
 	MonsterData[MONSTER_MRROBOT].flags = DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_MRROBOT].painchance = 96;
 	MonsterData[MONSTER_ZSEC].health = 70;
 	MonsterData[MONSTER_ZSEC].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_ZSEC].painchance = 128;
 	MonsterData[MONSTER_ZSPECMG].health = 60;
 	MonsterData[MONSTER_ZSPECMG].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_ZSPECMG].painchance = 192;
 	MonsterData[MONSTER_PLASMAZOMBIE].health = 85;
 	MonsterData[MONSTER_PLASMAZOMBIE].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_PLASMAZOMBIE].painchance = 128;
 	MonsterData[MONSTER_BERSERKERGUY].health = 150;
 	MonsterData[MONSTER_BERSERKERGUY].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_BERSERKERGUY].painchance = 144;
 
 	// demon
 	MonsterData[MONSTER_BLOODDEMON].health = 250;
 	MonsterData[MONSTER_BLOODDEMON].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_BLOODDEMON].painchance = 180;
 	MonsterData[MONSTER_BLOODFIEND].health = 160;
 	MonsterData[MONSTER_BLOODFIEND].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_BLOODFIEND].painchance = 140;
 	MonsterData[MONSTER_CYBERFIEND].health = 300;
 	MonsterData[MONSTER_CYBERFIEND].flags = DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_CYBERFIEND].painchance = 125;
 	MonsterData[MONSTER_FLAMEDEMON].health = 200;
 	MonsterData[MONSTER_FLAMEDEMON].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_FLAMEDEMON].painchance = 150;
 	MonsterData[MONSTER_STONEIMP].health = 180;
 	MonsterData[MONSTER_STONEIMP].flags = DND_MTYPE_ROBOTIC_POW;
 	MonsterData[MONSTER_SCAVENGER].health = 195;
 	MonsterData[MONSTER_SCAVENGER].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_SCAVENGER].painchance = 128;
 	MonsterData[MONSTER_SOULEATER].health = 200;
 	MonsterData[MONSTER_SOULEATER].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_SOULEATER].painchance = 128;
 	MonsterData[MONSTER_NHUMCIGN].health = 275;
 	MonsterData[MONSTER_NHUMCIGN].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_NHUMCIGN].painchance = 96;
 	MonsterData[MONSTER_STONEDEMON].health = 250;
 	MonsterData[MONSTER_STONEDEMON].flags = DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_STONEDEMON].painchance = 100;
 	MonsterData[MONSTER_BRUTY].health = 240;
 	MonsterData[MONSTER_BRUTY].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_BRUTY].painchance = 48;
 	MonsterData[MONSTER_SATYR].health = 150;
 	MonsterData[MONSTER_SATYR].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_SATYR].painchance = 84;
 	MonsterData[MONSTER_EARTHGOLEM].health = 325;
 	MonsterData[MONSTER_EARTHGOLEM].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_EARTHGOLEM].painchance = 128;
 	MonsterData[MONSTER_RAVAGER].health = 250;
+	MonsterData[MONSTER_RAVAGER].painchance = 96;
 	MonsterData[MONSTER_RAVAGER].flags = DND_MTYPE_DEMON_POW;	
 	MonsterData[MONSTER_PUREBREDDEMON].health = 275;
 	MonsterData[MONSTER_PUREBREDDEMON].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_PUREBREDDEMON].painchance = 128;
 	MonsterData[MONSTER_SABRECLAW].health = 200;
 	MonsterData[MONSTER_SABRECLAW].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_SABRECLAW].painchance = 96;
 	
 	// spectre
 	MonsterData[MONSTER_LURKER].health = 160;
 	MonsterData[MONSTER_LURKER].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_LURKER].painchance = 140;
 	MonsterData[MONSTER_GRAVEDIGGER].health = 160;
 	MonsterData[MONSTER_GRAVEDIGGER].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_GRAVEDIGGER].painchance = 180;
 	MonsterData[MONSTER_DEVOURER].health = 175;
 	MonsterData[MONSTER_DEVOURER].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_DEVOURER].painchance = 96;
 	MonsterData[MONSTER_NIGHTMAREDEMON].health = 150;
 	MonsterData[MONSTER_NIGHTMAREDEMON].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_NIGHTMAREDEMON].painchance = 120;
 
 	// imp
 	MonsterData[MONSTER_DARKIMP1].health = 80;
 	MonsterData[MONSTER_DARKIMP1].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_DARKIMP1].painchance = 200;
 	MonsterData[MONSTER_VOIDDARKIMP].health = 100;
 	MonsterData[MONSTER_VOIDDARKIMP].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_VOIDDARKIMP].painchance = 200;
 	MonsterData[MONSTER_NETHERDARKIMP].health = 100;
 	MonsterData[MONSTER_NETHERDARKIMP].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_NETHERDARKIMP].painchance = 100;
 	MonsterData[MONSTER_DARKIMP2].health = 90;
 	MonsterData[MONSTER_DARKIMP2].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_DARKIMP2].painchance = 200;
 	MonsterData[MONSTER_IMPABOM].health = 80;
 	MonsterData[MONSTER_IMPABOM].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_IMPABOM].painchance = 200;
 	MonsterData[MONSTER_STIMP].health = 55;
 	MonsterData[MONSTER_STIMP].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_STIMP].painchance = 200;
 	MonsterData[MONSTER_VOIDIMP].health = 65;
 	MonsterData[MONSTER_VOIDIMP].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_VOIDIMP].painchance = 200;
 	MonsterData[MONSTER_SOULHARVESTER].health = 100;
 	MonsterData[MONSTER_SOULHARVESTER].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_SOULHARVESTER].painchance = 160;
 	MonsterData[MONSTER_PYROIMP].health = 60;
 	MonsterData[MONSTER_PYROIMP].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_PYROIMP].painchance = 200;
 	MonsterData[MONSTER_DEVIL].health = 85;
 	MonsterData[MONSTER_DEVIL].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_DEVIL].painchance = 160;
 	MonsterData[MONSTER_DEVIL2].health = 125;
 	MonsterData[MONSTER_DEVIL2].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_DEVIL2].painchance = 128;
 	MonsterData[MONSTER_VULGAR].health = 70;
 	MonsterData[MONSTER_VULGAR].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_VULGAR].painchance = 180;
 	MonsterData[MONSTER_UNDEADMAGE].health = 80;
 	MonsterData[MONSTER_UNDEADMAGE].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_UNDEADMAGE].painchance = 184;
 	MonsterData[MONSTER_SHADOW].health = 85;
 	MonsterData[MONSTER_SHADOW].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_SHADOW].painchance = 200;
 	MonsterData[MONSTER_REAVER].health = 90;
 	MonsterData[MONSTER_REAVER].flags = DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_REAVER].painchance = 128;
 	MonsterData[MONSTER_ROACH].health = 80;
 	MonsterData[MONSTER_ROACH].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ROACH].painchance = 64;
 
 	// lost soul
 	MonsterData[MONSTER_BABYCACO].health = 60;
 	MonsterData[MONSTER_BABYCACO].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_BABYCACO].painchance = 176;
 	MonsterData[MONSTER_ETHEREALSOUL].health = 60;
 	MonsterData[MONSTER_ETHEREALSOUL].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_ETHEREALSOUL].painchance = 128;
 	MonsterData[MONSTER_FLESHSPAWN].health = 50;
 	MonsterData[MONSTER_FLESHSPAWN].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_FLESHSPAWN].painchance = 224;
 	MonsterData[MONSTER_GUARDIANCUBE].health = 75;
 	MonsterData[MONSTER_GUARDIANCUBE].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_GUARDIANCUBE].painchance = 128;
 	MonsterData[MONSTER_FORGOTTENONE].health = 40;
 	MonsterData[MONSTER_FORGOTTENONE].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_FORGOTTENONE].painchance = 230;
 	MonsterData[MONSTER_HADESSPHERE].health = 35;
 	MonsterData[MONSTER_HADESSPHERE].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_HADESSPHERE].painchance = 0;
 	MonsterData[MONSTER_WATCHER].health = 100;
 	MonsterData[MONSTER_WATCHER].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_WATCHER].painchance = 160;
 	MonsterData[MONSTER_DARKLICH_SPIRIT].health = 75;
 	MonsterData[MONSTER_DARKLICH_SPIRIT].flags = DND_MTYPE_UNDEAD_POW;
 
 	// cacodemon
 	MonsterData[MONSTER_WEAKENER].health = 300;
 	MonsterData[MONSTER_WEAKENER].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_WEAKENER].painchance = 160;
 	MonsterData[MONSTER_SHADOWPRIEST].health = 250;
 	MonsterData[MONSTER_SHADOWPRIEST].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_SHADOWPRIEST].painchance = 170;
 	MonsterData[MONSTER_GRELL].health = 325;
 	MonsterData[MONSTER_GRELL].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_GRELL].painchance = 128;
 	MonsterData[MONSTER_DEATHWHISPERER].health = 500;
 	MonsterData[MONSTER_DEATHWHISPERER].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_DEATHWHISPERER].painchance = 145;
 	MonsterData[MONSTER_CACOLICH].health = 500;
 	MonsterData[MONSTER_CACOLICH].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_CACOLICH].painchance = 96;
 	MonsterData[MONSTER_INFERNO].health = 400;
 	MonsterData[MONSTER_INFERNO].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_INFERNO].painchance = 128;
 	MonsterData[MONSTER_GUARDIAN].health = 275;
 	MonsterData[MONSTER_GUARDIAN].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_GUARDIAN].painchance = 48;
 	MonsterData[MONSTER_ENHANCEDCACO].health = 300;
 	MonsterData[MONSTER_ENHANCEDCACO].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ENHANCEDCACO].painchance = 128;
 	MonsterData[MONSTER_EARTHLICH].health = 425;
 	MonsterData[MONSTER_EARTHLICH].flags = DND_MTYPE_MAGICAL_POW;
 	MonsterData[MONSTER_WICKED].health = 300;
 	MonsterData[MONSTER_WICKED].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_WICKED].painchance = 112;
 
 	// pain ele
 	MonsterData[MONSTER_BLOODLICH].health = 675;
 	MonsterData[MONSTER_BLOODLICH].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_BLOODLICH].painchance = 32;
 	MonsterData[MONSTER_HADESELEMENTAL].health = 800;
 	MonsterData[MONSTER_HADESELEMENTAL].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_HADESELEMENTAL].painchance = 32;
 	MonsterData[MONSTER_HELLARBITER].health = 700;
 	MonsterData[MONSTER_HELLARBITER].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_HELLARBITER].painchance = 96;
 	MonsterData[MONSTER_DEFILER].health = 500;
 	MonsterData[MONSTER_DEFILER].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_DEFILER].painchance = 64;
 	MonsterData[MONSTER_TORTUREDSOUL].health = 550;
 	MonsterData[MONSTER_TORTUREDSOUL].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_TORTUREDSOUL].painchance = 64;
 	MonsterData[MONSTER_SHADOWDISCIPLE].health = 500;
 	MonsterData[MONSTER_SHADOWDISCIPLE].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_SHADOWDISCIPLE].painchance = 140;
 	MonsterData[MONSTER_SENTINEL].health = 750;
 	MonsterData[MONSTER_SENTINEL].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_SENTINEL].painchance = 64;
 	MonsterData[MONSTER_PHANTASM].health = 300;
 	MonsterData[MONSTER_PHANTASM].flags = DND_MTYPE_MAGICAL_POW;
 	MonsterData[MONSTER_WRAITH].health = 75;
 	MonsterData[MONSTER_WRAITH].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_WRAITH].painchance = 0;
 	
 	// revenant
 	MonsterData[MONSTER_INCARNATE].health = 250;
 	MonsterData[MONSTER_INCARNATE].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_INCARNATE].painchance = 64;
 	MonsterData[MONSTER_BEAMREVENANT].health = 250;
 	MonsterData[MONSTER_BEAMREVENANT].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_BEAMREVENANT].painchance = 100;
 	MonsterData[MONSTER_AXEKNIGHT].health = 250;
 	MonsterData[MONSTER_AXEKNIGHT].flags = DND_MTYPE_UNDEAD_POW;
 	MonsterData[MONSTER_WIDOWMAKER].health = 300;
 	MonsterData[MONSTER_WIDOWMAKER].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_WIDOWMAKER].painchance = 60;
 	MonsterData[MONSTER_SLUDGEGIANT].health = 280;
 	MonsterData[MONSTER_SLUDGEGIANT].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_SLUDGEGIANT].painchance = 96;
 	MonsterData[MONSTER_SLUDGEGIANT2].health = 140;
 	MonsterData[MONSTER_SLUDGEGIANT2].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_SLUDGEGIANT2].painchance = 96;
 	MonsterData[MONSTER_SLUDGEGIANT3].health = 70;
 	MonsterData[MONSTER_SLUDGEGIANT3].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_SLUDGEGIANT3].painchance = 96;
 	MonsterData[MONSTER_CADAVER].health = 350;
 	MonsterData[MONSTER_CADAVER].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_CADAVER].painchance = 70;
 	MonsterData[MONSTER_DARKSERVANT].health = 275;
 	MonsterData[MONSTER_DARKSERVANT].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_DARKSERVANT].painchance = 96;
 	MonsterData[MONSTER_CRAWLER].health = 325;
 	MonsterData[MONSTER_CRAWLER].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_CRAWLER].painchance = 64;
 	MonsterData[MONSTER_CYBORGSOLDIER].health = 200;
 	MonsterData[MONSTER_CYBORGSOLDIER].flags = DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_CYBORGSOLDIER].painchance = 40;
 	MonsterData[MONSTER_DRAUGR].health = 350;
 	MonsterData[MONSTER_DRAUGR].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_DRAUGR].painchance = 100;
 
 	// hell knight
 	MonsterData[MONSTER_BLOODSATYR].health = 550;
 	MonsterData[MONSTER_BLOODSATYR].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_BLOODSATYR].painchance = 64;
 	MonsterData[MONSTER_HELLWARRIOR].health = 400;
 	MonsterData[MONSTER_HELLWARRIOR].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_HELLWARRIOR].painchance = 50;
 	MonsterData[MONSTER_HELLSFURY].health = 600;
 	MonsterData[MONSTER_HELLSFURY].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_HELLSFURY].painchance = 50;
 	MonsterData[MONSTER_BLACKKNIGHT].health = 550;
 	MonsterData[MONSTER_BLACKKNIGHT].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_BLACKKNIGHT].painchance = 100;
 	MonsterData[MONSTER_ARCHON].health = 700;
 	MonsterData[MONSTER_ARCHON].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ARCHON].painchance = 20;
 	MonsterData[MONSTER_WARLORD].health = 650;
 	MonsterData[MONSTER_WARLORD].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_WARLORD].painchance = 50;
 	MonsterData[MONSTER_SKULLWIZARD].health = 500;
 	MonsterData[MONSTER_SKULLWIZARD].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_SKULLWIZARD].painchance = 48;
 	MonsterData[MONSTER_CYBORGWARRIOR].health = 650;
 	MonsterData[MONSTER_CYBORGWARRIOR].flags = DND_MTYPE_ROBOTIC_POW;
 	MonsterData[MONSTER_SHADOWBEAST].health = 400;
 	MonsterData[MONSTER_SHADOWBEAST].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_SHADOWBEAST].painchance = 144;
 	MonsterData[MONSTER_CHAOSSERPENT].health = 450;
 	MonsterData[MONSTER_CHAOSSERPENT].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_CHAOSSERPENT].painchance = 64;
 	MonsterData[MONSTER_MOONSATYR].health = 750;
 	MonsterData[MONSTER_MOONSATYR].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_MOONSATYR].painchance = 64;
 	MonsterData[MONSTER_ICEGOLEM].health = 400;
 	MonsterData[MONSTER_ICEGOLEM].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_ICEGOLEM].painchance = 48;
 	MonsterData[MONSTER_PUTREFIER].health = 500;
 	MonsterData[MONSTER_PUTREFIER].flags = DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_PUTREFIER].painchance = 84;
 	MonsterData[MONSTER_GLADIATOR].health = 450;
 	MonsterData[MONSTER_GLADIATOR].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_GLADIATOR].painchance = 64;
 
 	// baron
 	MonsterData[MONSTER_LAVADEMON].health = 1000;
 	MonsterData[MONSTER_LAVADEMON].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_LAVADEMON].painchance = 96;
 	MonsterData[MONSTER_LORDOFHERESY].health = 1100;
 	MonsterData[MONSTER_LORDOFHERESY].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_LORDOFHERESY].painchance = 50;
 	MonsterData[MONSTER_BORMERETH].health = 1200;
 	MonsterData[MONSTER_BORMERETH].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_BORMERETH].painchance = 75;
 	MonsterData[MONSTER_BARBATOS].health = 1100;
 	MonsterData[MONSTER_BARBATOS].flags = DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_BARBATOS].painchance = 32;
 	MonsterData[MONSTER_BLOODSEEKER].health = 1000;
 	MonsterData[MONSTER_BLOODSEEKER].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_BLOODSEEKER].painchance = 144;
 	MonsterData[MONSTER_SHADOWWIZARD].health = 900;
 	MonsterData[MONSTER_SHADOWWIZARD].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_SHADOWWIZARD].painchance = 32;
 	MonsterData[MONSTER_KJAROCH].health = 1650;
 	MonsterData[MONSTER_KJAROCH].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_KJAROCH].painchance = 32;
 	MonsterData[MONSTER_CYBRUISER].health = 1500;
 	MonsterData[MONSTER_CYBRUISER].flags = DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_CYBRUISER].painchance = 20;
 	MonsterData[MONSTER_BRUISERDEMON].health = 1500;
 	MonsterData[MONSTER_BRUISERDEMON].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_BRUISERDEMON].painchance = 15;
 	MonsterData[MONSTER_MAGMASERPENT].health = 900;
 	MonsterData[MONSTER_MAGMASERPENT].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_MAGMASERPENT].painchance = 64;
 	MonsterData[MONSTER_DREADKNIGHT].health = 900;
 	MonsterData[MONSTER_DREADKNIGHT].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_DREADKNIGHT].painchance = 100;
 	MonsterData[MONSTER_MAGMAGOLEM].health = 900;
 	MonsterData[MONSTER_MAGMAGOLEM].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_MAGMAGOLEM].painchance = 48;
 	MonsterData[MONSTER_JUDICATOR].health = 800;
 	MonsterData[MONSTER_JUDICATOR].flags = DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_JUDICATOR].painchance = 64;
 	MonsterData[MONSTER_WARMASTER].health = 1250;
 	MonsterData[MONSTER_WARMASTER].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_WARMASTER].painchance = 32;
 
 	// fatso
 	MonsterData[MONSTER_CORPULENT].health = 850;
 	MonsterData[MONSTER_CORPULENT].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_CORPULENT].painchance = 48;
 	MonsterData[MONSTER_DAEDABUS].health = 850;
 	MonsterData[MONSTER_DAEDABUS].flags = DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_DAEDABUS].painchance = 64;
 	MonsterData[MONSTER_PALADIN].health = 775;
 	MonsterData[MONSTER_PALADIN].flags = DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_PALADIN].painchance = 80;
 	MonsterData[MONSTER_GAMON].health = 875;
 	MonsterData[MONSTER_GAMON].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_GAMON].painchance = 64;
 	MonsterData[MONSTER_MEPHISTO].health = 900;
 	MonsterData[MONSTER_MEPHISTO].flags = DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_MEPHISTO].painchance = 32;
 	MonsterData[MONSTER_MAFIBUS].health = 1100;
 	MonsterData[MONSTER_MAFIBUS].flags = DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_MAFIBUS].painchance = 20;
 	MonsterData[MONSTER_ICEFATSO].health = 650;
 	MonsterData[MONSTER_ICEFATSO].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ICEFATSO].painchance = 80;
 	MonsterData[MONSTER_ABOMINATION].health = 775;
 	MonsterData[MONSTER_ABOMINATION].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ABOMINATION].painchance = 72;
 	MonsterData[MONSTER_REDEEMER].health = 800;
 	MonsterData[MONSTER_REDEEMER].flags = DND_MTYPE_ROBOTIC_POW;
 	MonsterData[MONSTER_GOLDGOLEM].health = 1000;
 	MonsterData[MONSTER_GOLDGOLEM].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_GOLDGOLEM].painchance = 32;
 	MonsterData[MONSTER_YETI].health = 800;
 	MonsterData[MONSTER_YETI].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_YETI].painchance = 32;
 
 	// arachnotron
 	MonsterData[MONSTER_FUSIONSPIDER].health = 500;
 	MonsterData[MONSTER_FUSIONSPIDER].flags = DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_FUSIONSPIDER].painchance = 128;
 	MonsterData[MONSTER_RAILARACHNOTRON].health = 450;
 	MonsterData[MONSTER_RAILARACHNOTRON].flags = DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_RAILARACHNOTRON].painchance = 192;
 	MonsterData[MONSTER_HELLFORGESPIDER].health = 700;
 	MonsterData[MONSTER_HELLFORGESPIDER].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_HELLFORGESPIDER].painchance = 128;
 	MonsterData[MONSTER_VORE].health = 700;
 	MonsterData[MONSTER_VORE].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_VORE].painchance = 40;
 	MonsterData[MONSTER_BABYDEMOLISHER].health = 700;
 	MonsterData[MONSTER_BABYDEMOLISHER].flags = DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_BABYDEMOLISHER].painchance = 64;
 	MonsterData[MONSTER_CHAINGUNGENERAL].health = 550;
 	MonsterData[MONSTER_CHAINGUNGENERAL].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_CHAINGUNGENERAL].painchance = 64;
 	MonsterData[MONSTER_CHAINGUNCOMMANDO].health = 700;
 	MonsterData[MONSTER_CHAINGUNCOMMANDO].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_CHAINGUNCOMMANDO].painchance = 64;
 	MonsterData[MONSTER_LEGIONNAIRE].health = 600;
 	MonsterData[MONSTER_LEGIONNAIRE].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_LEGIONNAIRE].painchance = 48;
 	MonsterData[MONSTER_MANTICORE].health = 650;
 	MonsterData[MONSTER_MANTICORE].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_MANTICORE].painchance = 96;
 	MonsterData[MONSTER_OPHIDIAN].health = 700;
 	MonsterData[MONSTER_OPHIDIAN].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_OPHIDIAN].painchance = 64;
 
 	// vile
 	MonsterData[MONSTER_DIABLOIST].health = 850;
 	MonsterData[MONSTER_DIABLOIST].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_DIABLOIST].painchance = 10;
 	MonsterData[MONSTER_UNDEADPRIEST].health = 800;
 	MonsterData[MONSTER_UNDEADPRIEST].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_UNDEADPRIEST].painchance = 48;
 	MonsterData[MONSTER_UNDEADPRIESTGHOST].health = 100;
 	MonsterData[MONSTER_UNDEADPRIESTGHOST].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_UNDEADPRIESTGHOST].painchance = 0;
 	MonsterData[MONSTER_DEATHVILE].health = 800;
 	MonsterData[MONSTER_DEATHVILE].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_DEATHVILE].painchance = 8;
 	MonsterData[MONSTER_HIEROPHANT].health = 1250;
 	MonsterData[MONSTER_HIEROPHANT].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_HIEROPHANT].painchance = 16;
 	MonsterData[MONSTER_GURU].health = 800;
 	MonsterData[MONSTER_GURU].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_GURU].painchance = 56;
 	MonsterData[MONSTER_DEATHKNIGHT].health = 900;
 	MonsterData[MONSTER_DEATHKNIGHT].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_DEATHKNIGHT].painchance = 20;
 	MonsterData[MONSTER_HORSHACKER].health = 900;
 	MonsterData[MONSTER_HORSHACKER].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_HORSHACKER].painchance = 20;
 	MonsterData[MONSTER_DARKZEALOT].health = 750;
 	MonsterData[MONSTER_DARKZEALOT].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_DARKZEALOT].painchance = 48;
 	MonsterData[MONSTER_FLESHWIZARD].health = 625;
 	MonsterData[MONSTER_FLESHWIZARD].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_FLESHWIZARD].painchance = 64;
 
 	// sm
 	MonsterData[MONSTER_DEMOLISHER].health = 4000;
 	MonsterData[MONSTER_DEMOLISHER].flags = DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_DEMOLISHER].painchance = 20;
 	MonsterData[MONSTER_ARACHNOPHYTE].health = 3500;
 	MonsterData[MONSTER_ARACHNOPHYTE].flags = DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_ARACHNOPHYTE].painchance = 8;
 	MonsterData[MONSTER_PSIONICQUEEN].health = 4000;
 	MonsterData[MONSTER_PSIONICQUEEN].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_PSIONICQUEEN].painchance = 40;
 	MonsterData[MONSTER_ANGELOFDEATH].health = 4000;
 	MonsterData[MONSTER_ANGELOFDEATH].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_ANGELOFDEATH].painchance = 48;
 	MonsterData[MONSTER_GOLDLICH].health = 4750;
 	MonsterData[MONSTER_GOLDLICH].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_GOLDLICH].painchance = 8;
 	MonsterData[MONSTER_GOLDLICHFAKE].health = 300;
 	MonsterData[MONSTER_GOLDLICHFAKE].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_GOLDLICHFAKE].painchance = 8;
 	MonsterData[MONSTER_IRONLICH].health = 4000;
 	MonsterData[MONSTER_IRONLICH].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_IRONLICH].painchance = 8;
 	MonsterData[MONSTER_SPIDEROVERLORD].health = 4000;
 	MonsterData[MONSTER_SPIDEROVERLORD].flags = DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_SPIDEROVERLORD].painchance = 8;
 	MonsterData[MONSTER_DARKLICH].health = 4000;
 	MonsterData[MONSTER_DARKLICH].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_DARKLICH].painchance = 0;
 
 	// cyber
 	MonsterData[MONSTER_CARDINAL].health = 4500;
 	MonsterData[MONSTER_CARDINAL].flags = DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_CARDINAL].painchance = 50;
 	MonsterData[MONSTER_TERMINATOR].health = 5750;
 	MonsterData[MONSTER_TERMINATOR].flags = DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_TERMINATOR].painchance = 8;
 	MonsterData[MONSTER_THAMUZ].health = 4750;
 	MonsterData[MONSTER_THAMUZ].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_THAMUZ].painchance = 35;
 	MonsterData[MONSTER_AZAZEL].health = 5250;
 	MonsterData[MONSTER_AZAZEL].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_AZAZEL].painchance = 20;
 	MonsterData[MONSTER_HELLSMITH].health = 6000;
 	MonsterData[MONSTER_HELLSMITH].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_HELLSMITH].painchance = 16;
 	MonsterData[MONSTER_THANATOS].health = 6500;
 	MonsterData[MONSTER_THANATOS].flags = DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_THANATOS].painchance = 8;
 	MonsterData[MONSTER_AVATAR].health = 5500;
 	MonsterData[MONSTER_AVATAR].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_AVATAR].painchance = 4;
 	MonsterData[MONSTER_CERBERUS].health = 6000;
 	MonsterData[MONSTER_CERBERUS].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_CERBERUS].painchance = 16;
 	MonsterData[MONSTER_DEATHWYVERN].health = 3500;
 	MonsterData[MONSTER_DEATHWYVERN].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_DEATHWYVERN].painchance = 8;
 
 	// legendaries
 	MonsterData[MONSTER_DREAMINGGOD].health = 20000;
 	MonsterData[MONSTER_DREAMINGGOD].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_DREAMINGGOD].painchance = 4;
 	MonsterData[MONSTER_TORRASQUE].health = 16500;
 	MonsterData[MONSTER_TORRASQUE].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_TORRASQUE].painchance = 32;
 	MonsterData[MONSTER_MORDECQAI].health = 18500;
 	MonsterData[MONSTER_MORDECQAI].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_MORDECQAI].painchance = 0;
 	MonsterData[MONSTER_GODSLAYER].health = 13500;
 	MonsterData[MONSTER_GODSLAYER].flags = DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_GODSLAYER].painchance = 0;
 	MonsterData[MONSTER_GOLGOTH].health = 17500;
 	MonsterData[MONSTER_GOLGOTH].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_GOLGOTH].painchance = 6;
 
 	// uniques
 	MonsterData[MONSTER_TERON].health = 2000;
 	MonsterData[MONSTER_TERON].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_TERON].painchance = 64;
 	MonsterData[MONSTER_GANT].health = 2800;
 	MonsterData[MONSTER_GANT].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_GANT].painchance = 64;
 	MonsterData[MONSTER_BRONN].health = 4000;
 	MonsterData[MONSTER_BRONN].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_BRONN].painchance = 64;
 	MonsterData[MONSTER_VAAJ].health = 3600;
 	MonsterData[MONSTER_VAAJ].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_VAAJ].painchance = 64;
 	MonsterData[MONSTER_REMUS].health = 6000;
 	MonsterData[MONSTER_REMUS].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_REMUS].painchance = 80;
 	MonsterData[MONSTER_SSRATH].health = 4500;
 	MonsterData[MONSTER_SSRATH].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_SSRATH].painchance = 96;
 	MonsterData[MONSTER_HOLLOWSHELL].health = 2000;
 	MonsterData[MONSTER_HOLLOWSHELL].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_HOLLOWSHELL].painchance = 80;
 	MonsterData[MONSTER_OMNISIGHT].health = 6400;
 	MonsterData[MONSTER_OMNISIGHT].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_OMNISIGHT].painchance = 32;
 	MonsterData[MONSTER_CHEGOVAX].health = 4800;
 	MonsterData[MONSTER_CHEGOVAX].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_CHEGOVAX].painchance = 10;
 	MonsterData[MONSTER_ONIMUZ].health = 3750;
 	MonsterData[MONSTER_ONIMUZ].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_ONIMUZ].painchance = 48;
 	MonsterData[MONSTER_HARKIMONDE].health = 6000;
 	MonsterData[MONSTER_HARKIMONDE].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_HARKIMONDE].painchance = 56;
 	MonsterData[MONSTER_LESHRAC].health = 7000;
 	MonsterData[MONSTER_LESHRAC].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_LESHRAC].painchance = 64;
 	MonsterData[MONSTER_LESHRACPOD].health = 200;
 	MonsterData[MONSTER_LESHRACPOD].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_LESHRACPOD].painchance = 255;
 	MonsterData[MONSTER_KRULL].health = 7000;
 	MonsterData[MONSTER_KRULL].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_KRULL].painchance = 56;
 	MonsterData[MONSTER_THORAX].health = 7000;
 	MonsterData[MONSTER_THORAX].flags = DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW;
+	MonsterData[MONSTER_THORAX].painchance = 48;
 	MonsterData[MONSTER_ZRAVOG].health = 6500;
 	MonsterData[MONSTER_ZRAVOG].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_ZRAVOG].painchance = 16;
 	MonsterData[MONSTER_ERYXIA].health = 12000;
 	MonsterData[MONSTER_ERYXIA].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ERYXIA].painchance = 24;
 	MonsterData[MONSTER_ABAXOTH].health = 15000;
 	MonsterData[MONSTER_ABAXOTH].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ABAXOTH].painchance = 8;
 
 	// classics
 	SetMonsterDataTrait(MONSTER_LOSTSOUL, DND_MOBILITY, true);
@@ -1853,146 +2066,184 @@ void SetupIncursionMonsters() {
 	// Chex
 	MonsterData[MONSTER_CHEX_COMMON].health = 100;
 	MonsterData[MONSTER_CHEX_COMMON].flags = DND_MTYPE_FLEMOID_POW;
+	MonsterData[MONSTER_CHEX_COMMON].painchance = 90;
 
 	MonsterData[MONSTER_CHEX_BIPEDAL].health = 200;
 	MonsterData[MONSTER_CHEX_BIPEDAL].flags = DND_MTYPE_FLEMOID_POW;
+	MonsterData[MONSTER_CHEX_BIPEDAL].painchance = 60;
 
 	MonsterData[MONSTER_CHEX_ARMORED].health = 300;
 	MonsterData[MONSTER_CHEX_ARMORED].flags = DND_MTYPE_FLEMOID_POW;
+	MonsterData[MONSTER_CHEX_ARMORED].painchance = 75;
 
 	MonsterData[MONSTER_CHEX_HEAVYARMORED].health = 450;
 	MonsterData[MONSTER_CHEX_HEAVYARMORED].flags = DND_MTYPE_FLEMOID_POW;
+	MonsterData[MONSTER_CHEX_HEAVYARMORED].painchance = 40;
 	SetMonsterDataTrait(MONSTER_CHEX_HEAVYARMORED, DND_BULLET_RESIST, true);
 
 	MonsterData[MONSTER_CHEX_CYCLOPS].health = 330;
 	MonsterData[MONSTER_CHEX_CYCLOPS].flags = DND_MTYPE_FLEMOID_POW;
+	MonsterData[MONSTER_CHEX_CYCLOPS].painchance = 50;
 
 	MonsterData[MONSTER_CHEX_FLEMMINE].health = 180;
 	MonsterData[MONSTER_CHEX_FLEMMINE].flags = DND_MTYPE_FLEMOID_POW;
+	MonsterData[MONSTER_CHEX_FLEMMINE].painchance = 0;
 
 	MonsterData[MONSTER_CHEX_LARVA].health = 400;
 	MonsterData[MONSTER_CHEX_LARVA].flags = DND_MTYPE_FLEMOID_POW;
+	MonsterData[MONSTER_CHEX_LARVA].painchance = 40;
 
 	MonsterData[MONSTER_CHEX_QUADWUMPUS].health = 600;
 	MonsterData[MONSTER_CHEX_QUADWUMPUS].flags = DND_MTYPE_FLEMOID_POW;
+	MonsterData[MONSTER_CHEX_QUADWUMPUS].painchance = 30;
 
 	MonsterData[MONSTER_CHEX_STRIDICUS].health = 750;
 	MonsterData[MONSTER_CHEX_STRIDICUS].flags = DND_MTYPE_FLEMOID_POW;
+	MonsterData[MONSTER_CHEX_STRIDICUS].painchance = 25;
 	
 	MonsterData[MONSTER_CHEX_SUPERCYCLOPS].health = 900;
 	MonsterData[MONSTER_CHEX_SUPERCYCLOPS].flags = DND_MTYPE_FLEMOID_POW;
+	MonsterData[MONSTER_CHEX_SUPERCYCLOPS].painchance = 25;
 	SetMonsterDataTrait(MONSTER_CHEX_SUPERCYCLOPS, DND_MOBILITY, true);
 
 	MonsterData[MONSTER_CHEX_MAXIMUS].health = 2500;
 	MonsterData[MONSTER_CHEX_MAXIMUS].flags = DND_MTYPE_FLEMOID_POW;
+	MonsterData[MONSTER_CHEX_MAXIMUS].painchance = 8;
 
 	MonsterData[MONSTER_CHEX_FLEMOBIUS].health = 2000;
 	MonsterData[MONSTER_CHEX_FLEMOBIUS].flags = DND_MTYPE_FLEMOID_POW;
+	MonsterData[MONSTER_CHEX_FLEMOBIUS].painchance = 16;
 
 	MonsterData[MONSTER_CHEX_BERNABE].health = 1750;
 	MonsterData[MONSTER_CHEX_BERNABE].flags = DND_MTYPE_FLEMOID_POW;
+	MonsterData[MONSTER_CHEX_BERNABE].painchance = 2;
 	SetMonsterDataTrait(MONSTER_CHEX_BERNABE, DND_FORTIFIED, true);
 
 	MonsterData[MONSTER_CHEX_METEOR].health = 600;
 	MonsterData[MONSTER_CHEX_METEOR].flags = DND_MTYPE_FLEMOID_POW;
+	MonsterData[MONSTER_CHEX_METEOR].painchance = 255;
 	SetMonsterDataTrait(MONSTER_CHEX_METEOR, DND_SUMMONED, true);
 
 	MonsterData[MONSTER_CHEX_FLEMCARRIER].health = 500;
 	MonsterData[MONSTER_CHEX_FLEMCARRIER].flags = DND_MTYPE_FLEMOID_POW;
+	MonsterData[MONSTER_CHEX_FLEMCARRIER].painchance = 60;
 	SetMonsterDataTrait(MONSTER_CHEX_FLEMCARRIER, DND_SUMMONED, true);
 	
 	MonsterData[MONSTER_CHEX_FLEMBOMINATION].health = 4500;
 	MonsterData[MONSTER_CHEX_FLEMBOMINATION].flags = DND_MTYPE_FLEMOID_POW;
+	MonsterData[MONSTER_CHEX_FLEMBOMINATION].painchance = 10;
 
 	MonsterData[MONSTER_CHEX_SNOTFOLUS].health = 6000;
 	MonsterData[MONSTER_CHEX_SNOTFOLUS].flags = DND_MTYPE_FLEMOID_POW;
+	MonsterData[MONSTER_CHEX_SNOTFOLUS].painchance = 2;
 
 	// abyssal
 	MonsterData[MONSTER_ABYSS_ZOMBIEMAN].health = 100;
 	MonsterData[MONSTER_ABYSS_ZOMBIEMAN].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_ABYSS_ZOMBIEMAN].painchance = 170;
 	
 	MonsterData[MONSTER_ABYSS_SHOTGUNNER].health = 165;
 	MonsterData[MONSTER_ABYSS_SHOTGUNNER].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_ABYSS_SHOTGUNNER].painchance = 155;
 
 	MonsterData[MONSTER_ABYSS_CHAINGUNNER].health = 225;
 	MonsterData[MONSTER_ABYSS_CHAINGUNNER].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_ABYSS_CHAINGUNNER].painchance = 150;
 
 	MonsterData[MONSTER_ABYSS_IMP].health = 300;
 	MonsterData[MONSTER_ABYSS_IMP].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ABYSS_IMP].painchance = 160;
 	SetMonsterDataTrait(MONSTER_ABYSS_IMP, DND_MOLTENBLOOD, true);
 
 	MonsterData[MONSTER_ABYSS_NIGHTMAREIMP].health = 400;
 	MonsterData[MONSTER_ABYSS_NIGHTMAREIMP].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ABYSS_NIGHTMAREIMP].painchance = 32;
 
 	MonsterData[MONSTER_ABYSS_DEMON].health = 450;
 	MonsterData[MONSTER_ABYSS_DEMON].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ABYSS_DEMON].painchance = 144;
 	SetMonsterDataTrait(MONSTER_ABYSS_DEMON, DND_MOLTENBLOOD, true);
 
 	MonsterData[MONSTER_ABYSS_SPECTRE].health = 550;
 	MonsterData[MONSTER_ABYSS_SPECTRE].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ABYSS_SPECTRE].painchance = 96;
 	SetMonsterDataTrait(MONSTER_ABYSS_SPECTRE, DND_GHOST, true);
 
 	MonsterData[MONSTER_ABYSS_HOUND].health = 650;
 	MonsterData[MONSTER_ABYSS_HOUND].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ABYSS_HOUND].painchance = 144;
 	SetMonsterDataTrait(MONSTER_ABYSS_HOUND, DND_MOLTENBLOOD, true);
 
 	MonsterData[MONSTER_ABYSS_LOSTSOUL].health = 240;
 	MonsterData[MONSTER_ABYSS_LOSTSOUL].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ABYSS_LOSTSOUL].painchance = 256;
 	SetMonsterDataTrait(MONSTER_ABYSS_LOSTSOUL, DND_MOLTENBLOOD, true);
 	SetMonsterDataTrait(MONSTER_ABYSS_LOSTSOUL, DND_GHOST, true);
 
 	MonsterData[MONSTER_ABYSS_CACODEMON].health = 600;
 	MonsterData[MONSTER_ABYSS_CACODEMON].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ABYSS_CACODEMON].painchance = 128;
 	SetMonsterDataTrait(MONSTER_ABYSS_CACODEMON, DND_MOLTENBLOOD, true);
 
 	MonsterData[MONSTER_ABYSS_NIGHTMARECACO].health = 1000;
 	MonsterData[MONSTER_ABYSS_NIGHTMARECACO].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ABYSS_NIGHTMARECACO].painchance = 32;
 	SetMonsterDataTrait(MONSTER_ABYSS_NIGHTMARECACO, DND_MOBILITY, true);
 	SetMonsterDataTrait(MONSTER_ABYSS_NIGHTMARECACO, DND_MOLTENBLOOD, true);
 
 	MonsterData[MONSTER_ABYSS_PAINELEMENTAL].health = 650;
 	MonsterData[MONSTER_ABYSS_PAINELEMENTAL].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ABYSS_PAINELEMENTAL].painchance = 128;
 	SetMonsterDataTrait(MONSTER_ABYSS_PAINELEMENTAL, DND_MINIONS, true);
 	SetMonsterDataTrait(MONSTER_ABYSS_PAINELEMENTAL, DND_SPLIT, true);
 	SetMonsterDataTrait(MONSTER_ABYSS_PAINELEMENTAL, DND_MOLTENBLOOD, true);
 	
 	MonsterData[MONSTER_ABYSS_HELLKNIGHT].health = 800;
 	MonsterData[MONSTER_ABYSS_HELLKNIGHT].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ABYSS_HELLKNIGHT].painchance = 32;
 	SetMonsterDataTrait(MONSTER_ABYSS_HELLKNIGHT, DND_MOLTENBLOOD, true);
 
 	MonsterData[MONSTER_ABYSS_BARON].health = 1600;
 	MonsterData[MONSTER_ABYSS_BARON].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ABYSS_BARON].painchance = 16;
 	SetMonsterDataTrait(MONSTER_ABYSS_BARON, DND_MOLTENBLOOD, true);
 
 	MonsterData[MONSTER_ABYSS_REVENANT].health = 300;
 	MonsterData[MONSTER_ABYSS_REVENANT].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_ABYSS_REVENANT].painchance = 84;
 	SetMonsterDataTrait(MONSTER_ABYSS_REVENANT, DND_FORTIFIED, true);
 	SetMonsterDataTrait(MONSTER_ABYSS_REVENANT, DND_HOMING, true);
 
 	MonsterData[MONSTER_ABYSS_MANCUBUS].health = 1000;
 	MonsterData[MONSTER_ABYSS_MANCUBUS].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ABYSS_MANCUBUS].painchance = 56;
 	SetMonsterDataTrait(MONSTER_ABYSS_MANCUBUS, DND_MOLTENBLOOD, true);
 
 	MonsterData[MONSTER_ABYSS_ARACHNOTRON].health = 900;
 	MonsterData[MONSTER_ABYSS_ARACHNOTRON].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ABYSS_ARACHNOTRON].painchance = 96;
 	SetMonsterDataTrait(MONSTER_ABYSS_ARACHNOTRON, DND_MOLTENBLOOD, true);
 
 	MonsterData[MONSTER_ABYSS_ARCHVILE].health = 1350;
 	MonsterData[MONSTER_ABYSS_ARCHVILE].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ABYSS_ARCHVILE].painchance = 4;
 	SetMonsterDataTrait(MONSTER_ABYSS_ARCHVILE, DND_RESURRECT, true);
 	SetMonsterDataTrait(MONSTER_ABYSS_ARCHVILE, DND_MOLTENBLOOD, true);
 
 	MonsterData[MONSTER_ABYSS_SPIDERDEMON].health = 5000;
 	MonsterData[MONSTER_ABYSS_SPIDERDEMON].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ABYSS_SPIDERDEMON].painchance = 24;
 	SetMonsterDataTrait(MONSTER_ABYSS_SPIDERDEMON, DND_FORTIFIED, true);
 	SetMonsterDataTrait(MONSTER_ABYSS_SPIDERDEMON, DND_MOLTENBLOOD, true);
 
 	MonsterData[MONSTER_ABYSS_CYBERDEMON].health = 6000;
 	MonsterData[MONSTER_ABYSS_CYBERDEMON].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ABYSS_CYBERDEMON].painchance = 20;
 	SetMonsterDataTrait(MONSTER_ABYSS_CYBERDEMON, DND_MOLTENBLOOD, true);
 
 	MonsterData[MONSTER_ABYSS_MOTHERDEMON].health = 8000;
 	MonsterData[MONSTER_ABYSS_MOTHERDEMON].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ABYSS_MOTHERDEMON].painchance = 4;
 	SetMonsterDataTrait(MONSTER_ABYSS_MOTHERDEMON, DND_MOLTENBLOOD, true);
 	SetMonsterDataTrait(MONSTER_ABYSS_MOTHERDEMON, DND_MAGIC_IMMUNE, true);
 	SetMonsterDataTrait(MONSTER_ABYSS_MOTHERDEMON, DND_EXPLOSIVE_IMMUNE, true);
@@ -2002,6 +2253,8 @@ void SetupIncursionMonsters() {
 void SetupDungeonMonsters() {
 	MonsterData[MONSTER_DUNGEON_BLOODGOLEM].health = 1600;
 	MonsterData[MONSTER_DUNGEON_BLOODGOLEM].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_DUNGEON_BLOODGOLEM].painchance = 36;
+	MonsterData[MONSTER_DUNGEON_BLOODGOLEM].pain_cooldown = 5 * TICRATE / 2;
 	SetMonsterDataTrait(MONSTER_DUNGEON_BLOODGOLEM, DND_TOXICBLOOD, true);
 	SetMonsterDataTrait(MONSTER_DUNGEON_BLOODGOLEM, DND_MAGIC_IMMUNE, true);
 	SetMonsterDataTrait(MONSTER_DUNGEON_BLOODGOLEM, DND_EXPLOSIVE_IMMUNE, true);
@@ -2010,10 +2263,18 @@ void SetupDungeonMonsters() {
 
 	MonsterData[MONSTER_DUNGEON_SHAMBLER].health = 2750;
 	MonsterData[MONSTER_DUNGEON_SHAMBLER].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_DUNGEON_SHAMBLER].painchance = 16;
+	MonsterData[MONSTER_DUNGEON_SHAMBLER].pain_cooldown = 3 * TICRATE;
 	SetMonsterDataTrait(MONSTER_DUNGEON_SHAMBLER, DND_INSULATED, true);
 	SetMonsterDataTrait(MONSTER_DUNGEON_SHAMBLER, DND_LIGHTNING_IMMUNE, true);
 	SetMonsterDataTrait(MONSTER_DUNGEON_SHAMBLER, DND_MAGIC_RESIST, true);
 	SetMonsterDataTrait(MONSTER_DUNGEON_SHAMBLER, DND_VOLTAIC, true);
+
+	MonsterData[MONSTER_DUNGEON_DEMENTOR].health = 800;
+	MonsterData[MONSTER_DUNGEON_DEMENTOR].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_DUNGEON_DEMENTOR].painchance = 72;
+	SetMonsterDataTrait(MONSTER_DUNGEON_DEMENTOR, DND_MAGIC_IMMUNE, true);
+	SetMonsterDataTrait(MONSTER_DUNGEON_DEMENTOR, DND_MOBILITY, true);
 }
 
 void SetupMonsterWeights() {
@@ -2547,6 +2808,7 @@ void SetupMonsterRarities() {
 
 	MonsterData[MONSTER_DUNGEON_BLOODGOLEM].rarity = DND_MWEIGHT_UNCOMMON;
 	MonsterData[MONSTER_DUNGEON_SHAMBLER].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_DUNGEON_DEMENTOR].rarity = DND_MWEIGHT_UNCOMMON;
 }
 
 Script "DnD Setup Monster Data" OPEN {

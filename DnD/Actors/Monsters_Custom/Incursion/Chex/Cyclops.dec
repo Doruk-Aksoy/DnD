@@ -13,7 +13,7 @@ ACTOR CyclopsFlemoid : DnD_BaseMeleeMonster {
 	+ISMONSTER
 	Species "Chex"
 	Tag "Cyclops Flemoid"
-	Painchance 50
+	PainChance 0
 	Stamina 128
 	Renderstyle Translucent
 	Alpha 0.666

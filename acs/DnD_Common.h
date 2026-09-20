@@ -7,7 +7,7 @@
 
 #define SIZEOF_INT 4
 
-#define ISDEBUGBUILD
+//#define ISDEBUGBUILD
 //#define WANTCURSORPOS
 #define VERBOSE_TID_SETUP
 //#define WANT_BUFF_LOG
@@ -703,6 +703,18 @@ enum {
 	PSTAT_CHARGEDURATION_BASE,
 	PSTAT_CHARGEDURATION_END = PSTAT_CHARGEDURATION_BASE + DND_MAX_CHARGETYPES - 1,
 
+	// Kineticrushers.
+	PSTAT_EX_MELEEMORE_PERSTAMINA,
+	PSTAT_EX_STAMINADUMP_AFTERMELEE,
+	PSTAT_EX_LESS_STAMINARECOVERY,
+
+	// Hell's Vanguard.
+	PSTAT_EX_CHANCE_MAXENDURANCE,
+	PSTAT_EX_CHANCE_FREEMELEESTAMINA,
+
+	// Nullforce.
+	PSTAT_EX_MOREDMG_PERMISSINGAMMO,
+
 	PSTAT_COUNT
 };
 
@@ -801,6 +813,14 @@ enum {
 	// Anathema.
 	PFLAG_AILMENT_PIERCEIMMUNE,
 	PFLAG_AILMENT_NOAVOID,
+
+	// Kineticrushers. Two flags and not one: the spec names the low stamina and the depleted
+	// penalty separately, and they are separate terms at the damage site too.
+	PFLAG_NOLOWSTAMINA_DMGLOSS,
+	PFLAG_NODEPLETEDSTAMINA_DMGLOSS,
+
+	// Hell's Vanguard.
+	PFLAG_NOBLEEDEXTRA_MOVING,
 
 	PFLAG_COUNT
 };

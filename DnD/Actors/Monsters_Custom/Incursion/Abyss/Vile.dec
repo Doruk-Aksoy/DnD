@@ -7,7 +7,7 @@ Actor AbyssalArchVile : DnD_ArchVileBase {
 	Height 56
 	Mass 1024
 	Speed 18
-	PainChance 4
+	PainChance 0
 	+ISMONSTER
 	MaxTargetRange 1024
 	Stamina 32

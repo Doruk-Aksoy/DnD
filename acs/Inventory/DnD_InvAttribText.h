@@ -1137,6 +1137,13 @@ str GetItemAttributeText(
 		case INV_EX_BURNS_WHILE_STILL:
 		case INV_EX_AILMENTS_PIERCE_IMMUNITY:
 		case INV_EX_AILMENTS_CANNOTBEAVOIDED:
+		// Both of these roll a FIXED value -- 1 and 2 -- so there is no range to detail and no number
+		// worth printing; the rate is baked into the lump instead, the way INV_EX_DOUBLE_HEALTHCAP is.
+		case INV_EX_MELEEMORE_PERSTAMINA:
+		case INV_EX_MOREDMG_PERMISSINGAMMO:
+		case INV_EX_NOLOWSTAMINA_DMGLOSS:
+		case INV_EX_NODEPLETEDSTAMINA_DMGLOSS:
+		case INV_EX_NOBLEEDEXTRA_MOVING:
 			if(showDetailedMods)
 				return StrParam(l:text, s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 			return StrParam(l:text);
@@ -1221,6 +1228,24 @@ str GetItemAttributeText(
 				);
 			}
 			return StrParam(s:"+\cg", d:val1, s:"\c[D4] ", l:text);
+
+		// Hell's Vanguard. Both roll a real range, so both print their number and detail it.
+		case INV_EX_CHANCE_MAXENDURANCE:
+		case INV_EX_CHANCE_FREEMELEESTAMINA:
+			if(showDetailedMods)
+				return StrParam(s:col_tag, d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:text, s:" - ", s:GetModTierText(attr, item_type, tier, extra));
+			return StrParam(s:col_tag, d:val1, s:"%\c- ", l:text);
+
+		// the seconds before the boots dump everything -- a downside, and not a percent
+		case INV_EX_STAMINADUMP_AFTERMELEE:
+			if(showDetailedMods)
+				return StrParam(l:text, s:" ", s:bad_tag, d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c[D4] ", l:"IATTR_TX107_2", s:" - ", s:GetModTierText(attr, item_type, tier, extra));
+			return StrParam(l:text, s:" ", s:bad_tag, d:val1, s:"\c[D4] ", l:"IATTR_TX107_2");
+
+		case INV_EX_LESS_STAMINARECOVERY:
+			if(showDetailedMods)
+				return StrParam(s:bad_tag, d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c[D4] ", l:text, s:" - ", s:GetModTierText(attr, item_type, tier, extra));
+			return StrParam(s:bad_tag, d:val1, s:"%\c[D4] ", l:text);
 
 		case INV_EX_MOREAMMOUSE:
 			if(showDetailedMods)

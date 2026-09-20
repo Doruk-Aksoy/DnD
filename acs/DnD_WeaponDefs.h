@@ -2085,6 +2085,35 @@ bool CanWeaponOverheat(int id) {
 	return Weapons_Data[id].properties & WPROP_OVERHEAT;
 }
 
+// Nullforce. How much of the weapon's ammo is NOT loaded, as a percent of its capacity.
+//
+// An akimbo weapon carries two clips, and the sum of both against the sum of both capacities is
+// what makes it read as ONE pool -- taking whichever half is emptier would pay double for firing
+// one barrel. ammo_name2 is only summed when the weapon does not overheat, because on an
+// overheating weapon that slot is the heat counter and not a second clip; counting it would read
+// a hot weapon as a full one and invert the whole mod.
+int GetWeaponMissingAmmoPercent(int id) {
+	int have = 0, cap = 0;
+
+	str a = Weapons_Data[id].ammo_name1;
+	if(a != "") {
+		have += CheckInventory(a);
+		cap += GetAmmoCapacity(a);
+	}
+
+	a = Weapons_Data[id].ammo_name2;
+	if(a != "" && !CanWeaponOverheat(id)) {
+		have += CheckInventory(a);
+		cap += GetAmmoCapacity(a);
+	}
+
+	// a weapon with no ammo pool at all -- fists, chainsaw -- is never 'missing' any
+	if(cap <= 0)
+		return 0;
+
+	return (cap - Min(have, cap)) * 100 / cap;
+}
+
 // TODO: If this ends up lagging the server, store player owned weapons in a specific array per weapon slot and pull data from there
 void GiveOwnedWeaponsAmmo(int pct) {
 	for(int i = 0; i < MAXWEPS; ++i) {

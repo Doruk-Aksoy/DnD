@@ -15,7 +15,7 @@ ACTOR AbyssalZombieman : DnD_BaseRangedMonster {
 	Height 56
 	Mass 100
 	Speed 8
-	PainChance 170
+	PainChance 0
 	DropItem "DroppedClip"
 	SeeSound "abyssal_human/sight"
 	AttackSound "abyssal_human/gunshot"

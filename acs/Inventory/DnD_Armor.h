@@ -308,6 +308,9 @@ void RollArmorInfo(int item_pos, int item_tier, int pnum, int item_type, int arm
 
 	auto item = GetFieldItem(item_pos);
 
+	// an earned source with no argument slot to pass it in leaves the boost on the override
+	synergy_boost = GetSynergyBoost(synergy_boost);
+
 	// -2 is "not locked on yet". CheckItemSynergy only acts while it holds that, so once a tag is
 	// picked every remaining mod chases it -- that is what makes a run of synergistic rolls.
 	int synergy_roll = -2;

@@ -6,7 +6,7 @@ ACTOR Incarnate : DnD_BaseHybridMonster 21107 {
 	Height 56
 	Mass 500
 	Speed 12
-	PainChance 64
+	PainChance 0
 	GibHealth 15
 	MaxTargetRange 256
 	Species "Skeleton"
@@ -108,7 +108,7 @@ Actor Incarnate_Pretender : DnD_BaseHybridMonster_NoRes 21108 {
 	Height 56
 	Mass 500
 	Speed 12
-	PainChance 64
+	PainChance 0
 	GibHealth 15
 	MaxTargetRange 256
 	Species "Skeleton"
@@ -229,7 +229,7 @@ ACTOR BeamRevenant : DnD_BaseHybridMonster 21109 {
 	Height 56
 	Mass 500
 	Speed 10
-	PainChance 100
+	PainChance 0
 	+ISMONSTER
 	MeleeThreshold 196
 	+MISSILEMORE 
@@ -350,7 +350,7 @@ ACTOR BeamRevenant_Elite : BeamRevenant {
 
 ACTOR Cadaver : DnD_BaseHybridMonster 21110 {
 	//$Sprite RASKA1
-	Painchance 70
+	PainChance 0
 	Health 0x7FFFFFFF
 	GibHealth -75
 	+DONTHURTSPECIES
@@ -551,7 +551,7 @@ actor Widowmaker : DnD_BaseHybridMonster 21111  {
 	Health 0x7FFFFFFF
 	GibHealth -75
 	speed 16
-	painchance 60
+	PainChance 0
 	scale 1.05
 	Species "Skeleton"
 	+DONTHURTSPECIES
@@ -1320,7 +1320,7 @@ Actor SludgeGiant : DnD_BaseHybridMonster 21113 {
 	height 56
 	mass 1000
 	speed 12
-	painchance 96
+	PainChance 0
 	seesound ""
 	painsound ""
 	deathsound "SludgeGiant/Die"
@@ -1426,7 +1426,7 @@ Actor SludgeGiantSplit : DnD_BaseHybridMonster 21114 {
 	+THRUSPECIES
 	mass 1000
 	speed 12
-	painchance 96
+	PainChance 0
 	seesound ""
 	painsound ""
 	deathsound "SludgeGiant/Die"
@@ -1537,7 +1537,7 @@ Actor SludgeGiantSplitFinal : DnD_BaseHybridMonster 21115 {
 	+THRUSPECIES
 	mass 1000
 	speed 12
-	painchance 96
+	PainChance 0
 	seesound ""
 	painsound ""
 	deathsound "SludgeGiant/Die"
@@ -1611,7 +1611,7 @@ Actor DarkServant : DnD_BaseHybridMonster 21116 {
 	DeathSound "Weapons/SReaverLoop"
 	Obituary "%o's soul was claimed by a Dark Servant."
 	Tag "Dark Servant"
-	PainChance 96
+	PainChance 0
 	Radius 20
 	Height 56
 	Speed 8
@@ -1830,7 +1830,7 @@ Actor Crawler : DnD_BaseHybridMonster 21117 {
 	Radius 20
 	Height 56
 	Speed 13
-	PainChance 64
+	PainChance 0
 	Mass 640
 	BloodColor "Green"
 	Species "Skeleton"
@@ -2047,7 +2047,7 @@ ACTOR Draugr : DnD_BaseHybridMonster 21118 {
 	Height 56
 	Mass 500
 	Speed 10
-	PainChance 100
+	PainChance 0
 	+MISSILEMORE 
 	+NODAMAGETHRUST
 	+DONTHARMSPECIES
@@ -2328,7 +2328,7 @@ Actor CyborgSoldier : DnD_BaseHybridMonster 21119 {
 	Height 56
 	Mass 512
 	Speed 14
-	Painchance 40
+	PainChance 0
 	Scale 1.2
 	SEESOUND "Monsters/NBSight"
 	ACTIVESOUND "Monsters/NBAct"

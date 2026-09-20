@@ -1336,7 +1336,7 @@ Actor OSCeilingTorchBlack : OSCeilingTorch 12539
 }
 
 // other
-Actor OSFireBrazier : OSShortTorchRed
+Actor OSFireBrazier : OSShortTorchRed 12540
 {
   Height 44
   States
@@ -1356,7 +1356,7 @@ Actor OSFireBrazier : OSShortTorchRed
   }
 }
 
-Actor OSSerpentTorch : OSShortTorchRed
+Actor OSSerpentTorch : OSShortTorchRed 12541
 {
   States
   {
@@ -1375,7 +1375,7 @@ Actor OSSerpentTorch : OSShortTorchRed
   }
 }
 
-Actor OSWallTorchHeretic : OSWallTorch
+Actor OSWallTorchHeretic : OSWallTorch 12542
 {
   States
   {
@@ -1394,7 +1394,7 @@ Actor OSWallTorchHeretic : OSWallTorch
   }
 }
 
-Actor OSBrassTorch : OSShortTorchRed
+Actor OSBrassTorch : OSShortTorchRed 12543
 {
   States
   {
@@ -1413,7 +1413,7 @@ Actor OSBrassTorch : OSShortTorchRed
     stop
   }
 }
-Actor OSTallBrassTorch : OSBrassTorch
+Actor OSTallBrassTorch : OSBrassTorch 12544
 {
   Height 78
   States

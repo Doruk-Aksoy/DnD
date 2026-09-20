@@ -79,6 +79,27 @@ str GetUniqueCreatorName(int itype, int id) {
 // Weights are cumulative, so reaching the reward-only tail means rolling against ITS running total
 // rather than the drop pool's. Only a caller that has earned the tail may use this.
 #define MAX_UNIQUE_HELM_REWARD_WEIGHT UniqueItemList[UNIQUE_HELM_LAST].weight
+#define MAX_UNIQUE_BOOT_REWARD_WEIGHT UniqueItemList[UNIQUE_BOOT_LAST].weight
+#define MAX_UNIQUE_CHARM_REWARD_WEIGHT UniqueItemList[UNIQUE_CHARM_LAST].weight
+
+// The base a unique id belongs to. Every spawn path needs the item type as well as the id, and
+// everywhere else in the codebase has it from context -- a caller holding nothing but a UITEM_*
+// does not, so this is the one place that answers it.
+//
+// Tested against the BLOCK an id sits in rather than against each base's END, descending so the
+// first match wins. That way a RESERVED slot still resolves to its own base, and a new unique
+// dropped into one needs no change here.
+int GetUniqueItemBaseType(int unique_id) {
+	if(unique_id >= UNIQUE_HELM_BEGIN)
+		return DND_ITEM_HELM;
+	if(unique_id >= UNIQUE_BOOT_BEGIN)
+		return DND_ITEM_BOOT;
+	if(unique_id >= UNIQUE_BODYARMOR_BEGIN)
+		return DND_ITEM_BODYARMOR;
+	if(unique_id >= UNIQUE_POWERCORE_BEGIN)
+		return DND_ITEM_SPECIALTY_CYBORG;
+	return DND_ITEM_CHARM;
+}
 
 // initializes all uniques
 void SetupUniqueItems() {
@@ -344,6 +365,21 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[4].attrib_low = 3;
 	UniqueItemList[id].rolls[4].attrib_high = 10;
 
+	// Reward only charm. It continues the CHARM run's cumulative weight, which is why it has to sit
+	// HERE and not beside the other reward-only entries: `weight` resets to 0 at the top of every
+	// base's run, so an entry placed after the boots would carry the boot total and no charm scan
+	// could land on it.
+	//
+	// Every ordinary charm path rolls against MAX_UNIQUE_WEIGHT, which stops at
+	// UNIQUE_CHARM_REGULARDROP_END, so this sits past two different ends and only the ultimatum's
+	// MAX_UNIQUE_CHARM_REWARD_WEIGHT reaches it.
+	img = IIMG_UDCHRM_6;
+	START_UNIQUE_DATA(UITEM_NULLFORCE);
+	UNIQUE_DATA_ENTRY(200, 1, 2, DND_ITEM_CHARM, DND_CHARM_MEDIUM, 45, 3);
+	UNIQUE_ATTR_ENTRY(INV_EX_MOREDMG_PERMISSINGAMMO, 2, 2, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_MOREAMMOUSE, 100, 400, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_REDUCEDAMMOCAP, 25, 75, 0, 0);
+
 	// powercores
 	img = IIMG_UCORE_1;
 	weight = 0;
@@ -430,6 +466,32 @@ void SetupUniqueItems() {
 	UNIQUE_ATTR_ENTRY(INV_EX_TRAIL_SCALES_WITHSPEED, 1, 1, 0, 0);
 	UNIQUE_ATTR_ENTRY(INV_SPEED_INCREASE, 20, 35, 0, 0);
 	UNIQUE_ATTR_ENTRY(INV_EX_BURNS_WHILE_STILL, 1, 1, 0, 0);
+
+	// Reward only boots. They continue the boot run's cumulative weight, which is the whole
+	// mechanism: MAX_UNIQUE_BOOT_WEIGHT still stops at UNIQUE_BOOT_END so no drop or shop scan can
+	// stop on them, while MAX_UNIQUE_BOOT_REWARD_WEIGHT runs to UNIQUE_BOOT_LAST and only the
+	// ultimatum rolls against that. A weight of 0 would make them unreachable even then -- the
+	// running total would equal the entry before and no scan could ever land on it.
+	//
+	// 200 each against the 2336 the six rollable boots carry is about 7% of the ultimatum boot
+	// pool apiece, 14.6% for the pair.
+	img = IIMG_UBOOT_R7;
+	START_UNIQUE_DATA(UITEM_KINETICRUSHERS);
+	UNIQUE_DATA_ENTRY(200, 2, 1, DND_ITEM_BOOT, BOOTS_TACTICAL, 45, 5);
+	UNIQUE_ATTR_ENTRY(INV_EX_MELEEMORE_PERSTAMINA, 1, 1, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_STAMINADUMP_AFTERMELEE, 1, 3, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_NOLOWSTAMINA_DMGLOSS, 1, 1, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_NODEPLETEDSTAMINA_DMGLOSS, 1, 1, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_LESS_STAMINARECOVERY, 10, 50, 0, 0);
+
+	img = IIMG_UBOOT_R8;
+	START_UNIQUE_DATA(UITEM_HELLSVANGUARD);
+	UNIQUE_DATA_ENTRY(200, 2, 1, DND_ITEM_BOOT, BOOTS_PLATED, 45, 5);
+	UNIQUE_ATTR_ENTRY(INV_HP_INCREASE, 20, 50, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_REGENCAP_INCREASE, 50, 200, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_NOBLEEDEXTRA_MOVING, 1, 1, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_CHANCE_MAXENDURANCE, 10, 20, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_CHANCE_FREEMELEESTAMINA, 1, 20, 0, 0);
 
 	// helms
 	img = IIMG_UHELM_1;

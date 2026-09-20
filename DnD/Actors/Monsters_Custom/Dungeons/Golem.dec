@@ -5,7 +5,7 @@ Actor BloodGolem : DnD_BaseHybridMonster 21213 {
     Radius 28
     Height 68
     Scale 1.15
-    PainChance 36
+    PainChance 0
 	Tag "Blood Golem"
 	Species "Ultimatum"
 	Obituary "%o wasn't ready for the heavy blows from a blood golem."

@@ -6,7 +6,7 @@ ACTOR SSGZombie : DnD_BaseRangedMonster 21027 {
 	Height 56
 	Scale 0.9
 	Speed 9
-	PainChance 170
+	PainChance 0
 	SEESOUND "Fatguy/See"
 	ATTACKSOUND "SSGUNER/SSG"
 	PAINSOUND "Fatguy/pain"
@@ -85,7 +85,7 @@ Actor ZSpecOpsShotgun : DnD_BaseRangedMonster 21028 {
 	Height 56
 	Radius 20
 	Speed 8
-	PainChance 192
+	PainChance 0
 	+NoTarget
 	+NoInfighting
 	SeeSound "ZSpecOps/Sight"
@@ -162,7 +162,7 @@ ACTOR LOSShotgunGuy : DnD_BaseRangedMonster 21029 {
 	Radius 20
 	Height 56
 	DropItem "ShotgunPickup_Drop"
-	Painchance 170
+	PainChance 0
 	SeeSound "shotguy/sight"
 	AttackSound "shotguy/attack"
 	PainSound "shotguy/pain"
@@ -261,7 +261,7 @@ ACTOR LOSSuperShotgunGuy : DnD_BaseRangedMonster 21030 {
 	Height 56
 	Mass 100
 	Speed 8
-	Painchance 200
+	PainChance 0
 	Seesound "shotguy/sight"
 	Attacksound "weapons/sshotf"
 	Painsound "shotguy/pain"
@@ -354,7 +354,7 @@ actor SawedOffShotgunGuy : DnD_BaseRangedMonster 21031 {
 	height 56
 	mass 100
 	speed 8
-	painchance 255
+	PainChance 0
 	seesound "shotguy/sight"
 	attacksound "sawedoff/fire"
 	painsound "shotguy/pain"
@@ -427,7 +427,7 @@ actor SawedOffShotgunGuy2 : DnD_BaseRangedMonster 21032 {
 	//$Sprite AZSGA1
 	Health 0x7FFFFFFF
 	GibHealth -25
-	painchance 224
+	PainChance 0
 	decal "bulletchip"
 	DropItem "SawedoffPickup"
 	obituary "%o was bucked by a zombie."
@@ -510,7 +510,7 @@ Actor QuakeZombieShotgun : DnD_BaseRangedMonster 21033 {
     Radius 20
     Height 56
     Speed 8
-    PainChance 200
+    PainChance 0
     SeeSound "SSGUNER/sight"
     AttackSound "QuakeZombie/Attack"
     PainSound "QuakeZombie/pain"
@@ -588,7 +588,7 @@ actor UndeadRogue : DnD_BaseHybridMonster 21034 {
 	height 56
 	mass 125
 	speed 8
-	painchance 30
+	PainChance 0
 	decal BulletChip
 	SeeSound "UndeadInitiate/See"
 	ActiveSound "UndeadInitiate/Act"

@@ -5,7 +5,7 @@ Actor Corpulent : DnD_BaseRangedMonster 21148 {
 	Height 64
 	Speed 12
 	Scale 1.1
-	PainChance 48
+	PainChance 0
 	Mass 1500
 	SeeSound "Hectebus/Sight"
 	PainSound "Hectebus/Pain"
@@ -191,7 +191,7 @@ Actor Daedabus : DnD_BaseRangedMonster 21149 {
 	Height 64
 	Mass 1000
 	Speed 8
-	PainChance 64
+	PainChance 0
 	Scale 1.07
 	BloodColor "73 00 00"
 	SeeSound "Daedabus/Sight"
@@ -343,7 +343,7 @@ actor IceFatso : DnD_BaseRangedMonster 21150 {
 	height 64
 	mass 1000
 	speed 8
-	painchance 80
+	PainChance 0
 	seesound "fatso/sight"
 	painsound "fatso/pain"
 	deathsound "fatso/death"
@@ -482,7 +482,7 @@ Actor Mafibus : DnD_BaseRangedMonster 21151 {
 	Height 64
 	Mass 1000
 	Speed 8
-	PainChance 20
+	PainChance 0
 	Scale 1.15
 	SeeSound "Mafibus/See"
 	PainSound "Mafibus/Pain"
@@ -655,7 +655,7 @@ ACTOR Paladin : DnD_BaseHybridMonster 21152 {
 	Height 64
 	Mass 1200 
 	Speed 8
-	PainChance 80
+	PainChance 0
 	Species "Fatso"
 	+ISMONSTER
 	+DontHarmClass
@@ -999,7 +999,7 @@ actor Gamon : DnD_BaseHybridMonster 21153 {
 	height 64
 	mass 2048
 	speed 8
-	painchance 64
+	PainChance 0
 	Scale 1.12
 	Renderstyle Translucent
 	Alpha 1.0
@@ -1201,7 +1201,7 @@ Actor Mephisto : DnD_BaseRangedMonster 21154 {
 	Height 64
 	Speed 10
 	Scale 0.8
-	PainChance 32
+	PainChance 0
 	Mass 1500
 	SeeSound "Mephisto/See"
 	PainSound "Mephisto/pain"
@@ -1374,7 +1374,7 @@ Actor Abomination : DnD_BaseRangedMonster 21155 {
 	Height 64
 	Mass 1536
 	Speed 8
-	PainChance 72
+	PainChance 0
 	SeeSound "Abomination/See"
 	PainSound "Abomination/Pain"
 	DeathSound "Abomination/Die"
@@ -1580,7 +1580,7 @@ Actor GoldGolem : DnD_BaseHybridMonster 21156 {
 	Mass 2000
 	Scale 1.45
 	Speed 4
-	PainChance 32
+	PainChance 0
 	MeleeRange 76
 	MaxTargetRange 360
 	DeathSound "GoldGolem/Die"
@@ -2053,7 +2053,7 @@ Actor Yeti : DnD_BaseHybridMonster 21158 {
 	Species "Fatso"
 	Renderstyle Translucent
 	Alpha 0.5
-	PainChance 32
+	PainChance 0
 	SeeSound "IceGuySee"
 	PainSound "NULLSND"
 	ActiveSound "IceGuySee"

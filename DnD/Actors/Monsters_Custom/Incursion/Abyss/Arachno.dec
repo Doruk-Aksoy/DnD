@@ -6,7 +6,7 @@ Actor AbyssalArachno : DnD_BaseRangedMonster {
 	Height 64
 	Mass 1024
 	Speed 12
-	PainChance 96
+	PainChance 0
 	+ISMONSTER
 	+DONTHURTSPECIES
 	SeeSound "abyssal_arachno/sight"

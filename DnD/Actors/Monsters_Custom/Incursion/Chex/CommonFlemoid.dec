@@ -10,7 +10,7 @@ ACTOR CommonFlemoid : DnD_BaseHybridMonster {
 	Painsound "qgrunt/pain"
 	Deathsound "qgrunt/death"
 	Activesound "qgrunt/active"
-	Painchance 90
+	PainChance 0
 	Species "Chex"
 	Tag "Common Flemoid"
 	Stamina 128

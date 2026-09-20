@@ -757,6 +757,24 @@ Actor UniqueBoot_5 : ArmorDrop {
 	}
 }
 
+Actor UniqueBoot_6 : ArmorDrop {
+	Scale 0.1875
+	States {
+		Spawn:
+			UBO0 G 0
+		Goto SpawnInit
+	}
+}
+
+Actor UniqueBoot_7 : ArmorDrop {
+	Scale 0.1875
+	States {
+		Spawn:
+			UBO0 H 0
+		Goto SpawnInit
+	}
+}
+
 // HELMS
 
 Actor HelmDrop_0 : ArmorDrop {

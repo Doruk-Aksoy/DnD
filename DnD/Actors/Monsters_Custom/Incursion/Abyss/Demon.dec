@@ -4,7 +4,7 @@ Actor AbyssalDemon : DnD_BaseMeleeMonster {
 	Species "Demon"
 	Tag "Abyssal Demon"
 	+DONTHURTSPECIES
-	PainChance 144
+	PainChance 0
 	Speed 12
 	Radius 30
 	Height 56

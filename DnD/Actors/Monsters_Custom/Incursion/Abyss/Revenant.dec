@@ -4,7 +4,7 @@ Actor AbyssalRevenant : DnD_BaseHybridMonster {
 	Height 56
 	Mass 500
 	Speed 10
-	PainChance 84
+	PainChance 0
 	+ISMONSTER
 	MeleeThreshold 196
 	+MISSILEMORE 

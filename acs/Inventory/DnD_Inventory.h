@@ -2892,6 +2892,20 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 			SetPlayerFlag(pnum, PFLAG_CANNOTBEFROZEN, remove);
 		break;
 
+		// Kineticrushers.
+		case INV_EX_NOLOWSTAMINA_DMGLOSS:
+			SetPlayerFlag(pnum, PFLAG_NOLOWSTAMINA_DMGLOSS, remove);
+		break;
+
+		case INV_EX_NODEPLETEDSTAMINA_DMGLOSS:
+			SetPlayerFlag(pnum, PFLAG_NODEPLETEDSTAMINA_DMGLOSS, remove);
+		break;
+
+		// Hell's Vanguard.
+		case INV_EX_NOBLEEDEXTRA_MOVING:
+			SetPlayerFlag(pnum, PFLAG_NOBLEEDEXTRA_MOVING, remove);
+		break;
+
 		case INV_EX_CANNOTBEIGNITED:
 			SetPlayerFlag(pnum, PFLAG_CANNOTBEIGNITED, remove);
 		break;

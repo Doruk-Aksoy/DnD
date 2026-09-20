@@ -15,7 +15,7 @@ ACTOR AbyssalChaingunner : DnD_BaseRangedMonster {
 	Height 56
 	Mass 200
 	Speed 8
-	PainChance 150
+	PainChance 0
 	SeeSound "abyssal_human/sight"
 	AttackSound "abyssal_human/shotgun"
 	PainSound "abyssal_human/pain"

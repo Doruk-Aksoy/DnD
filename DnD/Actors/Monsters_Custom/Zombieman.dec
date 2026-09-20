@@ -6,7 +6,7 @@ Actor ZombieManGray : DnD_BaseRangedMonster 21018 {
 	Radius 20
 	Height 56
 	Speed 8
-	PainChance 200
+	PainChance 0
 	SeeSound "grunt/sight"
 	AttackSound "grunt/attack"
 	PainSound "grunt/pain"
@@ -88,7 +88,7 @@ actor FormerRanger : DnD_BaseRangedMonster 21019 {
 	height 56
 	mass 100
 	speed 8
-	painchance 170
+	PainChance 0
 	Decal "BulletChip"
 	seesound "grunt/sight"
 	attacksound "grunt/attack"
@@ -199,7 +199,7 @@ ACTOR SMGGuy : DnD_BaseRangedMonster 21020 {
 	Radius 20
 	Height 56
 	Speed 8
-	PainChance 200
+	PainChance 0
 	SeeSound "grunt/sight"
 	PainSound "grunt/pain"
 	DeathSound "grunt/death"
@@ -277,7 +277,7 @@ ACTOR RapidFireTrooper : DnD_BaseRangedMonster 21021 {
 	Radius 20
 	Height 56
 	Speed 8
-	PainChance 200
+	PainChance 0
 	DropItem "DroppedClip"
 	SeeSound "grunt/sight"
 	AttackSound "grunt/attack"
@@ -355,7 +355,7 @@ ACTOR ZombieMarine : DnD_BaseRangedMonster 21022 {
     Radius 20
     Height 56
     Speed 9
-    PainChance 200
+    PainChance 0
     OBITUARY "%o was killed by A Zombie Marine!"
     SEESOUND "grunt/sight"
     ATTACKSOUND "grunt/attack"
@@ -434,7 +434,7 @@ ACTOR LOSZombieMan : DnD_BaseRangedMonster 21023 {
 	Height 56
 	DropItem "DroppedClip"
 	Speed 8
-	PainChance 200
+	PainChance 0
 	SeeSound "grunt/sight"
 	AttackSound "grunt/attack"
 	PainSound "grunt/pain"
@@ -505,7 +505,7 @@ ACTOR PistolZombie : DnD_BaseRangedMonster 21024 {
     Radius 20
     Height 56
     Speed 8
-    PainChance 200
+    PainChance 0
     SeeSound "grunt/sight"
     AttackSound "Weapons/NewPist"
     PainSound "grunt/pain"
@@ -580,7 +580,7 @@ ACTOR QuakeZombie : DnD_BaseRangedMonster 21025 {
     Radius 20
     Height 56
     Speed 8
-    PainChance 200
+    PainChance 0
     SeeSound "SSGUNER/sight"
     AttackSound "grunt/attack"
     PainSound "QuakeZombie/pain"
@@ -674,7 +674,7 @@ actor UndeadHunter : DnD_BaseHybridMonster 21214 {
 	height 56
 	mass 125
 	speed 8
-	painchance 30
+	PainChance 0
 	DropItem "DroppedClip"
 	decal BulletChip
 	SeeSound "UndeadInitiate/See"
@@ -765,7 +765,7 @@ actor Prophet : DnD_BaseRangedMonster 21026 {
 	speed 6
 	RenderStyle Translucent
 	Alpha 0.33
-	painchance 184
+	PainChance 0
 	Decal "BulletChip"
 	SeeSound "ZSpecOps/Sight"
 	ActiveSound "ZSpecOps/Sight"

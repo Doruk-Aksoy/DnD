@@ -5,7 +5,7 @@ ACTOR FlemoidMobius : DnD_BaseHybridMonster {
 	Height 64
 	Radius 64
 	ProjectilePassHeight 100
-	Painchance 16
+	PainChance 0
 	Bloodcolor "Green"
 	Seesound "qbaron/sight"
 	Painsound "qbaron/pain"

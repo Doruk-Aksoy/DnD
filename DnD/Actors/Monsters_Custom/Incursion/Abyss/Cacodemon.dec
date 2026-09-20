@@ -7,7 +7,7 @@ Actor AbyssalCaco : DnD_BaseHybridMonster {
 	Height 56
 	Mass 400
 	Speed 9
-	PainChance 128
+	PainChance 0
 	+FLOAT
 	+NOGRAVITY
 	+DONTHURTSPECIES

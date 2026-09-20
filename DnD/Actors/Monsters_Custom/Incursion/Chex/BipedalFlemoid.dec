@@ -10,7 +10,7 @@ ACTOR BipedalFlemoid : DnD_BaseHybridMonster {
 	Painsound "qshotguy/pain"
 	Deathsound "qshotguy/death"
 	Activesound "qshotguy/active"
-	Painchance 60
+	PainChance 0
 	Species "Chex"
 	Tag "Bipedal Flemoid"
 	Stamina 128

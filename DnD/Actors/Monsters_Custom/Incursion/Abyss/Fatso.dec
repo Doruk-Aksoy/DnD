@@ -5,7 +5,7 @@ Actor AbyssalFatso : DnD_BaseRangedMonster {
 	Height 64
 	Mass 2048
 	Speed 8
-	PainChance 56
+	PainChance 0
 	+ISMONSTER
 	+DONTHURTSPECIES
 	SeeSound "abyssal_fatso/sight"

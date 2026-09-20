@@ -6,7 +6,7 @@ Actor Diabloist : DnD_BaseRangedMonster_NoRes 21169 {
 	Height 56 
 	Mass 500 
 	Speed 15 
-	PainChance 10
+	PainChance 0
 	BloodColor "08 08 08"
 	MaxTargetRange 1024
 	+NoTarget
@@ -535,7 +535,7 @@ ACTOR DeathVile : DnD_ArchVileBase 21170 {
 	//$Sprite WILEA1D1
 	Health 0x7FFFFFFF
 	Speed 16
-	PainChance 8
+	PainChance 0
 	MaxTargetRange 1280
 	SeeSound "wile/sight"
 	PainSound "wile/pain"
@@ -626,7 +626,7 @@ Actor Hierophant : DnD_BaseHybridMonster_NoRes 21171 {
 	Height 56
 	Mass 1000
 	Speed 10
-	PainChance 16
+	PainChance 0
 	Scale 1.15
 	DamageType "Physical"
 	Stamina 1
@@ -957,7 +957,7 @@ ACTOR Deathknight : DnD_BaseHybridMonster_NoRes 21172 {
 	Height 56
 	Mass 700 
 	Speed 10
-	PainChance 20 
+	PainChance 0
 	Species "AV"
 	+ISMONSTER
 	+NOTARGET 
@@ -1341,7 +1341,7 @@ Actor Horshacker : DnD_BaseHybridMonster_NoRes 21173 {
 	Height 56
 	Mass 700 
 	Speed 10
-	PainChance 20 
+	PainChance 0
 	Species "AV"
 	+NOTARGET 
 	+MISSILEMORE
@@ -1759,7 +1759,7 @@ actor UndeadPriest : DnD_BaseHybridMonster_NoRes 21174 {
 	height 56
 	mass 400
 	speed 8
-	painchance 48
+	PainChance 0
 	XScale 1.1
 	YScale 1.2
 	DropItem "SawedoffPickup" 64
@@ -1857,7 +1857,7 @@ Actor UndeadSpirit : DnD_ArchVilePassiveBase {
 	Speed 10 
 	RENDERSTYLE ADD
 	ALPHA 0.67 
-	PAINCHANCE 0
+	PainChance 0
 	Species "AV"
 	+THRUSPECIES
 	+DONTGIB
@@ -1983,7 +1983,7 @@ Actor Guru : DnD_BaseHybridMonster_NoRes 21175 {
 	Height 56
 	Mass 1000
 	Speed 12
-	PainChance 56
+	PainChance 0
 	Scale 1.15
 	Obituary "%o was incinerated by a Guru."
 	HitObituary "%o got shredded by a Guru."
@@ -2300,7 +2300,7 @@ Actor DarkZealot : DnD_BaseHybridMonster_NoRes 21176 {
 	DeathSound "Weapons/SReaverLoop"
 	Obituary "%o was tormented to death by a Dark Zealot."
 	+ISMONSTER
-	PainChance 48
+	PainChance 0
 	Radius 20
 	Height 56
 	ProjectilePassHeight 64
@@ -2637,7 +2637,7 @@ actor FleshWizard : DnD_BaseRangedMonster_NoRes 21177 {
 	height 56
 	mass 256
 	speed 16
-	painchance 64
+	PainChance 0
 	SEESOUND "FleshWizard/See"
 	painsound "FleshWizard/pain"
 	deathsound "FleshWizard/die"

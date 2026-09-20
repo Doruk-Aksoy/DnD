@@ -50,7 +50,7 @@ Actor ChexMeteorGround : DnD_BaseHybridMonster {
 	Radius 20
 	Speed 2
 	Meleerange 32
-	Painchance 255
+	PainChance 0
 	MinMissileChance 160
 	Species "Chex"
 	Tag "Flem Meteor"

@@ -5,7 +5,7 @@ ACTOR Snotfolus : DnD_BaseRangedBoss {
 	Radius 40
 	Speed 14
 	Minmissilechance 64
-	PainChance 2
+	PainChance 0
 	Bloodcolor "green"
 	Seesound "q3cyber/sight"
 	Painsound "q3cyber/pain"

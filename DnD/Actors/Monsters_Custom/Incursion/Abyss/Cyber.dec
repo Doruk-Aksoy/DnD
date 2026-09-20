@@ -4,7 +4,7 @@ Actor AbyssalCyberdemon : DnD_BaseRangedBoss {
 	Height 110
 	Mass 4096
 	Speed 13
-	PainChance 20
+	PainChance 0
 	+ISMONSTER
 	MinMissileChance 128
 	+BOSS

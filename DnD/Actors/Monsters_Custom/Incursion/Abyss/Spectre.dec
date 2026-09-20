@@ -1,7 +1,7 @@
 Actor AbyssalSpectre : AbyssalDemon { 
 	Species "Spectre"
 	Tag "Abyssal Spectre"
-	PainChance 96
+	PainChance 0
 	Speed 16
 	
 	Renderstyle Translucent

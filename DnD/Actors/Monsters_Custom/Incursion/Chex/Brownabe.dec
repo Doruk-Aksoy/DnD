@@ -5,7 +5,7 @@ ACTOR FlemoidBernabe : DnD_BaseHybridMonster {
 	Height 56
 	Radius 20
 	ProjectilePassHeight 72
-	Painchance 2
+	PainChance 0
 	Bloodcolor "72 24 24"
 	Seesound "qbaron/sight"
 	Painsound "qbaron/pain"

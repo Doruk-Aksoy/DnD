@@ -85,7 +85,7 @@ Actor GenericGibber_Medium : GenericGibber_Low {
 	States {
 		SpawnWork:
 			TNT1 AAAA 0 A_SpawnItemEx("BloodSmoke_Medium", frandom(-28.0, 28.0), frandom(-28.0, 28.0), frandom(22.0, 48.0), frandom(-1, 1), frandom(-1, 1), frandom(-1, 1), 0, SXF_TRANSFERTRANSLATION)
-			TNT1 AAAAAA 0 A_SpawnItemEx("NashGore_GibGenerator", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
+			TNT1 AAAA 0 A_SpawnItemEx("NashGore_GibGenerator", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
 		Stop
 	}
 }
@@ -94,7 +94,7 @@ Actor GenericGibber_Medium : GenericGibber_Low {
 Actor GenericGibber_Medium_Delayed : GenericGibber_Low {
 	States {
 		SpawnWork:
-			TNT1 AAAAAA 6 A_SpawnItemEx("NashGore_GibGenerator", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
+			TNT1 AAAA 6 A_SpawnItemEx("NashGore_GibGenerator", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
 		Stop
 	}
 }
@@ -103,7 +103,7 @@ Actor GenericGibber_High : GenericGibber_Low {
 	States {
 		SpawnWork:
 			TNT1 AAAA 0 A_SpawnItemEx("BloodSmoke_Large", frandom(-36.0, 36.0), frandom(-36.0, 36.0), frandom(28.0, 72.0), frandom(-1, 1), frandom(-1, 1), frandom(-1, 1), 0, SXF_TRANSFERTRANSLATION)
-			TNT1 AAAAAAAAA 0 A_SpawnItemEx("NashGore_GibGenerator", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
+			TNT1 AAAAAA 0 A_SpawnItemEx("NashGore_GibGenerator", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
 		Stop
 	}
 }
@@ -368,25 +368,21 @@ actor NashGore_Blood : Blood replaces Blood {
 			TNT1 A 0 A_ScaleVelocity(0)
 			TNT1 A 0 A_Jump(128, 2)
 			BLUD C 1 A_SpawnItemEx("NashGore_FlyingBlood", frandom(-8, 8), frandom(-8, 8), frandom(-1, 1), frandom(-4, 4), frandom(-4, 4), frandom(5, 12), 0, SXF_TRANSFERTRANSLATION) 
-			TNT1 A 0 A_Jump(128, "Var1", "Var2", "Var3", "Var4")
-			BLUD C 8
-			BLUD BA 8
-		stop
+			TNT1 A 0 A_Jump(256, "Var1", "Var2", "Var3", "Var4", "Var5")
 		Var1:
-			TNT1 A 0 A_SpawnItemEx("BloodVariant1", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
-			BLUD CBA 8
+			TNT1 A 8 A_SpawnItemEx("BloodVariant1", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
 		Stop
 		Var2:
-			TNT1 A 0 A_SpawnItemEx("BloodVariant2", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
-			BLUD CBA 8
+			TNT1 A 8 A_SpawnItemEx("BloodVariant2", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
 		Stop
 		Var3:
-			TNT1 A 0 A_SpawnItemEx("BloodVariant3", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
-			BLUD CBA 8
+			TNT1 A 8 A_SpawnItemEx("BloodVariant3", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
 		Stop
 		Var4:
-			TNT1 A 0 A_SpawnItemEx("BloodVariant4", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
-			BLUD CBA 8
+			TNT1 A 8 A_SpawnItemEx("BloodVariant4", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
+		Stop
+		Var5:
+			TNT1 A 8 A_SpawnItemEx("BloodVariant5", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
 		Stop
 	}
 }
@@ -439,6 +435,17 @@ Actor BloodVariant4 : BloodVariant1
 	{
 		Spawn:
 			NBL4 ABCDE 3
+		Stop
+	}
+}
+
+Actor BloodVariant5 : BloodVariant1
+{
+	Scale 1.1
+	States
+	{
+		Spawn:
+			NBL5 ABCD 3
 		Stop
 	}
 }

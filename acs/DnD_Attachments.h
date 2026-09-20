@@ -56,9 +56,7 @@ Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 				for(i = 0; i < 7; ++i)
 					CreateMonsterAttachment(tid, "EnshroudFX", xoff, 0, zoff);
 			break;
-
-			// PLACEHOLDER ART: reuses the Asmodeus ring so the aura is visible in game at all. Wants
-			// its own sprite before this ships.
+			
 			case DND_ELITEFX_WARDAURA:
 				res = CreateMonsterAttachment(tid, "WardAuraFX");
 			break;

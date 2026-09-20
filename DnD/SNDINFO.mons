@@ -1270,3 +1270,9 @@ BloodGolem/Dash					UM0DASH
 
 Shambler/Attack					SHAMATK
 Shambler/Hit					SHAMHIT
+
+Dementor/Sight					UM02SEE
+Dementor/Pain					UM02PN
+Dementor/Death					UM02DTH
+Dementor/Active					UM02ACT
+Dementor/Attack					UM02ATK

@@ -5,7 +5,7 @@ Actor AbyssalHellKnight : DnD_BaseHybridMonster {
 	Height 64
 	Mass 1000
 	Speed 9
-	PainChance 32
+	PainChance 0
 	+ISMONSTER
 	+FLOORCLIP
 	+DONTHURTSPECIES

@@ -35,6 +35,9 @@ Actor DnD_ShowStaminaBar_Quick : PowerProtection {
 Actor DnD_StaminaLocked : DnD_Boolean {}
 Actor DnD_StaminaDepleted : DnD_Boolean {}
 Actor DnD_RecoveringStamina : DnD_Boolean {}
+// Kineticrushers. Held while a stamina dump is already counting down, so a flurry of melee hits
+// arms ONE timer rather than one per hit.
+Actor DnD_KineticDumpPending : DnD_Boolean {}
 
 Actor ParryAoE : DnD_ExplosiveBase {
 	Height 1

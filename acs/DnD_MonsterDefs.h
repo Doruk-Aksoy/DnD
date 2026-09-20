@@ -66,6 +66,8 @@ typedef struct {
 	int flags;										// isElite, isMagic, isIdle etc.
 	int resists[MAX_DAMAGE_CATEGORIES];				// resists of the monster
 	int trait_bits[MONSTER_TRAIT_WORDS];			// one bit per trait, see HasMonsterTrait below
+	int painchance;			// 0-256, engine scale. Seeded from MonsterData, per instance
+	int pain_cd;			// tic it may next flinch on, 0 = nothing pending
 } mo_prop_T;
 
 // allow a max of 8192 monsters' data to be held
@@ -77,6 +79,8 @@ typedef struct {
 	int flags; // monster type flags
 	int rarity;
 	int trait_bits[MONSTER_TRAIT_WORDS];
+	int painchance;			// 0-256, same scale DECORATE used. 0 never flinches.
+	int pain_cooldown;		// tics before it may flinch again, 0 = no cooldown
 } monster_data_T;
 
 global monster_data_T 10: MonsterData[DND_LASTMONSTER_INDEX];

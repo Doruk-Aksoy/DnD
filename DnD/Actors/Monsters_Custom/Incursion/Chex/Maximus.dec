@@ -5,7 +5,7 @@ ACTOR FlemoidMaximus : DnD_BaseHybridMonster {
 	Height 64
 	Radius 24
 	ProjectilePassHeight 86
-	Painchance 8
+	PainChance 0
 	Bloodcolor "Green"
 	Seesound "qbaron/sight"
 	Painsound "qbaron/pain"

@@ -262,7 +262,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			if(CheckInventory("PowerStrength"))
 				hitscan_id = DND_HITSCAN_FIST2;
 			HandleStaminaBarDraw(pnum);
-			TakeStamina(DND_FIST_STAMINACOST);
+			TakeMeleeStamina(pnum, DND_FIST_STAMINACOST);
 		break;
 		case DND_WEAPON_CHAINSAW:
 			use_default = true;
@@ -270,7 +270,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			proj_name_alt = ProjectileInfo[proj_id].name;
 			hitscan_id = DND_HITSCAN_CHAINSAW;
 			HandleStaminaBarDraw(pnum);
-			TakeStamina(DND_CHAINSAW_STAMINACOST);
+			TakeMeleeStamina(pnum, DND_CHAINSAW_STAMINACOST);
 		break;
 		case DND_WEAPON_DOUBLECHAINSAW:
 			use_default = true;
@@ -282,7 +282,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			else
 				proj_name_alt = ProjectileInfo[proj_id].name;
 			HandleStaminaBarDraw(pnum);
-			TakeStamina(DND_DOUBLECHAINSAW_STAMINACOST);
+			TakeMeleeStamina(pnum, DND_DOUBLECHAINSAW_STAMINACOST);
 		break;
 		case DND_WEAPON_SICKLE:
 			use_default = true;
@@ -298,7 +298,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			}
 			else {
 				proj_name_alt = ProjectileInfo[proj_id].name;
-				TakeStamina(DND_SICKLE_STAMINACOST);
+				TakeMeleeStamina(pnum, DND_SICKLE_STAMINACOST);
 			}
 		break;
 		case DND_WEAPON_EXCALIBAT:
@@ -323,7 +323,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					break;
 				}
 				HandleStaminaBarDraw(pnum);
-				TakeStamina(DND_EXCALIBAT_STAMINACOST);
+				TakeMeleeStamina(pnum, DND_EXCALIBAT_STAMINACOST);
 			}
 			else {
 				proj_id = DND_PROJ_EXCALIBAT2;
@@ -383,7 +383,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 
 				// take half the time
 				if(CheckInventory("DnD_Weapon_FrameChecker") % 2)
-					TakeStamina(DND_KATANA_STAMINACOST);
+					TakeMeleeStamina(pnum, DND_KATANA_STAMINACOST);
 			}
 			else if(isAltFire == DND_ATK_PRIMARY) {
 				// left slash -- LeftSlashNormal
@@ -407,7 +407,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 
 				// take half the time
 				if(CheckInventory("DnD_Weapon_FrameChecker") % 2)
-					TakeStamina(DND_KATANA_STAMINACOST);
+					TakeMeleeStamina(pnum, DND_KATANA_STAMINACOST);
 			}
 			else if(isAltFire == DND_ATK_OTHER_DIR) {
 				// right slash -- RightSlashNormal
@@ -431,7 +431,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 
 				// take half the time
 				if(CheckInventory("DnD_Weapon_FrameChecker") % 2)
-					TakeStamina(DND_KATANA_STAMINACOST);
+					TakeMeleeStamina(pnum, DND_KATANA_STAMINACOST);
 			}
 			else if(isAltFire == DND_ATK_SECONDARY) {
 				// altfire -- ContinueAltFire
@@ -512,7 +512,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				}
 
 				if(!(CheckInventory("DnD_Weapon_FrameChecker") % 3))
-					TakeStamina(DND_KATANA_STAMINACOST);
+					TakeMeleeStamina(pnum, DND_KATANA_STAMINACOST);
 			}
 			else if(isAltFire & DND_ATK_OTHER_DIR) {
 				// combo altfire -- ComboUnsheathed
@@ -568,7 +568,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				}
 
 				if(!(CheckInventory("DnD_Weapon_FrameChecker") % 3))
-					TakeStamina(DND_KATANA_STAMINACOST);
+					TakeMeleeStamina(pnum, DND_KATANA_STAMINACOST);
 			}
 		break;
 		case DND_WEAPON_DUSKBLADE:
@@ -604,7 +604,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				break;
 			}
 			HandleStaminaBarDraw(pnum);
-			TakeStamina(DND_DUSKBLADE_STAMINACOST);
+			TakeMeleeStamina(pnum, DND_DUSKBLADE_STAMINACOST);
 		break;
 		case DND_WEAPON_INFERNOSWORD:
 			use_default = false;
@@ -612,7 +612,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				proj_id = DND_PROJ_INFERNOSWORD1;
 				Do_Melee_Attack(owner, pnum, wepid, 1, "InfernoSwordPuff", proj_id, -24.0 + 12.0 * CheckInventory("DnD_Weapon_FrameChecker"), 0.0, flags, vPos, 0, DND_HITSCAN_INFERNOSWORD);
 				HandleStaminaBarDraw(pnum);
-				TakeStamina(DND_INFERNOSWORD_STAMINACOST);
+				TakeMeleeStamina(pnum, DND_INFERNOSWORD_STAMINACOST);
 			}
 			else {
 				proj_id = DND_PROJ_INFERNOSWORD2;
@@ -1029,7 +1029,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				}
 			}
 			HandleStaminaBarDraw(pnum);
-			TakeStamina(DND_AXE_STAMINACOST);
+			TakeMeleeStamina(pnum, DND_AXE_STAMINACOST);
 		break;
 		case DND_WEAPON_SILVERGUN:
 			proj_id = DND_PROJ_WHITEDEATH;
@@ -1166,14 +1166,14 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				proj_id = DND_PROJ_WHEELOFTORMENT_3;
 				hitscan_id = DND_HITSCAN_WHEEL2;
 				HandleStaminaBarDraw(pnum);
-				TakeStamina(DND_WHEEL_STAMINACOST);
+				TakeMeleeStamina(pnum, DND_WHEEL_STAMINACOST);
 			}
 			else {
 				// 2nd proj
 				proj_id = DND_PROJ_WHEELOFTORMENT_2;
 				hitscan_id = DND_HITSCAN_WHEEL2;
 				HandleStaminaBarDraw(pnum);
-				TakeStamina(DND_WHEEL_STAMINACOST);
+				TakeMeleeStamina(pnum, DND_WHEEL_STAMINACOST);
 			}
 		break;
 		case DND_WEAPON_CHARONBLASTER:
@@ -1667,7 +1667,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				hitscan_id = DND_HITSCAN_HAMMER;
 				proj_name_alt = ProjectileInfo[DND_PROJ_HAMMERMELEE].name;
 				HandleStaminaBarDraw(pnum);
-				TakeStamina(DND_HAMMER_STAMINACOST);
+				TakeMeleeStamina(pnum, DND_HAMMER_STAMINACOST);
 			}
 		break;
 		case DND_WEAPON_HEAVYMISSILELAUNCHER:

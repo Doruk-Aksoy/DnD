@@ -4,7 +4,7 @@ Actor AbyssalMotherDemon : DnD_BaseRangedBoss {
 	Height 110
 	Mass 8192
 	Speed 12
-	PainChance 4
+	PainChance 0
 	+ISMONSTER
 	MinMissileChance 64
 	+BOSS

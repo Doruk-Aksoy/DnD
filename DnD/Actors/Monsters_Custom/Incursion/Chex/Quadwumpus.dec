@@ -9,7 +9,7 @@ ACTOR ChexQuadrumpus : DnD_BaseRangedMonster {
 	Painsound "qimp/pain"
 	Deathsound "qimp/death"
 	Activesound "qimp/active"
-	Painchance 30
+	PainChance 0
 	Species "Chex"
 	Tag "Quadrumpus"
 	+DONTHURTSPECIES

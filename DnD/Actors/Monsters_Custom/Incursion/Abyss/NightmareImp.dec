@@ -5,7 +5,7 @@ Actor AbyssalNightmareImp : DnD_BaseHybridMonster {
 	Height 56
 	Mass 300
 	Speed 12
-	PainChance 32
+	PainChance 0
 	GibHealth -50
 	seesound "monster/dvlsit"
 	painsound "monster/dvlpai"

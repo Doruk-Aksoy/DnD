@@ -95,6 +95,10 @@ int RollCharmInfo(int charm_pos, int charm_tier, int pnum, int synergy_boost = -
 	auto item = GetFieldItem(charm_pos);
 	int count = random(1, GetMaxItemAffixes(DND_ITEM_CHARM, charm_type));
 
+	// as in RollArmorInfo: -1 falls through to the override, which is how a source that reaches
+	// this through the fixed shape Spawn* family gets its boost in
+	synergy_boost = GetSynergyBoost(synergy_boost);
+
 	int synergy_roll = -2;
 
 	int worth = 0;

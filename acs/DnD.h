@@ -765,6 +765,163 @@ void SpawnLootboxRewards(int i, int guaranteed_orb = 0) {
 		SpawnSpecificOrb(i, guaranteed_orb, true, true, random(1, 3));
 }
 
+// ---- Dark Wanderer challenge chest -------------------------------------------------------------
+// The ordinary lootbox above is a handful of independent chance rolls, so it can pay almost nothing.
+// A cleared challenge is earned and always pays, and pays in QUANTITY -- so the crafting half rolls
+// a count rather than a chance, while the equipment half is deliberately held down: a pile of armor
+// is worth less than a few good pieces, and it floods the player's grid.
+//
+// These live here rather than beside the DND_LOOTBOX_* block in DnD.bcs. That block sits after the
+// #include of this file and only resolves because zt-bcc gathers defines before expanding them;
+// there is no reason to lean on that twice.
+
+// how many separate drops each crafting kind makes
+#define DND_CHALLENGE_ORB_MIN 3
+#define DND_CHALLENGE_ORB_MAX 6
+#define DND_CHALLENGE_TOKEN_MIN 2
+#define DND_CHALLENGE_TOKEN_MAX 4
+
+// the "decent stack" half, as a percent of the ordinary drop stack for the player's level
+#define DND_CHALLENGE_STACKBONUS 150
+
+// the part that must NOT be large
+#define DND_CHALLENGE_EQUIP_MIN 1
+#define DND_CHALLENGE_EQUIP_MAX 3
+
+// every mod on every piece in this chest rolls against this instead of DND_WELLROLL_ODDS (0.1)
+#define DND_CHALLENGE_WELLROLLCHANCE 0.5
+
+// Percent of DND_SYNERGYITEM_CHANCE, checked per mod until it locks onto a tag. 120 lands on 0.15,
+// which is exactly DND_MERCHANT_SYNERGYITEM_CHANCE: a cleared challenge MATCHES the merchant and
+// does not pass it, and the merchant stays the ceiling on an ordinary map. Never tune this by moving
+// DND_SYNERGYITEM_CHANCE itself -- that base drags the Ultimatum rewards with it.
+#define DND_CHALLENGE_SYNERGY 120
+
+// Rolled per surviving player, each against their own chest, so a full game averages more than one
+// key per cleared challenge.
+#define DND_CHALLENGE_ULTIMATUMKEY_CHANCE 0.3
+
+// Mid and high tier orbs only -- low tier is what an ordinary kill already pays, so it would read as
+// nothing here. High tier draws at a fraction of a mid tier weight, which is the "rarer ones less
+// likely" part.
+//
+// The scan stops at DND_NORMAL_DROP_ORBCOUNT, and that is what keeps Order / Destiny / Reverance out
+// of it: they sit past DND_MON_DROP_ORB_BEGIN, and with the three orb specific challenge chests gone
+// the Ultimatum reward pool is now their only source.
+#define DND_CHALLENGE_ORBWEIGHT_MID 100
+#define DND_CHALLENGE_ORBWEIGHT_HIGH 35
+
+int GetChallengeChestOrbWeight(int orb) {
+	if(IsMidTierOrb(orb))
+		return DND_CHALLENGE_ORBWEIGHT_MID;
+	if(IsHighTierOrb(orb))
+		return DND_CHALLENGE_ORBWEIGHT_HIGH;
+	return 0;
+}
+
+int PickChallengeChestOrb() {
+	int i, w, total = 0;
+	for(i = 0; i < DND_NORMAL_DROP_ORBCOUNT; ++i)
+		total += GetChallengeChestOrbWeight(i);
+
+	// only reachable if the tier predicates stop naming anything inside the normal drop range
+	if(total <= 0)
+		return DND_ORB_ENHANCE;
+
+	int roll = random(1, total), acc = 0;
+	for(i = 0; i < DND_NORMAL_DROP_ORBCOUNT; ++i) {
+		w = GetChallengeChestOrbWeight(i);
+		if(!w)
+			continue;
+
+		acc += w;
+		if(roll <= acc)
+			return i;
+	}
+
+	return DND_ORB_ENHANCE;
+}
+
+// GetOrbDropStack is itself a roll, so this is called per drop rather than once -- otherwise every
+// pile in the chest would come out the same size.
+int GetChallengeChestStack(int plvl) {
+	return Max(1, GetOrbDropStack(plvl) * DND_CHALLENGE_STACKBONUS / 100);
+}
+
+// Charms lead because a charm is the one slot a player can always improve, and specialty items trail
+// because each is usable by a single class.
+#define DND_CHALLENGE_EQUIPW_CHARM 30
+#define DND_CHALLENGE_EQUIPW_ARMOR 22
+#define DND_CHALLENGE_EQUIPW_BOOT 19
+#define DND_CHALLENGE_EQUIPW_HELM 19
+#define DND_CHALLENGE_EQUIPW_SPECIALTY 10
+
+void SpawnChallengeChestEquipment(int pnum) {
+	int total = DND_CHALLENGE_EQUIPW_CHARM + DND_CHALLENGE_EQUIPW_ARMOR + DND_CHALLENGE_EQUIPW_BOOT +
+		DND_CHALLENGE_EQUIPW_HELM + DND_CHALLENGE_EQUIPW_SPECIALTY;
+	int roll = random(1, total);
+	int acc = DND_CHALLENGE_EQUIPW_CHARM;
+
+	// None of these is handed the synergy boost: the synergy override carries it, because the
+	// Spawn* family is pinned to five parameters by the dispatch table in SpawnItemForAll.
+	if(roll <= acc) {
+		SpawnCharm(pnum, 0, MAX_REGULAR_ILVL, false);
+		return;
+	}
+
+	acc += DND_CHALLENGE_EQUIPW_ARMOR;
+	if(roll <= acc) {
+		SpawnArmorDrop(pnum, 0, MAX_REGULAR_ILVL, false);
+		return;
+	}
+
+	acc += DND_CHALLENGE_EQUIPW_BOOT;
+	if(roll <= acc) {
+		SpawnBoot(pnum, 0, MAX_REGULAR_ILVL, false);
+		return;
+	}
+
+	acc += DND_CHALLENGE_EQUIPW_HELM;
+	if(roll <= acc) {
+		SpawnHelmDrop(pnum, 0, MAX_REGULAR_ILVL, false);
+		return;
+	}
+
+	// RollSpecialtyItemInfo takes no synergy boost, so this one is well rolled but never synergistic
+	SpawnSpecialtyItem(pnum, 0, MAX_REGULAR_ILVL, false, GetRandomSpecialtyItem());
+}
+
+void SpawnChallengeChestRewards(int pnum) {
+	int i, n;
+	int plvl = GetActorLevel(pnum + P_TIDSTART);
+
+	// crafting first, and by count rather than by chance
+	n = random(DND_CHALLENGE_ORB_MIN, DND_CHALLENGE_ORB_MAX);
+	for(i = 0; i < n; ++i)
+		// sound on the first only, or three to six identical drop sounds fire on the same tic
+		SpawnSpecificOrb(pnum, PickChallengeChestOrb(), i == 0, true, GetChallengeChestStack(plvl));
+
+	n = random(DND_CHALLENGE_TOKEN_MIN, DND_CHALLENGE_TOKEN_MAX);
+	for(i = 0; i < n; ++i)
+		SpawnToken(pnum, GetChallengeChestStack(plvl));
+
+	// Every piece below rolls its mods at the raised chance, and it is put back immediately after.
+	// Same scoping as everywhere else this override is used: an ACS function cannot Delay, so the
+	// spawns run to completion with nothing interleaved and no later drop can observe it set.
+	SetWellRolledChanceOverride(DND_CHALLENGE_WELLROLLCHANCE);
+	SetSynergyBoostOverride(DND_CHALLENGE_SYNERGY);
+
+	n = random(DND_CHALLENGE_EQUIP_MIN, DND_CHALLENGE_EQUIP_MAX);
+	for(i = 0; i < n; ++i)
+		SpawnChallengeChestEquipment(pnum);
+
+	SetSynergyBoostOverride(0);
+	SetWellRolledChanceOverride(0);
+
+	if(random(0, 1.0) <= DND_CHALLENGE_ULTIMATUMKEY_CHANCE)
+		SpawnSpecificDungeonKey(pnum, DND_DUNGEON_ULTIMATUM);
+}
+
 // 0 means they are ready
 bool PlayersNotReadyForHardcore() {
 	int players_notready = 0;
@@ -911,6 +1068,25 @@ Script "DnD Chest Credit Message" (int amt) CLIENTSIDE {
 
 // drop boost increases chance for a drop, rarity is for chance for it to be unique
 void HandleItemDropsForLoot(int m_id, int drop_boost, int rarity_boost) {
+	// An ultimatum pays out of its reward bank and nothing else. A wave arena that also dropped per
+	// kill would bury the floor in loot and undercut the bank the whole run is played for.
+	//
+	// This is the single door for monster loot -- the drop table, the loot chest roll and the
+	// legendary drop all sit below it -- so one return covers every one of them.
+	//
+	// Deliberately still ALLOWED here, because they sit beside this call in HandleLootDrops rather
+	// than under it: soul ammo, Doomguy's demon souls, the Book of Dead souls and research modules.
+	// Those are ammo, class mechanics and progression rather than loot, and killing them would
+	// quietly break a build being played inside the arena.
+	//
+	// The boss accessory roll is the one neighbour that IS shut off, and it carries its own copy of
+	// this test at its own site further down -- it never routes through here.
+	//
+	// HandleUniqueDeath needs no gate: none of the seventeen named monsters it answers to is spawned
+	// by any ultimatum wave, so its orb and essence drops are already out of reach here.
+	if(InformationInLevel[LEVELINFO_ISULTIMATUM])
+		return;
+
 	int tmp;
 
 	// chest droprate check
@@ -937,11 +1113,11 @@ void HandleItemDropsForLoot(int m_id, int drop_boost, int rarity_boost) {
 
 			// this is the effective weight of nothing dropping -- if we pass this roll that means a loot drop can occur and we can check successive rolls after
 			int count = GetAdjustedNothingWeight(p_chance, drop_boost);
-#ifdef ISDEBUGBUILD
-			if(1) {
-#else
+//#ifdef ISDEBUGBUILD
+//			if(1) {
+//#else
 			if(random(1, count + LootTables.monster_loot_weight_sum) <= LootTables.monster_loot_weight_sum) {
-#endif
+//#endif
 				// count how many items to spawn with player's item quant
 				count = 0;
 				while(quant > 0 && MonsterProperties[m_id].rng_vals[count] <= quant) {
@@ -1180,7 +1356,10 @@ void HandleLootDrops(int tid, int target, int loc_tid = -1) {
 	HandleItemDropsForLoot(m_id, MonsterProperties[m_id].droprate, MonsterProperties[m_id].rarity_boost);
 	
 	// accessory drops (accept only from cyber and spider masterminds)
+	// An ultimatum pays out of its bank only, same as the loot gate at the top of
+	// HandleItemDropsForLoot. This roll is a separate door, so it needs the test of its own.
 	if(
+		!InformationInLevel[LEVELINFO_ISULTIMATUM] &&
 		IsBossTID(tid) && 
 		random(0, 1.0) <= CVarValues[DND_CVAR_ACCESSORYDROPRATE] &&
 		GetAveragePlayerLevel() >= CVarValues[DND_CVAR_ACCESSORYLEVEL]
@@ -1891,7 +2070,7 @@ void HandleChargeAcquisitionOnKill(int this, int pnum) {
 
 	temp = PlayerModData[pnum].vals[PSTAT_IMP_ONKILL_ENDURANCE];
 	if(temp && random(1, 100) <= temp) {
-		HandlePlayerBuffAssignment(pnum, 0, BTI_ENDURANCECHARGE);
+		GainEnduranceCharge(pnum);
 	}
 
 	temp = PlayerModData[pnum].vals[PSTAT_IMP_ONKILL_POWER];

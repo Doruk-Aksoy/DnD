@@ -482,7 +482,23 @@ enum {
 	INV_EX_AILMENTS_PIERCE_IMMUNITY,
 	INV_EX_AILMENTS_CANNOTBEAVOIDED,
 	INV_EX_AILMENT_MORE_DOTDAMAGE,
-	INV_EX_AILMENT_SINGLETYPE
+	INV_EX_AILMENT_SINGLETYPE,
+
+	// Kineticrushers
+	INV_EX_MELEEMORE_PERSTAMINA,        // 1% more melee damage per 1% stamina, only off low stamina
+	INV_EX_STAMINADUMP_AFTERMELEE,      // seconds after a landed melee hit before all stamina is spent
+	INV_EX_NOLOWSTAMINA_DMGLOSS,        // flag
+	INV_EX_NODEPLETEDSTAMINA_DMGLOSS,   // flag
+	INV_EX_LESS_STAMINARECOVERY,        // percent, separate mod rather than a negative recovery roll
+
+	// Hell's Vanguard
+	INV_EX_NOBLEEDEXTRA_MOVING,         // flag
+	INV_EX_CHANCE_MAXENDURANCE,         // percent, an endurance charge gain becomes a full stack
+	INV_EX_CHANCE_FREEMELEESTAMINA,     // percent, a melee swing costs no stamina
+
+	// Nullforce. Its ammo penalties reuse INV_EX_MOREAMMOUSE and INV_EX_REDUCEDAMMOCAP, which
+	// already exist and are unconditional in exactly the same way, so only the rate is new.
+	INV_EX_MOREDMG_PERMISSINGAMMO       // percent more damage per 1% of the weapon's missing ammo
 	// add new unique attributes here
 };
 
@@ -494,7 +510,7 @@ enum {
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
 #define UNIQUE_ATTRIB_BEGIN INV_EX_CHANCE_CASTELEMSPELLONATK
-#define UNIQUE_ATTRIB_END INV_EX_AILMENT_SINGLETYPE
+#define UNIQUE_ATTRIB_END INV_EX_MOREDMG_PERMISSINGAMMO
 #define UNIQUE_ATTRIB_COUNT (UNIQUE_ATTRIB_END - UNIQUE_ATTRIB_BEGIN + 1)
 
 #define FIRST_CORRUPT_IMPLICIT INV_CORR_WEAPONDMG

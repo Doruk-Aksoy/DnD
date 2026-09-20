@@ -32,8 +32,8 @@ namespace ultimatum {
 
         TP_TID_MIDSECTION = 4045,                // used for spawning rewards, the NPC etc.
 
-        ULTIMATUM_RATE_MULT = 0.1,
-        ULTIMATUM_RATE_INC_PER_WAVE = 0.05,
+        ULTIMATUM_RATE_MULT = 0.25,
+        ULTIMATUM_RATE_INC_PER_WAVE = 0.025,
         ULTIMATUM_WAKECHANCE = 0.6,
 
         TP_TID_SAWBLADE_BEGIN = 6000,
@@ -53,7 +53,6 @@ namespace ultimatum {
         TP_TID_RAGINGDEAD_BEGIN = 6063,
         TP_TID_RAGINGDEAD_END = 6078,
         TP_RAGINGDEAD_COUNT = TP_TID_RAGINGDEAD_END - TP_TID_RAGINGDEAD_BEGIN + 1,
-
     };
 
     enum {
@@ -127,7 +126,10 @@ void AddFormationToWave(ultimatum_wave_T module& w, int variant, str actor, int 
     int count = w.formation_count[variant];
     w.info[variant][count].actor_name = actor;
     w.info[variant][count].amount = amt;
-    w.info[variant][count].spawn_delay = (del * (ultimatum::ULTIMATUM_RATE_MULT + ultimatum::ULTIMATUM_RATE_INC_PER_WAVE * wave_id)) >> 16;
+
+    w.info[variant][count].spawn_delay = (
+        del * (ultimatum::ULTIMATUM_RATE_MULT + ultimatum::ULTIMATUM_RATE_INC_PER_WAVE * wave_id)
+    ) >> 16;
     w.info[variant][count].formation_type = type;
 
     w.formation_types_used |= type;
@@ -287,7 +289,7 @@ ultimatum_wave_T module& GetUltimatumWaveInfo(int id) {
         AddFormationToWave(curr_wave, 0, "DarkServant", 20, TICRATE * 12, WAVE_FORMATION_GROUND, wave_id);
         AddFormationToWave(curr_wave, 0, "DarkServant", 12, TICRATE * 6, WAVE_FORMATION_GROUND, wave_id);
         AddFormationToWave(curr_wave, 0, "DarkZealot", 12, TICRATE * 9, WAVE_FORMATION_GROUND, wave_id);
-        AddFormationToWave(curr_wave, 0, "Wicked", 24, TICRATE * 4, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 0, "Dementor", 12, TICRATE * 4, WAVE_FORMATION_FLIER, wave_id);
         AddFormationToWave(curr_wave, 0, "HellArbiter", 10, TICRATE * 9, WAVE_FORMATION_FLIER, wave_id);
         AddFormationToWave(curr_wave, 0, "Draugr", 12, TICRATE * 9, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
         AddFormationToWave(curr_wave, 0, "Corpulent", 9, TICRATE * 3, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
@@ -295,7 +297,7 @@ ultimatum_wave_T module& GetUltimatumWaveInfo(int id) {
         AddFormationToWave(curr_wave, 1, "HellWarrior", 18, TICRATE * 12, WAVE_FORMATION_GROUND, wave_id);
         AddFormationToWave(curr_wave, 1, "Kjaroch", 10, TICRATE * 6, WAVE_FORMATION_GROUND, wave_id);
         AddFormationToWave(curr_wave, 1, "FleshWizard", 12, TICRATE * 9, WAVE_FORMATION_GROUND, wave_id);
-        AddFormationToWave(curr_wave, 1, "EarthLich", 20, TICRATE * 4, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 1, "Dementor", 12, TICRATE * 4, WAVE_FORMATION_FLIER, wave_id);
         AddFormationToWave(curr_wave, 1, "BloodLich", 8, TICRATE * 9, WAVE_FORMATION_FLIER, wave_id);
         AddFormationToWave(curr_wave, 1, "Crawler", 16, TICRATE * 9, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
         AddFormationToWave(curr_wave, 1, "Vore", 9, TICRATE * 4, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
@@ -303,7 +305,7 @@ ultimatum_wave_T module& GetUltimatumWaveInfo(int id) {
         AddFormationToWave(curr_wave, 2, "IceGolem", 16, TICRATE * 12, WAVE_FORMATION_GROUND, wave_id);
         AddFormationToWave(curr_wave, 2, "Lavademon", 10, TICRATE * 7, WAVE_FORMATION_GROUND, wave_id);
         AddFormationToWave(curr_wave, 2, "Hierophant", 12, TICRATE * 9, WAVE_FORMATION_GROUND, wave_id);
-        AddFormationToWave(curr_wave, 2, "ShadowPriest", 20, TICRATE * 7, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 2, "Dementor", 12, TICRATE * 7, WAVE_FORMATION_FLIER, wave_id);
         AddFormationToWave(curr_wave, 2, "DESentinel", 8, TICRATE * 8, WAVE_FORMATION_FLIER, wave_id);
         AddFormationToWave(curr_wave, 2, "AxeKnight", 16, TICRATE * 9, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
         AddFormationToWave(curr_wave, 2, "HellforgeSpider", 9, TICRATE * 4, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
@@ -312,20 +314,20 @@ ultimatum_wave_T module& GetUltimatumWaveInfo(int id) {
         curr_wave = waves[wave_id];
         curr_wave.variants = 3;
         AddFormationToWave(curr_wave, 0, "GoldGolem", 16, TICRATE * 12, WAVE_FORMATION_GROUND, wave_id);
-        AddFormationToWave(curr_wave, 0, "BloodGolem", 12, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "BloodGolem", 12, TICRATE * 6, WAVE_FORMATION_GROUND, wave_id);
         AddFormationToWave(curr_wave, 0, "IceGolem", 12, TICRATE * 9, WAVE_FORMATION_GROUND, wave_id);
         AddFormationToWave(curr_wave, 0, "ShadowPriest", 20, TICRATE * 5, WAVE_FORMATION_FLIER, wave_id);
         AddFormationToWave(curr_wave, 0, "ShadowDisciple", 8, TICRATE * 12, WAVE_FORMATION_FLIER, wave_id);
         AddFormationToWave(curr_wave, 0, "AvatarOfChaos", 1, TICRATE * 4, WAVE_FORMATION_BOSS_GROUND, wave_id);
     
         AddFormationToWave(curr_wave, 1, "Gamon", 16, TICRATE * 12, WAVE_FORMATION_GROUND, wave_id);
-        AddFormationToWave(curr_wave, 1, "MoonSatyr", 12, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "MoonSatyr", 12, TICRATE * 6, WAVE_FORMATION_GROUND, wave_id);
         AddFormationToWave(curr_wave, 1, "BloodSatyr", 12, TICRATE * 9, WAVE_FORMATION_GROUND, wave_id);
         AddFormationToWave(curr_wave, 1, "Inferno", 24, TICRATE * 6, WAVE_FORMATION_FLIER, wave_id);
         AddFormationToWave(curr_wave, 1, "Helemental", 10, TICRATE * 12, WAVE_FORMATION_FLIER, wave_id);
         AddFormationToWave(curr_wave, 1, "HellsmithX", 1, TICRATE * 4, WAVE_FORMATION_BOSS_GROUND, wave_id);
 
-        AddFormationToWave(curr_wave, 2, "BlackKnight", 16, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 2, "BlackKnight", 16, TICRATE * 6, WAVE_FORMATION_GROUND, wave_id);
         AddFormationToWave(curr_wave, 2, "DreadKnight", 12, TICRATE * 12, WAVE_FORMATION_GROUND, wave_id);
         AddFormationToWave(curr_wave, 2, "DeathKnight", 4, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
         AddFormationToWave(curr_wave, 2, "Wicked", 20, TICRATE * 6, WAVE_FORMATION_FLIER, wave_id);
@@ -337,21 +339,21 @@ ultimatum_wave_T module& GetUltimatumWaveInfo(int id) {
         curr_wave.variants = 3;
         AddFormationToWave(curr_wave, 0, "Nhumcign", 32, TICRATE * 2, WAVE_FORMATION_GROUND, wave_id);
         AddFormationToWave(curr_wave, 0, "ArchVile2", 4, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
-        AddFormationToWave(curr_wave, 0, "Inferno", 20, TICRATE * 4, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 0, "Dementor", 20, TICRATE * 4, WAVE_FORMATION_FLIER, wave_id);
         AddFormationToWave(curr_wave, 0, "Draugr", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
         AddFormationToWave(curr_wave, 0, "Guru", 12, TICRATE * 8, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
         AddFormationToWave(curr_wave, 0, "HellsmithX", 3, TICRATE * 24, WAVE_FORMATION_BOSS_GROUND, wave_id);
 
         AddFormationToWave(curr_wave, 1, "Lurker", 32, TICRATE * 2, WAVE_FORMATION_GROUND, wave_id);
         AddFormationToWave(curr_wave, 1, "ArchVile2", 4, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
-        AddFormationToWave(curr_wave, 1, "ShadowPriest", 20, TICRATE * 4, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 1, "Dementor", 20, TICRATE * 4, WAVE_FORMATION_FLIER, wave_id);
         AddFormationToWave(curr_wave, 1, "AxeKnight", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
         AddFormationToWave(curr_wave, 1, "Horshacker", 12, TICRATE * 8, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
         AddFormationToWave(curr_wave, 1, "AvatarOfChaos", 3, TICRATE * 24, WAVE_FORMATION_BOSS_GROUND, wave_id);
 
         AddFormationToWave(curr_wave, 2, "Gravedigger", 32, TICRATE * 2, WAVE_FORMATION_GROUND, wave_id);
         AddFormationToWave(curr_wave, 2, "ArchVile2", 4, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
-        AddFormationToWave(curr_wave, 2, "EarthLich", 20, TICRATE * 4, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 2, "Dementor", 20, TICRATE * 4, WAVE_FORMATION_FLIER, wave_id);
         AddFormationToWave(curr_wave, 2, "Yeti", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
         AddFormationToWave(curr_wave, 2, "Hierophant", 12, TICRATE * 8, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
         AddFormationToWave(curr_wave, 2, "DarkLich", 3, TICRATE * 24, WAVE_FORMATION_BOSS_GROUND, wave_id);
@@ -384,28 +386,28 @@ ultimatum_wave_T module& GetUltimatumWaveInfo(int id) {
         curr_wave = waves[wave_id];
         curr_wave.variants = 3;
         AddFormationToWave(curr_wave, 0, "MagmaSerpent", 32, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
-        AddFormationToWave(curr_wave, 0, "ShadowBeast", 20, TICRATE * 2, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
+        AddFormationToWave(curr_wave, 0, "ShadowBeast", 20, TICRATE * 4, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
         AddFormationToWave(curr_wave, 0, "Draugr", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
-        AddFormationToWave(curr_wave, 0, "Wicked", 12, TICRATE * 3, WAVE_FORMATION_FLIER, wave_id);
-        AddFormationToWave(curr_wave, 0, "ShadowPriest", 12, TICRATE * 3, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 0, "Dementor", 12, TICRATE * 5, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 0, "ShadowPriest", 12, TICRATE * 4, WAVE_FORMATION_FLIER, wave_id);
         AddFormationToWave(curr_wave, 0, "AvatarOfChaos", 2, TICRATE * 12, WAVE_FORMATION_BOSS_GROUND, wave_id);
         AddFormationToWave(curr_wave, 0, "IronLichBoss", 1, TICRATE * 8, WAVE_FORMATION_BOSS_BACKLINE, wave_id);
         AddFormationToWave(curr_wave, 0, "GoldLich", 2, TICRATE * 8, WAVE_FORMATION_BOSS_BACKLINE, wave_id);
 
         AddFormationToWave(curr_wave, 1, "ChaosSerpent", 32, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
-        AddFormationToWave(curr_wave, 1, "Bloodseeker", 20, TICRATE * 2, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
+        AddFormationToWave(curr_wave, 1, "Bloodseeker", 20, TICRATE * 4, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
         AddFormationToWave(curr_wave, 1, "AxeKnight", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
-        AddFormationToWave(curr_wave, 1, "Inferno", 12, TICRATE * 3, WAVE_FORMATION_FLIER, wave_id);
-        AddFormationToWave(curr_wave, 1, "EarthLich", 12, TICRATE * 3, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 1, "Dementor", 12, TICRATE * 5, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 1, "EarthLich", 12, TICRATE * 4, WAVE_FORMATION_FLIER, wave_id);
         AddFormationToWave(curr_wave, 1, "HellsmithX", 2, TICRATE * 12, WAVE_FORMATION_BOSS_GROUND, wave_id);
         AddFormationToWave(curr_wave, 1, "DarkLich", 1, TICRATE * 8, WAVE_FORMATION_BOSS_BACKLINE, wave_id);
         AddFormationToWave(curr_wave, 1, "IronLichBoss", 2, TICRATE * 8, WAVE_FORMATION_BOSS_BACKLINE, wave_id);
     
         AddFormationToWave(curr_wave, 2, "BlackKnight", 32, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
-        AddFormationToWave(curr_wave, 2, "Kjaroch", 20, TICRATE * 2, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
+        AddFormationToWave(curr_wave, 2, "Kjaroch", 20, TICRATE * 4, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
         AddFormationToWave(curr_wave, 2, "Yeti", 16, TICRATE * 5, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
-        AddFormationToWave(curr_wave, 2, "CacoLich", 12, TICRATE * 3, WAVE_FORMATION_FLIER, wave_id);
-        AddFormationToWave(curr_wave, 2, "DeathWhisperer", 12, TICRATE * 3, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 2, "Dementor", 12, TICRATE * 5, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 2, "DeathWhisperer", 12, TICRATE * 4, WAVE_FORMATION_FLIER, wave_id);
         AddFormationToWave(curr_wave, 2, "Cerberus", 2, TICRATE * 12, WAVE_FORMATION_BOSS_GROUND, wave_id);
         AddFormationToWave(curr_wave, 2, "DarkLich", 1, TICRATE * 8, WAVE_FORMATION_BOSS_BACKLINE, wave_id);
         AddFormationToWave(curr_wave, 2, "GoldLich", 2, TICRATE * 8, WAVE_FORMATION_BOSS_BACKLINE, wave_id);
@@ -415,27 +417,29 @@ ultimatum_wave_T module& GetUltimatumWaveInfo(int id) {
         curr_wave = waves[wave_id];
         curr_wave.variants = 2;
         AddFormationToWave(curr_wave, 0, "Lavademon", 16, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
-        AddFormationToWave(curr_wave, 0, "BloodGolem", 12, TICRATE * 2, WAVE_FORMATION_GROUND, wave_id);
-        AddFormationToWave(curr_wave, 0, "DeathVile", 3, TICRATE * 16, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "BloodGolem", 12, TICRATE * 5, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 0, "DeathVile", 3, TICRATE * 12, WAVE_FORMATION_GROUND, wave_id);
         AddFormationToWave(curr_wave, 0, "FleshWizard", 1, TICRATE * 16, WAVE_FORMATION_GROUND, wave_id);
-        AddFormationToWave(curr_wave, 0, "DarkZealot", 18, TICRATE * 3, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
-        AddFormationToWave(curr_wave, 0, "Ophidian", 16, TICRATE * 3, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
-        AddFormationToWave(curr_wave, 0, "DESentinel", 12, TICRATE * 6, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 0, "DarkZealot", 18, TICRATE * 5, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
+        AddFormationToWave(curr_wave, 0, "Ophidian", 16, TICRATE * 4, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
+        AddFormationToWave(curr_wave, 0, "DESentinel", 12, TICRATE * 8, WAVE_FORMATION_FLIER, wave_id);
         AddFormationToWave(curr_wave, 0, "EarthLich", 12, TICRATE * 3, WAVE_FORMATION_FLIER, wave_id);
         AddFormationToWave(curr_wave, 0, "BloodLich", 4, TICRATE * 12, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 0, "Dementor", 10, TICRATE * 12, WAVE_FORMATION_FLIER, wave_id);
         AddFormationToWave(curr_wave, 0, "AvatarOfChaos", 2, TICRATE * 16, WAVE_FORMATION_BOSS_GROUND, wave_id);
         AddFormationToWave(curr_wave, 0, "HellsmithX", 2, TICRATE * 16, WAVE_FORMATION_BOSS_GROUND, wave_id);
         AddFormationToWave(curr_wave, 0, "IronLichBoss", 4, TICRATE * 10, WAVE_FORMATION_BOSS_BACKLINE, wave_id);
 
         AddFormationToWave(curr_wave, 1, "Bloodseeker", 16, TICRATE * 8, WAVE_FORMATION_GROUND, wave_id);
-        AddFormationToWave(curr_wave, 1, "BloodGolem", 12, TICRATE * 2, WAVE_FORMATION_GROUND, wave_id);
-        AddFormationToWave(curr_wave, 1, "DeathVile", 3, TICRATE * 16, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "BloodGolem", 12, TICRATE * 5, WAVE_FORMATION_GROUND, wave_id);
+        AddFormationToWave(curr_wave, 1, "DeathVile", 3, TICRATE * 12, WAVE_FORMATION_GROUND, wave_id);
         AddFormationToWave(curr_wave, 1, "FleshWizard", 1, TICRATE * 16, WAVE_FORMATION_GROUND, wave_id);
-        AddFormationToWave(curr_wave, 1, "DarkZealot", 18, TICRATE * 3, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
-        AddFormationToWave(curr_wave, 1, "Ophidian", 16, TICRATE * 3, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
-        AddFormationToWave(curr_wave, 1, "HellArbiter", 12, TICRATE * 6, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 1, "DarkZealot", 18, TICRATE * 5, WAVE_FORMATION_SIDELINE_ROOFS, wave_id);
+        AddFormationToWave(curr_wave, 1, "Ophidian", 16, TICRATE * 4, WAVE_FORMATION_SIDELINE_WINDOWS, wave_id);
+        AddFormationToWave(curr_wave, 1, "HellArbiter", 12, TICRATE * 8, WAVE_FORMATION_FLIER, wave_id);
         AddFormationToWave(curr_wave, 1, "Inferno", 12, TICRATE * 3, WAVE_FORMATION_FLIER, wave_id);
-        AddFormationToWave(curr_wave, 1, "DESentinel", 4, TICRATE * 12, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 1, "DESentinel", 4, TICRATE * 8, WAVE_FORMATION_FLIER, wave_id);
+        AddFormationToWave(curr_wave, 1, "Dementor", 10, TICRATE * 12, WAVE_FORMATION_FLIER, wave_id);
         AddFormationToWave(curr_wave, 1, "IronLichBoss", 2, TICRATE * 16, WAVE_FORMATION_BOSS_GROUND, wave_id);
         AddFormationToWave(curr_wave, 1, "DarkLich", 2, TICRATE * 16, WAVE_FORMATION_BOSS_GROUND, wave_id);
         AddFormationToWave(curr_wave, 1, "AvatarOfChaos", 4, TICRATE * 10, WAVE_FORMATION_BOSS_BACKLINE, wave_id);
@@ -559,6 +563,16 @@ Script "DnD Start Ultimatum Wave" (int wave, int del) {
     curr_tally.kills = 0;
     curr_tally.req_kills_wave = w.total_monsters[var];
 
+    // close the arena and do other setup things
+    if(!wave) {
+        Floor_RaiseAndCrush(3, 128, 500);
+
+        Floor_RaiseByValue(23, 8, 8);
+        ChangeFloor(23, "HTX_561");
+    }
+
+    ACS_NamedExecuteAlways("DnD Mark Ultimatum Completion CS", 0, 0);
+
     // After is_wave_complete is cleared, not before: every spawner polls it and would shut
     // itself down on its first tic otherwise.
     StartUltimatumMapHazards();
@@ -639,15 +653,24 @@ Script "DnD Ultimatum Wave Dispatch" (int wave, int variant, int formation_id) {
     }
 }
 
+Script "DnD Mark Ultimatum Completion CS" (int val) CLIENTSIDE {
+    using ultimatum;
+
+    auto curr_tally = GetCurrentUltimatumTally();
+    curr_tally.is_wave_complete = val;
+}
+
 Script "DnD Ultimatum Wave Completed" (int npc_placed) {
     using ultimatum;
 
     auto curr_tally = GetCurrentUltimatumTally();
     curr_tally.is_wave_complete = 1;
 
+    ACS_NamedExecuteAlways("DnD Mark Ultimatum Completion CS", 0, 1);
+
     // last wave has nothing to bargain over
     if(curr_tally.curr_wave == MAX_ULTIMATUM_WAVES - 1) {
-        ACS_NamedExecuteAlways("DnD Handle Ultimatum Finish", 0);
+        ACS_NamedExecuteAlways("DnD Handle Ultimatum Finish", 0, 1);
         Terminate;
     }
 
@@ -703,14 +726,35 @@ Script "DnD Is Ultimatum Complete" (void) {
     SetResultValue(curr_tally.is_wave_complete);
 }
 
-Script "DnD Handle Ultimatum Finish" (void) {
+Script "DnD Is Ultimatum Complete CS" (void) CLIENTSIDE {
+    auto curr_tally = GetCurrentUltimatumTally();
+    SetResultValue(curr_tally.is_wave_complete);
+}
+
+Script "DnD Handle Ultimatum Finish" (int fullyCompleted) {
+    // mark the wave as finished in case of a decline
+    using ultimatum;
+
+    auto curr_tally = GetCurrentUltimatumTally();
+    curr_tally.is_wave_complete = 1;
+
+    ACS_NamedExecuteAlways("DnD Mark Ultimatum Completion CS", 0, 1);
+
     // reached on a decline and on the last wave alike, so the bank pays out from one place
     DropUltimatumRewards();
     
     Floor_LowerToLowest(3, 32);
     Floor_LowerToLowest(25, 32);
 
+    if(GetSectorFloorZ(23, 0, 0) == -24.0) {
+        Floor_LowerByValue(23, 8, 8);
+        ChangeFloor(23, "HNX_836");
+    }
+
     // decide whether boss can appear or we concluded
+    if(fullyCompleted) {
+        
+    }
 }
 
 // max tier per option -- one number each
@@ -950,6 +994,121 @@ int GetUltimatumTokenStackPct(int token) {
 // never rounds a reward away to nothing
 int ApplyUltimatumStackRarity(int stack, int pct) {
     return Max(1, stack * pct / 100);
+}
+
+// ---- reward quality ----------------------------------------------------------------------------
+// Item quality is a flat percent applied to EVERY mod and implicit the piece carries: ApplyItemFeatures
+// folds it into the single multiplier it hands ProcessItemFeature and ProcessItemImplicit. So quality
+// 30 is the whole item rolled a third again higher, which is why the tail here is steep.
+//
+// Nothing else in the game rolls quality onto a drop -- a corruption orb is the only other way to move
+// it, and that can go down as well as up. An ultimatum reward is the one earned source.
+#define DND_ULTIMATUM_QUALITY_MIN 1
+#define DND_ULTIMATUM_QUALITY_MAX 30
+
+// Each point is worth this percent of the point below it, so every point is strictly rarer than the
+// last. From DND_ULTIMATUM_QUALITY_STEEPAT up the ratio drops again -- that second ratio IS the
+// "20 and over is much rarer" cliff, and it is the dial to move if the top feels wrong.
+#define DND_ULTIMATUM_QUALITY_STEEPAT 20
+#define DND_ULTIMATUM_QUALITY_FALLOFF 90
+#define DND_ULTIMATUM_QUALITY_FALLOFF_STEEP 75
+
+// The weight quality 1 starts at. Large because the decay is integer: at 1000 the top of the range
+// truncates to a flat 1 and the last several points come out equally likely, which is the one thing
+// this distribution exists to avoid. 100000 still leaves three digits of resolution at 30, and the
+// total stays under a million so random() is nowhere near overflowing.
+#define DND_ULTIMATUM_QUALITY_BASEWEIGHT 100000
+
+// the ratio that carries the weight from q - 1 up to q
+int GetUltimatumQualityFalloff(int q) {
+    return q >= DND_ULTIMATUM_QUALITY_STEEPAT ? DND_ULTIMATUM_QUALITY_FALLOFF_STEEP : DND_ULTIMATUM_QUALITY_FALLOFF;
+}
+
+// Two passes over the same recurrence rather than a cached weight table: a static would be a map
+// array, re-zeroed every map load, so it would need a validity flag to be correct -- and thirty
+// multiplies is not worth carrying one for.
+int RollUltimatumRewardQuality() {
+    int q, w = DND_ULTIMATUM_QUALITY_BASEWEIGHT, total = 0;
+
+    for(q = DND_ULTIMATUM_QUALITY_MIN; q <= DND_ULTIMATUM_QUALITY_MAX; ++q) {
+        total += w;
+        w = w * GetUltimatumQualityFalloff(q + 1) / 100;
+    }
+
+    int roll = random(1, total), acc = 0;
+
+    w = DND_ULTIMATUM_QUALITY_BASEWEIGHT;
+    for(q = DND_ULTIMATUM_QUALITY_MIN; q <= DND_ULTIMATUM_QUALITY_MAX; ++q) {
+        acc += w;
+        if(roll <= acc)
+            return q;
+
+        w = w * GetUltimatumQualityFalloff(q + 1) / 100;
+    }
+
+    return DND_ULTIMATUM_QUALITY_MIN;
+}
+
+// ---- corrupted implicit --------------------------------------------------------------------------
+// A small chance for an equipment reward to be born carrying a corruption implicit, drawn from the
+// same pool GiveCorruptionEffect uses -- and with the same consequence, since the piece is marked
+// corrupted and no orb will touch it again. That trade is the whole reason the chance is small.
+//
+// Only the IMPLICIT half of the corruption table is drawn here, never the weird outcomes below
+// MAX_CORRUPTION_WEIRD_OUTCOMES. The one weird outcome is a +-25 quality shift, which would fight
+// the reward's own quality roll and could hand back a worse number than it just rolled.
+//
+// A depth pair like the rest of the reward dials: the first value is what the FIRST offer rolls
+// against and the _LATE twin is the last, interpolated on GetUltimatumRewardProgress. An early
+// reward is a piece the player still wants to craft on, so corrupting it there is mostly a loss;
+// deep in a run it is already close to final, and the implicit is the better half of the trade.
+#define DND_ULTIMATUM_CORRUPTIMPLICIT_CHANCE 0.03
+#define DND_ULTIMATUM_CORRUPTIMPLICIT_CHANCE_LATE 0.1
+
+// The rarer half, rolled only once the above has already landed, and flat rather than scaled --
+// the depth pair above already moves how often this is reached, and scaling both would compound
+// into a much steeper ramp than either number reads as.
+#define DND_ULTIMATUM_CORRUPTIMPLICIT_ADDCHANCE 0.15
+
+// The first free implicit slot, or -1 when there is none. Same test GiveImplicitToField makes: an
+// unused implicit holds attrib_id -1, and 0 is a real mod id, so a zero test would read slot 0 as
+// free on almost every item.
+//
+// Most equipment fills one or two and leaves index 2 open, but nothing guarantees that -- which is
+// why the caller has to have an answer for -1 rather than assuming a slot is there.
+int GetFreeImplicitSlot(inventory_T* item) {
+    for(int i = 0; i < MAX_ITEM_IMPLICITS; ++i)
+        if(item.implicit[i].attrib_id == -1)
+            return i;
+
+    return -1;
+}
+
+void GiveUltimatumCorruptImplicit(inventory_T* item, int pnum) {
+    int corr_mod = random(FIRST_CORRUPT_IMPLICIT, LAST_CORRUPT_IMPLICIT);
+
+    // Where it lands. Replacing implicit 0 is the ordinary answer and also the fallback: an item
+    // already carrying MAX_ITEM_IMPLICITS has nowhere to add one, so it corrupts the normal way
+    // rather than losing the roll entirely.
+    int slot = 0;
+    if(random(0, 1.0) <= DND_ULTIMATUM_CORRUPTIMPLICIT_ADDCHANCE) {
+        int freeslot = GetFreeImplicitSlot(item);
+        if(freeslot != -1)
+            slot = freeslot;
+    }
+
+    // -1 means the mod carries no extra, and the existing value is LEFT alone rather than cleared --
+    // deliberate parity with GiveCorruptionEffect and CorruptMerchantItem, which both do the same.
+    // It only ever matters on the replace path; a free slot's extra is already 0.
+    int extra = GetExtraForMod(pnum, corr_mod);
+    if(extra != -1)
+        item.implicit[slot].attrib_extra = extra;
+
+    item.implicit[slot].attrib_id = corr_mod;
+    item.implicit[slot].attrib_tier = 0;
+    item.implicit[slot].attrib_val = random(ItemModTable[corr_mod].attrib_low, ItemModTable[corr_mod].attrib_high);
+
+    item.corrupted = true;
 }
 
 // Where the dungeon the ultimatum is being run in gets to pay. It lands on the stack half and not
@@ -1297,19 +1456,72 @@ bool UltimatumCanRollRewardOnly() {
     return tally.curr_wave >= DND_ULTIMATUM_REWARDONLY_WAVE;
 }
 
-// The ultimatum helm pool. Past DND_ULTIMATUM_REWARDONLY_WAVE it is the drop pool PLUS the
-// reward-only tail, which is the only way anything in that tail can be rolled -- PickUniqueItem and
-// the merchant both stop at UNIQUE_HELM_END. Everything else defers to the ordinary pool.
-int PickUltimatumUniqueItem(int itype, bool allow_rewardonly) {
-    if(itype != DND_ITEM_HELM || !allow_rewardonly)
-        return PickUniqueItem(itype);
+// The reward-only tails get a roll of their OWN, ahead of the ordinary unique roll and on their own
+// dial. They used to be folded into the shared pool as extra entries, which capped how likely they
+// could ever be: a tail entry's share is weight/(drop_total + weight), so it saturates at 100%
+// however high the weight goes -- and long before that the tail has crowded every ordinary unique
+// out of its base. A separate roll has no ceiling and distorts nothing.
+//
+// Chance per gated offer, scaled by depth on the same UNIQUEBONUS dial the ordinary unique roll uses.
+#define DND_ULTIMATUM_REWARDONLY_CHANCE 0.0644
 
-    // weights are cumulative, so rolling against the tail's running total is what puts it in reach
-    int w = random(1, MAX_UNIQUE_HELM_REWARD_WEIGHT);
-    int i;
-    for(i = UNIQUE_HELM_BEGIN; i <= UNIQUE_HELM_LAST && w > UniqueItemList[i].weight; ++i);
+// Picks inside a base's tail only. The stored weights are cumulative across the WHOLE base run, so
+// the tail's own running total is each entry's weight minus the drop pool's -- which is exactly what
+// the shared scan would have skipped past. The last entry catches the remainder rather than being
+// compared, so no rounding can fall off the end.
+int PickUltimatumRewardOnlyUnique(int itype) {
+    int beg, last, drop_total, reward_total;
+
+    switch(itype) {
+        case DND_ITEM_HELM:
+            beg = UNIQUE_HELM_REWARDONLY_BEGIN;
+            last = UNIQUE_HELM_LAST;
+            drop_total = MAX_UNIQUE_HELM_WEIGHT;
+            reward_total = MAX_UNIQUE_HELM_REWARD_WEIGHT;
+        break;
+
+        case DND_ITEM_BOOT:
+            beg = UNIQUE_BOOT_REWARDONLY_BEGIN;
+            last = UNIQUE_BOOT_LAST;
+            drop_total = MAX_UNIQUE_BOOT_WEIGHT;
+            reward_total = MAX_UNIQUE_BOOT_REWARD_WEIGHT;
+        break;
+
+        case DND_ITEM_CHARM:
+            beg = UNIQUE_CHARM_REWARDONLY_BEGIN;
+            last = UNIQUE_CHARM_LAST;
+            drop_total = MAX_UNIQUE_WEIGHT;
+            reward_total = MAX_UNIQUE_CHARM_REWARD_WEIGHT;
+        break;
+
+        default:
+        return -1;
+    }
+
+    int span = reward_total - drop_total;
+    if(span <= 0)
+        return -1;
+
+    int w = random(1, span), i;
+    for(i = beg; i < last && w > UniqueItemList[i].weight - drop_total; ++i);
 
     return i;
+}
+
+// The tail's whole path: the depth gate, its own chance, then the pick. -1 means "no reward-only
+// item this time", and the caller falls through to the ordinary unique roll -- so a base with no
+// tail, and every offer before the gate wave, behaves exactly as it did.
+int RollUltimatumRewardOnlyUnique(int itype, int pnum, int p) {
+    if(!UltimatumCanRollRewardOnly())
+        return -1;
+
+    int chance = DND_ULTIMATUM_REWARDONLY_CHANCE *
+        (100 + ScaleUltimatumReward(0, DND_ULTIMATUM_REWARD_UNIQUEBONUS_LATE, p)) / 100;
+
+    if(!RunDefaultDropChance(pnum, chance))
+        return -1;
+
+    return PickUltimatumRewardOnlyUnique(itype);
 }
 
 // somebody's luck has to roll it, so it is a random participant's
@@ -1380,8 +1592,15 @@ void RollUltimatumRewardArmor(int c, int ilvl, int pnum, int itype, int p) {
     int uchance = UNIQUE_ARMOR_DROPCHANCE *
         (100 + ScaleUltimatumReward(0, DND_ULTIMATUM_REWARD_UNIQUEBONUS_LATE, p)) / 100;
 
+    // the tail first, on its own dial; the ordinary pool below is untouched by it
+    int id = RollUltimatumRewardOnlyUnique(itype, pnum, p);
+    if(id != -1 && UniqueItemList[id].item_level <= ilvl) {
+        ConstructUniqueOnField(c, id, pnum);
+        return;
+    }
+
     if(RunDefaultDropChance(pnum, uchance)) {
-        int id = PickUltimatumUniqueItem(itype, UltimatumCanRollRewardOnly());
+        id = PickUniqueItem(itype);
         if(UniqueItemList[id].item_level <= ilvl) {
             ConstructUniqueOnField(c, id, pnum);
             return;
@@ -1396,8 +1615,14 @@ void RollUltimatumRewardCharm(int c, int ilvl, int pnum, int p) {
     int uchance = UNIQUE_DROPCHANCE *
         (100 + ScaleUltimatumReward(0, DND_ULTIMATUM_REWARD_UNIQUEBONUS_LATE, p)) / 100;
 
+    int id = RollUltimatumRewardOnlyUnique(DND_ITEM_CHARM, pnum, p);
+    if(id != -1 && UniqueItemList[id].item_level <= ilvl) {
+        ConstructUniqueOnField(c, id, pnum);
+        return;
+    }
+
     if(RunDefaultDropChance(pnum, uchance)) {
-        int id = PickUniqueItem(DND_ITEM_CHARM);
+        id = PickUniqueItem(DND_ITEM_CHARM);
         if(UniqueItemList[id].item_level <= ilvl) {
             ConstructUniqueOnField(c, id, pnum);
             return;
@@ -1436,15 +1661,20 @@ void RollUltimatumReward(int slot) {
     //
     // TODO once ultimatum reports as a dungeon: hard set this to the dungeon's own level and keep
     // MAX_BOSS_ILVL as the absolute ceiling over it -- Min(DungeonInformation.level, MAX_BOSS_ILVL).
-    ItemLevelCapOverride = MAX_BOSS_ILVL;
-    WellRolledChanceOverride = ScaleUltimatumReward(DND_ULTIMATUM_REWARD_WELLROLLCHANCE, DND_ULTIMATUM_REWARD_WELLROLLCHANCE_LATE, p);
+    SetItemLevelCapOverride(MAX_BOSS_ILVL);
+    SetWellRolledChanceOverride(ScaleUltimatumReward(DND_ULTIMATUM_REWARD_WELLROLLCHANCE, DND_ULTIMATUM_REWARD_WELLROLLCHANCE_LATE, p));
 
     // Stackables pay their depth in size rather than in mods, since they have none to roll.
     // Depth and the dungeon's own generosity only -- the rarity half needs the thing picked first.
     int stack = GetUltimatumRewardStack(ilvl, p);
 
+    // quality only means something on a piece that gets equipped, so the stackable branches below
+    // leave it at 0 rather than rolling one nothing would ever read
+    bool is_equipment = false;
+
     int roll = random(0, 1.0), t;
     if(roll <= DND_ULTIMATUM_REWARD_ITEMCHANCE) {
+        is_equipment = true;
         roll = random(0, 1.0);
         if(roll <= DND_MERCHANT_ARMORCHANCE)
             RollUltimatumRewardArmor(c, ilvl, pnum, DND_ITEM_BODYARMOR, p);
@@ -1467,14 +1697,26 @@ void RollUltimatumReward(int slot) {
         RollTokenInfo(c, roll, true, ApplyUltimatumStackRarity(stack, GetUltimatumTokenStackPct(roll)));
     }
 
-    WellRolledChanceOverride = 0;
-    ItemLevelCapOverride = 0;
+    SetWellRolledChanceOverride(0);
+    SetItemLevelCapOverride(0);
 
     auto to = GetUltimatumRewardItem(slot);
     auto from = GetFieldItem(c);
     ClearInventoryItem(to);
     SetItemToAnother(to, from);
     to.topleftboxid = slot + 1;
+
+    // Set on the pooled copy rather than on the scratch field slot, because this is the copy that
+    // outlives the roll. SetItemToAnother carries quality, so it rides the bank hop and the payout
+    // copy in DropUltimatumRewards from here, and SyncItemData covers it -- DND_SYNC_ITEMQUALITY
+    // sits inside the DND_SYNC_ITEMBEGIN + 2 .. DND_SYNC_ITEMBASE run it pushes.
+    to.quality = is_equipment ? RollUltimatumRewardQuality() : 0;
+
+    // After the quality roll, and before the sync: SyncItemData pushes the implicits and the
+    // corrupted flag along with everything else, so both land on the client in one go.
+    if(is_equipment && random(0, 1.0) <= ScaleUltimatumReward(DND_ULTIMATUM_CORRUPTIMPLICIT_CHANCE, DND_ULTIMATUM_CORRUPTIMPLICIT_CHANCE_LATE, p))
+        GiveUltimatumCorruptImplicit(to, pnum);
+
     SyncItemData(ULTIMATUM_REWARD_OWNER, slot, DND_SYNC_ITEMSOURCE_TRADEVIEW, -1, -1, true);
 }
 
@@ -1789,8 +2031,10 @@ Script "DnD Ultimatum Pustule Spawn" (int tier) {
 }
 
 Script "DnD Ultimatum Master Boolean" (void) CLIENTSIDE {
+    auto curr_tally = GetCurrentUltimatumTally();
+
     SetActivator(0, AAPTR_MASTER);
-    SetResultValue(CheckInventory("DnD_Boolean"));
+    SetResultValue(curr_tally.is_wave_complete || CheckInventory("DnD_Boolean"));
 }
 
 Script "DnD Ultimatum Storm Call Particle" (int tid, int r, int count, int max_count) CLIENTSIDE {

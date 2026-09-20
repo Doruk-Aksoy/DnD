@@ -902,4 +902,32 @@ Script "DnD Player Buff" (int buff_table_index, int script_flags, int update, in
     SetResultValue(0);
 }
 
+// Hell's Vanguard. One door for "the player EARNS an endurance charge", so the chance to jump
+// straight to a full stack does not have to be repeated at each site that grants one. The equip
+// time re-apply in DnD_Inventory.h deliberately does NOT route through here -- that one is
+// restoring charges the player already had, not earning a new one.
+//
+// Lives at the bottom of this file because BTI_ENDURANCECHARGE is an enum member and enums do not
+// forward reference; DnD_CommonStat.h only sees them after it includes DnD_Buffs.h at its end.
+void GainEnduranceCharge(int pnum) {
+    int chance = PlayerModData[pnum].vals[PSTAT_EX_CHANCE_MAXENDURANCE];
+    if(chance && chance >= random(1, 100)) {
+        // Fills UP TO the cap rather than granting a maximum on top of what is held, so a player
+        // already near cap gains the difference and nothing is wasted or double counted.
+        int have = CheckActorInventory(pnum + P_TIDSTART, "DnD_EnduranceChargeCount");
+        int want = GetPlayerMaxEnduranceCharges(pnum);
+
+        // at least one, or an unlucky cap read would make the proc pay nothing at all
+        if(have >= want)
+            want = have + 1;
+
+        for(; have < want; ++have)
+            HandlePlayerBuffAssignment(pnum, 0, BTI_ENDURANCECHARGE);
+
+        return;
+    }
+
+    HandlePlayerBuffAssignment(pnum, 0, BTI_ENDURANCECHARGE);
+}
+
 #endif

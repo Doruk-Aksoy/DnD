@@ -4,7 +4,7 @@ ACTOR AbyssalShotgunner : DnD_BaseRangedMonster {
 	Height 56
 	Mass 100
 	Speed 8
-	PainChance 155
+	PainChance 0
 	Monster
 	DropItem "ShotgunPickup_Drop"
 	SeeSound "abyssal_human/sight"

@@ -1148,7 +1148,7 @@ Actor AsmodeusGhost : DnD_ArchVilePassiveBase {
 	Mass 50 
 	RENDERSTYLE ADD
 	ALPHA 0.67 
-	PAINCHANCE 0
+	PainChance 0
 	Tag "Ghast"
 	+THRUSPECIES
 	+DONTGIB
@@ -1216,7 +1216,7 @@ Actor AsmodeusPullerGhost : DnD_BaseMeleeMonster_NoRes {
 	Speed 0
 	RENDERSTYLE ADD
 	ALPHA 0.67 
-	PAINCHANCE 0
+	PainChance 0
 	MeleeRange 396
 	Tag "Tractor Ghost"
 	Translation "0:255=%[0.00,0.00,0.00]:[1.64,1.37,1.17]"

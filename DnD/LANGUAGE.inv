@@ -91,6 +91,7 @@ DND_UDCIMG2			=	"UDCHRM2";
 DND_UDCIMG3			=	"UDCHRM3";
 DND_UDCIMG4			=	"UDCHRM4";
 DND_UDCIMG5			=	"UDCHRM5";
+DND_UDCIMG6			=	"UDCHRM6";
 
 // unique cores
 DND_UCORIMG1		=	"UCORE01";
@@ -107,6 +108,8 @@ DND_UBOOIMG3		=	"UBOO3";
 DND_UBOOIMG4        =   "UBOO4";
 DND_UBOOIMG5        =   "UBOO5";
 DND_UBOOIMG6        =   "UBOO6";
+DND_UBOOIMG7        =   "UBOO7";
+DND_UBOOIMG8        =   "UBOO8";
 
 // unique helms
 DND_UHELMIMG1       =   "UHELM1";
@@ -311,6 +314,7 @@ DND_DROP_UNIQUE2		=	"Steelbark";
 DND_DROP_UNIQUE3		=	"Dreaming God's Ire";
 DND_DROP_UNIQUE4		=	"Heatbreaker";
 DND_DROP_UNIQUE5		=	"Thornvein";
+DND_DROP_UNIQUE6		=	"Nullforce";
 
 // unique power cores
 DND_UCORE_NAME1			=	"The Tesseract";
@@ -327,6 +331,8 @@ DND_UBOOT_NAME3         =   "Cinderstep";
 DND_UBOOT_NAME4         =   "Vaultstride";
 DND_UBOOT_NAME5         =   "Undertow";
 DND_UBOOT_NAME6         =   "Emberwake";
+DND_UBOOT_NAME7         =   "Kineticrushers";
+DND_UBOOT_NAME8         =   "Hell's Vanguard";
 
 // unique helms
 DND_UHELM_NAME1         =   "Choir of Ashes";
@@ -753,6 +759,22 @@ IATTR_TX102         = "Your ailments ignore monster ailment immunity";
 IATTR_TX103         = "Your ailments cannot be avoided";
 IATTR_TX104         = "more ailment damage over time";
 IATTR_TX105         = "\c[D4]You can inflict no ailment other than";
+
+// Kineticrushers
+IATTR_TX106         = "Gain \cd1%\c- more melee damage per \cd1%\c- stamina while not on low stamina";
+IATTR_TX107         = "\c[D4]Landing a melee hit spends all stamina after";
+IATTR_TX107_2       = "\c[D4]seconds";
+IATTR_TX108         = "Low stamina does not reduce your damage";
+IATTR_TX109         = "Depleted stamina does not reduce your damage";
+IATTR_TX110         = "\c[D4]slower stamina recovery";
+
+// Hell's Vanguard
+IATTR_TX111         = "Bleeding deals you no extra damage while moving";
+IATTR_TX112         = "chance that if you were to gain an Endurance Charge, you instead gain up to your maximum Endurance Charges";
+IATTR_TX113         = "chance for a melee attack to use no stamina";
+
+// Nullforce
+IATTR_TX114         = "Gain 2% more damage per 1% of missing ammo on your weapon";
 
 // Anathema names the ailment itself; the other four come from the DND_MENU_AILMENT list. This one
 // has no entry there because chill and freeze are one answer to it.

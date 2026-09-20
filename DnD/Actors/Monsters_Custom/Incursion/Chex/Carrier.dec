@@ -4,7 +4,7 @@ ACTOR FlemCarrier : DnD_BaseRangedMonster {
 	Height 50
 	Radius 15
 	Speed 5
-	Painchance 60
+	PainChance 0
 	Bloodcolor "green"
 	Species "Chex"
 	Tag "Flem Carrier"

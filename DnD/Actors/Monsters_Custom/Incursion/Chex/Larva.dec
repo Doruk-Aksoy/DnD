@@ -5,7 +5,7 @@ ACTOR FlemoidLarva : DnD_BaseMeleeMonster {
 	Height 46
 	Radius 20
 	Meleerange 84
-	Painchance 40
+	PainChance 0
 	Bloodcolor "Green"
 	Seesound "qspectre/sight"
 	Attacksound "qspectre/melee"

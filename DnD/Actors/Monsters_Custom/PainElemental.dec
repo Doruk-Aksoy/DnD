@@ -5,7 +5,7 @@ ACTOR TorturedSoul : DnD_BaseRangedMonster_NoRes 21099 {
 	Speed 8 
 	Radius 31
 	Height 56 
-	PainChance 64 
+	PainChance 0
 	Mass 400 
 	REACTIONTIME 8 
 	+NOGRAVITY 
@@ -147,7 +147,7 @@ ACTOR Defiler : DnD_BaseRangedMonster_NoRes 21100 {
 	Height 56
 	Mass 500
 	Speed 8
-	PainChance 64
+	PainChance 0
 	+NOGRAVITY
     +FLOAT 
 	+DROPOFF
@@ -317,7 +317,7 @@ Actor Helemental : DnD_BaseHybridMonster_NoRes 21101 {
 	Height 56
 	Mass 800
 	Speed 10
-	PainChance 32
+	PainChance 0
 	SeeSound "monster/helsit"
 	PainSound "monster/helpai"
 	DeathSound "monster/heldth"
@@ -586,7 +586,7 @@ ACTOR HS : DnD_BaseMeleeMonster_NoRes 21102 {
 	Speed 10
 	RENDERSTYLE Normal
 	Obituary "%o was blown away by a Hades Sphere."
-	PAINCHANCE 0 
+	PainChance 0
 	+ISMONSTER
 	+LOOKALLAROUND
 	+DONTGIB
@@ -728,7 +728,7 @@ actor DESentinel : DnD_BaseRangedMonster 21103 {
 	Scale 1.0
 	mass 1000
 	speed 8
-	painchance 64
+	PainChance 0
 	SeeSound "monster/cubsit"
 	painsound "monster/senpai"
 	activesound "monster/senact"
@@ -934,7 +934,7 @@ ACTOR BloodLich : DnD_BaseRangedMonster_NoRes 21104 {
     Height 56
     Mass 2000
     Speed 8
-    PainChance 32
+    PainChance 0
     AttackSound ""
     SeeSound "monster/cubsit"
     PainSound "Lich/pain"
@@ -1135,7 +1135,7 @@ ACTOR BloodLich_Elite : BloodLich {
 ACTOR ShadowDisciple : DnD_BaseRangedMonster 21105 { 
 	//$Sprite DISCA1
 	Health 0x7FFFFFFF
-	PainChance 140
+	PainChance 0
 	Speed 8
 	Scale 0.90
 	Radius 20 
@@ -1394,7 +1394,7 @@ Actor HellArbiter : DnD_BaseRangedMonster 21106 {
 	Speed 7
 	Scale 1.15
 	Mass 384
-	PainChance 96
+	PainChance 0
 	Species "PainElemental"
 	SeeSound "Arbiter/See"
 	DeathSound "Arbiter/Die"

@@ -333,6 +333,8 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 typedef struct {
 	int total[DND_MAX_MONSTERS];					// damage banked this tic, per monster id
 	int running[DND_TICLATCH_WORDS];				// one bit per monster id
+	int painful[DND_TICLATCH_WORDS];		// a non-PAINLESS hit landed this tic
+	int forcepain[DND_TICLATCH_WORDS];	// a FORCEPAIN hit landed this tic
 } dmg_tic_T;
 
 global dmg_tic_T 27: PlayerDamageTic[MAXPLAYERS];
@@ -347,6 +349,26 @@ void SetDamageTicRunning(int pnum, int m_id) {
 
 void ClearDamageTicRunning(int pnum, int m_id) {
 	PlayerDamageTic[pnum].running[m_id >> 5] &= ~(1 << (m_id & 31));
+	PlayerDamageTic[pnum].painful[m_id >> 5] &= ~(1 << (m_id & 31));
+	PlayerDamageTic[pnum].forcepain[m_id >> 5] &= ~(1 << (m_id & 31));
+}
+
+// Pain is rolled once per TIC, so PAINLESS and FORCEPAIN cannot ride the tic flag word -- that is
+// full at 18 of 18. They are bits per monster id instead, set by whichever hits land this tic and
+// cleared with the latch above.
+void MarkDamageTicPain(int pnum, int m_id, int actor_flags) {
+	if(actor_flags & DND_ACTORFLAG_FORCEPAIN)
+		PlayerDamageTic[pnum].forcepain[m_id >> 5] |= 1 << (m_id & 31);
+	else if(!(actor_flags & DND_ACTORFLAG_PAINLESS))
+		PlayerDamageTic[pnum].painful[m_id >> 5] |= 1 << (m_id & 31);
+}
+
+bool DamageTicWasPainful(int pnum, int m_id) {
+	return !!(PlayerDamageTic[pnum].painful[m_id >> 5] & (1 << (m_id & 31)));
+}
+
+bool DamageTicForcedPain(int pnum, int m_id) {
+	return !!(PlayerDamageTic[pnum].forcepain[m_id >> 5] & (1 << (m_id & 31)));
 }
 
 // ============================================================================
@@ -770,6 +792,7 @@ void HandleFallImpact(int pnum) {
 		}
 
 		Thing_Damage2(m_tid, dmg, "Physical");
+		TryDirectMonsterPain(m_tid, dmg);
 	}
 }
 
@@ -809,103 +832,59 @@ void HandleTailwind(int pnum) {
 	}
 }
 
-// Martialist / Gratuitous Violence. "Overkill" is the General Notes definition -- a killing blow
-// worth more than 30% of the target's maximum health -- so the damage of the blow is the test, not
-// the fact that it killed.
-void HandleGratuitousViolence(int pnum, int victim) {
-	int temp = PlayerModData[pnum].vals[PSTAT_RAGE_ONOVERKILL];
 
-	// The overkill test itself is done by HandleMonsterDeathConfirm, which is the only place holding
-	// the KILLING blow's damage -- by the time the death script runs the number is gone.
+// Everything a PLAYER kill fires. Inlined, not seven calls -- this runs on every kill and an ACS
+// call/return is not free. Each effect still gates on its own PlayerModData read.
+void HandlePlayerKillEffects(int pnum, int victim, int m_id) {
+	int ptid = pnum + P_TIDSTART;
+	int temp;
+
+	// Unending Rush. One second window, narrower than DnD_DashedRecently's four -- hence the >.
+	if(PlayerModData[pnum].vals[PSTAT_DASH_REFRESHONKILL] &&
+		CheckActorInventory(ptid, "DnD_DashedRecently") > DND_PERKDASH_RECENT_TICS - DND_PERKDASH_KILLWINDOW)
+		SetActorInventory(ptid, "DnD_PerkDashCooldown", 0);
+
+	// Adrenaline. Only on a monster All-shaking Presence marked, not every kill.
+	temp = PlayerModData[pnum].vals[PSTAT_ADRENALINE_HEAL];
+	if(temp && CheckActorInventory(victim, "DnD_ThumperWeakness") &&
+		!CheckActorInventory(ptid, "DnD_AdrenalineCooldown"))
+	{
+		SetActorInventory(ptid, "DnD_AdrenalineCooldown", DND_ADRENALINE_COOLDOWN);
+		ACS_NamedExecuteAlways("DnD Adrenaline Cooldown", 0, ptid);
+		ACS_NamedExecuteAlways("DnD Health Pickup", 0, temp);
+	}
+
+	// Overflowing Reserves. DnD_AilmentToken is the ailment bitmask, so non-zero is "has any".
+	temp = PlayerModData[pnum].vals[PSTAT_FLASK_REFILLCHANCE];
+	if(temp && CheckActorInventory(victim, "DnD_AilmentToken") && random(1, 100) <= temp)
+		GiveFlaskChargesPercentage(pnum, DND_OVERFLOWING_REFILLPCT);
+
+	// Shield Stealer. The TRAIT, not a live guard -- a monster killed mid-swing still counts.
+	temp = PlayerModData[pnum].vals[PSTAT_SHIELDSTEAL_PCT];
+	if(temp && m_id >= 0 && HasMonsterTrait(m_id, DND_ISBLOCKING)) {
+		int cap = GetPlayerEnergyShieldCap(pnum);
+		if(cap > 0)
+			AddEnergyShield(cap * temp / 100);
+	}
+
+	// Gratuitous Violence. HandleMonsterDeathConfirm stamps the flag; only it has the blow's damage.
+	temp = PlayerModData[pnum].vals[PSTAT_RAGE_ONOVERKILL];
 	if(temp && CheckActorInventory(victim, "DnD_WasOverkilled"))
 		GiveRage(pnum, temp);
-}
 
-// Assassination / Eradication. DnD_DeathEffectBlock is what "DnD Monster Death Effects" already
-// checks, so suppressing on-death behaviour is a matter of setting the flag it looks for rather than
-// of teaching that script about perks.
-void HandleEradication(int pnum, int victim) {
+	// Eradication. DnD_DeathEffectBlock is what "DnD Monster Death Effects" already checks.
 	if(PlayerModData[pnum].vals[PSTAT_CRITKILL_NODEATHFX] && CheckActorInventory(victim, "DnD_LastHitCrit"))
 		GiveActorInventory(victim, "DnD_DeathEffectBlock", 1);
-}
 
-// Perception / Essence Theft. Stacks while kills keep coming and lapses four seconds after the last,
-// so the whole stack shares one timer -- the notes describe a running total, not individual charges.
-void HandleEssenceTheft(int pnum, int victim) {
-	int amt = PlayerModData[pnum].vals[PSTAT_MAGICKILL_PEN];
+	// Essence Theft. One shared timer, not per-charge. The magic mark is left at damage time.
+	temp = PlayerModData[pnum].vals[PSTAT_MAGICKILL_PEN];
+	if(temp && CheckActorInventory(victim, "DnD_LastHitMagic")) {
+		if(CheckActorInventory(ptid, "DnD_EssenceTheft") < PlayerModData[pnum].vals[PSTAT_MAGICKILL_PENCAP])
+			GiveActorInventory(ptid, "DnD_EssenceTheft", temp);
 
-	// "Slain by magical attacks" is answered by a mark left at damage time, not by the death: the
-	// damage type is not carried to the kill, and MonsterProperties has nowhere to keep it.
-	if(!amt || !CheckActorInventory(victim, "DnD_LastHitMagic"))
-		return;
-
-	int ptid = pnum + P_TIDSTART;
-	if(CheckActorInventory(ptid, "DnD_EssenceTheft") < PlayerModData[pnum].vals[PSTAT_MAGICKILL_PENCAP])
-		GiveActorInventory(ptid, "DnD_EssenceTheft", amt);
-
-	SetActorInventory(ptid, "DnD_EssenceTheftTimer", DND_ESSENCETHEFT_TICS);
-	ACS_NamedExecuteAlways("DnD Essence Theft Timer", 0, ptid);
-}
-
-// Perception / Shield stealer. "Shielded enemies" is the same DND_ISBLOCKING trait Bastion Breaker
-// pierces -- there is no monster energy shield in the game, so a shield is a raised guard.
-//
-// Reads the TRAIT rather than whether the guard happened to be up at the moment of death: a monster
-// killed mid-swing is still a shield enemy, and requiring the block to be active would make the perk
-// fire almost never.
-void HandleShieldStealer(int pnum, int m_id) {
-	int temp = PlayerModData[pnum].vals[PSTAT_SHIELDSTEAL_PCT];
-	if(!temp || m_id < 0 || !HasMonsterTrait(m_id, DND_ISBLOCKING))
-		return;
-
-	int cap = GetPlayerEnergyShieldCap(pnum);
-	if(cap > 0)
-		AddEnergyShield(cap * temp / 100);
-}
-
-// Cunning / Overflowing Reserves. "Enemies with ailments" is any monster still carrying one when it
-// dies, which is what the ailment slot on MonsterProperties already records.
-void HandleOverflowingReserves(int pnum, int victim) {
-	int temp = PlayerModData[pnum].vals[PSTAT_FLASK_REFILLCHANCE];
-	if(!temp)
-		return;
-
-	// DnD_AilmentToken is the bitmask AddMonsterAilment maintains, so "an enemy with ailments" is
-	// simply a non-zero one -- no need to ask about each ailment in turn.
-	if(!CheckActorInventory(victim, "DnD_AilmentToken"))
-		return;
-
-	if(random(1, 100) <= temp)
-		GiveFlaskChargesPercentage(pnum, DND_OVERFLOWING_REFILLPCT);
-}
-
-// Acrobacy / Adrenaline. Rides the same confirmed-kill path as Unending Rush, but only for a monster
-// All-shaking Presence had marked -- which is what makes it a payoff for the chain rather than a
-// heal on every kill.
-void HandleAdrenaline(int pnum, int victim) {
-	int heal = PlayerModData[pnum].vals[PSTAT_ADRENALINE_HEAL];
-	if(!heal || !CheckActorInventory(victim, "DnD_ThumperWeakness"))
-		return;
-
-	int ptid = pnum + P_TIDSTART;
-	if(CheckActorInventory(ptid, "DnD_AdrenalineCooldown"))
-		return;
-
-	SetActorInventory(ptid, "DnD_AdrenalineCooldown", DND_ADRENALINE_COOLDOWN);
-	ACS_NamedExecuteAlways("DnD Adrenaline Cooldown", 0, ptid);
-	ACS_NamedExecuteAlways("DnD Health Pickup", 0, heal);
-}
-
-// Acrobacy / Unending Rush. The kill must land inside a ONE second window after the dash, which is
-// narrower than DnD_DashedRecently's four -- so it reads how much of that window is left rather than
-// merely testing that it is open.
-void HandleUnendingRush(int pnum) {
-	if(!PlayerModData[pnum].vals[PSTAT_DASH_REFRESHONKILL])
-		return;
-
-	int tid = pnum + P_TIDSTART;
-	if(CheckActorInventory(tid, "DnD_DashedRecently") > DND_PERKDASH_RECENT_TICS - DND_PERKDASH_KILLWINDOW)
-		SetActorInventory(tid, "DnD_PerkDashCooldown", 0);
+		SetActorInventory(ptid, "DnD_EssenceTheftTimer", DND_ESSENCETHEFT_TICS);
+		ACS_NamedExecuteAlways("DnD Essence Theft Timer", 0, ptid);
+	}
 }
 
 void HandleMonsterDeathConfirm(int tid, int dmg) {
@@ -2527,6 +2506,10 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 
 	//printbold(s:"before num pnum ", d:pnum, s: " ", d:temp, s:" dmg ", d:dmg);
 	int m_id = temp;
+
+	// before the launch test: a later hit in the same tic still decides whether it can flinch
+	MarkDamageTicPain(pnum, m_id, actor_flags);
+
 	if(!IsDamageTicRunning(pnum, m_id)) {
 		SetDamageTicRunning(pnum, m_id);
 		PlayerDamageVector[pnum].x = ox;
@@ -2624,9 +2607,15 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 			if(temp && IsIceDamage(damage_type) && random(1, 100) <= temp)
 				HandlePlayerBuffAssignment(pnum, 0, BTI_FRENZYCHARGE);
 
+			// Kineticrushers. The swing that lands starts the clock; the token keeps a flurry from arming
+			// one timer per hit, so the window is measured from the FIRST hit of a chain and not the last.
+			temp = PlayerModData[pnum].vals[PSTAT_EX_STAMINADUMP_AFTERMELEE];
+			if(temp && IsMeleeDamage(damage_type) && !CheckActorInventory(pnum + P_TIDSTART, "DnD_KineticDumpPending"))
+				ACS_NamedExecuteAlways("DnD Kinetic Stamina Dump", 0, pnum, temp);
+
 			temp = PlayerModData[pnum].vals[PSTAT_ENDURANCECHARGE_ONMELEE];
 			if(temp && IsMeleeDamage(damage_type) && random(1, 100) <= temp)
-				HandlePlayerBuffAssignment(pnum, 0, BTI_ENDURANCECHARGE);
+				GainEnduranceCharge(pnum);
 
 			temp = PlayerModData[pnum].vals[PSTAT_POWERCHARGE_ONOVERLOAD];
 			if(temp && CheckActorInventory(victim, "DnD_OverloadTimer") && random(1, 100) <= temp)
@@ -3041,6 +3030,119 @@ int GetIgniteScaleSource(int pnum, int m_id, int tic_flags) {
 }
 
 // ASSUMPTION: PLAYER RUNS THIS! -- care if adapting this later for other things
+// A tic worth this share of the monster's max health is a "huge chunk" -- the scale stops growing
+// past it, so an overkill hit is worth the same as one that took exactly a quarter.
+#define DND_PAIN_HEAVYHIT_PCT 25
+
+// How much of the gap between the monster's own chance and certainty a heavy hit closes. Gap based
+// rather than a multiplier on the base: a multiplier moves a Zombieman's 200 a lot and a Cyberdemon's
+// 20 almost not at all, so the monsters that most need a big hit to register are the ones it would
+// not register on. This way a quarter-health hit is felt by everything, and the pain COOLDOWN rather
+// than a low chance is what stops a heavy hitter stun-locking a boss.
+#define DND_PAIN_HEAVYHIT_CLOSE 50
+
+// The monster's chance for THIS tic: its own, plus a share of the gap to certainty scaled by how
+// much of its health the tic took. A tickle leaves it on the base chance.
+//
+// A painchance of 0 stays 0 -- an unmigrated type never flinches from here however hard it is hit.
+int GetMonsterTicPainChance(int m_id, int dmg) {
+	int pc = MonsterProperties[m_id].painchance;
+	int maxhp = MonsterProperties[m_id].maxhp;
+	if(!pc || maxhp <= 0)
+		return pc;
+
+	// clamped BEFORE the multiply, or a big enough hit on a low health monster overflows the 100x
+	if(dmg > maxhp)
+		dmg = maxhp;
+
+	int frac = dmg * 100 / maxhp;
+	if(frac > DND_PAIN_HEAVYHIT_PCT)
+		frac = DND_PAIN_HEAVYHIT_PCT;
+
+	pc += (256 - pc) * frac * DND_PAIN_HEAVYHIT_CLOSE / (DND_PAIN_HEAVYHIT_PCT * 100);
+
+	return Min(pc, 256);
+}
+
+// Pain cooldown floors by monster CLASS. A type's own MonsterData value wins when it is higher, so
+// these are minimums and not overrides.
+#define DND_PAIN_CD_BARONTIER (3 * TICRATE / 2)
+#define DND_PAIN_CD_HIGHTIER (3 * TICRATE)
+
+// WolfenSS sits past Cyberdemon in the class enum but is trash tier, so these are ranges, not >=.
+int GetMonsterPainCooldown(int m_id) {
+	int cd = MonsterData[MonsterProperties[m_id].id].pain_cooldown;
+	int c = MonsterProperties[m_id].class;
+
+	if(c >= MONSTERCLASS_ARCHVILE && c <= MONSTERCLASS_CYBERDEMON)
+		cd = Max(cd, DND_PAIN_CD_HIGHTIER);
+	else if(c >= MONSTERCLASS_BARON && c < MONSTERCLASS_ARCHVILE)
+		cd = Max(cd, DND_PAIN_CD_BARONTIER);
+
+	return cd;
+}
+
+// One pain roll per damage tic, after the damage is final. Survived-and-alive is the whole point:
+// a monster that died this tic must not flinch on the way out.
+//
+// FORCEPAIN beats NOPAIN and the cooldown both; that is what makes it a bypass rather than a bonus.
+// The roll itself. painful/forced are passed in because the two callers learn them differently:
+// the damage tic reads its bits, a direct delivery knows its own nature.
+void DoMonsterPain(int victim_tid, int m_id, int dmg, bool painful, bool forced) {
+	if(!IsActorAlive(victim_tid))
+		return;
+
+	// +NOPAIN on the actor, which also marks every variant with no PainState of its own. This is
+	// STRUCTURAL, so nothing bypasses it -- not FORCEPAIN, not the ultimatum. A monster with no
+	// PainState still enters the inherited Pain: state, whose A_Jump then finds nothing and leaves
+	// it standing still for 35 tics; that freeze is what this prevents.
+	if(CheckFlag(victim_tid, "NOPAIN"))
+		return;
+
+	// nothing here could flinch it
+	if(!forced && !painful)
+		return;
+
+	if(!forced) {
+		// the TRAIT is a gameplay grant -- an elite roll or a dungeon attribute -- so FORCEPAIN,
+		// which skipped this whole branch, is still allowed to beat it
+		if(HasMonsterTrait(m_id, DND_NOPAIN))
+			return;
+
+		// cooldown holds until its tic, however many hits land in between
+		if(MonsterProperties[m_id].pain_cd > Timer())
+			return;
+
+		// 0-256, same scale as DECORATE. 0 never flinches.
+		if(random(1, 256) > GetMonsterTicPainChance(m_id, dmg))
+			return;
+	}
+
+	int cd = GetMonsterPainCooldown(m_id);
+	if(cd)
+		MonsterProperties[m_id].pain_cd = Timer() + cd;
+
+	// pure state change -- knockback is handled separately by the damage push
+	SetActorState(victim_tid, "Pain", 0);
+}
+
+// once per damage tic, off the bits the hits in it set
+void HandleMonsterPain(int pnum, int victim_tid, int m_id, int dmg) {
+	DoMonsterPain(victim_tid, m_id, dmg,
+		DamageTicWasPainful(pnum, m_id), DamageTicForcedPain(pnum, m_id));
+}
+
+// A hit delivered straight to the engine with no damage tic behind it -- a parry burst, the
+// Thumper, melee splash. Those used to flinch through the engine's own roll; with DECORATE at 0
+// they would flinch nothing at all, so they ask here instead.
+void TryDirectMonsterPain(int victim_tid, int dmg) {
+	int m_id = victim_tid - DND_MONSTERTID_BEGIN;
+	if(m_id < 0 || m_id >= DND_MAX_MONSTERS)
+		return;
+
+	DoMonsterPain(victim_tid, m_id, dmg, true, false);
+}
+
 Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damage_type) {
 	int pnum = PlayerNumber();
 
@@ -3293,6 +3395,8 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 	// wep_neg here contains 2 bits: was it negative at 1st bit and was it a one time ripper in 2nd bit
 	if((flags & DND_DAMAGETICFLAG_PUSH) && PlayerDamageTic[pnum].total[victim_data] > 0)
 		HandleDamagePush(2 * PlayerDamageTic[pnum].total[victim_data], ox, oy, oz, victim_tid, wep_neg & 2);
+
+	HandleMonsterPain(pnum, victim_tid, victim_data, PlayerDamageTic[pnum].total[victim_data]);
 	
 	// has wepid non neg
 	if(!(wep_neg & 1)) {
@@ -4050,6 +4154,11 @@ Script "DnD Monster Bleed (Player)" (int victim, int wepid, int dmg) {
 		Delay(const:2);
 
 		isMoving = px != GetActorX(victim) || py != GetActorY(victim) || pz != GetActorZ(victim);
+
+		// Hell's Vanguard. Only the MOVEMENT half is cancelled -- an aggravated bleed still triples,
+		// so the item buys back mobility without making the ailment harmless.
+		if(isMoving && IsPlayer(victim) && HasPlayerFlag(victim - P_TIDSTART, PFLAG_NOBLEEDEXTRA_MOVING))
+			isMoving = false;
 
 		if(CheckFlag(victim, "SHOOTABLE")) {
 			ACS_NamedExecuteAlways("DnD Bleed FX", 0, victim, isRobot);
@@ -6406,6 +6515,15 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					dmg = dmg * (((100.0 + isArmorPiercing * factor) >> 16)) / 100;
 				}
 
+				// Nullforce. Same shape and the same reason as the overheat bonus above: ammo moves on every
+				// shot, and the weapon cache only rebuilds on a raise, so this has to be read live per hit.
+				isArmorPiercing = PlayerModData[pnum].vals[PSTAT_EX_MOREDMG_PERMISSINGAMMO];
+				if(isArmorPiercing) {
+					factor = GetWeaponMissingAmmoPercent(GetCurrentWeaponID());
+					if(factor > 0)
+						dmg = dmg * (100 + isArmorPiercing * factor) / 100;
+				}
+
 				// Class effects here -- isArmorPiercing holds if wepid is negative or not
 				isArmorPiercing = (m_id < 0 || (dmg_data & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO)));
 				if(!isArmorPiercing) {
@@ -6442,10 +6560,27 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 							dmg = dmg * (100 + (factor + 1) * DND_BERSERKER_PERK60_DMGINCREASE) / 100;
 						}
 
-						if(CheckInventory("DnD_StaminaDepleted"))
-							dmg = dmg * (100 - DND_DEPLETEDSTAMINA_FACTOR) / 100;
-						else if(IsOnLowStamina())
-							dmg = dmg * (100 - DND_LOWSTAMINA_FACTOR) / 100;
+						// Kineticrushers. Each penalty has its own flag because the item names them separately, and
+						// they are genuinely different states -- depleted is empty, low is under half.
+						if(CheckInventory("DnD_StaminaDepleted")) {
+							if(!HasPlayerFlag(pnum, PFLAG_NODEPLETEDSTAMINA_DMGLOSS))
+								dmg = dmg * (100 - DND_DEPLETEDSTAMINA_FACTOR) / 100;
+						}
+						else if(IsOnLowStamina()) {
+							if(!HasPlayerFlag(pnum, PFLAG_NOLOWSTAMINA_DMGLOSS))
+								dmg = dmg * (100 - DND_LOWSTAMINA_FACTOR) / 100;
+						}
+						else {
+							// ...and the reward for staying above half: 1% more per 1% of stamina held. Applied HERE
+							// rather than in the weapon cache on purpose -- stamina moves every swing, and the cache
+							// only rebuilds on a weapon raise, so a cached copy would be a whole fight stale.
+							int stam_rate = PlayerModData[pnum].vals[PSTAT_EX_MELEEMORE_PERSTAMINA];
+							if(stam_rate) {
+								int stam_cap = GetAmmoCapacity("DnD_Stamina");
+								if(stam_cap > 0)
+									dmg = dmg * (100 + stam_rate * CheckInventory("DnD_Stamina") * 100 / stam_cap) / 100;
+							}
+						}
 						
 						// Martialist / Ramping Assault. Reads the count BEFORE HandleMeleeSubTypeEffects bumps
 						// it, so the bonus lands on the hit that completes the run rather than the one after.
@@ -6647,6 +6782,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 						)
 						{
 							Thing_Damage2(ox, orig_dmg, "Player_MeleeSplash");
+							TryDirectMonsterPain(ox, orig_dmg);
 							SpawnForced(inflictor_class, GetActorX(ox), GetActorY(ox), GetActorZ(ox) + GetActorProperty(ox, APROP_HEIGHT) / 2);
 						}
 					}

@@ -6,7 +6,7 @@ actor Lavademon : DnD_BaseHybridMonster 21134 {
 	height 64
 	mass 1000
 	speed 12
-	painchance 96
+	PainChance 0
 	seesound "lavdsit"
 	painsound "lavdpain"
 	deathsound "lavddie"
@@ -366,7 +366,7 @@ ACTOR LordofHeresy : DnD_BaseHybridMonster 21135 {
     Radius 24
     Height 64
     Speed 9 
-    PainChance 50
+    PainChance 0
     BloodColor "7D 9D 59"
     Mass 1000
 	+ISMONSTER
@@ -468,7 +468,7 @@ Actor Cybruiser : DnD_BaseHybridMonster 21136 {
 	Height 64 
 	Mass 1000 
 	Speed 8 
-	PainChance 20
+	PainChance 0
 	Obituary "%o was blown away by a Cybruiser."
 	HitObituary "%o was smashed by a Cybruiser."
 	+ISMONSTER
@@ -632,7 +632,7 @@ Actor BruiserDemon : DnD_BaseHybridMonster 21137 {
 	Height 64
 	Mass 1500
 	Speed 8
-	PainChance 15
+	PainChance 0
 	+ISMONSTER
 	+MISSILEMORE
 	+MissileEvenMore
@@ -910,7 +910,7 @@ ACTOR Bormereth : DnD_BaseHybridMonster 21138 {
     Radius 24
     Height 64
     Speed 10
-    PainChance 75
+    PainChance 0
     Mass 2500
 	+ISMONSTER
     +MISSILEEVENMORE
@@ -1394,7 +1394,7 @@ ACTOR BloodSeeker : DnD_BaseHybridMonster 21139 {
 	Speed 12
 	MeleeRange 160
 	GibHealth -75
-	PainChance 144
+	PainChance 0
 	SEESOUND "Beast/See"
 	PAINSOUND "Beast/pain"
 	DEATHSOUND "Beast/die"
@@ -1624,7 +1624,7 @@ Actor Barbatos : DnD_BaseHybridMonster 21140 {
 	BloodColor "Red"
 	Height 64
 	Radius 24
-	PainChance 32
+	PainChance 0
 	Mass 1024
 	+ISMONSTER
 	Scale 0.75
@@ -1745,7 +1745,7 @@ Actor ShadowWizard : DnD_BaseHybridMonster 21141 {
 	Health 0x7FFFFFFF
 	Radius 21
 	Height 64
-	PainChance 32
+	PainChance 0
 	Species "HK"
 	MissileType "SkullWizardProjectile"
 	PainSound "H2ShadowWizard/Pain"
@@ -1872,7 +1872,7 @@ ACTOR ShadowWizard_Elite : ShadowWizard {
 ACTOR Kjaroch : DnD_BaseHybridMonster 21142 {
 	//$Sprite LOHSA1
 	Health 0x7FFFFFFF
-	PainChance 32
+	PainChance 0
 	SeeSound "Kjaroch/See"
 	PainSound "Kjaroch/pain"
 	DeathSound "Kjaroch/death"
@@ -2152,7 +2152,7 @@ Actor MagmaSerpent : DnD_BaseHybridMonster 21143 {
 	Radius 24
 	Height 64
 	Speed 13
-	PainChance 64
+	PainChance 0
 	Mass 640
 	BloodColor "Orange"
 	Species "HK"
@@ -2384,7 +2384,7 @@ Actor DreadKnight : DnD_BaseHybridMonster 21144 {
 	Tag "Dread Knight"
 	Radius 24
 	Height 64
-	PainChance 100
+	PainChance 0
 	Mass 0x7FFFFFFF
 	MeleeRange 96
 	MaxStepHeight 32
@@ -2553,7 +2553,7 @@ Actor MagmaGolem : DnD_BaseHybridMonster 21145 {
     Height 64
     Radius 24
     Mass 4096
-    PainChance 48
+    PainChance 0
     ReactionTime 8
     SeeSound "EarthGolem/See"
     PainSound "EarthGolem/Pain"
@@ -2739,7 +2739,7 @@ ACTOR Warmaster : DnD_BaseHybridMonster 21146 {
     Radius 24 
     Height 64 
     Speed 12
-    PainChance 32
+    PainChance 0
     Mass 1000
     Species "HK"
     +DONTHURTSPECIES	
@@ -3000,7 +3000,7 @@ actor Judicator : DnD_BaseHybridMonster 21147 {
 	height 64
 	mass 2048
 	speed 10
-	painchance 64
+	PainChance 0
 	SeeSound "Robodude/See"
 	PainSound "Robodude/pain"
 	DeathSound "Robodude/die"

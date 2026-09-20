@@ -5,7 +5,7 @@ Actor AbyssalBaron : DnD_BaseHybridMonster {
 	Height 64
 	Mass 2048
 	Speed 10
-	PainChance 16
+	PainChance 0
 	+ISMONSTER
 	+FLOORCLIP
 	+DONTHURTSPECIES

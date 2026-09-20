@@ -8,7 +8,7 @@ Actor Lurker : DnD_BaseHybridMonster 21076 {
 	+GHOST
 	Health 0x7FFFFFFF
 	GibHealth -50
-	PainChance 140
+	PainChance 0
 	Speed 12
 	Radius 30
 	Height 56
@@ -88,7 +88,7 @@ Actor FlameDemonGhost : FlameDemon {
 	Height 56
 	Radius 30
 	Mass 400
-	PainChance 150
+	PainChance 0
 	REACTIONTIME 8
 	+NORADIUSDMG
 	SeeSound "demon/sight"
@@ -153,7 +153,7 @@ ACTOR NightmareSpectre : DnD_BaseMeleeMonster 21077 {
 	Height 56
 	Radius 30
 	Mass 400
-	PainChance 120
+	PainChance 0
 	REACTIONTIME 8
 	+GHOST
 	+NOINFIGHTING
@@ -231,7 +231,7 @@ Actor Gravedigger : DnD_BaseMeleeMonster 21078 {
 	GibHealth -50
 	Species "Demon"
 	+DONTHURTSPECIES
-	PainChance 180
+	PainChance 0
 	Speed 10
 	Radius 30
 	Height 56
@@ -297,7 +297,7 @@ Actor Devourer : DnD_BaseMeleeMonster 21079 {
 	Renderstyle Add
 	Health 0x7FFFFFFF
 	GibHealth -50
-	Painchance 96
+	PainChance 0
 	Obituary "%o was devoured by a hungry Devourer."
 	Tag "Devourer"
 	Species "Demon"
@@ -361,7 +361,7 @@ Actor SoulEaterGhost : DnD_BaseHybridMonster 21080 {
 	+GHOST
 	Health 0x7FFFFFFF
 	GibHealth -50
-	PainChance 128
+	PainChance 0
 	Speed 12
 	Radius 30
 	Height 56
@@ -431,7 +431,7 @@ Actor NhumCignGhost : DnD_BaseMeleeMonster 21081 {
 	Translation "0:255=%[0.00,0.00,0.00]:[1.17,0.10,1.29]", "0:47=0:47", "80:127=80:127", "152:235=152:235", "240:255=240:255"
 	Health 0x7FFFFFFF
 	GibHealth -50
-	PainChance 96
+	PainChance 0
 	Speed 8
 	Obituary "%o had %p ass bitten by a Nhumcign."
 	Hitobituary "%o had %p ass bitten by a Nhumcign."
@@ -548,7 +548,7 @@ Actor RavagerGhost : DnD_BaseHybridMonster 21082 {
 	//$Sprite SAR3A1C1
 	Health 0x7FFFFFFF
 	GibHealth -50
-	PainChance 96
+	PainChance 0
 	Speed 16
 	Mass 1024
 	Obituary "%o died from the toxic blood of a Ravager."

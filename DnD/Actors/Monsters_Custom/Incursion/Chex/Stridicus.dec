@@ -5,7 +5,7 @@ ACTOR FlemoidStridicus : DnD_BaseMeleeMonster {
 	Height 60
 	Radius 24
 	Meleerange 96
-	Painchance 25
+	PainChance 0
 	Bloodcolor "Green"
 	SeeSound "q3demon/sight"
 	AttackSound "q3demon/melee"

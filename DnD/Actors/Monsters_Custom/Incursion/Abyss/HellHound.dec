@@ -4,7 +4,7 @@ Actor AbyssalHound : DnD_BaseHybridMonster {
 	Species "Demon"
 	Tag "Abyssal Hellhound"
 	+DONTHURTSPECIES
-	PainChance 144
+	PainChance 0
 	MaxTargetRange 288
 	MinMissileChance 96
 	Speed 16

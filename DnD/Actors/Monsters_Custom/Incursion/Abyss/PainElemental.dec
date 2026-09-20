@@ -5,7 +5,7 @@ Actor AbyssalPainElemental : DnD_BaseRangedMonster {
 	Height 56
 	Mass 600
 	Speed 8
-	PainChance 128
+	PainChance 0
 	+ISMONSTER
 	+FLOAT
 	+NOGRAVITY

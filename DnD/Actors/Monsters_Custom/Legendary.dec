@@ -8,7 +8,7 @@ Actor DreamingGod : DnD_BaseRangedBoss 22000 {
 	ProjectilePassHeight 160
 	mass 2400
 	speed 5
-	painchance 4
+	PainChance 0
 	seesound "Dreamer/See"
 	painsound "Dreamer/See"
 	deathsound "Dreamer/Die"
@@ -1032,7 +1032,7 @@ Actor Torrasque : DnD_BaseHybridBoss 22001 {
 	height 96
 	mass 1000
 	speed 10
-	painchance 32
+	PainChance 0
 	seesound "Torrasque/See"
 	painsound "Torrasque/Pain"
 	deathsound "Torrasque/Die"
@@ -1457,7 +1457,7 @@ Actor Mordecqai : DnD_BaseRangedBoss 22002 {
 	ProjectilePassHeight 160
 	mass 2400
 	speed 4
-	painchance 0
+	PainChance 0
 	seesound "Mordecqai/See"
 	deathsound "Mordecqai/Die"
 	activesound ""
@@ -1884,7 +1884,7 @@ Actor GodSlayer : DnD_BaseRangedBoss 22003 {
 	ProjectilePassHeight 160
 	mass 0x7fffffff
 	speed 10
-	painchance 0
+	PainChance 0
 	seesound "GodSlayer/See"
 	deathsound ""
 	activesound "GodSlayer/Act"
@@ -2726,7 +2726,7 @@ Actor Golgoth : DnD_BaseHybridBoss 22004 {
 	ProjectilePassHeight 160
 	mass 16384
 	speed 4
-	painchance 6
+	PainChance 0
 	seesound "Golgoth/See"
 	painsound "Golgoth/Pain"
 	deathsound "Golgoth/Die"

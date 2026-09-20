@@ -6,7 +6,7 @@ Actor AbyssalQueen : DnD_BaseRangedBoss {
 	Height 100
 	Mass 4096
 	Speed 12
-	PainChance 24
+	PainChance 0
 	+ISMONSTER
 	MinMissileChance 128
 	+BOSS

@@ -5,7 +5,7 @@ actor STDarkImp : DnD_BaseHybridMonster 21045 {
     Radius 20
     Height 56
     Speed 9
-    PainChance 200
+    PainChance 0
     SeeSound "imp/sight"
     PainSound "imp/pain"
     DeathSound "imp/death"
@@ -127,7 +127,7 @@ actor NamiDarkImp : DnD_BaseHybridMonster 21046 {
     Radius 20
     Height 56
     Speed 8
-    PainChance 200
+    PainChance 0
     SeeSound "imp/sight"
     PainSound "Imp/Pain"
     DeathSound "imp/death"
@@ -241,7 +241,7 @@ actor VoidDarkImp : DnD_BaseHybridMonster 21047 {
     Radius 20
     Height 56
     Speed 7
-    PainChance 200
+    PainChance 0
     SeeSound "imp/sight"
     PainSound "imp/pain"
     DeathSound "imp/death"
@@ -403,7 +403,7 @@ actor NetherDarkImp : DnD_BaseHybridMonster 21048 {
     Radius 20
     Height 56
     Speed 9
-    PainChance 100
+    PainChance 0
     Mass 500
     Scale 1.1
     SeeSound "imp/sight"
@@ -590,7 +590,7 @@ Actor ImpAbomination : DnD_BaseHybridMonster 21049 {
 	Height 56
 	Mass 100
 	Speed 8
-	PainChance 200
+	PainChance 0
 	SeeSound "imp/sight"
 	PainSound "imp/pain"
 	DeathSound "imp/death"
@@ -664,7 +664,7 @@ Actor STImp : DnD_BaseHybridMonster 21050 {
     Radius 20
     Height 56
     Speed 11
-    PainChance 200
+    PainChance 0
     SeeSound "imp/sight"
     PainSound "imp/pain"
     DeathSound "imp/death"
@@ -772,7 +772,7 @@ Actor VoidImp : DnD_BaseHybridMonster 21051 {
     Radius 20
     Height 56
     Speed 7
-    PainChance 200
+    PainChance 0
     SeeSound "imp/sight"
     PainSound "imp/pain"
     DeathSound "imp/death"
@@ -883,7 +883,7 @@ actor SoulHarvester : DnD_BaseHybridMonster 21052 {
     Radius 20
     Height 56
     Speed 8
-    PainChance 160
+    PainChance 0
     SeeSound "harvester/sight"
     PainSound "imp/pain"
     DeathSound "harvester/death"
@@ -1020,7 +1020,7 @@ actor PyroImp : DnD_BaseHybridMonster 21053 {
     Radius 20
     Height 56
     Speed 9
-    PainChance 200
+    PainChance 0
 	Mass 1000
 	+DONTHURTSPECIES
     SeeSound "imp/sight"
@@ -1242,7 +1242,7 @@ actor Devil : DnD_BaseHybridMonster 21054 {
 	height 56
 	mass 120
 	speed 10
-	painchance 160
+	PainChance 0
 	+MISSILEMORE
 	+MISSILEEVENMORE
 	+DONTHURTSPECIES
@@ -1326,7 +1326,7 @@ actor Devil2 : DnD_BaseHybridMonster 21055 {
 	//$Sprite TRO6A1C1
 	Health 0x7FFFFFFF
 	GibHealth -25
-	Painchance 128
+	PainChance 0
 	obituary "%o was fried by a Devil."
 	hitobituary "%o was flayed by a Devil."
 	radius 20
@@ -1502,7 +1502,7 @@ actor Vulgar : DnD_BaseHybridMonster 21056 {
 	height 56
 	mass 120
 	speed 8
-	painchance 180
+	PainChance 0
 	+DONTHURTSPECIES
 	seesound "monster/vulsit"
 	painsound "monster/vulpai"
@@ -1607,7 +1607,7 @@ Actor UndeadMage : DnD_ArchVileBase 21057 {
 	Height 56
 	Speed 8
 	Scale 0.95
-	PainChance 184
+	PainChance 0
     SeeSound "UndeadInitiate/See"
     ActiveSound "UndeadInitiate/Act"
     painsound "UndeadInitiate/Pain"
@@ -1740,7 +1740,7 @@ Actor ReaverRobot : DnD_BaseHybridMonster 21058 {
 	Height 56
 	Mass 100
 	Speed 8
-	PainChance 128
+	PainChance 0
 	SeeSound "Reaver/See"
 	PainSound "Reaver/Pain"
 	DeathSound "Reaver/Death"
@@ -1880,7 +1880,7 @@ ACTOR Shadow : DnD_BaseRangedMonster 21059 {
 	RenderStyle "Translucent"
 	Alpha 0.7
 	Speed 8
-	PainChance 200
+	PainChance 0
 	PainSound "Shadow/pain"
 	DeathSound "Shadow/death"
 	ActiveSound "Shadow/active"
@@ -2092,7 +2092,7 @@ Actor Roach : DnD_BaseHybridMonster 21060 {
 	Radius 20
 	Height 56
 	Speed 12
-	PainChance 64
+	PainChance 0
 	Mass 200
 	BloodColor "DarkGreen"
 	+DontHurtSpecies

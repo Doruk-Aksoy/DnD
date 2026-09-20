@@ -917,7 +917,8 @@ Script "DND On Kill" KILL {
 
 	MonsterProperties[m_id].killer_tid = target;
 
-	if(InformationInLevel[LEVELINFO_ISULTIMATUM])
+	// wraiths come out of other monsters not as revived/summoned sometimes
+	if(InformationInLevel[LEVELINFO_ISULTIMATUM] && MonsterProperties[m_id].id != MONSTER_WRAITH)
 		IncrementCurrentUltimatumTally();
 
 	// Acrobacy / Unending Rush. Here rather than in HandleMonsterDeathConfirm because that one only
@@ -925,13 +926,7 @@ Script "DND On Kill" KILL {
 	if(!killerWasntPlayer && IsPlayer(target)) {
 		pnum = target - P_TIDSTART;
 
-		HandleUnendingRush(pnum);
-		HandleAdrenaline(pnum, this);
-		HandleOverflowingReserves(pnum, this);
-		HandleShieldStealer(pnum, m_id);
-		HandleGratuitousViolence(pnum, this);
-		HandleEradication(pnum, this);
-		HandleEssenceTheft(pnum, this);
+		HandlePlayerKillEffects(pnum, this, m_id);
 	}
 	
 	// if this was a unique boss monster, since its dead now we can clear it to clients
@@ -1928,6 +1923,10 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 		
 	MonsterProperties[m_id].id = properties & 0x1FF;
 	MonsterProperties[m_id].class = (properties >> 9) & 0x1F;
+
+	// per instance so modifiers can move it without touching the type
+	MonsterProperties[m_id].painchance = MonsterData[MonsterProperties[m_id].id].painchance;
+	MonsterProperties[m_id].pain_cd = 0;
 	properties >>= 14;
 
 	// prevent divide by 0 error in monster scaler due to rarity not being setup yet
@@ -4011,6 +4010,7 @@ Script "DnD Flash Parry Shockwave" (int ptid, int pnum) {
 			continue;
 
 		Thing_Damage2(m_tid, dmg, "Physical");
+		TryDirectMonsterPain(m_tid, dmg);
 	}
 }
 
@@ -5382,6 +5382,28 @@ Script "DnD Token Message" (int id) CLIENTSIDE {
 	Log(s:StrParam(s:"\cc", l:"DND_PICKUP_TOKEN", s:": \c[Y5]", l:GetInventoryTag(id + TOKEN_BEGIN), s:"!\c-"));
 }
 
+// Kineticrushers. The item pays 1% more melee damage per 1% of stamina held, and this is the bill:
+// a landed melee hit spends ALL of it a moment later. Server side, because stamina is authoritative
+// there and the item's own damage read is too.
+//
+// Re-reads the stat at payout rather than trusting the armed copy: the boots can come off inside
+// the window, and a dump that fired anyway would tax a player no longer wearing them.
+Script "DnD Kinetic Stamina Dump" (int pnum, int seconds) {
+	int tid = pnum + P_TIDSTART;
+	GiveActorInventory(tid, "DnD_KineticDumpPending", 1);
+
+	// not const: -- seconds is a script argument, so the delay cannot fold at compile time
+	Delay(TICRATE * seconds);
+
+	TakeActorInventory(tid, "DnD_KineticDumpPending", 1);
+
+	if(PlayerModData[pnum].vals[PSTAT_EX_STAMINADUMP_AFTERMELEE] && IsActorAlive(tid)) {
+		SetActivator(tid);
+		SetInventory("DnD_Stamina", 0);
+		GiveInventory("DnD_StaminaDepleted", 1);
+	}
+}
+
 Script "DnD Dungeon Key Message" (int id) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
@@ -5694,6 +5716,13 @@ Script "DnD Lootbox Opened" (int for_player, int guaranteed_orb) {
 		// spawn stuff only for that player
 		SpawnLootboxRewards(for_player, guaranteed_orb);
 	}
+}
+
+// The Dark Wanderer challenge chest. Always owned by one player -- it is spawned per survivor -- so
+// there is no -1 "anyone may open" case to answer, unlike the lootbox above.
+Script "DnD Challenge Lootbox Opened" (int for_player) {
+	if(PlayerInGame(for_player) && IsActorAlive(for_player + P_TIDSTART))
+		SpawnChallengeChestRewards(for_player);
 }
 
 Script "DnD Explosion Radius Retrieve" (int r_base, int noSecondExp, int src) {
@@ -7165,6 +7194,40 @@ Script "test" (void) {
 	printbold(s:"yes");
 }*/
 
+// ---- unique item test hooks ---------------------------------------------------------------
+// Spawn a named unique without farming for it. The base is derived from the id, so these only need
+// the UITEM_* number -- the reward-only ones included, which is the only way to see those outside
+// an ultimatum run.
+//
+//   pukename "DnD Spawn Unique" 518            Kineticrushers, at your feet
+//   pukename "DnD Spawn Unique All" 133        Nullforce, one for every player
+//   pukename "DnD Spawn Unique Range" 512 519  every boot unique, reserved slots skipped
+//
+#ifdef ISDEBUGBUILD
+Script "DnD Spawn Unique" (int unique_id) NET {
+	if(!SpawnUniqueById(PlayerNumber(), unique_id))
+		Log(s:"\cgno unique item with id ", d:unique_id);
+
+	SetResultValue(0);
+}
+
+Script "DnD Spawn Unique All" (int unique_id) NET {
+	if(!SpawnUniqueByIdForAll(unique_id))
+		Log(s:"\cgno unique item with id ", d:unique_id);
+
+	SetResultValue(0);
+}
+
+// Inclusive both ends. Handy ranges are the base BEGIN..LAST pairs -- a LAST rather than an END,
+// so a sweep covers the reward-only tails too.
+Script "DnD Spawn Unique Range" (int from_id, int to_id) NET {
+	int n = SpawnUniqueRange(PlayerNumber(), from_id, to_id);
+	Log(s:"\cdspawned ", d:n, s:" unique(s) in ", d:from_id, s:"..", d:to_id);
+
+	SetResultValue(0);
+}
+#endif
+
 Script 68 (int x) NET {
 	// this will activate if its not a debug build, which will check only allow use of this when its not a database saved mode
 	#ifdef ISDEBUGBUILD
@@ -7215,6 +7278,12 @@ Script 68 (int x) NET {
 			//SpawnDungeonKey(0);
 			SpawnSpecificDungeonKey(0, DND_DUNGEON_ULTIMATUM);
 			//SpawnFlask(0, 0);
+			SpawnBoot(0, 0);
+			/*
+				pukename "DnD Spawn Unique" 518            Kineticrushers, at your feet
+				pukename "DnD Spawn Unique All" 133        Nullforce, one for every player
+				pukename "DnD Spawn Unique Range" 512 519  every boot unique, inclusive
+			*/
 
 			ACS_NamedExecuteWithResult("DnD Handle Attribute Sync", PlayerNumber());
 		}
@@ -7273,12 +7342,10 @@ Script 68 (int x) NET {
 			IncPlayerModValue(0, INV_TECH_PERCENT, 171);*/
 			
 			ACS_NamedExecuteWithResult("DnD Handle Attribute Sync", PlayerNumber());
-			//SpawnDropAtActor(0, "LootChest_ForPlayer_Reverance", 0, 0, 1, 0);
 		}
 		else if(x == 1001) {
 			IncPlayerModValue(0, INV_CORR_MOREAOE, 0.1);
 			ACS_NamedExecuteWithResult("DnD Handle Attribute Sync", PlayerNumber());
-			//SpawnDropAtActor(0, "LootChest_ForPlayer_Reverance", 0, 0, 1, 0);
 		}
 		else if(x == 1002) {
 			ACS_NamedExecuteWithResult("DnD Try Spawn Area", 0, "DnD_Merchant", DND_MERCHANT_TID, 96 | (4 << 16) | (22 << 24));

@@ -8,7 +8,7 @@ Actor Teron : DnD_BaseRangedMonster_NoRes 21195 {
 	Radius 20
 	Height 56
 	Speed 10
-	PainChance 64
+	PainChance 0
 	SeeSound "FancyZombie/sight"
 	PainSound "FancyZombie/pain"
 	DeathSound "FancyZombie/death"
@@ -169,7 +169,7 @@ Actor Gant : DnD_BaseHybridMonster_NoRes 21196 {
 	Radius 20
 	Height 56
 	Speed 10
-	PainChance 64
+	PainChance 0
 	SeeSound "Gant/See"
 	PainSound "Gant/pain"
 	DeathSound "Gant/Die"
@@ -362,7 +362,7 @@ Actor Bronn : DnD_BaseHybridMonster_NoRes 21197 {
 	Radius 24
 	Height 60
 	Speed 10
-	PainChance 64
+	PainChance 0
 	MeleeRange 192
 	SeeSound "Bronn/See"
 	PainSound "Bronn/pain"
@@ -611,7 +611,7 @@ Actor Vaaj : DnD_BaseRangedMonster_NoRes 21198 {
 	Radius 20
 	Height 58
 	Speed 8
-	PainChance 64
+	PainChance 0
 	SeeSound "Vaaj/See"
 	PainSound "Vaaj/pain"
 	DeathSound "Vaaj/Die"
@@ -895,7 +895,7 @@ Actor Remus : DnD_BaseHybridMonster_NoRes 21199 {
 	Radius 30
 	Height 64
 	Speed 13
-	PainChance 80
+	PainChance 0
 	MeleeRange 128
 	SeeSound "Remus/See"
 	PainSound "Remus/pain"
@@ -1198,7 +1198,7 @@ Actor Ssrath : DnD_BaseHybridMonster_NoRes 21200 {
 	Radius 32
 	Height 56
 	Speed 16
-	PainChance 96
+	PainChance 0
 	SeeSound "Ssrath/See"
 	PainSound "Ssrath/pain"
 	DeathSound "Ssrath/die"
@@ -1517,7 +1517,7 @@ Actor HollowShell : DnD_BaseHybridMonster_NoRes 21201 {
 	Radius 16
 	Height 56
 	Speed 8
-	PainChance 80
+	PainChance 0
 	Damage (5 * random(4, 8))
 	SeeSound "HollowShell/See"
 	PainSound "demon/pain2"
@@ -1862,7 +1862,7 @@ Actor Omnisight : DnD_BaseHybridMonster_NoRes 21202 {
 	Radius 36
 	Height 80
 	Speed 8
-	PainChance 32
+	PainChance 0
 	SeeSound "Omnisight/See"
 	PainSound "Omnisight/pain"
 	DeathSound "Omnisight/Die"
@@ -2472,7 +2472,7 @@ Actor Chegovax : DnD_BaseRangedMonster_NoRes 21203 {
 	Radius 31
 	Height 56
 	Speed 9
-	PainChance 10
+	PainChance 0
 	SeeSound "monster/cubsit"
 	PainSound "Lich/Pain"
 	DeathSound "monster/cubdth"
@@ -2816,7 +2816,7 @@ Actor Onimuz : DnD_BaseHybridMonster_NoRes 21204 {
 	Radius 20
 	Height 56
 	Speed 12
-	PainChance 48
+	PainChance 0
 	Seesound "monster/horshacksee"
 	ActiveSound "monster/horshackact"
 	PainSound "monster/horshackpain"
@@ -2944,6 +2944,7 @@ Actor ProjectionCooldown : PowerDamage {
 }
 
 Actor OnimuzProjection : DnD_BaseHybridMonster_NoRes {
+	+NOPAIN	// no PainState of its own; nothing may send it to one
 	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
@@ -3160,7 +3161,7 @@ Actor Harkimonde : DnD_BaseHybridMonster_NoRes 21205 {
 	Radius 30
 	Height 64
 	Speed 8
-	PainChance 56
+	PainChance 0
 	SeeSound "Harkimonde/See"
 	PainSound "Harkimonde/pain"
 	DeathSound "Harkimonde/Die"
@@ -3570,7 +3571,7 @@ Actor Leshrac : DnD_BaseHybridMonster_NoRes 21206 {
 	Radius 24
 	Height 64
 	Speed 9
-	PainChance 64
+	PainChance 0
 	SeeSound "Leshrac/See"
 	PainSound "Leshrac/pain"
 	DeathSound "Leshrac/Die"
@@ -3706,7 +3707,7 @@ Actor LeshracPoisonMine : DnD_BaseMeleeMonster_NoRes 21207 {
 	Health 0x7FFFFFFF
 	Radius 16
 	Height 54
-	PainChance 255
+	PainChance 0
 	MeleeRange 64
 	Mass 96
 	BloodType "LeshracMine_Goo"
@@ -3888,7 +3889,7 @@ Actor Krull : DnD_BaseRangedMonster_NoRes 21208 {
 	Height 64
 	ProjectilePassHeight 80
 	Speed 8
-	PainChance 56
+	PainChance 0
 	MeleeRange 128
 	SeeSound "Krull/See"
 	PainSound "Krull/pain"
@@ -4134,7 +4135,7 @@ Actor Thorax : DnD_BaseRangedMonster_NoRes 21209 {
 	Radius 48
 	Height 64
 	Speed 11
-	PainChance 48
+	PainChance 0
 	SeeSound "Thorax/See"
 	PainSound "Thorax/pain"
 	DeathSound "Thorax/Die"
@@ -4458,7 +4459,7 @@ Actor Zravog : DnD_BaseRangedMonster_NoRes 21210 {
 	Radius 20
 	Height 64
 	Speed 9
-	PainChance 16
+	PainChance 0
 	SeeSound "Zravog/See"
 	PainSound "Zravog/pain"
 	DeathSound "Zravog/Die"
@@ -4827,7 +4828,7 @@ Actor Eryxia : DnD_BaseRangedBoss 21211 {
 	Radius 128
 	Height 100
 	Speed 12
-	PainChance 24
+	PainChance 0
 	SeeSound "Eryxia/See"
 	PainSound "Eryxia/pain"
 	DeathSound "Eryxia/Die"
@@ -5402,7 +5403,7 @@ Actor Abaxoth : DnD_BaseHybridBoss 21212 {
 	Height 110
 	ProjectilePassHeight 140
 	Speed 16
-	PainChance 8
+	PainChance 0
 	PainThreshold 200
 	SeeSound "Abaxoth/See"
 	PainSound "Abaxoth/pain"

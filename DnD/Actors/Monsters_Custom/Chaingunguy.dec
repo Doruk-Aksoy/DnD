@@ -7,7 +7,7 @@ Actor DoubleChaingunner : DnD_BaseRangedMonster 21035 {
 	Height 56
 	Mass 512
 	Speed 8
-	PainChance 150
+	PainChance 0
 	SeeSound "chainguy/sight"
 	AttackSound "weapons/minigunfire"
 	PainSound "chainguy/pain"
@@ -91,7 +91,7 @@ Actor ChaingunMajor : DnD_BaseRangedMonster 21036 {
 	//$Sprite CPS2A1
 	Health 0x7FFFFFFF
 	GibHealth -25
-	Painchance 96
+	PainChance 0
 	Mass 512
 	Obituary "%o was perforated by the chaingun major."
 	AttackSound "weapons/minigunfire"
@@ -176,7 +176,7 @@ actor ZSec : DnD_BaseRangedMonster 21037 {
 	height 56
 	mass 224
 	speed 8
-	painchance 128
+	PainChance 0
 	decal bulletchip
 	seesound "zsec/sight"
 	attacksound "zsec/attack"
@@ -342,7 +342,7 @@ Actor ZSpecOpsMachinegun : DnD_BaseRangedMonster 21038 {
 	Height 56
 	Radius 20
 	Speed 8
-	PainChance 192
+	PainChance 0
 	Mass 160
 	+NoTarget
 	+NoInfighting
@@ -428,7 +428,7 @@ Actor QuakeZombieChaingun : DnD_BaseRangedMonster 21039 {
     Radius 20
     Height 56
     Speed 8
-    PainChance 160
+    PainChance 0
     Obituary "%o was killed by an elite enforcer."
 	DropItem "LaserPickup"
 	Tag "Enforcer Sargeant"
@@ -543,7 +543,7 @@ actor UndeadInitiate : DnD_BaseHybridMonster 21040 {
 	height 56
 	mass 125
 	speed 8
-	painchance 30
+	PainChance 0
 	decal BulletChip
 	SeeSound "UndeadInitiate/See"
 	ActiveSound "UndeadInitiate/Act"
@@ -634,7 +634,7 @@ Actor MrRobot : DnD_BaseRangedMonster 21041 {
 	Height 56
 	Mass 256
 	Speed 9
-	PainChance 96
+	PainChance 0
 	SeeSound "Robodude/See"
 	PainSound "Robodude/pain"
 	DeathSound "Robodude/die"
@@ -774,7 +774,7 @@ Actor MachinegunGuy : DnD_BaseRangedMonster 21042 {
 	Height 56
 	Mass 100
 	Speed 8
-	PainChance 170
+	PainChance 0
 	SeeSound "chainguy/sight"
 	PainSound "chainguy/pain"
 	DeathSound "chainguy/death"
@@ -851,7 +851,7 @@ ACTOR PlasmaZombie : DnD_BaseRangedMonster 21043 {
     Radius 20
     Height 56
     Speed 6
-    PainChance 128
+    PainChance 0
     SeeSound "grunt/sight"
     AttackSound "grunt/attack"
     PainSound "grunt/pain"
@@ -963,7 +963,7 @@ Actor Berserkerguy : DnD_BaseRangedMonster 21044 {
 	Height 56
 	Mass 256
 	Speed 8
-	PainChance 144
+	PainChance 0
 	SeeSound "FancyZombie/sight"
 	AttackSound "weapons/minigunfire"
 	PainSound "FancyZombie/pain"

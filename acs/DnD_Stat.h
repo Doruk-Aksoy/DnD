@@ -361,16 +361,67 @@ void SpawnPlayerDropAtActor(int pnum, int dest, str actor, int zoffset, int thru
 	SpawnDropAtActor(dest, actor, zoffset, thrust, setspecial, setspecial2, noRandomVelXY);
 }
 
-// A well roll chance for a roll already under way; 0 means the ordinary odds. Set immediately
-// before a Construct/Roll call and cleared immediately after -- an ACS function cannot Delay, so
-// the roll runs to completion with nothing interleaved and no other caller can observe it set.
-int WellRolledChanceOverride = 0;
+// ---- roll overrides ----------------------------------------------------------------------------
+// Each of these describes a roll ALREADY under way: set immediately before a Construct/Roll call and
+// put back immediately after. An ACS function cannot Delay, so the roll runs to completion with
+// nothing interleaved and no other caller can observe one set.
+//
+// They sit behind accessors rather than at file scope for the reason the module& idiom exists: both
+// compile to the same map storage, so this is about OWNERSHIP -- the accessor is the only door, and a
+// second writer cannot quietly appear beside it. It also keeps the map reset honest. A static in a
+// module function is a map array and is re-zeroed on every map load, so each override is stored such
+// that ZERO is the correct rest state and no initialiser has to survive AINI.
+
+// A well roll chance for a roll already under way. 0 is "the ordinary odds", which is the zero state.
+int WellRolledChanceOverrideAccess(bool write, int val) {
+	static int stored;
+	if(write)
+		stored = val;
+	return stored;
+}
+
+void SetWellRolledChanceOverride(int val) {
+	WellRolledChanceOverrideAccess(true, val);
+}
+
+int GetWellRolledChanceOverride() {
+	return WellRolledChanceOverrideAccess(false, 0);
+}
 
 bool CheckWellRolled(int pnum) {
 	if(CheckActorInventory(pnum + P_TIDSTART, "ReveranceUsed"))
 		return true;
 
-	return random(0, 1.0) <= (WellRolledChanceOverride ? WellRolledChanceOverride : DND_WELLROLL_ODDS);
+	int over = GetWellRolledChanceOverride();
+	return random(0, 1.0) <= (over ? over : DND_WELLROLL_ODDS);
+}
+
+// A synergy boost for a roll already under way, for callers that cannot pass one as an argument.
+// SpawnItemForAll holds the whole Spawn* family in a single `void function(int, int, int, bool, int)&`,
+// so every one of them is pinned to five parameters and a sixth for the boost is not available --
+// hence this rather than threading it through the eight spawners that would all have to grow it.
+//
+// Stored as 0 = "no override", NOT as the -1 those two use for their own parameter, so the zero state
+// a map load leaves behind is already the rest state. GetSynergyBoost translates at the edge.
+int SynergyBoostOverrideAccess(bool write, int val) {
+	static int stored;
+	if(write)
+		stored = val;
+	return stored;
+}
+
+void SetSynergyBoostOverride(int val) {
+	SynergyBoostOverrideAccess(true, val);
+}
+
+// An explicit argument always wins. -1 there is "none given", and 0 on the override is "unset", so a
+// caller that passes nothing and a map with no override in flight both land back on -1.
+int GetSynergyBoost(int own) {
+	if(own != -1)
+		return own;
+
+	int over = SynergyBoostOverrideAccess(false, 0);
+	return over ? over : -1;
 }
 
 void CalculateExpRatio() {
@@ -2336,11 +2387,26 @@ int GetPlayerStaminaRecoveryRate(int pnum) {
 	// Ultimatum / Rapid Exhaustion. base is a tic DELAY -- the line above already reads a
 	// recovery increase as a smaller number -- so reduced recovery makes it bigger.
 	int less = GetUltimatumStaminaRecoveryLess();
+
+	// Kineticrushers. Same direction and the same shape, so it joins the ultimatum's number
+	// rather than compounding a second division on top of it.
+	less += PlayerModData[pnum].vals[PSTAT_EX_LESS_STAMINARECOVERY];
+
 	if(less)
-		base = base * 100 / Max(1, 100 - less);
+		base = base * 100 / Max(1, 100 - Min(less, 90));
 	if(base <= 0)
 		base = 3; // minimum value is 3 for tic delay here
 	return base;
+}
+
+// The melee weapons' own cost, as opposed to a parry or an elite drain. Split out so Hell's
+// Vanguard's refund cannot also refund those: the item says "on melee attack".
+void TakeMeleeStamina(int pnum, int amt) {
+	int skip = PlayerModData[pnum].vals[PSTAT_EX_CHANCE_FREEMELEESTAMINA];
+	if(skip && skip >= random(1, 100))
+		return;
+
+	TakeStamina(amt);
 }
 
 void TakeStamina(int amt) {

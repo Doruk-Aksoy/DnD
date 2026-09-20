@@ -6,7 +6,7 @@ ACTOR BloodDemonClone : DnD_BaseMeleeMonster 21061 {
     Height 56
     Radius 30
     Mass 400
-    PainChance 180
+    PainChance 0
     REACTIONTIME 8 
     SeeSound "blooddemon/sight"
     PainSound "blooddemon/pain"
@@ -91,7 +91,7 @@ Actor Bloodfiend : DnD_BaseHybridMonster 21062 {
 	//$Sprite SAR2A1
 	Health 0x7FFFFFFF
 	GibHealth -50
-	PainChance 140
+	PainChance 0
 	Speed 12
 	Radius 30
 	Height 56
@@ -208,7 +208,7 @@ Actor Ravager : DnD_BaseHybridMonster 21063 {
 	//$Sprite SAR3A1C1
 	Health 0x7FFFFFFF
 	GibHealth -50
-	PainChance 96
+	PainChance 0
 	Speed 16
 	Mass 1024
 	Obituary "%o died from the toxic blood of a Ravager."
@@ -312,7 +312,7 @@ ACTOR CyberFiend : DnD_BaseHybridMonster 21064 {
     Height 56
     Radius 30
     Mass 400
-    PainChance 125
+    PainChance 0
 	MaxTargetRange 256
     +MISSILEMORE
 	+MISSILEEVENMORE
@@ -538,7 +538,7 @@ ACTOR FlameDemon : DnD_BaseMeleeMonster 21065 {
 	Height 56
 	Radius 30
 	Mass 400
-	PainChance 150
+	PainChance 0
 	REACTIONTIME 8
 	+NORADIUSDMG
 	SeeSound "demon/sight"
@@ -669,7 +669,7 @@ actor StoneDemon : DnD_BaseHybridMonster 21067 {
 	HitObituary "%o was smashed by a stone demon."
 	Health 0x7FFFFFFF
 	GibHealth -50
-	PainChance 100
+	PainChance 0
 	Speed 8
 	Radius 30
 	Height 56
@@ -778,7 +778,7 @@ Actor SoulEater : DnD_BaseHybridMonster 21068 {
 	//$Sprite SOEAA1C1
 	Health 0x7FFFFFFF
 	GibHealth -50
-	PainChance 128
+	PainChance 0
 	Speed 12
 	Radius 30
 	Height 56
@@ -871,7 +871,7 @@ ACTOR BigBruty : DnD_BaseMeleeMonster_NoRes 21069 {
 	Speed 12
 	XScale 1.0
 	YScale 1.1
-	PainChance 48
+	PainChance 0
 	MeleeRange 96
 	+ISMONSTER
 	+NOFEAR
@@ -974,7 +974,7 @@ actor Scavenger : DnD_ArchVileHybridBase 21070 {
 	height 56
 	mass 120
 	speed 7
-	painchance 128
+	PainChance 0
 	+DONTHURTSPECIES
 	seesound "monster/vulsit"
 	painsound "monster/vulpai"
@@ -1080,7 +1080,7 @@ Actor Nhumcign : DnD_BaseMeleeMonster 21071 {
 	Translation "0:255=%[0.00,0.00,0.00]:[1.17,0.10,1.29]", "0:47=0:47", "80:127=80:127", "152:235=152:235", "240:255=240:255"
 	Health 0x7FFFFFFF
 	GibHealth -50
-	PainChance 96
+	PainChance 0
 	Speed 8
 	Obituary "%o had %p ass bitten by a Nhumcign."
 	Hitobituary "%o had %p ass bitten by a Nhumcign."
@@ -1334,7 +1334,7 @@ actor Satyr : DnD_BaseMeleeMonster 21072 {
     Height 56
     Scale 0.9
     Speed 8
-    PainChance 84
+    PainChance 0
     Mass 350
     SeeSound "Satyr/See"
     PainSound "Satyr/Hit"
@@ -1416,7 +1416,7 @@ Actor EarthGolem : DnD_BaseHybridMonster 21073 {
     Height 56
     Radius 22
     Mass 1024
-    PainChance 128
+    PainChance 0
     ReactionTime 8 
     SeeSound "EarthGolem/See"
     PainSound "EarthGolem/Pain"
@@ -1539,7 +1539,7 @@ ACTOR PurebredDemon : DnD_BaseHybridMonster 21074 {
 	GibHealth -50
     Speed 14
     Mass 2048
-    PainChance 128
+    PainChance 0
     REACTIONTIME 8 
 	Radius 30
 	Height 56
@@ -1744,7 +1744,7 @@ ACTOR Sabreclaw : DnD_BaseMeleeMonster 21075 {
     Height 56
     Radius 20
     Mass 640
-    PainChance 96
+    PainChance 0
 	MeleeRange 56
     REACTIONTIME 8
     SeeSound "Saberclaw/sight"

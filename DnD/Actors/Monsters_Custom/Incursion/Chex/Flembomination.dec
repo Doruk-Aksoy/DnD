@@ -10,7 +10,7 @@ ACTOR Flembomination : DnD_BaseRangedBoss {
 	PainSound "q3spider/pain"
 	DeathSound "q3spider/death"
 	ActiveSound "q3spider/active"
-	PainChance 10
+	PainChance 0
 	Species "Chex"
 	Tag "Flembomination"
 	+DONTHURTSPECIES

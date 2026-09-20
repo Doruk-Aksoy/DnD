@@ -6,7 +6,7 @@ Actor Shambler : DnD_BaseHybridMonster 21215 {
 	Mass 1200
 	Speed 11
 	ReactionTime 10
-	PainChance 16
+	PainChance 0
     +ISMONSTER
 	+FLOORCLIP
 	+DONTHARMSPECIES

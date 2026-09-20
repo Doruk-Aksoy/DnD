@@ -4,7 +4,7 @@ ACTOR SuperCyclops : DnD_BaseRangedMonster {
 	Height 50
 	Radius 31
 	Speed 9
-	Painchance 25
+	PainChance 0
 	Bloodcolor "green"
 	Seesound "qcaco/sight"
 	Painsound "qcaco/pain"

@@ -8,7 +8,7 @@ ACTOR ArmoredFlemoid : DnD_BaseRangedMonster {
 	Painsound "qimp/pain"
 	Deathsound "qimp/death"
 	Activesound "qimp/active"
-	Painchance 75
+	PainChance 0
 	Species "Chex"
 	Tag "Armored Flemoid"
 	+DONTHURTSPECIES

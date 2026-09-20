@@ -1,0 +1,158 @@
+ACTOR Dementor : DnD_BaseHybridMonster 21216 {
+	//$Sprite UL02A1
+	Health 0x7FFFFFFF
+	GibHealth -65
+	Speed 9
+	Radius 16
+	Height 68
+	PainChance 0
+	Mass 640
+	SeeSound "Dementor/Sight"
+	ActiveSound "Dementor/Active"
+	PainSound "Dementor/Pain"
+	DeathSound "Dementor/Death"
+	Obituary "%o couldn't endure the psychic torment from a Dementor."
+	BloodColor "Purple"
+	Species "Cacodemon"
+	MeleeRange 128
+	Tag "Dementor"
+	Stamina 1088
+	+ISMONSTER
+	+DONTHURTSPECIES
+    +NOGRAVITY
+	+MISSILEMORE
+	+FLOAT
+	-FLOORCLIP
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_DUNGEON_DEMENTOR)
+		Goto SpawnSetup
+	
+		IdleState:
+			UL02 A 1 A_GiveInventory("DnD_SightChecker", 1)
+		Loop
+		SeeState:
+			UL02 AABB 4 Fast A_Chase
+		Goto See
+		MissileState:
+			UL02 A 1 A_FaceTarget
+			TNT1 A 0 A_Playsound("monster/blur")
+			TNT1 A 0 A_ChangeFlag("GHOST", 1)
+			TNT1 A 0 A_CustomMissile("DementorAfterImage", 24, 0, angle, CMF_AIMDIRECTION)
+            UL02 AA 1 A_Chase("")
+			TNT1 A 0 A_CustomMissile("DementorAfterImage", 24, 0, angle, CMF_AIMDIRECTION)
+			UL02 AA 1 A_Chase("")
+			TNT1 A 0 A_CustomMissile("DementorAfterImage", 24, 0, angle, CMF_AIMDIRECTION)
+			UL02 BB 1 A_Chase("")
+			TNT1 A 0 A_CustomMissile("DementorAfterImage", 24, 0, angle, CMF_AIMDIRECTION)
+			UL02 BB 1 A_Chase("")
+			TNT1 A 0 A_CustomMissile("DementorAfterImage", 24, 0, angle, CMF_AIMDIRECTION)
+			UL02 AA 1 A_Chase("")
+			TNT1 A 0 A_CustomMissile("DementorAfterImage", 24, 0, angle, CMF_AIMDIRECTION)
+			UL02 AA 1 A_Chase("")
+			TNT1 A 0 A_ChangeFlag("GHOST", 0)
+            UL02 C 5 A_FaceTarget
+			TNT1 A 0 A_PlaySound("Dementor/Attack", CHAN_VOICE)
+			TNT1 A 0 A_CustomMissile("DementorProj", 28, 8, 4.75, CMF_AIMOFFSET)
+			TNT1 A 0 A_CustomMissile("DementorProj", 28, 0, 0, CMF_AIMOFFSET)
+            UL02 D 4 A_CustomMissile("DementorProj", 28, -8, -4.75, CMF_AIMOFFSET)
+        Goto See
+		MeleeState:
+			UL02 CC 8 A_FaceTarget
+			TNT1 A 0 A_PlaySound("Dementor/Attack", CHAN_VOICE)
+			TNT1 A 0 A_SpawnItemEx("DementorMeleeSpark", 16, 0, 28)
+            UL02 D 4 A_CustomMeleeAttack(40, "Veste/Hit", "")
+		Goto See
+		PainState:
+			UL02 E 3 Fast A_ChangeFlag("GHOST", 0)
+			UL02 E 4 Fast A_Pain
+		Goto See
+		XDeathState:
+			TNT1 A 0 A_ChangeFlag("GHOST", 0)
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Medium", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+		DeathState:
+			UL02 F 0 A_SetFloorClip
+			UL02 F 4 A_Scream 
+			UL02 GHIJKL 4
+			UL02 M -1
+		Stop
+	}
+}
+
+Actor DementorAfterImage {
+	PROJECTILE
+	Height 56
+	Radius 16
+	+NOINTERACTION
+	Renderstyle Translucent
+	Alpha 0.8
+	DamageType "Ice"
+	Stamina 1088
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 A_Jump(256, "1", "2")
+		1:
+			UL02 A 0
+		Goto Burst
+		2:
+			UL02 B 0
+		Goto Burst
+		Burst:
+			"####" "#" 52
+			"####" "##############" 1 A_FadeOut(0.033)
+			"####" "#" 0 A_PlaySound("FrostFang/Hit1")
+			"####" "######" 0 A_SpawnItemEx("ColdSmoke", frandom(-radius, radius) / 2, frandom(-radius, radius) / 2, frandom(24, height + 16) / 2, frandom(-1.25, 1.25), frandom(-1.25, 1.25), frandom(-0.75, 0.75))
+			"####" "#" 1 A_Explode(50, 80, 0, 0, 40)
+		Stop
+	}
+}
+
+Actor DementorProj {
+	PROJECTILE
+	Speed 30
+	Height 16
+	Radius 8
+	Damage (6 * random(4, 6))
+	DamageType "Ice"
+	DeathSound "HFSpid/Die"
+	Stamina 1088
+	RenderStyle Add
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+		SpawnLoop:
+			CTFX A 1 Bright A_Weave(0.25, 0.25, 1.0, 1.0)
+			TNT1 A 0 A_SpawnItemEx("DementorProjTrail", -8)
+		Loop
+		Death:
+			CTFX BCDEF 3 Bright
+		Stop
+	}
+}
+
+Actor DementorProjTrail {
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	RenderStyle Add
+	Alpha 0.8
+	Scale 0.7
+	States {
+		Spawn:
+			FFBL CCCDDDEEEFFFGGG 1 Bright A_FadeOut(0.025)
+		Stop
+	}
+}
+
+Actor DementorMeleeSpark {
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	Scale 0.666
+	Renderstyle Translucent
+	States {
+		Spawn:
+			FX18 CCCCCCCCCC 1 A_FadeOut(0.1)
+		Stop
+	}
+}

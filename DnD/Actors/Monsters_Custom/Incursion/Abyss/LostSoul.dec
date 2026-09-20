@@ -15,7 +15,7 @@ Actor AbyssalLostSoul : DnD_BaseRangedMonster {
 	+DONTFALL
 	+NOBLOOD
 	+ISMONSTER
-	PainChance 256
+	PainChance 0
 	AttackSound "abyssal_lostsoul/attack"
 	PainSound "abyssal_demon/pain"
 	DeathSound "abyssal_demon/fireballhit"

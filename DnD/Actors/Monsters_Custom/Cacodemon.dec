@@ -5,7 +5,7 @@ ACTOR CacoLich : DnD_BaseHybridMonster 21089 {
 	Speed 12
 	Radius 31
 	Height 56
-	PainChance 96
+	PainChance 0
 	Mass 500
 	SeeSound "CacoLich/Sight"
 	ActiveSound "CacoLich/Active"
@@ -248,7 +248,7 @@ ACTOR DeathWhisperer : DnD_BaseRangedMonster 21090 {
     Radius 31
     Height 56
     Speed 13
-    PainChance 145
+    PainChance 0
 	+ISMONSTER
     +NOGRAVITY
     +FLOAT
@@ -485,7 +485,7 @@ ACTOR EnhancedCacodemon : DnD_BaseHybridMonster 21092 {
 	Speed 8 
 	Radius 31
 	Height 56
-	PainChance 128
+	PainChance 0
 	Mass 400
 	Meleedamage 6 
 	REACTIONTIME 8 
@@ -572,7 +572,7 @@ ACTOR Inferno : DnD_BaseHybridMonster 21093 {
 	Height 56 
 	Mass 400 
 	Speed 10
-	PainChance 128 
+	PainChance 0
 	HITOBITUARY "%o got eaten by an inferno."
 	OBITUARY "%o got incinerated by an inferno."
 	+ISMONSTER
@@ -690,7 +690,7 @@ ACTOR Weakener : DnD_BaseRangedMonster 21094 {
 	Height 44
 	Mass 400
 	Speed 10
-	PainChance 160
+	PainChance 0
 	+ISMONSTER
 	+FLOAT
 	+NOGRAVITY
@@ -804,7 +804,7 @@ actor Grell : DnD_BaseRangedMonster 21095 {
 	mass 400
 	speed 10
 	Obituary "%o was plagued by a grell." 
-	painchance 128
+	PainChance 0
 	seesound "grell/sight"
 	painsound "grell/pain"
 	deathsound "grell/death"
@@ -898,7 +898,7 @@ ACTOR Grell_Elite : Grell {
 ACTOR ShadowPriest : DnD_BaseRangedMonster 21096 {
 	//$Sprite ACOLA1
 	Health 0x7FFFFFFF
-	PainChance 170
+	PainChance 0
 	Speed 8
 	Scale 0.90
 	Radius 20
@@ -1144,7 +1144,7 @@ ACTOR Guardian : DnD_BaseRangedMonster_NoRes 21097 {
 	Height 56
 	Mass 640
 	Speed 9 
-	PainChance 48
+	PainChance 0
 	Scale 1.1
 	HitObituary "%o got fried by a Guardian."
 	Obituary "%o got fried by a Guardian."
@@ -1270,7 +1270,7 @@ Actor Wicked : DnD_BaseRangedMonster 21098 {
 	Height 56
 	Mass 200 
 	Speed 10 
-	PainChance 112 
+	PainChance 0
 	+ISMONSTER
 	+NoGravity
 	+Float

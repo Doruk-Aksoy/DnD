@@ -6,7 +6,7 @@ Actor ZombieMan2 : DnD_BaseRangedMonster 21000 {
     GibHealth -10
 	DropItem "DroppedClip"
 	Speed 8
-	PainChance 200
+	PainChance 0
 	SeeSound "grunt/sight"
 	AttackSound "grunt/attack"
 	PainSound "grunt/pain"
@@ -109,7 +109,7 @@ Actor Shotgunguy2 : DnD_BaseRangedMonster 21001 {
 	Height 56
     GibHealth -10
 	DropItem "ShotgunPickup_Drop"
-	Painchance 170
+	PainChance 0
 	SeeSound "shotguy/sight"
 	AttackSound "shotguy/attack"
 	PainSound "shotguy/pain"
@@ -188,7 +188,7 @@ Actor Chaingunguy2 : DnD_BaseRangedMonster 21002 {
 	Height 56
 	Mass 100
 	Speed 8
-	PainChance 170
+	PainChance 0
 	SeeSound "chainguy/sight"
 	PainSound "chainguy/pain"
 	DeathSound "chainguy/death"
@@ -267,7 +267,7 @@ Actor Demon2x : DnD_BaseMeleeMonster 21003 {
 	Species "Demon"
 	Tag "Demon"
 	+DONTHURTSPECIES
-	PainChance 180
+	PainChance 0
 	Speed 10
 	Radius 30
 	Height 56
@@ -360,7 +360,7 @@ Actor DoomImp2 : DnD_BaseHybridMonster 21004 {
 	Height 56
 	Mass 100
 	Speed 8
-	PainChance 200
+	PainChance 0
 	GibHealth -10
 	SeeSound "imp/sight"
 	DeathSound "imp/death"
@@ -481,7 +481,7 @@ Actor LostSoul2 : DnD_BaseRangedMonster 21005 {
 	+DONTFALL
 	+NOBLOOD
 	+ISMONSTER
-	PainChance 256
+	PainChance 0
 	AttackSound "skull/melee"
 	PainSound "LostSoul/Pain"
 	DeathSound "skull/death"
@@ -567,7 +567,7 @@ Actor CacoDemon2 : DnD_BaseHybridMonster 21006 {
 	Height 56
 	Mass 400
 	Speed 8
-	PainChance 128
+	PainChance 0
 	+FLOAT
 	+NOGRAVITY
 	+DONTHURTSPECIES
@@ -655,7 +655,7 @@ Actor PainElemental2 : DnD_BaseRangedMonster_NoRes 21007 {
 	Height 56
 	Mass 400
 	Speed 8
-	PainChance 128
+	PainChance 0
 	+ISMONSTER
 	+FLOAT
 	+NOGRAVITY
@@ -721,7 +721,7 @@ Actor Revenant2 : DnD_BaseHybridMonster 21008 {
 	Height 56
 	Mass 500
 	Speed 10
-	PainChance 100
+	PainChance 0
 	+ISMONSTER
 	MeleeThreshold 196
 	+MISSILEMORE 
@@ -828,7 +828,7 @@ Actor HellKnight2 : DnD_BaseHybridMonster 21009 {
 	Height 64
 	Mass 1000
 	Speed 8
-	PainChance 50
+	PainChance 0
 	+ISMONSTER
 	+FLOORCLIP
 	+DONTHURTSPECIES
@@ -929,7 +929,7 @@ Actor BaronOfHell2 : DnD_BaseHybridMonster 21010 {
 	Height 64
 	Mass 1000
 	Speed 8
-	PainChance 50
+	PainChance 0
 	+ISMONSTER
 	SeeSound "baron/sight"
 	PainSound "baron/pain"
@@ -996,7 +996,7 @@ Actor Mancubus2 : DnD_BaseRangedMonster 21011 {
 	Height 64
 	Mass 1000
 	Speed 8
-	PainChance 80
+	PainChance 0
 	+ISMONSTER
 	+DONTHURTSPECIES
 	SeeSound "fatso/sight"
@@ -1101,7 +1101,7 @@ Actor Arachno2 : DnD_BaseRangedMonster 21012 {
 	Height 64
 	Mass 600
 	Speed 12
-	PainChance 128
+	PainChance 0
 	+ISMONSTER
 	+DONTHURTSPECIES
 	SeeSound "baby/sight"
@@ -1207,7 +1207,7 @@ Actor ArchVile2 : DnD_ArchVileBase 21016 {
 	Height 56
 	Mass 500
 	Speed 15
-	PainChance 10
+	PainChance 0
 	+ISMONSTER
 	MaxTargetRange 896
 	Stamina 32
@@ -1284,7 +1284,7 @@ Actor SpiderMastermind2 : DnD_BaseRangedBoss 21015 {
 	Height 100
 	Mass 2048
 	Speed 12
-	PainChance 40
+	PainChance 0
 	+ISMONSTER
 	MinMissileChance 160
 	+BOSS
@@ -1440,7 +1440,7 @@ Actor Cyberdemon2 : DnD_BaseRangedBoss 21014 {
 	Height 110
 	Mass 2048
 	Speed 16
-	PainChance 20
+	PainChance 0
 	+ISMONSTER
 	MinMissileChance 160
 	MONSTER
@@ -1573,7 +1573,7 @@ Actor WolfensteinSS2 : DnD_BaseRangedMonster 21013 {
 	Radius 20
 	Height 56
 	Speed 8
-	PainChance 170
+	PainChance 0
 	SeeSound "wolfss/sight"
 	PainSound "wolfss/pain"
 	DeathSound "wolfss/death"

@@ -5,7 +5,7 @@ actor BloodSatyr : DnD_BaseHybridMonster 21120 {
     Radius 24
     Height 64
     Scale 1.1
-    PainChance 64
+    PainChance 0
 	Tag "Blood Satyr"
 	Species "HK"
 	+DONTHARMSPECIES
@@ -194,7 +194,7 @@ Actor HellWarrior : DnD_BaseHybridMonster 21121 {
 	Speed 8
 	Radius 24
 	Height 64
-	PainChance 50
+	PainChance 0
 	Mass 1000
 	SeeSound "knight/sight"
 	PainSound "HellKnight/Pain"
@@ -392,7 +392,7 @@ Actor HellsFury : DnD_BaseHybridMonster 21122 {
 	Radius 24
 	Height 64
 	Speed 9
-	PainChance 50
+	PainChance 0
 	Mass 1000
 	SeeSound "baron/sight"
 	ActiveSound "baron/active"
@@ -547,7 +547,7 @@ Actor ArchonOfHell : DnD_BaseHybridMonster 21123 {
 	Height 64 
 	Mass 1000 
 	Speed 8 
-	PainChance 20 
+	PainChance 0
 	Obituary "%o was no match for an archon of hell."
 	HitObituary "%o was ripped apart by an archon of hell."
 	BloodColor "20 60 20"
@@ -727,7 +727,7 @@ Actor WarlordOfHell : DnD_BaseHybridMonster 21124 {
 	Radius 24
 	Height 64 
 	Speed 10 
-	PainChance 50
+	PainChance 0
 	Scale 1.1
 	Mass 1000
 	BloodColor "39 59 9F"
@@ -879,7 +879,7 @@ ACTOR ShadowBeast : DnD_BaseRangedMonster 21125 {
 	Speed 12
 	MeleeRange 96
 	GibHealth -75
-	PainChance 144
+	PainChance 0
 	SEESOUND "shadowbeast/sight"
 	PAINSOUND "shadowbeast/pain"
 	DEATHSOUND "shadowbeast/death"
@@ -1118,7 +1118,7 @@ actor BlackKnight : DnD_BaseHybridMonster 21126 {
 	Health 0x7FFFFFFF
 	Radius 24
 	Height 64
-	PainChance 100
+	PainChance 0
 	Mass 0x7FFFFFFF
 	MeleeRange 96
 	MaxStepHeight 32
@@ -1259,7 +1259,7 @@ Actor SkullWizard : DnD_BaseHybridMonster 21127 {
 	Height 64
 	Mass 120
 	Speed 6
-	PainChance 48
+	PainChance 0
 	MeleeRange 96
 	MeleeDamage 4
 	MissileType "SkullWizardProjectile"
@@ -1631,7 +1631,7 @@ ACTOR ChaosSerpent : DnD_BaseHybridMonster 21129 {
 	//$Sprite DEMNA1
 	Health 0x7FFFFFFF
 	GibHealth -100
-	PainChance 64
+	PainChance 0
 	Speed 12
 	Radius 24
 	Height 64
@@ -1775,7 +1775,7 @@ Actor MoonSatyr : DnD_BaseHybridMonster 21130 {
     Radius 24
     Height 64
     Scale 1.1
-    PainChance 64
+    PainChance 0
 	Speed 8
 	Mass 640
     HitObituary "%o was mauled by a moon satyr."
@@ -1960,7 +1960,7 @@ Actor IceGolem : DnD_BaseHybridMonster 21131 {
     Height 64
     Radius 24
     Mass 4096
-    PainChance 48
+    PainChance 0
     SeeSound "EarthGolem/See"
     PainSound "EarthGolem/Pain"
     DeathSound "EarthGolem/Death"
@@ -2175,7 +2175,7 @@ Actor Gladiator : DnD_BaseHybridMonster 21132 {
 	Radius 24
 	Height 64
 	Speed 11
-	PainChance 64
+	PainChance 0
 	Mass 1000
 	SeeSound "Gladiator/See"
 	ActiveSound "Gladiator/Act"
@@ -2333,7 +2333,7 @@ ACTOR Gladiator_Elite : Gladiator {
 Actor Putrefier : DnD_BaseHybridMonster 21133 {
 	//$Sprite 9TRFA1
 	Health 0x7FFFFFFF
-	PainChance 84
+	PainChance 0
 	Speed 8
 	Radius 24
 	Height 64
