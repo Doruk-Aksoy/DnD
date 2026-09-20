@@ -2272,7 +2272,7 @@ void SetupDungeonMonsters() {
 
 	MonsterData[MONSTER_DUNGEON_DEMENTOR].health = 800;
 	MonsterData[MONSTER_DUNGEON_DEMENTOR].flags = DND_MTYPE_MAGICAL_POW;
-	MonsterData[MONSTER_DUNGEON_DEMENTOR].painchance = 72;
+	MonsterData[MONSTER_DUNGEON_DEMENTOR].painchance = 32;
 	SetMonsterDataTrait(MONSTER_DUNGEON_DEMENTOR, DND_MAGIC_IMMUNE, true);
 	SetMonsterDataTrait(MONSTER_DUNGEON_DEMENTOR, DND_MOBILITY, true);
 }
