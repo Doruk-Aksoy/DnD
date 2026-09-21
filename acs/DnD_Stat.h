@@ -115,9 +115,10 @@ void HandleHealDependencyCheck() {
 void HandleHealthPickup(int amt, int isSpecial, int useTarget, bool noMedkitStore = false, bool notPercentage = false) {
 	if(useTarget)
 		SetActivatorToTarget(0);
-	int curhp = GetActorProperty(0, APROP_HEALTH);
-	int healthcap = GetSpawnHealth();
 	int pnum = PlayerNumber();
+	// Sanguine Covenant. A pickup is health recovery, so it fills the shield under the swap.
+	int curhp = GetHealPoolCur(pnum);
+	int healthcap = GetHealPoolCap(pnum);
 
 	// dont bother
 	if(PlayerModData[pnum].vals[PSTAT_EX_HEALTHATONE])
@@ -157,7 +158,7 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget, bool noMedkitStor
 	else if(isspecial == 3) {
 		// map toast heal -- overwrites amt, so it takes the cut of its own
 		amt = ApplyDungeonReduction(DUN_ATTR_REDUCEDHEALING, healthcap - curhp);
-	    GiveInventory("HealthBonusX", amt);
+		GiveHealPool(pnum, amt);
 		GiveInventory("Research_Body_Hp_1_Tracker", amt);
 	    return;
 	}
@@ -176,14 +177,14 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget, bool noMedkitStor
 	
 	if(!noMedkitStore && CheckResearchStatus(RES_MEDKITSTORE) == RES_DONE && !isspecial) {
 		if(curhp < healthcap) { // if my current curhp is less than max
-			GiveInventory("HealthBonusX", toGive);
+			GiveHealPool(pnum, toGive);
 			GiveInventory("Research_Body_Hp_1_Tracker", toGive);
 		}
         if(toGive < amt)
 			GiveFlaskChargesPercentage(pnum, DND_MEDKIT_TO_FLASK_FACTOR * Clamp_Between((amt - toGive) * 100 / healthcap, 1, base));
 	}
 	else {
-		GiveInventory("HealthBonusX", toGive);
+		GiveHealPool(pnum, toGive);
 		GiveInventory("Research_Body_Hp_1_Tracker", toGive);
 	}
 
@@ -286,13 +287,14 @@ int GetPlayerEnergyShieldRecoveryRate(int pnum, int cap) {
 
 // Returns 0 if player can't regen yet, otherwise returns player's eshield cap
 int CanRegenEShield(int pnum) {
-	int cap = GetPlayerEnergyShieldCap(pnum);
+	int cap = GetChargePoolCap(pnum);
 	if
 	(
 		cap &&
-		CheckInventory("EShieldAmount") < cap &&
+		GetChargePoolCur(pnum) < cap &&
 		!CheckInventory("EShieldCharging") &&
-		(HasPlayerFlag(pnum, PFLAG_ESCHARGE_NOINTERRUPT) || HasPlayerFlag(pnum, PFLAG_ESHIELD_NOINTERRUPT) || !CheckInventory("DnD_Hit_CombatTimer")) &&
+		(HasPlayerFlag(pnum, PFLAG_ESCHARGE_NOINTERRUPT) || HasPlayerFlag(pnum, PFLAG_ESHIELD_NOINTERRUPT) ||
+			!ChargePoolInterrupted(pnum)) &&
 		!CheckInventory("TaltosUp")
 	)
 	{
@@ -1065,6 +1067,11 @@ int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0) {
 			chance += pct_bonus;
 	}
 
+	// Metronome, upbeat half. Crit chance where the downbeat gave damage. Scaled to the crit unit,
+	// which is 0.01 == 1%, not the 1.0 == 1% the mitigation chance uses.
+	if(HasPlayerFlag(pnum, PFLAG_METRONOME) && ResolveMetronomeHalf(pnum) > DND_METRONOME_DOWNBEAT)
+		chance += (PlayerModData[pnum].vals[PSTAT_METRONOME_MAGNITUDE] << 16) / 100;
+
 	// Perception / Lucky Bullet. Flat, not a multiplier: the notes give it as "+2.5% chance", and
 	// every other flat crit source in this function is added the same way.
 	if(CheckActorInventory(pnum + P_TIDSTART, "DnD_LuckyBullet"))
@@ -1737,13 +1744,12 @@ void ReturnToDashAnchor(int pnum) {
 	// would punish you for healing during the trip.
 	int want = a[base + DND_ANCHOR_HP] * PlayerModData[pnum].vals[PSTAT_EX_ANCHOR_RESTOREHP] / 100;
 	int cur = GetActorProperty(ptid, APROP_HEALTH);
-	int cap = CheckActorInventory(ptid, "PlayerHealthCap");
+	int cap = GetHealPoolCap(pnum);
 	if(want > cap)
 		want = cap;
 
 	if(want > cur)
-		GiveActorInventory(ptid, "HealthBonusX",
-			ApplyDungeonReduction(DUN_ATTR_REDUCEDHEALING, want - cur));
+		GiveHealPool(pnum, ApplyDungeonReduction(DUN_ATTR_REDUCEDHEALING, want - cur));
 
 	// Consumed, so the marker goes with it.
 	ACS_NamedExecuteAlways("DnD Dash Anchor Marker Clear", 0, pnum);
@@ -1802,11 +1808,11 @@ int GainPoisonStacks(int pnum, int victim) {
 
 void HandlePoisonKillRegen(int pnum, int tid, int pct) {
 	int lim = GetRegenCap(pnum);
-	int cap = CheckActorInventory(tid, "PlayerHealthCap");
+	int cap = GetHealPoolCap(pnum);
 	if(cap < lim)
 		lim = cap;
 
-	int cur = GetActorProperty(tid, APROP_HEALTH);
+	int cur = GetHealPoolCur(pnum);
 	if(cur >= lim)
 		return;
 
@@ -1814,13 +1820,13 @@ void HandlePoisonKillRegen(int pnum, int tid, int pct) {
 	if(cur + amt > lim)
 		amt = lim - cur;
 
-	if(amt > 0)
-		GiveActorInventory(tid, "HealthBonusX", amt);
+	GiveHealPool(pnum, amt);
 }
 
 int GetRegenCap(int pnum) {
-	int base = (DND_BASEREGENCAP + PlayerModData[pnum].vals[PSTAT_REGENCAP_INCREASE]) * GetSpawnHealth() / 100;
-	return base;
+	// Sanguine Covenant. Scales off the pool the regen actually fills.
+	int cap = HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD) ? GetPlayerEnergyShieldCap(pnum) : GetSpawnHealth();
+	return (DND_BASEREGENCAP + PlayerModData[pnum].vals[PSTAT_REGENCAP_INCREASE]) * cap / 100;
 }
 
 int GetLifesteal(int pnum) {
@@ -1839,7 +1845,7 @@ int GetLifesteal(int pnum) {
 int GetLifestealCap(int pnum) {
 	// avoid recalculating over and over if possible -- changed from the above because if this gets to this point the GetSpawnHealth function has ran once
 	//int hp_cap = Max(CheckInventory("PlayerHealthCap"), GetSpawnHealth());
-	int hp_cap = CheckActorInventory(pnum + P_TIDSTART, "PlayerHealthCap");
+	int hp_cap = GetHealPoolCap(pnum);
 	int bonus = 0;
 	int temp;
 	if((temp = ReadPlayerModExtra(pnum, INV_INC_PASSIVEREGEN)))

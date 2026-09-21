@@ -34,9 +34,20 @@ Script "DnD SBAR" (void) CLIENTSIDE {
 		if(!CheckInventory("ShowingMenu")) {
 			if(GetCVar("dnd_killspree"))
 				GiveInventory("KillSpreeOn", 1);
-			itemcomp = GetSpawnHealth();
-			item = GetActorProperty(0, APROP_HEALTH);
+			// Sanguine Covenant. The slots keep their place on screen; the pools feeding them cross over,
+			// so the health slot is always the one that kills you.
+			bool covenant = CheckInventory("DnD_CovenantActive");
+			if(covenant) {
+				itemcomp = GetAmmoCapacity("EShieldAmountVisual");
+				item = CheckInventory("EShieldAmount");
+			}
+			else {
+				itemcomp = GetSpawnHealth();
+				item = GetActorProperty(0, APROP_HEALTH);
+			}
 			SetInventory("P_HealthCap", itemcomp);
+			SetAmmoCapacity("P_HealthShown", itemcomp);
+			SetInventory("P_HealthShown", item);
 			if(item > itemcomp) {
 				SetInventory("HPOverAmount", item - itemcomp);
 				GiveInventory("HPOver100", 1);
@@ -66,8 +77,16 @@ Script "DnD SBAR" (void) CLIENTSIDE {
 				GiveInventory("HPBelow25", 1);
 			}
 			
-			item = CheckInventory("EShieldAmount");
-			itemcomp = GetAmmoCapacity("EShieldAmountVisual");
+			if(covenant) {
+				item = GetActorProperty(0, APROP_HEALTH);
+				itemcomp = GetSpawnHealth();
+			}
+			else {
+				item = CheckInventory("EShieldAmount");
+				itemcomp = GetAmmoCapacity("EShieldAmountVisual");
+			}
+			SetAmmoCapacity("P_ShieldShown", itemcomp);
+			SetInventory("P_ShieldShown", item);
 			if(item > itemcomp) {
 				// can happen with armor bonuses -- up to maximum of x2 of cap (only fully reached with ubersphere)
 				SetAmmoCapacity("ARMOverAmount", itemcomp * 2);
@@ -181,6 +200,41 @@ Script "DnD SBAR" (void) CLIENTSIDE {
 	TakeInventory("HPNormal", 1);
 	TakeInventory("HPBelow50", 1);
 	GiveInventory("HPBelow25", 1);
+}
+
+// Metronome. Its own script rather than a branch in DnD SBAR: that loop runs every 5 tics and the
+// on-beat window is often shorter than that, so the indicator would lie about the timing.
+Script "DnD Metronome Beat" ENTER CLIENTSIDE {
+	int pnum = PlayerNumber();
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+
+	int window;
+	str glyph;
+	bool drawn = false;
+	while(PlayerInGame(pnum)) {
+		window = CheckInventory("P_MetronomeWindow");
+		if(window && isAlive() && !CheckInventory("ShowingMenu")) {
+			if(!IsOnMetronomeBeat(window))
+				glyph = "METROFF";
+			else if(GetMetronomeBeat() == DND_METRONOME_DOWNBEAT)
+				glyph = "METRDMG";
+			else
+				glyph = "METRCRIT";
+
+			SetHudSize(800, 600, 0);
+			SetFont(glyph);
+			// Bottom centre: clear of the status bar on the left, and above the exp bar row at -16.
+			HudMessage(s:"A"; HUDMSG_PLAIN, METRONOME_BEAT_ID, CR_UNTRANSLATED, 632.4, 560.0, 0.1);
+			drawn = true;
+		}
+		else if(drawn) {
+			DeleteText(METRONOME_BEAT_ID);
+			drawn = false;
+		}
+
+		Delay(const:1);
+	}
 }
 
 Script "DnD Clientside Open" OPEN CLIENTSIDE {
@@ -4543,7 +4597,7 @@ Script "DnD Ember Trail" (int pnum) {
 				// way reads as a weapon id and resolves to nothing at all.
 				if(GetPlayerElementalAvoidChance(pnum, DND_PAVOID_IGNITE) < random(1, 100)) {
 					int burn = Max(1, PlayerModData[pnum].vals[PSTAT_EX_IGNITETRAIL] / 2);
-					burn = ApplyPlayerDamageResist(pnum, burn, DND_PRESIST_ELEM);
+					burn = ClampCovenantSelfDamage(pnum, ApplyPlayerDamageResist(pnum, burn, DND_PRESIST_ELEM));
 					if(burn > 0) {
 						ACS_NamedExecuteAlways("DnD Monster Ignite FX", 0, ptid, random(3, 5));
 						Thing_Damage2(ptid, burn, "SkipHandle");
@@ -4670,18 +4724,27 @@ Script "DnD Periodic Regeneration" ENTER {
 		if(isAlive()) {
 			int regen_amt = pbuffs[pnum].buff_net_values[BUFF_HEALTHREGEN].additive;
 
-			if(!(ticker % 10) && (amt = PlayerModData[pnum].vals[PSTAT_INC_PASSIVEREGEN])) {
-				regen_amt += amt;
-				ticker = 0;
+			// Sanguine Covenant. Passive regen is the only thing feeding the life pool now, and a single
+			// lump every ten seconds reads as nothing happening. Every tick at a tenth instead.
+			bool spread = false;
+			if((amt = PlayerModData[pnum].vals[PSTAT_INC_PASSIVEREGEN])) {
+				if(HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD)) {
+					regen_amt += amt;
+					spread = true;
+				}
+				else if(!(ticker % 10)) {
+					regen_amt += amt;
+					ticker = 0;
+				}
 			}
 
 			if((regen_amt > 0 || CheckInventory("Ability_Regeneration")) && !IsAccessoryEquipped(this, DND_ACCESSORY_GRYPHONBOOTS)) {
-				cur = GetActorProperty(0, APROP_HEALTH);
+				cur = GetHealPoolCur(pnum);
 				regen_amt = (regen_amt * 100) >> 16;
 				lim = GetRegenCap(pnum);
 
 				// cap the regen to our health cap
-				amt = CheckInventory("PlayerHealthCap");
+				amt = GetHealPoolCap(pnum);
 				if(amt < lim)
 					lim = amt;
 
@@ -4707,12 +4770,16 @@ Script "DnD Periodic Regeneration" ENTER {
 					amt += amt * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV;
 
 				amt = ApplyDungeonReduction(DUN_ATTR_REDUCEDHEALING, amt);
+
+				// a tenth per tick rather than the whole lump once every ten
+				if(spread)
+					amt = Max(1, amt / 10);
 				
-				if((!CheckInventory("DnD_Hit_CombatTimer") || PlayerModData[pnum].vals[PSTAT_CORR_DMGDOESNTSTOPREGEN] || PlayerModData[pnum].vals[PSTAT_INC_HPREGENINTERRUPT]) && cur < lim) {
+				if((!HealPoolInterrupted(pnum) || PlayerModData[pnum].vals[PSTAT_CORR_DMGDOESNTSTOPREGEN] || PlayerModData[pnum].vals[PSTAT_INC_HPREGENINTERRUPT]) && cur < lim) {
 					if(cur + amt < lim)
-						GiveInventory("HealthBonusX", amt);
+						GiveHealPool(pnum, amt);
 					else
-						GiveInventory("HealthBonusX", lim - cur);
+						GiveHealPool(pnum, lim - cur);
 					GiveInventory("RegenEffect", 1);
 					LocalAmbientSound("ability/regen", 127);
 				}
@@ -4731,6 +4798,11 @@ Script "DnD Periodic Regeneration" ENTER {
 Script "DnD Energy Shield Regen" (int cap, int pnum) {
 	GiveInventory("EShieldCharging", 1);
 
+	// Sanguine Covenant. A charge that outlives the swap is filling the wrong pool at a rate
+	// sized for the other one, and it holds EShieldCharging the whole time -- which is what
+	// stops CanRegenEShield ever starting a correct one.
+	bool toHealth = ChargeFillsHealth(pnum);
+
 	// minimum wait time will always be 1 second before a recovery can start
 	int rchrg = GetPlayerEnergyShieldRechargeDelay(pnum);
 
@@ -4745,7 +4817,8 @@ Script "DnD Energy Shield Regen" (int cap, int pnum) {
 		if
 		(
 			!isAlive() || 
-			(CheckInventory("DnD_Hit_CombatTimer") && !HasPlayerFlag(pnum, PFLAG_ESCHARGE_NOINTERRUPT) && !HasPlayerFlag(pnum, PFLAG_ESHIELD_NOINTERRUPT) && !CheckInventory("EShieldChargeNow")) || 
+			toHealth != ChargeFillsHealth(pnum) || 
+			(ChargePoolInterrupted(pnum) && !HasPlayerFlag(pnum, PFLAG_ESCHARGE_NOINTERRUPT) && !HasPlayerFlag(pnum, PFLAG_ESHIELD_NOINTERRUPT) && !CheckInventory("EShieldChargeNow")) || 
 			!GetAmmoCapacity("EShieldAmountVisual")
 		)
 		{
@@ -4757,11 +4830,13 @@ Script "DnD Energy Shield Regen" (int cap, int pnum) {
 	}
 
 	// check it again just in case
-	cap = GetPlayerEnergyShieldCap(pnum);
-	if(!cap)
+	cap = GetChargePoolCap(pnum);
+	if(!cap) {
+		TakeInventory("EShieldCharging", 1);
 		Terminate;
+	}
 
-	ACS_NamedExecuteAlways("DnD Energy Shield FX", 0, cap, pnum);
+	ACS_NamedExecuteAlways("DnD Energy Shield FX", 0, cap, pnum, ChargeFillsHealth(pnum));
 
 	// we can start the recovery now, but we still have to check if we enter combat etc.
 	rchrg = GetPlayerEnergyShieldRecoveryRate(pnum, cap);
@@ -4774,10 +4849,10 @@ Script "DnD Energy Shield Regen" (int cap, int pnum) {
 	else
 		count = 0;
 
-	while(isAlive() && CheckInventory("EShieldAmount") < cap) {
-		AddEnergyShield(rchrg);
-		if(CheckInventory("EShieldAmount") >= cap)
-			SetEnergyShield(cap);
+	while(isAlive() && GetChargePoolCur(pnum) < cap) {
+		GiveChargePool(pnum, rchrg);
+		if(GetChargePoolCur(pnum) >= cap)
+			SetChargePool(pnum, cap);
 
 		if(count) {
 			// take life -- do not damage, we aren't triggering on hit effects!
@@ -4792,7 +4867,8 @@ Script "DnD Energy Shield Regen" (int cap, int pnum) {
 			}
 		}
 		
-		if(CheckInventory("DnD_Hit_CombatTimer") && !HasPlayerFlag(pnum, PFLAG_ESCHARGE_NOINTERRUPT) && !CheckInventory("EShieldChargeNow")) {
+		if(toHealth != ChargeFillsHealth(pnum) ||
+			(ChargePoolInterrupted(pnum) && !HasPlayerFlag(pnum, PFLAG_ESCHARGE_NOINTERRUPT) && !CheckInventory("EShieldChargeNow"))) {
 			TakeInventory("EShieldCharging", 1);
 			TakeInventory("EShieldChargeNow", 1);
 			Terminate;
@@ -4815,7 +4891,9 @@ Script "DnD Energy Shield Regen" (int cap, int pnum) {
 	}
 }
 
-Script "DnD Energy Shield FX" (int cap, int pnum) CLIENTSIDE {
+// toHealth: Sanguine Covenant points the recharge at health, and cap comes from that pool -- the
+// two have to agree or the halves slide off the wrong edge of the screen.
+Script "DnD Energy Shield FX" (int cap, int pnum, int toHealth) CLIENTSIDE {
 	if(ConsolePlayerNumber() != pnum)
 		Terminate;
 
@@ -4829,7 +4907,7 @@ Script "DnD Energy Shield FX" (int cap, int pnum) CLIENTSIDE {
 		isAlive() && 
 		CheckInventory("EShieldCharging") &&
 		!CheckInventory("TaltosUp") && 
-		(amt = CheckInventory("EShieldAmount")) < cap &&
+		(amt = (toHealth ? GetActorProperty(0, APROP_HEALTH) : CheckInventory("EShieldAmount"))) < cap &&
 		!CheckInventory("DnD_IntermissionState")
 	)
 	{
@@ -4884,31 +4962,29 @@ Script "DnD Lifesteal Script" (int tid) {
 
 	int tics = GetLifestealRate(pnum);
 	int amt;
-	int cap = GetSpawnHealth();
 	bool cyborgCheck = HasClassPerk_Fast(DND_PLAYER_CYBORG, 5);
-	if(cyborgCheck)
-		cap = GetPlayerEnergyShieldCap(pnum);
+	// Sanguine Covenant. Lifesteal fills the shield here too, see ResolveLifesteal.
+	bool useShield = cyborgCheck || HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD);
+	int cap = useShield ? GetPlayerEnergyShieldCap(pnum) : GetSpawnHealth();
 
 	// printbold(s:"health cap: ", d:cap, s: " tics: ", d:tics);
 	int ls_amount = 0;
 	while((IsAlive() && (ls_amount = CheckInventory("LifeStealAmount"))) || CheckInventory("LifestealCooldown")) {
 		if(ls_amount) {
-			int toCompare = GetActorProperty(0, APROP_HEALTH);
-			if(cyborgCheck)
-				toCompare = CheckInventory("EShieldAmount");
+			int toCompare = useShield ? CheckInventory("EShieldAmount") : GetActorProperty(0, APROP_HEALTH);
 
 			amt = GetLifestealLifeRecovery(pnum, cap);
 			TakeInventory("LifeStealAmount", amt);
 			
 			if(toCompare + amt < cap) {
-				if(!cyborgCheck)
+				if(!useShield)
 					GiveInventory("HealthBonusX", amt);
 				else
 					AddEnergyShield(amt);
 			}
 			else {
 				// we can put "lifesteal effect not removed when reaching max life" here in the future if needed to not break, but also not heal
-				if(!cyborgCheck)
+				if(!useShield)
 					GiveInventory("HealthBonusX", cap - toCompare);
 				else
 					AddEnergyShield(cap - toCompare);
@@ -6566,6 +6642,11 @@ Script "DnD Projectile Checks" (int isPet, int isExplosive) {
 
 	// store owner
 	SetActorProperty(0, APROP_SCORE, owner);
+
+	// Metronome. Stamped here rather than on a hook of its own -- every player projectile already
+	// passes through this script, so carrying the beat costs nothing extra per shot.
+	if(HasPlayerFlag(pnum, PFLAG_METRONOME))
+		SetUserVariable(0, "user_beat", MakeBeatStamp());
 	//printbold(s:"owner is ", d:owner);
 	
 	// hack for crit store on burst fire projectiles -- they call this on their initialization phase so at this point we should be able to check the wepid
@@ -7279,6 +7360,7 @@ Script 68 (int x) NET {
 			SpawnSpecificDungeonKey(0, DND_DUNGEON_ULTIMATUM);
 			//SpawnFlask(0, 0);
 			SpawnBoot(0, 0);
+			SpawnArmor(0, 0);
 			/*
 				pukename "DnD Spawn Unique" 518            Kineticrushers, at your feet
 				pukename "DnD Spawn Unique All" 133        Nullforce, one for every player

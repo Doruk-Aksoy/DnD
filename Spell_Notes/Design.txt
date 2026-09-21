@@ -5,7 +5,7 @@ Stats affecting spells and skills:
     All players have access to mana. Initially, they only have 0 mana.
     Investing points in Intellect (INT) stat gives 5 mana per INT and 0.25 mana regen per 2 INT.
     Mana is regenerated every second. The rate you have is how much mana you'll get every second.
-    Charms can give flat mana or mana regen rate bonuses.
+    Charms can give flat mana, % increased mana or mana regen rate bonuses.
     
 * Cast Time
 
@@ -26,10 +26,10 @@ SKILLS
 * Max spell rank: 10.
 * Maximum Spell Points that can be allocated: 100.
 * Spells have additional bonuses at ranks 5 and 10.
-* There will be a spell allocation method. Player will get to allocate 3 spells of their choosing. Maximum of 6 spells. Wanderer gets a +1. (The other +2 can be from inventory items)
+* There will be a spell allocation method to bind for use in game. Player will get to allocate 3 spells of their choosing. Maximum of 6 spells. Wanderer gets a +1. (The other +2 can be from inventory items)
 * Spells have scaling from INT. Higher INT -> more out of a spell.
 * Some spells have synergies. This is usually by spells that unlock each other. Leveling these spells improve another's performance.
 * There are passive skills. If you put a point in these, they work without having to allocate them. But these usually have plenty of requirements.
-* Display method: Skill tree or a list? Probably a tree.
-* Maximum skill ranks that can be invested: 100.
+* Display method: Skill tree with icons. Very similar to Diablo 2.
+* Maximum skill points that can be invested: 100.
 * Luck affects outcome of spells based on chance. This is mainly important for Chaos Tree.

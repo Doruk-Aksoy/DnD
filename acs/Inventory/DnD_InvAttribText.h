@@ -1144,6 +1144,8 @@ str GetItemAttributeText(
 		case INV_EX_NOLOWSTAMINA_DMGLOSS:
 		case INV_EX_NODEPLETEDSTAMINA_DMGLOSS:
 		case INV_EX_NOBLEEDEXTRA_MOVING:
+		case INV_EX_SWAP_HP_AND_SHIELD:
+		case INV_EX_METRONOME_BEAT:
 			if(showDetailedMods)
 				return StrParam(l:text, s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 			return StrParam(l:text);
@@ -1242,6 +1244,7 @@ str GetItemAttributeText(
 				return StrParam(l:text, s:" ", s:bad_tag, d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c[D4] ", l:"IATTR_TX107_2", s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 			return StrParam(l:text, s:" ", s:bad_tag, d:val1, s:"\c[D4] ", l:"IATTR_TX107_2");
 
+		case INV_EX_OFFBEAT_LESSDAMAGE:
 		case INV_EX_LESS_STAMINARECOVERY:
 			if(showDetailedMods)
 				return StrParam(s:bad_tag, d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c[D4] ", l:text, s:" - ", s:GetModTierText(attr, item_type, tier, extra));

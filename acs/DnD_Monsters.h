@@ -1062,8 +1062,7 @@ Script "DnD Bloodseeker Transform" (void) {
 	for(int i = 0; !res && i < MAXPLAYERS; ++i) {
 		if(PlayerInGame(i)) {
 			targtid = i + P_TIDSTART;
-			// playerhealthcap is an inventory that represents a player's healthcap, to be used by sources outside of players
-			res = 	GetActorProperty(targtid, APROP_HEALTH) <= CheckActorInventory(targtid, "PlayerHealthCap") / 2 						&& 
+			res = 	IsLethalPoolBelow(i, 50) 	&& 
 					AproxDistance(GetActorX(this) - GetActorX(targtid), GetActorY(this) - GetActorY(targtid)) <= BLOODSEEKER_DISTANCE 	&&
 					CheckSight(targtid, this, CSF_NOBLOCKALL);
 		}

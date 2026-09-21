@@ -85,6 +85,7 @@ DND_UCIMG20			=	"UCHRM20";
 DND_UCIMG21			=	"UCHRM21";
 DND_UCIMG22			=	"UCHRM22";
 DND_UCIMG23			=	"UCHRM23";
+DND_UCIMG24			=	"UCHRM24";
 
 DND_UDCIMG1			=	"UDCHRM1";
 DND_UDCIMG2			=	"UDCHRM2";
@@ -92,6 +93,8 @@ DND_UDCIMG3			=	"UDCHRM3";
 DND_UDCIMG4			=	"UDCHRM4";
 DND_UDCIMG5			=	"UDCHRM5";
 DND_UDCIMG6			=	"UDCHRM6";
+// art owed -- UDCHRM7 does not exist yet
+DND_UDCIMG7			=	"UDCHRM7";
 
 // unique cores
 DND_UCORIMG1		=	"UCORE01";
@@ -308,6 +311,7 @@ DND_UNIQUE20			=	"Deathwing's Fang";
 DND_UNIQUE21 			=	"Mirror of Eternity";
 DND_UNIQUE22			=	"Kingmaker";
 DND_UNIQUE23			=	"Archangel's Beacon";
+DND_UNIQUE24			=	"Metronome";
 
 DND_DROP_UNIQUE1		=	"Elemental Harmony";
 DND_DROP_UNIQUE2		=	"Steelbark";
@@ -315,6 +319,7 @@ DND_DROP_UNIQUE3		=	"Dreaming God's Ire";
 DND_DROP_UNIQUE4		=	"Heatbreaker";
 DND_DROP_UNIQUE5		=	"Thornvein";
 DND_DROP_UNIQUE6		=	"Nullforce";
+DND_DROP_UNIQUE7		=	"Sanguine Covenant";
 
 // unique power cores
 DND_UCORE_NAME1			=	"The Tesseract";
@@ -774,7 +779,13 @@ IATTR_TX112         = "chance that if you were to gain an Endurance Charge, you 
 IATTR_TX113         = "chance for a melee attack to use no stamina";
 
 // Nullforce
-IATTR_TX114         = "Gain 2% more damage per 1% of missing ammo on your weapon";
+IATTR_TX114         = "Gain \cd2%\c- more damage per \cd1%\c- of missing ammo on your weapon";
+
+IATTR_TX115         = "Health becomes your energy shield, energy shield becomes your health\nEnergy shield degrades in negation power the lower it gets";
+IATTR_TX116         = "You keep a continuous beat where shots gain damage on the downbeat and added critical strike chance on the upbeat";
+IATTR_TX117         = "gained by a shot that lands on the beat";
+IATTR_TX118         = "of each beat counts as on time";
+IATTR_TX119         = "less damage on a shot that misses the beat";
 
 // Anathema names the ailment itself; the other four come from the DND_MENU_AILMENT list. This one
 // has no entry there because chill and freeze are one answer to it.

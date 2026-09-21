@@ -588,7 +588,7 @@ Script "DnD Flask Use" (int flask_id) NET {
 	int cap, total_time;
 	// if its life flask only allow use when not max health already
 	str flask_tics_item = StrParam(s:"Flask", d:flask_id + 1, s:"_TicCounter");
-    if(IsLifeFlask(FlaskData[pnum][flask_id].flask_type) && GetActorProperty(0, APROP_HEALTH) < (cap = CheckInventory("PlayerHealthCap"))) {
+    if(IsLifeFlask(FlaskData[pnum][flask_id].flask_type) && GetHealPoolCur(pnum) < (cap = GetHealPoolCap(pnum))) {
 		// play the drink sound
 		PlaySound(0, "Items/FlaskUse", CHAN_ITEM);
 
@@ -638,7 +638,7 @@ Script "DnD Flask Use" (int flask_id) NET {
 
 		int error = 0;
 
-		while(!CheckFlaskScriptConditions(pnum) && GetActorProperty(0, APROP_HEALTH) < (cap = CheckInventory("PlayerHealthCap")) && FlaskData[pnum][flask_id].curr_tics < total_time) {
+		while(!CheckFlaskScriptConditions(pnum) && GetHealPoolCur(pnum) < (cap = GetHealPoolCap(pnum)) && FlaskData[pnum][flask_id].curr_tics < total_time) {
 			int tmp_give = toGive;
 
 			// balance out if we should give toGive or toGive + 1 per step
@@ -651,13 +651,13 @@ Script "DnD Flask Use" (int flask_id) NET {
 			// max amount to give has been depleted
 			currGiven += tmp_give;
 
-			if(GetActorProperty(0, APROP_HEALTH) + tmp_give > cap) {
+			if(GetHealPoolCur(pnum) + tmp_give > cap) {
 				// limit reached, stop
-				GiveInventory("HealthBonusX", cap - GetActorProperty(0, APROP_HEALTH));
+				GiveHealPool(pnum, cap - GetHealPoolCur(pnum));
 				break;
 			}
 			else
-				GiveInventory("HealthBonusX", tmp_give);
+				GiveHealPool(pnum, tmp_give);
 
 			if(currGiven >= toGive_total)
 				break;

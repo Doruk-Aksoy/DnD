@@ -2703,6 +2703,9 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 						SetActorProperty(0, APROP_HEALTH, temp);
 				}
 			}
+
+			// Sanguine Covenant. This is the SHIELD's ceiling under the swap.
+			HandleEShieldChange(pnum, remove);
 		break;
 		
 		case INV_SPEED_INCREASE:
@@ -2741,6 +2744,9 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 						SetActorProperty(0, APROP_HEALTH, temp);
 				}
 			}
+
+			// Sanguine Covenant. This is the SHIELD's ceiling under the swap.
+			HandleEShieldChange(pnum, remove);
 			CalculateUnity(pnum);
 		break;
 		case INV_STAT_DEXTERITY:
@@ -2904,6 +2910,32 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 		// Hell's Vanguard.
 		case INV_EX_NOBLEEDEXTRA_MOVING:
 			SetPlayerFlag(pnum, PFLAG_NOBLEEDEXTRA_MOVING, remove);
+		break;
+
+		// Sanguine Covenant. The caps trade places the moment the flag moves, so the values have to
+		// follow in the same breath or the new lethal pool is left wherever the old one sat.
+		case INV_EX_SWAP_HP_AND_SHIELD:
+			// PFLAG is a REFCOUNT and the charm handlers strip and re-add around a factor change, so
+			// only the 0 <-> 1 transition may move the pools -- twice in a row nets out to nothing.
+			temp = GetPlayerFlagCount(pnum, PFLAG_SWAP_HP_SHIELD);
+			SetPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD, remove);
+			if(!temp != !GetPlayerFlagCount(pnum, PFLAG_SWAP_HP_SHIELD)) {
+				SetActorInventory(pnum + P_TIDSTART, "DnD_CovenantActive", !remove);
+				SwapHealthAndShieldPools(pnum);
+				HandleEShieldChange(pnum, true);
+			}
+		break;
+
+		// Metronome.
+		case INV_EX_METRONOME_BEAT:
+			SetPlayerFlag(pnum, PFLAG_METRONOME, remove);
+		break;
+
+		// Mirrored to an ammo item because the HUD that draws the beat is clientside, and
+		// PlayerModData is not. Zero there doubles as "no charm equipped".
+		case INV_EX_METRONOME_WINDOW:
+			IncPlayerModValue(pnum, atype, aval);
+			SetActorInventory(pnum + P_TIDSTART, "P_MetronomeWindow", PlayerModData[pnum].vals[PSTAT_METRONOME_WINDOW]);
 		break;
 
 		case INV_EX_CANNOTBEIGNITED:

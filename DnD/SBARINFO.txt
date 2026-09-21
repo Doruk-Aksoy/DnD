@@ -503,44 +503,50 @@ statusbar normal, fullscreenoffsets {
   {
     // Health -------------------------------------------------------------------------------------------
 
-    // Draw berserk icon instead of health icon if the berserk pack is in the inventory
-    InInventory PowerStrength { drawimage "H_ICNBSK", 12, -46; }
+    // Sanguine Covenant. This slot is the shield's pool now, so it takes the shield's icon.
+    InInventory DnD_CovenantActive { drawimage "H_ICNARR", 18, -40, center, 18, 18; }
+    else
+    {
+      // Draw berserk icon instead of health icon if the berserk pack is in the inventory
+      InInventory PowerStrength { drawimage "H_ICNBSK", 12, -46; }
 
-    // Otherwise, draw the health icon instead
-    else { drawimage "H_ICNHP", 12, -46; }
+      // Otherwise, draw the health icon instead
+      else { drawimage "H_ICNHP", 12, -46; }
+    }
 
     InInventory HPOver100
     {
       drawimage "H_BRFRMX", 31, -48;
-      drawbar "H_BRFILG", "H_BRFBGG", health P_HealthCap, horizontal, 34, -45;
+      drawbar "H_BRFILG", "H_BRFBGG", ammo P_HealthShown, horizontal, 34, -45;
       drawbar "H_BRFILB", "H_BRFBGB", HPOverAmount, horizontal, 34, -45;
-      drawnumber 5, HUDFONT2_DOOM, NCBlue, health, alignment(left), 127, -47;
+      drawnumber 5, HUDFONT2_DOOM, NCBlue, ammo P_HealthShown, alignment(left), 127, -47;
     }
 
     InInventory HPNormal
     {
       drawimage "H_BRFRMX", 31, -48;
-      drawbar "H_BRFILG", "H_BRFBGG", health P_HealthCap, horizontal, 34, -45;
-      drawnumber 5, HUDFONT2_DOOM, NCGreen, health, alignment(left), 127, -47;
+      drawbar "H_BRFILG", "H_BRFBGG", ammo P_HealthShown, horizontal, 34, -45;
+      drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo P_HealthShown, alignment(left), 127, -47;
     }
 
     InInventory HPBelow50
     {
       drawimage "H_HPWG01", 31, -48;
-      drawbar "H_BRFILY", "H_BRFBGY", health P_HealthCap, horizontal, 34, -45;
-      drawnumber 5, HUDFONT2_DOOM, NCYellow, health, alignment(left), 127, -47;
+      drawbar "H_BRFILY", "H_BRFBGY", ammo P_HealthShown, horizontal, 34, -45;
+      drawnumber 5, HUDFONT2_DOOM, NCYellow, ammo P_HealthShown, alignment(left), 127, -47;
     }
 
     InInventory HPBelow25
     {
       drawimage "H_HPFC01", 31, -48;
-      drawbar "H_BRFILR", "H_BRFBGR", health P_HealthCap, horizontal, 34, -45;
-      drawnumber 5, HUDFONT2_DOOM, NCRed, health, alignment(left), 127, -47;
+      drawbar "H_BRFILR", "H_BRFBGR", ammo P_HealthShown, horizontal, 34, -45;
+      drawnumber 5, HUDFONT2_DOOM, NCRed, ammo P_HealthShown, alignment(left), 127, -47;
     }
 
     // Armor --------------------------------------------------------------------------------------------
-    // Icon
-	drawimage "H_ICNARR", 18, -71, center, 18, 18;
+    // Icon -- Sanguine Covenant trades it with the health slot's
+	InInventory DnD_CovenantActive { drawimage "H_ICNHP", 18, -71, center, 12, 12; }
+	else { drawimage "H_ICNARR", 18, -71, center, 18, 18; }
 
     // If armor is above 100, draw the bar overlay and counter in blue color,
     // and the bar frame in "normal" color
@@ -549,23 +555,23 @@ statusbar normal, fullscreenoffsets {
       drawimage "H_BRFRMX", 31, -79; // Bar frame
 	  drawimage "H_BRFILG", 34, -76; // Bar green
       drawbar "H_BRFILB", "H_BRFBGB", ARMOverAmount, horizontal, 34, -76; // Bar (over 100)
-      drawnumber 5, HUDFONT2_DOOM, NCBlue, ammo EShieldAmount, alignment(left), 127, -78; // Counter
+      drawnumber 5, HUDFONT2_DOOM, NCBlue, ammo P_ShieldShown, alignment(left), 127, -78; // Counter
     }
 
     // If armor is in "good" state, draw the bar and counter in green color
     InInventory ARMNormal
     {
       drawimage "H_BRFRMX", 31, -79;
-      drawbar "H_BRFILG", "H_BRFBGG", ammo EShieldAmountVisual, horizontal, 34, -76;
-      drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo EShieldAmount, alignment(left), 127, -78;
+      drawbar "H_BRFILG", "H_BRFBGG", ammo P_ShieldShown, horizontal, 34, -76;
+      drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo P_ShieldShown, alignment(left), 127, -78;
     }
 
     // If armor is in "warning" state, draw the bar and counter in yellow color
     InInventory ARMBelow50
     {
       drawimage "H_BRFRMX", 31, -79;
-      drawbar "H_BRFILY", "H_BRFBGY", ammo EShieldAmountVisual, horizontal, 34, -76;
-      drawnumber 5, HUDFONT2_DOOM, NCYellow, ammo EShieldAmount, alignment(left), 127, -78;
+      drawbar "H_BRFILY", "H_BRFBGY", ammo P_ShieldShown, horizontal, 34, -76;
+      drawnumber 5, HUDFONT2_DOOM, NCYellow, ammo P_ShieldShown, alignment(left), 127, -78;
     }
 
     // If armor is in "critical" state, draw the bar and counter in red color,
@@ -573,8 +579,8 @@ statusbar normal, fullscreenoffsets {
     InInventory ARMBelow25
     {
       drawimage "H_ARFW01", 31, -79;
-      drawbar "H_BRFILR", "H_BRFBGR", ammo EShieldAmountVisual, horizontal, 34, -76;
-      drawnumber 5, HUDFONT2_DOOM, NCRed, ammo EShieldAmount, alignment(left), 127, -78;
+      drawbar "H_BRFILR", "H_BRFBGR", ammo P_ShieldShown, horizontal, 34, -76;
+      drawnumber 5, HUDFONT2_DOOM, NCRed, ammo P_ShieldShown, alignment(left), 127, -78;
     }
   }
 
@@ -587,30 +593,30 @@ statusbar normal, fullscreenoffsets {
     InInventory HPOver100
     {
       drawimage "H_BRFRMX", 31, -79;
-      drawbar "H_BRFILG", "H_BRFBGG", health P_HealthCap, horizontal, 34, -76;
+      drawbar "H_BRFILG", "H_BRFBGG", ammo P_HealthShown, horizontal, 34, -76;
       drawbar "H_BRFILB", "H_BRFBGB", HPOverAmount, horizontal, 34, -76;
-      drawnumber 5, HUDFONT2_DOOM, NCBlue, health, alignment(left), 127, -78;
+      drawnumber 5, HUDFONT2_DOOM, NCBlue, ammo P_HealthShown, alignment(left), 127, -78;
     }
 
     InInventory HPNormal
     {
       drawimage "H_BRFRMX", 31, -79;
-      drawbar "H_BRFILG", "H_BRFBGG", health P_HealthCap, horizontal, 34, -76;
-      drawnumber 5, HUDFONT2_DOOM, NCGreen, health, alignment(left), 127, -78;
+      drawbar "H_BRFILG", "H_BRFBGG", ammo P_HealthShown, horizontal, 34, -76;
+      drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo P_HealthShown, alignment(left), 127, -78;
     }
 
     InInventory HPBelow50
     {
       drawimage "H_HPWG01", 31, -79;
-      drawbar "H_BRFILY", "H_BRFBGY", health P_HealthCap, horizontal, 34, -76;
-      drawnumber 5, HUDFONT2_DOOM, NCYellow, health, alignment(left), 127, -78;
+      drawbar "H_BRFILY", "H_BRFBGY", ammo P_HealthShown, horizontal, 34, -76;
+      drawnumber 5, HUDFONT2_DOOM, NCYellow, ammo P_HealthShown, alignment(left), 127, -78;
     }
 
     InInventory HPBelow25
     {
       drawimage "H_HPFC01", 31, -79;
-      drawbar "H_BRFILR", "H_BRFBGR", health P_HealthCap, horizontal, 34, -76;
-      drawnumber 5, HUDFONT2_DOOM, NCRed, health, alignment(left), 127, -78;
+      drawbar "H_BRFILR", "H_BRFBGR", ammo P_HealthShown, horizontal, 34, -76;
+      drawnumber 5, HUDFONT2_DOOM, NCRed, ammo P_HealthShown, alignment(left), 127, -78;
     }
   }
 

@@ -2095,6 +2095,11 @@ bool CanWeaponOverheat(int id) {
 int GetWeaponMissingAmmoPercent(int id) {
 	int have = 0, cap = 0;
 
+	// A NOREALAMMOUSE weapon parks a cooldown or a charge counter in its ammo slot -- those sit
+	// empty most of the time, which would read as permanently out of ammo.
+	if(!IsAmmoUsingWeapon(id))
+		return 0;
+
 	str a = Weapons_Data[id].ammo_name1;
 	if(a != "") {
 		have += CheckInventory(a);
@@ -2107,7 +2112,7 @@ int GetWeaponMissingAmmoPercent(int id) {
 		cap += GetAmmoCapacity(a);
 	}
 
-	// a weapon with no ammo pool at all -- fists, chainsaw -- is never 'missing' any
+	// a weapon whose ammo has no capacity is never 'missing' any
 	if(cap <= 0)
 		return 0;
 

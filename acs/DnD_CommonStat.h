@@ -611,11 +611,9 @@ bool CanActorHaveMorePets(int tid) {
 
 int GetHealingBonuses(int pnum) {
 	// Endurance / Medic feeds this. Integer percent -- HandleHealthPickup does amt * (100 + b) / 100.
-	int bonus = PlayerModData[pnum].vals[PSTAT_HEALING_EFFECT];
-	// doesn't make sense for it to go below 0
-	int less_mod = Clamp_Between(100 - PlayerModData[pnum].vals[PSTAT_EX_LESSHEALING], 0, 100);
-	bonus = bonus * less_mod / 100;
-	return bonus;
+	// The "less healing" cut used to live here, where it only shrank this bonus and so did nothing
+	// at all to anyone without one. It is on the heal itself now, in GiveHealPool.
+	return PlayerModData[pnum].vals[PSTAT_HEALING_EFFECT];
 }
 
 int GetResearchHealthBonuses() {
@@ -662,17 +660,12 @@ int CalculateHealthCapBonuses(int pnum) {
 	return base;
 }
 
-// returns player max health
-int GetSpawnHealth(bool bypassEShieldCheck = false, int pnum = -1) {
-	if(pnum == -1)
-		pnum = PlayerNumber();
-
+// Raw, pre-swap health cap. Never reads the swap flag, so nothing below it can recurse.
+int GetRawSpawnHealth(bool bypassEShieldCheck, int pnum) {
 	int tid = pnum + P_TIDSTART;
 
-	if(!bypassEShieldCheck && PlayerModData[pnum].vals[PSTAT_EX_HEALTHATONE]) {
-		SetActorInventory(tid, "PlayerHealthCap", 1);
+	if(!bypassEShieldCheck && PlayerModData[pnum].vals[PSTAT_EX_HEALTHATONE])
 		return 1;
-	}
 
 	int str_bonus = GetStrengthEffect(pnum, DND_HP_PER_STR);
 	int res = CalculateHealthCapBonuses(pnum) + DND_BASE_HEALTH + DND_HP_PER_LVL * (CheckActorInventory(tid, "Level") - 1) + str_bonus;
@@ -699,12 +692,28 @@ int GetSpawnHealth(bool bypassEShieldCheck = false, int pnum = -1) {
 	if(HasActorClassPerk_Fast(tid, DND_PLAYER_CYBORG, 5))
 		res /= 2;
 
-	// last bit here is necessary to fix a mugshot related bug that may still call this function properly and end up seeing our health is 1
-	SetActorInventory(tid, "PlayerHealthCap", !PlayerModData[pnum].vals[PSTAT_EX_HEALTHATONE] ? res : 1);
 	return res;
 }
 
-int GetHealthPercent() {
+// returns player max health
+int GetSpawnHealth(bool bypassEShieldCheck = false, int pnum = -1) {
+	if(pnum == -1)
+		pnum = PlayerNumber();
+
+	// Sanguine Covenant. The two caps trade places here and nowhere else, which keeps the raw
+	// pair recursion free and stops the cyborg conversion running twice.
+	int res;
+	if(HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD))
+		res = Max(1, GetRawEnergyShieldCap(pnum));
+	else
+		res = GetRawSpawnHealth(bypassEShieldCheck, pnum);
+
+	// last bit here is necessary to fix a mugshot related bug that may still call this function properly and end up seeing our health is 1
+	SetActorInventory(pnum + P_TIDSTART, "PlayerHealthCap", !PlayerModData[pnum].vals[PSTAT_EX_HEALTHATONE] ? res : 1);
+	return res;
+}
+
+int GetBufferHealthPercent() {
 	int hp_pct = CheckInventory("PlayerHealthCap");
 	if(!hp_pct)
 		hp_pct = 100;
@@ -715,6 +724,29 @@ int GetHealthPercent() {
 	}
 	
 	return hp_pct;
+}
+
+// Sanguine Covenant. Closeness to death follows the pool that kills you, so under the swap this
+// reads the shield. GetBufferHealthPercent is the one that still means the health bar.
+int GetHealthPercent() {
+	int pnum = PlayerNumber();
+	if(pnum != -1 && HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD)) {
+		int cap = GetAmmoCapacity("EShieldAmountVisual");
+		if(!cap)
+			return 100;
+		return Min(100, CheckInventory("EShieldAmount") * 100 / cap);
+	}
+
+	return GetBufferHealthPercent();
+}
+
+// Same question from outside the player, where there is no activator to read. pending is the hit
+// about to land; under the swap the shield was already debited, so it is not taken twice.
+bool IsLethalPoolBelow(int pnum, int pct, int pending = 0) {
+	int tid = pnum + P_TIDSTART;
+	if(HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD))
+		return CheckActorInventory(tid, "EShieldAmount") <= GetPlayerEnergyShieldCap(pnum) * pct / 100;
+	return GetActorProperty(tid, APROP_HEALTH) - pending <= CheckActorInventory(tid, "PlayerHealthCap") * pct / 100;
 }
 
 // for players
@@ -977,6 +1009,184 @@ void HandleEShieldChange(int pnum, bool remove) {
 
 	if(remove && CheckInventory("EShieldAmount") > i)
 		SetEnergyShield(i);
+
+	// Sanguine Covenant. A health stat moves the SHIELD ceiling now and a shield stat moves
+	// health's, so whichever one changed, both pools get brought back under their own.
+	if(remove && HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD)) {
+		i = Max(1, GetSpawnHealth(false, pnum));
+		if(GetActorProperty(pnum + P_TIDSTART, APROP_HEALTH) > i)
+			SetActorProperty(pnum + P_TIDSTART, APROP_HEALTH, i);
+	}
+}
+
+// Sanguine Covenant. Emptying the shield is death now. Perish is on the damage handler's
+// exception list, so the kill cannot re-enter the handler that called this.
+void CheckCovenantDeath(int pnum) {
+	int tid = pnum + P_TIDSTART;
+	if(HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD) && IsActorAlive(tid) && CheckActorInventory(tid, "EShieldAmount") <= 0)
+		Thing_Damage2(tid, GetActorProperty(tid, APROP_HEALTH) * 3, "Perish");
+}
+
+// Self damage skips the damage handler, so the floor above has to be applied by hand there.
+int ClampCovenantSelfDamage(int pnum, int dmg) {
+	if(HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD))
+		return Min(dmg, Max(0, GetActorProperty(pnum + P_TIDSTART, APROP_HEALTH) - 1));
+	return dmg;
+}
+
+// Sanguine Covenant. The two recovery systems trade pools outright: everything that heals HEALTH
+// fills the shield, and the shield recharge fills health. Cap, current and give travel together so
+// no system ever reads one pool and writes the other.
+int GetHealPoolCur(int pnum) {
+	int tid = pnum + P_TIDSTART;
+	if(HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD))
+		return CheckActorInventory(tid, "EShieldAmount");
+	return GetActorProperty(tid, APROP_HEALTH);
+}
+
+int GetHealPoolCap(int pnum) {
+	if(HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD))
+		return GetPlayerEnergyShieldCap(pnum);
+	// not the cached PlayerHealthCap -- this refreshes it, which HandleHealthPickup relied on
+	return GetSpawnHealth(false, pnum);
+}
+
+void GiveHealPool(int pnum, int amt) {
+	// Less effect of healing, applied to the heal rather than to healing-effect bonuses. Floored
+	// at 1 so a trickle is slowed rather than rounded away to nothing entirely.
+	int pct = Clamp_Between(100 - PlayerModData[pnum].vals[PSTAT_EX_LESSHEALING], 0, 100);
+	if(pct < 100 && amt > 0)
+		amt = pct ? Max(1, amt * pct / 100) : 0;
+
+	if(amt <= 0)
+		return;
+	if(HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD))
+		AddActorEnergyShield(pnum + P_TIDSTART, amt);
+	else
+		GiveActorInventory(pnum + P_TIDSTART, "HealthBonusX", amt);
+}
+
+// Tesseract is the one exception: ESCHARGE_USEHP is a TRANSFER, not a recovery source, so it keeps
+// the pools it names -- buffer out, life in -- instead of following the swap.
+bool ChargeFillsHealth(int pnum) {
+	return HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD) && !PlayerModData[pnum].vals[PSTAT_EX_ESCHARGE_USEHP];
+}
+
+int GetChargePoolCur(int pnum) {
+	int tid = pnum + P_TIDSTART;
+	if(ChargeFillsHealth(pnum))
+		return GetActorProperty(tid, APROP_HEALTH);
+	return CheckActorInventory(tid, "EShieldAmount");
+}
+
+int GetChargePoolCap(int pnum) {
+	if(ChargeFillsHealth(pnum))
+		return CheckActorInventory(pnum + P_TIDSTART, "PlayerHealthCap");
+	return GetPlayerEnergyShieldCap(pnum);
+}
+
+void GiveChargePool(int pnum, int amt) {
+	if(amt <= 0)
+		return;
+	if(ChargeFillsHealth(pnum))
+		GiveActorInventory(pnum + P_TIDSTART, "HealthBonusX", amt);
+	else
+		AddActorEnergyShield(pnum + P_TIDSTART, amt);
+}
+
+void SetChargePool(int pnum, int val) {
+	if(ChargeFillsHealth(pnum))
+		SetActorProperty(pnum + P_TIDSTART, APROP_HEALTH, val);
+	else
+		SetActorEnergyShield(pnum + P_TIDSTART, val);
+}
+
+// Each pool's recovery answers only to the damage that reached IT, so under the swap the two
+// systems watch different timers. Off the swap both still mean "was hit at all".
+bool HealPoolInterrupted(int pnum) {
+	if(HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD))
+		return CheckActorInventory(pnum + P_TIDSTART, "DnD_Hit_ShieldTimer") != 0;
+	return CheckActorInventory(pnum + P_TIDSTART, "DnD_Hit_CombatTimer") != 0;
+}
+
+bool ChargePoolInterrupted(int pnum) {
+	if(ChargeFillsHealth(pnum))
+		return CheckActorInventory(pnum + P_TIDSTART, "DnD_Hit_HealthTimer") != 0;
+	return CheckActorInventory(pnum + P_TIDSTART, "DnD_Hit_CombatTimer") != 0;
+}
+
+// The pools trade roles, so their VALUES travel with them -- what was your health becomes your
+// shield. Without this the new lethal pool would start wherever the old shield happened to be.
+void SwapHealthAndShieldPools(int pnum) {
+	int tid = pnum + P_TIDSTART;
+	int hp = GetActorProperty(tid, APROP_HEALTH);
+	int es = CheckActorInventory(tid, "EShieldAmount");
+
+	int hp_cap = GetSpawnHealth(false, pnum);
+	int es_cap = GetPlayerEnergyShieldCap(pnum);
+
+	SetActorProperty(tid, APROP_SPAWNHEALTH, hp_cap);
+	SetActorProperty(tid, APROP_HEALTH, Clamp_Between(es, 1, hp_cap));
+	SetActorEnergyShield(tid, Min(hp, es_cap));
+
+	// Drop the charge lock: whatever was in flight is filling the pool we just moved.
+	SetActorInventory(tid, "EShieldCharging", 0);
+	SetActorInventory(tid, "EShieldChargeNow", 0);
+}
+
+// Metronome. A clock, not a shot counter: nothing you do makes it tick faster, so no amount of
+// trigger work can line the beat up for you. Derived from Timer(), so the client reaches the same
+// answer as the server without anything being sent.
+// Prime on purpose. At 26 tics a weapon firing every 13 lands on only two phases of the beat,
+// so an unlucky start pins every shot off-beat for as long as you hold the trigger.
+#define DND_METRONOME_PERIOD 29
+#define DND_METRONOME_DOWNBEAT 0
+
+int GetMetronomeBeat() {
+	return (Timer() / DND_METRONOME_PERIOD) & 1;
+}
+
+// The window is a share of the beat measured from the tick -- you fire ON it, not around it.
+bool IsOnMetronomeBeat(int window) {
+	return (Timer() % DND_METRONOME_PERIOD) * 100 < DND_METRONOME_PERIOD * window;
+}
+
+// A projectile carries the beat it was FIRED on: it can be in the air across several beats, so
+// reading the clock where it lands would randomise the item for every non-hitscan weapon.
+#define DND_BEAT_STAMPED 0x10000
+#define DND_BEAT_OFFSET_MASK 0xFF
+#define DND_BEAT_HALF_SHIFT 8
+
+int MakeBeatStamp() {
+	return DND_BEAT_STAMPED | (GetMetronomeBeat() << DND_BEAT_HALF_SHIFT) | (Timer() % DND_METRONOME_PERIOD);
+}
+
+// -1 off the beat, otherwise which half. A hitscan puff carries no stamp and needs none -- there
+// the hit IS the shot, so the live clock is already the right answer.
+int ResolveMetronomeHalf(int pnum) {
+	int window = PlayerModData[pnum].vals[PSTAT_METRONOME_WINDOW];
+	int stamp = 0;
+
+	// SetActivator NULLS the activator when the pointer does not resolve, so the restore has to
+	// run whether or not it succeeded. A menu or display read has no inflictor, and losing the
+	// activator there takes every activator-based read after it down with it.
+	int caller = ActivatorTID();
+	if(caller) {
+		// AMBUSH is how the two projectile bases mark themselves as player sourced
+		if(SetActivator(0, AAPTR_DAMAGE_INFLICTOR) && CheckFlag(0, "AMBUSH"))
+			stamp = GetUserVariable(0, "user_beat");
+		SetActivator(caller);
+	}
+
+	if(stamp & DND_BEAT_STAMPED) {
+		if((stamp & DND_BEAT_OFFSET_MASK) * 100 >= DND_METRONOME_PERIOD * window)
+			return -1;
+		return (stamp >> DND_BEAT_HALF_SHIFT) & 1;
+	}
+
+	if(!IsOnMetronomeBeat(window))
+		return -1;
+	return GetMetronomeBeat();
 }
 
 // Absorb value for magic or poison attacks
@@ -986,11 +1196,12 @@ int GetEShieldMagicAbsorbValue(int pnum) {
 	return PlayerModData[pnum].vals[PSTAT_MAGIC_NEGATION];
 }
 
-int GetPlayerEnergyShieldCap(int pnum) {
+// Raw, pre-swap shield cap. Feeds off GetRawSpawnHealth, so it only ever calls downward.
+int GetRawEnergyShieldCap(int pnum) {
 	int base = PlayerModData[pnum].vals[PSTAT_SHIELD_FLAT];
 	
 	int int_bonus = GetIntellectEffect(pnum, 1, 2);
-	int spawn_health = GetSpawnHealth(true, pnum);
+	int spawn_health = GetRawSpawnHealth(true, pnum);
 	
 	// cyborg eshield conversion from hp is half
 	base += spawn_health * (PlayerModData[pnum].vals[PSTAT_EX_HPTOESHIELD] + HasActorClassPerk_Fast(pnum + P_TIDSTART, DND_PLAYER_CYBORG, 5) * 50) / 100;
@@ -1001,6 +1212,13 @@ int GetPlayerEnergyShieldCap(int pnum) {
 	// reader of the pool goes through, so lowering it here lowers the pool itself, and the clamp on
 	// spawn brings a shield the player walked in with down to meet it.
 	return ApplyDungeonReduction(DUN_ATTR_LESSDEFENCES, base);
+}
+
+int GetPlayerEnergyShieldCap(int pnum) {
+	// Sanguine Covenant. The other half of the swap in GetSpawnHealth.
+	if(HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD))
+		return GetRawSpawnHealth(true, pnum);
+	return GetRawEnergyShieldCap(pnum);
 }
 
 #define DND_MIT_PER_DEX 0.2

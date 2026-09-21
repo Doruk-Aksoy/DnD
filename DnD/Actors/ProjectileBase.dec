@@ -166,6 +166,7 @@ Actor DnD_BaseProjectile {
 	Damage 0
 	
 	var int user_hitcount;
+	var int user_beat;
 	
 	States {
 		Spawn:
@@ -198,6 +199,7 @@ Actor DnD_BaseFastProjectile : FastProjectile {
 	Damage 0
 	
 	var int user_hitcount;
+	var int user_beat;
 	
 	States {
 		Spawn:

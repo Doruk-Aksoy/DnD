@@ -339,6 +339,13 @@ Graphic "SUNGLW03", 23, 12
 	Patch "SUNGL03", 0, 0
 }
 
+Graphic "UDCHRM7", 60, 95
+{
+	XScale 1.5
+	YScale 1.4
+	Patch "UDCHRM7", 0, 0
+}
+
 Graphic "UBOO3", 50, 48
 {
 	XScale 1.425

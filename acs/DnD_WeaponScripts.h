@@ -1631,7 +1631,7 @@ Script "DND Thunderstaff Lightning" (void) {
 				HandleDamagePush(self_dmg * 4, GetActorX(i), GetActorY(i), GetActorZ(i), this);
 
 				// handle player's self explosion resists here
-				self_dmg = HandlePlayerSelfDamage(pnum, self_dmg, DND_DAMAGETYPE_LIGHTNING, DND_WEAPON_THUNDERSTAFF, 0, 0);
+				self_dmg = ClampCovenantSelfDamage(pnum, HandlePlayerSelfDamage(pnum, self_dmg, DND_DAMAGETYPE_LIGHTNING, DND_WEAPON_THUNDERSTAFF, 0, 0));
 
 				Thing_Damage2(this, self_dmg, "SkipHandle");
 			}

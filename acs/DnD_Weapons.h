@@ -80,11 +80,19 @@ bool CanTakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt, int flags = 0
 			amt = amt * 5 / 2;
 	}
 
-	if(!PlayerModData[pnum].vals[PSTAT_EX_WEAPONSUSEHEALTH])
+	bool reserve = PlayerModData[pnum].vals[PSTAT_EX_WEAPONSUSEHEALTH] != 0;
+	if(!reserve)
 		mult = CheckInventory(ammo);
+	else if(HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD))
+		mult = CheckActorInventory(pnum + P_TIDSTART, "EShieldAmount");
 	else
 		mult = GetActorProperty(pnum + P_TIDSTART, APROP_HEALTH);
 	//printbold(s:ammo, s: " ", d:mult, s: " ", d:amt);
+
+	// A reserve cost may never take the last point -- the shot is refused instead of killing you.
+	if(reserve)
+		return mult > amt;
+
 	return ((flags & DND_CFW_DONTCHECKEQUALITY) && mult > amt) || mult >= amt;
 }
 
@@ -152,7 +160,19 @@ int TakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt, int flags = 0) {
 		TakeInventory(ammo, amt);
 	else if(!CheckInventory("Invulnerable_Better")) {
 		// we let the invul bypass this
-		Thing_Damage2(pnum + P_TIDSTART, amt, "SkipHandle");
+		// Sanguine Covenant pays from the shield, the pool that kills you -- the health buffer would
+		// recharge the cost straight back. Clamped either way so firing can never take the last point.
+		int pay;
+		if(HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD)) {
+			pay = Min(amt, Max(0, CheckInventory("EShieldAmount") - 1));
+			if(pay > 0)
+				TakeEnergyShield(pay);
+		}
+		else {
+			pay = Min(amt, Max(0, GetActorProperty(pnum + P_TIDSTART, APROP_HEALTH) - 1));
+			if(pay > 0)
+				Thing_Damage2(pnum + P_TIDSTART, pay, "SkipHandle");
+		}
 		amt = 0;
 	}
 
@@ -160,7 +180,7 @@ int TakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt, int flags = 0) {
 	// event would read arg1 as a packed weapon word and resolve to nothing. Same shape the ember
 	// trail's self burn uses. Invulnerability bypasses it, as it does the health cost above.
 	if(crackle > 0 && !CheckInventory("Invulnerable_Better")) {
-		crackle = ApplyPlayerDamageResist(pnum, crackle, DND_PRESIST_ELEM);
+		crackle = ClampCovenantSelfDamage(pnum, ApplyPlayerDamageResist(pnum, crackle, DND_PRESIST_ELEM));
 		if(crackle > 0) {
 			Thing_Damage2(pnum + P_TIDSTART, crackle, "SkipHandle");
 			GiveInventory("DnD_CrackleFXSpawner", 1);

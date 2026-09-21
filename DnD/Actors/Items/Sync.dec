@@ -1,3 +1,38 @@
+// Sanguine Covenant. The bars stay where they are -- these are what they READ, so the health slot
+// can show the pool that kills you without moving anything on screen.
+Actor P_HealthShown : Ammo {
+	inventory.amount 1
+	inventory.maxamount 65000
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor P_ShieldShown : Ammo {
+	inventory.amount 1
+	inventory.maxamount 65000
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+// PlayerModData is server side, so the clientside HUD script reads this instead.
+Actor DnD_CovenantActive : Inventory {
+	inventory.maxamount 1
+	+INVENTORY.UNDROPPABLE
+	+INVENTORY.UNTOSSABLE
+}
+
+// Metronome. Carries the on-beat window to the client, which works out the beat itself from
+// Timer(). Zero means no charm equipped.
+Actor P_MetronomeWindow : Ammo {
+	inventory.amount 1
+	inventory.maxamount 100
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
 Actor P_HealthCap : Ammo {
 	inventory.amount 1
 	inventory.maxamount 65000

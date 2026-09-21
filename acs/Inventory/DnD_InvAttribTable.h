@@ -498,7 +498,15 @@ enum {
 
 	// Nullforce. Its ammo penalties reuse INV_EX_MOREAMMOUSE and INV_EX_REDUCEDAMMOCAP, which
 	// already exist and are unconditional in exactly the same way, so only the rate is new.
-	INV_EX_MOREDMG_PERMISSINGAMMO       // percent more damage per 1% of the weapon's missing ammo
+	INV_EX_MOREDMG_PERMISSINGAMMO,      // percent more damage per 1% of the weapon's missing ammo
+	// Sanguine Covenant. Its healing penalty reuses INV_EX_LESSHEALING.
+	INV_EX_SWAP_HP_AND_SHIELD,          // flag
+
+	// Metronome.
+	INV_EX_METRONOME_BEAT,              // flag
+	INV_EX_METRONOME_MAGNITUDE,
+	INV_EX_METRONOME_WINDOW,
+	INV_EX_OFFBEAT_LESSDAMAGE
 	// add new unique attributes here
 };
 
@@ -510,7 +518,7 @@ enum {
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
 #define UNIQUE_ATTRIB_BEGIN INV_EX_CHANCE_CASTELEMSPELLONATK
-#define UNIQUE_ATTRIB_END INV_EX_MOREDMG_PERMISSINGAMMO
+#define UNIQUE_ATTRIB_END INV_EX_OFFBEAT_LESSDAMAGE
 #define UNIQUE_ATTRIB_COUNT (UNIQUE_ATTRIB_END - UNIQUE_ATTRIB_BEGIN + 1)
 
 #define FIRST_CORRUPT_IMPLICIT INV_CORR_WEAPONDMG

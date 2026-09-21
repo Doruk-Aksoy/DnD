@@ -1710,7 +1710,7 @@ bool CheckCullRange(int source, int victim, int dmg) {
 
 bool CheckCullRangeVsPlayer(int source, int victim, int dmg) {
 	int base = DND_CULL_BASEPERCENT_VS_PLAYER;
-	return GetActorProperty(victim, APROP_HEALTH) - dmg <= CheckActorInventory(victim, "PlayerHealthCap") * base / 100;
+	return IsLethalPoolBelow(victim - P_TIDSTART, base, dmg);
 }
 
 // Tormentor / Death's Grip. Called straight after a stack lands, and only from inside the branch
@@ -2574,7 +2574,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 			if(HasActorClassPerk_Fast(source, DND_PLAYER_PUNISHER, 5)) {
 				temp = (dmg - GetActorProperty(victim, APROP_HEALTH)) * DND_PUNISHER_OVERKILL_LEECHFACTOR / 100;
 				if(temp > 0)
-					ResolveLifesteal(pnum, temp, CheckActorInventory(source, "PlayerHealthCap"));
+					ResolveLifesteal(pnum, temp, GetHealPoolCap(pnum));
 			}
 
 			if(actor_flags & DND_ACTORFLAG_DROPSOUL)
@@ -2728,11 +2728,18 @@ void ResolveLifesteal(int pnum, int amt, int spawn_health) {
 	int toCompare = GetActorProperty(ptid, APROP_HEALTH);
 	bool cyborgCheck = HasActorClassPerk_Fast(ptid, DND_PLAYER_CYBORG, 5);
 
+	// Sanguine Covenant. Lifesteal is a health stat, so it feeds the shield -- the same pool the
+	// cyborg conversion already uses, but without its halving.
+	bool useShield = cyborgCheck || HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD);
+
 	if(cyborgCheck) {
-		cap = GetPlayerEnergyShieldCap(pnum);
 		amt /= 2;
 		if(!amt)
 			amt = 1;
+	}
+
+	if(useShield) {
+		cap = GetPlayerEnergyShieldCap(pnum);
 		toCompare = CheckActorInventory(ptid, "EShieldAmount");
 	}
 
@@ -2763,14 +2770,14 @@ void ResolveLifesteal(int pnum, int amt, int spawn_health) {
 
 			// give player instant leech here
 			if(toCompare + cap < spawn_health) {
-				if(!cyborgCheck)
+				if(!useShield)
 					GiveActorInventory(ptid, "HealthBonusX", cap);
 				else
 					AddActorEnergyShield(ptid, cap);
 			}
 			else {
 				// we can put "lifesteal effect not removed when reaching max life" here in the future if needed to not break, but also not heal
-				if(!cyborgCheck)
+				if(!useShield)
 					GiveActorInventory(ptid, "HealthBonusX", spawn_health - toCompare);
 				else
 					AddActorEnergyShield(ptid,  spawn_health - toCompare);
@@ -2801,7 +2808,7 @@ void ResolveLifesteal(int pnum, int amt, int spawn_health) {
 
 void HandleLifesteal(int pnum, int wepid, int flags, int dmg) {
 	// in order for this to work we must have less health than our cap
-	int spawn_health = GetSpawnHealth();
+	int spawn_health = GetHealPoolCap(pnum);
 	int comp = GetActorProperty(0, APROP_HEALTH);
 	if(HasClassPerk_Fast(DND_PLAYER_CYBORG, 5)) {
 		spawn_health = GetPlayerEnergyShieldCap(pnum);
@@ -5375,6 +5382,16 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 	return dmg;
 }
 
+// Sanguine Covenant. Share of a bypassing hit that reaches the shield, by health left:
+// 100% -> 0    75% -> 1    50% -> 10    25% -> 50    10% -> 90    0% -> 100
+#define DND_COVENANT_LEAK_K 9
+
+int GetCovenantLeakPercent() {
+	int h = GetBufferHealthPercent();
+	int d = 100 - h;
+	return 100 * d * d / (d * d + DND_COVENANT_LEAK_K * h * h);
+}
+
 // energy shield reduction and other true flat damage lowering things, these are the final defense
 int ApplyTrueDamageDeductions(int pnum, int dmg, str dmg_string, int dmg_data) {
 	int temp = CheckInventory("EShieldAmount");
@@ -5382,25 +5399,41 @@ int ApplyTrueDamageDeductions(int pnum, int dmg, str dmg_string, int dmg_data) {
 	bool is_dot = IsDamageStringDOT(dmg_string);
 	int armor_id = GetArmorID();
 	int to_take = 0;
+	bool covenant = HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD);
+	int es_before = temp;
 
 	if(temp) {
 		// this isn't DOT or magical attack and we have energy shield, so we can deduct damage from it
 		if(!is_dot && !(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL))
 			factor = 100;
 
+		// Sanguine Covenant. Bypassing damage belongs on the health buffer, so only the leak share
+		// reaches the shield. Set above the guard so a 0% leak skips the block outright.
+		if(covenant) {
+			factor = (is_dot || (dmg_data & DND_DAMAGETYPEFLAG_MAGICAL)) ? GetCovenantLeakPercent() : 100;
+
+			// A leak that rounds to nothing IS nothing. The 1 point floor below is meant for ordinary
+			// absorption; on a small ignite tic it bills the shield a full point and cancels the tic.
+			if(factor && dmg <= 99 / factor)
+				factor = 0;
+		}
+
 		if(factor) {
-			// lightning coil absorbs 80% by itself, so 20% of the damage will go through
-			if((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) && armor_id == BODYARMOR_LIGHTNINGCOIL)
-				factor += LIGHTNINGCOIL_ABSORBFACTOR;
+			// the leak IS the negation under the covenant, nothing below gets to move it
+			if(!covenant) {
+				// lightning coil absorbs 80% by itself, so 20% of the damage will go through
+				if((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) && armor_id == BODYARMOR_LIGHTNINGCOIL)
+					factor += LIGHTNINGCOIL_ABSORBFACTOR;
 
-			// force clamp
-			if(factor > 100)
-				factor = 100;
+				// force clamp
+				if(factor > 100)
+					factor = 100;
 
-			// only block this much if this is on
-			to_take = PlayerModData[pnum].vals[PSTAT_EX_ESHIELDONLYBLOCKPCT];
-			if(to_take)
-				factor = to_take;
+				// only block this much if this is on
+				to_take = PlayerModData[pnum].vals[PSTAT_EX_ESHIELDONLYBLOCKPCT];
+				if(to_take)
+					factor = to_take;
+			}
 
 			// only this much is prevented
 			to_take = Min(dmg * factor / 100, temp);
@@ -5429,12 +5462,28 @@ int ApplyTrueDamageDeductions(int pnum, int dmg, str dmg_string, int dmg_data) {
 				LocalAmbientSound("EShield/Break", 127);
 
 				temp = PlayerModData[pnum].vals[PSTAT_EX_STARTESONDEPLETE];
-				if(temp && random(1, 100) <= temp && (to_take = CanRegenEShield(pnum))) {
+				if(!covenant && temp && random(1, 100) <= temp && (to_take = CanRegenEShield(pnum))) {
 					GiveInventory("EShieldChargeNow", 1);
 					ACS_NamedExecuteAlways("DnD Energy Shield Regen", 0, to_take, pnum);
 				}
 			}
 		}
+	}
+
+	// Sanguine Covenant. The shield is what kills you; health is the buffer and cannot. Checked
+	// here rather than at the break above so an already empty shield is caught too.
+	if(covenant) {
+		CheckCovenantDeath(pnum);
+
+		to_take = GetActorProperty(0, APROP_HEALTH) - 1;
+		if(dmg > to_take)
+			dmg = Max(0, to_take);
+
+		// stamped after the clamp, so a hit the buffer never felt does not stop its recovery
+		if(CheckInventory("EShieldAmount") < es_before)
+			GiveInventory("DnD_Hit_ShieldTimer", 1);
+		if(dmg > 0)
+			GiveInventory("DnD_Hit_HealthTimer", 1);
 	}
 
 	// check overleech
@@ -6317,7 +6366,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					if(HasClassPerk_Fast(DND_PLAYER_MARINE, 4) && !CheckInventory("Marine_Perk50_Cooldown"))
 						GiveInventory("Marine_Perk50_DamageTaken", dmg);
 					
-					if(HasClassPerk_Fast(DND_PLAYER_TRICKSTER, 3) && !CheckInventory("Trickster_ShadowCooldown") && GetActorProperty(0, APROP_HEALTH) - dmg <= CheckInventory("PlayerHealthCap") * DND_TRICKSTER_PERK40_THRESHOLD / 100)
+					if(HasClassPerk_Fast(DND_PLAYER_TRICKSTER, 3) && !CheckInventory("Trickster_ShadowCooldown") && IsLethalPoolBelow(pnum, DND_TRICKSTER_PERK40_THRESHOLD, dmg))
 						HandleShadowClone(pnum, victim, shooter);
 				}
 
@@ -6513,6 +6562,16 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					// add the extra damage as "more" on top --- ammo2 is always the overheat on overheating weapons
 					factor = CheckInventory(Weapons_Data[factor].ammo_name2);
 					dmg = dmg * (((100.0 + isArmorPiercing * factor) >> 16)) / 100;
+				}
+
+				// Metronome. Read at the hit, not off the weapon cache -- that only rebuilds on a raise and
+				// would freeze whichever half of the beat was playing when the weapon came up.
+				if(HasPlayerFlag(pnum, PFLAG_METRONOME)) {
+					int half = ResolveMetronomeHalf(pnum);
+					if(half == -1)
+						dmg = dmg * (100 - PlayerModData[pnum].vals[PSTAT_OFFBEAT_LESSDAMAGE]) / 100;
+					else if(half == DND_METRONOME_DOWNBEAT)
+						dmg = dmg * (100 + PlayerModData[pnum].vals[PSTAT_METRONOME_MAGNITUDE]) / 100;
 				}
 
 				// Nullforce. Same shape and the same reason as the overheat bonus above: ammo moves on every

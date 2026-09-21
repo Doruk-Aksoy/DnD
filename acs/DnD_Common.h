@@ -7,7 +7,7 @@
 
 #define SIZEOF_INT 4
 
-//#define ISDEBUGBUILD
+#define ISDEBUGBUILD
 //#define WANTCURSORPOS
 #define VERBOSE_TID_SETUP
 //#define WANT_BUFF_LOG
@@ -715,6 +715,11 @@ enum {
 	// Nullforce.
 	PSTAT_EX_MOREDMG_PERMISSINGAMMO,
 
+	// Metronome.
+	PSTAT_METRONOME_MAGNITUDE,
+	PSTAT_METRONOME_WINDOW,
+	PSTAT_OFFBEAT_LESSDAMAGE,
+
 	PSTAT_COUNT
 };
 
@@ -821,6 +826,12 @@ enum {
 
 	// Hell's Vanguard.
 	PFLAG_NOBLEEDEXTRA_MOVING,
+
+	// Sanguine Covenant.
+	PFLAG_SWAP_HP_SHIELD,
+
+	// Metronome.
+	PFLAG_METRONOME,
 
 	PFLAG_COUNT
 };

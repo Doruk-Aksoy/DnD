@@ -531,6 +531,18 @@ Actor DnD_Hit_CombatTimer : PowerProtection {
 	powerup.duration -3
 }
 
+// Sanguine Covenant. Per-pool versions of the timer above: a pool's recovery is interrupted only
+// by the damage that actually reached it.
+Actor DnD_Hit_HealthTimer : PowerProtection {
+	damagefactor "normal", 1
+	powerup.duration -3
+}
+
+Actor DnD_Hit_ShieldTimer : PowerProtection {
+	damagefactor "normal", 1
+	powerup.duration -3
+}
+
 Actor MarkAsReflected : DnD_Activator {
 	States {
 		Pickup:
