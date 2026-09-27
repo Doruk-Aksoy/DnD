@@ -2133,7 +2133,7 @@ int FactorResists(int source, int victim, int wepid, int dmg, int damage_type, i
 		pct_val += DND_THUNDERAXE_WEAKENPCT * (!!CheckActorInventory(victim, "ThunderAxeWeakenTimer"));
 	}
 
-	if(IsBoomstick(wepid) && HasClassPerk_Fast(DND_PLAYER_HOBO, 2)) 
+	if(!wep_neg && IsBoomstick(wepid) && HasClassPerk_Fast(DND_PLAYER_HOBO, 2)) 
 		pct_val += DND_HOBO_RESISTPCT + (GetLevel() / DND_PERK_REGULARTHRESHOLD) * DND_HOBO_RESISTPCT_PERLVL;
 	
 	// Martialist / Expose Weakness. Reduces the MONSTER's resists, so it belongs with the monster's
@@ -2441,7 +2441,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		(
 			!(actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME) && 
 			!(flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME) && 
-			((actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) || CheckCritChance(pnum, victim, -1, 0, IsLightningDamage(damage_type)))
+			((actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) || CheckCritChance(pnum, victim, -1, IsLightningDamage(damage_type), false, true))
 		)
 		{
 			actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
@@ -2894,6 +2894,10 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags, int str_
 		temp = GetPlayerPercentDamage(pnum, -1, damage_category, dmg_flag_mapping) + GetPlayerBuffIncreasedDamage(pnum) + GetRageDamageBonus(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1);
 		if(temp/* && !isSpell*/)
 			pct_bonus += temp;
+
+		// Spell damage is an "increased", so it joins the additive pile rather than multiplying it.
+		if(isSpell)
+			pct_bonus += PlayerModData[pnum].vals[PSTAT_SPELL_DAMAGE];
 
 		// apply the % bonus now -- guard the collapse, the weapon paths already do.
 		// Golgoth Weaken (-75) + Fleshwizard Weaken (-25) sum to exactly -100, and

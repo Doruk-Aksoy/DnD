@@ -33,6 +33,144 @@ Actor P_MetronomeWindow : Ammo {
 	+IGNORESKILL
 }
 
+// Hotbar mirrors. The bar draws clientside and SpellPlayerData is a global, so the binding and
+// the packed cooldown word have to cross as inventory.
+Actor P_Hotbar1 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor P_HotbarCd1 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor P_Hotbar2 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor P_HotbarCd2 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor P_Hotbar3 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor P_HotbarCd3 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor P_Hotbar4 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor P_HotbarCd4 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor P_Hotbar5 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor P_HotbarCd5 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor P_Hotbar6 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor P_HotbarCd6 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor DnD_WeaponIdle : DnD_Boolean {}
+
+Actor SpellPoint : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+	+INVENTORY.UNDROPPABLE
+	+INVENTORY.UNTOSSABLE
+}
+
+// How many spell points each source has EVER granted, not how many are unspent. Kept apart so the
+// two 50 point caps hold on their own, and so refunding a spell does not reopen either one.
+Actor SpellPointsFromLevel : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+	+INVENTORY.UNDROPPABLE
+	+INVENTORY.UNTOSSABLE
+}
+
+Actor SpellPointsFromToken : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+	+INVENTORY.UNDROPPABLE
+	+INVENTORY.UNTOSSABLE
+}
+
+// Mana. Ammo rather than a module value because the bar that draws it is clientside and
+// inventory is what crosses. ManaVisual carries the UNRESERVED cap, as EShieldAmountVisual does.
+Actor Mana : Ammo {
+	inventory.amount 1
+	inventory.maxamount 65000
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor ManaVisual : Ammo {
+	inventory.amount 1
+	inventory.maxamount 65000
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
 Actor P_HealthCap : Ammo {
 	inventory.amount 1
 	inventory.maxamount 65000

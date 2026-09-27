@@ -95,16 +95,20 @@ Actor AdminPistol : DnDWeapon {
 	+WEAPON.NOAUTOAIM
 	States {
 		Ready:
+			TNT1 A 0 A_GiveInventory("DnD_WeaponIdle", 1)
 			GOLT A 0 A_GiveInventory("H_WeaponSlot2", 1)
 			GOLT A 0 A_TakeInventory(" Pistol ", 1)
 			GOLT A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_ADMINPISTOL)
 		ReadyLoop:
+			"####" "#" 0 A_GiveInventory("DnD_WeaponIdle", 1)
 			GOLT A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot2", 1)
 			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			GOLT A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop

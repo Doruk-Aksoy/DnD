@@ -257,9 +257,11 @@ int ButtonFrameCounts[MAX_TIMED_BUTTONS] = { 3, 3, 3 };
 #define SHOP_MAXAMMO_PAGES (SHOP_LASTAMMO_PAGE - SHOP_FIRSTAMMO_PAGE + 1)
 
 // Holds the players' current maximum page visit indexes
+// Must reach the LAST page in the enum -- LoadRect indexes bp[] by menu page, so a bound that
+// stops short means LoadPane reads past the end of the table for every page after it.
 #ifndef ISAPRILFIRST
-	#define MENUMAXPAGES (MENU_ABILITY + 1)
-	#define MAX_MENU_BOXPAGES (MENU_ABILITY + 1)
+	#define MENUMAXPAGES (MENU_SPELL_HOTBAR + 1)
+	#define MAX_MENU_BOXPAGES (MENU_SPELL_HOTBAR + 1)
 #else
 	#define MENUMAXPAGES (MENU_SHOP_NFT + 1)
 	#define MAX_MENU_BOXPAGES (MENU_SHOP_NFT + 1)

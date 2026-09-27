@@ -19,16 +19,20 @@ ACTOR "Death Staff" : DnDWeapon {
 			LICS Y -1
 			Stop
 		Ready: 
+			TNT1 A 0 A_GiveInventory("DnD_WeaponIdle", 1)
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot8", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check")
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_DEATHSTAFF)
 		ReadyLoop:
+			"####" "#" 0 A_GiveInventory("DnD_WeaponIdle", 1)
 			LICS A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop 
 		Deselect: 
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot8", 1)
 			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			LICS A 1 A_Lower 
 			TNT1 A 0 A_Lower
 		Loop 
@@ -517,6 +521,7 @@ ACTOR Razorfang : DnDWeapon {
 			WRAZ A -1
 		Loop
 		Ready:
+			TNT1 A 0 A_GiveInventory("DnD_WeaponIdle", 1)
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot8", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check")
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_RAZORFANG)
@@ -524,6 +529,7 @@ ACTOR Razorfang : DnDWeapon {
 			TNT1 A 0 A_GiveInventory("DnD_RemoveLockOn", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Clear Homing Lock-on", 0)
 		ReadyLoop:
+			"####" "#" 0 A_GiveInventory("DnD_WeaponIdle", 1)
 			RAZG A 0 A_JumpIfInventory("RazorCount", 1, "ReadyHoming")
 			RAZG BCDEFG 3 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
@@ -534,11 +540,13 @@ ACTOR Razorfang : DnDWeapon {
 			RAZG HIJKJI 3 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot8", 1)
 			TNT1 A 0 A_GiveInventory("DnD_RemoveLockOn", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Clear Homing Lock-on", 0)
 			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			RAZG A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -823,6 +831,7 @@ Actor "Sun Staff" : DnDWeapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Deselect:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot8", 1)
 			TNT1 A 0 A_StopSoundEx("SoundSlot7")
 			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
@@ -831,14 +840,17 @@ Actor "Sun Staff" : DnDWeapon {
 			LTBR ON 4 Bright
 			LTBR M 4
 		DeselectLoop:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			LTBR M 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
 		Ready:
+			TNT1 A 0 A_GiveInventory("DnD_WeaponIdle", 1)
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot8", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check")
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_SUNSTAFF)
 		ReadyLoop:
+			"####" "#" 0 A_GiveInventory("DnD_WeaponIdle", 1)
 			LTBR M 4 A_JumpIfInventory("Souls", 1, "FullReady")
 		Goto Ready2
 		FullReady:
@@ -1230,16 +1242,20 @@ Actor "Soul Reaver" : DnDWeapon {
 			SREA Z -1
 		Stop
 		Ready:
+			TNT1 A 0 A_GiveInventory("DnD_WeaponIdle", 1)
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot8", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check")
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_SOULREAVER)
 		ReadyLoop:
+			"####" "#" 0 A_GiveInventory("DnD_WeaponIdle", 1)
 			SREA A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 		    TNT1 A 0 A_TakeInventory("H_WeaponSlot8", 1)
 			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			SREA A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop

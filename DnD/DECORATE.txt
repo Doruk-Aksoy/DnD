@@ -52,6 +52,7 @@ const int SPECIAL_FX_TID = 2147483647;
 #include "Actors/Maps/Torches.dec"
 
 // Spells
+#include "Actors/Spells/SpellBase.dec"
 #include "Actors/Spells/Common.dec"
 #include "Actors/Spells/Rally.dec"
 #include "Actors/Spells/LightningSpear.dec"

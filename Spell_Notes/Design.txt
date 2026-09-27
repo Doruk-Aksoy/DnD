@@ -1,35 +1,107 @@
-Stats affecting spells and skills:
-
 * Mana
 
-    All players have access to mana. Initially, they only have 0 mana.
-    Investing points in Intellect (INT) stat gives 5 mana per INT and 0.25 mana regen per 2 INT.
+    All players have access to mana. Initially, they only have 10 mana and 0.5 mana regen per second.
+    Investing points in Intellect (INT) stat gives 2 mana per INT and 0.25 mana regen per 2 INT.
     Mana is regenerated every second. The rate you have is how much mana you'll get every second.
     Charms can give flat mana, % increased mana or mana regen rate bonuses.
-    
-* Cast Time
+	
+* Hotbar
 
-    Some skills or spells require a certain time to use them. This can be reduced with inventory items or other methods.
-    Can't be reduced below 0.5 seconds, or 50% reduction.
-    
-* Cooldown
+	Hotbar is where the selected spells by the player go to for use in the game.
+	The hotbar slots indicate which spell to cast.
+	Auras don't need to be put on a hotbar, they can just be "ticked" in the spell tree to be enabled or disabled.
+		- Auras are only enabled if the mana reservation condition is met.
+	
+* Spell casting
 
-    The time before you can use the skill or spell again. Can be reduced with inventory items or other methods, up to 60%.
+	Spells can be cast while using a weapon with their respective hotbar key bind.
+	If a spell is a channeling spell, a weapon cannot be used. So, if a weapon is being fired, reloaded etc. the spell won't go off. Only when the weapon is idle.
+	Passive skills always take effect so long as points are allocated in them, they don't have to be on the hotbar.
+	Same spell can be put on multiple hotbars, but it won't make any difference regarding function, all the binds will fire the same spell.
 
 SKILLS
 --------
 
-* Most spells have a cast time. This can be reduced by stats.
-* Spells have a specific cooldown. This can go up by level. This can be reduced by stats, up to a maximum of 60% reduction.
-* Cooldown will be displayed on the skill icon if player is using that.
-* Spells have ranks. Player gets a spell or ranks them up using "Spell Points". These randomly drop from monsters, or you get one every 2 levels.
-* Max spell rank: 10.
-* Maximum Spell Points that can be allocated: 100.
+* INT stat increases spell damage by 5% per point.
+* Most spells have a cast time. This can be reduced by certain stats.
+* Spells have a specific cooldown. This can go up by level. This can be reduced by certain stats, up to a maximum of 75% net reduction.
+* Cooldown will be displayed on the skill icon if player is using that skill on their hotbar.
+* Spells have ranks. Player gets a spell or ranks them up using "Spell Points". These randomly drop from monsters or chests, or you get one every 2 levels.
+* Max spell rank: 10. Maximum obtainable skill points is 100, so the other 50 come from monsters or chest drops. That also means maximum points a player can allocate is also 100.
 * Spells have additional bonuses at ranks 5 and 10.
-* There will be a spell allocation method to bind for use in game. Player will get to allocate 3 spells of their choosing. Maximum of 6 spells. Wanderer gets a +1. (The other +2 can be from inventory items)
-* Spells have scaling from INT. Higher INT -> more out of a spell.
+* There will be a spell allocation method to bind for use in game via hotbar system. Player will get to allocate 3 spells of their choosing. Maximum of 6 spells. Wanderer gets a +1. (The other +2 can be from inventory items)
 * Some spells have synergies. This is usually by spells that unlock each other. Leveling these spells improve another's performance.
-* There are passive skills. If you put a point in these, they work without having to allocate them. But these usually have plenty of requirements.
+* There are passive skills. If you put a point in these, they work without having to put them on the hotbar. But these usually have plenty of requirements.
 * Display method: Skill tree with icons. Very similar to Diablo 2.
-* Maximum skill points that can be invested: 100.
 * Luck affects outcome of spells based on chance. This is mainly important for Chaos Tree.
+* Curses have a limit of 1 on an enemy. When a 2nd or 3rd curse come, the oldest ones are removed unless the caster has increased curse limit. The curse limit is the determining factor of how many curses can be housed on an enemy.
+* Skills will have 2 "sockets" underneath, allowing for "gems" to augment them further.
+* Cooldown recovery rate formula: FinalCD = Cooldown / (1 + RecoveryRateBonuses / 100)
+* Spell haste formula:
+	1) Calculate casts per second (X) = 1 / spell's cast speed.
+	2) Get the increase to spell haste: X * (1 + SpellHaste) = Y
+	3) 1 / Y is the new cast speed in seconds.
+* Mana reservation efficiency formula: R = Base% / (100% + IncEfficiency%)
+
+GEMS
+--------
+
+* Gems are a new item type, 1x1 non-craftable item.
+* Gems have colors and roles. The colors will be the subtype for the item. Role can be thought of as the implicit.
+	- Colors: Ruby, Sapphire, Diamond, Emerald, Topaz, Obsidian, Bismuth.
+	- Roles: Marksman, Wizard, Conqueror, Bladedancer, Fighter, Conjurer, Leader, Conservationist, Magus, Swiftcaster, Summoner, Priest, Witch, Cruel,
+			 Pyromancer, Cryomancer, Venomancer, Electromancer, Vampire, Influencer, Commander, Quicktongue, Archmage, Assassin, Necromancer, Sanguinomancer,
+			 Destroyer, Resolute, Ravager, Powerful, Merciless, Executioner, Haemocrafter
+* Gems are also weighted.
+* Roles are weighted, cannot be reforged (3 of the same type of gem can be sacrificed to reroll into another in Transmutia Panel, which may pick a role)
+* Gems can also roll with no roles. Roles are displayed with "of the <Role> on item text"
+* Gems give the socketed spells boosts as long as they remain socketed.
+* There can be normal and greater versions of the gems.
+	- Greater version usually gives more of the normal's role value, but are a lot rarer to find.
+* What each color grants:
+	- Ruby: 15% more damage. Greater: 25% more damage.
+	- Sapphire: 15% less mana cost. Greater: 25% less mana cost.
+	- Diamond: +5% spell critical strike chance. Greater: 10% spell crit.
+	- Emerald: 15% cooldown recovery rate. Greater: 25% cooldown recovery rate.
+	- Topaz: 15% more spell haste. Greater: 25% more spell haste.
+	- Obsidian: 15% more skill effect duration. Greater: 25% more skill effect duration.
+	- Bismuth: 5% more damage, 5% less mana cost, 5% more spell haste. Greater: 10% more damage, 10% less mana cost, 10% more spell haste.
+* What each role grants:
+	- Marksman: +40% to critical strike multiplier of the socketed skill. Greater: 80% crit multi.
+	- Wizard: 25% more spell damage on the socketed skill, 40% less damage over time from the socketed skill. Greater: 40% more spell damage, 60% less damage over time.
+	- Conqueror: 20% more area of effect of the socketed skill. Greater: 36% more area of effect.
+	- Bladedancer: Parrying after casting the socketed skill costs no stamina, expiring after 2.5 seconds if not parried. Greater: Expires after 4 seconds.
+	- Fighter: 25% faster stamina recovery for 4 seconds after using the socketed skill. Greater: 50% faster stamina recovery.
+	- Conjurer: +1 projectile fired to the socketed skill, 12.5% less damage. Greater: +2 projectiles fired, 25% less damage.
+	- Leader: 30% more area of effect of socketed auras. Greater: 50% more area of effect.
+	- Conservationist: 15% increased mana reservation efficiency of socketed skill. Greater: 25% increased mana reservation efficiency.
+	- Magus: 25% chance to gain the unreduced mana cost of the socketed skill back on casting. Greater: 40% chance.
+	- Swiftcaster: 20% spell haste to the socketed skill. Greater: 40% spell haste.
+	- Summoner: 25% more minion life on the socketed skill. Greater: 40% more minion life.
+	- Priest: 20% more healing on the socketed skill. Greater: 40% more healing.
+	- Witch: Socketed skill has 20% more curse effect. Greater: 40% more curse effect.
+	- Cruel: 40% less hit damage, 30% more damage over time from the socketed skill. Greater: 60% less hit, 45% more damage over time.
+	- Pyromancer: 25% chance to ignite on the socketed skill. Greater: 50% chance.
+	- Cryomancer: 25% chance to chill on the socketed skill. Greater: 50% chance.
+	- Venomancer: 25% chance to poison on the socketed skill. Greater: 50% chance.
+	- Electromancer: 25% chance to overload on the socketed skill. Greater: 50% chance.
+	- Vampire: 1.5% of the spell damage leeched as life on the socketed skill. Greater: 3% leech.
+	- Influencer: 10% increased passive effect on the socketed skill. Greater: 20% increased passive effect.
+	- Commander: 25% more minion damage on the socketed skill. Greater: 40% more.
+	- Quicktongue: Socketed spell repeats an additional time. It also gains 20% more spell haste, but 35% less damage. Cannot support channeling spells. Greater: 30% spell haste and 25% less damage.
+	- Archmage: Socketed spell gains 8% of unreserved mana as extra lightning damage. Greater: 12% of the mana is gained.
+	- Assassin: 10% chance on socketed spell's crit to gain Elusive for 2.5 seconds. Greater: 20% chance to gain Elusive.
+	- Necromancer: Slain minion from the socketed spell has 25% chance to come back to life after 3 seconds. Greater: 50% chance.
+	- Sanguinomancer: 25% chance to cause bleeding on the socketed skill. Greater: 50% chance.
+	- Destroyer: 20% added resist pierce on the socketed skill. Greater: 30% pierce.
+	- Resolute: 15% chance to gain an endurance charge on socketed skill staggering an enemy. Greater: 4% more damage per endurance charge.
+	- Ravager: 15% chance to gain a frenzy charge on socketed skill chilling or freezing. Greater: 4% more damage per frenzy charge.
+	- Powerful: 15% chance to gain a power charge on socketed skill landing a crit. Greater: 4% more damage per power charge.
+	- Merciless: Socketed skill deals 33% more damage to targets on low life. Greater: 54% more damage.
+	- Executioner: Socketed skill can cull. Greater: Cull range on skill increases by 5%.
+	- Haemocrafter: Socketed skill costs life instead of mana, at 200% the value. Greater: Cost multiplier is 150%.
+* Not all roles are meant to work with all the skills. Some skills fire no projectiles (curse, buff, area of effect on point and click etc.) or some skills have no duration component etc.
+* They follow the "increased" and "more" rules of additive and multiplicative stacking, respectively.
+* Max 2 base sockets.
+* You can put multiples of the same gem.
+* Gems can be unsocketed and socketed at will otherwise.

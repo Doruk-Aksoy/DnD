@@ -23,11 +23,13 @@ Actor " Fists " : DnDWeapon
 	+WEAPON.NOAUTOAIM
 	States {
 		Ready:
+			TNT1 A 0 A_GiveInventory("DnD_WeaponIdle", 1)
 			PUNK A 0 A_GiveInventory("H_WeaponSlot1", 1)
 			PUNK A 0 ACS_NamedExecuteWithResult("DnD Weapon Damage Cache", DND_WEAPON_FIST)
 		ReadyInit:
 			PUNK A 0 ACS_NamedExecuteWithResult("DnD Start Stamina Recovery")
 		ReadyLoop:
+			"####" "#" 0 A_GiveInventory("DnD_WeaponIdle", 1)
 			PUNK A 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		Loop
 		Select:
@@ -37,9 +39,11 @@ Actor " Fists " : DnDWeapon
 			TNT1 A 0 A_Raise
 		Loop
 		Deselect:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot1", 1)
 			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			PUNK A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -101,6 +105,7 @@ Actor " Fists " : DnDWeapon
 		Goto Ready
 		
 		Reload:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			PUNK A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Parry"), "Parry")
 		Nothing:
 			PUNK AA 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
@@ -160,18 +165,22 @@ ACTOR " Chainsaw " : DnDWeapon {
 	+WEAPON.NOAUTOAIM
 	States {
 		Ready:
+			TNT1 A 0 A_GiveInventory("DnD_WeaponIdle", 1)
 			SAWG C 0 A_GiveInventory("H_WeaponSlot1", 1)
 			SAWG C 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_CHAINSAW)
 		ReadyInit:
 			SAWG C 0 ACS_NamedExecuteWithResult("DnD Start Stamina Recovery")
 		ReadyLoop:
+			"####" "#" 0 A_GiveInventory("DnD_WeaponIdle", 1)
 			SAWG C 0 A_PlayWeaponSound("weapons/sawidle")
 			SAWG CD 4 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot1", 1)
 			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeSelectLoop:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			SAWG C 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -271,18 +280,22 @@ ACTOR "Upgraded Chainsaw" : DnDWeapon {
 	+WEAPON.NOAUTOAIM
 	States {
 		Ready:
+			TNT1 A 0 A_GiveInventory("DnD_WeaponIdle", 1)
 			SAW2 C 0 A_GiveInventory("H_WeaponSlot1", 1)
 			SAW2 C 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_DOUBLECHAINSAW)
 		ReadyInit:
 			SAW2 C 0 ACS_NamedExecuteWithResult("DnD Start Stamina Recovery")
 		ReadyLoop:
+			"####" "#" 0 A_GiveInventory("DnD_WeaponIdle", 1)
 			SAW2 C 0 A_PlaySound("weapons/sawidle2", CHAN_WEAPON, 0.6)
 			SAW2 CD 4 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot1", 1)
 			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeSelectLoop:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			SAW2 C 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -374,18 +387,22 @@ ACTOR Sickle : DnDWeapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Deselect:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot1", 1)
 			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeSelectLoop:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			SCKL A 1 A_lower
 			TNT1 A 0 A_lower
 		Loop
 		Ready:
+			TNT1 A 0 A_GiveInventory("DnD_WeaponIdle", 1)
 			SCKL A 0 A_GiveInventory("H_WeaponSlot1", 1)
 			SCKL A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_SICKLE)
 		ReadyInit:
 			SCKL A 0 ACS_NamedExecuteWithResult("DnD Start Stamina Recovery")
 		ReadyLoop:
+			"####" "#" 0 A_GiveInventory("DnD_WeaponIdle", 1)
 			SCKL AAA 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_NOSECONDARY)
 			SCKL A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
@@ -692,18 +709,22 @@ ACTOR Excalibat : DnDWeapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Deselect:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot1", 1)
 			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeSelectLoop:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			EXCL A 1 A_lower
 			TNT1 A 0 A_lower
 		Loop
 		Ready:
+			TNT1 A 0 A_GiveInventory("DnD_WeaponIdle", 1)
 			EXCL A 0 A_GiveInventory("H_WeaponSlot1", 1)
 			EXCL A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_EXCALIBAT)
 		ReadyInit:
 			EXCL A 0 ACS_NamedExecuteWithResult("DnD Start Stamina Recovery")
 		ReadyLoop:
+			"####" "#" 0 A_GiveInventory("DnD_WeaponIdle", 1)
 			EXCL A 6 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 			EXCL A 0 A_Jump(16, "Blink")
 			EXCL B 6 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
@@ -854,6 +875,7 @@ ACTOR Excalibat : DnDWeapon {
 		Goto Ready
 		
 		Reload:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			EXCL A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Parry"), "Parry")
 		Nothing:
 			EXCL AA 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
@@ -987,11 +1009,13 @@ ACTOR Katana : DnDWeapon {
 			JFIS Z -1
 		Stop
 		Ready:
+			TNT1 A 0 A_GiveInventory("DnD_WeaponIdle", 1)
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot1", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_KATANA)
 		ReadyInit:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Start Stamina Recovery")
 		ReadyLoop:
+			"####" "#" 0 A_GiveInventory("DnD_WeaponIdle", 1)
 			TNT1 A 0 A_JumpIfInventory ("KatanaUnsheated", 1, "ReadyUnsheathed")
 			TNT1 A 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		Loop
@@ -1013,6 +1037,7 @@ ACTOR Katana : DnDWeapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Deselect:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot1", 1)
 			TNT1 A 0 A_JumpIfInventory("DnD_PDead", 1, "DeselectLoop")
 			TNT1 A 0 A_JumpIfInventory ("KatanaUnsheated", 1, "DeselectSheathe")
@@ -1021,6 +1046,7 @@ ACTOR Katana : DnDWeapon {
 			TNT1 A 0 A_StopSound(7)
 			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			TNT1 A 0 A_Lower
 		Loop
 		DeselectSheathe:
@@ -1557,6 +1583,7 @@ ACTOR Katana : DnDWeapon {
 //---------------------------------
 		
 		Reload:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			TNT1 A 0 A_JumpIfInventory("KatanaUnsheated", 1, "ParryCheck_Unsheated")
 		ParryCheck:
 			JFIS D 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Parry"), "Parry")
@@ -1874,11 +1901,13 @@ Actor "Dusk Blade" : DnDWeapon {
 			VORP X -1 
 		Stop
 		Ready:
+			TNT1 A 0 A_GiveInventory("DnD_WeaponIdle", 1)
 			VORP A 0 A_GiveInventory("H_WeaponSlot1", 1)
 			VORP A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_DUSKBLADE)
 		ReadyInit:
 			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Start Stamina Recovery")
 		ReadyLoop:
+			"####" "#" 0 A_GiveInventory("DnD_WeaponIdle", 1)
 			"####" "#" 0 A_TakeInventory("SwordHitCharge", 100)
 			"####" "#" 0 A_JumpIfInventory("DuskMode", 1, "DuskReady")
 			VORP A 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
@@ -1887,9 +1916,11 @@ Actor "Dusk Blade" : DnDWeapon {
 			VORP JKLM 4 Bright A_WeaponReady(WRF_NOSWITCH)
 		goto ReadyInit
 		Deselect:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot1", 1)
 			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			VORP A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -2026,6 +2057,7 @@ Actor "Dusk Blade" : DnDWeapon {
 		Goto PreReady
 		
 		Reload:
+			"####" "#" 0 A_TakeInventory("DnD_WeaponIdle", 1)
 			"####" "#" 0 A_JumpIfInventory("DuskMode", 1, "DuskDoNothing")
 			"####" "#" 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Parry"), "Parry")
 			"####" "##" 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)

@@ -1037,9 +1037,13 @@ int GetPercentCritChanceIncrease(int pnum, int wepid) {
 	return val;
 }
 
-int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0) {
+int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0, bool isSpell = false) {
 	int chance = GetBaseCritChance(pnum);
 	int pct_bonus;
+
+	// Spells have no weapon to carry a crit roll, so this is their whole source of added crit.
+	if(isSpell)
+		chance += PlayerModData[pnum].vals[PSTAT_SPELL_CRIT];
 	// add other flat crit bonuses here
 	if(wepid != -1) {
 		chance += Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRIT][WMOD_ITEMS].val + Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRIT][WMOD_WEP].val;
@@ -1137,13 +1141,13 @@ bool CheckGuaranteedCritCases() {
 	return CheckInventory("DnD_GuaranteeCrit_FromDeadliness") && CheckInventory("DnD_DeadlinessMasteryWindow");
 }
 
-bool CheckCritChance(int pnum, int victim, int wepid, bool isLightning, bool noToken = false) {
+bool CheckCritChance(int pnum, int victim, int wepid, bool isLightning, bool noToken = false, bool isSpell = false) {
 	// veil disables crits for the cooldown period
 	if(CheckInventory("VeilCheck") && CheckInventory("VeilCooldown"))
 		return false;
 
 	bool res = false;
-	int chance = GetCritChance(pnum, victim, wepid, isLightning);
+	int chance = GetCritChance(pnum, victim, wepid, isLightning, isSpell);
 		
 	//printbold(s:"running crit chance: ", f:chance);
 	

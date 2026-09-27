@@ -469,7 +469,8 @@ Vec3_T* GetRandomSpreadDir(Vec3_T* vDir, Vec3_T* vUp, Vec3_T* vRight, int speed,
 }
 
 void StartLookDist(int part, int maxdist = 2048.0) {
-	// tid parameter doesnt work on puffs for some fucking reason (zandro old)
+	// The puff tid DOES work now, verified -- see TraceSpellAim, which reads one back on the same
+	// tic. This function has no callers and DistanceHelper was never written.
 	LineAttack(0, GetActorAngle(0), GetActorPitch(0), 0, "DistanceHelper", "None", maxdist, FHF_NORANDOMPUFFZ | FHF_NOIMPACTDECAL);
 }
 

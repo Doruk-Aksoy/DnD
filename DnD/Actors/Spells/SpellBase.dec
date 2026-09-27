@@ -1,0 +1,85 @@
+// Templates for the spell system. Inherit from the one that matches how the effect moves; the
+// spawner fills the variables through SpawnSpellActor, so nothing here is set per spell.
+//
+// user_spellid   which spell this belongs to. Damage is NOT stored on the actor -- the impact script
+//                resolves it from this id and the owner, so synergies and +levels stay live for a
+//                projectile that is already in the air.
+// user_spellrank the caster's effective rank, cached so DECORATE can branch on the rank 5 and rank
+//                10 behaviours with A_JumpIf instead of an ACS round trip per frame.
+// user_extra     per spell scratch. Ice Spear uses it for its phase, Annihilus for channel ticks.
+//
+// The owner is already on APROP_SCORE by the time these run -- "DnD Projectile Checks" puts it
+// there, and every base below runs that first.
+
+Actor DnD_Spell : DnD_BaseProjectile {
+	var int user_spellid;
+	var int user_spellrank;
+	var int user_extra;
+
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Projectile Checks")
+			TNT1 A 35 A_Jump(256, "SpawnState")
+		Wait
+	}
+}
+
+// The first TNT1 A 0 is needed, NoDelay does not work properly with fastprojectiles -- same reason
+// DnD_BaseFastProjectile carries one.
+Actor DnD_SpellFast : DnD_BaseFastProjectile {
+	var int user_spellid;
+	var int user_spellrank;
+	var int user_extra;
+
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Projectile Checks")
+			TNT1 A 35 A_Jump(256, "SpawnState")
+		Wait
+	}
+}
+
+// A ruler for TraceSpellAim, read by tid on the tic it spawns. The one frame is only so it is still
+// alive for that read; nothing looks at it afterwards.
+Actor DnD_SpellAimPuff {
+	+NOBLOCKMAP
+	+NOGRAVITY
+	+NOINTERACTION
+	+DONTSPLASH
+	+ALWAYSPUFF
+	+PUFFONACTORS
+	RenderStyle None
+	Radius 1
+	Height 1
+	States {
+		Spawn:
+			TNT1 A 1
+		Stop
+	}
+}
+
+// Anchors that sit still and do their work over time: Immolation's ring, Frost Bomb's crystal,
+// Blizzard's storm, Volcano. NOCLIP so a spawn point inside geometry does not eject it, and
+// NOINTERACTION because the damage comes from its own script rather than from touching anything.
+Actor DnD_SpellAnchor {
+	+NOBLOCKMAP
+	+NOGRAVITY
+	+NOCLIP
+	+NOINTERACTION
+	+DONTSPLASH
+	+AMBUSH
+	Radius 1
+	Height 1
+	RenderStyle None
+
+	var int user_spellid;
+	var int user_spellrank;
+	var int user_extra;
+
+	States {
+		Spawn:
+			TNT1 A -1
+		Stop
+	}
+}

@@ -151,7 +151,22 @@ enum {
 	MENU_HELP_MMODS_UTILITY,
 	MENU_HELP_MMODS_SPECIAL,
 
-	MENU_ABILITY,
+	MENU_SPELL,
+
+	// One page per tree in DND_SKILLTREE_* order, so the page IS the tree. Same reason the perk
+	// pages are one per archetype: the pane rebuilds on page CHANGE, and a variable would swap
+	// trees without it ever noticing.
+	MENU_SPELL_FIRE,
+	MENU_SPELL_ICE,
+	MENU_SPELL_LIGHTNING,
+	MENU_SPELL_EARTH,
+	MENU_SPELL_BLACK,
+	MENU_SPELL_ARCANE,
+	MENU_SPELL_CHAOS,
+	MENU_SPELL_COMBAT,
+
+	// Not a tree: the hotbar assignment page, reached from the same index.
+	MENU_SPELL_HOTBAR,
 	
 	#ifdef ISAPRILFIRST
 	MENU_SHOP_NFT
@@ -341,6 +356,19 @@ enum {
 
 bool IsPerkTreePage(int page) {
 	return page >= MENU_PERKTREE_FIRST && page <= MENU_PERKTREE_LAST;
+}
+
+#define MENU_SPELLTREE_FIRST MENU_SPELL_FIRE
+#define MENU_SPELLTREE_LAST  MENU_SPELL_COMBAT
+
+bool IsSpellTreePage(int page) {
+	return page >= MENU_SPELLTREE_FIRST && page <= MENU_SPELLTREE_LAST;
+}
+
+// Everything the spell pages share regardless of which one: the full screen backdrop, the suppressed
+// side bar, the widened cursor and the id cleanup. A TREE page is the subset that has a tree in it.
+bool IsSpellPage(int page) {
+	return IsSpellTreePage(page) || page == MENU_SPELL_HOTBAR;
 }
 
 bool IsWeaponPage(int page) {

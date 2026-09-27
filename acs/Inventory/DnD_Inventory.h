@@ -4324,6 +4324,10 @@ Script "DnD Load Inventory Attributes" OPEN {
 		SetupPerkTable();
 		Delay(const:1);
 
+		// Same weight class, same rule: its own tic on both sides.
+		InitSpellDefs();
+		Delay(const:1);
+
 		Delay(const:10);
 		SetupUniqueItems();
 		Delay(10);
@@ -4359,6 +4363,12 @@ Script "DnD Load Inventory Attributes - CS" OPEN CLIENTSIDE {
 		// tic. See the bytecode sizes in .claude/notes/dnd-perk-rework.md.
 		Delay(const:1);
 		SetupPerkTable();
+		Delay(const:1);
+
+		// SpellDefs is a global, so the client holds its OWN copy and the server's build never reaches
+		// it. The spell tree draws clientside off tree/tx/ty -- without this every spell reads zero and
+		// the whole tree collapses onto one point.
+		InitSpellDefs();
 
 		// The server can push perk words before this table existed, and the archetype totals they feed
 		// are counted AGAINST it -- a sync that landed early stored the lanes correctly and counted
@@ -4390,6 +4400,7 @@ Script "DnD Setup Perk Table - CS" OPEN CLIENTSIDE {
 	if(!IsPerkTableReady()) {
 		Log(s:"Perk table was missing clientside -- building it here. The main setup block was skipped.");
 		SetupPerkTable();
+		InitSpellDefs();
 	}
 }
 

@@ -652,6 +652,19 @@ bool HandlePageListening(int curopt, int boxid) {
 		case MENU_PERK_TORM:
 			redraw = HandlePerkPageScroll(curopt - MENU_PERKTREE_FIRST, boxid);
 		break;
+		case MENU_SPELL_FIRE:
+		case MENU_SPELL_ICE:
+		case MENU_SPELL_LIGHTNING:
+		case MENU_SPELL_EARTH:
+		case MENU_SPELL_BLACK:
+		case MENU_SPELL_ARCANE:
+		case MENU_SPELL_CHAOS:
+		case MENU_SPELL_COMBAT:
+			redraw = HandleSpellPageScroll(curopt - MENU_SPELLTREE_FIRST, boxid);
+		break;
+		case MENU_SPELL_HOTBAR:
+			redraw = HandleSpellPageScroll(0, boxid);
+		break;
 		#ifdef ISAPRILFIRST
 		case MENU_SHOP_NFT:
 			redraw = ListenScroll(-48, 0, 1, 32);
@@ -2230,7 +2243,53 @@ rect_T module& LoadRect(int menu_page, int id) {
 		{
 			{ -1, -1, -1, -1 }
 		},
-		// ability -- header only until it becomes the spell tree; the dash toggle moved to the perk index
+		// spells -- one row per tree, in DND_SKILLTREE_* order
+		{
+			{ 296.0, 246.0, 80.0, 234.0 }, // Fire
+			{ 296.0, 230.0, 80.0, 218.0 }, // Cold
+			{ 296.0, 214.0, 80.0, 202.0 }, // Lightning
+			{ 296.0, 198.0, 80.0, 186.0 }, // Earth
+			{ 296.0, 182.0, 80.0, 170.0 }, // Black
+			{ 296.0, 166.0, 80.0, 154.0 }, // Arcane
+			{ 296.0, 150.0, 80.0, 138.0 }, // Chaos
+			{ 296.0, 134.0, 80.0, 122.0 }, // Combat
+			{ 296.0, 118.0, 80.0, 106.0 }, // Hotbar Assignments
+			{ -1, -1, -1, -1 }
+		},
+		// The tree pages build their own pane in HandleSpellTreeDraw, so they own no authored rect.
+		// spell tree: fire
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// spell tree: cold
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// spell tree: lightning
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// spell tree: earth
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// spell tree: black
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// spell tree: arcane
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// spell tree: chaos
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// spell tree: combat
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// hotbar assignments -- builds its own pane, like the trees
 		{
 			{ -1, -1, -1, -1 }
 		}
@@ -5834,7 +5893,7 @@ void GetInputOnMenuPage(int opt) {
 		// are scrolling away from. The stat page turns a spend into a refund, both buttons being
 		// spent already.
 		int jumpmod = DND_JUMPMOD_NONE;
-		if(IsPerkTreePage(opt))
+		if(IsPerkTreePage(opt) || IsSpellPage(opt))
 			jumpmod = DND_JUMPMOD_PIN;
 		else if(opt == MENU_STAT1)
 			jumpmod = DND_JUMPMOD_REFUND;

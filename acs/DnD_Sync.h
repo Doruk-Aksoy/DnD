@@ -623,6 +623,13 @@ Script "DnD Request Flag Sync" (int pnum, int word, int val) CLIENTSIDE {
 // Same shape as the flag sync and for the same reason. spent_in is deliberately NOT sent: it is
 // derived from these words, so shipping it too would give the client two copies of one fact that
 // could disagree. The client recounts instead.
+Script "DnD Request Spell Sync" (int pnum, int word, int val) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+	SpellPlayerData[pnum].ranks[word] = val;
+	SetResultValue(0);
+}
+
 Script "DnD Request Perk Sync" (int pnum, int word, int val) CLIENTSIDE {
 	if(GameType() == GAME_SINGLE_PLAYER)
 		Terminate;

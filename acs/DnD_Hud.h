@@ -445,7 +445,11 @@ void ClearMenuLeftovers(int pnum) {
 	ClearPlayerInput(pnum, true);
 }
 
-int GetCursorPos(int input, int mt, int hudx = HUDMAX_X, int hudy = HUDMAX_Y) {
+// xmin exists because posx is a FAR EDGE coordinate: 0 is the RIGHT edge of the screen, not the
+// left. Clamping it at 0 is what stops the cursor reaching anything drawn past x 480, and a page
+// whose art runs wider than the hud space needs to allow exactly that. Every caller that does not
+// ask keeps the old wall.
+int GetCursorPos(int input, int mt, int hudx = HUDMAX_X, int hudy = HUDMAX_Y, int xmin = 0) {
 	int res = 0, speed, ds;
 	int dim;
 	switch(mt) {
@@ -455,7 +459,7 @@ int GetCursorPos(int input, int mt, int hudx = HUDMAX_X, int hudy = HUDMAX_Y) {
 			speed = FixedDiv(1.0, FixedMul(GetCVar("m_yaw"), GetCVar("mouse_sensitivity")));
 			speed = (speed * 2 * dim) / (dim * 100);
 			ds = input * speed;
-			res = Clamp_Between(res + ds, 0, hudx << 16);
+			res = Clamp_Between(res + ds, xmin, hudx << 16);
 		break;
 		case MOUSE_INPUT_Y:
 			dim = getcvar("vid_defheight");
@@ -608,7 +612,8 @@ void SetScrollBarPos(int id, int val) {
 // time, and only the page knows which -- from where the cursor is, not from where the tracks are.
 // A page with one bar leaves it alone and that bar takes the keys, as every page always has.
 bool ListenScroll(int condx_min, int condx_max, int step_px = 0, int view_px = 0,
-	int id = 0, int track_y = DND_SCROLLBAR_Y, int track_h = DND_SCROLLBAR_H, bool take_keys = true) {
+	int id = 0, int track_y = DND_SCROLLBAR_Y, int track_h = DND_SCROLLBAR_H, bool take_keys = true,
+	int track_x = DND_SCROLLBAR_X) {
 	bool redraw = false;
 	int bpress = GetPlayerInput(-1, INPUT_BUTTONS);
 	int pos = GetScrollBarPos(id);
@@ -622,6 +627,7 @@ bool ListenScroll(int condx_min, int condx_max, int step_px = 0, int view_px = 0
 	bar.range.y = condx_max;
 	bar.content.x = step_px;
 	bar.content.y = view_px;
+	bar.track_x = track_x;
 	bar.track_y = track_y;
 	bar.track_h = track_h;
 	bar.listened = true;
@@ -695,9 +701,13 @@ int GetScrollThumbOffset(scrollbar_T module& bar, int id) {
 
 // Against the bar's own track. Two bars share the column, so only their y tells them apart.
 bool IsCursorOnScrollTrack(scrollbar_T module& bar) {
+	// Off bar.track_x, not the global: a page that moved its bar has to be grabbable where the bar
+	// IS. Cursor x is a far edge coordinate, hence HUDMAX_X minus the column.
 	return point_in_points(
-		DND_SCROLLBAR_CURSOR_XMAX, DND_SCROLLBAR_CURSOR_YMAX(bar.track_y),
-		DND_SCROLLBAR_CURSOR_XMIN, DND_SCROLLBAR_CURSOR_YMIN(bar.track_y, bar.track_h),
+		(HUDMAX_X - bar.track_x + DND_SCROLLBAR_GRABPAD) << 16,
+		DND_SCROLLBAR_CURSOR_YMAX(bar.track_y),
+		(HUDMAX_X - bar.track_x - DND_SCROLLBAR_W - DND_SCROLLBAR_GRABPAD) << 16,
+		DND_SCROLLBAR_CURSOR_YMIN(bar.track_y, bar.track_h),
 		PlayerCursorData.posx, PlayerCursorData.posy, 0
 	);
 }
@@ -781,12 +791,11 @@ void DrawScrollBar() {
 		DrawScrollBarOne(i);
 }
 
-void DrawScrollBarOne(int id) {
+// Split out from DrawScrollBarOne so a page can render the SAME bar into its own id block and
+// its own column. The spell tree needs that: its backdrop sits in front of the shared bar's
+// ids, so a copy at low ids is the only way its pocket can show one at all.
+void DrawScrollBarBody(int id, int bx, int gripid, int capid, int thumbid, int trackid) {
 	scrollbar_T module& bar = GetScrollBar(id);
-	int gripid = RPGMENUSCROLLGRIPID + DND_SCROLLBAR_IDSTRIDE * id;
-	int capid = RPGMENUSCROLLCAPID + DND_SCROLLBAR_IDSTRIDE * id;
-	int thumbid = RPGMENUSCROLLTHUMBID + DND_SCROLLBAR_IDSTRIDE * id;
-	int trackid = RPGMENUSCROLLTRACKID + DND_SCROLLBAR_IDSTRIDE * id;
 
 	if(!CanShowScrollBar(bar)) {
 		DeleteTextRange(gripid, trackid);
@@ -796,8 +805,8 @@ void DrawScrollBarOne(int id) {
 	// Clipped to the bar's own track, because the art is one fixed height and a bar shorter than it
 	// would otherwise run past its own end.
 	SetFont("SCRLTRAK");
-	SetHudClipRect(DND_SCROLLBAR_X, bar.track_y, DND_SCROLLBAR_W, bar.track_h, DND_SCROLLBAR_W);
-	HudMessage(s:"A"; HUDMSG_PLAIN, trackid, -1, DND_SCROLLBAR_XF + 0.1, (bar.track_y << 16) + 0.1, 0.0, 0.0);
+	SetHudClipRect(bx, bar.track_y, DND_SCROLLBAR_W, bar.track_h, DND_SCROLLBAR_W);
+	HudMessage(s:"A"; HUDMSG_PLAIN, trackid, -1, (bx << 16) + 0.1, (bar.track_y << 16) + 0.1, 0.0, 0.0);
 
 	int th = GetScrollThumbHeight(bar);
 	int ty = bar.track_y + GetScrollThumbOffset(bar, id);
@@ -813,30 +822,39 @@ void DrawScrollBarOne(int id) {
 	// body, which is uniform, so the passes agree wherever they meet.
 	SetFont("SCRLTHMB");
 
-	SetHudClipRect(DND_SCROLLBAR_X, ty, DND_SCROLLBAR_W, th, DND_SCROLLBAR_W);
+	SetHudClipRect(bx, ty, DND_SCROLLBAR_W, th, DND_SCROLLBAR_W);
 	HudMessage(
 		s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, thumbid, -1,
-		DND_SCROLLBAR_XF + 0.1, ((ty - DND_SCROLLBAR_THUMBBODY) << 16) + 0.1, 0.0, alpha
+		(bx << 16) + 0.1, ((ty - DND_SCROLLBAR_THUMBBODY) << 16) + 0.1, 0.0, alpha
 	);
 
-	SetHudClipRect(DND_SCROLLBAR_X, ty + th - 1, DND_SCROLLBAR_W, 1, DND_SCROLLBAR_W);
+	SetHudClipRect(bx, ty + th - 1, DND_SCROLLBAR_W, 1, DND_SCROLLBAR_W);
 	HudMessage(
 		s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, capid, -1,
-		DND_SCROLLBAR_XF + 0.1, ((ty + th - 1 - DND_SCROLLBAR_THUMBCAP) << 16) + 0.1, 0.0, alpha
+		(bx << 16) + 0.1, ((ty + th - 1 - DND_SCROLLBAR_THUMBCAP) << 16) + 0.1, 0.0, alpha
 	);
 
 	if(th >= DND_SCROLLBAR_THUMBGRIPMIN) {
 		int gy = ty + (th - DND_SCROLLBAR_THUMBGRIPH) / 2;
-		SetHudClipRect(DND_SCROLLBAR_X, gy, DND_SCROLLBAR_W, DND_SCROLLBAR_THUMBGRIPH, DND_SCROLLBAR_W);
+		SetHudClipRect(bx, gy, DND_SCROLLBAR_W, DND_SCROLLBAR_THUMBGRIPH, DND_SCROLLBAR_W);
 		HudMessage(
 			s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, gripid, -1,
-			DND_SCROLLBAR_XF + 0.1, ((gy - DND_SCROLLBAR_THUMBGRIP) << 16) + 0.1, 0.0, alpha
+			(bx << 16) + 0.1, ((gy - DND_SCROLLBAR_THUMBGRIP) << 16) + 0.1, 0.0, alpha
 		);
 	}
 	else
 		DeleteText(gripid);
 
 	SetHudClipRect(0, 0, 0, 0, 0);
+}
+
+// The shared bar, in its own column and id block.
+void DrawScrollBarOne(int id) {
+	DrawScrollBarBody(id, GetScrollBar(id).track_x,
+		RPGMENUSCROLLGRIPID + DND_SCROLLBAR_IDSTRIDE * id,
+		RPGMENUSCROLLCAPID + DND_SCROLLBAR_IDSTRIDE * id,
+		RPGMENUSCROLLTHUMBID + DND_SCROLLBAR_IDSTRIDE * id,
+		RPGMENUSCROLLTRACKID + DND_SCROLLBAR_IDSTRIDE * id);
 }
 
 // we need this because the player name returned from acs functions currently includes color codes which may affect text length for trims

@@ -202,6 +202,10 @@ int TakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt, int flags = 0) {
 // we get weapon id, primary or alt and flags only
 // ammo_slot >> 16 contains subslot, first 16 contains main slot
 Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
+	// The weapon is no longer idle. Cleared here rather than in 465 DECORATE states, and reaching
+	// this script already means the shot passed the canFire gate.
+	TakeInventory("DnD_WeaponIdle", 1);
+
 	int owner = ActivatorTID();
 	int pnum = PlayerNumber();
 

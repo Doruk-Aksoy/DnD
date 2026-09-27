@@ -2080,5 +2080,6 @@ void HandleChargeAcquisitionOnKill(int this, int pnum) {
 }
 
 #include "DnD_Damage.h"
+#include "Spells/DnD_SpellDamage.h"
 #include "DnD_Weapons.h"
 #include "DnD_WeaponWheel.h"

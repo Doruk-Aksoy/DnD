@@ -473,7 +473,7 @@ ARCANE MAGIC
 	Rank 10: Lasts 30 seconds instead.
 	Requires: Holy Wrath (Rank 1).
  
-* Haste Aura
+* Haste
  
 	PASSIVE SKILL - AURA SKILL
 	You and allies in a 192 unit radius around you are sped up by 20%.

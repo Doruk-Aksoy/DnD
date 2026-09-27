@@ -2574,6 +2574,9 @@ Script "DnD Player Levelup Check" (int tid) {
 		if(exptemp < 0)
 			exptemp = 0;
 
+		if(!((currlvl + 1) % DND_SPELLPOINT_PERLEVELS))
+			GiveSpellPointsFromLevel(pnum, 1);
+
 		if(!((currlvl + 1) % DND_PERK_MULTIPLES)) { // multiples of 5 give perk
 			GivePerkPoints(pnum, 1);
 			GiveActorInventory(tid, "PerkedUp", 1);
@@ -4720,6 +4723,11 @@ Script 998 (int wepnum, int side, int extra) {
 Script "DnD Periodic Regeneration" ENTER {
 	int cur, amt, lim, pnum = PlayerNumber(), this = ActivatorTID();
 	int ticker = 0;
+
+	// Mana carries in hundredths so the 0.5/s base and the 0.25 per 2 INT step survive integer
+	// division; whole mana is handed over as the accumulator crosses 100. Script local, so it is
+	// already per player and already persists for as long as they are in the game.
+	int mana_acc = 0;
 	while(PlayerInGame(pnum)) {
 		if(isAlive()) {
 			int regen_amt = pbuffs[pnum].buff_net_values[BUFF_HEALTHREGEN].additive;
@@ -4783,6 +4791,12 @@ Script "DnD Periodic Regeneration" ENTER {
 					GiveInventory("RegenEffect", 1);
 					LocalAmbientSound("ability/regen", 127);
 				}
+			}
+
+			mana_acc += GetPlayerManaRegen(pnum);
+			if(mana_acc >= DND_MANAREGEN_SCALE) {
+				GiveMana(pnum, mana_acc / DND_MANAREGEN_SCALE);
+				mana_acc %= DND_MANAREGEN_SCALE;
 			}
 
 			// energy shield regeneration
@@ -7381,6 +7395,22 @@ Script 68 (int x) NET {
 			// Goes through GivePerkPoints, so the pool, the activity delta and the menu's mirror all
 			// move together -- which `give PerkPoint` from the console does not do.
 			GivePerkPoints(PlayerNumber(), 10);
+		}
+		else if(x == 453) {
+			// Spell points, through the TOKEN path on purpose -- that is the one the monster and chest
+			// drops will use, so this exercises the real 50 cap rather than sidestepping it. The log says
+			// how many actually landed, which is the only way to tell a cap from a no-op.
+			int pnum = PlayerNumber();
+			int got = GiveSpellPointsFromToken(pnum, 10);
+			Log(s:"Spell points granted: ", d:got, s:"  unspent: ", d:GetSpellPoints(pnum),
+				s:"  from tokens: ", d:CheckActorInventory(pnum + P_TIDSTART, "SpellPointsFromToken"),
+				s:"/", d:DND_SPELLPOINT_MAXFROMTOKEN);
+		}
+		else if(x == 454) {
+			// Uncapped, for testing past what a real character can reach. Bypasses both counters, so the
+			// caps stay honest -- do not use it to check cap behaviour.
+			GiveSpellPoints(PlayerNumber(), 25);
+			Log(s:"Spell points (uncapped): ", d:GetSpellPoints(PlayerNumber()));
 		}
 		else if(x == 451)
 			SpawnDrop("ResearchModule_MP", 24.0, 16, 1, random(0, 50));

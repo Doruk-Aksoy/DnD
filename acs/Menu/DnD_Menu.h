@@ -247,8 +247,11 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 	
 	while(CheckInventory("ShowingMenu")) {
 		redraw = false;
-		// Load cursor stuff
-		PlayerCursorData.posx = GetCursorPos(GetPlayerInput(ConsolePlayerNumber(), INPUT_YAW), MOUSE_INPUT_X);
+		// Load cursor stuff. A spell page's pocket and its scrollbar sit past the usual right edge --
+		// the art is wider than the hud space -- so the cursor is let past it THERE and nowhere else.
+		PlayerCursorData.posx = GetCursorPos(GetPlayerInput(ConsolePlayerNumber(), INPUT_YAW), MOUSE_INPUT_X,
+			HUDMAX_X, HUDMAX_Y,
+			IsSpellPage(CheckInventory("MenuOption")) ? -DND_SPELLCURSOR_OVERREACH : 0);
 		PlayerCursorData.posy = GetCursorPos(GetPlayerInput(ConsolePlayerNumber(), INPUT_PITCH), MOUSE_INPUT_Y);
 		curopt = CheckInventory("MenuOption");
 		
@@ -257,6 +260,26 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			ResetPane(CurrentPane);
 			LoadPane(CurrentPane, curopt);
 			ScrollPos.x = 0;
+
+			// The spell page draws below RPGMENUID so it lands in front of its own backdrop, which puts
+			// it outside the RPGMENUITEMID band the redraw clears. Nothing else would ever take these
+			// down, so leaving a tree page has to.
+			if(!IsSpellPage(curopt)) {
+				DeleteTextRange(SPELLPAGE_ID_FIRST, SPELLPAGE_ID_LAST);
+
+				// The pinned spell belongs to the page it was pinned on. Moving between two trees is
+				// caught by the shown_tree check in the draw; leaving the spell pages entirely is not.
+				GetSpellScroll().shown_spell = -1;
+				GetSpellScroll().pinned = false;
+				GetSpellScroll().picking_slot = -1;
+				SetScrollBarPos(DND_SPELLBAR_PANEL, 0);
+
+				// The backdrop lives in RPGMENUID, outside the band above, and nothing else restates it
+				// -- without this it stands over whatever page comes next.
+				if(curopt != MENU_LOAD_CRAFTING && curopt != MENU_LOAD_CRAFTING_INVENTORY &&
+					curopt != MENU_LOAD_CRAFTING_WEAPON && curopt != MENU_LOAD_CRAFTING_TRANSMUTING)
+					DeleteText(RPGMENUID);
+			}
 
 			// A pinned perk description belongs to the page it was pinned on. Cleared here rather
 			// than only in that page's draw so it also lapses when the menu is closed and reopened.
@@ -290,8 +313,20 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		}
 		else if(curopt < MENU_LOAD_CRAFTING || curopt > MENU_LOAD_CRAFTING_LAST) {
 			if(!CheckInventory("DnD_InventoryView") && !CheckInventory("InTradeView") && !CheckInventory("DnD_StashView")) {
-				boxid = GetTriggeredBoxOnPane(CurrentPane, PlayerCursorData.posx, PlayerCursorData.posy);
-				mainboxid = GetTriggeredBoxOnMainPane(PlayerCursorData.posx, PlayerCursorData.posy);
+				// GetTriggeredBoxOnPane rejects anything past xlim, and xlim is a FAR EDGE coordinate --
+				// the default 348 means "nothing left of screen x 132". Every other page starts its
+				// content at 184 so it never noticed; this one starts at 26, and its first three columns
+				// were simply unreachable.
+				if(IsSpellPage(curopt))
+					boxid = GetTriggeredBoxOnPane(CurrentPane, PlayerCursorData.posx, PlayerCursorData.posy, 470.0, 300.0);
+				else
+					boxid = GetTriggeredBoxOnPane(CurrentPane, PlayerCursorData.posx, PlayerCursorData.posy);
+
+				// A spell tree page owns the whole screen and draws its own backdrop over the side bar,
+				// exactly as the crafting pages do. The bar is not drawn there, so it must not be
+				// clickable either -- otherwise the player is hovering buttons that are not on screen.
+				if(!IsSpellPage(curopt))
+					mainboxid = GetTriggeredBoxOnMainPane(PlayerCursorData.posx, PlayerCursorData.posy);
 			}
 			else {
 				if(CheckInventory("DnD_InventoryView"))
@@ -380,6 +415,10 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		// HandlePerkPin: nothing may read MenuInput on a later iteration and expect to find it.
 		if(IsPerkTreePage(curopt))
 			redraw |= HandlePerkPin(curopt - MENU_PERKTREE_FIRST, boxid, i);
+		else if(IsSpellTreePage(curopt))
+			redraw |= HandleSpellPin(curopt - MENU_SPELLTREE_FIRST, boxid, i);
+		else if(curopt == MENU_SPELL_HOTBAR)
+			redraw |= HandleSpellHotbarPick(pnum, boxid, i);
 				
 		// The server discards anything arriving inside its own DND_MENU_INPUTDELAYTICS debounce --
 		// no ack, no processing, no way for us to know. Clicking faster than that just means a
@@ -698,6 +737,12 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				HandlePerkIndexDraw(pnum, boxid);
 			else if(IsPerkTreePage(curopt))
 				HandlePerkTreeDraw(pnum, curopt - MENU_PERKTREE_FIRST, boxid, CurrentPane);
+			else if(curopt == MENU_SPELL)
+				HandleSpellIndexDraw(pnum, boxid);
+			else if(IsSpellTreePage(curopt))
+				HandleSpellTreeDraw(pnum, curopt - MENU_SPELLTREE_FIRST, boxid, CurrentPane);
+			else if(curopt == MENU_SPELL_HOTBAR)
+				HandleSpellHotbarDraw(pnum, boxid, CurrentPane);
 			else if(curopt == MENU_LOAD) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_LOADOUT", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				
@@ -1082,11 +1127,6 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			}
 			else if(curopt >= SHOP_RESPAGE_BEGIN && curopt <= SHOP_RESPAGE_END)
 				HandleResearchPageDraw(pnum, curopt - SHOP_RESPAGE_BEGIN, boxid);
-			else if(curopt == MENU_ABILITY)
-				// Empty until it becomes the spell tree. The learned list went with the shop and the
-				// save; the dash toggle went to the perk index, which had room under its archetypes.
-				// The header keeps its name on purpose -- renaming it now means renaming it again then.
-				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ABILEARNED", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 			else if(curopt == MENU_MAIN) {
 				HudMessage(s:"--- ", l:"DND_MENU_WELCOME", s:"! ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
 				ShowBobby();
@@ -1334,8 +1374,9 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			}
 			#endif
 			
-			// Main menu side bar -- stats and perks are in the other looping script
-			if(curopt < MENU_LOAD_CRAFTING || curopt > MENU_LOAD_CRAFTING_TRANSMUTING) {
+			// Main menu side bar -- stats and perks are in the other looping script. Skipped wherever a
+			// page brings its own full screen backdrop: the crafting pages, and now the spell trees.
+			if((curopt < MENU_LOAD_CRAFTING || curopt > MENU_LOAD_CRAFTING_TRANSMUTING) && !IsSpellPage(curopt)) {
 				if(mainboxid == MAINBOX_LOAD)
 					HudMessage(s:"\c[B1]", l:"DND_MENU_SIDE_LOADOUT"; HUDMSG_PLAIN, RPGMENULISTID - 2, -1, 96.0, 204.0, 0.0);
 				else
@@ -1351,10 +1392,10 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				else
 					HudMessage(s:"\c[Y5]", l:"DND_MENU_RESEARCH"; HUDMSG_PLAIN, RPGMENULISTID - 6, -1, 97.0, 251.0, 0.0);
 				
-				if(mainboxid == MAINBOX_ABILITY)
-					HudMessage(s:"\c[B1]", l:"DND_MENU_HEAD_ABILITIES"; HUDMSG_PLAIN, RPGMENULISTID - 4, -1, 96.0, 269.0, 0.0);
+				if(mainboxid == MAINBOX_SPELL)
+					HudMessage(s:"\c[B1]", l:"DND_MENU_HEAD_SPELLS"; HUDMSG_PLAIN, RPGMENULISTID - 4, -1, 96.0, 269.0, 0.0);
 				else
-					HudMessage(s:"\c[Y5]", l:"DND_MENU_HEAD_ABILITIES"; HUDMSG_PLAIN, RPGMENULISTID - 4, -1, 96.0, 269.0, 0.0);
+					HudMessage(s:"\c[Y5]", l:"DND_MENU_HEAD_SPELLS"; HUDMSG_PLAIN, RPGMENULISTID - 4, -1, 96.0, 269.0, 0.0);
 				
 				if(mainboxid == MAINBOX_HELP)
 					HudMessage(s:"\c[B1]", l:"DND_MENU_HELP"; HUDMSG_PLAIN, RPGMENULISTID - 5, -1, 96.0, 287.0, 0.0);
@@ -1516,8 +1557,8 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					UpdateMenuPosition(MENU_SHOP);
 				else if(mainboxid == MAINBOX_RESEARCH)
 					UpdateMenuPosition(MENU_RESEARCH);
-				else if(mainboxid == MAINBOX_ABILITY)
-					UpdateMenuPosition(MENU_ABILITY);
+				else if(mainboxid == MAINBOX_SPELL)
+					UpdateMenuPosition(MENU_SPELL);
 				else if(mainboxid == MAINBOX_HELP)
 					UpdateMenuPosition(MENU_HELP);
 			}
@@ -1637,6 +1678,41 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 				}
 				else if(HasPressedLeft(pnum))
 					ReturnToMain();
+			}
+			else if(curopt == MENU_SPELL) {
+				if(HasPlayerClicked(pnum)) {
+					if(boxid >= MBOX_1 && boxid < MBOX_1 + MAX_SKILL_TREES)
+						UpdateMenuPosition(MENU_SPELLTREE_FIRST + boxid - MBOX_1);
+					else if(boxid == MBOX_1 + MAX_SKILL_TREES)
+						UpdateMenuPosition(MENU_SPELL_HOTBAR);
+				}
+				else if(HasPressedLeft(pnum))
+					ReturnToMain();
+			}
+			else if(curopt == MENU_SPELL_HOTBAR) {
+				// Only the page change is the server's business here. The picker is clientside state --
+				// see HandleSpellHotbarPick -- and the bind arrives as its own puke to "DnD Bind Hotbar".
+				if(HasPlayerClicked(pnum)) {
+					if(boxid == MBOX_1)
+						UpdateMenuPosition(MENU_SPELL);
+				}
+				else if(HasPressedLeft(pnum))
+					UpdateMenuPosition(MENU_SPELL);
+			}
+			else if(IsSpellTreePage(curopt)) {
+				if(HasPlayerClicked(pnum)) {
+					// The back arrow is added to the pane after every spell, so entry n stays box n however
+					// many spells the tree grows.
+					j = GetTreeSpellCount(curopt - MENU_SPELLTREE_FIRST);
+					if(boxid == MBOX_1 + j)
+						UpdateMenuPosition(MENU_SPELL);
+					else if(HandleSpellTreeClick(pnum, curopt - MENU_SPELLTREE_FIRST, boxid)) {
+						LocalAmbientSound("RPG/MenuChoose", 127);
+						GiveInventory("DnD_RefreshPane", 1);
+					}
+				}
+				else if(HasPressedLeft(pnum))
+					UpdateMenuPosition(MENU_SPELL);
 			}
 			else if(IsPerkTreePage(curopt)) {
 				EnsurePerkArchLists();
@@ -2198,10 +2274,6 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 			}
 			else if(curopt >= SHOP_RESPAGE_BEGIN && curopt <= SHOP_RESPAGE_END) {
 				HandleResearchPageInput(pnum, curopt - SHOP_RESPAGE_BEGIN, boxid);
-			}
-			else if(curopt == MENU_ABILITY) {
-				if(HasPressedLeft(pnum))
-					ReturnToMain();
 			}
 			else if(curopt == MENU_HELP) {
 				if(HasLeftClicked(pnum)) {

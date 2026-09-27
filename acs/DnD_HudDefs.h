@@ -114,6 +114,11 @@ struct scrollbar_T {
 	int track_y;
 	int track_h;
 
+	// And its column. Defaulted to DND_SCROLLBAR_X so every existing page is unchanged, but a page
+	// whose art puts the bar somewhere else states it in the same call. Draw and hit test both read
+	// THIS, so they cannot end up describing different columns.
+	int track_x;
+
 	// Where this bar is scrolled to. Bar 0 does NOT use this: its position stays in ScrollPos.x,
 	// which every existing page reads directly when it draws and writes directly when it resets.
 	// Moving that would have meant touching all of them; see GetScrollBarPos.
@@ -146,6 +151,10 @@ scrollbar_T module& GetScrollBar(int id = 0) {
 // 448 -- starting at 449 means the bar never lands on a line of text no matter how long the line
 // runs, which picking a column inside the content area could not promise. All of these are in the
 // HUDMAX_X x HUDMAX_Y space the menu draws its text in.
+// How far past the right edge the cursor may go on a page whose art is wider than the hud space.
+// posx is a far edge coordinate, so this is a NEGATIVE floor: -64 reaches screen x 544.
+#define DND_SPELLCURSOR_OVERREACH 64.0
+
 #define DND_SCROLLBAR_X 449
 #define DND_SCROLLBAR_W 7
 #define DND_SCROLLBAR_Y 40
@@ -209,7 +218,7 @@ enum {
 	MAINBOX_LOAD,
 	MAINBOX_SHOP,
 	MAINBOX_RESEARCH,
-	MAINBOX_ABILITY,
+	MAINBOX_SPELL,
 	MAINBOX_HELP,
 	MAINBOX_LARR,
 	MAINBOX_RET,
@@ -338,7 +347,38 @@ enum {
 	HUDANIMATED_ID,
 	ESHIELD_LEFT_ID = 3000,
 	ESHIELD_RIGHT_ID,
-	METRONOME_BEAT_ID
+	METRONOME_BEAT_ID,
+
+	// Hotbar. Three contiguous runs of MAX_HOTBAR_SLOTS so a slot's three layers share an index.
+	// Ordered back to front by DESCENDING id, per the note above: the frame is behind the icon, and
+	// the cooldown square has to cover both.
+	HOTBAR_SLOT_ID = 3120,
+	HOTBAR_ICON_ID = 3110,
+	HOTBAR_CD_ID = 3100,
+
+	// ---- spell tree page ----
+	// These are LOW on purpose. AttachMessage draws the highest id first, so a lower id lands in
+	// FRONT -- see the note above RPGMENUBACKGROUNDID. The page's own backdrop is RPGMENUID (1750),
+	// which is what the crafting page uses, so every id the page draws has to sit BELOW that or the
+	// backdrop paints over it. They were in the 3200s and the whole tree rendered behind its own
+	// background: boxes hovered, nothing appeared.
+	//
+	// Within the band the same rule orders the layers: connectors behind nodes, nodes behind text.
+	SPELLPAGE_ID_FIRST = 900,
+
+	SPELLTREE_DESC_ID = 900,		// hover panel, one id per line
+	SPELLTREE_HEAD_ID = 980,		// page and pocket headings
+	SPELLTREE_RANK_ID = 1000,		// one per spell
+	SPELLTREE_BAR_ID = 1040,		// the pocket's own scrollbar: grip, cap, thumb, track
+	SPELLTREE_HOVER_ID = 1045,		// the selection frame, in front of the icon it sits on
+	SPELLTREE_NODE_ID = 1050,		// one per spell
+
+	// Crossings sit BETWEEN the nodes and the lines: in front of every run, behind every icon.
+	SPELLTREE_CROSS_ID = 1095,
+
+	SPELLTREE_LINE_ID = 1150,		// DND_SPELLLINE_IDS per requirement edge
+
+	SPELLPAGE_ID_LAST = 1700
 };
 
 void ClearMonsterScanInfo() {
