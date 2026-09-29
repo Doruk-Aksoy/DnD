@@ -31,6 +31,7 @@ typedef struct {
 	int level;
 	int attribute_change[DND_MAX_ATTRIBUTES];
 	int free_perks;
+	int free_spells;
 	int free_attributes;
 	int discarded_weapons;
 
@@ -83,6 +84,7 @@ enum {
 	DND_ACTIVITY_TALENT,
 	DND_ACTIVITY_ATTRIBUTE,
 	DND_ACTIVITY_PERKPOINT,
+	DND_ACTIVITY_SPELLPOINT,
 	DND_ACTIVITY_ATTRIBUTEPOINT,
 	DND_ACTIVITY_WEAPONDISCARD
 };
@@ -107,6 +109,9 @@ void UpdateActivity(int pnum, int activity, int val, int extra) {
 		break;
 		case DND_ACTIVITY_PERKPOINT:
 			PlayerActivities[pnum].free_perks += val;
+		break;
+		case DND_ACTIVITY_SPELLPOINT:
+			PlayerActivities[pnum].free_spells += val;
 		break;
 		case DND_ACTIVITY_ATTRIBUTEPOINT:
 			PlayerActivities[pnum].free_attributes += val;
@@ -164,6 +169,7 @@ void ResetPlayerActivities(int pnum, bool hardReset) {
 	PlayerActivities[pnum].budget = 0;
 	PlayerActivities[pnum].level = 0;
 	PlayerActivities[pnum].free_perks = 0;
+	PlayerActivities[pnum].free_spells = 0;
 	PlayerActivities[pnum].free_attributes = 0;
 	
 	if(hardReset) {
@@ -178,7 +184,7 @@ void ResetPlayerActivities(int pnum, bool hardReset) {
 		for(i = 0; i < MAX_MAPS_RECORDED; ++i)
 			PlayerActivities[pnum].visited_maps[i] = "";
 
-		ACS_NamedExecuteAlways("DnD Loot Penalty Text", 0, pnum, 0);
+		SendOwnerScript("DnD Loot Penalty Text", pnum, pnum, 0);
 
 		for(i = 0; i < MAX_ACCOUNTNAME_LEN; ++i)
 			PlayerActivities[pnum].player_account[i] = 0;

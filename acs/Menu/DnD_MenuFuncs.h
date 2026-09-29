@@ -1289,7 +1289,7 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 						--GlobalData.ShopStockRemaining[pnum][itemid];
 					}
 				} while (givefull && !buystatus);
-				ACS_NamedExecuteAlways("DnD Sync Shop Stock", 0, pnum, itemid, GlobalData.ShopStockRemaining[pnum][itemid]);
+				SendOwnerScript("DnD Sync Shop Stock", pnum, pnum, itemid, GlobalData.ShopStockRemaining[pnum][itemid]);
 				//sound (mostly)
 				if (buystatus && loopnumber == 1)
 					ShowPopup(buystatus, false, 0);
@@ -1339,7 +1339,7 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 				// if you sell a weapon that has lock-on, it lingers because deselect state doesnt trigger apparently
 				if(IsHomingHudWeapon(GetCurrentWeaponID())) {
 					GiveInventory("DnD_RemoveLockOn", 1);
-					ACS_NamedExecuteAlways("DnD Clear Homing Lock-on", 0);
+					SendOwnerScript("DnD Clear Homing Lock-on", PlayerNumber());
 				}
 
 				// this works on weapon table ids, so map it there to use
@@ -1354,7 +1354,7 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 				
 				// reset buffs of weapon
 				GiveCredit(price);
-				ACS_NamedExecuteAlways("DnD Menu Sell Popup Clear", 0);
+				SendOwnerScript("DnD Menu Sell Popup Clear", PlayerNumber());
 			}
 		}
 	}
@@ -1503,7 +1503,7 @@ void HandleAmmoPurchase(int pnum, int slot, int itemid, int shop_index, bool giv
 			else
 				GiveInventory(GetSpecialAmmoStr(itemid, AMMOINFO_NAME), amt);
 			GlobalData.ShopStockRemaining[pnum][shop_index] -= amt;
-			ACS_NamedExecuteAlways("DnD Sync Shop Stock", 0, pnum, shop_index, GlobalData.ShopStockRemaining[pnum][shop_index]);
+			SendOwnerScript("DnD Sync Shop Stock", pnum, pnum, shop_index, GlobalData.ShopStockRemaining[pnum][shop_index]);
 			LocalAmbientSound("items/ammo", 127);
 		}
 		else
@@ -2253,7 +2253,7 @@ rect_T module& LoadRect(int menu_page, int id) {
 			{ 296.0, 166.0, 80.0, 154.0 }, // Arcane
 			{ 296.0, 150.0, 80.0, 138.0 }, // Chaos
 			{ 296.0, 134.0, 80.0, 122.0 }, // Combat
-			{ 296.0, 118.0, 80.0, 106.0 }, // Hotbar Assignments
+			{ 296.0, 110.0, 80.0, 98.0 }, // Hotbar Assignments
 			{ -1, -1, -1, -1 }
 		},
 		// The tree pages build their own pane in HandleSpellTreeDraw, so they own no authored rect.
@@ -4238,7 +4238,7 @@ void HandleInventoryViewTrade(int boxid) {
 // Just takes care of backend trade details
 void CancelTrade(int pnum) {
 	int tid = pnum + P_TIDSTART;
-	ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 2);
+	SendOwnerScript("DnD Refresh Request", pnum, pnum, 2);
 	TakeActorInventory(tid, "InTradeView", 1);
 	TakeActorInventory(tid, "DnD_TradeSpaceFit", 1);
 	TakeActorInventory(tid, "DnD_TradeAcceptWindow", 1);
@@ -4317,9 +4317,9 @@ bool StakeTradeItem(int pnum, int itempos, int destpos) {
 
 void HandleTradeCountdown(int p1, int p2) {
 	SetActivator(p1 + P_TIDSTART);
-	ACS_NamedExecuteAlways("DnD Trade Countdown", 0, p1, p2);
+	SendOwnerScript("DnD Trade Countdown", p1, p1, p2);
 	SetActivator(p2 + P_TIDSTART);
-	ACS_NamedExecuteAlways("DnD Trade Countdown", 0, p2, p1);
+	SendOwnerScript("DnD Trade Countdown", p2, p2, p1);
 	ACS_NamedExecuteAlways("DnD Trade Counter", 0, p1, p2);
 }
 
@@ -4343,8 +4343,8 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 					// we pressed confirm button, make us confirm it and refresh other player's view
 					GiveInventory("DnD_Trade_Confirmed", 1);
 					GiveInventory("DnD_Trade_ConfirmButtonPress", 1);
-					ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
-					ACS_NamedExecuteAlways("DnD Refresh Request", 0, bid, 1);
+					SendOwnerScript("DnD Refresh Request", pnum, pnum, 1);
+					SendOwnerScript("DnD Refresh Request", bid, bid, 1);
 						
 					// if other side's confirmation is set, check for item space
 					if(CheckActorInventory(bid + P_TIDSTART, "DnD_Trade_Confirmed")) {
@@ -4369,15 +4369,15 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 							if(!ok_from_tradee) {
 								SetActorInventory(bid + P_TIDSTART, "DnD_Trade_Confirmed", 0);
 								ShowActorPopup(bid, POPUP_NOSPACEFORTRADE, false, 0);
-								ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
-								ACS_NamedExecuteAlways("DnD Refresh Request", 0, bid, 1);
+								SendOwnerScript("DnD Refresh Request", pnum, pnum, 1);
+								SendOwnerScript("DnD Refresh Request", bid, bid, 1);
 							}
 							else {
 								SetInventory("DnD_Trade_Confirmed", 0);
 								// show popup for not enough space
 								ShowPopup(POPUP_NOSPACEFORTRADE, false, 0);
-								ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
-								ACS_NamedExecuteAlways("DnD Refresh Request", 0, bid, 1);
+								SendOwnerScript("DnD Refresh Request", pnum, pnum, 1);
+								SendOwnerScript("DnD Refresh Request", bid, bid, 1);
 							}
 						}
 					}
@@ -4389,8 +4389,8 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 					TakeActorInventory(bid + P_TIDSTART, "DnD_Trade_Confirmed", 1);
 					TakeActorInventory(bid + P_TIDSTART, "DnD_TradeSpaceFit", 1);
 
-					ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
-					ACS_NamedExecuteAlways("DnD Refresh Request", 0, bid, 1);
+					SendOwnerScript("DnD Refresh Request", pnum, pnum, 1);
+					SendOwnerScript("DnD Refresh Request", bid, bid, 1);
 				}
 				LocalAmbientSound("RPG/MenuChoose", 127);
 			}
@@ -4536,8 +4536,8 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 				}
 
 				// make sure changes are reflected dynamically
-				ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
-				ACS_NamedExecuteAlways("DnD Refresh Request", 0, bid, 1);
+				SendOwnerScript("DnD Refresh Request", pnum, pnum, 1);
+				SendOwnerScript("DnD Refresh Request", bid, bid, 1);
 			}
 		}
 	}
@@ -5108,14 +5108,14 @@ void HandleCraftingInventoryDraw(int pnum, menu_inventory_T module& p, int boxid
 void ResetDungeonSelectData(int pnum) {
 	auto d = GetSelectedDungeonData(pnum);
 	d.id = -1;
-	ACS_NamedExecuteWithResult("DnD Selected Dungeon Sync", pnum, -1);
+	SendOwnerSync("DnD Selected Dungeon Sync", pnum, pnum, -1, 0, 0);
 }
 
 void ResetTransmutingData(int pnum) {
 	auto d = GetTransmuteOrbData(pnum);
 	for(int i = 0; i < MAX_TRANSMUTE_BOXES; ++i) {
 		d.val[i] = -1;
-		ACS_NamedExecuteWithResult("DnD Transmute Orb Sync", pnum, i, -1);
+		SendOwnerSync("DnD Transmute Orb Sync", pnum, pnum, i, -1, 0);
 	}
 }
 
@@ -5625,7 +5625,7 @@ void HandleCraftingInputs(int boxid, int curopt) {
 								TakeInventory("DnD_SellConfirm", 1);
 								ClearTempItemInventory();
 								SetInventory("DnD_SelectedInventoryBox", 0);
-								ACS_NamedExecuteAlways("DnD Menu Sell Popup Clear", 0);
+								SendOwnerScript("DnD Menu Sell Popup Clear", PlayerNumber());
 							}
 							else {
 								TakeInventory("DnD_SellConfirm", 1);
@@ -5638,7 +5638,7 @@ void HandleCraftingInputs(int boxid, int curopt) {
 					else if(CheckInventory("DnD_SellConfirm")) {
 						TakeInventory("DnD_SellConfirm", 1);
 						ClearTempItemInventory();
-						ACS_NamedExecuteAlways("DnD Menu Sell Popup Clear", 0);
+						SendOwnerScript("DnD Menu Sell Popup Clear", PlayerNumber());
 					}
 				}
 			}
@@ -5792,7 +5792,7 @@ void HandleTransmutingInputs(int pnum, int boxid) {
 					// previtemindex holds (topboxid of item) - 1 in inventory
 					temp = GlobalItemStorage.PlayerInventoryList[pnum][previtemindex].item_subtype;
 					transmute_data.val[boxid - 1] = temp;
-					ACS_NamedExecuteAlways("DnD Transmute Orb Sync", 0, pnum, boxid - 1, temp);
+					SendOwnerScript("DnD Transmute Orb Sync", pnum, pnum, boxid - 1, temp);
 					LocalAmbientSound("RPG/MenuChoose", 127);
 					SetInventory("DnD_SelectedInventoryBox", 0);
 				}
@@ -5800,7 +5800,7 @@ void HandleTransmutingInputs(int pnum, int boxid) {
 			else if(HasRightClicked(pnum) && boxid >= MBOX_1 && boxid <= MBOX_3) {
 				// take orb off transmute list
 				transmute_data.val[boxid - 1] = -1;
-				ACS_NamedExecuteAlways("DnD Transmute Orb Sync", 0, pnum, boxid - 1, -1);
+				SendOwnerScript("DnD Transmute Orb Sync", pnum, pnum, boxid - 1, -1);
 				LocalAmbientSound("RPG/MenuChoose", 127);
 				SetInventory("DnD_SelectedInventoryBox", 0);
 			}
@@ -7459,6 +7459,11 @@ bool IsPageHoverDrawer(int curopt) {
 }
 
 bool IsBoxChangeException(int curopt, int boxid) {
+	// With an item view up the box ids are that view's grid, not this page's slots -- inventory boxes
+	// 13 and 14 were being refused as locked flask slots.
+	if(CheckInventory("DnD_InventoryView") || CheckInventory("DnD_StashView") || CheckInventory("InTradeView"))
+		return false;
+
 	// accessory page has some exceptions (dont randomly click "nothing")
 	if(curopt >= MENU_FIRST_ACCESSORY_PAGE && curopt <= MENU_LAST_ACCESSORY_PAGE) {
 		if(curopt != MENU_LAST_ACCESSORY_PAGE)
@@ -7495,7 +7500,7 @@ void HandleDungeonKeySelection(int pnum, int boxid, int choice) {
 				// success, place it for activation
 				temp = GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, tpbid, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 				GetSelectedDungeonData(pnum).id = temp;
-				ACS_NamedExecuteWithResult("DnD Selected Dungeon Sync", pnum, temp);
+				SendOwnerSync("DnD Selected Dungeon Sync", pnum, pnum, temp, 0, 0);
 
 				// save the topleftbox for later removal in case player activates this
 				SetInventory("DnD_SelectedDungeonBox", tpbid + 1);

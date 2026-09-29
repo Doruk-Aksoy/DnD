@@ -745,7 +745,7 @@ Script "DnD Flask Item Pickup" (int sp) {
 
 	auto item = GetFieldItem(sp >> 16);
 
-	ACS_NamedExecuteAlways("DnD Flask Message", 0, item.item_subtype, item.item_type);
+	SendOwnerScript("DnD Flask Message", PlayerNumber(), item.item_subtype, item.item_type);
     GiveInventory("FlaskSoundPlayer", 1);
 	
     HandleInventoryPickup(sp >> 16);

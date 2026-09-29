@@ -60,7 +60,11 @@ int GetSpellActorOwner() {
 //
 // Resolved here at impact rather than stamped at spawn, so a synergy or a +level that landed while
 // the projectile was in the air still counts. Pass DND_WDMG_ISRADIUSDMG in flags for an explosion.
-Script "DnD Spell Damage" (int which, int flags) {
+//
+// div splits the result, for a spell whose text gives a fragment of its own damage to something else
+// -- Pyroblast's rank 10 fireballs take an eighth. Applied AFTER the scale, so the fragment is an
+// eighth of what the parent would really have dealt rather than an eighth of its table row.
+Script "DnD Spell Damage" (int which, int flags, int div) {
 	int pnum = GetSpellActorOwner();
 	if(pnum == -1) {
 		SetResultValue(0);
@@ -81,6 +85,16 @@ Script "DnD Spell Damage" (int which, int flags) {
 
 	dmg = ACS_NamedExecuteWithResult("DND Player Damage Scale", dmg, cat,
 		DND_WDMG_USETARGET | DND_WDMG_ISSPELL | flags, DND_SPELL_INT_ATTUNE << INT_ATTUNE_BITS);
+
+	// Heart of Fire rank 5: a spell that its proc made ready hits harder for a few seconds. MORE, so
+	// it goes on after the scale rather than into it.
+	int prime = GetSpellPrimes().ends[pnum][spell];
+	if(prime && Timer() <= prime)
+		dmg = dmg * (100 + GetSpellValue(pnum, SPL_HEARTOFFIRE, SPELLVAL_AMOUNT)) / 100;
+
+	// Never below 1: a fragment of a small hit should still be a hit, not nothing.
+	if(div > 1)
+		dmg = Max(1, dmg / div);
 
 	SetResultValue(PackSpellDamage(dmg, dtype, spell));
 }

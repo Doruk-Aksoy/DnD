@@ -215,6 +215,75 @@ Script "DND Clientside Item Syncer Special" (int pnum, int var, int to, int extr
 	SetResultValue(0);
 }
 
+// Everything SyncItemData_Null or _ClearFields would send field by field, rebuilt here from one
+// command. w x h is the region whose topleft and type go null (0 x 0 for ClearFields).
+void ApplyItemSyncClear(int pnum, int itemid, int source, int w, int h, int attribs) {
+	int i, j;
+	for(i = 0; i < h; ++i)
+		for(j = 0; j < w; ++j) {
+			SetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, itemid + j + i * MAXINVENTORYBLOCKS_VERT, -1, 0, source);
+			SetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid + j + i * MAXINVENTORYBLOCKS_VERT, -1, DND_ITEM_NULL, source);
+		}
+
+	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMBASE; ++i)
+		SetItemSyncValue(pnum, i, itemid, -1, 0, source);
+
+	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, itemid, i, -1, source);
+		for(j = DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL; j <= DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA; ++j)
+			SetItemSyncValue(pnum, j, itemid, i, 0, source);
+	}
+
+	if(attribs > MAX_ITEM_ATTRIBUTES)
+		attribs = MAX_ITEM_ATTRIBUTES;
+	for(i = 0; i < attribs; ++i)
+		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_LAST_SYNC_TYPE; ++j)
+			SetItemSyncValue(pnum, j, itemid, i, 0, source);
+	SetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, 0, source);
+}
+
+// var carries the source and page like the syncer's, with the attribute count in the low byte
+Script "DND Clientside Item Clear" (int pnum, int var, int itemid, int dims) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+	ApplyItemSyncClear(pnum, itemid, ((var & 0xFF00) >> 8) | (var & 0xFF0000), dims & 0xFF, (dims >> 8) & 0xFF, var & 0xFF);
+	SetResultValue(0);
+}
+
+// -1 only on a server. Offline multiplayer runs "clientside" scripts on the server's own memory,
+// where a sync deferred to next tic could land on top of newer data, so only a real server defers.
+bool IsOnlineServer() {
+	return ConsolePlayerNumber() == -1;
+}
+
+// To the owner's client alone when online, otherwise the old immediate run. Clients get here too --
+// DECORATE starts server scripts on them (orb pickup) -- and NamedExecuteClientScript errors there.
+void SendOwnerSync(str sname, int pnum, int a0 = 0, int a1 = 0, int a2 = 0, int a3 = 0) {
+	if(IsOnlineServer())
+		NamedExecuteClientScript(sname, pnum, a0, a1, a2, a3);
+	else
+		ACS_NamedExecuteWithResult(sname, a0, a1, a2, a3);
+}
+
+// Same, for a call site that used ACS_NamedExecuteAlways (three script args at most).
+void SendOwnerScript(str sname, int pnum, int a0 = 0, int a1 = 0, int a2 = 0) {
+	if(IsOnlineServer())
+		NamedExecuteClientScript(sname, pnum, a0, a1, a2);
+	else
+		ACS_NamedExecuteAlways(sname, 0, a0, a1, a2);
+}
+
+// Inventory and stash go to their owner alone. Other clients read two grids: a trade offer (the
+// partner) and equipped items (viewplayer, script 1006). Pseudo owners (merchant, ultimatum) are not
+// players; all of these keep the broadcast.
+void SendItemSync(str sname, int pnum, int var, int to, int extra) {
+	int raw_source = (var >> 8) & 0xFF;
+	if(pnum >= 0 && pnum < MAXPLAYERS && raw_source != DND_SYNC_ITEMSOURCE_TRADEVIEW && raw_source != DND_SYNC_ITEMSOURCE_ITEMSUSED)
+		SendOwnerSync(sname, pnum, pnum, var, to, extra);
+	else
+		ACS_NamedExecuteWithResult(sname, pnum, var, to, extra);
+}
+
 Script "DND Clientside Item Syncer Field" (int var, int to, int extra) CLIENTSIDE {
 	SetItemSyncValue(-1, var & 0xFF, extra & 0xFFFF, extra >> 16, to, ((var & 0xFF00) >> 8) | (var & 0xFF0000));
 	SetResultValue(0);
@@ -238,6 +307,22 @@ Script "DND Clientside Weapon Mod Sync" (int wepid, int mod, int val, int tier) 
 	SetResultValue(0);
 }
 
+// One command for a weapon whose mods are all zero, instead of one per mod and source.
+Script "DND Clientside Weapon Mod Clear" (int wepid) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+
+	int pnum = wepid >> 16;
+	wepid &= 0xFFFF;
+
+	for(int i = 0; i < MAX_WEP_MODS; ++i)
+		for(int j = 0; j < DND_MAX_WEAPONMODSOURCES; ++j) {
+			Player_Weapon_Infos[pnum][wepid].wep_mods[i][j].val = 0;
+			Player_Weapon_Infos[pnum][wepid].wep_mods[i][j].tier = 0;
+		}
+	SetResultValue(0);
+}
+
 // add more things from wep_info_T in WeaponsDef here later
 Script "DnD Clientside Weapon Property Sync" (int wepid, int pnum, int prop, int val) CLIENTSIDE {
 	// do a switch-case for properties here
@@ -247,16 +332,30 @@ Script "DnD Clientside Weapon Property Sync" (int wepid, int pnum, int prop, int
 
 void SyncClientsideVariable_WeaponProperties(int pnum, int wepid) {
 	// do a for loop for all properties we might add here to wep_info_T
-	ACS_NamedExecuteWithResult("DnD Clientside Weapon Property Sync", wepid, pnum, 0, Player_Weapon_Infos[pnum][wepid].quality);
+	SendOwnerSync("DnD Clientside Weapon Property Sync", pnum, wepid, pnum, 0, Player_Weapon_Infos[pnum][wepid].quality);
+}
+
+bool WeaponHasAnyMods(int pnum, int wepid) {
+	for(int i = 0; i < MAX_WEP_MODS; ++i)
+		for(int j = 0; j < DND_MAX_WEAPONMODSOURCES; ++j)
+			if(Player_Weapon_Infos[pnum][wepid].wep_mods[i][j].val || Player_Weapon_Infos[pnum][wepid].wep_mods[i][j].tier)
+				return true;
+	return false;
 }
 
 void SyncClientsideVariable_WeaponMods(int pnum, int wepid) {
+	if(!WeaponHasAnyMods(pnum, wepid)) {
+		SendOwnerSync("DND Clientside Weapon Mod Clear", pnum, wepid | (pnum << 16), 0, 0, 0);
+		return;
+	}
+
 	for(int i = 0; i < MAX_WEP_MODS; ++i) {
 		for(int j = 0; j < DND_MAX_WEAPONMODSOURCES; ++j)
-			ACS_NamedExecuteWithResult(
-				"DND Clientside Weapon Mod Sync", 
-				wepid | (pnum << 16), 
-				i | (j << 16), 
+			SendOwnerSync(
+				"DND Clientside Weapon Mod Sync",
+				pnum,
+				wepid | (pnum << 16),
+				i | (j << 16),
 				Player_Weapon_Infos[pnum][wepid].wep_mods[i][j].val,
 				Player_Weapon_Infos[pnum][wepid].wep_mods[i][j].tier
 			);
@@ -283,34 +382,34 @@ void SyncItemData(int pnum, int itemid, int source, int wprev, int hprev, bool s
 		for(i = 0; i < h; ++i)
 			for(j = 0; j < w; ++j) {
 				bid = itemid + j + i * MAXINVENTORYBLOCKS_VERT;
-				ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, itemid, -1, source), bid);
-				ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), bid);
+				SendItemSync("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, itemid, -1, source), bid);
+				SendItemSync("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), bid);
 			}
 	}
 	else {
-		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, itemid, -1, source), itemid);
-		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), itemid);
+		SendItemSync("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, itemid, -1, source), itemid);
+		SendItemSync("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), itemid);
 	}
 
 	//Log(s:"syncing item at field pos ", d:itemid, s:" type ", d:GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), s:" for player ", d:pnum);
 	
 	// skip top left box and item type, we handled it
 	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMBASE ; ++i) {
-		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, i | payload, GetItemSyncValue(pnum, i, itemid, -1, source), itemid);
+		SendItemSync("DND Clientside Item Syncer", pnum, i | payload, GetItemSyncValue(pnum, i, itemid, -1, source), itemid);
 	}
 
 	// sync implicits
 	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
 		for(j = DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID; j <= DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA; ++j)
-			ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, j | payload, GetItemSyncValue(pnum, j, itemid, i, source), itemid | (i << 16));
+			SendItemSync("DND Clientside Item Syncer", pnum, j | payload, GetItemSyncValue(pnum, j, itemid, i, source), itemid | (i << 16));
 	}
 	
 	// sync attributes
 	h = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source);
-	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMSATTRIBCOUNT | payload, h, itemid);
+	SendItemSync("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMSATTRIBCOUNT | payload, h, itemid);
 	for(i = 0; i < h; ++i) {
 		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_LAST_SYNC_TYPE; ++j)
-			ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, j | payload, GetItemSyncValue(pnum, j, itemid, i, source), itemid | (i << 16));
+			SendItemSync("DND Clientside Item Syncer", pnum, j | payload, GetItemSyncValue(pnum, j, itemid, i, source), itemid | (i << 16));
 	}
 
 	MarkVSyncItemDirty();
@@ -330,30 +429,30 @@ void SyncItemData_Special(int pnum, int itemid, int source) {
 		for(i = 0; i < h; ++i)
 			for(j = 0; j < w; ++j) {
 				bid = itemid + j + i * MAXINVENTORYBLOCKS_VERT;
-				ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, itemid, -1, source), bid);
-				ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), bid);
+				SendItemSync("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, itemid, -1, source), bid);
+				SendItemSync("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), bid);
 			}
 	}
 	else {
-		ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, itemid, -1, source), itemid);
-		ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), itemid);
+		SendItemSync("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, itemid, -1, source), itemid);
+		SendItemSync("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), itemid);
 	}
 
 	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMBASE ; ++i)
-		ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, i | payload, GetItemSyncValue(pnum, i, itemid, -1, source), itemid);
+		SendItemSync("DND Clientside Item Syncer Special", pnum, i | payload, GetItemSyncValue(pnum, i, itemid, -1, source), itemid);
 
 	// sync implicits
 	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
 		for(j = DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID; j <= DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA; ++j)
-			ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, j | payload, GetItemSyncValue(pnum, j, itemid, i, source), itemid | (i << 16));
+			SendItemSync("DND Clientside Item Syncer Special", pnum, j | payload, GetItemSyncValue(pnum, j, itemid, i, source), itemid | (i << 16));
 	}
 	
 	// sync attributes
 	h = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source);
-	ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMSATTRIBCOUNT | payload, h, itemid);
+	SendItemSync("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMSATTRIBCOUNT | payload, h, itemid);
 	for(i = 0; i < h; ++i) {
 		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_LAST_SYNC_TYPE; ++j)
-			ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, j | payload, GetItemSyncValue(pnum, j, itemid, i, source), itemid | (i << 16));
+			SendItemSync("DND Clientside Item Syncer Special", pnum, j | payload, GetItemSyncValue(pnum, j, itemid, i, source), itemid | (i << 16));
 	}
 
 	MarkVSyncItemDirty();
@@ -390,7 +489,7 @@ void SyncItemStack(int pnum, int itemid, int source) {
 	int page = source >> 16;
 	int raw_source = source & 0xFFFF;
 	int payload = (raw_source << 8) | (page << 16);
-	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMSTACK | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, itemid, -1, source), itemid);
+	SendItemSync("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMSTACK | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, itemid, -1, source), itemid);
 	
 	MarkVSyncItemDirty();
 }
@@ -399,18 +498,18 @@ void SyncItemStack_Delayed(int pnum, int itemid, int source) {
 	int page = source >> 16;
 	int raw_source = source & 0xFFFF;
 	int payload = (raw_source << 8) | (page << 16);
-	ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMSTACK | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, itemid, -1, source), itemid);
+	SendItemSync("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMSTACK | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, itemid, -1, source), itemid);
 	
 	MarkVSyncItemDirty();
 }
 
+// One "DND Clientside Item Clear" command in place of ~24 per-field ones.
 void SyncItemData_Null(int pnum, int itemid, int source, int wprev, int hprev, bool source_inv_except = false) {
 	int page = source >> 16;
 	int raw_source = source & 0xFFFF;
-	int payload = (raw_source << 8) | (page << 16);
-	
+	int w = 1, h = 1;
+
 	if(!source_inv_except && IsSourceInventoryView(raw_source)) {
-		int h, w;
 		if(wprev != -1)
 			w = wprev;
 		else
@@ -419,36 +518,10 @@ void SyncItemData_Null(int pnum, int itemid, int source, int wprev, int hprev, b
 			h = hprev;
 		else
 			h = GetItemSyncValue(pnum, DND_SYNC_ITEMHEIGHT, itemid, -1, source);
-		
-		for(int i = 0; i < h; ++i)
-			for(int j = 0; j < w; ++j) {
-				ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTOPLEFTBOX | payload, 0, itemid + j + i * MAXINVENTORYBLOCKS_VERT);
-				ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTYPE | payload, DND_ITEM_NULL, itemid + j + i * MAXINVENTORYBLOCKS_VERT);
-			}
 	}
-	else {
-		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTOPLEFTBOX | payload, 0, itemid);
-		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTYPE | payload, DND_ITEM_NULL, itemid);
-	}
-	
-	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMBASE ; ++i)
-		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, i | payload, 0, itemid);
 
-	// sync implicits
-	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
-		// sync this with -1
-		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID | payload, -1, itemid | (i << 16));
-		for(j = DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL; j <= DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA; ++j)
-			ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, j | payload, 0, itemid | (i << 16));
-	}
-	
-	// sync attributes
-	h = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source);
-	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMSATTRIBCOUNT | payload, 0, itemid);
-	for(i = 0; i < h; ++i) {
-		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_LAST_SYNC_TYPE; ++j)
-			ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, j | payload, 0, itemid | (i << 16));
-	}
+	int attribs = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source) & 0xFF;
+	SendItemSync("DND Clientside Item Clear", pnum, (raw_source << 8) | (page << 16) | attribs, itemid, (w & 0xFF) | ((h & 0xFF) << 8));
 }
 
 // Everything a box owns ITSELF, zeroed -- but not topleftboxid or item_type, which for a cell in
@@ -460,29 +533,12 @@ void SyncItemData_Null(int pnum, int itemid, int source, int wprev, int hprev, b
 // the dangerous one -- the crafting view lists a box when its type is craftable AND its height is
 // non-zero, so a leftover height makes a middle cell look like a whole item, drawn with the previous
 // occupant's image under the current owner's name.
+// A 0 x 0 region: the clear leaves topleft and type to the owner's sync.
 void SyncItemData_ClearFields(int pnum, int itemid, int source) {
-	int i, j;
 	int page = source >> 16;
 	int raw_source = source & 0xFFFF;
-	int payload = (raw_source << 8) | (page << 16);
-
-	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMBASE; ++i)
-		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, i | payload, 0, itemid);
-
-	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
-		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID | payload, -1, itemid | (i << 16));
-		for(j = DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL; j <= DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA; ++j)
-			ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, j | payload, 0, itemid | (i << 16));
-	}
-
-	// The count goes to zero last. Nothing reads an attribute past the count, so zeroing it is what
-	// makes any entries beyond the ones cleared here unreachable rather than merely stale.
-	int h = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source);
-	for(i = 0; i < h; ++i)
-		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_LAST_SYNC_TYPE; ++j)
-			ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, j | payload, 0, itemid | (i << 16));
-
-	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMSATTRIBCOUNT | payload, 0, itemid);
+	int attribs = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source) & 0xFF;
+	SendItemSync("DND Clientside Item Clear", pnum, (raw_source << 8) | (page << 16) | attribs, itemid, 0);
 }
 
 void SyncItemAttributes(int pnum, int itemid, int source) {
@@ -492,14 +548,14 @@ void SyncItemAttributes(int pnum, int itemid, int source) {
 	int payload = (raw_source << 8) | (page << 16);
 	int temp = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source);
 
-	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMSATTRIBCOUNT | payload, temp, itemid);
+	SendItemSync("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMSATTRIBCOUNT | payload, temp, itemid);
 	
 	// we now sync ilvl too
-	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMLEVEL | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, itemid, -1, source), itemid);
+	SendItemSync("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMLEVEL | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, itemid, -1, source), itemid);
 
 	for(i = 0; i < temp; ++i) {
 		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_LAST_SYNC_TYPE; ++j)
-			ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, j | payload, GetItemSyncValue(pnum, j, itemid, i, source), itemid | (i << 16));
+			SendItemSync("DND Clientside Item Syncer", pnum, j | payload, GetItemSyncValue(pnum, j, itemid, i, source), itemid | (i << 16));
 	}
 
 	MarkVSyncItemDirty();
@@ -510,7 +566,7 @@ void SyncItemQuality(int pnum, int itemid, int source) {
 	int page = source >> 16;
 	int raw_source = source & 0xFFFF;
 	int payload = (raw_source << 8) | (page << 16);
-	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMQUALITY | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, itemid, -1, source), itemid);
+	SendItemSync("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMQUALITY | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, itemid, -1, source), itemid);
 	
 	MarkVSyncItemDirty();
 }
@@ -521,11 +577,11 @@ void SyncItemImplicits(int pnum, int itemid, int source) {
 	int raw_source = source & 0xFFFF;
 	int payload = (raw_source << 8) | (page << 16);
 
-	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMCORRUPTED | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMCORRUPTED, itemid, -1, source), itemid);
+	SendItemSync("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMCORRUPTED | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMCORRUPTED, itemid, -1, source), itemid);
 
 	for(int j = 0; j < MAX_ITEM_IMPLICITS; ++j) {
 		for(i = DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID; i <= DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA ; ++i) {
-			ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, i | payload, GetItemSyncValue(pnum, i, itemid, j, source), itemid | (j << 16));
+			SendItemSync("DND Clientside Item Syncer", pnum, i | payload, GetItemSyncValue(pnum, i, itemid, j, source), itemid | (j << 16));
 		}
 	}
 
@@ -630,6 +686,14 @@ Script "DnD Request Spell Sync" (int pnum, int word, int val) CLIENTSIDE {
 	SetResultValue(0);
 }
 
+// The aura/passive on-off word. Same shape as the rank sync above.
+Script "DnD Request Spell Toggle Sync" (int pnum, int word, int val) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+	SpellPlayerData[pnum].aura_on[word] = val;
+	SetResultValue(0);
+}
+
 Script "DnD Request Perk Sync" (int pnum, int word, int val) CLIENTSIDE {
 	if(GameType() == GAME_SINGLE_PLAYER)
 		Terminate;
@@ -702,6 +766,145 @@ Script "DnD Handle Attribute Sync" (int pnum) {
 		ClearPlayerAttributeExtraSync(pnum);
 	}
 
+	SetResultValue(0);
+}
+
+// ---- Sync check: does this client's copy of its own items match the server's? ----
+// Grids: 0 equipped, 1 inventory, 2 + page for the stash (the orb page is page PAGEID_STASHTAB_ORBS).
+#define DND_SYNCCHECK_EQUIPPED 0
+#define DND_SYNCCHECK_INVENTORY 1
+#define DND_SYNCCHECK_STASH 2
+#define DND_SYNCCHECK_LAST (DND_SYNCCHECK_STASH + PAGEID_STASHTAB_ORBS)
+#define DND_SYNCCHECK_SEED 0x2C1B3C6D
+
+// report codes carried in the box argument
+#define DND_SYNCCHECK_MATCH -1
+#define DND_SYNCCHECK_DIFFERS -2
+#define DND_SYNCCHECK_RESYNCED -3
+
+int GetSyncCheckSource(int grid) {
+	if(grid == DND_SYNCCHECK_EQUIPPED)
+		return DND_SYNC_ITEMSOURCE_ITEMSUSED;
+	if(grid == DND_SYNCCHECK_INVENTORY)
+		return DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
+	return DND_SYNC_ITEMSOURCE_STASH | ((grid - DND_SYNCCHECK_STASH) << 16);
+}
+
+int GetSyncCheckBoxCount(int grid) {
+	return grid == DND_SYNCCHECK_EQUIPPED ? MAX_ITEMS_EQUIPPABLE : MAX_INVENTORY_BOXES;
+}
+
+str GetSyncCheckGridName(int grid) {
+	if(grid == DND_SYNCCHECK_EQUIPPED)
+		return "equipped";
+	if(grid == DND_SYNCCHECK_INVENTORY)
+		return "inventory";
+	if(grid == DND_SYNCCHECK_LAST)
+		return "orb page";
+	return StrParam(s:"stash page ", d:grid - DND_SYNCCHECK_STASH + 1);
+}
+
+int SyncCheckMix(int h, int v) {
+	return (h ^ v) * 16777619;
+}
+
+// Only what the syncers mirror. An empty box, or the middle cell of a multi-cell item, mirrors
+// nothing past topleft and type, so the rest of it is never compared.
+int GetItemBoxSyncHash(int pnum, int box, int source) {
+	int i, f;
+	int tl = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, box, -1, source);
+	int type = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, box, -1, source);
+	int h = SyncCheckMix(SyncCheckMix(DND_SYNCCHECK_SEED, tl), type);
+
+	if(type == DND_ITEM_NULL || (IsSourceInventoryView(source) && tl != box + 1))
+		return h;
+
+	for(f = DND_SYNC_ITEMBEGIN + 2; f <= DND_SYNC_ITEMBASE; ++f)
+		h = SyncCheckMix(h, GetItemSyncValue(pnum, f, box, -1, source));
+
+	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i)
+		for(f = DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID; f <= DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA; ++f)
+			h = SyncCheckMix(h, GetItemSyncValue(pnum, f, box, i, source));
+
+	int n = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, box, -1, source);
+	h = SyncCheckMix(h, n);
+	if(n > MAX_ITEM_ATTRIBUTES)
+		n = MAX_ITEM_ATTRIBUTES;
+	for(i = 0; i < n; ++i)
+		for(f = DND_SYNC_ITEMATTRIBUTES_ID; f <= DND_LAST_SYNC_TYPE; ++f)
+			h = SyncCheckMix(h, GetItemSyncValue(pnum, f, box, i, source));
+	return h;
+}
+
+int GetItemGridSyncHash(int pnum, int grid) {
+	int source = GetSyncCheckSource(grid);
+	int n = GetSyncCheckBoxCount(grid);
+	int h = DND_SYNCCHECK_SEED;
+	for(int i = 0; i < n; ++i)
+		h = SyncCheckMix(h, GetItemBoxSyncHash(pnum, i, source));
+	return h;
+}
+
+// Console: pukename "DnD Sync Check". Run it idle -- a sync still in flight reads as a difference.
+Script "DnD Sync Check" (void) NET CLIENTSIDE {
+	int pnum = PlayerNumber();
+	if(pnum != ConsolePlayerNumber())
+		Terminate;
+
+	if(GameType() == GAME_SINGLE_PLAYER) {
+		Log(s:"Sync check: single player keeps one copy, nothing to compare.");
+		Terminate;
+	}
+
+	Log(s:"Sync check: asking the server...");
+	NamedRequestScriptPuke("DnD Sync Check Grid", DND_SYNCCHECK_EQUIPPED, GetItemGridSyncHash(pnum, DND_SYNCCHECK_EQUIPPED));
+	NamedRequestScriptPuke("DnD Sync Check Grid", DND_SYNCCHECK_INVENTORY, GetItemGridSyncHash(pnum, DND_SYNCCHECK_INVENTORY));
+
+	int pages = CheckInventory("DnD_PlayerInventoryPages");
+	for(int i = 0; i < pages && i < PAGEID_STASHTAB_ORBS; ++i)
+		NamedRequestScriptPuke("DnD Sync Check Grid", DND_SYNCCHECK_STASH + i, GetItemGridSyncHash(pnum, DND_SYNCCHECK_STASH + i));
+	NamedRequestScriptPuke("DnD Sync Check Grid", DND_SYNCCHECK_LAST, GetItemGridSyncHash(pnum, DND_SYNCCHECK_LAST));
+}
+
+// Server side: answers a match with one line, a mismatch with its hash of every box in the grid.
+Script "DnD Sync Check Grid" (int grid, int client_hash) NET {
+	int pnum = PlayerNumber();
+	if(pnum < 0 || grid < DND_SYNCCHECK_EQUIPPED || grid > DND_SYNCCHECK_LAST)
+		Terminate;
+
+	if(GetItemGridSyncHash(pnum, grid) == client_hash) {
+		NamedExecuteClientScript("DnD Sync Check Report", pnum, grid, DND_SYNCCHECK_MATCH, 0);
+		Terminate;
+	}
+
+	NamedExecuteClientScript("DnD Sync Check Report", pnum, grid, DND_SYNCCHECK_DIFFERS, 0);
+	int source = GetSyncCheckSource(grid);
+	int n = GetSyncCheckBoxCount(grid);
+	for(int i = 0; i < n; ++i)
+		NamedExecuteClientScript("DnD Sync Check Report", pnum, grid, i, GetItemBoxSyncHash(pnum, i, source));
+}
+
+Script "DnD Sync Check Report" (int grid, int box, int server_hash) CLIENTSIDE {
+	int pnum = PlayerNumber();
+	if(pnum != ConsolePlayerNumber())
+		Terminate;
+
+	str name = GetSyncCheckGridName(grid);
+	if(box == DND_SYNCCHECK_RESYNCED)
+		Log(s:"Resync: everything resent. Run \"DnD Sync Check\" again to confirm.");
+	else if(box == DND_SYNCCHECK_MATCH)
+		Log(s:"Sync check: ", s:name, s:" matches.");
+	else if(box == DND_SYNCCHECK_DIFFERS)
+		Log(s:"\cgSync check: ", s:name, s:" DIFFERS\c- -- mismatched boxes are listed (none listed: a sync was in flight, run it again). pukename \"DnD Resync\" repairs it.");
+	else {
+		int source = GetSyncCheckSource(grid);
+		if(GetItemBoxSyncHash(pnum, box, source) != server_hash)
+			Log(
+				s:"\cgSync check: ", s:name, s:" box ", d:box, s:" differs\c- (client has type ",
+				d:GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, box, -1, source), s:", topleft ",
+				d:GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, box, -1, source), s:")"
+			);
+	}
 	SetResultValue(0);
 }
 

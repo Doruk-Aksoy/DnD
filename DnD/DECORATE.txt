@@ -61,6 +61,13 @@ const int SPECIAL_FX_TID = 2147483647;
 #include "Actors/Spells/IceShield.dec"
 #include "Actors/Spells/RaiseZombie.dec"
 
+// Fire Spells
+#include "Actors/Spells/Fire/Blaze.dec"
+#include "Actors/Spells/Fire/Fireball.dec"
+#include "Actors/Spells/Fire/Pyroblast.dec"
+#include "Actors/Spells/Fire/SearingBond.dec"
+#include "Actors/Spells/Fire/ScorchingRay.dec"
+
 #include "Actors/Hud.dec"
 #include "Actors/Effects.dec"
 #include "Actors/Puffs.dec"

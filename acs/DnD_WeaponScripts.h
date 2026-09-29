@@ -326,6 +326,15 @@ Script "DnD Can Fire Weapon" (void) {
 			canReload = false;
 		}
 
+		// Channelling. The channel is driven by the attack button, so the weapon must not answer to it
+		// for as long as one runs; alt fire and reload go with it. A plain cast time does NOT set this
+		// -- see BeginSpellBusy.
+		if(CheckInventory("DnD_SpellBusy")) {
+			canFire = false;
+			canAltFire = false;
+			canReload = false;
+		}
+
 		// these inventories get checked in weapon code
 		if(canFire)
 			GiveInventory("DnD_CanFire", 1);
@@ -2461,7 +2470,7 @@ Script "DnD Ray of Disintegration Trails" (void) CLIENTSIDE {
 void HandleStaminaBarDraw(int pnum) {
 	GiveInventory("DnD_ShowStaminaBar", 1);
 
-	ACS_NamedExecuteAlways("DnD Stamina Bar Draw", 0, pnum);
+	SendOwnerScript("DnD Stamina Bar Draw", pnum, pnum);
 }
 
 #define HUD_STAMINA_X 1024

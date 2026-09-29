@@ -94,16 +94,3 @@ AddKeySection "DnD Hard/Softcore Keys (Login Required)" DNDKEYS3
 	Alias dnd_spell5 "pukename \"DnD Cast Hotbar\" always 4"
 	AddMenuKey "DnD Spell 6" dnd_spell6
 	Alias dnd_spell6 "pukename \"DnD Cast Hotbar\" always 5"
-
-	AddMenuKey "DnD Bind Spell 1" dnd_bindspell1
-	Alias dnd_bindspell1 "pukename \"DnD Bind Hotbar\" always 0"
-	AddMenuKey "DnD Bind Spell 2" dnd_bindspell2
-	Alias dnd_bindspell2 "pukename \"DnD Bind Hotbar\" always 1"
-	AddMenuKey "DnD Bind Spell 3" dnd_bindspell3
-	Alias dnd_bindspell3 "pukename \"DnD Bind Hotbar\" always 2"
-	AddMenuKey "DnD Bind Spell 4" dnd_bindspell4
-	Alias dnd_bindspell4 "pukename \"DnD Bind Hotbar\" always 3"
-	AddMenuKey "DnD Bind Spell 5" dnd_bindspell5
-	Alias dnd_bindspell5 "pukename \"DnD Bind Hotbar\" always 4"
-	AddMenuKey "DnD Bind Spell 6" dnd_bindspell6
-	Alias dnd_bindspell6 "pukename \"DnD Bind Hotbar\" always 5"

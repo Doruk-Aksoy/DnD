@@ -96,7 +96,10 @@ Script "DnD Readjust Speed" (int spd) {
 }
 
 // This function will create a projectile with given angles, pitch, direction vector, speed, xy dist and zdist
-int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int pitch, int spd, Vec3_T* velocity, Vec3_T* vPos, int flags = 0, int extra = 0, int extra2 = 0, int dmg_category = 0) {
+// out_tid hands the finished projectile back under a tid of the caller's choosing, for callers that
+// still have setup to do on it. Without it the working tid is released here and the projectile becomes
+// unreachable the moment this returns -- which is fine for everything that only needed it thrown.
+int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int pitch, int spd, Vec3_T* velocity, Vec3_T* vPos, int flags = 0, int extra = 0, int extra2 = 0, int dmg_category = 0, int out_tid = 0) {
 	// this is the actor that is responsible for firing the projectile because moving the player itself to the position temporarily jitters them... ty zandro you are really good
 	int g = (flags & DND_ATF_USEGRAVITY) ? 800.0 : 0;
 	
@@ -199,7 +202,7 @@ int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int
 	// this is needed so that reflecting works
 	SetActorProperty(0, APROP_SPEED, spd << 16);
 	
-	Thing_ChangeTID(TEMPORARY_ATTACK_TID, 0);
+	Thing_ChangeTID(TEMPORARY_ATTACK_TID, out_tid);
 	
 	// return script ownership back to owner
 	SetActivator(owner);

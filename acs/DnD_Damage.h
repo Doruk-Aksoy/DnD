@@ -132,7 +132,8 @@ enum {
 
 enum {
 	DND_IGNITEFLAG_CANPROLIF = 1,
-	DND_IGNITEFLAG_ADDEDIGN = 2 // reserved, currently unread -- the burn is handed a resolved damage now
+	DND_IGNITEFLAG_ADDEDIGN = 2, // reserved, currently unread -- the burn is handed a resolved damage now
+	DND_IGNITEFLAG_FORCEPROLIF = 4 // skips the prolif ROLL; CANPROLIF is still what permits it at all
 };
 
 int MonsterDamageTypeToDamageCategory(int d) {
@@ -2145,6 +2146,11 @@ int FactorResists(int source, int victim, int wepid, int dmg, int damage_type, i
 	// a resistance the MONSTER has lost, not penetration the player brought.
 	pct_val += CheckActorInventory(victim, "DnD_ResistShred");
 
+	// Scorching Ray / Fire Exposure. Same kind of thing again, but element specific, so it only
+	// counts when the hit that is being resisted is actually fire.
+	if(damage_category == DND_DAMAGECATEGORY_FIRE)
+		pct_val += CheckActorInventory(victim, "DnD_FireExposed");
+
 	// Tormentor / Permafrost and Corrosion. Both are resistance the MONSTER has lost, so they
 	// belong in this block. Corrosion names poison, so only a poison hit may read it.
 	pct_val += CheckActorInventory(victim, "DnD_Permafrost");
@@ -2369,7 +2375,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 					dmg = 1;
 			}
 			else {
-				ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, 0, 0, DND_HITBEEP_INVULNERABLE);
+				SendOwnerScript("DnD Handle Hitbeep", PlayerNumber(), 0, 0, DND_HITBEEP_INVULNERABLE);
 
 				temp = PlayerModData[pnum].vals[PSTAT_INC_BLOCKPREVENTION];
 				if(temp && random(1, 100) <= temp) {
@@ -2466,7 +2472,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 	// immunity and grey out the number, on a monster that resisted nothing.
 	if(!IsNulledByAvatarOfFire(pnum, GetDamageCategory(damage_type, flags))) {
 		extra = (dmg < temp) * DND_DAMAGETICFLAG_LESSENED;
-		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, dmg, temp);
+		SendOwnerScript("DnD Handle Hitbeep", PlayerNumber(), dmg, temp);
 	}
 
 	// damage number handling - NO MORE DAMAGE FIDDLING FROM BELOW HERE
@@ -2633,6 +2639,20 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		if(GetPlayerExtraDamageMask(pnum))
 			RecordMixedTicDamage(pnum, m_id, extra, dealt);
 		PlayerDamageTic[pnum].total[m_id] += dealt;
+	}
+
+	// Two spell riders that need what only this point has: the element AND the final number, before
+	// the engine applies it. Both early-out on the spell not being allocated, so an unlearned tree
+	// costs one inventory read per hit.
+	if(dealt > 0 && !wep_neg) {
+		// Incinerate bursts a corpse it killed with FIRE.
+		if(IsDamageCapableOfIgnite(damage_type))
+			CheckIncinerateOnKill(pnum, victim, dealt);
+
+		// Infernal Strike is spent by the next MELEE swing. Its own damage is fire and arrives
+		// through a second call here with wep_neg set, so it cannot re-arm or re-trigger itself.
+		if(damage_type == DND_DAMAGETYPE_MELEE || damage_type == DND_DAMAGETYPE_MELEEOCCULT)
+			ACS_NamedExecuteAlways("DnD Infernal Strike Hit", 0, pnum, victim);
 	}
 
 	return dmg;
@@ -3025,6 +3045,60 @@ void HandleIgniteEffects(int pnum, int victim, int wepid, int flags, int dmg_wit
 				SetActorInventory(victim, "DnD_CurrentIgniteDamage", tick_dmg);
 		}
 	}
+}
+
+// An ignite from a source that states it outright rather than rolling for it -- Heat Shield's
+// retaliation is the first. No chance roll and no weapon, with the duration scaled by the caller so a
+// spell's own threshold can lengthen it.
+//
+// Everything else is the rolled path's: the same pricing, the same refcount ownership, the same
+// refresh rule, so a forced burn is indistinguishable from any other once it is running. dur_pct is a
+// percentage of the player's normal ignite duration.
+void ApplyForcedIgnite(int pnum, int victim, int dur_pct = 100, bool force_prolif = false) {
+	int m_id = victim - DND_MONSTERTID_BEGIN;
+	if(m_id < 0 || m_id >= DND_MAX_MONSTERS || !CheckAilmentImmunity(pnum, m_id, DND_MOLTENBLOOD))
+		return;
+
+	// Choir of Ashes refuses a refresh too, so it is answered before anything is written.
+	bool once_only = HasPlayerFlag(pnum, PFLAG_IGNITE_NOREFRESH);
+	if(once_only) {
+		if(WasIgnitedBefore(m_id))
+			return;
+		MarkIgnitedBefore(m_id);
+	}
+
+	if(PlayerModData[pnum].vals[PSTAT_CREMATOR])
+		SetActorInventory(victim, "DnD_Cremated", 1);
+
+	int amt = Max(1, GetIgniteDuration(pnum) * dur_pct / 100);
+	int tick_dmg = GetIgniteTickDamage(pnum, victim, -1, 0);
+	int ign_flags = DND_IGNITEFLAG_CANPROLIF;
+	if(force_prolif)
+		ign_flags |= DND_IGNITEFLAG_FORCEPROLIF;
+
+	// "DnD Monster Ignite" reads its caster from PlayerNumber(), so the activator has to BE them.
+	int prev = ActivatorTID();
+	if(!SetActivator(pnum + P_TIDSTART))
+		return;
+
+	// Ownership is the script refcount, never the timer -- see HandleIgniteEffects.
+	if(!CheckActorInventory(victim, "DnD_IgniteScripts")) {
+		SetActorInventory(victim, "DnD_IgniteTimer", amt);
+		SetActorInventory(victim, "DnD_CurrentIgniteDamage", tick_dmg);
+
+		// Claimed BEFORE launching: the first iteration runs inline.
+		GiveActorInventory(victim, "DnD_IgniteScripts", 1);
+		ACS_NamedExecuteWithResult("DnD Monster Ignite", victim, -1, ign_flags, tick_dmg);
+	}
+	else {
+		// A refresh may improve a burn, never weaken one somebody else's stats are paying for.
+		SetActorInventory(victim, "DnD_IgniteTimer", Max(amt, CheckActorInventory(victim, "DnD_IgniteTimer")));
+		if(tick_dmg > CheckActorInventory(victim, "DnD_CurrentIgniteDamage"))
+			SetActorInventory(victim, "DnD_CurrentIgniteDamage", tick_dmg);
+	}
+
+	if(prev)
+		SetActivator(prev);
 }
 
 // What the ignite prices itself off. The two flags promise different things and now read differently:
@@ -3533,7 +3607,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 		}
 	}
 
-	ACS_NamedExecuteWithResult("DnD Damage Numbers", victim_tid, PlayerDamageTic[pnum].total[victim_data], flags);
+	SendOwnerSync("DnD Damage Numbers", PlayerNumber(), victim_tid, PlayerDamageTic[pnum].total[victim_data], flags);
 
 	if(CheckInventory("Marine_DamageReduction_Timer"))
 		GiveInventory("Marine_Perk50_DamageDealt", PlayerDamageTic[pnum].total[victim_data]);
@@ -3973,13 +4047,30 @@ Script "DnD Monster Slow Ticker" (int victim) {
 	while(CheckActorInventory(victim, "DnD_SlowTimer") && isActorAlive(victim)) {
 		SetActorProperty(victim, APROP_SPEED,
 			base_speed * (100 - CheckActorInventory(victim, "DnD_SlowPercent")) / 100);
-		Delay(const:TICRATE);
-		TakeActorInventory(victim, "DnD_SlowTimer", 1);
+		Delay(const:DND_SLOWTICKER_RATE);
+
+		// TakeActorInventory floors at zero, so a timer that is not a whole multiple of the step
+		// simply ends on the tick that would have taken it negative.
+		TakeActorInventory(victim, "DnD_SlowTimer", DND_SLOWTICKER_RATE);
 	}
 
 	SetActorProperty(victim, APROP_SPEED, base_speed);
 	SetActorInventory(victim, "DnD_SlowPercent", 0);
 	TakeActorInventory(victim, "DnD_SlowTickerRunning", 1);
+}
+
+// A snare is a slow of 100, routed through the same ticker so there is still exactly ONE owner of
+// APROP_SPEED for slows -- a second loop capturing its own base speed is how a monster ends up
+// permanently crawling. Strongest wins and longest wins, independently: a short snare must not cut a
+// long weak slow short, and a weak slow must not water down a live snare.
+void SnareMonster(int victim, int tics) {
+	if(CheckActorInventory(victim, "DnD_SlowPercent") < 100)
+		SetActorInventory(victim, "DnD_SlowPercent", 100);
+
+	if(CheckActorInventory(victim, "DnD_SlowTimer") < tics)
+		SetActorInventory(victim, "DnD_SlowTimer", tics);
+
+	ACS_NamedExecuteAlways("DnD Monster Slow Ticker", 0, victim);
 }
 
 // Martialist / Cranium Bash. The Stunned state on DnD_BaseMonster loops while StunDurationCounter is
@@ -4327,7 +4418,8 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int tick_dmg)
 
 	// find N closest targets to victim for igniting
 	//printbold(d:canProlif, s: " ", d:!IsActorAlive(victim), s: " ", d:CheckIgniteProlifChance(pnum));
-	if((ign_flags & DND_IGNITEFLAG_CANPROLIF) && CheckIgniteProlifChance(pnum)) {
+	if((ign_flags & DND_IGNITEFLAG_CANPROLIF) &&
+		((ign_flags & DND_IGNITEFLAG_FORCEPROLIF) || CheckIgniteProlifChance(pnum))) {
 		// Moved here, makes more sense to only check if applicable...
 		// check ignite prolif
 		int prolif_dist = GetIgniteProlifRange(pnum);
@@ -5182,6 +5274,13 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	if((dmg_data & DND_DAMAGETYPEFLAG_LEVELHAZARD) && (dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL))
 		ult_bleed = GetUltimatumSawBleedChance();
 
+	// Heat Shield. "Enemies that hit it are ignited" -- read off the WEARER's marker, since the
+	// shield may have been cast on them by somebody else. Not on a DoT tick: the burn it starts would
+	// otherwise keep re-arming itself through whatever the monster is already doing to the player.
+	if(from_monster && !isDot && dmg && m_id >= 0 &&
+		CheckActorInventory(pnum + P_TIDSTART, "DnD_HeatShieldRank"))
+		ACS_NamedExecuteAlways("DnD Heat Shield Retaliate", 0, pnum, m_id + DND_MONSTERTID_BEGIN);
+
 	// final thing to check after damage reductions are applied, DoTs
 	// do not register more instances on dots from dots themselves as well
 	if((from_monster || (dmg_data & DND_DAMAGETYPEFLAG_LEVELHAZARD)) && !isDot && dmg) {
@@ -5541,7 +5640,7 @@ void HandleMonsterDamageModChecks(int m_id, int monster_tid, int victim, int dmg
 	}
 
 	if(HasMonsterTrait(m_id, DND_BLACKOUT))
-		ACS_NamedExecuteAlways("DnD Blackout", 0, victim);
+		SendOwnerScript("DnD Blackout", victim - P_TIDSTART, victim);
 }
 
 int HandlePetMonsterDamageScale(int this, int master, int victim, int dmg, int dmg_data, int flags) {
@@ -5576,7 +5675,7 @@ int HandlePetMonsterDamageScale(int this, int master, int victim, int dmg, int d
 	}
 
 	if(flags == -1)
-		ACS_NamedExecuteWithResult("DnD Damage Numbers", victim, dmg, dmgnum_flags);
+		SendOwnerSync("DnD Damage Numbers", PlayerNumber(), victim, dmg, dmgnum_flags);
 
 	SetActivator(this);
 
@@ -6314,7 +6413,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					// this is needed for kill credit
 					HandleMonsterDeathConfirm(shooter, dmg);
 					Thing_Damage2(shooter, dmg, "Reflection");
-					ACS_NamedExecuteWithResult("DnD Damage Numbers", shooter, dmg, 0);
+					SendOwnerSync("DnD Damage Numbers", PlayerNumber(), shooter, dmg, 0);
 				}
 				
 				// check for special reduced damage factors
@@ -6494,7 +6593,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 					// weapon check for sedrin staff
 					if(m_id == DND_WEAPON_SEDRINSTAFF && IsActorFullRobotic(victim)) {
-						ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, 0, 0, DND_HITBEEP_IMMUNITY);
+						SendOwnerScript("DnD Handle Hitbeep", PlayerNumber(), 0, 0, DND_HITBEEP_IMMUNITY);
 						SetResultValue(0);
 						Terminate;
 					}
@@ -6708,7 +6807,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 						// we check -1 above because we'll give 1 already
 						PlaySound(shooter, "Cyborg/Unstable", CHAN_BODY, 1.0);
 						GiveInventory("Cyborg_NoAnim", 1);
-						ACS_NamedExecuteAlways("DnD Cyborg Visor Anim", 0);
+						SendOwnerScript("DnD Cyborg Visor Anim", PlayerNumber());
 					}
 
 					if(!CheckInventory("Cyborg_Instability_StackGainCD")) {
@@ -6874,7 +6973,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// shooter is pet, it most likely attacked a monster, factor in things related to pets and put damage numbers!
 			// make sure activator is the player themselves now
 			SetActivator(GetActorProperty(shooter, APROP_MASTERTID));
-			ACS_NamedExecuteWithResult("DnD Damage Numbers", victim, dmg, 0);
+			SendOwnerSync("DnD Damage Numbers", PlayerNumber(), victim, dmg, 0);
 			SetResultValue(dmg);
 		}
 		else if(IsMonster(victim) && dmg_data) {
@@ -6887,7 +6986,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// last option, player hurt monster in here --- we normally don't handle this here but for reflection we can
 			// if we have dmg_data, currently it can only come from monster projectile
 			SetActivator(GetActorProperty(shooter, APROP_MASTERTID));
-			ACS_NamedExecuteWithResult("DnD Damage Numbers", victim, dmg, 0);
+			SendOwnerSync("DnD Damage Numbers", PlayerNumber(), victim, dmg, 0);
 
 			// failsafe
 			if(GetActorProperty(victim, APROP_HEALTH) > MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp)

@@ -1172,7 +1172,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 		Player_MostRecent_Orb[pnum].orb_type = orbtype + 1; // +1 because 0 is used as no orb
 	
 	// clientside msg
-	ACS_NamedExecuteWithResult("DND Orb Use Message", CheckInventory("OrbUseType") - 1, CheckInventory("OrbResult"), affluence, overrideValue);
+	SendOwnerSync("DND Orb Use Message", PlayerNumber(), CheckInventory("OrbUseType") - 1, CheckInventory("OrbResult"), affluence, overrideValue);
 }
 
 // check if player has any orbs besides calamity
@@ -1717,7 +1717,7 @@ int GetOrbDropStack(int monster_level) {
 	return 1 + monster_level / random(1, 3);
 }
 
-void SpawnOrb(int pnum, bool sound, bool noRepeat = false, int stack = 1) {
+void SpawnOrb(int pnum, bool sound, int stack = 1) {
 	int c = CreateItemSpot();
 	if(c != -1) {
 		int i;
@@ -1730,7 +1730,7 @@ void SpawnOrb(int pnum, bool sound, bool noRepeat = false, int stack = 1) {
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SpawnDrop(GetInventoryName(i + ORBS_BEGIN), 24.0, 16, pnum + 1, c);
 		if (sound)
-			ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_ORB, i);
+			SendOwnerScript("DnD Play Local Item Drop Sound", pnum, pnum, DND_ITEM_ORB, i);
 	}
 }
 
@@ -1742,7 +1742,7 @@ void SpawnOrbForAll(int repeats, int stack = 1) {
 				continue;
 #endif
 			for(int k = 0; k < repeats; ++k)
-				SpawnOrb(j, false, false, stack);
+				SpawnOrb(j, false, stack);
 		}
 	}
 }
@@ -1754,7 +1754,7 @@ void SpawnSpecificOrb(int pnum, int id, bool sound, bool noRepeat = false, int s
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SpawnDrop(GetInventoryName(id + ORBS_BEGIN), 24.0, 16, pnum + 1, c);
 		if(sound)
-			ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_ORB, id);
+			SendOwnerScript("DnD Play Local Item Drop Sound", pnum, pnum, DND_ITEM_ORB, id);
 			
 		//if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, X) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
 		//	SpawnSpecificOrb(pnum, id, sound, true, stack);
@@ -1804,7 +1804,7 @@ Script "DND Orb Use Message" (int type, int result, int affluence, int overrideV
 }
 
 Script "DND Orb Use Message (Server)" (void) {
-	ACS_NamedExecuteAlways("DND Orb Use Message", 0, GetAffluenceBonus());
+	SendOwnerScript("DND Orb Use Message", PlayerNumber(), GetAffluenceBonus());
 }
 
 Script "DND Orb Use" (int orbtype, int extra, int extra2) {

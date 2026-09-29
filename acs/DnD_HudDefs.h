@@ -356,6 +356,17 @@ enum {
 	HOTBAR_ICON_ID = 3110,
 	HOTBAR_CD_ID = 3100,
 
+	// The two bars. Descending id is back to front per the note above, so each block lists its layers
+	// in reverse: the trough is the highest id in its block and the text the lowest.
+	MANABAR_TEXT_ID = 3060,
+	MANABAR_FILL_ID,
+	MANABAR_RESERVED_ID,
+	MANABAR_BACK_ID,
+
+	CASTBAR_TEXT_ID = 3070,
+	CASTBAR_FILL_ID,
+	CASTBAR_BACK_ID,
+
 	// ---- spell tree page ----
 	// These are LOW on purpose. AttachMessage draws the highest id first, so a lower id lands in
 	// FRONT -- see the note above RPGMENUBACKGROUNDID. The page's own backdrop is RPGMENUID (1750),

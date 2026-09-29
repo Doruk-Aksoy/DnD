@@ -50,6 +50,13 @@ enum {
 	BUFF_LIGHTNINGDAMAGEDEALT,
 	BUFF_FIREDAMAGEDEALT,
 
+	// Spell sourced. Appended for the same reason Rally was -- buff_net_values is a global array, so
+	// an insert anywhere above shifts every ordinal after it.
+	BUFF_MANAREGEN,			// percent, read by GetPlayerManaRegen
+	BUFF_MANAREGENFLAT,		// whole mana per second, same reader
+	BUFF_SPELLCDR,			// percent, read by GetSpellCooldownRate
+	BUFF_IGNITECHANCE,		// flat percent, read by GetPlayerIgniteChance
+
 	BUFF_TYPES_MAX
 };
 #define DND_FIRST_ELEMENTAL_DMGBUFF BUFF_ICEDAMAGEDEALT

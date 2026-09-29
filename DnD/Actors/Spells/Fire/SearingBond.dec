@@ -1,0 +1,85 @@
+Actor Spell_SearingBond : DnD_SpellExplosive {
+	PROJECTILE
+	Radius 8
+	Height 12
+	Speed 40
+	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE))
+	DamageType "Fire"
+    SeeSound "SearingBond/Fire"
+	DeathSound "SearingBond/Hit"
+	Renderstyle Add
+	Scale 0.75
+	+SEEKERMISSILE
+	+SCREENSEEKER
+	States {
+		SpawnState:
+			TNT1 A 0
+			TNT1 A 0 A_SeekerMissile(60, 60, SMF_PRECISE | SMF_LOOK)
+			ARBM FF 1 Bright A_SpawnItem("SearingBondFX1")
+			TNT1 A 0 A_SeekerMissile(60, 60, SMF_PRECISE | SMF_LOOK)
+			ARBM GG 1 Bright A_SpawnItem("SearingBondFX2")
+			TNT1 A 0 A_SeekerMissile(60, 60, SMF_PRECISE | SMF_LOOK)
+			ARBM HH 1 Bright A_SpawnItem("SearingBondFX3")
+			TNT1 A 0 A_SeekerMissile(60, 60, SMF_PRECISE | SMF_LOOK)
+			ARBM II 1 Bright A_SpawnItem("SearingBondFX4")
+			ARBM F 1 Bright
+			TNT1 A 0 A_Stop
+        Goto Death
+
+		Death:
+			TNT1 A 0 A_SetUserVar("user_expdmg",
+				ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE, DND_WDMG_ISRADIUSDMG))
+			TNT1 A 0 A_SetUserVar("user_expradius", 0)
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
+			TNT1 A 0 A_SetUserVar("user_expflags", 0)
+			TNT1 A 0 A_JumpIf(user_spellrank < DND_SPELL_THRESH_HIGH, "BondSnare")
+			TNT1 A 0 A_SetUserVar("user_expradius",
+				ACS_NamedExecuteWithResult("DnD Spell Radius", SPELLVAL_RADIUS))
+		BondSnare:
+			// Before the explosion, while the tracer still points at what was struck.
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Searing Bond Snare")
+		Goto DoExplosionDamage
+
+		ContinueFromExplosion:
+			S004 ABCDE 3 Bright
+		Goto FinishExplosion
+	}
+}
+
+Actor SearingBondFX1 {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	Renderstyle Add
+	Alpha 0.8
+	States {
+		Spawn:
+			ARBM F 1 Bright A_FadeOut(0.1)
+		Loop
+	}
+}
+
+Actor SearingBondFX2 : SearingBondFX1 {
+	States {
+		Spawn:
+			ARBM G 1 Bright A_FadeOut(0.1)
+		Loop
+	}
+}
+
+
+Actor SearingBondFX3 : SearingBondFX1 {
+	States {
+		Spawn:
+			ARBM H 1 Bright A_FadeOut(0.1)
+		Loop
+	}
+}
+
+
+Actor SearingBondFX4 : SearingBondFX1 {
+	States {
+		Spawn:
+			ARBM I 1 Bright A_FadeOut(0.1)
+		Loop
+	}
+}

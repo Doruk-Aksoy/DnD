@@ -189,7 +189,7 @@ Script "DnD Marine Perk 50 Checker" (void) {
             SetInventory("Marine_DamageReduction_Timer", DND_MARINE_DMGREDUCE_TIMER);
             HandlePlayerBuffAssignment(PlayerNumber(), 0, BTI_MARINE_DAMAGEREDUCTION);
 
-            ACS_NamedExecuteAlways("DnD Marine Shield Anim", 0);
+            SendOwnerScript("DnD Marine Shield Anim", PlayerNumber());
 
             do {
                 Delay(const:1);
@@ -285,7 +285,7 @@ Script "DnD Hobo Frenzy Anim" (void) CLIENTSIDE {
 Script "DnD Hobo Frenzy Timer" (void) {
 	PlaySound(0, "Hobo/Frenzy", CHAN_6, 1.0);
 
-	ACS_NamedExecuteAlways("DnD Hobo Frenzy Anim", 0);
+	SendOwnerScript("DnD Hobo Frenzy Anim", PlayerNumber());
 
     while(isAlive() && CheckInventory("Hobo_ShotgunFrenzyTimer")) {
         TakeInventory("Hobo_ShotgunFrenzyTimer", 1);

@@ -1,0 +1,81 @@
+// Scorching Ray. The beam is five parallel traces fired from ACS -- see "DnD Scorching Ray" -- so
+// nothing here carries damage: these three are a ruler, a wall-finder and a trail.
+
+// What the five damaging traces leave behind. It draws nothing and does nothing; the cast reads its
+// position back by tid to work out what the ray struck, then deals the damage itself, once.
+Actor Spell_ScorchRayPuff {
+	// So the beam passes through PLAYERS rather than stopping on one. Same pair NoPuff carries, and
+	// for the same reason: a trace fired from a helper does not know the caster, so without this it
+	// would stop on the first teammate standing in front of the beam -- or on the caster.
+	Species "Player"
+	+THRUSPECIES
+	+NOBLOCKMAP
+	+NOGRAVITY
+	+NOINTERACTION
+	+DONTSPLASH
+	+ALWAYSPUFF
+	+PUFFONACTORS
+	RenderStyle None
+	Radius 1
+	Height 1
+	States {
+		Spawn:
+			TNT1 A 1
+		Stop
+	}
+}
+
+// The FAKE hitscan's puff, for the visual cutoff. THRUACTORS is the whole point: it ignores monsters
+// and stops only on geometry, so where it lands is where the wall is -- which is where the trail has
+// to end. Without it the beam would stop at the first enemy and leave the rest of its length unlit.
+Actor Spell_ScorchRayMarker : Spell_ScorchRayPuff {
+	RenderStyle Add
+	Scale 0.75
+	+THRUACTORS
+	States {
+		Spawn:
+			WIBL JKLMN 2 Bright
+		Stop
+	}
+}
+
+// One bead of the beam. Clientside and non-interacting: the damage is settled in ACS long before any
+// of these exist, so they only have to look right.
+//
+// It lives exactly ONE TIC, because the whole beam is respawned every tic to follow the player's aim.
+// Anything longer and the beads left behind by a turn hang in the air as a stale arc -- the beam has
+// to be redrawn, not trailed.
+// Each frame lasts TWO tics, not one. The beam is respawned every tic to follow the player's aim, so
+// one looks right -- but an actor created and destroyed inside a single tic can be removed by the
+// thinker pass before it is ever drawn, and the whole beam was invisible while the script spawning it
+// ran perfectly. Two is the shortest life that reliably renders, and the second tic fades, so a fast
+// turn smears instead of leaving a hard stale arc.
+Actor Spell_ScorchRayTrail {
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	+DONTSPLASH
+	RenderStyle Add
+	Alpha 0.85
+	Radius 4
+	Height 8
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_Jump(256, "1", "2", "3", "4")
+		1:
+			WIBL A 1 Bright
+			WIBL AA 1 Bright A_FadeOut(0.33)
+		Stop
+		2:
+			WIBL B 1 Bright
+			WIBL BB 1 Bright A_FadeOut(0.33)
+		Stop
+		3:
+			WIBL C 1 Bright
+			WIBL CC 1 Bright A_FadeOut(0.33)
+		Stop
+		4:
+			WIBL D 1 Bright
+			WIBL DD 1 Bright A_FadeOut(0.33)
+		Stop
+	}
+}

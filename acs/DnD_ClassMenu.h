@@ -367,7 +367,7 @@ Script "DnD Character Select Screen" (void) CLIENTSIDE {
 }
 
 void RunClassLoadScripts() {
-	ACS_NamedExecuteAlways("DnD Character Select Screen", 0);
+	SendOwnerScript("DnD Character Select Screen", PlayerNumber());
 	ACS_NamedExecuteAlways("DnD Character Select Animated", 0);
 	ACS_NamedExecuteAlways("DnD Character Load Inputs", 0);
 }
@@ -610,7 +610,7 @@ Script "DND Server Box Receive - CharLoad" (int pnum, int boxid) NET {
 				LocalAmbientSound("RPG/MenuChoose", 127);
 				SetInventory("DnD_SelectedCharmBox", boxid);
 				SetInventory("DnD_SelectedInventoryBox", 0);
-				ACS_NamedExecuteAlways("DnD Character Data Display On Click", 0, boxid - 2);
+				SendOwnerScript("DnD Character Data Display On Click", PlayerNumber(), boxid - 2);
 			}
 		}
 		else if(HasRightClicked(pnum)) {
@@ -619,7 +619,7 @@ Script "DND Server Box Receive - CharLoad" (int pnum, int boxid) NET {
 				LocalAmbientSound("RPG/MenuChoose", 127);
 				SetInventory("DnD_SelectedInventoryBox", boxid);
 				SetInventory("DnD_SelectedCharmBox", 0);
-				ACS_NamedExecuteAlways("DnD Character Data Display On Click", 0, boxid - 2);
+				SendOwnerScript("DnD Character Data Display On Click", PlayerNumber(), boxid - 2);
 			}
 		}
 		

@@ -43,6 +43,17 @@ enum {
     BTI_ELEMENTPOWER_LIGHTNING,
     BTI_ELEMENTPOWER_FIRE,
 
+    // Spell sourced buffs. Above the debuff marker so Wanderer perk 1 does not cut their duration,
+    // and appended rather than inserted -- DECORATE passes these indices numerically, so
+    // DnD/Actors/BuffIndex.dec has to match this list entry for entry.
+    BTI_SPELL_WARMTH,
+    BTI_SPELL_WARMTH_FLAT,
+    BTI_SPELL_HEATSHIELD,
+    BTI_SPELL_BOILINGBLOOD,
+    BTI_SPELL_BOILINGBLOOD_CDR,
+    BTI_SPELL_ANGER,
+    BTI_SPELL_ANGER_IGNITE,
+
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
     BTI_CHILL,

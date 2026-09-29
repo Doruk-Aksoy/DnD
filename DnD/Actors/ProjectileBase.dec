@@ -34,6 +34,26 @@ Actor DnD_FreezeTimer : DnD_Info { }
 Actor DnD_IgniteTimer : DnD_Info { }
 Actor DnD_CurrentIgniteDamage : DnD_Info { }
 
+// Blaze's burn, which is its own DoT rather than the ignite subsystem -- see "DnD Blaze Burn".
+// Timer counts ticks remaining; Damage is the per tick figure, kept so a stronger recast wins.
+Actor DnD_BlazeTimer : DnD_Info { }
+
+// How many "DnD Blaze Burn" loops are alive on this monster -- the ONLY thing that may be read as
+// "the burn already has an owner". The timer cannot: it is inventory, a caller may set it to hand in
+// a duration, and it outlives the script. Same rule and same reason as DnD_IgniteScripts above.
+Actor DnD_BlazeScripts : DnD_Info { }
+
+// Heat Shield's retaliation half. The buff carries the armor; these carry the "enemies that hit it
+// are ignited" part, because the damage path can read inventory far more cheaply than a buff list.
+// Rank is the WEARER's copy of the caster's, so the thresholds resolve on a shielded ally too.
+Actor DnD_HeatShieldRank : DnD_Info { }
+
+// Infernal Strike's armed swing. Holds the caster's rank so the thresholds resolve when the swing
+// lands rather than when it was armed.
+Actor DnD_InfernalStrikeRank : DnD_Info { }
+Actor DnD_HeatShieldEnd : DnD_Info { }
+Actor DnD_BlazeDamage : DnD_Info { }
+
 // How many "DnD Monster Ignite" scripts are alive on this monster -- the ONLY thing that may be
 // read as "the burn already has an owner". DnD_IgniteTimer cannot: it is inventory and the burn is
 // a script, so a desync left the monster lit and taking nothing forever. A refcount is non-zero

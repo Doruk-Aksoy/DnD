@@ -434,7 +434,7 @@ void RefreshUnspentPerkPoints(int pnum, bool force = false) {
         return;
 
     PlayerModData[pnum].unspent = real;
-    ACS_NamedExecuteWithResult("DnD Request Perk Point Sync", pnum, real);
+    SendOwnerSync("DnD Request Perk Point Sync", pnum, pnum, real);
 }
 
 // The activity delta is how the grant reaches the database -- SavePlayerActivities increments the
@@ -462,7 +462,7 @@ void TakePerkPoints(int pnum, int amt) {
 // menu asks whether a refund is legal.
 void SyncPerkWord(int pnum, int perk) {
     int word = (perk * DND_PERK_BITS) >> 5;
-    ACS_NamedExecuteWithResult("DnD Request Perk Sync", pnum, word, PlayerModData[pnum].perks_packed[word]);
+    SendOwnerSync("DnD Request Perk Sync", pnum, pnum, word, PlayerModData[pnum].perks_packed[word]);
 }
 
 void ResetPlayerPerks(int pnum) {
@@ -1129,7 +1129,7 @@ Script "DnD Apply Loaded Perks" (int pnum) {
     // Whole words, unconditionally -- a word going back to 0 is exactly the update a client must not
     // miss, and a load is the one moment its copy is guaranteed stale.
     for(int i = 0; i < DND_PERK_WORDS; ++i)
-        ACS_NamedExecuteWithResult("DnD Request Perk Sync", pnum, i, PlayerModData[pnum].perks_packed[i]);
+        SendOwnerSync("DnD Request Perk Sync", pnum, pnum, i, PlayerModData[pnum].perks_packed[i]);
 
     // Speed, mass and spawn health are DERIVED from the stats rather than read out of them, so none
     // of them move on their own when the tree folds in. RestoreRPGStat is deliberately not used for

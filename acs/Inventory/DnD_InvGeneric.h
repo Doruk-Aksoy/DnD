@@ -53,7 +53,7 @@ void SpawnArmor(int pnum, int rarity_boost, int tiers = 0, bool noRandomVelXY = 
 		}
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_BODYARMOR);
+		SendOwnerScript("DnD Play Local Item Drop Sound", pnum, pnum, DND_ITEM_BODYARMOR);
 	}
 }
 
@@ -86,7 +86,7 @@ void SpawnArmorDrop(int pnum, int rarity_boost, int max_level = MAX_REGULAR_ILVL
 		}
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_BODYARMOR);
+		SendOwnerScript("DnD Play Local Item Drop Sound", pnum, pnum, DND_ITEM_BODYARMOR);
 	}
 }
 
@@ -100,7 +100,7 @@ void SpawnArmorWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, int max_leve
 		SpawnDrop(GetArmorDropClass(type), 16.0, 16, pnum + 1, c, false);
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_BODYARMOR);
+		SendOwnerScript("DnD Play Local Item Drop Sound", pnum, pnum, DND_ITEM_BODYARMOR);
 
 		//if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, X) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
 		//	SpawnArmorWithMods(pnum, m1, m2, m3, true);
@@ -145,7 +145,7 @@ void SpawnBoot(int pnum, int rarity_boost, int max_level = MAX_REGULAR_ILVL, boo
 		}
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_BOOT);
+		SendOwnerScript("DnD Play Local Item Drop Sound", pnum, pnum, DND_ITEM_BOOT);
 	}
 }
 
@@ -159,7 +159,7 @@ void SpawnBootWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, int max_level
 		SpawnDrop(GetBootDropClass(type), 16.0, 16, pnum + 1, c, false);
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_BOOT);
+		SendOwnerScript("DnD Play Local Item Drop Sound", pnum, pnum, DND_ITEM_BOOT);
 	}
 }
 
@@ -200,7 +200,7 @@ void SpawnHelm(int pnum, int rarity_boost, int pre_id = -1, bool noRandomVelXY =
 		}
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_HELM);
+		SendOwnerScript("DnD Play Local Item Drop Sound", pnum, pnum, DND_ITEM_HELM);
 	}
 }
 
@@ -226,7 +226,7 @@ void SpawnUniqueRewardDrop(int pnum, int unique_id, int item_type, bool noRandom
 
 	SpawnDrop(drop, 16.0, 16, pnum + 1, c, noRandomVelXY);
 	SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-	ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, item_type);
+	SendOwnerScript("DnD Play Local Item Drop Sound", pnum, pnum, item_type);
 }
 
 // ---- test spawners ------------------------------------------------------------------------
@@ -300,7 +300,7 @@ void SpawnHelmDrop(int pnum, int rarity_boost, int max_level = MAX_REGULAR_ILVL,
 		}
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_HELM);
+		SendOwnerScript("DnD Play Local Item Drop Sound", pnum, pnum, DND_ITEM_HELM);
 	}
 }
 
@@ -314,7 +314,7 @@ void SpawnHelmWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, int max_level
 		SpawnDrop(GetHelmDropClass(type), 16.0, 16, pnum + 1, c, false);
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_HELM);
+		SendOwnerScript("DnD Play Local Item Drop Sound", pnum, pnum, DND_ITEM_HELM);
 	}
 }
 
@@ -353,7 +353,7 @@ void SpawnCharm(int pnum, int rarity_boost, int max_lvl = MAX_REGULAR_ILVL, bool
 			SpawnDrop(GetCharmDropLabel(worth), 16.0, 16, pnum + 1, c);
 		}
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_CHARM);
+		SendOwnerScript("DnD Play Local Item Drop Sound", pnum, pnum, DND_ITEM_CHARM);
 	}
 }
 
@@ -362,7 +362,7 @@ void SpawnUniqueCharm(int pnum, int charm_id, bool noRandomVelXY = false) {
 	ConstructUniqueOnField(c, charm_id, pnum);
 	SpawnDrop("UniqueCharmDrop", 16.0, 16, pnum + 1, c, noRandomVelXY);
 	SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-	ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_CHARM);
+	SendOwnerScript("DnD Play Local Item Drop Sound", pnum, pnum, DND_ITEM_CHARM);
 }
 
 // extra field is the class
@@ -384,7 +384,7 @@ void SpawnSpecialtyItem(int pnum, int rarity_boost, int max_level = MAX_REGULAR_
 			SpawnDrop(GetSpecialtyDropClass(extra, RollSpecialtyItemInfo(c, ilvl, pnum, extra)), 24.0, 16, pnum + 1, c, noRandomVelXY);
 		}
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, extra);
+		SendOwnerScript("DnD Play Local Item Drop Sound", pnum, pnum, extra);
 	}
 }
 
@@ -403,7 +403,7 @@ void SpawnToken(int pnum, int stack = 0, int unused2 = 0, bool noRandomVelXY = f
 		RollTokenInfo(c, i, true, stack);
 		SpawnDrop(GetInventoryName(i + TOKEN_BEGIN), 24.0, 16, pnum + 1, c, noRandomVelXY);
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_TOKEN);
+		SendOwnerScript("DnD Play Local Item Drop Sound", pnum, pnum, DND_ITEM_TOKEN);
 	}
 }
 
@@ -417,7 +417,7 @@ void SpawnFlask(int pnum, int rarity_boost, int pre_id = -1, bool noRandomVelXY 
         SpawnDrop(GetFlaskDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_FLASK);
+		SendOwnerScript("DnD Play Local Item Drop Sound", pnum, pnum, DND_ITEM_FLASK);
 	}
 }
 
@@ -431,7 +431,7 @@ void SpawnFlaskDrop(int pnum, int rarity_boost, int max_level = MAX_REGULAR_ILVL
         SpawnDrop(GetFlaskDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_FLASK);
+		SendOwnerScript("DnD Play Local Item Drop Sound", pnum, pnum, DND_ITEM_FLASK);
 	}
 }
 
@@ -445,7 +445,7 @@ void SpawnFlaskWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, int max_leve
 		SpawnDrop(GetFlaskDropClass(type), 16.0, 16, pnum + 1, c, false);
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_FLASK);
+		SendOwnerScript("DnD Play Local Item Drop Sound", pnum, pnum, DND_ITEM_FLASK);
 	}
 }
 

@@ -191,7 +191,12 @@ enum {
 // Martialist melee riders. The slow magnitude and both durations are flat in the notes -- only the
 // chance scales with points -- so they are constants rather than slots.
 #define DND_EXHAUSTER_SLOWPCT 20
-#define DND_EXHAUSTER_SLOWTIME 3        // seconds
+#define DND_EXHAUSTER_SLOWTIME (3 * TICRATE)
+
+// How often "DnD Monster Slow Ticker" wakes. DnD_SlowTimer is in TICS -- it used to be in whole
+// seconds, which could not express Searing Bond's 1.5 second snare -- and this is the step it both
+// sleeps and decrements by, so the loop costs the same as the old one-second version.
+#define DND_SLOWTICKER_RATE 5
 #define DND_CRANIUMBASH_STUNTICS 70     // 2 seconds
 
 // Sector light level at or below which Master of Shadows considers the player to be in the dark.
@@ -1899,14 +1904,18 @@ int SpawnAreaRandomTID(int stid, int radius, str actortype, int newtid, int max_
 	return finished;
 }
 
+// Hold 0.03 is one tic. The blank only exists to replace the old message, and every live message
+// makes the next HudMessage slower, so it should leave the list as soon as it can.
+#define DND_DELETETEXT_HOLD 0.03
+
 void DeleteText(int textid) {
-	HudMessage(s:""; HUDMSG_PLAIN, textid, -1, 160.0, 100.0, 0.1);
+	HudMessage(s:""; HUDMSG_PLAIN, textid, -1, 160.0, 100.0, DND_DELETETEXT_HOLD);
 }
 
 // assumes r2 > r1
 void DeleteTextRange(int r1, int r2) {
 	for(int i = 0; i < r2 - r1 + 1; i++)
-		HudMessage(s:""; HUDMSG_PLAIN, r1 + i, -1, 160.0, 100.0, 0.1);
+		HudMessage(s:""; HUDMSG_PLAIN, r1 + i, -1, 160.0, 100.0, DND_DELETETEXT_HOLD);
 }
 
 int VectorLength3d(int x, int y, int z) {

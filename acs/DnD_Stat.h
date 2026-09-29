@@ -531,34 +531,34 @@ void GiveCredit(int amt) {
 	int pnum = PlayerNumber();
 	GiveInventory("Credit", amt);
 	GiveInventory("DnD_LevelCredit", amt);
-	ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
+	SendOwnerScript("DnD Refresh Request", pnum, pnum, 1);
 	UpdateActivity(pnum, DND_ACTIVITY_CREDIT, amt, 0);
 }
 
 void TakeCredit(int amt) {
 	int pnum = PlayerNumber();
 	TakeInventory("Credit", amt);
-	ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
+	SendOwnerScript("DnD Refresh Request", pnum, pnum, 1);
 	UpdateActivity(pnum, DND_ACTIVITY_CREDIT, -amt, 0);
 }
 
 void GiveBudget(int amt) {
 	amt = amt * (100 + HasDungeonUpside(DUN_UPSIDE_BUDGET)) / 100;
 	GiveInventory("Budget", amt * Clamp_Between(GetCVar("dnd_budget_scale"), 1, BUDGET_SCALE_MAX));
-	ACS_NamedExecuteAlways("DnD Refresh Request", 0, PlayerNumber(), 1);
+	SendOwnerScript("DnD Refresh Request", PlayerNumber(), PlayerNumber(), 1);
 	UpdateActivity(PlayerNumber(), DND_ACTIVITY_BUDGET, amt, 0);
 }
 
 void TakeBudget(int amt) {
 	TakeInventory("Budget", amt);
-	ACS_NamedExecuteAlways("DnD Refresh Request", 0, PlayerNumber(), 1);
+	SendOwnerScript("DnD Refresh Request", PlayerNumber(), PlayerNumber(), 1);
 	UpdateActivity(PlayerNumber(), DND_ACTIVITY_BUDGET, -amt, 0);
 }
 
 void GiveActorBudget(int tid, int amt) {
 	amt = amt * (100 + HasDungeonUpside(DUN_UPSIDE_BUDGET)) / 100;
 	GiveActorInventory(tid, "Budget", amt * Clamp_Between(GetCVar("dnd_budget_scale"), 1, BUDGET_SCALE_MAX));
-	ACS_NamedExecuteAlways("DnD Refresh Request", 0, tid - P_TIDSTART, 1);
+	SendOwnerScript("DnD Refresh Request", tid - P_TIDSTART, tid - P_TIDSTART, 1);
 	UpdateActivity(tid - P_TIDSTART, DND_ACTIVITY_BUDGET, amt, 0);
 }
 
@@ -566,7 +566,7 @@ void GiveActorCredit(int tid, int amt) {
 	int pnum = tid - P_TIDSTART;
 	GiveActorInventory(tid, "Credit", amt);
 	GiveActorInventory(tid, "DnD_LevelCredit", amt);
-	ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
+	SendOwnerScript("DnD Refresh Request", pnum, pnum, 1);
 	UpdateActivity(pnum, DND_ACTIVITY_CREDIT, amt, 0);
 }
 
@@ -937,7 +937,7 @@ void BreakTradesBetween(int pnum) {
 		// is what actually deletes the trade graphics. With 1 the trade stayed drawn on top of the
 		// normal menu while every click went to the menu underneath.
 		// fixes disconnect on trade having players name still there bug
-		ACS_NamedExecuteAlways("DnD Refresh Request", 0, j, 2);
+		SendOwnerScript("DnD Refresh Request", j, j, 2);
 		TakeActorInventory(tid, "InTradeView", 1);
 		// the rest of what CancelTrade clears, minus the engaged bitfields -- those are cleared
 		// per bit above so a pending request from a third player survives
@@ -1756,7 +1756,7 @@ void ReturnToDashAnchor(int pnum) {
 		GiveHealPool(pnum, ApplyDungeonReduction(DUN_ATTR_REDUCEDHEALING, want - cur));
 
 	// Consumed, so the marker goes with it.
-	ACS_NamedExecuteAlways("DnD Dash Anchor Marker Clear", 0, pnum);
+	SendOwnerScript("DnD Dash Anchor Marker Clear", pnum, pnum);
 }
 
 // Crown of Suffering. The pack's high water mark of poison stacks, one per player. Map scoped and
@@ -2020,7 +2020,9 @@ str GetPlayerBleedTimeDisplay(int pnum) {
 // you ignite should get better as you invest in igniting, not sit outside your build.
 // The menu readout calls this with no bonus on purpose: it is a player stat, not a per weapon one.
 int GetIgniteChance(int pnum, int flat_bonus = 0) {
-	return Clamp_Between((DND_BASE_IGNITECHANCE + flat_bonus + PlayerModData[pnum].vals[PSTAT_IGN_CHANCE_FLAT]) * (100 + PlayerModData[pnum].vals[PSTAT_IGN_CHANCE_PCT]) / 100, 0, 100);
+	return Clamp_Between((DND_BASE_IGNITECHANCE + flat_bonus + PlayerModData[pnum].vals[PSTAT_IGN_CHANCE_FLAT] +
+		pbuffs[pnum].buff_net_values[BUFF_IGNITECHANCE].additive) *
+		(100 + PlayerModData[pnum].vals[PSTAT_IGN_CHANCE_PCT]) / 100, 0, 100);
 }
 
 int CheckIgniteChance(int pnum, int flat_bonus = 0) {

@@ -4,9 +4,14 @@
 #include "DnD_SpellDefs.h"
 
 // Mana is an Ammo item rather than a module value: the HUD that draws the bar is clientside, and
-// inventory is what crosses. ManaVisual carries the cap the same way EShieldAmountVisual does.
+// inventory is what crosses. Both CAPS cross the same way, as amounts on P_ManaCap and ManaVisual --
+// see the note in Sync.dec for why neither is a SetAmmoCapacity.
 #define DND_MANA_BASE 10
 #define DND_MANA_PER_INT 2
+
+// Per level, the same shape as DND_HP_PER_LVL: counted from level 1, so the first level grants
+// nothing and the base above is what a new character actually has.
+#define DND_MANA_PER_LVL 2
 
 // Regen is stored and spent in HUNDREDTHS so the 0.5/s base and the 0.25 per 2 INT step survive
 // integer arithmetic. Only the accumulator below is in these units; everything else is whole mana.
@@ -15,7 +20,10 @@
 #define DND_MANAREGEN_PER_2INT 25
 
 int GetPlayerManaCap(int pnum) {
+	// Inside the base, so PSTAT_MANA_PCT scales the levelled part too -- GetRawSpawnHealth puts its
+	// per level term in the same place for the same reason.
 	int base = DND_MANA_BASE + GetIntellectEffect(pnum, DND_MANA_PER_INT) +
+		DND_MANA_PER_LVL * (CheckActorInventory(pnum + P_TIDSTART, "Level") - 1) +
 		PlayerModData[pnum].vals[PSTAT_MANA_FLAT];
 
 	return Max(1, base * (100 + PlayerModData[pnum].vals[PSTAT_MANA_PCT]) / 100);
@@ -26,7 +34,11 @@ int GetPlayerManaRegen(int pnum) {
 	int base = DND_MANAREGEN_BASE + GetIntellectEffect(pnum, DND_MANAREGEN_PER_2INT, 2) +
 		PlayerModData[pnum].vals[PSTAT_MANAREGEN_FLAT] * DND_MANAREGEN_SCALE;
 
-	return Max(0, base * (100 + PlayerModData[pnum].vals[PSTAT_MANAREGEN_PCT]) / 100);
+	// Warmth's flat half is in whole mana per second, so it scales into the hundredths this works in.
+	base += pbuffs[pnum].buff_net_values[BUFF_MANAREGENFLAT].additive;
+
+	return Max(0, base * (100 + PlayerModData[pnum].vals[PSTAT_MANAREGEN_PCT] +
+		pbuffs[pnum].buff_net_values[BUFF_MANAREGEN].additive) / 100);
 }
 
 // R = Base% / (100% + IncEfficiency%), per the design formula.
@@ -40,7 +52,7 @@ int GetManaReservationOf(int pnum, int spell) {
 int GetReservedMana(int pnum) {
 	int i, pct = 0;
 	for(i = 0; i < MAX_SPELL_IDS; ++i) {
-		if(!(SpellDefs[i].flags & SPLF_RESERVES) || !IsAuraEnabled(pnum, i))
+		if(!(SpellDefs[i].flags & SPLF_RESERVES) || !IsSpellActive(pnum, i))
 			continue;
 		pct += GetManaReservationOf(pnum, i);
 	}
@@ -60,18 +72,14 @@ int GetPlayerMana(int pnum) {
 }
 
 void SetPlayerMana(int pnum, int val) {
-	int tid = pnum + P_TIDSTART;
-	SetActorInventory(tid, "Mana", Max(0, val));
-	SetActorInventory(tid, "ManaVisual", Max(0, val));
+	SetActorInventory(pnum + P_TIDSTART, "Mana", Max(0, val));
 }
 
+// Both figures the clientside bar needs, pushed together so they can never disagree.
 void UpdateManaVisualCap(int pnum) {
-	int caller = ActivatorTID();
-	if(!SetActivator(pnum + P_TIDSTART))
-		return;
-	SetAmmoCapacity("ManaVisual", GetUnreservedManaCap(pnum));
-	if(caller)
-		SetActivator(caller);
+	int tid = pnum + P_TIDSTART;
+	SetActorInventory(tid, "P_ManaCap", GetPlayerManaCap(pnum));
+	SetActorInventory(tid, "ManaVisual", GetUnreservedManaCap(pnum));
 }
 
 // Clamped on the way in so a shrinking cap -- a swapped charm, a newly enabled aura -- cannot leave
@@ -106,12 +114,14 @@ bool SpendSpellMana(int pnum, int spell) {
 void ValidateAuraReservations(int pnum) {
 	int i, pct = 0, r;
 	for(i = 0; i < MAX_SPELL_IDS; ++i) {
-		if(!(SpellDefs[i].flags & SPLF_RESERVES) || !IsAuraEnabled(pnum, i))
+		if(!(SpellDefs[i].flags & SPLF_RESERVES) || !IsSpellActive(pnum, i))
 			continue;
 
 		r = GetManaReservationOf(pnum, i);
-		if(pct + r > 100)
-			SetAuraEnabled(pnum, i, false);
+		if(pct + r > 100) {
+			SetSpellToggledOff(pnum, i, true);
+			SyncSpellToggleWord(pnum, i);
+		}
 		else
 			pct += r;
 	}

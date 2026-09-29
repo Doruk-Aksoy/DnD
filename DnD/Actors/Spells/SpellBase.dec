@@ -12,6 +12,14 @@
 // there, and every base below runs that first.
 
 Actor DnD_Spell : DnD_BaseProjectile {
+	// Stamina is where the damage handler reads its flags from, off whatever actor inflicted the hit.
+	// Without ISSPELL it takes the "regular weapon dmg" branch and unpacks the word PackSpellDamage
+	// built as a weapon id plus a damage cache id -- which is why a 100 damage Fireball landed as 4.
+	//
+	// 65536 is DND_DAMAGEFLAG_ISSPELL. Spelled as a literal because this property will not take the
+	// name, which is why every Stamina in the mod is a bare number; grep the enum in DamageTypes.dec.
+	Stamina 65536
+
 	var int user_spellid;
 	var int user_spellrank;
 	var int user_extra;
@@ -27,6 +35,14 @@ Actor DnD_Spell : DnD_BaseProjectile {
 // The first TNT1 A 0 is needed, NoDelay does not work properly with fastprojectiles -- same reason
 // DnD_BaseFastProjectile carries one.
 Actor DnD_SpellFast : DnD_BaseFastProjectile {
+	// Stamina is where the damage handler reads its flags from, off whatever actor inflicted the hit.
+	// Without ISSPELL it takes the "regular weapon dmg" branch and unpacks the word PackSpellDamage
+	// built as a weapon id plus a damage cache id -- which is why a 100 damage Fireball landed as 4.
+	//
+	// 65536 is DND_DAMAGEFLAG_ISSPELL. Spelled as a literal because this property will not take the
+	// name, which is why every Stamina in the mod is a bare number; grep the enum in DamageTypes.dec.
+	Stamina 65536
+
 	var int user_spellid;
 	var int user_spellrank;
 	var int user_extra;
@@ -59,10 +75,78 @@ Actor DnD_SpellAimPuff {
 	}
 }
 
+// What a spell's ACS traces are fired from, since a trace always leaves its own actor's centre and
+// a spell needs to offset them. Subclassed rather than using ProjectileHelper directly so THRUSPECIES
+// is added for spells only -- the weapons share that actor and their shots are supposed to be able to
+// hit players.
+Actor Spell_TraceHelper : ProjectileHelper {
+	+THRUSPECIES
+}
+
+// Spell projectiles that burst on impact -- Pyroblast, Molten Boulder, Fire Jet's direct hit. Built
+// on DnD_ExplosiveBase, so it inherits that whole contract: the PROJECTILE flags, the user_exp* vars,
+// A_Explode at a flat 100 with the real number extracted afterwards, and the DoExplosionDamage /
+// ContinueFromExplosion / FinishExplosion state machine.
+//
+// What this adds is the spell identity and, unlike the weapon bases, the explosion's NUMBERS. Every
+// spell explosion resolves them the same two ways -- damage from SPELLVAL_DAMAGE priced as area, and
+// radius from SPELLVAL_RADIUS -- both keyed off user_spellid at the moment of impact, so a synergy or
+// a +level that landed mid flight still counts. A derived spell therefore writes no numbers at all.
+//
+// A spell using this supplies two states and nothing else:
+//
+//   SpawnState             the flight frames, ending in Loop
+//   ContinueFromExplosion  the burst visuals, ending in Goto FinishExplosion
+//
+// Override Death only for a spell whose burst is not its plain SPELLVAL_DAMAGE -- a second damage
+// field, say, or a radius it does not keep in its row. Override DamageType to the element: the
+// inherited "PlayerExplosive" is the weapon default, and the legacy Molten Boulder uses "FireExp".
+Actor DnD_SpellExplosive : DnD_ExplosiveBase {
+	// ISSPELL so the packed word is read as a spell's rather than a weapon's, ISEXPLOSIVE because it is
+	// one -- the two are independent. 65536 | 4194304. "DnD Prep Explosion" adds ISRADIUSDMG itself at
+	// explode time, so it does not belong here.
+	Stamina 4259840
+
+	var int user_spellid;
+	var int user_spellrank;
+	var int user_extra;
+
+	States {
+		Death:
+			TNT1 A 0 A_SetUserVar("user_expdmg",
+				ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE, DND_WDMG_ISRADIUSDMG))
+			TNT1 A 0 A_SetUserVar("user_expradius",
+				ACS_NamedExecuteWithResult("DnD Spell Radius", SPELLVAL_RADIUS))
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
+			TNT1 A 0 A_SetUserVar("user_expflags", 0)
+		Goto DoExplosionDamage
+
+		// Deliberately NOT the inherited repeat check. "DnD Check Explosion Repeat" is gated on
+		// GetExplosiveRepeatChance, a player-wide stat rather than a weapon one, so a spell WOULD enter
+		// it -- and the repeat path re-packs user_expdmg in the WEAPON layout, reading a damage percent
+		// out of bits 20+. PackSpellDamage puts the damage type at bit 19 and the spell id at 24, so the
+		// two overlap and a repeated spell explosion would come back as noise.
+		//
+		// Whether explosive spells should repeat at all is a design call, not something to switch on by
+		// accident. Making them able to means teaching that path both packings first.
+		FinishExplosion:
+			"####" "#" 1
+		Stop
+	}
+}
+
 // Anchors that sit still and do their work over time: Immolation's ring, Frost Bomb's crystal,
 // Blizzard's storm, Volcano. NOCLIP so a spawn point inside geometry does not eject it, and
 // NOINTERACTION because the damage comes from its own script rather than from touching anything.
 Actor DnD_SpellAnchor {
+	// Stamina is where the damage handler reads its flags from, off whatever actor inflicted the hit.
+	// Without ISSPELL it takes the "regular weapon dmg" branch and unpacks the word PackSpellDamage
+	// built as a weapon id plus a damage cache id -- which is why a 100 damage Fireball landed as 4.
+	//
+	// 65536 is DND_DAMAGEFLAG_ISSPELL. Spelled as a literal because this property will not take the
+	// name, which is why every Stamina in the mod is a bare number; grep the enum in DamageTypes.dec.
+	Stamina 65536
+
 	+NOBLOCKMAP
 	+NOGRAVITY
 	+NOCLIP

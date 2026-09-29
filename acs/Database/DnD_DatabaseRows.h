@@ -28,6 +28,18 @@ enum {
 // activity save that runs at a level end, and "+N lanes" is not a thing that can be incremented.
 #define DND_DB_PERKS "DnD_PlayerPerks_"
 
+// The spell trees, on the same terms as the perk tree above and for the same reasons: absolute
+// state, one row per packed word. AURAS is the on-off bit per spell, HOTBAR the six bound slots.
+//
+// The two GRANT LEDGERS go with them. SpellPointsFromLevel and SpellPointsFromToken are what the
+// two caps are measured against, so a character that reloads without them could earn its fifty
+// levelled points a second time.
+#define DND_DB_SPELLS "DnD_PlayerSpells_"
+#define DND_DB_SPELLAURAS "DnD_PlayerSpellAuras_"
+#define DND_DB_SPELLHOTBAR "DnD_PlayerSpellHotbar_"
+#define DND_DB_SPELLSFROMLEVEL "DnD_PlayerSpellsFromLevel"
+#define DND_DB_SPELLSFROMTOKEN "DnD_PlayerSpellsFromToken"
+
 #define DND_DB_HEALTH "DND_PlayerHealth"
 #define DND_DB_ESHIELD "DnD_PlayerEShield"
 #define DND_DB_AMMO "DND_PlayerAmmo_"
@@ -39,6 +51,7 @@ enum {
 #define DND_DB_LEVEL "DND_PlayerLevel"
 #define DND_DB_UNSPENTATTRIB "DND_PlayerUnspentAttribs"
 #define DND_DB_UNSPENTPERK "DND_PlayerUnspentPerks"
+#define DND_DB_UNSPENTSPELL "DnD_PlayerUnspentSpells"
 #define DND_DB_ACTIVEACCESSORIES "DND_SelectedAccessories"
 #define DND_DB_ACCESSORIES "DND_PlayerAccessories"
 #define DND_DB_RESEARCH_DONE "DND_PlayerResearch_Done_"

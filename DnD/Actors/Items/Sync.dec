@@ -33,6 +33,25 @@ Actor P_MetronomeWindow : Ammo {
 	+IGNORESKILL
 }
 
+// The cast in progress, packed exactly as P_HotbarCd is: the client animates the cast bar off its
+// own Timer() rather than being told the fraction every tic. Zero means nothing is being cast.
+Actor P_CastProgress : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+// Which spell it is, for the label over the bar. Spell id + 1, zero for none.
+Actor P_CastSpell : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
 // Hotbar mirrors. The bar draws clientside and SpellPlayerData is a global, so the binding and
 // the packed cooldown word have to cross as inventory.
 Actor P_Hotbar1 : Ammo {
@@ -154,8 +173,20 @@ Actor SpellPointsFromToken : Inventory {
 }
 
 // Mana. Ammo rather than a module value because the bar that draws it is clientside and
-// inventory is what crosses. ManaVisual carries the UNRESERVED cap, as EShieldAmountVisual does.
+// inventory is what crosses.
+//
+// Both caps are carried as ammo AMOUNTS, not as SetAmmoCapacity: a capacity is not networked in
+// Zandronum, so the client would have gone on reading the DECORATE maxamount. P_ManaCap is the true
+// cap and ManaVisual the part no aura is holding -- the gap is what the bar greys out.
 Actor Mana : Ammo {
+	inventory.amount 1
+	inventory.maxamount 65000
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor P_ManaCap : Ammo {
 	inventory.amount 1
 	inventory.maxamount 65000
 	ammo.backpackamount 0

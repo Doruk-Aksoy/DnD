@@ -1,0 +1,45 @@
+object Spell_Fireball
+{
+    frame FX14A { light SERPENTBALL }
+    frame FX14B { light SERPENTBALL }
+    frame FX14C { light SERPENTBALL }
+
+    frame FX14D { light SERPENTBALL_X1 }
+    frame FX14E { light SERPENTBALL_X2 }
+    frame FX14F { light SERPENTBALL_X3 }
+    frame FX14G { light SERPENTBALL_X4 }
+    frame FX14H { light SERPENTBALL_X4 }
+}
+
+object Spell_Pyroblast_TinyFireballs
+{
+    frame FX14A { light SERPENTBALL }
+    frame FX14B { light SERPENTBALL }
+    frame FX14C { light SERPENTBALL }
+
+    frame FX14D { light SERPENTBALL_X1 }
+    frame FX14E { light SERPENTBALL_X2 }
+    frame FX14F { light SERPENTBALL_X3 }
+    frame FX14G { light SERPENTBALL_X4 }
+    frame FX14H { light SERPENTBALL_X4 }
+}
+
+object Spell_Pyroblast {
+    frame T000A { light FireJetTrapLight }
+    frame T000B { light FireJetTrapLight }
+    frame T000C { light FireJetTrapLight }
+    frame T000D { light FireJetTrapLight2 }
+    frame T000E { light FireJetTrapLight3 }
+}
+
+object Spell_SearingBond {
+	frame ARBMA { light ArbiterFireBall1 }
+    frame ARBMB { light ArbiterFireBall1 }
+	frame ARBMC { light ArbiterFireBall2 }
+	frame ARBMD { light ArbiterFireBall3 }
+	frame ARBME { light ArbiterFireBall4 }
+
+    frame S004A { light ArbiterFlameLight }
+    frame S004B { light ArbiterFlameLight }
+    frame S004C { light ArbiterFlameLight }
+}

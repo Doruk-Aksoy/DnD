@@ -458,6 +458,18 @@ Actor DnD_SwiftPreciseTimer : DnD_Info { }
 Actor DnD_ExposedResists : DnD_Info { }
 Actor DnD_ExposedTimer : DnD_Info { }
 
+// Scorching Ray's Fire Exposure. Separate from the pair above because that one is ALL resists and
+// this one is fire only -- it is read in the same place, gated on the damage category.
+// Non-zero while a CHANNELLED spell is running. Weapons stand down while it is held, because the
+// channel is driven by the attack button and the two cannot both answer to it. A plain cast time does
+// not hold this -- shooting through a cast bar is allowed.
+//
+// A counter rather than a boolean so overlapping holders cannot drop the lock between them.
+Actor DnD_SpellBusy : DnD_Info { }
+
+Actor DnD_FireExposed : DnD_Info { }
+Actor DnD_FireExposedTimer : DnD_Info { }
+
 Actor DnD_Rage : DnD_Info {
 	inventory.maxamount 30
 }

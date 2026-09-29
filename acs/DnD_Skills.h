@@ -5,6 +5,7 @@
 #include "DnD_SkillDef.h"
 #include "Spells/DnD_SpellTables.h"
 #include "Spells/DnD_SpellTree.h"
+#include "Spells/DnD_Spells.h"
 
 void HandleZombieRaiseOnDeath(int target) {
 	int pet_tid = target - P_TIDSTART + TEMPORARY_PET_TID;
@@ -139,42 +140,6 @@ Script "DnD Cast Spell" (int spell_id, int usesCooldown) NET {
 }
 
 // can add cooldown reduction calculations for future as well
-// Effects for the new spell system. TryCastSpell has already checked the gates, spent the mana
-// and started the cooldown by the time this runs -- this script only produces the effect.
-// Binds whatever the spell tree is hovering to this slot. Re-checked here rather than trusted:
-// the cvar was written on a client, against a page that may already be stale.
-Script "DnD Bind Hotbar" (int slot) NET {
-	int pnum = PlayerNumber();
-	if(slot < 0 || slot >= GetHotbarSlotCount(pnum))
-		Terminate;
-
-	int spell = GetUserCVar(pnum, "dnd_hoveredspell");
-
-	// An empty hover clears the slot, which is the only way to unbind one.
-	if(spell < 0 || spell >= MAX_SPELL_IDS) {
-		SetHotbarSpell(pnum, slot, -1);
-		SyncHotbarSlot(pnum, slot);
-		Terminate;
-	}
-
-	// Passives and auras never go on the bar -- they work from allocation or a tree toggle.
-	if(!GetSpellAllocatedRank(pnum, spell) || (SpellDefs[spell].flags & (SPLF_PASSIVE | SPLF_AURA)))
-		Terminate;
-
-	SetHotbarSpell(pnum, slot, spell);
-	SyncHotbarSlot(pnum, slot);
-	LocalAmbientSound("RPG/MenuChoose", 127);
-}
-
-Script "DnD Cast Hotbar" (int slot) NET {
-	TryCastHotbarSlot(PlayerNumber(), slot);
-}
-
-Script "DnD Spell Cast" (int spell, int pnum) {
-	switch(spell) {
-	}
-}
-
 Script "DnD Spell Cooldown" (int spell_id, int cooldown) {
 	int i;
 	

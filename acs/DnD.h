@@ -728,10 +728,10 @@ void SpawnLootboxRewards(int i, int guaranteed_orb = 0) {
 	int plvl = GetActorLevel(i + P_TIDSTART);
 
 	if(random(0, 1.0) <= DND_LOOTBOX_ORBDROPCHANCE1)
-		SpawnOrb(i, true, false, GetOrbDropStack(plvl));
+		SpawnOrb(i, true, GetOrbDropStack(plvl));
 
 	if(random(0, 1.0) <= DND_LOOTBOX_ORBDROPCHANCE2)
-		SpawnOrb(i, true, false, GetOrbDropStack(plvl));
+		SpawnOrb(i, true, GetOrbDropStack(plvl));
 
 	// for tokens -- same likelihood to drop as orbs
 	if(random(0, 1.0) <= DND_LOOTBOX_TOKENDROPCHANCE)
@@ -1194,7 +1194,7 @@ void SpawnLootFromDropTableIndex(int pnum, int rarity_boost, int drop_id, int m_
 			SpawnFlask(pnum, rarity_boost);
 		break;
 		case DND_MONSTERLOOT_ORB:
-			SpawnOrb(pnum, true, false, GetOrbDropStack(MonsterProperties[m_id].level));
+			SpawnOrb(pnum, true, GetOrbDropStack(MonsterProperties[m_id].level));
 		break;
 		case DND_MONSTERLOOT_CHESTKEY:
 			SpawnChestKey(pnum);
@@ -1297,7 +1297,7 @@ void HandleCreditExp_Regular(int this, int target, int m_id) {
 				// if something could be provided, show it to user
 				if(expscale || creditscale) {
 					SetActivator(pnum);
-					ACS_NamedExecuteWithResult("DND Show Kill Digits", pnum, expscale, creditscale);
+					SendOwnerSync("DND Show Kill Digits", PlayerNumber(), pnum, expscale, creditscale);
 				}
 			}
 		}
@@ -1307,7 +1307,7 @@ void HandleCreditExp_Regular(int this, int target, int m_id) {
 	expscale = RewardActorExp(target, exptemp);
 	creditscale = RewardActorCredit(target, credtemp);
 	SetActivator(target);
-	ACS_NamedExecuteWithResult("DND Show Kill Digits", target, expscale, creditscale);
+	SendOwnerSync("DND Show Kill Digits", PlayerNumber(), target, expscale, creditscale);
 }
 
 // A kill the player did not make. It used to share exp and credit with anyone who had mastered the
@@ -1996,7 +1996,7 @@ void HandleEndOfLevelRewards(int pnum) {
 		if(GetLevelInfo(LEVELINFO_TOTAL_MONSTERS)) {
 			temp = 2 * (1 + isSetupComplete(SETUP_STATE1, SETUP_HARDCORE)) * ((MapData[DND_MAPDATA_DIFFICULTY] + 1) + Clamp_Between(GetCVar("dnd_budget_reward"), 1, 1000));
 			GiveInventory("Budget", temp);
-			ACS_NamedExecuteWithResult("DnD Map Beaten Reward Text", temp);
+			SendOwnerSync("DnD Map Beaten Reward Text", PlayerNumber(), temp);
 		}
 		
 		GiveInventory("RoundsSurvived", 1);

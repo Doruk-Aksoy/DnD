@@ -3,12 +3,29 @@
 
 #include "../DnD_SkillDef.h"
 
-// Spell ids are a flat, densely packed space with the tree stored on the def rather than derived
-// from the id. Ranks are saved by id, so this enum is APPEND ONLY -- inserting anywhere shifts every
-// spell after it and silently rewrites saved characters.
+// Every tree owns a fixed BLOCK of ids -- tree N holds N*32 .. N*32+31 -- rather than the trees
+// sharing one densely packed space. Most of those slots are empty, and that is the point.
+//
+// An id is a spell's permanent address. Its LANGUAGE lumps are keyed by it (DND_SPLNAME<id>), its
+// icon is keyed by its offset inside the block (SP<tree><offset>), and a saved rank lives in the
+// nibble it indexes. Packing the trees end to end meant adding one fire spell renumbered every ice
+// spell after it -- every lump, every icon, every stored rank. With a block per tree, a new spell
+// takes the next free slot in ITS OWN block and nothing else moves, ever.
+//
+// So: append inside the relevant block. The only thing that still shifts is inserting BEFORE an
+// existing spell in the same block, which there is no reason to do -- the tree's on-screen layout
+// comes from tx/ty on the def, not from id order.
+#define DND_SPELLS_PER_TREE 32
+#define MAX_SPELL_IDS (DND_SPELLS_PER_TREE * (DND_SKILLTREE_COMBAT + 1))
+
+// First id of a tree's block. A tree's spells run from here upward.
+int GetTreeFirstSpell(int tree) {
+	return tree * DND_SPELLS_PER_TREE;
+}
+
 enum {
 	// ---- Fire ----
-	SPL_BLAZE,
+	SPL_BLAZE = DND_SKILLTREE_FIRE * DND_SPELLS_PER_TREE,
 	SPL_FIREBALL,
 	SPL_INFERNALSTRIKE,
 	SPL_WARMTH,
@@ -29,9 +46,10 @@ enum {
 	SPL_RIGHTEOUSFIRE,
 	SPL_ANNIHILUS,
 	SPL_VOLCANO,
+	SPL_HEARTOFFIRE,
 
 	// ---- Cold ----
-	SPL_ICEBOLT,
+	SPL_ICEBOLT = DND_SKILLTREE_ICE * DND_SPELLS_PER_TREE,
 	SPL_FREEZINGPULSE,
 	SPL_GLACIALSPIKE,
 	SPL_CHILLINGBREATH,
@@ -51,7 +69,6 @@ enum {
 	SPL_SHIVERINGARMOR,
 	SPL_AVALANCHE
 };
-#define MAX_SPELL_IDS (SPL_AVALANCHE + 1)
 
 // Which numbers a spell carries. DAMAGE, DAMAGE2, RADIUS and AMOUNT are plain integers; COST,
 // COOLDOWN, CASTTIME, DURATION and CDR are 16.16 -- seconds for the times, mana for the cost,
@@ -121,13 +138,14 @@ typedef struct {
 global spell_syn_T 48: SpellSynergies[MAX_SPELL_SYNERGIES];
 
 // ---- per player, persistent ------------------------------------------------------------------
-// Ranks pack 8 per int at 4 bits each, which covers the 0-10 range with headroom for 128 spells
-// before this needs resizing. Hotbar stores id + 1 so an untouched slot reads as empty.
-#define SPELL_RANK_INTS 16
+// Ranks pack 8 per int at 4 bits each, which covers the 0-10 range. Sized off the id space rather
+// than off the spell count, because the id space is what indexes them and most of it is empty.
+// Hotbar stores id + 1 so an untouched slot reads as empty.
+#define SPELL_RANK_INTS (MAX_SPELL_IDS / 8)
 #define MAX_HOTBAR_SLOTS 6
 #define DND_HOTBAR_BASESLOTS 3
 #define HOTBAR_EMPTY 0
-#define SPELL_AURA_INTS 4
+#define SPELL_AURA_INTS (MAX_SPELL_IDS / 32)
 
 typedef struct {
 	int ranks[SPELL_RANK_INTS];
@@ -148,7 +166,7 @@ int GetSpellAllocatedRank(int pnum, int spell) {
 // each side holds its own copy: the server allocates and the clientside menu draw would keep reading
 // zeros. Single player shares the globals, hence the early out.
 void SyncSpellRankWord(int pnum, int spell) {
-	ACS_NamedExecuteWithResult("DnD Request Spell Sync", pnum, spell >> 3,
+	SendOwnerSync("DnD Request Spell Sync", pnum, pnum, spell >> 3,
 		SpellPlayerData[pnum].ranks[spell >> 3]);
 }
 
@@ -196,10 +214,9 @@ bool IsSpellUnlockable(int pnum, int spell) {
 		return false;
 
 	if(SpellDefs[spell].req_tree_ranks) {
-		int spent = 0;
-		for(i = 0; i < MAX_SPELL_IDS; ++i)
-			if(SpellDefs[i].tree == SpellDefs[spell].tree)
-				spent += GetSpellAllocatedRank(pnum, i);
+		int spent = 0, first = GetTreeFirstSpell(SpellDefs[spell].tree);
+		for(i = 0; i < DND_SPELLS_PER_TREE; ++i)
+			spent += GetSpellAllocatedRank(pnum, first + i);
 		if(spent < SpellDefs[spell].req_tree_ranks)
 			return false;
 	}
@@ -249,15 +266,35 @@ int GetSpellValue(int pnum, int spell, int which, int rank_at = 0) {
 // Icons are positional: SPL<id> in colour, SPL<id>G greyscale for a locked tree node. The prefix
 // is three characters because a graphic lump name may not exceed eight -- SPICO<id>G would have
 // capped the whole system at id 99.
-bool IsAuraEnabled(int pnum, int spell) {
+// Anything that works from allocation alone rather than from a cast, and can therefore be switched
+// off: auras, which hold a mana reservation, and passives, whose effect a build may not want.
+bool IsSpellToggleable(int spell) {
+	return !!(SpellDefs[spell].flags & (SPLF_AURA | SPLF_PASSIVE));
+}
+
+// The bit means TOGGLED OFF, not "on". A zeroed global is the common case -- a spell the player has
+// just learned and never touched -- and that has to read as working, so the flag records the opt OUT.
+bool IsSpellToggledOff(int pnum, int spell) {
 	return !!(SpellPlayerData[pnum].aura_on[spell >> 5] & (1 << (spell & 31)));
 }
 
-void SetAuraEnabled(int pnum, int spell, bool on) {
-	if(on)
+void SetSpellToggledOff(int pnum, int spell, bool off) {
+	if(off)
 		SpellPlayerData[pnum].aura_on[spell >> 5] |= 1 << (spell & 31);
 	else
 		SpellPlayerData[pnum].aura_on[spell >> 5] &= ~(1 << (spell & 31));
+}
+
+// Push the toggle word, the same way and for the same reason as SyncSpellRankWord: SpellPlayerData is
+// a global, so a server side toggle would never reach the clientside pocket that has to display it.
+void SyncSpellToggleWord(int pnum, int spell) {
+	SendOwnerSync("DnD Request Spell Toggle Sync", pnum, pnum, spell >> 5,
+		SpellPlayerData[pnum].aura_on[spell >> 5]);
+}
+
+// Learned AND not switched off. Every reader of a passive or an aura wants this, not the rank alone.
+bool IsSpellActive(int pnum, int spell) {
+	return GetSpellAllocatedRank(pnum, spell) > 0 && !IsSpellToggledOff(pnum, spell);
 }
 
 // -1 for an empty slot: the array holds id + 1 so an untouched global reads as empty.
@@ -280,12 +317,18 @@ int GetHotbarSlotCount(int pnum) {
 // Where a spell sits among its OWN tree, counted in enum order. Stable for everything already in
 // the tree, because the enum is append only: a spell added later takes the next index in its tree
 // and moves nothing.
+// A spell's offset inside its tree's block, which is what its icon is named after. Now just the id's
+// position in the block, so the icon never moves -- it is tied to the SLOT rather than to how many
+// spells happen to sit below it.
 int GetSpellTreeIndex(int spell) {
-	int i, n = 0;
-	for(i = 0; i < spell; ++i)
-		if(SpellDefs[i].tree == SpellDefs[spell].tree)
-			++n;
-	return n;
+	return spell % DND_SPELLS_PER_TREE;
+}
+
+// Whether a slot actually holds a spell. Most of the id space does not, and a zeroed def reports tree
+// 0 -- so without this every empty slot would read as a Fire spell sitting at position (0,0).
+// req_level is the marker: SPELL_DEF always writes one and no real spell has a level of zero.
+bool IsSpellDefined(int spell) {
+	return spell >= 0 && spell < MAX_SPELL_IDS && SpellDefs[spell].req_level > 0;
 }
 
 // SP<tree><index>, zero padded to two -- SP000..SP020 for Fire, SP100.. for Cold, plus G for the

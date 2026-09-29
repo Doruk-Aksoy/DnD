@@ -37,27 +37,28 @@ DND_SPLNAME17		=	"Molten Boulder";
 DND_SPLNAME18		=	"Righteous Fire";
 DND_SPLNAME19		=	"Annihilus";
 DND_SPLNAME20		=	"Volcano";
+DND_SPLNAME21		=	"Heart of Fire";
 
 // Cold
-DND_SPLNAME21		=	"Ice Bolt";
-DND_SPLNAME22		=	"Freezing Pulse";
-DND_SPLNAME23		=	"Glacial Spike";
-DND_SPLNAME24		=	"Chilling Breath";
-DND_SPLNAME25		=	"Creeping Frost";
-DND_SPLNAME26		=	"Ice Shield";
-DND_SPLNAME27		=	"Frost Shards";
-DND_SPLNAME28		=	"Gust of Frost";
-DND_SPLNAME29		=	"Frost Bomb";
-DND_SPLNAME30		=	"Ice Nova";
-DND_SPLNAME31		=	"Summon: Ice Golem";
-DND_SPLNAME32		=	"Hatred";
-DND_SPLNAME33		=	"Frostbite";
-DND_SPLNAME34		=	"Blizzard";
-DND_SPLNAME35		=	"Winter Orb";
-DND_SPLNAME36		=	"Ice Spear";
-DND_SPLNAME37		=	"Glacial Cascade";
-DND_SPLNAME38		=	"Shivering Armor";
-DND_SPLNAME39		=	"Avalanche";
+DND_SPLNAME32		=	"Ice Bolt";
+DND_SPLNAME33		=	"Freezing Pulse";
+DND_SPLNAME34		=	"Glacial Spike";
+DND_SPLNAME35		=	"Chilling Breath";
+DND_SPLNAME36		=	"Creeping Frost";
+DND_SPLNAME37		=	"Ice Shield";
+DND_SPLNAME38		=	"Frost Shards";
+DND_SPLNAME39		=	"Gust of Frost";
+DND_SPLNAME40		=	"Frost Bomb";
+DND_SPLNAME41		=	"Ice Nova";
+DND_SPLNAME42		=	"Summon: Ice Golem";
+DND_SPLNAME43		=	"Hatred";
+DND_SPLNAME44		=	"Frostbite";
+DND_SPLNAME45		=	"Blizzard";
+DND_SPLNAME46		=	"Winter Orb";
+DND_SPLNAME47		=	"Ice Spear";
+DND_SPLNAME48		=	"Glacial Cascade";
+DND_SPLNAME49		=	"Shivering Armor";
+DND_SPLNAME50		=	"Avalanche";
 
 
 // Hover text, straight from the design docs. Positional like the names above.
@@ -73,19 +74,19 @@ DND_SPLNAME39		=	"Avalanche";
 // ================= FIRE =================
 
 // Blaze
-DND_SPLDESC0    = "Sets the target on fire, dealing fire damage every 0.25 seconds for 3 seconds.";
+DND_SPLDESC0    = "Sets the target on fire, dealing 8 fire damage every 0.25 seconds for 3 seconds.";
 DND_SPLPER0     = "+4 damage per tic, 8% faster cooldown recovery rate.";
 DND_SPLR5_0     = "Burns for 1 second longer.";
 DND_SPLR10_0    = "Also ignites enemies within 96 units of the target.";
 
 // Fireball
-DND_SPLDESC1    = "Throws a ball of fire that deals damage on impact.";
+DND_SPLDESC1    = "Throws a ball of fire that deals 100 damage on impact.";
 DND_SPLPER1     = "+25 damage, +1 mana cost.";
 DND_SPLR5_1     = "Casts an additional fireball to the side.";
 DND_SPLR10_1    = "Casts another additional fireball to the side.";
 
 // Infernal Strike
-DND_SPLDESC2    = "Your next melee attack deals additional fire damage, with a 25% chance to strike a 128 unit area.";
+DND_SPLDESC2    = "Your next melee attack deals 50 additional fire damage, with a 25% chance to strike a 128 unit area.";
 DND_SPLPER2     = "+25 damage, +1 mana cost.";
 DND_SPLR5_2     = "+25% chance to strike the area.";
 DND_SPLR10_2    = "The strike is always a critical hit.";
@@ -121,19 +122,19 @@ DND_SPLR5_7     = "+5% ignite chance.";
 DND_SPLR10_7    = "Ignites on you and affected allies last 50% less.";
 
 // Pyroblast
-DND_SPLDESC8    = "Hurls a ball of flame that explodes for heavy damage in a 108 unit radius.";
-DND_SPLPER8     = "+32 damage, +1.8 mana cost.";
+DND_SPLDESC8    = "Hurls a ball of flame that explodes for 300 damage in a 108 unit radius.";
+DND_SPLPER8     = "+60 damage, +1.8 mana cost.";
 DND_SPLR5_8     = "No longer damages you.";
 DND_SPLR10_8    = "The explosion erupts into smaller fireballs dealing an eighth of its damage.";
 
 // Searing Bond
-DND_SPLDESC9    = "Lashes out a chain that damages and snares an enemy for 1.5 seconds.";
+DND_SPLDESC9    = "Lashes out a chain that deals 75 damage and snares an enemy for 2.5 seconds.";
 DND_SPLPER9     = "+25 damage, +0.25 seconds snare, +1.2 mana cost.";
 DND_SPLR5_9     = "+2 seconds snare duration.";
 DND_SPLR10_9    = "Also binds enemies within 160 units of the target.";
 
 // Scorching Ray
-DND_SPLDESC10   = "Projects a beam of fire dealing damage every 0.2 seconds. After 2.5 seconds on a target it applies Fire Exposure, giving -25% fire resistance for 5 seconds.";
+DND_SPLDESC10   = "Projects a beam of fire dealing 80 damage every 0.2 seconds. After 2.5 seconds on a target it applies Fire Exposure, giving -25% fire resistance for 5 seconds.";
 DND_SPLPER10    = "+8 damage, +8 beam length, +0.333 mana cost.";
 DND_SPLR5_10    = "+25% beam width.";
 DND_SPLR10_10   = "The beam passes through all enemies.";
@@ -145,25 +146,25 @@ DND_SPLR5_11    = "25% increased area of effect.";
 DND_SPLR10_11   = "+4 seconds duration.";
 
 // Immolation
-DND_SPLDESC12   = "Surrounds you with fire, dealing damage every second to everything within 96 units. Costs mana for as long as it runs.";
+DND_SPLDESC12   = "Surrounds you with fire, dealing 64 damage every second to everything within 96 units. Costs mana for as long as it runs.";
 DND_SPLPER12    = "+16 damage, +8 unit radius, +1 mana cost.";
 DND_SPLR5_12    = "Mana cost reduced by 4.";
 DND_SPLR10_12   = "The damage also applies Blaze.";
 
 // Rain of Fire
-DND_SPLDESC13   = "Marks a location to rain comets over a 320 unit area for 4 seconds, each dealing damage in a 72 unit radius.";
+DND_SPLDESC13   = "Marks a location to rain comets over a 320 unit area for 4 seconds, each dealing 35 damage in a 72 unit radius.";
 DND_SPLPER13    = "+8 comet damage, +8 unit effect area, +2.5 mana cost.";
 DND_SPLR5_13    = "Comets fall 20% faster.";
 DND_SPLR10_13   = "Holds two charges, each on its own cooldown.";
 
 // Flame Pillar
-DND_SPLDESC14   = "Creates a pillar of flame that advances 30 units per tic for 2 seconds, damaging everything within 96 units each tic.";
+DND_SPLDESC14   = "Creates a pillar of flame that advances 30 units per tic for 2 seconds, dealing 24 damage to everything within 96 units each tic.";
 DND_SPLPER14    = "+8 damage, +2 mana cost.";
 DND_SPLR5_14    = "Ignores shields.";
 DND_SPLR10_14   = "Creates two pillars side by side.";
 
 // Fire Jet
-DND_SPLDESC15   = "Shoots a jet of fire that spreads sideways, dealing heavy damage on a direct hit and lesser damage to the sides.";
+DND_SPLDESC15   = "Shoots a jet of fire that spreads sideways, dealing 160 damage on a direct hit and 24 to the sides.";
 DND_SPLPER15    = "+40 direct damage, +6 sideways damage, +1.5 mana cost.";
 DND_SPLR5_15    = "A direct hit explodes for half its damage within 128 units.";
 DND_SPLR10_15   = "The sideways flames rip through enemies.";
@@ -175,7 +176,7 @@ DND_SPLR5_16    = "Lasts 10 seconds longer.";
 DND_SPLR10_16   = "The demon casts Flame Pillar at your rank.";
 
 // Molten Boulder
-DND_SPLDESC17   = "Calls down a meteor that burns everything it passes and explodes on impact. It shatters on a wall or after 6 seconds.";
+DND_SPLDESC17   = "Calls down a meteor that burns everything it passes for 24 damage and explodes on impact for 256. It shatters on a wall or after 6 seconds.";
 DND_SPLPER17    = "+6 travel damage, +48 impact damage, +4 mana cost.";
 DND_SPLR5_17    = "Lasts 3 seconds longer.";
 DND_SPLR10_17   = "Sends six Pyroblasts outward when it shatters.";
@@ -187,132 +188,139 @@ DND_SPLR5_18    = "You gain 25% additional fire resistance against this spell.";
 DND_SPLR10_18   = "You cannot be chilled, frozen or ignited while burning.";
 
 // Annihilus
-DND_SPLDESC19   = "Channel to build an explosion at a location up to 512 units away, for up to 2.5 seconds. Cast again to release it early for less damage. You are slowed by 50% while channeling.";
+DND_SPLDESC19   = "Channel to build an explosion at a location up to 512 units away, for up to 2.5 seconds, starting at 250 damage in a 96 unit radius. Cast again to release it early for less damage. You are slowed by 50% while channeling.";
 DND_SPLPER19    = "+25 damage per half second channeled, +5 mana cost.";
 DND_SPLR5_19    = "No longer harms you.";
 DND_SPLR10_19   = "Maximum range doubles to 1024 units.";
 
 // Volcano
-DND_SPLDESC20   = "Conjures a volcano at a location that hurls molten rock and lava for 10 seconds, each piece damaging an 80 unit area.";
+DND_SPLDESC20   = "Conjures a volcano at a location that hurls molten rock and lava for 10 seconds, each piece dealing 40 damage in an 80 unit area.";
 DND_SPLPER20    = "+0.5 seconds duration, +15 mana cost.";
 DND_SPLR5_20    = "Bursting rock deals 30% increased damage.";
 DND_SPLR10_20   = "Produces 25% more lava and rock.";
 
+// Heart of Fire
+DND_SPLDESC21   = "Passive. Finishing a fire spell's cast gives every OTHER fire spell on your hotbar that is on cooldown a 25% chance to lose 10% of its maximum cooldown.";
+DND_SPLPER21    = "+0.75% cooldown removed, +5% chance.";
+DND_SPLR5_21    = "A fire spell made ready by this deals 20% more damage if cast within 4 seconds.";
+DND_SPLR10_21   = "The chance becomes 100%.";
+
 // ================= COLD =================
 
 // Ice Bolt
-DND_SPLDESC21   = "Sends a bolt of ice forward that damages and slows an enemy by 30% on impact.";
-DND_SPLPER21    = "+25 damage, +1 mana cost.";
-DND_SPLR5_21    = "Slow becomes 75%.";
-DND_SPLR10_21   = "Also strikes a 96 unit area around the impact.";
+DND_SPLDESC32   = "Sends a bolt of ice forward that deals 50 damage and slows an enemy by 30% on impact.";
+DND_SPLPER32    = "+25 damage, +1 mana cost.";
+DND_SPLR5_32    = "Slow becomes 75%.";
+DND_SPLR10_32   = "Also strikes a 96 unit area around the impact.";
 
 // Freezing Pulse
-DND_SPLDESC22   = "Casts a wave of cold along the floor that rips through enemies once. Has a 20% base chance to freeze, falling to 0% as it travels.";
-DND_SPLPER22    = "+15 damage, +1 mana cost.";
-DND_SPLR5_22    = "Travels 25% further.";
-DND_SPLR10_22   = "25% wider.";
+DND_SPLDESC33   = "Casts a wave of cold along the floor that deals 30 damage and rips through enemies once. Has a 20% base chance to freeze, falling to 0% as it travels.";
+DND_SPLPER33    = "+15 damage, +1 mana cost.";
+DND_SPLR5_33    = "Travels 25% further.";
+DND_SPLR10_33   = "25% wider.";
 
 // Glacial Spike
-DND_SPLDESC23   = "Sends a spike of ice that rips through up to 10 enemies and shatters on impact, freezing nearby enemies for 1 second.";
-DND_SPLPER23    = "+5 damage, +1.8 mana cost.";
-DND_SPLR5_23    = "Freeze lasts 2 seconds.";
-DND_SPLR10_23   = "Rips through enemies with Hardened Skin.";
+DND_SPLDESC34   = "Sends a spike of ice dealing 25 damage that rips through up to 10 enemies and shatters on impact, freezing nearby enemies for 1 second.";
+DND_SPLPER34    = "+5 damage, +1.8 mana cost.";
+DND_SPLR5_34    = "Freeze lasts 2 seconds.";
+DND_SPLR10_34   = "Rips through enemies with Hardened Skin.";
 
 // Chilling Breath
-DND_SPLDESC24   = "Channeled. Breathes a cone of cold in front of you, dealing damage every 0.5 seconds.";
-DND_SPLPER24    = "+6 damage, +0.5 mana cost.";
-DND_SPLR5_24    = "Slows enemies by 50%.";
-DND_SPLR10_24   = "The cone becomes 30% wider.";
+DND_SPLDESC35   = "Channeled. Breathes a cone of cold in front of you, dealing 30 damage every 0.5 seconds.";
+DND_SPLPER35    = "+6 damage, +0.5 mana cost.";
+DND_SPLR5_35    = "Slows enemies by 50%.";
+DND_SPLR10_35   = "The cone becomes 30% wider.";
 
 // Creeping Frost
-DND_SPLDESC25   = "Fires an icy projectile that bursts on impact and creeps along the floor toward nearby targets for 5 seconds. Cannot stagger enemies.";
-DND_SPLPER25    = "+10 impact damage, +20 damage over time, +1 mana cost.";
-DND_SPLR5_25    = "Lasts 2 seconds longer.";
-DND_SPLR10_25   = "Can crawl 64 units higher.";
+DND_SPLDESC36   = "Fires an icy projectile that bursts on impact for 30 damage and creeps along the floor toward nearby targets for 5 seconds, dealing 100 damage over time. Cannot stagger enemies.";
+DND_SPLPER36    = "+10 impact damage, +20 damage over time, +1 mana cost.";
+DND_SPLR5_36    = "Lasts 2 seconds longer.";
+DND_SPLR10_36   = "Can crawl 64 units higher.";
 
 // Ice Shield
-DND_SPLDESC26   = "Creates 8 rotating ice barriers around you that block enemy attacks. Each has 75 health and lasts 5 seconds.";
-DND_SPLPER26    = "+25 barrier health, +0.5 seconds duration, +2 mana cost.";
-DND_SPLR5_26    = "+2.5 seconds duration.";
-DND_SPLR10_26   = "Blocks ripper attacks.";
+DND_SPLDESC37   = "Creates 8 rotating ice barriers around you that block enemy attacks. Each has 75 health and lasts 5 seconds.";
+DND_SPLPER37    = "+25 barrier health, +0.5 seconds duration, +2 mana cost.";
+DND_SPLR5_37    = "+2.5 seconds duration.";
+DND_SPLR10_37   = "Blocks ripper attacks.";
 
 // Frost Shards
-DND_SPLDESC27   = "Creates 5 frost shards in front of you every 0.5 seconds over 1.5 seconds.";
-DND_SPLPER27    = "+5 damage per shard, +1.5 mana cost.";
-DND_SPLR5_27    = "2 more shards every 0.5 seconds.";
-DND_SPLR10_27   = "Shards rip through enemies.";
+DND_SPLDESC38   = "Creates 5 frost shards in front of you every 0.5 seconds over 1.5 seconds, each dealing 16 damage.";
+DND_SPLPER38    = "+5 damage per shard, +1.5 mana cost.";
+DND_SPLR5_38    = "2 more shards every 0.5 seconds.";
+DND_SPLR10_38   = "Shards rip through enemies.";
 
 // Gust of Frost
-DND_SPLDESC28   = "Unleashes a chilling wind that pushes enemies away and slows them by 30%.";
-DND_SPLPER28    = "10% faster cooldown recovery rate, +1.2 mana cost.";
-DND_SPLR5_28    = "Slow becomes 60%.";
-DND_SPLR10_28   = "Tosses enemies aside at the end of its range. Those thrown into walls take damage in proportion to their mass.";
+DND_SPLDESC39   = "Unleashes a chilling wind that pushes enemies away and slows them by 30%.";
+DND_SPLPER39    = "10% faster cooldown recovery rate, +1.2 mana cost.";
+DND_SPLR5_39    = "Slow becomes 60%.";
+DND_SPLR10_39   = "Tosses enemies aside at the end of its range. Those thrown into walls take damage in proportion to their mass.";
 
 // Frost Bomb
-DND_SPLDESC29   = "Places a pulsing ice crystal that damages a 128 unit radius every 0.5 seconds for 5 seconds, and stops enemies regenerating life for 5 seconds.";
-DND_SPLPER29    = "+5 damage per pulse, +1 mana cost.";
-DND_SPLR5_29    = "Pulses apply Cold Exposure, reducing cold resistance by 15%.";
-DND_SPLR10_29   = "Radius increases to 180 units.";
+DND_SPLDESC40   = "Places a pulsing ice crystal that deals 60 damage in a 128 unit radius every 0.5 seconds for 5 seconds, and stops enemies regenerating life for 5 seconds.";
+DND_SPLPER40    = "+5 damage per pulse, +1 mana cost.";
+DND_SPLR5_40    = "Pulses apply Cold Exposure, reducing cold resistance by 15%.";
+DND_SPLR10_40   = "Radius increases to 180 units.";
 
 // Ice Nova
-DND_SPLDESC30   = "Conjures a nova of ice that expands outward from you in a ring up to 320 units.";
-DND_SPLPER30    = "+20 damage, +16 unit radius, +2 mana cost.";
-DND_SPLR5_30    = "The ring expands 20% faster.";
-DND_SPLR10_30   = "Enemies hit near the outer edge deal 15% less damage for 3 seconds.";
+DND_SPLDESC41   = "Conjures a nova of ice dealing 200 damage that expands outward from you in a ring up to 320 units.";
+DND_SPLPER41    = "+20 damage, +16 unit radius, +2 mana cost.";
+DND_SPLR5_41    = "The ring expands 20% faster.";
+DND_SPLR10_41   = "Enemies hit near the outer edge deal 15% less damage for 3 seconds.";
 
 // Summon: Ice Golem
-DND_SPLDESC31   = "Summons a golem of ice with 500 (+10 per INT) health and a melee attack dealing 30 (+5 per INT) damage.";
-DND_SPLPER31    = "+50 golem health, +5 golem damage, +2.5 mana cost.";
-DND_SPLR5_31    = "Melee attacks have a 25% chance to freeze for 1 second.";
-DND_SPLR10_31   = "The golem casts Ice Bolt at your rank.";
+DND_SPLDESC42   = "Summons a golem of ice with 500 (+10 per INT) health and a melee attack dealing 30 (+5 per INT) damage.";
+DND_SPLPER42    = "+50 golem health, +5 golem damage, +2.5 mana cost.";
+DND_SPLR5_42    = "Melee attacks have a 25% chance to freeze for 1 second.";
+DND_SPLR10_42   = "The golem casts Ice Bolt at your rank.";
 
 // Hatred
-DND_SPLDESC32   = "Aura. You and nearby allies within 256 units deal 15% more cold damage.";
-DND_SPLPER32    = "+1.5% more cold damage.";
-DND_SPLR5_32    = "Radius is doubled.";
-DND_SPLR10_32   = "Grants 10% additional critical strike chance to cold attacks.";
+DND_SPLDESC43   = "Aura. You and nearby allies within 256 units deal 15% more cold damage.";
+DND_SPLPER43    = "+1.5% more cold damage.";
+DND_SPLR5_43    = "Radius is doubled.";
+DND_SPLR10_43   = "Grants 10% additional critical strike chance to cold attacks.";
 
 // Frostbite
-DND_SPLDESC33   = "Curse. Enemies in a 256 unit area take -30% cold resistance for 8 seconds and gain 25% base chance to be chilled.";
-DND_SPLPER33    = "-1% further cold resistance, +2 mana cost.";
-DND_SPLR5_33    = "25% increased area of effect.";
-DND_SPLR10_33   = "+4 seconds duration.";
+DND_SPLDESC44   = "Curse. Enemies in a 256 unit area take -30% cold resistance for 8 seconds and gain 25% base chance to be chilled.";
+DND_SPLPER44    = "-1% further cold resistance, +2 mana cost.";
+DND_SPLR5_44    = "25% increased area of effect.";
+DND_SPLR10_44   = "+4 seconds duration.";
 
 // Blizzard
-DND_SPLDESC34   = "Calls a storm that rains ice over a 224 unit area every second for 5 seconds, each piece damaging a 64 unit radius.";
-DND_SPLPER34    = "+15 damage per ice, +4 mana cost.";
-DND_SPLR5_34    = "+96 unit radius.";
-DND_SPLR10_34   = "Ice falls 30% faster.";
+DND_SPLDESC45   = "Calls a storm that rains ice over a 224 unit area every second for 5 seconds, each piece dealing 90 damage in a 64 unit radius.";
+DND_SPLPER45    = "+15 damage per ice, +4 mana cost.";
+DND_SPLR5_45    = "+96 unit radius.";
+DND_SPLR10_45   = "Ice falls 30% faster.";
 
 // Winter Orb
-DND_SPLDESC35   = "Releases a slow orb that damages and slows enemies by 30% for 0.75 seconds, throwing Ice Bolts in a spiral as it travels. The bolts scale with your Ice Bolt rank.";
-DND_SPLPER35    = "+50 orb damage, +4 mana cost.";
-DND_SPLR5_35    = "The orb freezes enemies it passes through for 0.75 seconds instead.";
-DND_SPLR10_35   = "The orb also throws Frost Shards.";
+DND_SPLDESC46   = "Releases a slow orb dealing 100 damage that slows enemies by 30% for 0.75 seconds, throwing Ice Bolts in a spiral as it travels. The bolts scale with your Ice Bolt rank.";
+DND_SPLPER46    = "+50 orb damage, +4 mana cost.";
+DND_SPLR5_46    = "The orb freezes enemies it passes through for 0.75 seconds instead.";
+DND_SPLR10_46   = "The orb also throws Frost Shards.";
 
 // Ice Spear
-DND_SPLDESC36   = "Hurls a spear of ice a short distance, then evolves it into a faster, stronger form that rips through 10 enemies with 10% added critical strike chance and 50% added critical multiplier.";
-DND_SPLPER36    = "+5 first phase damage, +25 second phase damage, +2.5 mana cost.";
-DND_SPLR5_36    = "+2% added critical strike chance.";
-DND_SPLR10_36   = "+50% added critical strike multiplier.";
+DND_SPLDESC47   = "Hurls a spear of ice a short distance for 50 damage, then evolves it into a faster, stronger form dealing 250 that rips through 10 enemies with 10% added critical strike chance and 50% added critical multiplier.";
+DND_SPLPER47    = "+5 first phase damage, +25 second phase damage, +2.5 mana cost.";
+DND_SPLR5_47    = "+2% added critical strike chance.";
+DND_SPLR10_47   = "+50% added critical strike multiplier.";
 
 // Glacial Cascade
-DND_SPLDESC37   = "An advancing wave of ice crashes forward in four bursts, each 20% stronger than the last. The final burst deals 100% more damage. Knocks enemies back once.";
-DND_SPLPER37    = "+50 damage, +3.5 mana cost.";
-DND_SPLR5_37    = "25% increased range.";
-DND_SPLR10_37   = "Each burst is 20% wider than the last.";
+DND_SPLDESC48   = "An advancing wave of ice crashes forward in four bursts of 200 damage, each 20% stronger than the last. The final burst deals 100% more damage. Knocks enemies back once.";
+DND_SPLPER48    = "+50 damage, +3.5 mana cost.";
+DND_SPLR5_48    = "25% increased range.";
+DND_SPLR10_48   = "Each burst is 20% wider than the last.";
 
 // Shivering Armor
-DND_SPLDESC38   = "Enchants your armor, or a targeted ally's, to reduce damage taken by 15% for 5 seconds. Enemies that hit it have a 20% chance to be frozen for 1 second.";
-DND_SPLPER38    = "+1.5% damage reduction, +2.5 mana cost.";
-DND_SPLR5_38    = "Targeting an ally also grants the effect to you. Targeting nobody grants it to the nearest ally.";
-DND_SPLR10_38   = "The armor stops ripping attacks.";
+DND_SPLDESC49   = "Enchants your armor, or a targeted ally's, to reduce damage taken by 15% for 5 seconds. Enemies that hit it have a 20% chance to be frozen for 1 second.";
+DND_SPLPER49    = "+1.5% damage reduction, +2.5 mana cost.";
+DND_SPLR5_49    = "Targeting an ally also grants the effect to you. Targeting nobody grants it to the nearest ally.";
+DND_SPLR10_49   = "The armor stops ripping attacks.";
 
 // Avalanche
-DND_SPLDESC39   = "After a brief delay, casts an enormous amount of ice down behind you and forward in the direction you face.";
-DND_SPLPER39    = "+3 ice damage, +2 more ice thrown, +18 mana cost.";
-DND_SPLR5_39    = "Thrown ice has a 15% chance to freeze enemies for 1 second.";
-DND_SPLR10_39   = "Ice gains a 25% chance to rip through enemies.";
+DND_SPLDESC50   = "After a brief delay, rains 75 pieces of ice behind you and forward in the direction you face, each dealing 16 damage.";
+DND_SPLPER50    = "+3 ice damage, +2 more ice thrown, +18 mana cost.";
+DND_SPLR5_50    = "Thrown ice has a 15% chance to freeze enemies for 1 second.";
+DND_SPLR10_50   = "Ice gains a 25% chance to rip through enemies.";
+
 
 // Field names for the synergy lines the panel builds from SpellSynergies. Positional on SPELLVAL_*.
 DND_SPLFIELD0   = "damage";
@@ -336,6 +344,10 @@ DND_SPLPANEL_REQUIRES  = "Requires:";
 DND_SPLPANEL_SYNERGY   = "Synergy";
 DND_SPLPANEL_LEVEL     = "Level";
 DND_SPLPANEL_INSTANT   = "Instant";
+DND_SPLPANEL_STATE     = "State:";
+DND_SPLPANEL_ON        = "ON";
+DND_SPLPANEL_OFF       = "OFF";
+DND_SPLPANEL_TOGGLEHINT = "Right click the icon to switch it.";
 DND_SPLPANEL_NONE      = "None";
 
 // Board headings, positional on DND_SKILLTREE_*.

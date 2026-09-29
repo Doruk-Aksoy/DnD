@@ -194,6 +194,16 @@ void UpdateCursorHoverData(int itemid, int source, int itemtype, int owner_p, in
 #define MONSTER_BARID (MONSTER_TRAITID + MAX_MONSTER_TRAITS_SHOWN + 1)
 
 // topleft corner 1:1 bottom right 0:0
+// Everything the game puts in front of the player that the HUD must not draw over or through: the
+// RPG menu, and the end of level scoreboard. Both are read off the LOCAL player's own inventory, so
+// this is clientside only -- which is where every caller of it lives.
+//
+// Nothing has to restore the HUD afterwards. The draw loop re-tests this every tic, so the bar comes
+// back the moment the state clears, including on the next map.
+bool IsHudBlocked() {
+	return CheckInventory("ShowingMenu") || CheckInventory("DnD_IntermissionState");
+}
+
 #define HUDMAX_X 480
 #define HUDMAX_Y 320
 #define HUDMAX_XF 480.0
@@ -1448,19 +1458,6 @@ void DrawDashCharges(int pnum) {
 // Only the console player's own charges are drawn, and only while the item is on -- the messages
 // carry a hold time longer than the refresh, so dropping out of the loop clears them by expiry
 // rather than needing a teardown pass.
-Script "DnD Dash Charge Display" ENTER CLIENTSIDE {
-	int cpn = ConsolePlayerNumber();
-	if(cpn != PlayerNumber())
-		Terminate;
-
-	while(true) {
-		if(PlayerModData[cpn].vals[PSTAT_DASH_UNLOCK])
-			DrawDashCharges(cpn);
-
-		Delay(const:DND_DASHHUD_REFRESH);
-	}
-}
-
 Script "DnD Boss HP FX Overlay" (int tid) CLIENTSIDE {
 	int m_id = tid - DND_MONSTERTID_BEGIN;
 	int counter = 0, alpha;

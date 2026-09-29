@@ -486,7 +486,7 @@ Script "DND Server Box Receive - Merchant" (int pnum, int boxid) NET {
                     }
                 }
                 else
-                    ACS_NamedExecuteAlways("DnD Inventory Full CS", 0, pnum);
+                    SendOwnerScript("DnD Inventory Full CS", pnum, pnum);
             }
             else {
                 LocalAmbientSound("RPG/MenuError", 127);

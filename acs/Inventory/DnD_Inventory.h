@@ -224,7 +224,7 @@ int HandleInventoryPickup(int item_index) {
 	int pnum = PlayerNumber();
 	int pcharm_index = GetFreeSpotForItem(item_index, pnum, DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 	CopyItemFromFieldToPlayer(item_index, pnum, pcharm_index);
-	ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
+	SendOwnerScript("DnD Refresh Request", pnum, pnum, 1);
 	return pcharm_index;
 }
 
@@ -808,7 +808,7 @@ bool CopyItemFromFieldToPlayer(int fieldpos, int player_index, int item_index, i
 			if(new_pos != -1)
 				return CopyItemFromFieldToPlayer(fieldpos, player_index, new_pos, stacked_item_type, item_index);
 			
-			ACS_NamedExecuteAlways("DnD Inventory Full CS", 0, player_index);
+			SendOwnerScript("DnD Inventory Full CS", player_index, player_index);
 			return false;
 		}
 
@@ -2265,13 +2265,13 @@ void DropItemToField(int player_index, int pitem_index, bool forAll, int source)
 
 void StackedItemPickupCS(int item_index, int type) {
 	if(type == DND_STACKEDITEM_ORB)
-		ACS_NamedExecuteAlways("DnD Orb Message", 0, GlobalItemStorage.Inventories_On_Field[item_index].item_subtype);
+		SendOwnerScript("DnD Orb Message", PlayerNumber(), GlobalItemStorage.Inventories_On_Field[item_index].item_subtype);
 	else if(type == DND_STACKEDITEM_CHESTKEY)
-		ACS_NamedExecuteAlways("DnD Chestkey Message", 0, GlobalItemStorage.Inventories_On_Field[item_index].item_subtype);
+		SendOwnerScript("DnD Chestkey Message", PlayerNumber(), GlobalItemStorage.Inventories_On_Field[item_index].item_subtype);
 	else if(type == DND_STACKEDITEM_TOKEN)
-		ACS_NamedExecuteAlways("DnD Token Message", 0, GlobalItemStorage.Inventories_On_Field[item_index].item_subtype);
+		SendOwnerScript("DnD Token Message", PlayerNumber(), GlobalItemStorage.Inventories_On_Field[item_index].item_subtype);
 	else if(type == DND_STACKEDITEM_DUNGEONKEY)
-		ACS_NamedExecuteAlways("DnD Dungeon Key Message", 0, GlobalItemStorage.Inventories_On_Field[item_index].item_subtype);
+		SendOwnerScript("DnD Dungeon Key Message", PlayerNumber(), GlobalItemStorage.Inventories_On_Field[item_index].item_subtype);
 }
 
 // move this from field to player's inventory
@@ -2282,7 +2282,7 @@ int HandleStackedPickup(int item_index, int type) {
 	StackedItemPickupCS(item_index, type);
 	
 	int porb_index = GetFreeSpotForItemWithStack(item_index, pnum, DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
-	ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
+	SendOwnerScript("DnD Refresh Request", pnum, pnum, 1);
 	return CopyItemFromFieldToPlayer(item_index, pnum, porb_index, type);
 }
 
@@ -4187,7 +4187,7 @@ void DisassembleItem(int pnum, int item_pos, int price, int chance) {
 		} while(yield > 0);
 	}
 
-	ACS_NamedExecuteAlways("DnD Disassemble CS", 0, result);
+	SendOwnerScript("DnD Disassemble CS", PlayerNumber(), result);
 
 	// destroy item and give nothing to the user
 	FreeItem(pnum, item_pos, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);

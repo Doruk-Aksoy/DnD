@@ -161,7 +161,7 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
                 duration = HandlePlayerBuffAssignment(pnum, this, BTI_PHASING, sc_flags);
                 HandleGenericFade(player_tid, this, r, g, b, intensity, duration, curse_effect, DND_VISIONRANK_BUFF);
                 GiveActorInventory(player_tid, "DnD_HasPhasing", 1);
-                ACS_NamedExecuteAlways("DnD Phasing Anim", 0, player_tid);
+                SendOwnerScript("DnD Phasing Anim", player_tid - P_TIDSTART, player_tid);
             break;
             case DND_BUFF_PHASING_DASH:
                 intensity = 0.33;
@@ -171,7 +171,7 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
                 duration = HandlePlayerBuffAssignment(pnum, this, BTI_PHASING, sc_flags, 0, 2 * TICRATE); // this lasts 2 seconds
                 HandleGenericFade(player_tid, this, r, g, b, intensity, duration, curse_effect, DND_VISIONRANK_BUFF);
                 GiveActorInventory(player_tid, "DnD_HasPhasing", 1);
-                ACS_NamedExecuteAlways("DnD Phasing Anim", 0, player_tid);
+                SendOwnerScript("DnD Phasing Anim", player_tid - P_TIDSTART, player_tid);
             break;
 
             case DND_BUFF_AMPHETAMINE:

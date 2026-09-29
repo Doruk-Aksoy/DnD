@@ -8,6 +8,23 @@ const int BITMASK_NOFACTOR = 0xFFFFF; // depends on DPCT_SHIFT
 const int SPELL_DMG_SHIFT = 19;
 const int SPELL_ID_SHIFT = 24;
 
+// Which number a spell actor is asking its tables for -- the `which` argument of "DnD Spell Damage"
+// and "DnD Spell Radius". Mirrors the SPELLVAL_ enum in acs/Spells/DnD_SpellDefs.h and has to stay in
+// step with it; only the plain integer ones are listed, since the 16.16 values are of no use here.
+// The one DND_WDMG_ flag a spell's DECORATE needs: it tells "DnD Spell Damage" to price the hit as
+// area damage. Mirrors the enum in acs/DnD_CommonStat.h.
+const int DND_WDMG_ISRADIUSDMG = 16777216;
+
+// The two rank milestones every spell's text is written around, for DECORATE branches on
+// user_spellrank. Mirrors acs/Spells/DnD_SpellDefs.h.
+const int DND_SPELL_THRESH_LOW = 5;
+const int DND_SPELL_THRESH_HIGH = 10;
+
+const int SPELLVAL_DAMAGE = 0;
+const int SPELLVAL_DAMAGE2 = 1;
+const int SPELLVAL_RADIUS = 6;
+const int SPELLVAL_AMOUNT = 7;
+
 const int NONWEP_DMG_SHIFT = 25;
 
 const int DEX_ATTUNE_BITS = 8; // 256 is enough to store 0-100% attunement -- 5 for example implies 0.05 in fixed

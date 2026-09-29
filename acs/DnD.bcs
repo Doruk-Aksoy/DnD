@@ -204,17 +204,36 @@ Script "DnD SBAR" (void) CLIENTSIDE {
 
 // Metronome. Its own script rather than a branch in DnD SBAR: that loop runs every 5 tics and the
 // on-beat window is often shorter than that, so the indicator would lie about the timing.
-Script "DnD Metronome Beat" ENTER CLIENTSIDE {
+// The one per player clientside HUD loop. Anything that has to redraw every tic while the player is
+// alive and out of the menu belongs HERE rather than in a script of its own: the guard, the
+// lifetime, the gate and the tick are identical for all of them, and a second script per player
+// buys nothing but a second copy of that bookkeeping.
+//
+// A consumer on a slower cadence counts ticks here rather than sleeping, because one loop cannot
+// hold two delays -- see the dash charges at the bottom.
+Script "DnD Player HUD" ENTER CLIENTSIDE {
 	int pnum = PlayerNumber();
 	if(ConsolePlayerNumber() != pnum)
 		Terminate;
 
-	int window;
+	int window, tick = 0;
 	str glyph;
 	bool drawn = false;
 	while(PlayerInGame(pnum)) {
+		if(isAlive() && !IsHudBlocked()) {
+			DrawSpellHotbar(pnum);
+			DrawManaBar(pnum);
+			DrawSpellCastBar(pnum);
+			drawn = true;
+		}
+		else if(drawn) {
+			ClearSpellHotbar();
+			DeleteText(METRONOME_BEAT_ID);
+			drawn = false;
+		}
+
 		window = CheckInventory("P_MetronomeWindow");
-		if(window && isAlive() && !CheckInventory("ShowingMenu")) {
+		if(window && isAlive() && !IsHudBlocked()) {
 			if(!IsOnMetronomeBeat(window))
 				glyph = "METROFF";
 			else if(GetMetronomeBeat() == DND_METRONOME_DOWNBEAT)
@@ -228,10 +247,15 @@ Script "DnD Metronome Beat" ENTER CLIENTSIDE {
 			HudMessage(s:"A"; HUDMSG_PLAIN, METRONOME_BEAT_ID, CR_UNTRANSLATED, 632.4, 560.0, 0.1);
 			drawn = true;
 		}
-		else if(drawn) {
+		else
 			DeleteText(METRONOME_BEAT_ID);
-			drawn = false;
-		}
+
+		// A slower consumer COUNTS rather than sleeping -- a loop cannot hold two delays.
+		// DrawDashCharges gates itself on the unlock, and deliberately draws whether or not
+		// the player is alive or in a menu, which is why it sits outside the block above.
+		if(!(tick % DND_DASHHUD_REFRESH))
+			DrawDashCharges(pnum);
+		++tick;
 
 		Delay(const:1);
 	}
@@ -492,7 +516,7 @@ Script "DnD On Death" DEATH {
 	TakeInventory("DnD_ShowSellPopup", 1);
 	TakeInventory("DnD_SellConfirm", 1);
 	//SetInventory("MenuPosY", 5);
-	ACS_NamedExecuteAlways("DND Menu Cleanup", 0, pnum);
+	SendOwnerScript("DND Menu Cleanup", pnum, pnum);
 	BreakTradesBetween(pnum);
 	
 	Thing_ChangeTID(0, 0);
@@ -1417,7 +1441,7 @@ Script 895 (int val, int this) {
 					
 					FaceActor(this, ActivatorTID());
 
-					ACS_NamedExecuteAlways("DnD Prompt Dark Wanderer", 0, first_time, NPC_States[DND_NPC_DARKWANDERER].offer, NPC_States[DND_NPC_DARKWANDERER].n_state);
+					SendOwnerScript("DnD Prompt Dark Wanderer", PlayerNumber(), first_time, NPC_States[DND_NPC_DARKWANDERER].offer, NPC_States[DND_NPC_DARKWANDERER].n_state);
 					
 					++NPC_States[DND_NPC_DARKWANDERER].interaction_count;
 					GiveActorInventory(DND_NPC_TID, "DnD_HaltMonsterTimer", 1);
@@ -1450,7 +1474,7 @@ Script 895 (int val, int this) {
 					
 					FaceActor(this, ActivatorTID());
 
-					ACS_NamedExecuteAlways("DnD Prompt Merchant", 0);
+					SendOwnerScript("DnD Prompt Merchant", PlayerNumber());
 				}
 			break;
 		}
@@ -3116,7 +3140,7 @@ Script "DnD On Respawn" RESPAWN {
 	ACS_NamedExecuteWithResult("DnD Monster Scanner Picker");
 	ACS_NamedExecuteAlways("DnD Monster Scanner", 0);
 
-	ACS_NamedExecuteAlways("DnD SBAR", 0);
+	SendOwnerScript("DnD SBAR", PlayerNumber());
 
 	// its loop ends for good when the player dies, so it has to be restarted here or
 	// the perk stays dead for the rest of the map
@@ -3137,7 +3161,7 @@ Script "DnD On Respawn" RESPAWN {
 	if(CheckInventory("TaltosUp"))
 		GiveInventory("TaltosEffect", 1);
 		
-	ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0);
+	SendOwnerScript("DnD Punisher Perk50 Display", PlayerNumber());
 	ACS_NamedExecuteWithResult("DnD Can Fire Weapon", 0);
 	ACS_NamedExecuteWithResult("DnD Player Weapon Discard Sync", pnum, PlayerActivities[pnum].discarded_weapons);
 
@@ -3176,7 +3200,7 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	//Log(s:"player left ", d:pnum);
 	PlayerDatabaseState[pnum][PLAYER_TRANSFERSTATE] = false;
 
-	ACS_NamedExecuteAlways("DnD Class Select Cleanup", 0);
+	SendOwnerScript("DnD Class Select Cleanup", PlayerNumber());
 	// if someone quit during countdown just remove this
 	HudMessage(s:""; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.0, 240.0, 1);
 	PlayerCanLoad[pnum] = 0;
@@ -3271,7 +3295,7 @@ Script "DnD Player Setup" ENTER {
 		SetPlayerProperty(1, 0, PROP_FROZEN);
 	}
 
-	ACS_NamedExecuteAlways("DnD Class Select Cleanup", 0);
+	SendOwnerScript("DnD Class Select Cleanup", PlayerNumber());
 	
 	SetInventory("SphereMade", 0);
 	SetInventory("OrbUseType", 0);
@@ -3327,7 +3351,7 @@ Script "DnD Player Setup" ENTER {
 	// scanner runner
 	ACS_NamedExecuteWithResult("DnD Monster Scanner Picker");
 	ACS_NamedExecuteAlways("DnD Monster Scanner", 0);
-	ACS_NamedExecuteAlways("DnD SBAR", 0);
+	SendOwnerScript("DnD SBAR", PlayerNumber());
 	
 	// begin hardcore countdown
 	if(isSoftorHardcore() && (GetCVar("dnd_mode") >= DND_MODE_SOFTCORE)) {
@@ -3446,7 +3470,7 @@ Script "DnD Player Setup" ENTER {
 		GiveInventory(" Pistol ", 1);
 		if(GetCVar("dnd_allresearchesfound"))
 			GiveAndDoAllResearch();
-		ACS_NamedExecuteAlways("DND Menu Cleanup", 0, pnum);
+		SendOwnerScript("DND Menu Cleanup", pnum, pnum);
 		ResetPlayerItemsUsed(pnum);
 	}
 
@@ -3474,7 +3498,7 @@ Script "DnD Player Setup" ENTER {
 		SetupUndo(SETUP_STATE1, SETUP_PLAYERDATAFINISHED);
 
 	if(isSoftorHardcore()) {
-		ACS_NamedExecuteAlways("DND Hardcore Monster Message", 0);
+		SendOwnerScript("DND Hardcore Monster Message", PlayerNumber());
 		// wait for monsters to appear
 		Delay(17 * (DND_MAX_MONSTERDELAY + 2));
 	}
@@ -3573,7 +3597,7 @@ Script "DnD Player Setup" ENTER {
 			}
 
 			if(PlayerActivities[pnum].loot_penalty)
-				ACS_NamedExecuteAlways("DnD Loot Penalty Text", 0, pnum, PlayerActivities[pnum].vote_skips);
+				SendOwnerScript("DnD Loot Penalty Text", pnum, pnum, PlayerActivities[pnum].vote_skips);
 		}
 	}
 #endif
@@ -3582,6 +3606,16 @@ Script "DnD Player Setup" ENTER {
 	TakeInventory("DnD_RemoveBoxSignal", 1);
 
 	SetInventory("DnD_Stamina", GetAmmoCapacity("DnD_Stamina"));
+
+	// Both mana capacities have to be pushed before the clientside bar can read either, and mana fills
+	// on spawn exactly as stamina does above. "DnD Periodic Regeneration" refreshes the caps every
+	// second after this, so gear applied later is picked up on its own.
+	UpdateManaVisualCap(pnum);
+	SetPlayerMana(pnum, GetUnreservedManaCap(pnum));
+
+	// The hotbar mirrors are per life: SpellPlayerData survives a death, the inventory words carrying it
+	// to the client do not, so without this the bar comes back blank until the next rebind.
+	SyncHotbarAll(pnum);
 
 	Delay(const:5);
 
@@ -3637,12 +3671,21 @@ Script "DnD Loot Penalty Text" (int pnum, int val) CLIENTSIDE {
 	PlayerActivities[pnum].vote_skips = val;
 }
 
-Script "DnD Force Sync Player Global Data" (void) {
+// Console: pukename "DnD Resync". Resends the caller's own items and weapon mods, the repair for
+// anything "DnD Sync Check" reports.
+Script "DnD Resync" (void) NET {
 	int pnum = PlayerNumber();
+	if(pnum < 0 || GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+
 	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_ITEMSUSED);
 	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_STASH);
 	SyncAllClientsideVariables(pnum);
+
+	// an open menu is drawn from the old copy until something asks for a redraw
+	SendOwnerScript("DnD Refresh Request", pnum, pnum, 1);
+	SendOwnerScript("DnD Sync Check Report", pnum, 0, DND_SYNCCHECK_RESYNCED);
 }
 
 // Control for ammo capacity
@@ -3787,7 +3830,7 @@ Script "DnD Spawn Grabby" (int multispecial) {
 	if(!res)
 		Terminate;
 
-	ACS_NamedExecuteWithResult("DnD Spawn Grabby - CS", who - P_TIDSTART, ox, oy, oz);
+	SendOwnerSync("DnD Spawn Grabby - CS", who - P_TIDSTART, who - P_TIDSTART, ox, oy, oz);
 }
 
 Script "DnD Spawn Grabby - CS" (int pnum, int ox, int oy, int oz) CLIENTSIDE {
@@ -4270,6 +4313,18 @@ Script "DnD Swift Precise Timer" (int ptid) {
 
 // Martialist / Expose Weakness. Clears on death as well as expiry, so a stale mark cannot follow the
 // tid onto the next monster to use it.
+// Fire Exposure's own ticker, alongside the all-resist one below. Refreshing simply pushes the timer
+// out: the strongest value wins, so a weaker application cannot dilute a stronger one still running.
+Script "DnD Fire Exposure Timer" (int m_tid) {
+	while(CheckActorInventory(m_tid, "DnD_FireExposedTimer") && isActorAlive(m_tid)) {
+		TakeActorInventory(m_tid, "DnD_FireExposedTimer", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(m_tid, "DnD_FireExposed", 0);
+	SetActorInventory(m_tid, "DnD_FireExposedTimer", 0);
+}
+
 Script "DnD Expose Weakness Timer" (int m_tid) {
 	while(CheckActorInventory(m_tid, "DnD_ExposedTimer") && isActorAlive(m_tid)) {
 		TakeActorInventory(m_tid, "DnD_ExposedTimer", 1);
@@ -4501,7 +4556,7 @@ Script "DnD Dashed Recently Timer" (void) {
 	// The anchor itself is left alone: nothing reads it without the window, and clearing it here
 	// would race the return that may be resolving on this very tic.
 	if(HasPlayerFlag(pnum, PFLAG_DASH_ANCHOR))
-		ACS_NamedExecuteAlways("DnD Dash Anchor Marker Clear", 0, pnum);
+		SendOwnerScript("DnD Dash Anchor Marker Clear", pnum, pnum);
 }
 
 // Emberwake. Drops burning ground behind a moving player, and sets them alight when they stop.
@@ -4793,6 +4848,14 @@ Script "DnD Periodic Regeneration" ENTER {
 				}
 			}
 
+			// Both mana capacities, refreshed here rather than chased down every stat change site: the
+			// bar has to track a swapped charm or a toggled aura, and this tick already exists.
+			UpdateManaVisualCap(pnum);
+
+			// Same tick, same reason: an aura is a standing grant with no duration, so it is renewed
+			// for as long as it is switched on.
+			RefreshSpellAuras(pnum);
+
 			mana_acc += GetPlayerManaRegen(pnum);
 			if(mana_acc >= DND_MANAREGEN_SCALE) {
 				GiveMana(pnum, mana_acc / DND_MANAREGEN_SCALE);
@@ -4850,7 +4913,7 @@ Script "DnD Energy Shield Regen" (int cap, int pnum) {
 		Terminate;
 	}
 
-	ACS_NamedExecuteAlways("DnD Energy Shield FX", 0, cap, pnum, ChargeFillsHealth(pnum));
+	SendOwnerScript("DnD Energy Shield FX", pnum, cap, pnum, ChargeFillsHealth(pnum));
 
 	// we can start the recovery now, but we still have to check if we enter combat etc.
 	rchrg = GetPlayerEnergyShieldRecoveryRate(pnum, cap);
@@ -5445,7 +5508,7 @@ Script "DnD Chest Dropping Item" (int chance_penalty) {
 Script "DnD Give Research" (int sp) {
 	SetActivator((sp & 0xFFFF) + P_TIDSTART);
 	GiveInventory("ResearchSoundPlayer", 1);
-	ACS_NamedExecuteAlways("DnD Message Logger", 0, 2, sp, 1);
+	SendOwnerScript("DnD Message Logger", PlayerNumber(), 2, sp, 1);
 	GiveResearch(sp >> 16, false);
 }
 
@@ -5502,7 +5565,20 @@ Script "DnD Dungeon Key Message" (int id) CLIENTSIDE {
 	Log(s:StrParam(s:"\cc", l:"DND_PICKUP_DUNGEONKEY", s:": \c[Y5]", l:GetInventoryTag(GetDungeonKeyInventoryId(id)), s:"!\c-"));
 }
 
+// sp is the item's mass - 1: a player number, or 255 for whoever touched it. A client evaluates the
+// pickup checks too (an A_JumpIf argument runs even where the jump is ignored), but mass never
+// reaches clients, so there it is the engine default and names nobody.
+bool IsValidPickupPicker(int sp) {
+	int who = sp & 0xFFFF;
+	return who == 255 || (who >= 0 && who < MAXPLAYERS);
+}
+
 Script "DnD Stacked Item Pickup" (int sp, int type) {
+	if(!IsValidPickupPicker(sp)) {
+		SetResultValue(0);
+		Terminate;
+	}
+
 	if((sp & 0xFFFF) == 255)
 		SetActivatorToTarget(0);
 	else
@@ -5639,13 +5715,18 @@ Script "DnD Charm Pickup" (int sp) {
 		SetActivatorToTarget(0);
 	else
 		SetActivator((sp & 0xFFFF) + P_TIDSTART);
-	ACS_NamedExecuteAlways("DnD Charm Message", 0, GlobalItemStorage.Inventories_On_Field[sp >> 16].item_subtype, GlobalItemStorage.Inventories_On_Field[sp >> 16].item_type);
+	SendOwnerScript("DnD Charm Message", PlayerNumber(), GlobalItemStorage.Inventories_On_Field[sp >> 16].item_subtype, GlobalItemStorage.Inventories_On_Field[sp >> 16].item_type);
 	GiveInventory("CharmSoundPlayer", 1);
 	HandleInventoryPickup(sp >> 16);
 }
 
 // if we have enough space and we pressed use
 Script "DnD Player Has Spot For Item" (int sp) {
+	if(!IsValidPickupPicker(sp)) {
+		SetResultValue(false);
+		Terminate;
+	}
+
 	if (GetGameModeState() == GAMESTATE_INPROGRESS) {
 		if((sp & 0xFFFF) == 255)
 			SetActivatorToTarget(0);
@@ -5688,7 +5769,7 @@ Script "DnD Player Has Spot For Item" (int sp) {
 				
 				if(!spot && res) {
 					// clientside warning sound and text
-					ACS_NamedExecuteAlways("DnD Inventory Full CS", 0, pnum);
+					SendOwnerScript("DnD Inventory Full CS", pnum, pnum);
 				}
 				SetResultValue(res && spot);
 			}
@@ -5779,7 +5860,7 @@ Script "DnD Lootbox Open Check" (int for_player) {
 		// only specific player can open
 		if(p_tid != for_player + P_TIDSTART) {
 			SetActivator(p_tid);
-			ACS_NamedExecuteAlways("DnD Lootbox Fail Open Message", 0, for_player);
+			SendOwnerScript("DnD Lootbox Fail Open Message", PlayerNumber(), for_player);
 		}
 		else if(GetGameModeState() == GAMESTATE_INPROGRESS && (!CheckActorInventory(p_tid, "CanLoad")))
 			res = 1;
@@ -6993,7 +7074,7 @@ Script "DnD Ammo Token Pickup" (void) {
 		GiveInventory(ammo, cap / 10);
 	}
 	
-	ACS_NamedExecuteAlways("DnD Ammo Token Message", 0, id);
+	SendOwnerScript("DnD Ammo Token Message", PlayerNumber(), id);
 }
 
 Script "DnD Ammo Token Message" (int wepid) CLIENTSIDE {
@@ -7341,7 +7422,7 @@ Script 68 (int x) NET {
 		}
 		else if(x == 400) {
 			GiveInventory("Punisher_Perk50_Counter", 125);
-			ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, false);
+			SendOwnerScript("DnD Punisher Perk50 Display", PlayerNumber(), false);
 		}
 		else if(x == 401) {
 			SpawnResearch(0, true);
@@ -7372,6 +7453,7 @@ Script 68 (int x) NET {
 			//SpawnFlask(0, 0);
 			//SpawnDungeonKey(0);
 			SpawnSpecificDungeonKey(0, DND_DUNGEON_ULTIMATUM);
+			SpawnOrb(0, true, random(50, 100));
 			//SpawnFlask(0, 0);
 			SpawnBoot(0, 0);
 			SpawnArmor(0, 0);
@@ -7427,13 +7509,13 @@ Script 68 (int x) NET {
 			CalculatePlayerAccuracy(PlayerNumber());
 		}
 		else if(x == 599)
-			ACS_NamedExecuteWithResult("DnD Hud Animation", DND_ANIM_DOOMGUYPUNCH);
+			SendOwnerSync("DnD Hud Animation", PlayerNumber(), DND_ANIM_DOOMGUYPUNCH);
 		else if(x == 600)
-			ACS_NamedExecuteWithResult("DnD Hud Animation", DND_ANIM_DOOMGUYKICK);
+			SendOwnerSync("DnD Hud Animation", PlayerNumber(), DND_ANIM_DOOMGUYKICK);
 		else if(x == 666)
-			ACS_NamedExecuteAlways("DnD Cyborg Visor Anim", 0);
+			SendOwnerScript("DnD Cyborg Visor Anim", PlayerNumber());
 		else if(x == 667)
-			ACS_NamedExecuteAlways("DnD Marine Shield Anim", 0);
+			SendOwnerScript("DnD Marine Shield Anim", PlayerNumber());
 		else if(x == 668)
 			GiveFlaskCharges(PlayerNumber(), 60);
 		else if(x == 1000) {
@@ -7474,7 +7556,7 @@ Script 68 (int x) NET {
 			SpawnDrop("UniqueCharmDrop", 16.0, 16, 1, c);
 			
 			SyncItemData(0, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-			ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, 0, DND_ITEM_CHARM);
+			SendOwnerScript("DnD Play Local Item Drop Sound", 0, 0, DND_ITEM_CHARM);
 		}
 	}
 	#endif

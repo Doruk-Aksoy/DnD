@@ -1,0 +1,20 @@
+Actor Spell_Fireball : DnD_Spell {
+    PROJECTILE
+    Speed 30
+    Radius 8
+    Height 16
+    Scale 1.15
+    SeeSound "Beast/Attack"
+    DeathSound "weapons/phoenixhit"
+    // This contains all the packed information necessary for the spell's damage
+    Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE))
+    DamageType "Fire"
+    States {
+        SpawnState:
+            FX14 ABC 3 Bright
+        Loop
+        Death:
+            FX14 DEFGH 3 Bright
+        Stop
+    }
+}

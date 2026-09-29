@@ -1,0 +1,36 @@
+Actor Spell_Pyroblast : DnD_SpellExplosive {
+    PROJECTILE
+    Speed 24
+    Radius 10
+    Height 20
+    Scale 1.15
+    SeeSound "Traps/Firejet"
+    DeathSound "MeteorLauncher/HitSmall"
+    // This contains all the packed information necessary for the spell's damage
+    Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE))
+    DamageType "Fire"
+    States {
+        SpawnState:
+            T000 A 0 A_PlaySound("Avatar/SoulFire", CHAN_5)
+        SpawnStateLoop:
+            T000 AB 3 Bright
+        Loop
+        FinishExplosion:
+            TNT1 A 0 A_JumpIf(user_spellrank >= DND_SPELL_THRESH_HIGH, "MaxRankBlast")
+        ContAnim:
+            T000 CDEFGH 3 Bright
+        Stop
+        MaxRankBlast:
+            TNT1 A 0 ACS_NamedExecuteWithResult("DnD Pyroblast Burst")
+        Goto ContAnim
+    }
+}
+
+// the script manages the necessary id data to give, the 8 is the divisor
+Actor Spell_Pyroblast_TinyFireballs : Spell_Fireball {
+    Speed 18
+    Scale 0.6
+    Height 9
+    Radius 4
+    Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE, 0, 8))
+}

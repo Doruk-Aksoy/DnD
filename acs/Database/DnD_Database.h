@@ -9,6 +9,10 @@
 #include "../Inventory/DnD_Orbs.h"
 #include "../DnD_ClassMenu.h"
 
+// For SPELL_RANK_INTS and friends. Functions resolve across the whole translation unit, but a
+// #define does not -- and this file is pulled in at DnD.h:3, long before the spell headers.
+#include "../Spells/DnD_SpellDefs.h"
+
 enum {
 	DND_PINVFLAGS_CHARMUSED = 1,
 	DND_PINVFLAGS_INVENTORY = 2,
@@ -45,6 +49,60 @@ void DB_SavePerkData(int pnum, int char_id, str pacc) {
 void DB_ClearPerkData(int char_id, str pacc) {
 	for(int i = 0; i < DND_PERK_WORDS; ++i)
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_PERKS, char_id), d:i), pacc, 0);
+}
+
+// The spell trees, on exactly the terms the perk lanes above are on: written by BOTH save paths,
+// absolute rather than incremental, because a rank is a state and not a quantity.
+//
+// Three arrays and two ledgers. The hotbar is saved because a bound slot survives a reload now that
+// ids are block allocated per tree -- a spell keeps its id for the life of the tree. The two ledgers
+// are what DND_SPELLPOINT_MAXFROM* are measured against; without them a reloaded character could
+// earn its capped points a second time.
+void DB_SaveSpellData(int pnum, int char_id, str pacc) {
+	int i;
+	for(i = 0; i < SPELL_RANK_INTS; ++i)
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_SPELLS, char_id), d:i), pacc, SpellPlayerData[pnum].ranks[i]);
+
+	for(i = 0; i < SPELL_AURA_INTS; ++i)
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_SPELLAURAS, char_id), d:i), pacc, SpellPlayerData[pnum].aura_on[i]);
+
+	for(i = 0; i < MAX_HOTBAR_SLOTS; ++i)
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_SPELLHOTBAR, char_id), d:i), pacc, SpellPlayerData[pnum].hotbar[i]);
+
+	int tid = pnum + P_TIDSTART;
+	SetDBEntry(GetCharField(DND_DB_SPELLSFROMLEVEL, char_id), pacc, CheckActorInventory(tid, "SpellPointsFromLevel"));
+	SetDBEntry(GetCharField(DND_DB_SPELLSFROMTOKEN, char_id), pacc, CheckActorInventory(tid, "SpellPointsFromToken"));
+}
+
+void DB_ClearSpellData(int char_id, str pacc) {
+	int i;
+	for(i = 0; i < SPELL_RANK_INTS; ++i)
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_SPELLS, char_id), d:i), pacc, 0);
+
+	for(i = 0; i < SPELL_AURA_INTS; ++i)
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_SPELLAURAS, char_id), d:i), pacc, 0);
+
+	for(i = 0; i < MAX_HOTBAR_SLOTS; ++i)
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_SPELLHOTBAR, char_id), d:i), pacc, 0);
+
+	SetDBEntry(GetCharField(DND_DB_SPELLSFROMLEVEL, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_SPELLSFROMTOKEN, char_id), pacc, 0);
+}
+
+void DB_LoadSpellData(int pnum, int char_id, str pacc) {
+	int i;
+	for(i = 0; i < SPELL_RANK_INTS; ++i)
+		SpellPlayerData[pnum].ranks[i] = GetDBEntry(StrParam(s:GetCharField(DND_DB_SPELLS, char_id), d:i), pacc);
+
+	for(i = 0; i < SPELL_AURA_INTS; ++i)
+		SpellPlayerData[pnum].aura_on[i] = GetDBEntry(StrParam(s:GetCharField(DND_DB_SPELLAURAS, char_id), d:i), pacc);
+
+	for(i = 0; i < MAX_HOTBAR_SLOTS; ++i)
+		SpellPlayerData[pnum].hotbar[i] = GetDBEntry(StrParam(s:GetCharField(DND_DB_SPELLHOTBAR, char_id), d:i), pacc);
+
+	int tid = pnum + P_TIDSTART;
+	SetActorInventory(tid, "SpellPointsFromLevel", GetDBEntry(GetCharField(DND_DB_SPELLSFROMLEVEL, char_id), pacc));
+	SetActorInventory(tid, "SpellPointsFromToken", GetDBEntry(GetCharField(DND_DB_SPELLSFROMTOKEN, char_id), pacc));
 }
 
 void DB_SaveItemData(inventory_T* item, int i, int char_id, str pacc) {
@@ -393,8 +451,14 @@ void SavePlayerData(int pnum, int char_id) {
 	temp = CheckActorInventory(tid, "PerkPoint");
 	SetDBEntry(GetCharField(DND_DB_UNSPENTPERK, char_id), pacc, temp);
 
+	temp = CheckActorInventory(tid, "SpellPoint");
+	SetDBEntry(GetCharField(DND_DB_UNSPENTSPELL, char_id), pacc, temp);
+
 	// save the perk tree itself
 	DB_SavePerkData(pnum, char_id, pacc);
+
+	// and the spell trees, on the same terms
+	DB_SaveSpellData(pnum, char_id, pacc);
 	
 	// save accessories
 	temp = 0;
@@ -557,10 +621,12 @@ void SavePlayerActivities(int pnum, int char_id) {
 	// send data over
 	IncrementDBEntry(GetCharField(DND_DB_UNSPENTATTRIB, char_id), pacc, temp);
 	IncrementDBEntry(GetCharField(DND_DB_UNSPENTPERK, char_id), pacc, vt);
+	IncrementDBEntry(GetCharField(DND_DB_UNSPENTSPELL, char_id), pacc, PlayerActivities[pnum].free_spells);
 
 	// The pool above is a delta; the tree is not. Spending is the other half of every one of those
 	// negative deltas, so writing one without the other loses the points outright.
 	DB_SavePerkData(pnum, char_id, pacc);
+	DB_SaveSpellData(pnum, char_id, pacc);
 
 	// save player weapon discards
 	SetDBEntry(GetCharField(DND_DB_WEAPONDISCARDS, char_id), pacc, PlayerActivities[pnum].discarded_weapons);
@@ -714,7 +780,7 @@ void LoadPlayerData(int pnum, int char_id) {
 
 	DoPreClassAdjustments();
 
-	ACS_NamedExecuteAlways("DnD Sync Player Class", 0, pnum, temp - 1);
+	SendOwnerScript("DnD Sync Player Class", pnum, pnum, temp - 1);
 
 	SetActorState(0, "Spawn");
 	
@@ -928,6 +994,8 @@ void LoadPlayerData(int pnum, int char_id) {
 	SetInventory("AttributePoint", temp);
 	temp = GetDBEntry(GetCharField(DND_DB_UNSPENTPERK, char_id), pacc);
 	SetInventory("PerkPoint", temp);
+	temp = GetDBEntry(GetCharField(DND_DB_UNSPENTSPELL, char_id), pacc);
+	SetInventory("SpellPoint", temp);
 
 	// The lanes go in raw. Everything derived from them -- the archetype totals, the legality sweep
 	// against the tree as it exists now, the stats they contribute -- belongs to "DnD Apply Loaded
@@ -936,6 +1004,11 @@ void LoadPlayerData(int pnum, int char_id) {
 		PlayerModData[pnum].perks_packed[i] = GetDBEntry(StrParam(s:GetCharField(DND_DB_PERKS, char_id), d:i), pacc);
 
 	ACS_NamedExecuteAlways("DnD Apply Loaded Perks", 0, pnum);
+
+	// The spell trees go in raw too. Nothing derived hangs off them the way the perk archetype
+	// totals do -- GetSpellValue reads the ranks live -- but the hotbar mirrors DO have to be pushed
+	// to the client, which "DnD Player Setup" does with SyncHotbarAll after the load completes.
+	DB_LoadSpellData(pnum, char_id, pacc);
 
 	// read researches
 	for(i = 0; i < RESEARCH_BITSETS; ++i) {
@@ -1019,7 +1092,7 @@ void LoadPlayerData(int pnum, int char_id) {
 	ACS_NamedExecuteAlways("DnD Menu Reset Forced", 0);
 	// this seems unnecessary, as it syncs the 3 item source datas (we already do that as soon as we finished loading them)
 	// and also the other clientside variables, which we do at the end of enter script...
-	//ACS_NamedExecuteAlways("DnD Force Sync Player Global Data", 0);
+	//ACS_NamedExecuteAlways("DnD Resync", 0);
 	
 	SetInventory("DnD_LifeTimeKills", GetDBEntry(GetCharField(DND_DB_KILLTRACKER, char_id), pacc));
 	SetInventory("DnD_LifeTimeKills_Millions", GetDBEntry(GetCharField(DND_DB_KILLTRACKER_MILLION, char_id), pacc));
@@ -1143,6 +1216,7 @@ void WipeoutPlayerData(int pnum, int cid) {
 	SetDBEntry(GetCharField(DND_DB_BACKPACKS, char_id), pacc, 0);
 
 	DB_ClearPerkData(char_id, pacc);
+	DB_ClearSpellData(char_id, pacc);
 
 	SetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ESHIELD, char_id), pacc, 0);
@@ -1300,6 +1374,7 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_BACKPACKS, char_id), pacc, 0);
 
 	DB_ClearPerkData(char_id, pacc);
+	DB_ClearSpellData(char_id, pacc);
 
 	SetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc, 100); // base health
 	SetDBEntry(GetCharField(DND_DB_ESHIELD, char_id), pacc, 0);

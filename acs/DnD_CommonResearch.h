@@ -178,7 +178,7 @@ int CheckActorResearchStatus(int tid, int res_id) {
 
 void GiveResearch(int res_id, bool fancy) {
 	if(fancy)
-		ACS_NamedExecuteAlways("DnD Research Fancy Message", 0, res_id);
+		SendOwnerScript("DnD Research Fancy Message", PlayerNumber(), res_id);
 	if(res_id > DND_RESEARCH_MAXBITS2) {
 		res_id %= DND_RESEARCH_BITMOD;
 		SetInventory("Research_Discovered_3", SetBit(CheckInventory("Research_Discovered_3"), res_id));

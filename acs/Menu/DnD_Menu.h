@@ -56,10 +56,8 @@ Script 900 (int opt, int showInv) NET {
 				ACS_NamedExecuteWithResult("DnD Create Weapon Wheel", pnum, 1);
 			}
 
-			// sync all data if player opens menu -- lazy solution, implement write request on id/source giving a "version" increment, and only write the latest version at the end of a tic
-			if(GameType() != GAME_SINGLE_PLAYER)
-				ACS_NamedExecuteAlways("DnD Force Sync Player Global Data", 0);
-
+			// No full resync on open: it was 100+ packets a time and "DnD Sync Check" found nothing for it
+			// to fix. It is the manual "DnD Resync" now.
 			SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
 			GiveInventory("P_Frozen", 1);
 			GiveInventory("DnD_StatListOpen", 1);
@@ -79,14 +77,13 @@ Script 900 (int opt, int showInv) NET {
 			TakeInventory("ShowingPrompt", 1);
 			LocalAmbientSound("RPG/MenuOpen", 127);
 			ClearPlayerInput(pnum, true);
-			DeleteTextRange(RPGMENUCURSORID, RPGMENUINVENTORYID);
 			FlushStack(pnum);
 
 			ResetTransmutingData(pnum);
 			ResetDungeonSelectData(pnum);
 			
 			ACS_NamedExecuteWithResult("DnD Sync Player Exp", pnum, GetPlayerExp(pnum));
-			ACS_NamedExecuteAlways("DnD Menu Input Loop", 0);
+			SendOwnerScript("DnD Menu Input Loop", PlayerNumber());
 			ACS_NamedExecuteAlways("DND Menu Icon Spawner", 0);
 		}
 		else {
@@ -137,7 +134,7 @@ Script "DnD Menu Reset on Enter" ENTER {
 		}
 		else
 			GlobalData.ShopStockRemaining[pnum][j] = (stock * ch_factor) / 100;
-		ACS_NamedExecuteAlways("DnD Sync Shop Stock", 0, pnum, j, GlobalData.ShopStockRemaining[pnum][j]);
+		SendOwnerScript("DnD Sync Shop Stock", pnum, pnum, j, GlobalData.ShopStockRemaining[pnum][j]);
 		
 		// just to balance the load a bit and not overwhelm
 		if(!(j % 10))
@@ -169,7 +166,7 @@ Script "DnD Menu Reset Forced" (void) {
 		}
 		else
 			GlobalData.ShopStockRemaining[pnum][j] = (stock * ch_factor) / 100;
-		ACS_NamedExecuteAlways("DnD Sync Shop Stock", 0, pnum, j, GlobalData.ShopStockRemaining[pnum][j]);
+		SendOwnerScript("DnD Sync Shop Stock", pnum, pnum, j, GlobalData.ShopStockRemaining[pnum][j]);
 
 		if(!(j % 10))
 			Delay(const:1);
@@ -226,6 +223,10 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 	int boxid = MAINBOX_NONE + 1, boxid_prev = MAINBOX_NONE, mainboxid = MAINBOX_NONE, mainboxid_prev = MAINBOX_NONE;
 	// the sort button's own greyed out state, see the check inside the loop
 	bool sortcd_prev = false;
+	// Page change leftovers. Taken down in the redraw pass that draws the next page, not on the
+	// change itself: that runs a tic earlier, and the page blinked out for a frame in between.
+	bool clear_spellpage = false;
+	int clear_backdrop = 0; // 1 = RPGMENUID only, 2 = the whole crafting band
 	auto CurrentPane = GetPane();
 	ResetPane(CurrentPane);
 	auto InventoryPane = GetInventoryPane();
@@ -244,7 +245,10 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 
 	// fixes merchant showing up on menu use when talking to him
 	DeleteText(RPGMENUID);
-	
+
+	// Here, not in script 900: run on the server this range was 750 hud messages sent over the network.
+	DeleteTextRange(RPGMENUCURSORID, RPGMENUINVENTORYID);
+
 	while(CheckInventory("ShowingMenu")) {
 		redraw = false;
 		// Load cursor stuff. A spell page's pocket and its scrollbar sit past the usual right edge --
@@ -263,9 +267,11 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 
 			// The spell page draws below RPGMENUID so it lands in front of its own backdrop, which puts
 			// it outside the RPGMENUITEMID band the redraw clears. Nothing else would ever take these
-			// down, so leaving a tree page has to.
+			// down, so leaving a tree page has to -- only leaving one: the band covers the crafting
+			// materials, and sweeping it on every change blinked them.
 			if(!IsSpellPage(curopt)) {
-				DeleteTextRange(SPELLPAGE_ID_FIRST, SPELLPAGE_ID_LAST);
+				if(IsSpellPage(curopt_prev))
+					clear_spellpage = true;
 
 				// The pinned spell belongs to the page it was pinned on. Moving between two trees is
 				// caught by the shown_tree check in the draw; leaving the spell pages entirely is not.
@@ -275,10 +281,10 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				SetScrollBarPos(DND_SPELLBAR_PANEL, 0);
 
 				// The backdrop lives in RPGMENUID, outside the band above, and nothing else restates it
-				// -- without this it stands over whatever page comes next.
-				if(curopt != MENU_LOAD_CRAFTING && curopt != MENU_LOAD_CRAFTING_INVENTORY &&
-					curopt != MENU_LOAD_CRAFTING_WEAPON && curopt != MENU_LOAD_CRAFTING_TRANSMUTING)
-					DeleteText(RPGMENUID);
+				// -- without this it stands over whatever page comes next. Leaving crafting takes its
+				// materials and item boxes with it, which the spell sweep used to do by accident.
+				if(curopt < MENU_LOAD_CRAFTING || curopt > MENU_LOAD_CRAFTING_LAST)
+					clear_backdrop = (curopt_prev >= MENU_LOAD_CRAFTING && curopt_prev <= MENU_LOAD_CRAFTING_LAST) ? 2 : 1;
 			}
 
 			// A pinned perk description belongs to the page it was pinned on. Cleared here rather
@@ -574,10 +580,40 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			SetFont("NMENUFNT");
 			DeleteTextRange(RPGMENUITEMID - 45, RPGMENUITEMID);
 			DeleteTextRange(RPGMENUPAGEID - 1, RPGMENUPAGEID);
-			
+
+			// set by the page change above, see the declaration
+			if(clear_spellpage)
+				DeleteTextRange(SPELLPAGE_ID_FIRST, SPELLPAGE_ID_LAST);
+			if(clear_backdrop == 2)
+				CleanCraftingInfo();
+			else if(clear_backdrop == 1)
+				DeleteText(RPGMENUID);
+			clear_spellpage = false;
+			clear_backdrop = 0;
+
 			if(PlayerCursorData.itemDragged != -1 || !CheckInventory("DnD_UsedTwoItemRequirementMaterial"))
 				DeleteText(RPGMENUCURSORID + 1); // dragged item
-			
+
+			// Before the views, not after: the inventory range below is the one they draw into, so a
+			// clean landing with its view still up erased it and nothing redrew until a hover.
+			if(CheckInventory("DnD_CleanInventoryRequest")) {
+				// NOTE: THE RANGE BELOW IS HUGE BUT ITS NEEDED!!!!
+				CleanMaterialInfo(true);
+				CleanInventoryInfo();
+				DeleteTextRange(RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES, RPGMENUINVENTORYID);
+				TakeInventory("DnD_CleanInventoryRequest", 1);
+			}
+			else if(CheckInventory("DnD_CleanCraftingRequest")) {
+				CleanCraftingInfo();
+				CleanMaterialInfo(true);
+				// dont uncomment this from here... for some reason
+				//TakeInventory("DnD_CleanCraftingRequest", 1);
+			}
+			else if(CheckInventory("DnD_CleanTradeviewRequest")) {
+				CleanTradeInfo();
+				TakeInventory("DnD_CleanTradeviewRequest", 1);
+			}
+
 			if(CheckInventory("DnD_InventoryView")) {
 				LoadInventoryView(InventoryPane);
 				HandleInventoryView(boxid);
@@ -595,24 +631,6 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				// last drawn frame's item stuck to the cursor.
 				ResetCursorDragData();
 				ResetCursorDragConfirm();
-			}
-			
-			if(CheckInventory("DnD_CleanInventoryRequest")) {
-				// NOTE: THE RANGE BELOW IS HUGE BUT ITS NEEDED!!!!
-				CleanMaterialInfo(true);
-				CleanInventoryInfo();
-				DeleteTextRange(RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES, RPGMENUINVENTORYID);
-				TakeInventory("DnD_CleanInventoryRequest", 1);
-			}
-			else if(CheckInventory("DnD_CleanCraftingRequest")) {
-				CleanCraftingInfo();
-				CleanMaterialInfo(true);
-				// dont uncomment this from here... for some reason
-				//TakeInventory("DnD_CleanCraftingRequest", 1);
-			}
-			else if(CheckInventory("DnD_CleanTradeviewRequest")) {
-				CleanTradeInfo();
-				TakeInventory("DnD_CleanTradeviewRequest", 1);
 			}
 
 			SetFont("NMENUFNT");
@@ -1392,7 +1410,11 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				else
 					HudMessage(s:"\c[Y5]", l:"DND_MENU_RESEARCH"; HUDMSG_PLAIN, RPGMENULISTID - 6, -1, 97.0, 251.0, 0.0);
 				
-				if(mainboxid == MAINBOX_SPELL)
+				// Blinks while there are points to spend, the same shape and the same colour DrawHighLightBar
+				// gives Stats and Perks -- every other spendable pool announces itself that way.
+				if(CheckInventory("SpellPoint") && !(framecounter % 2))
+					HudMessage(s:"\c[B3]", l:"DND_MENU_HEAD_SPELLS"; HUDMSG_PLAIN, RPGMENULISTID - 4, -1, 96.0, 269.0, 0.0);
+				else if(mainboxid == MAINBOX_SPELL)
 					HudMessage(s:"\c[B1]", l:"DND_MENU_HEAD_SPELLS"; HUDMSG_PLAIN, RPGMENULISTID - 4, -1, 96.0, 269.0, 0.0);
 				else
 					HudMessage(s:"\c[Y5]", l:"DND_MENU_HEAD_SPELLS"; HUDMSG_PLAIN, RPGMENULISTID - 4, -1, 96.0, 269.0, 0.0);
@@ -1420,6 +1442,13 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 	}
 	
 	ScrollPos.x = 0;
+
+	// The spell pages draw outside every band ClearMenuDisplay sweeps, and their backdrop is an id of
+	// its own. A page CHANGE cleared them; closing the menu on one did not, so the whole tree stayed
+	// painted over the game.
+	DeleteTextRange(SPELLPAGE_ID_FIRST, SPELLPAGE_ID_LAST);
+	DeleteText(RPGMENUID);
+
 	ClearMenuDisplay();
 }
 
@@ -1700,13 +1729,22 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					UpdateMenuPosition(MENU_SPELL);
 			}
 			else if(IsSpellTreePage(curopt)) {
-				if(HasPlayerClicked(pnum)) {
+				// LEFT and RIGHT are separate here, not HasPlayerClicked, which answers to both: left
+				// spends a point, right switches an aura or passive off. Sharing one button meant a
+				// ranked aura ate the click as a toggle and could never be levelled.
+				if(HasLeftClicked(pnum)) {
 					// The back arrow is added to the pane after every spell, so entry n stays box n however
 					// many spells the tree grows.
 					j = GetTreeSpellCount(curopt - MENU_SPELLTREE_FIRST);
 					if(boxid == MBOX_1 + j)
 						UpdateMenuPosition(MENU_SPELL);
 					else if(HandleSpellTreeClick(pnum, curopt - MENU_SPELLTREE_FIRST, boxid)) {
+						LocalAmbientSound("RPG/MenuChoose", 127);
+						GiveInventory("DnD_RefreshPane", 1);
+					}
+				}
+				else if(HasRightClicked(pnum)) {
+					if(HandleSpellTreeToggle(pnum, curopt - MENU_SPELLTREE_FIRST, boxid)) {
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						GiveInventory("DnD_RefreshPane", 1);
 					}
@@ -1997,8 +2035,8 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 												// carrying notes left over from an earlier trade
 												ClearTradeItemOrigins(pnum);
 												ClearTradeItemOrigins(i);
-												ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
-												ACS_NamedExecuteAlways("DnD Refresh Request", 0, i, 1);
+												SendOwnerScript("DnD Refresh Request", pnum, pnum, 1);
+												SendOwnerScript("DnD Refresh Request", i, i, 1);
 												LocalAmbientSound("RPG/MenuChoose", 127);
 											}
 											else
@@ -2445,7 +2483,7 @@ Script "DnD Menu Popup" (int pnum, int isSell, int activebox) {
 		SetInventory("DnD_PopupID", activebox);
 	}
 	
-	ACS_NamedExecuteAlways("DnD Menu Popup Show", 0, pnum >> 16, pnum & 0xFFFF, isSell);
+	SendOwnerScript("DnD Menu Popup Show", pnum & 0xFFFF, pnum >> 16, pnum & 0xFFFF, isSell);
 }
 
 Script "DnD Menu Popup Show" (int id, int pnum, int isSell) CLIENTSIDE {
@@ -2501,7 +2539,7 @@ Script "DnD Menu Notif" (int pnum, int extra, int activebox) {
 	SetInventory("ActivePopupBox", activebox);
 	SetInventory("DnD_PopupID", popupid);
 	
-	ACS_NamedExecuteAlways("DnD Menu Notif Show", 0, pnum, popupid, extra);
+	SendOwnerScript("DnD Menu Notif Show", pnum, pnum, popupid, extra);
 }
 
 Script "DnD Menu Notif Show" (int pnum, int popupid, int extra) CLIENTSIDE {
@@ -2555,7 +2593,7 @@ Script "DnD Dump to Stash" (int stackableOnly) NET {
 	if(!CheckInventory("DnD_DumpCooldown") && CheckInventory("DnD_StashView")) {
 		AutoDumpItems(PlayerNumber(), stackableOnly);
 		GiveInventory("DnD_DumpCooldown", 1);
-		ACS_NamedExecuteAlways("DnD Refresh Request", 0, PlayerNumber(), 1);
+		SendOwnerScript("DnD Refresh Request", PlayerNumber(), PlayerNumber(), 1);
 	}
 }
 
@@ -2610,7 +2648,7 @@ Script "DnD Sort Inventory" (int source, int page) NET {
 
 	// A repack moves almost every box, and the per box syncs leave the icons of items that were
 	// drawn where they no longer are. Redraw the pane outright rather than trying to chase them.
-	ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
+	SendOwnerScript("DnD Refresh Request", pnum, pnum, 1);
 
 	sort_state.busy = 0;
 

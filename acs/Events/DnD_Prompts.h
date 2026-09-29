@@ -597,7 +597,7 @@ void ClosePrompt(bool non_npc_use = false) {
 	SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
 	TakeInventory("P_Frozen", 1);
 
-	ACS_NamedExecuteAlways("DND Menu Cleanup", 0, PlayerNumber());
+	SendOwnerScript("DND Menu Cleanup", PlayerNumber(), PlayerNumber());
 }
 
 void ConcludeVoting(int npc_id, int result) {

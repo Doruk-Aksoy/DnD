@@ -168,7 +168,7 @@ void SpawnCharmWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, int max_lvl 
 		RollCharmInfoWithMods(c, RollItemLevel(max_lvl), m1, m2, m3, pnum);
 		SpawnDrop("CharmDrop", 16.0, 16, pnum + 1, c);
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_CHARM);
+		SendOwnerScript("DnD Play Local Item Drop Sound", pnum, pnum, DND_ITEM_CHARM);
 	}
 }
 

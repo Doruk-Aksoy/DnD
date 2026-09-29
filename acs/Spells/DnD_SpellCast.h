@@ -13,6 +13,18 @@ typedef struct {
 	int at[MAXPLAYERS][MAX_SPELL_IDS];
 } spell_cooldown_T;
 
+// Heart of Fire's rank 5 window: the tic a spell's empowerment runs out on, or 0. Sits next to the
+// cooldowns because it is the same kind of state and is written in the same breath as one. Server
+// side only -- the damage that reads it is resolved there too -- so unlike the ranks it needs no sync.
+typedef struct {
+	int ends[MAXPLAYERS][MAX_SPELL_IDS];
+} spell_prime_T;
+
+spell_prime_T module& GetSpellPrimes() {
+	static spell_prime_T s;
+	return s;
+}
+
 spell_cooldown_T module& GetSpellCooldowns() {
 	static spell_cooldown_T s;
 	return s;
@@ -27,7 +39,8 @@ spell_cooldown_T module& GetSpellCooldowns() {
 #define DND_SPELLPOINT_MAXFROMTOKEN 50
 
 int GetSpellCooldownRate(int pnum, int spell) {
-	return (GetSpellValue(pnum, spell, SPELLVAL_CDR) >> 16) + PlayerModData[pnum].vals[PSTAT_SPELL_CDR];
+	return (GetSpellValue(pnum, spell, SPELLVAL_CDR) >> 16) + PlayerModData[pnum].vals[PSTAT_SPELL_CDR] +
+		pbuffs[pnum].buff_net_values[BUFF_SPELLCDR].additive;
 }
 
 // FinalCD = Cooldown / (1 + Rate/100), floored by the 75% ceiling. Rate is the only shrinking term
@@ -99,9 +112,12 @@ int GetSpellPoints(int pnum) {
 	return CheckActorInventory(pnum + P_TIDSTART, "SpellPoint");
 }
 
+// Mirrors GivePerkPoints: the pool is an inventory item, and the activity lane is the DELTA the
+// level-end save writes. Both have to move together or a save between full writes loses the change.
 void GiveSpellPoints(int pnum, int amt) {
 	if(amt > 0)
 		GiveActorInventory(pnum + P_TIDSTART, "SpellPoint", amt);
+		UpdateActivity(pnum, DND_ACTIVITY_SPELLPOINT, amt, 0);
 }
 
 // Both sources run through here. The counter is what the cap is read off, not the unspent pool, so
@@ -140,6 +156,7 @@ bool AllocateSpellPoint(int pnum, int spell) {
 		return false;
 
 	TakeActorInventory(pnum + P_TIDSTART, "SpellPoint", 1);
+	UpdateActivity(pnum, DND_ACTIVITY_SPELLPOINT, -1, 0);
 	SetSpellAllocatedRank(pnum, spell, GetSpellAllocatedRank(pnum, spell) + 1);
 	SyncSpellRankWord(pnum, spell);
 
@@ -176,9 +193,12 @@ void SetupSpellActor(int tid, int pnum, int spell) {
 // Thrown along where the player is looking. Goes through CreateProjectile rather than SpawnForced
 // plus SetActorVelocity: that path already owns the ProjectileHelper trick, which exists because
 // moving the player to the muzzle position jitters them.
-void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags = 0) {
+void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags = 0, int angle_off = 0) {
 	int owner = pnum + P_TIDSTART;
-	int a = GetActorAngle(owner);
+
+	// + 1.0 before the wrap: an offset to the left is negative, and the modulo of a negative angle
+	// does not come back inside 0..1 on its own.
+	int a = (GetActorAngle(owner) + angle_off + 1.0) % 1.0;
 	int pt = Clamp_Between(GetActorPitch(owner), -0.248, 0.248);
 	int cosp = cos(pt);
 
@@ -189,8 +209,13 @@ void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags =
 	vProj.y = speed * FixedMul(sin(a), cosp);
 	vProj.z = -sin(pt) * speed;
 
-	CreateProjectile(owner, PROJECTILE_HELPER_TID + pnum, actor, a, pt, speed, vProj, vPos, flags);
-	SetupSpellActor(TEMPORARY_ATTACK_TID, pnum, spell);
+	// Handed back under a tid of our own: CreateProjectile releases TEMPORARY_ATTACK_TID before it
+	// returns, so setting the spell up on that tid afterwards reached nothing at all and every spell
+	// projectile flew with user_spellid still 0 -- resolving its damage as spell 0 rather than its own.
+	int tid = TEMPORARY_SPELL_TID + pnum;
+	CreateProjectile(owner, PROJECTILE_HELPER_TID + pnum, actor, a, pt, speed, vProj, vPos, flags, 0, 0, 0, tid);
+	SetupSpellActor(tid, pnum, spell);
+	Thing_ChangeTID(tid, 0);
 
 	bcs::free(vProj);
 	bcs::free(vPos);
@@ -208,6 +233,16 @@ int SpawnSpellAnchor(int pnum, int spell, str actor, int x, int y, int z) {
 	// the anchor should give it a tid of their own before this returns it.
 	Thing_ChangeTID(tid, 0);
 	return tid;
+}
+
+// Steps out from the middle alternating sides -- 0, +1, -1, +2, -2 -- so the shot on the player's
+// aim stays the centre of the fan however many there are, and adding one never moves the others.
+int FanOffset(int index, int step) {
+	if(!index)
+		return 0;
+
+	int pair = (index + 1) / 2;
+	return (index & 1) ? pair * step : -pair * step;
 }
 
 // ---- aiming ----------------------------------------------------------------------------------
@@ -248,6 +283,132 @@ bool TraceSpellAim(int pnum, int maxdist) {
 		SetActivator(prev);
 
 	return true;
+}
+
+// ---- hitscan ----------------------------------------------------------------------------------
+
+#define DND_SPELL_HITSCANRANGE 2048.0
+
+// How far past its own radius a monster may sit from the puff and still count as what was hit. The
+// puff lands ON the victim's surface, so the true figure is the victim's radius; the slack only
+// covers the puff being placed a little inside or outside that.
+#define DND_SPELL_HITSCANSLACK 12.0
+
+// What a hitscan landed on, or 0. LineAttack hands back no victim and a puff carries no dependable
+// pointer to what it struck, so this works backwards from where the puff ended up: a puff sits on the
+// victim's surface, so the victim is the monster whose own radius reaches it. A trace that hit
+// geometry instead leaves the puff flat against a wall, where that test fails for everything standing
+// near it -- which is what keeps a wall shot from igniting a bystander.
+int FindHitscanVictim(int pufftid) {
+	int i, mn, d, best = 0, bestd = 0;
+	int px = GetActorX(pufftid), py = GetActorY(pufftid), pz = GetActorZ(pufftid);
+
+	for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
+		i = UsedMonsterTIDs[mn];
+		if(!IsActorAlive(i) || !CheckFlag(i, "SHOOTABLE"))
+			continue;
+
+		// A cylinder, because that is the shape of a Doom hitbox -- and because a straight fdistance
+		// is 3D while an actor's origin is at its FEET. A chest height hit on an imp is ~35 units up,
+		// which swamps the 20 unit radius and put every victim out of range: the test never matched
+		// and nothing was ever handed the hit effect.
+		if(pz < GetActorZ(i) - DND_SPELL_HITSCANSLACK ||
+			pz > GetActorZ(i) + GetActorProperty(i, APROP_HEIGHT) + DND_SPELL_HITSCANSLACK)
+			continue;
+
+		d = fdistance_delta(px - GetActorX(i), py - GetActorY(i), 0);
+		if(d > GetActorProperty(i, APROP_RADIUS) + DND_SPELL_HITSCANSLACK)
+			continue;
+
+		if(!best || d < bestd) {
+			best = i;
+			bestd = d;
+		}
+	}
+
+	return best;
+}
+
+// A damaging trace along where the caster is looking. Returns what it hit, or 0.
+//
+// The damage word is resolved BEFORE the trace, unlike every other spell shape here. LineAttack
+// applies the damage it is handed and offers no impact hook, so there is no later moment to resolve
+// it in -- a projectile gets one for free by carrying user_spellid until it lands. A throwaway anchor
+// carries those same variables for one call so "DnD Spell Damage" is reused verbatim rather than
+// reimplemented; the word it returns is packed exactly like HitscanDamageData's, which is what the
+// damage handler already expects to unpack off a trace.
+int SpellHitscan(int pnum, int spell, str puff, int range = DND_SPELL_HITSCANRANGE) {
+	int caster = pnum + P_TIDSTART;
+	int tid = TEMPORARY_SPELL_TID + pnum;
+	int prev = ActivatorTID();
+
+	// The carrier takes the dummy tid rather than sharing the puff's: the puff is measured from by tid
+	// straight after, and nothing here should depend on the carrier's removal having already landed.
+	int carrier = TEMPORARY_DATADUMMY_TID + pnum;
+	if(!SpawnForced("DnD_SpellAnchor", GetActorX(caster), GetActorY(caster), GetActorZ(caster), carrier, 0))
+		return 0;
+
+	SetupSpellActor(carrier, pnum, spell);
+	SetActivator(carrier);
+	int packed = ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE, 0);
+	SetActivator(caster);
+	Thing_Remove(carrier);
+
+	// Damage type "None": the element rides in the packed word, the same as a weapon hitscan.
+	LineAttack(caster, GetActorAngle(caster), GetActorPitch(caster), packed, puff, "None",
+		range, FHF_NORANDOMPUFFZ, tid);
+
+	int victim = FindHitscanVictim(tid);
+	Thing_ChangeTID(tid, 0);
+
+	if(prev)
+		SetActivator(prev);
+
+	return victim;
+}
+
+// ---- channelling -------------------------------------------------------------------------------
+
+// A channel runs while ATTACK is held. There is no way to ask whether the hotbar key that started it
+// is still down -- ACS only sees the standard inputs -- so attack is the button, and "DnD Can Fire
+// Weapon" stands the weapon down for as long as DnD_SpellBusy is held.
+#define DND_CHANNEL_BUTTON BT_ATTACK
+
+// The cast came from a hotbar key, so the player needs a moment to get onto the button. Until it has
+// been seen held ONCE, this window keeps the channel alive; after that, letting go ends it. A player
+// who never presses it still gets the spell, for its full duration.
+#define DND_CHANNEL_GRACE (TICRATE / 2)
+
+// -1, the activator, not the player index. The channel script runs with the caster as activator and
+// that is the form 34 of the mod's 37 GetPlayerInput calls use; the indexed form is only used from
+// places that already know they are on the right machine for that player.
+bool IsChannelHeld() {
+	return !!(GetPlayerInput(-1, INPUT_BUTTONS) & DND_CHANNEL_BUTTON);
+}
+
+// Every path that makes the player unable to use their weapon goes through this pair, so there is one
+// thing to hold and one thing to release. Counted, so a cast time running into a channel never drops
+// the lock between them.
+// A channel keeps paying for itself, once per DAMAGE INSTANCE -- whatever period the spell's own
+// text gives for its damage is the period it is billed on, so the cost and the effect stay in step.
+// The caller decides that cadence and calls this only on those tics; this just handles the first one.
+//
+// TryCastSpell took one cost at the press, which buys the first instance, so `first` is free here --
+// otherwise a cast would be charged twice before doing anything.
+//
+// Returns false when the player can no longer afford it, which is one of the two ways a channel ends
+// -- the other is letting go. Nothing is spent on the instance that fails, so running dry cannot
+// leave a negative balance.
+bool PayChannelTick(int pnum, int spell, bool first) {
+	return first || SpendSpellMana(pnum, spell);
+}
+
+void BeginSpellBusy(int pnum) {
+	GiveActorInventory(pnum + P_TIDSTART, "DnD_SpellBusy", 1);
+}
+
+void EndSpellBusy(int pnum) {
+	TakeActorInventory(pnum + P_TIDSTART, "DnD_SpellBusy", 1);
 }
 
 // ---- casting ---------------------------------------------------------------------------------

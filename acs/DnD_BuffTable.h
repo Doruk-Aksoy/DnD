@@ -47,6 +47,17 @@ enum {
     BTI_ELEMENTPOWER_LIGHTNING,
     BTI_ELEMENTPOWER_FIRE,
 
+    // Spell sourced buffs. Above the debuff marker so Wanderer perk 1 does not cut their duration,
+    // and appended rather than inserted -- DECORATE passes these indices numerically, so
+    // DnD/Actors/BuffIndex.dec has to match this list entry for entry.
+    BTI_SPELL_WARMTH,
+    BTI_SPELL_WARMTH_FLAT,
+    BTI_SPELL_HEATSHIELD,
+    BTI_SPELL_BOILINGBLOOD,
+    BTI_SPELL_BOILINGBLOOD_CDR,
+    BTI_SPELL_ANGER,
+    BTI_SPELL_ANGER_IGNITE,
+
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
     BTI_CHILL,
@@ -542,6 +553,81 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             // the speed half rides along as its own node, so it expires on the same
             // ticker and obeys the same strongest-caster-wins rule
             HandlePlayerBuffAssignment(pnum, initiator, BTI_RALLY_SPEED, script_flags, 0, 0, inc_effect);
+        break;
+
+        // ---- spell sourced -------------------------------------------------------------------
+        // All of these take their value and their duration from the caster, already resolved from the
+        // spell tables, because this file is included well before the spell headers and cannot read
+        // GetSpellValue itself -- the same constraint Rally documents above.
+        //
+        // NODUPLICATE_STRICT throughout: a recast refreshes and the stronger cast wins, rather than
+        // stacking a second node. Warmth and Anger can also land on an ALLY, so several casters may
+        // target the same player.
+        // inc_effect carries BOTH halves, as Rally's does: the percent in the low 16 bits and the flat
+        // mana per second in the high 16. One spare int is all this function has.
+        case BTI_SPELL_WARMTH:
+            btype = BUFF_MANAREGEN;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect & 0xFFFF;
+            bduration = new_duration;
+            tic_duration = bduration;
+
+            if(inc_effect >> 16)
+                HandlePlayerBuffAssignment(pnum, initiator, BTI_SPELL_WARMTH_FLAT, script_flags, 0,
+                    new_duration, inc_effect >> 16);
+        break;
+
+        // The flat half of Warmth, its own node so it expires on the same ticker as the percent one.
+        // Issued by the BTI_SPELL_WARMTH case rather than by the caster, the way Rally issues its speed.
+        case BTI_SPELL_WARMTH_FLAT:
+            btype = BUFF_MANAREGENFLAT;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_HEATSHIELD:
+            btype = BUFF_ARMORFLAT;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_BOILINGBLOOD:
+            btype = BUFF_SUPERMOVESPEED;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_BOILINGBLOOD_CDR:
+            btype = BUFF_SPELLCDR;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // The two halves of Anger. An aura has no duration of its own -- the maintenance pass
+        // refreshes it while the aura is on and lets it lapse when it goes off -- so the duration is
+        // whatever that pass hands in, a little longer than its own period.
+        case BTI_SPELL_ANGER:
+            btype = BUFF_FIREDAMAGEDEALT;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect * 1.0 / 100;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_ANGER_IGNITE:
+            btype = BUFF_IGNITECHANCE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
         break;
 
         case BTI_LEECHINGDAMAGE:

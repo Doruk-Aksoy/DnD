@@ -65,19 +65,25 @@
 
 // How far the tree reaches, so it can be centred. Authored positions, so this is the tree's shape
 // and not the player's progress.
+// These walk the tree's own block rather than the whole id space, and skip the empty slots in it --
+// a zeroed def would otherwise read as a Fire spell at (0,0).
 int GetTreeMaxTX(int tree) {
-	int i, m = 0;
-	for(i = 0; i < MAX_SPELL_IDS; ++i)
-		if(SpellDefs[i].tree == tree && SpellDefs[i].tx > m)
-			m = SpellDefs[i].tx;
+	int i, s, m = 0;
+	for(i = 0; i < DND_SPELLS_PER_TREE; ++i) {
+		s = GetTreeFirstSpell(tree) + i;
+		if(IsSpellDefined(s) && SpellDefs[s].tx > m)
+			m = SpellDefs[s].tx;
+	}
 	return m;
 }
 
 int GetTreeMaxTY(int tree) {
-	int i, m = 0;
-	for(i = 0; i < MAX_SPELL_IDS; ++i)
-		if(SpellDefs[i].tree == tree && SpellDefs[i].ty > m)
-			m = SpellDefs[i].ty;
+	int i, s, m = 0;
+	for(i = 0; i < DND_SPELLS_PER_TREE; ++i) {
+		s = GetTreeFirstSpell(tree) + i;
+		if(IsSpellDefined(s) && SpellDefs[s].ty > m)
+			m = SpellDefs[s].ty;
+	}
 	return m;
 }
 
@@ -373,12 +379,13 @@ void DrawTreeJunctions(str col) {
 // Spells belonging to this tree, in id order. The index is also the box index, so a click resolves
 // back through the same walk.
 int GetTreeSpellByIndex(int tree, int index) {
-	int i, n = 0;
-	for(i = 0; i < MAX_SPELL_IDS; ++i) {
-		if(SpellDefs[i].tree != tree)
+	int i, s, n = 0;
+	for(i = 0; i < DND_SPELLS_PER_TREE; ++i) {
+		s = GetTreeFirstSpell(tree) + i;
+		if(!IsSpellDefined(s))
 			continue;
 		if(n == index)
-			return i;
+			return s;
 		++n;
 	}
 	return -1;
@@ -386,8 +393,8 @@ int GetTreeSpellByIndex(int tree, int index) {
 
 int GetTreeSpellCount(int tree) {
 	int i, n = 0;
-	for(i = 0; i < MAX_SPELL_IDS; ++i)
-		if(SpellDefs[i].tree == tree)
+	for(i = 0; i < DND_SPELLS_PER_TREE; ++i)
+		if(IsSpellDefined(GetTreeFirstSpell(tree) + i))
 			++n;
 	return n;
 }
@@ -406,9 +413,11 @@ void HandleSpellIndexDraw(int pnum, int boxid) {
 			RPGMENUITEMID - 1 - i, 192.1, y << 16, "\c[B1]", GetTreeSpellCount(i) ? "\c-" : "\c[K5]");
 	}
 
+	HudMessage(s:"\c[Y5]-------------------------"; HUDMSG_PLAIN, RPGMENUITEMID - 2 - MAX_SKILL_TREES, CR_WHITE, 192.1, 80.0 + 16.0 * MAX_SKILL_TREES, 0.0, 0.0);
+
 	// Last, so entry n stays box n however many trees get content.
 	DrawBoxText("DND_SPELLTREE_HOTBAR", DND_LANGUAGE_LOOKUP, boxid, MBOX_1 + MAX_SKILL_TREES,
-		RPGMENUITEMID - 1 - MAX_SKILL_TREES, 192.1, (80 + MAX_SKILL_TREES * 16) << 16, "\c[B1]", "\c-");
+		RPGMENUITEMID - 1 - MAX_SKILL_TREES, 192.1, (88 + MAX_SKILL_TREES * 16) << 16, "\c[B1]", "\c-");
 }
 
 // ---- hover panel -------------------------------------------------------------------------------
@@ -596,6 +605,16 @@ void HandleSpellHoverPanel(int pnum, int spell) {
 	else if(temp)
 		PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_COST", s:" \c-", d:temp, s:" mana"));
 
+	// Whether the effect is actually running, for the spells that can be switched off. Directly under
+	// the cost, so an aura's reservation and whether it is being paid read as one thought. Only once
+	// learned -- there is nothing to switch on a spell the player does not have.
+	if(IsSpellToggleable(spell) && alloc) {
+		PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_STATE", s:" ",
+			s:IsSpellToggledOff(pnum, spell) ? "\c[A0]" : "\c[D4]",
+			l:IsSpellToggledOff(pnum, spell) ? "DND_SPLPANEL_OFF" : "DND_SPLPANEL_ON"));
+		PanelText(StrParam(s:"\c-", l:"DND_SPLPANEL_TOGGLEHINT"), "\c-");
+	}
+
 	// Shown AFTER everything that shortens them, so the panel matches the hotbar.
 	temp = alloc ? GetSpellCooldownTics(pnum, spell) : (GetSpellValue(pnum, spell, SPELLVAL_COOLDOWN, 1) * TICRATE) >> 16;
 	if(temp)
@@ -746,8 +765,14 @@ void DrawSpellPocket(int pnum) {
 // ---- hotbar assignment page --------------------------------------------------------------------
 #define DND_SPELLHOTBAR_PITCH 36
 #define DND_SPELLHOTBAR_Y 84
+// The grid has to hold EVERY bindable spell at once, which at worst is every learned spell bar the
+// handful of passives and auras. 8 columns by 5 rows covers 40; the rows start just under the slot
+// squares (which end at DND_SPELLHOTBAR_Y + DND_SPELLNODE = 105) and the last one ends at 283, inside
+// the board's 285. It was starting at 150, which fit only 4 rows -- a player who had learned more
+// than 32 castable skills had the rest drawn off the bottom of the page, unreachable.
 #define DND_SPELLPICK_COLS 8
-#define DND_SPELLPICK_Y 150
+#define DND_SPELLPICK_ROWS 5
+#define DND_SPELLPICK_Y 118
 
 // Only what can actually sit on a bar: allocated, and not a passive or an aura. Those two work from
 // allocation or a tree toggle and would be dead slots.
@@ -789,23 +814,11 @@ void DrawSpellCell(int spell, int x, int y, int id, bool lit) {
 
 	SetHudSize(HUDMAX_X * sc, HUDMAX_Y * sc, 1);
 
-	if(spell >= 0) {
-		SetFont(GetSpellIcon(spell, false));
-		HudMessage(s:"A"; HUDMSG_PLAIN, id, CR_UNTRANSLATED,
-			((x * sc) << 16) + 0.1, ((y * sc) << 16) + 0.1, 0.0);
-	}
-	else
-		DeleteText(id);
-
-	// SPLBACK is what a slot looks like; SPLSLCT is what HOVER looks like. Using the selection frame
-	// for empty slots made every slot read as selected.
-	if(spell < 0) {
-		SetFont("SPLBACK");
-		HudMessage(s:"A"; HUDMSG_PLAIN, id + MAX_SPELL_IDS, CR_UNTRANSLATED,
-			((x * sc) << 16) + 0.1, ((y * sc) << 16) + 0.1, 0.0);
-	}
-	else
-		DeleteText(id + MAX_SPELL_IDS);
+	// SPLBACK is what an empty slot looks like; SPLSLCT is what HOVER looks like. One id either way:
+	// a cell is an icon or an empty frame, never both.
+	SetFont(spell >= 0 ? GetSpellIcon(spell, false) : "SPLBACK");
+	HudMessage(s:"A"; HUDMSG_PLAIN, id, CR_UNTRANSLATED,
+		((x * sc) << 16) + 0.1, ((y * sc) << 16) + 0.1, 0.0);
 
 	if(lit) {
 		SetFont("SPLSLCT");
@@ -875,8 +888,13 @@ void HandleSpellHotbarDraw(int pnum, int boxid, menu_pane_T module& p) {
 	if(ss.picking_slot != -1) {
 		for(i = 0; i < bindable; ++i) {
 			spell = GetBindableByIndex(pnum, i);
-			x = GetRowCellX(i % DND_SPELLPICK_COLS, Min(bindable, DND_SPELLPICK_COLS));
-			y = DND_SPELLPICK_Y + (i / DND_SPELLPICK_COLS) * DND_SPELLHOTBAR_PITCH;
+
+			// Each row is centred on its OWN count, so a trailing part row sits in the middle instead of
+			// hanging off to the left under a full one.
+			int row = i / DND_SPELLPICK_COLS;
+			x = GetRowCellX(i % DND_SPELLPICK_COLS,
+				Min(bindable - row * DND_SPELLPICK_COLS, DND_SPELLPICK_COLS));
+			y = DND_SPELLPICK_Y + row * DND_SPELLHOTBAR_PITCH;
 
 			if(boxid == MBOX_1 + n)
 				framed = true;
@@ -892,8 +910,13 @@ void HandleSpellHotbarDraw(int pnum, int boxid, menu_pane_T module& p) {
 	}
 
 	// Whatever the last, longer layout left behind.
-	DeleteTextRange(SPELLTREE_NODE_ID + n, SPELLTREE_NODE_ID + MAX_SPELL_IDS - 1);
-	DeleteTextRange(SPELLTREE_RANK_ID + slots, SPELLTREE_RANK_ID + MAX_SPELL_IDS - 1);
+	// Bounded by what ONE TREE can show, not by the whole id space. MAX_SPELL_IDS is 256 now, and
+	// these bands are 45 and 40 ids wide -- sweeping that far past them wiped the connectors, the
+	// hover frame and the nodes themselves, which is what made the tree draw and then vanish.
+	DeleteTextRange(SPELLTREE_NODE_ID + n, SPELLTREE_NODE_ID + DND_SPELLS_PER_TREE - 1);
+	// + 1: the labels start at RANK_ID + 1, because box one is the back arrow. Sweeping from
+	// RANK_ID + slots deleted the LAST slot's number every frame.
+	DeleteTextRange(SPELLTREE_RANK_ID + slots + 1, SPELLTREE_RANK_ID + DND_SPELLS_PER_TREE - 1);
 
 	// Not `hovered`: an EMPTY slot under the cursor is framed but has no spell, and keying the frame
 	// off hovered deleted it the moment it was drawn.
@@ -1011,17 +1034,23 @@ void HandleSpellTreeDraw(int pnum, int tree, int boxid, menu_pane_T module& p) {
 	ResetTreeSegments();
 
 	// Edges first so a node's icon always sits on top of anything reaching it.
-	for(i = 0; i < MAX_SPELL_IDS; ++i) {
-		if(SpellDefs[i].tree != tree)
+	//
+	// This walks the TREE'S BLOCK, not the whole id space, and skips its empty slots. Walking all of
+	// MAX_SPELL_IDS and testing .tree drew every unused id as a Fire spell at (0,0) -- 234 invisible
+	// nodes, each claiming a box, which overran the pane's box limit and took the real tree with it.
+	int first = GetTreeFirstSpell(tree);
+	for(j = 0; j < DND_SPELLS_PER_TREE; ++j) {
+		i = first + j;
+		if(!IsSpellDefined(i))
 			continue;
 
-		for(j = 0; j < DND_MAX_SKILL_REQ; ++j) {
-			req = SpellDefs[i].req_spell[j];
-			if(!req || SpellDefs[req - 1].tree != tree)
+		for(int k = 0; k < DND_MAX_SKILL_REQ; ++k) {
+			req = SpellDefs[i].req_spell[k];
+			if(!req || !IsSpellDefined(req - 1) || SpellDefs[req - 1].tree != tree)
 				continue;
 
 			// Lit when the requirement is satisfied, so the tree reads as a set of open paths.
-			col = GetSpellAllocatedRank(pnum, req - 1) >= SpellDefs[i].req_rank[j] ? "\c[Y5]" : "\c[K5]";
+			col = GetSpellAllocatedRank(pnum, req - 1) >= SpellDefs[i].req_rank[k] ? "\c[Y5]" : "\c[K5]";
 			DrawTreeConnector(req - 1, i, line, col);
 			line += DND_SPELLLINE_IDS;
 		}
@@ -1030,8 +1059,9 @@ void HandleSpellTreeDraw(int pnum, int tree, int boxid, menu_pane_T module& p) {
 	// Once every edge is down, and only then: a joint is a fact about the SET of them.
 	DrawTreeJunctions("\c[K5]");
 
-	for(i = 0; i < MAX_SPELL_IDS; ++i) {
-		if(SpellDefs[i].tree != tree)
+	for(j = 0; j < DND_SPELLS_PER_TREE; ++j) {
+		i = first + j;
+		if(!IsSpellDefined(i))
 			continue;
 
 		spell = i;
@@ -1115,6 +1145,8 @@ void HandleSpellTreeDraw(int pnum, int tree, int boxid, menu_pane_T module& p) {
 }
 
 // Returns true when something changed and the page wants a redraw.
+// LEFT click only. The toggle used to live here and fired on any click, which meant an aura could
+// never be ranked up past the first point -- every attempt flipped it instead.
 bool HandleSpellTreeClick(int pnum, int tree, int boxid) {
 	if(boxid < MBOX_1)
 		return false;
@@ -1123,15 +1155,27 @@ bool HandleSpellTreeClick(int pnum, int tree, int boxid) {
 	if(spell == -1)
 		return false;
 
-	// An aura is toggled rather than cast, so clicking one that is already ranked flips it instead
-	// of spending a point the player may not have meant to spend.
-	if((SpellDefs[spell].flags & SPLF_AURA) && GetSpellAllocatedRank(pnum, spell)) {
-		SetAuraEnabled(pnum, spell, !IsAuraEnabled(pnum, spell));
-		ValidateAuraReservations(pnum);
-		return true;
-	}
-
 	return AllocateSpellPoint(pnum, spell);
+}
+
+// RIGHT click, on an aura or a passive the player has already learned: switches its effect off, or
+// back on. Auras stop reserving their mana while off, which is the point -- a build may want the
+// spell ranked for its synergies without paying the reservation.
+bool HandleSpellTreeToggle(int pnum, int tree, int boxid) {
+	if(boxid < MBOX_1)
+		return false;
+
+	int spell = GetTreeSpellByIndex(tree, boxid - MBOX_1);
+	if(spell == -1 || !IsSpellToggleable(spell) || !GetSpellAllocatedRank(pnum, spell))
+		return false;
+
+	SetSpellToggledOff(pnum, spell, !IsSpellToggledOff(pnum, spell));
+
+	// Before the sync: this may switch a DIFFERENT aura off when the reservations no longer fit, and
+	// that one pushes its own word.
+	ValidateAuraReservations(pnum);
+	SyncSpellToggleWord(pnum, spell);
+	return true;
 }
 
 #endif

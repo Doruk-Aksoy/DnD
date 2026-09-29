@@ -1137,7 +1137,7 @@ void SyncPlayerItemMods(int pnum) {
 	// Whole words, same reasoning as the flags: the client mirrors rather than reconstructs. Sent
 	// unconditionally because a word going back to 0 is exactly the update that must not be skipped.
 	for(i = 0; i < DND_PERK_WORDS; ++i)
-		ACS_NamedExecuteWithResult("DnD Request Perk Sync", pnum, i, PlayerModData[pnum].perks_packed[i]);
+		SendOwnerSync("DnD Request Perk Sync", pnum, pnum, i, PlayerModData[pnum].perks_packed[i]);
 
 	// The pool the lanes are spent from. Forced, because a resync has to re-state the client's copy
 	// even when the server's has not moved -- the client is zeroed independently of the server.

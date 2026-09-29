@@ -106,7 +106,7 @@ void HandleTokenUse(int pnum, int token_type, int item_id) {
 			SyncClientsideVariable_WeaponMods(pnum, item_id);
         break;
     }
-    ACS_NamedExecuteAlways("DND Token Use Message", 0, token_type, item_id, amt);
+    SendOwnerScript("DND Token Use Message", PlayerNumber(), token_type, item_id, amt);
 }
 
 void HandleTokenUseMessage(int token_type, int item_id, int amt) {
