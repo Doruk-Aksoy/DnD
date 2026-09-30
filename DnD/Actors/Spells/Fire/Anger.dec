@@ -1,0 +1,49 @@
+// Anger's aura. See the player attachment section in acs/DnD_Attachments.h for why this is carried
+// as inventory rather than through the monster attachment system: a player tid does not exist on a
+// client, so nothing clientside could aim a warp at one.
+
+// The marker. Its PRESENCE is the aura -- ACS gives it when the aura switches on and takes it when
+// the aura switches off, and the effect below watches it. Nothing else reads it.
+Actor DnD_AngerAuraActive : DnD_Boolean {}
+
+// The token that raises the effect. A CustomInventory, so its Pickup state runs with the PLAYER as
+// self on every machine that receives the item.
+//
+// WithResult, not Always: the former runs inline and keeps the player as activator, which is the
+// only thing the spawner has to aim the aura at. Always starts a detached script and the activator
+// is lost. Wanderer_ReturnCircle's spawner is the working precedent and does exactly this.
+Actor Spell_AngerAura_FXSpawner : DnD_Activator {
+    States {
+        Pickup:
+            TNT1 A 1 ACS_NamedExecuteWithResult("DnD Spawn Player Aura", PLAYERFX_ANGERAURA)
+        Stop
+    }
+}
+
+// The effect. Spawned and pointed at its owner by "DnD Spawn Player Aura", follows them while the
+// marker is on them, and stops the moment it is gone.
+//
+// Drawn by MODELDEF as "Spell_AngerAuraFX" on frame AURA J -- that entry is already in MODELDEF.aura
+// using ANGERAUR.png on flat.md3, alongside the other auras. The sprite lump for J does not need to
+// exist: AURA C has no lump either and Wanderer_ReturnCircle renders on it fine.
+Actor Spell_AngerAuraFX {
+    Renderstyle Add
+    Alpha 0.85
+    Scale 4.0
+    +CLIENTSIDEONLY
+    +NOINTERACTION
+    +NOTONAUTOMAP
+    States {
+        // One tic, not zero. The actor has to survive to its first Tick for NoDelay to fire, and a
+        // zero length spawn frame that does not jump is gone before anything sees it.
+        Spawn:
+            TNT1 A 1 NoDelay A_JumpIfInTargetInventory("DnD_AngerAuraActive", 1, "Active")
+        Stop
+
+        Active:
+            AURA J 1 Bright A_Warp(AAPTR_TARGET, 0, 0, 0, 0,
+                WARPF_INTERPOLATE | WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION)
+            TNT1 A 0 A_JumpIfInTargetInventory("DnD_AngerAuraActive", 1, "Active")
+        Stop
+    }
+}

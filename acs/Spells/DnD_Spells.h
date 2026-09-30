@@ -64,7 +64,9 @@ void GiveSpellBuffAround(int pnum, int spell, int bti, int val, int dur, bool al
 	if(!allies)
 		return;
 
-	int r = GetSpellValue(pnum, spell, SPELLVAL_RADIUS) << 16;
+	// Grown by the caster's area modifiers, so the reach matches the ring the aura FX draws.
+	int r = ScalePlayerAoERadius(pnum, GetSpellValue(pnum, spell, SPELLVAL_RADIUS) << 16,
+		DND_AOESRC_NONWEAPON);
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(i == pnum || !PlayerInGame(i) || !IsActorAlive(i + P_TIDSTART))
 			continue;
@@ -74,26 +76,18 @@ void GiveSpellBuffAround(int pnum, int spell, int bti, int val, int dur, bool al
 }
 
 // Who a SPLF_TARGETED support spell lands on: the ally under the crosshair, or the caster when that
-// is nobody. Traced with the aim puff, then matched against the player tids -- LineAttack hands back
-// no victim, so this is the same working-backwards the hitscans do.
+// is nobody. PickActor rather than the aim puff, because this answers in the caller's own call and
+// the puff cannot report before its first tick -- and because it needs an ACTOR, which is the one
+// thing PickActor gives directly.
 int GetSpellSupportTarget(int pnum) {
-	if(!TraceSpellAim(pnum, DND_SPELL_HITSCANRANGE))
-		return pnum;
+	int caster = pnum + P_TIDSTART;
+	int t = PickActor(caster, GetActorAngle(caster), GetActorPitch(caster),
+		DND_SPELL_HITSCANRANGE, 0, MF_SHOOTABLE, ML_BLOCKEVERYTHING, PICKAF_RETURNTID);
 
-	int ax = GetSpellAim().x[pnum], ay = GetSpellAim().y[pnum], az = GetSpellAim().z[pnum];
-	for(int i = 0; i < MAXPLAYERS; ++i) {
-		if(i == pnum || !PlayerInGame(i) || !IsActorAlive(i + P_TIDSTART))
-			continue;
-
-		int t = i + P_TIDSTART;
-		if(az < GetActorZ(t) - DND_SPELL_HITSCANSLACK ||
-			az > GetActorZ(t) + GetActorProperty(t, APROP_HEIGHT) + DND_SPELL_HITSCANSLACK)
-			continue;
-
-		if(fdistance_delta(ax - GetActorX(t), ay - GetActorY(t), 0) <=
-			GetActorProperty(t, APROP_RADIUS) + DND_SPELL_HITSCANSLACK)
-			return i;
-	}
+	// Player tids are one contiguous band, so membership of it is the whole test.
+	int i = t - P_TIDSTART;
+	if(i >= 0 && i < MAXPLAYERS && i != pnum && PlayerInGame(i) && IsActorAlive(t))
+		return i;
 
 	return pnum;
 }
@@ -104,8 +98,13 @@ int GetSpellSupportTarget(int pnum) {
 #define DND_SPELLAURA_REFRESH (2 * TICRATE)
 
 void RefreshSpellAuras(int pnum) {
-	if(IsSpellActive(pnum, SPL_ANGER))
+	bool anger = IsSpellActive(pnum, SPL_ANGER);
+	if(anger)
 		ApplyAngerAura(pnum, DND_SPELLAURA_REFRESH);
+
+	// Same pass raises and drops the visual. This runs every second whether the aura is on or off,
+	// which is exactly what a switchable effect needs -- there is no teardown path to forget.
+	SetPlayerAttachment(pnum, DND_PLAYERFX_ANGERAURA, anger);
 }
 
 // Heart of Fire. Finishing a fire spell's cast gives every OTHER fire spell on the hotbar that is on
@@ -366,6 +365,9 @@ Script "DnD Scorching Ray" (int pnum) {
 	bool held = false;
 	int i, t = 0, v, dealt, len, half, a, rx, ry;
 
+	PlaySound(caster, "ScorchingRay/Start", CHAN_5);
+	PlaySound(caster, "ScorchingRay/Loop", CHAN_7, 1.0, true);
+
 	while(true) {
 		if(!PlayerInGame(pnum) || !IsActorAlive(caster))
 			break;
@@ -391,7 +393,7 @@ Script "DnD Scorching Ray" (int pnum) {
 			// the same 0.2s period, so they are charged on the same one. Running dry ends the channel
 			// exactly as letting go of the button does.
 			if(!PayChannelTick(pnum, SPL_SCORCHINGRAY, !t))
-			break;
+				break;
 
 			half = GetScorchRayWidth(pnum) / 2;
 			sr.count = 0;
@@ -412,7 +414,7 @@ Script "DnD Scorching Ray" (int pnum) {
 			for(i = 0; i < sr.count; ++i) {
 				v = sr.hit[i];
 				if(!IsActorAlive(v))
-				continue;
+					continue;
 
 				dealt = HandleDamageDeal(caster, v, GetSpellValue(pnum, SPL_SCORCHINGRAY, SPELLVAL_DAMAGE),
 				DND_DAMAGETYPE_FIRE, SPL_SCORCHINGRAY, DND_DAMAGEFLAG_ISSPELL, 0, 0, 0, 0, true);
@@ -422,25 +424,21 @@ Script "DnD Scorching Ray" (int pnum) {
 					Thing_Damage2(v, dealt, "SkipHandle");
 				}
 
-				// "After 2.5 seconds" is how long the BEAM has been going, which the loop counter already
-				// is -- so from that point on everything it touches is exposed. Tracking it per target
-				// instead needs a contact time per monster, and there is nothing in the spell that asks for
-				// the difference.
+				// the 2.5 expose timer
 				if(t < DND_SCORCHRAY_EXPOSEAT)
-				continue;
+					continue;
+				else if(t == DND_SCORCHRAY_EXPOSEAT)
+					PlaySound(caster, "ScorchingRay/Exposure", CHAN_5);
 
-				if(CheckActorInventory(v, "DnD_FireExposed") < DND_SCORCHRAY_EXPOSEPCT)
-				SetActorInventory(v, "DnD_FireExposed", DND_SCORCHRAY_EXPOSEPCT);
-
-				SetActorInventory(v, "DnD_FireExposedTimer",
-				GetSpellDurationTics(pnum, SPL_SCORCHINGRAY));
-				ACS_NamedExecuteAlways("DnD Fire Exposure Timer", 0, v);
+				ApplyFireExposure(v, DND_SCORCHRAY_EXPOSEPCT, GetSpellDurationTics(pnum, SPL_SCORCHINGRAY));
 			}
 		}
 
 		Delay(const:1);
 		++t;
 	}
+
+	StopSound(caster, CHAN_7);
 
 	EndSpellBusy(pnum);
 }
@@ -451,16 +449,32 @@ Script "DnD Scorching Ray" (int pnum) {
 int GetScorchRayCutoff(int pnum, int len) {
 	int caster = pnum + P_TIDSTART;
 	int puff = TEMPORARY_DATADUMMY_TID + pnum;
+	int helper = PROJECTILE_HELPER_TID + pnum;
 
-	// Measured from where the BEAM starts, not from where the engine fires this trace. LineAttack
-	// leaves the player's own attack height whatever we do -- it takes no origin -- so what this can
-	// control is the point the distance is measured from, and that has to be the beam's origin or the
-	// drawn length stops short of the wall or runs past it.
+	int a = GetActorAngle(caster), p = GetActorPitch(caster);
+	int fx = FixedMul(cos(a), cos(p)), fy = FixedMul(sin(a), cos(p)), fz = -sin(p);
+	int nose = GetActorProperty(caster, APROP_RADIUS) + 8.0;
+
+	// Measured from where the BEAM starts, so the drawn length neither stops short of the wall nor
+	// runs past it.
 	int ox = GetActorX(caster), oy = GetActorY(caster);
 	int oz = GetActorZ(caster) + GetActorViewHeight(caster) - DND_SCORCHRAY_ZOFF;
 
-	LineAttack(caster, GetActorAngle(caster), GetActorPitch(caster), 0, "Spell_ScorchRayMarker",
-		"None", len, FHF_NORANDOMPUFFZ | FHF_NOIMPACTDECAL, puff);
+	// Fired from a helper sitting ON the beam line, not by the caster. LineAttack leaves the SHOOTER's
+	// own attack height and takes no origin, so a trace fired by the player left its marker well above
+	// the beam it is marking. The damaging rays already go through a helper for the same reason, and
+	// this one is placed and nosed forward exactly as they are.
+	if(!SpawnForced("Spell_TraceHelper", ox + FixedMul(nose, fx), oy + FixedMul(nose, fy),
+		oz + FixedMul(nose, fz), helper, 0))
+		return len;
+
+	SetActorAngle(helper, a);
+	SetActorPitch(helper, p);
+
+	LineAttack(helper, a, p, 0, "Spell_ScorchRayMarker", "None", len - nose,
+		FHF_NORANDOMPUFFZ | FHF_NOIMPACTDECAL, puff);
+
+	Thing_ChangeTID(helper, 0);
 
 	int stop = fdistance_delta(GetActorX(puff) - ox, GetActorY(puff) - oy, GetActorZ(puff) - oz);
 	Thing_ChangeTID(puff, 0);
@@ -531,15 +545,18 @@ Script "DnD Scorching Ray FX" (int stop, int girth) CLIENTSIDE {
 // Warmth. DAMAGE is the percent and DAMAGE2 the flat half, which is 16.16 mana per second and so
 // converts into the hundredths GetPlayerManaRegen works in. Both halves ride one buff -- the table
 // case issues the flat node itself, the way Rally issues its speed half.
+// "Duration becomes 12 seconds" at rank 5. An absolute value, so it is written as one.
+#define DND_WARMTH_R5_DURATION (12 * TICRATE)
+
 void CastWarmth(int pnum) {
 	int pct = GetSpellValue(pnum, SPL_WARMTH, SPELLVAL_DAMAGE);
 	int flat = (GetSpellValue(pnum, SPL_WARMTH, SPELLVAL_DAMAGE2) * DND_MANAREGEN_SCALE) >> 16;
 	int dur = GetSpellDurationTics(pnum, SPL_WARMTH);
 
-	// "Duration becomes 10 seconds" -- the table's 5 doubled, rather than a second figure to keep in
-	// step with it.
+	// "Duration becomes 12 seconds" -- an absolute replacement, NOT a multiple of the base. It was
+	// written as a doubling when the base was 5; the base is 8 now and that silently read as 16.
 	if(SpellThresholdMet(pnum, SPL_WARMTH, DND_SPELL_THRESH_LOW))
-		dur *= 2;
+		dur = DND_WARMTH_R5_DURATION;
 
 	GiveSpellBuffAround(pnum, SPL_WARMTH, BTI_SPELL_WARMTH, (pct & 0xFFFF) | (flat << 16), dur,
 		SpellThresholdMet(pnum, SPL_WARMTH, DND_SPELL_THRESH_HIGH));
@@ -551,6 +568,9 @@ void CastWarmth(int pnum) {
 void CastHeatShield(int pnum) {
 	int target = GetSpellSupportTarget(pnum);
 	int dur = GetSpellDurationTics(pnum, SPL_HEATSHIELD);
+
+	PlaySound(pnum + P_TIDSTART, "HeatShield/Cast", CHAN_6);
+	PlaySound(target + P_TIDSTART, "HeatShield/Cast", CHAN_6);
 
 	HandlePlayerBuffAssignment(target, pnum + P_TIDSTART, BTI_SPELL_HEATSHIELD, 0, 0, dur,
 		GetSpellValue(pnum, SPL_HEATSHIELD, SPELLVAL_DAMAGE));
@@ -612,9 +632,10 @@ Script "DnD Heat Shield Timer" (int pnum, int endtic) {
 	int ptid = pnum + P_TIDSTART;
 	SetActorInventory(ptid, "DnD_HeatShieldEnd", endtic);
 
-	while(Timer() < endtic && IsActorAlive(ptid) &&
-		CheckActorInventory(ptid, "DnD_HeatShieldEnd") == endtic)
+	while(Timer() < endtic && IsActorAlive(ptid) && CheckActorInventory(ptid, "DnD_HeatShieldEnd") == endtic)
 		Delay(const:TICRATE / 2);
+
+	PlaySound(pnum + P_TIDSTART, "HeatShield/End", CHAN_6);
 
 	if(CheckActorInventory(ptid, "DnD_HeatShieldEnd") == endtic) {
 		SetActorInventory(ptid, "DnD_HeatShieldRank", 0);
@@ -777,6 +798,10 @@ Script "DnD Incinerate Burst" (int pnum, int victim) {
 		r = 192;
 	r <<= 16;
 
+	// The burst FX, on the corpse the proc fired on. Given rather than spawned here because the actor
+	// is CLIENTSIDEONLY and this script is the server's -- the token is what crosses.
+	GiveActorInventory(victim, "Spell_Incinerate_BurstFXSpawner", 1);
+
 	int i, mn, out, source = pnum + P_TIDSTART;
 	for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
 		i = UsedMonsterTIDs[mn];
@@ -848,6 +873,125 @@ Script "DnD Pyroblast Burst" (void) {
 // Infernal Strike. Arms the NEXT melee swing rather than doing anything on cast, so the charge is an
 // item the melee path can test for a few instructions. Rank rides with it because the thresholds have
 // to resolve when the swing lands, not when it was armed.
+// "Enemies in a 256 unit area take -30% fire resistance for 8 seconds and gain 25% base chance to be
+// ignited." SPLF_TARGETED, so the area is centred on what the player is aiming at rather than on the
+// caster -- the aim trace always lands a puff, so an empty sky still gives a point at max range.
+#define DND_FLAMMABILITY_R5_AOE 25
+
+int GetFlammabilityRadius(int pnum) {
+	// "25% increased area of effect" -- increased, so it joins the additive pool.
+	return ScalePlayerAoERadius(pnum, GetSpellValue(pnum, SPL_FLAMMABILITY, SPELLVAL_RADIUS) << 16,
+		DND_AOESRC_NONWEAPON,
+		DND_FLAMMABILITY_R5_AOE * SpellThresholdMet(pnum, SPL_FLAMMABILITY, DND_SPELL_THRESH_LOW));
+}
+
+// The ring drawn where the curse lands. CLIENTSIDE because the markers are CLIENTSIDEONLY -- spawning
+// one from the server produces nothing on anybody's screen.
+//
+// Centre and radius arrive as arguments rather than being recomputed here: the radius comes off the
+// CASTER's area mods and rank, which a client cannot ask for on someone else's behalf.
+//
+// Dispatched with NamedExecuteWithResult, not NamedExecuteAlways: the four figures fit (Always
+// carries three), and this is the call the attachment path already proves reaches a CLIENTSIDE
+// script from a server side one.
+#define DND_FLAMMABILITY_RINGSTEP 48.0
+#define DND_FLAMMABILITY_RINGMIN 12
+#define DND_FLAMMABILITY_RINGMAX 40
+// Lifted off the centre's own z. A monster's origin is its FEET, so a ring drawn flat at that
+// height sinks into the floor it is standing on.
+#define DND_FLAMMABILITY_RINGLIFT 18.0
+
+Script "DnD Flammability Area FX" (int cx, int cy, int cz, int r) CLIENTSIDE {
+	if(r <= 0) {
+		SetResultValue(0);
+		Terminate;
+	}
+
+	// Scaled off the circumference so a widened area reads as a bigger ring rather than the same ring
+	// with wider gaps between its markers.
+	int n = Clamp_Between((FixedDiv(r, DND_FLAMMABILITY_RINGSTEP) >> 16) * 6,
+		DND_FLAMMABILITY_RINGMIN, DND_FLAMMABILITY_RINGMAX);
+
+	int i, a;
+	for(i = 0; i < n; ++i) {
+		a = (i * 1.0) / n;
+		SpawnForced("FlammabilityAreaMarkerFX",
+			cx + FixedMul(cos(a), r),
+			cy + FixedMul(sin(a), r),
+			cz + DND_FLAMMABILITY_RINGLIFT, 0, 0);
+	}
+
+	SetResultValue(0);
+}
+
+// Two ways to find the centre, because the curse has to land on a patch of floor as readily as on a
+// monster. PickActor answers in the same call and exactly, so it is the fast path; failing that the
+// aim puff tags itself where it struck geometry, which costs the few tics it takes the puff to tick.
+Script "DnD Flammability Cast" (int pnum) {
+	int caster = pnum + P_TIDSTART;
+	int cx, cy, cz;
+
+	PlaySound(caster, "Flammability/Cast", 6);
+
+	int target = PickActor(caster, GetActorAngle(caster), GetActorPitch(caster),
+		DND_SPELL_HITSCANRANGE, 0, MF_SHOOTABLE, ML_BLOCKEVERYTHING, PICKAF_RETURNTID);
+
+	if(target && IsActorAlive(target)) {
+		cx = GetActorX(target);
+		cy = GetActorY(target);
+		cz = GetActorZ(target);
+	}
+	else {
+		if(!TraceSpellAim(pnum, DND_SPELL_HITSCANRANGE))
+			Terminate;
+
+		int wait = 0;
+		while(!ReadSpellAim(pnum) && wait < DND_SPELLAIM_WAIT) {
+			Delay(const:1);
+			++wait;
+		}
+
+		if(!SpellAimReady(pnum) || !PlayerInGame(pnum) || !IsActorAlive(caster))
+			Terminate;
+
+		auto aim = GetSpellAim();
+		cx = aim.x[pnum];
+		cy = aim.y[pnum];
+		cz = aim.z[pnum];
+	}
+
+	int r = GetFlammabilityRadius(pnum);
+	int tics = GetSpellDurationTics(pnum, SPL_FLAMMABILITY);
+
+	ACS_NamedExecuteWithResult("DnD Flammability Area FX", cx, cy, cz, r);
+	int pct = GetSpellValue(pnum, SPL_FLAMMABILITY, SPELLVAL_DAMAGE);
+	int chance = GetSpellValue(pnum, SPL_FLAMMABILITY, SPELLVAL_DAMAGE2);
+
+	int i, mn;
+	for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
+		i = UsedMonsterTIDs[mn];
+		if(!IsActorAlive(i) || !CheckFlag(i, "SHOOTABLE"))
+			continue;
+		if(fdistance_delta(cx - GetActorX(i), cy - GetActorY(i), cz - GetActorZ(i)) > r)
+			continue;
+
+		ApplyFireExposure(i, pct, tics);
+
+		// Strongest and longest win independently, same rule as the exposure lane beside it.
+		if(CheckActorInventory(i, "DnD_Flammable") < chance)
+			SetActorInventory(i, "DnD_Flammable", chance);
+
+		// One ticker per monster -- it owns the marker, so a second would leave an orphan attachment.
+		bool ticking = !!CheckActorInventory(i, "DnD_FlammableTimer");
+		if(CheckActorInventory(i, "DnD_FlammableTimer") < tics)
+			SetActorInventory(i, "DnD_FlammableTimer", tics);
+
+		if(!ticking)
+			ACS_NamedExecuteAlways("DnD Flammability Timer", 0, i);
+	}
+
+}
+
 void CastInfernalStrike(int pnum) {
 	SetActorInventory(pnum + P_TIDSTART, "DnD_InfernalStrikeRank",
 		GetSpellRank(pnum, SPL_INFERNALSTRIKE, true));
@@ -982,6 +1126,10 @@ Script "DnD Spell Cast" (int spell, int pnum) {
 		case SPL_SEARINGBOND:
 			// A seeker, so it only needs throwing in the right general direction.
 			SpawnSpellProjectile(pnum, spell, "Spell_SearingBond", DND_SEARINGBOND_SPEED);
+		break;
+
+		case SPL_FLAMMABILITY:
+			ACS_NamedExecuteAlways("DnD Flammability Cast", 0, pnum);
 		break;
 
 		case SPL_SCORCHINGRAY:

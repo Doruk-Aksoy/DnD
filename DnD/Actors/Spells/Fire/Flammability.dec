@@ -1,0 +1,28 @@
+// Flammability's curse marker
+Actor FlammabilityFXMarker : DnD_AttachedFXBase {
+	Renderstyle Add
+	Alpha 0.85
+	ReactionTime 28
+	Scale 0.5
+	States {
+		SpawnLoop:
+			S005 A 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+		Loop
+	}
+}
+
+Actor FlammabilityAreaMarkerFX : DnD_SpecialFX {
+    RenderStyle Add
+    Alpha 0.95
+    Scale 0.75
+    +NOINTERACTION
+    +CLIENTSIDEONLY
+    +NOGRAVITY
+    States {
+        Spawn:
+            TNT1 A 0
+			TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+            S004 FFFGGGFFF 1 Bright A_FadeOut(0.1)
+        Stop
+    }
+}

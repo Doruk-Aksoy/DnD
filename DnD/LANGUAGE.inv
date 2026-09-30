@@ -550,7 +550,12 @@ IATTR_T157          = "added fire damage to attacks";
 IATTR_T158          = "added cold damage to attacks";
 IATTR_T159          = "added lightning damage to attacks";
 IATTR_T160          = "added poison damage to attacks";
+
 IATTR_T161          = "increased area of effect";
+IATTR_T162          = "to mana";
+IATTR_T163          = "increased mana";
+IATTR_T164          = "to mana regeneration";
+IATTR_T165          = "increased mana regeneration";
 
 // corrupt implicits
 IATTR_TC1			= "more weapon damage to";
@@ -620,6 +625,7 @@ IATTR_TI41			= "chance to gain a Endurance Charge on kill";
 IATTR_TI42			= "chance to gain a Power Charge on kill";
 IATTR_TI43			= "increased phasing duration";
 IATTR_TI44			= "chance to gain"; IATTR_TI44S = "stamina on melee kill";
+IATTR_TI45          = "Can roll all \cdspell\c- modifiers";
 
 // essences
 IATTR_TE1 			= "chance for radius damage to reduce enemy resists by "; IATTR_TE1S = "for 3 seconds";
@@ -834,3 +840,5 @@ IATTR_TAG19 		= "armor";
 IATTR_TAG20 		= "energy shield";
 IATTR_TAG21 		= "mitigation";
 IATTR_TAG22 		= "ailment";
+IATTR_TAG23 		= "mana";
+IATTR_TAG24 		= "spell";

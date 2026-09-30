@@ -4325,6 +4325,23 @@ Script "DnD Fire Exposure Timer" (int m_tid) {
 	SetActorInventory(m_tid, "DnD_FireExposedTimer", 0);
 }
 
+// Flammability. Owns the ignite chance lane and the curse marker; the fire resistance half rides the
+// shared exposure lane and is torn down by its own ticker above.
+Script "DnD Flammability Timer" (int m_tid) {
+	int sfx_id = ACS_NamedExecuteWithResult("DND Spawn Attachment", m_tid, DND_ATTACHMENT_FLAMMABILITY);
+
+	while(CheckActorInventory(m_tid, "DnD_FlammableTimer") && isActorAlive(m_tid)) {
+		TakeActorInventory(m_tid, "DnD_FlammableTimer", 1);
+		Delay(const:1);
+	}
+
+	if(isActorAlive(m_tid))
+		ACS_NamedExecuteWithResult("DnD Remove Monster Attachment", m_tid, sfx_id);
+
+	SetActorInventory(m_tid, "DnD_Flammable", 0);
+	SetActorInventory(m_tid, "DnD_FlammableTimer", 0);
+}
+
 Script "DnD Expose Weakness Timer" (int m_tid) {
 	while(CheckActorInventory(m_tid, "DnD_ExposedTimer") && isActorAlive(m_tid)) {
 		TakeActorInventory(m_tid, "DnD_ExposedTimer", 1);

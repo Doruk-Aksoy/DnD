@@ -65,12 +65,19 @@ Actor DnD_SpellAimPuff {
 	+DONTSPLASH
 	+ALWAYSPUFF
 	+PUFFONACTORS
+	// PUFFONACTORS only adds the puff; P_SpawnBlood is gated on this flag alone. Without it a ruler
+	// trace made its target bleed.
+	+BLOODLESSIMPACT
 	RenderStyle None
 	Radius 1
 	Height 1
 	States {
+		// The trace has no other way home -- LineAttack's pufftid argument is ignored by this engine.
+		// So the puff tags ITSELF and the caster reads that tid, which is the idiom Gore.dec and the
+		// spell FX markers already use. A script started from here gets a null activator, so reporting
+		// its own position through ACS does not work; a line special does.
 		Spawn:
-			TNT1 A 1
+			TNT1 A 3 NoDelay Thing_ChangeTID(0, SPELLAIM_TID)
 		Stop
 	}
 }

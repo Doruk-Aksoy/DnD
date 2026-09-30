@@ -6905,12 +6905,23 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 
 			// stamina things
-			val = GetAmmoCapacity("DnD_Stamina");
+			val = CheckInventory("P_StaminaCap");
 			pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", d:val, s:"\c- ", l:"DND_MENU_STAMINACAP", s:"\n");
 			++k;
 
 			val = GetPlayerStaminaGain(pnum);
 			pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", d:val, s:"\c- ", l:"DND_MENU_STAMINAGAINEDPER", s:" \c[Q9]", d:GetPlayerStaminaRecoveryRate(pnum), s:"\c- ", l:"DND_MENU_TICS", s:"\n");
+			++k;
+
+			// mana things. Both read the networked copies -- the real figures need INT and the level off
+			// a player TID, which does not exist on the client.
+			val = CheckInventory("P_ManaCap");
+			pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", d:val, s:"\c- ", l:"DND_MENU_MANACAP", s:"\n");
+			++k;
+
+			// P_ManaRegen is hundredths of mana a second; the shift puts it in the fixed point the helper wants.
+			val = CheckInventory("P_ManaRegen");
+			pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", s:GetFixedRepresentation((val << 16) / 100, false), s:"\c- ", l:"DND_MENU_MANAREGEN", s:"\n");
 			++k;
 
 			// ripper block

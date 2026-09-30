@@ -216,6 +216,10 @@ enum {
 	INV_ADDED_POISONDMG,
 
 	INV_ALLAOE_RADIUS,
+	INV_FLAT_MANA,
+	INV_INC_MANA,
+	INV_FLAT_MANAREGEN,
+	INV_INC_MANAREGEN,
 
 	// add new regular rollable attributes here
 
@@ -288,6 +292,7 @@ enum {
 	INV_IMP_ONKILL_POWER,
 	INV_IMP_PHASINGTIME,
 	INV_IMP_STAMINAONKILL,
+	INV_IMP_CANROLL_SPELL,
 	// add new implicits here
 	
 	// essence attributes (only via. specific means)
@@ -512,7 +517,7 @@ enum {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_ALLAOE_RADIUS
+#define LAST_INV_ATTRIBUTE INV_INC_MANAREGEN
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 
 // modify the above to make it use the negative last
@@ -526,7 +531,7 @@ enum {
 #define MAX_CORRUPT_IMPLICITS (LAST_CORRUPT_IMPLICIT - FIRST_CORRUPT_IMPLICIT + 1)
 
 #define FIRST_REGULAR_IMPLICIT INV_IMP_INCARMOR
-#define LAST_REGULAR_IMPLICIT INV_IMP_STAMINAONKILL
+#define LAST_REGULAR_IMPLICIT INV_IMP_CANROLL_SPELL
 
 #define FIRST_ESSENCE_ATTRIBUTE INV_ESS_VAAJ
 #define LAST_ESSENCE_ATTRIBUTE INV_ESS_ERYXIA
@@ -577,7 +582,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_HP_INCREASE].tags = INV_ATTR_TAG_LIFE;
 	ItemModTable[INV_HP_INCREASE].weight = 1000;
 	ItemModTable[INV_HP_INCREASE].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
-	SetModTierProfile(INV_HP_INCREASE, DND_TIERSET_DEFENSE_NORMAL);
+	SetModTierProfile(INV_HP_INCREASE, DND_TIERSET_COMMON_LASTFROMBOSS);
 	
 	ItemModTable[INV_ARMOR_INCREASE].attrib_low = 5;
 	ItemModTable[INV_ARMOR_INCREASE].attrib_high = 25;
@@ -593,7 +598,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_HPPERCENT_INCREASE].tags = INV_ATTR_TAG_LIFE;
 	ItemModTable[INV_HPPERCENT_INCREASE].weight = 800;
 	ItemModTable[INV_HPPERCENT_INCREASE].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
-	SetModTierProfile(INV_HPPERCENT_INCREASE, DND_TIERSET_DEFENSE_NORMAL);
+	SetModTierProfile(INV_HPPERCENT_INCREASE, DND_TIERSET_COMMON_LASTFROMBOSS);
 	
 	ItemModTable[INV_ARMORPERCENT_INCREASE].attrib_low = 1;
 	ItemModTable[INV_ARMORPERCENT_INCREASE].attrib_high = 10;
@@ -1690,6 +1695,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_INC_STAMINARECOVERYRATE].tags = INV_ATTR_TAG_MELEE | INV_ATTR_TAG_STAMINA;
 	ItemModTable[INV_INC_STAMINARECOVERYRATE].weight = 500;
 	ItemModTable[INV_INC_STAMINARECOVERYRATE].allowed_slots = DND_MODBASE_MELEE;
+	SetModTierProfile(INV_INC_STAMINARECOVERYRATE, DND_TIERSET_COMMON_LASTFROMBOSS);
 	
 	ItemModTable[INV_INC_STAMINAGAINED].attrib_low = 1;
 	ItemModTable[INV_INC_STAMINAGAINED].attrib_high = 6;
@@ -1839,6 +1845,38 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_ALLAOE_RADIUS].weight = 150;
 	ItemModTable[INV_ALLAOE_RADIUS].allowed_slots = DND_MODBASE_RADIUSATK;
 	SetModTierProfile(INV_ALLAOE_RADIUS, DND_TIERSET_OFFENSE_STRONG);
+
+	ItemModTable[INV_FLAT_MANA].attrib_low = 1;
+	ItemModTable[INV_FLAT_MANA].attrib_high = 11;
+	ItemModTable[INV_FLAT_MANA].attrib_level_modifier = 0;
+	ItemModTable[INV_FLAT_MANA].tags = INV_ATTR_TAG_MANA;
+	ItemModTable[INV_FLAT_MANA].weight = 800;
+	ItemModTable[INV_FLAT_MANA].allowed_slots = DND_MODBASE_ALL;
+	SetModTierProfile(INV_FLAT_MANA, DND_TIERSET_COMMON_LASTFROMBOSS);
+
+	ItemModTable[INV_INC_MANA].attrib_low = 1;
+	ItemModTable[INV_INC_MANA].attrib_high = 5;
+	ItemModTable[INV_INC_MANA].attrib_level_modifier = 0;
+	ItemModTable[INV_INC_MANA].tags = INV_ATTR_TAG_MANA;
+	ItemModTable[INV_INC_MANA].weight = 700;
+	ItemModTable[INV_INC_MANA].allowed_slots = DND_MODBASE_ALL;
+	SetModTierProfile(INV_INC_MANA, DND_TIERSET_COMMON_LASTFROMBOSS);
+
+	ItemModTable[INV_FLAT_MANAREGEN].attrib_low = 10;
+	ItemModTable[INV_FLAT_MANAREGEN].attrib_high = 50;
+	ItemModTable[INV_FLAT_MANAREGEN].attrib_level_modifier = 0;
+	ItemModTable[INV_FLAT_MANAREGEN].tags = INV_ATTR_TAG_MANA;
+	ItemModTable[INV_FLAT_MANAREGEN].weight = 600;
+	ItemModTable[INV_FLAT_MANAREGEN].allowed_slots = DND_MODBASE_ALL;
+	SetModTierProfile(INV_FLAT_MANAREGEN, DND_TIERSET_COMMON_LASTFROMBOSS);
+
+	ItemModTable[INV_INC_MANAREGEN].attrib_low = 5;
+	ItemModTable[INV_INC_MANAREGEN].attrib_high = 10;
+	ItemModTable[INV_INC_MANAREGEN].attrib_level_modifier = 0;
+	ItemModTable[INV_INC_MANAREGEN].tags = INV_ATTR_TAG_MANA;
+	ItemModTable[INV_INC_MANAREGEN].weight = 400;
+	ItemModTable[INV_INC_MANAREGEN].allowed_slots = DND_MODBASE_ALL;
+	SetModTierProfile(INV_INC_MANAREGEN, DND_TIERSET_COMMON_LASTFROMBOSS);
 
 	/////////////////////////
 	// corrupted implicits //

@@ -1,4 +1,7 @@
 const int SPECIAL_FX_TID = 2147483647;
+const int SPELLAIM_TID = 2147483646;
+// Must match the DND_PLAYERFX_* enum in acs/DnD_Attachments.h.
+const int PLAYERFX_ANGERAURA = 0;
 
 /*
 	Members used to embed data:
@@ -51,6 +54,8 @@ const int SPECIAL_FX_TID = 2147483647;
 #include "Actors/Maps/Decoration.dec"
 #include "Actors/Maps/Torches.dec"
 
+#include "Actors/Effects.dec"
+
 // Spells
 #include "Actors/Spells/SpellBase.dec"
 #include "Actors/Spells/Common.dec"
@@ -67,9 +72,11 @@ const int SPECIAL_FX_TID = 2147483647;
 #include "Actors/Spells/Fire/Pyroblast.dec"
 #include "Actors/Spells/Fire/SearingBond.dec"
 #include "Actors/Spells/Fire/ScorchingRay.dec"
+#include "Actors/Spells/Fire/Incinerate.dec"
+#include "Actors/Spells/Fire/Flammability.dec"
+#include "Actors/Spells/Fire/Anger.dec"
 
 #include "Actors/Hud.dec"
-#include "Actors/Effects.dec"
 #include "Actors/Puffs.dec"
 #include "Actors/Misc.dec"
 #include "Actors/Gore.dec"

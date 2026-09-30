@@ -2146,11 +2146,6 @@ int FactorResists(int source, int victim, int wepid, int dmg, int damage_type, i
 	// a resistance the MONSTER has lost, not penetration the player brought.
 	pct_val += CheckActorInventory(victim, "DnD_ResistShred");
 
-	// Scorching Ray / Fire Exposure. Same kind of thing again, but element specific, so it only
-	// counts when the hit that is being resisted is actually fire.
-	if(damage_category == DND_DAMAGECATEGORY_FIRE)
-		pct_val += CheckActorInventory(victim, "DnD_FireExposed");
-
 	// Tormentor / Permafrost and Corrosion. Both are resistance the MONSTER has lost, so they
 	// belong in this block. Corrosion names poison, so only a poison hit may read it.
 	pct_val += CheckActorInventory(victim, "DnD_Permafrost");
@@ -2169,6 +2164,13 @@ int FactorResists(int source, int victim, int wepid, int dmg, int damage_type, i
 
 	// debuffs to reduce flat
 	resist -= CountMonsterAilments(victim) * DND_WANDERER_RESREDUCE;
+
+	// Scorching Ray / Flammability. FLAT, not a percentage of what the monster happens to have: the
+	// spells read "-30% fire resistance", meaning 30 points off, so the curse has to bite on a monster
+	// with no fire resistance at all and carry it into weakness. As a percentage it was a no-op on
+	// exactly the enemies it is cast at most. Element specific, so only a fire hit reads it.
+	if(damage_category == DND_DAMAGECATEGORY_FIRE)
+		resist -= CheckActorInventory(victim, "DnD_FireExposed");
 
 	// Every reduction above has landed on the TRUE resist, so this is where the cap finally goes on.
 	// Capping here rather than at spawn is what makes an overcapped monster genuinely resistant to
@@ -3005,7 +3007,9 @@ void HandleIgniteEffects(int pnum, int victim, int wepid, int flags, int dmg_wit
 	if
 	(
 		CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_MOLTENBLOOD) &&
-		CheckIgniteChance(pnum, addedIgn * DND_ADDEDIGNITE_CHANCE)
+		// Flammability rides the same flat bucket as the weapon side bonus, so the player's percent
+		// ignite chance scales the curse too -- "base chance to be ignited" is exactly that bucket.
+		CheckIgniteChance(pnum, addedIgn * DND_ADDEDIGNITE_CHANCE + CheckActorInventory(victim, "DnD_Flammable"))
 	)
 	{
 		int amt = GetIgniteDuration(pnum);
@@ -4071,6 +4075,22 @@ void SnareMonster(int victim, int tics) {
 		SetActorInventory(victim, "DnD_SlowTimer", tics);
 
 	ACS_NamedExecuteAlways("DnD Monster Slow Ticker", 0, victim);
+}
+
+// Scorching Ray and Flammability share this lane -- both are fire resistance the MONSTER has lost, and
+// FactorResists reads the one value. Strongest wins and longest wins independently, so a short beam
+// tick cannot clip a curse that is still running, and the curse cannot be diluted by the beam.
+void ApplyFireExposure(int victim, int pct, int tics) {
+	if(CheckActorInventory(victim, "DnD_FireExposed") < pct)
+		SetActorInventory(victim, "DnD_FireExposed", pct);
+
+	// One ticker only: ExecuteAlways starts a fresh instance per call and each takes 1 a tic.
+	bool ticking = !!CheckActorInventory(victim, "DnD_FireExposedTimer");
+	if(CheckActorInventory(victim, "DnD_FireExposedTimer") < tics)
+		SetActorInventory(victim, "DnD_FireExposedTimer", tics);
+
+	if(!ticking)
+		ACS_NamedExecuteAlways("DnD Fire Exposure Timer", 0, victim);
 }
 
 // Martialist / Cranium Bash. The Stunned state on DnD_BaseMonster loops while StunDurationCounter is

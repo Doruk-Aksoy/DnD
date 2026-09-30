@@ -154,3 +154,15 @@ Model DnD_Ultimatum_Stormcall_Tier4 {
 	
 	FrameIndex AURA I 0 3
 }
+
+Model Spell_AngerAuraFX {
+	Path "Models/Auras"   
+	Model 0 "flat.md3"   
+	Skin 0 "ANGERAUR.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 1
+	ROTATING
+	//DONTCULLBACKFACES
+	
+	FrameIndex AURA J 0 3
+}

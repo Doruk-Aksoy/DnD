@@ -2492,7 +2492,8 @@ Script "DnD Stamina Bar Draw" (int pnum) CLIENTSIDE {
 
 		//HUD_STAMINA_ICON,
 		int stm = CheckInventory("DnD_Stamina");
-		int cap = GetAmmoCapacity("DnD_Stamina");
+		// the capacity does not cross to the client -- P_StaminaCap is the copy that does
+		int cap = Max(1, CheckInventory("P_StaminaCap"));
 
 		SetHudClipRect(HUD_STAMINA_X / 2 - STAMINA_BAR_LEN / 2, HUD_STAMINA_Y - 64, stm * STAMINA_BAR_LEN / cap, 48, stm * STAMINA_BAR_LEN / cap);
 		if(stm > 0) {

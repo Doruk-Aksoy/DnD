@@ -133,3 +133,25 @@ Spell/LightningSpearCast3	LGSPCST3
 $random Spell/LightningSpearCast { Spell/LightningSpearCast1 Spell/LightningSpearCast2 Spell/LightningSpearCast3 }
 
 SearingBond/Fire            SEARBONF
+
+ScorchingRay/Start1         SCRAYST1
+ScorchingRay/Start2         SCRAYST2
+$random ScorchingRay/Start { ScorchingRay/Start1 ScorchingRay/Start2 }
+ScorchingRay/Loop1         SCRAYLO1
+ScorchingRay/Loop2         SCRAYLO2
+$random ScorchingRay/Loop { ScorchingRay/Loop1 ScorchingRay/Loop2 }
+ScorchingRay/Exposure1     SCRAYEX1
+ScorchingRay/Exposure2     SCRAYEX2
+$random ScorchingRay/Exposure { ScorchingRay/Exposure1 ScorchingRay/Exposure2 }
+
+HeatShield/Cast1            MLTSHC1
+HeatShield/Cast2            MLTSHC2
+HeatShield/Cast3            MLTSHC3
+$random HeatShield/Cast { HeatShield/Cast1 HeatShield/Cast2 HeatShield/Cast3 }
+HeatShield/End1             MLTSHE1
+HeatShield/End2             MLTSHE2
+$random HeatShield/End { HeatShield/End1 HeatShield/End2 }
+
+Flammability/Cast1          FLAMM1
+Flammability/Cast2          FLAMM2
+$random Flammability/Cast { Flammability/Cast1 Flammability/Cast2 }

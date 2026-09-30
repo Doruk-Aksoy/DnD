@@ -545,6 +545,8 @@ DND_MENU_REGENCAP			=	"health regen cap";
 DND_MENU_STAMINACAP			=	"stamina cap";
 DND_MENU_STAMINAGAINEDPER	=	"stamina gained per";
 DND_MENU_TICS				=	"tics";
+DND_MENU_MANACAP			=	"mana cap";
+DND_MENU_MANAREGEN			=	"mana regenerated per second";
 
 DND_MENU_STATUS				=	"Status";
 DND_MENU_RESEARCH_NA		=	"\cgBlueprint Required";

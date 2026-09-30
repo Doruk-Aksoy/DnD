@@ -92,13 +92,13 @@ DND_SPLR5_2     = "+25% chance to strike the area.";
 DND_SPLR10_2    = "The strike is always a critical hit.";
 
 // Warmth
-DND_SPLDESC3    = "Increases your mana regeneration by 30% for 5 seconds.";
-DND_SPLPER3     = "+0.5 flat mana regeneration.";
-DND_SPLR5_3     = "Duration becomes 10 seconds.";
+DND_SPLDESC3    = "Increases your mana regeneration by 50% for 8 seconds.";
+DND_SPLPER3     = "10% additional mana regenration, +0.25 flat mana regeneration.";
+DND_SPLR5_3     = "Duration becomes 12 seconds.";
 DND_SPLR10_3    = "Also affects allies within 192 units.";
 
 // Heat Shield
-DND_SPLDESC4    = "Covers your armor, or a targeted ally's, in fire. Enemies that hit it are ignited, and it grants 100 armor rating for 5 seconds.";
+DND_SPLDESC4    = "Covers your armor or a targeted ally's in fire. Enemies that hit it are ignited, and it grants 100 armor rating for 5 seconds.";
 DND_SPLPER4     = "+1 second duration, +25 armor rating, +2 mana cost.";
 DND_SPLR5_4     = "Ignites from this last 100% longer.";
 DND_SPLR10_4    = "Ignites from this are guaranteed to spread.";
@@ -134,14 +134,14 @@ DND_SPLR5_9     = "+2 seconds snare duration.";
 DND_SPLR10_9    = "Also binds enemies within 160 units of the target.";
 
 // Scorching Ray
-DND_SPLDESC10   = "Projects a beam of fire dealing 80 damage every 0.2 seconds. After 2.5 seconds on a target it applies Fire Exposure, giving -25% fire resistance for 5 seconds.";
+DND_SPLDESC10   = "Projects a beam of fire dealing 80 damage every 0.2 seconds. After 2.5 seconds of channeling it applies Fire Exposure on hit, giving -25 to fire resistance for 5 seconds.";
 DND_SPLPER10    = "+8 damage, +8 beam length, +0.333 mana cost.";
 DND_SPLR5_10    = "+25% beam width.";
 DND_SPLR10_10   = "The beam passes through all enemies.";
 
 // Flammability
-DND_SPLDESC11   = "Curse. Enemies in a 256 unit area take -30% fire resistance for 8 seconds and gain 25% base chance to be ignited.";
-DND_SPLPER11    = "-1% further fire resistance, +2 mana cost.";
+DND_SPLDESC11   = "Curse. Enemies in a 256 unit area take -30 to fire resistance for 8 seconds and gain 25% base chance to be ignited.";
+DND_SPLPER11    = "-1 further to fire resistance, +2 mana cost.";
 DND_SPLR5_11    = "25% increased area of effect.";
 DND_SPLR10_11   = "+4 seconds duration.";
 
@@ -280,8 +280,8 @@ DND_SPLR5_43    = "Radius is doubled.";
 DND_SPLR10_43   = "Grants 10% additional critical strike chance to cold attacks.";
 
 // Frostbite
-DND_SPLDESC44   = "Curse. Enemies in a 256 unit area take -30% cold resistance for 8 seconds and gain 25% base chance to be chilled.";
-DND_SPLPER44    = "-1% further cold resistance, +2 mana cost.";
+DND_SPLDESC44   = "Curse. Enemies in a 256 unit area take -30 to cold resistance for 8 seconds and gain 25% base chance to be chilled.";
+DND_SPLPER44    = "-1 further to cold resistance, +2 mana cost.";
 DND_SPLR5_44    = "25% increased area of effect.";
 DND_SPLR10_44   = "+4 seconds duration.";
 

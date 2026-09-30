@@ -610,7 +610,7 @@ void HandleSpellHoverPanel(int pnum, int spell) {
 	// learned -- there is nothing to switch on a spell the player does not have.
 	if(IsSpellToggleable(spell) && alloc) {
 		PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_STATE", s:" ",
-			s:IsSpellToggledOff(pnum, spell) ? "\c[A0]" : "\c[D4]",
+			s:IsSpellToggledOff(pnum, spell) ? "\c[A0]" : "\cd",
 			l:IsSpellToggledOff(pnum, spell) ? "DND_SPLPANEL_OFF" : "DND_SPLPANEL_ON"));
 		PanelText(StrParam(s:"\c-", l:"DND_SPLPANEL_TOGGLEHINT"), "\c-");
 	}

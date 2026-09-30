@@ -1057,6 +1057,8 @@ enum {
 	AUX_PARRY_TID,
 
 	WANDERER_AURA_TID = AUX_PARRY_TID + MAXPLAYERS,
+	// Held only long enough to point a freshly spawned player aura at its owner, then released.
+	DND_PLAYERAURA_TID,
 	
 	AVATAR_SOUL_TID,
 	

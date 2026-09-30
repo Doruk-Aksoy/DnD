@@ -17,12 +17,12 @@ Actor Spell_Pyroblast : DnD_SpellExplosive {
         Loop
         FinishExplosion:
             TNT1 A 0 A_JumpIf(user_spellrank >= DND_SPELL_THRESH_HIGH, "MaxRankBlast")
-        ContAnim:
+        ContinueFromExplosion:
             T000 CDEFGH 3 Bright
         Stop
         MaxRankBlast:
             TNT1 A 0 ACS_NamedExecuteWithResult("DnD Pyroblast Burst")
-        Goto ContAnim
+        Goto ContinueFromExplosion
     }
 }
 

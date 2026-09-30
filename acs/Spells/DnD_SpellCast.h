@@ -202,7 +202,7 @@ void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags =
 	int pt = Clamp_Between(GetActorPitch(owner), -0.248, 0.248);
 	int cosp = cos(pt);
 
-	Vec3_T* vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 5.0);
+	Vec3_T* vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 15.0);
 	Vec3_T* vProj = GetVec3();
 
 	vProj.x = speed * FixedMul(cos(a), cosp);
@@ -253,6 +253,7 @@ typedef struct {
 	int x[MAXPLAYERS];
 	int y[MAXPLAYERS];
 	int z[MAXPLAYERS];
+	int valid[MAXPLAYERS];
 } spell_aim_T;
 
 spell_aim_T module& GetSpellAim() {
@@ -260,28 +261,55 @@ spell_aim_T module& GetSpellAim() {
 	return s;
 }
 
+// Fires the ruler. The ANSWER does not arrive here: ACSF_LineAttack on this Zandronum stops reading
+// its arguments at the flags word, so the pufftid every caller used to pass was silently dropped and
+// the position read back off it was the world origin. The puff reports its own landing spot instead,
+// from its Spawn state -- and NoDelay runs on an actor's first Tick, not inside the spawn, so the
+// caller has to Delay a tic and then read. See SpellAimReady.
 bool TraceSpellAim(int pnum, int maxdist) {
 	int prev = ActivatorTID();
 	if(!SetActivator(pnum + P_TIDSTART))
 		return false;
 
-	int tid = TEMPORARY_SPELL_TID + pnum;
+	GetSpellAim().valid[pnum] = 0;
 
 	// Zero damage and no decal: this is a ruler, not an attack. ALWAYSPUFF on the puff means a trace
 	// that hits nothing still lands one, at maxdist.
 	LineAttack(0, GetActorAngle(0), GetActorPitch(0), 0, "DnD_SpellAimPuff", "None", maxdist,
-		FHF_NORANDOMPUFFZ | FHF_NOIMPACTDECAL, tid);
-
-	GetSpellAim().x[pnum] = GetActorX(tid);
-	GetSpellAim().y[pnum] = GetActorY(tid);
-	GetSpellAim().z[pnum] = GetActorZ(tid);
-
-	// Released immediately -- SpawnSpellAnchor takes the same tid, and a cast does both.
-	Thing_ChangeTID(tid, 0);
+		FHF_NORANDOMPUFFZ | FHF_NOIMPACTDECAL);
 
 	if(prev)
 		SetActivator(prev);
 
+	return true;
+}
+
+// The puff tags itself with this on its first Tick, so the caster polls for it rather than assuming
+// when that tick lands. Must match SPELLAIM_TID in DECORATE.txt.
+#define DND_SPELLAIM_TID 2147483646
+#define DND_SPELLAIM_WAIT 4
+
+bool SpellAimReady(int pnum) {
+	return !!GetSpellAim().valid[pnum];
+}
+
+// True once the puff has appeared under its tid. Takes the position into the aim slot and releases
+// the tid so the next trace starts clean.
+//
+// The puff tags ITSELF rather than reporting through a script: a script started from a state action
+// gets a null activator, so it read 0,0,0 and had no target to walk back to. A line special called
+// from that same state does have the actor, which is why Thing_ChangeTID works where the script did not.
+bool ReadSpellAim(int pnum) {
+	if(!ThingCountName("DnD_SpellAimPuff", DND_SPELLAIM_TID))
+		return false;
+
+	auto aim = GetSpellAim();
+	aim.x[pnum] = GetActorX(DND_SPELLAIM_TID);
+	aim.y[pnum] = GetActorY(DND_SPELLAIM_TID);
+	aim.z[pnum] = GetActorZ(DND_SPELLAIM_TID);
+	aim.valid[pnum] = 1;
+
+	Thing_ChangeTID(DND_SPELLAIM_TID, 0);
 	return true;
 }
 

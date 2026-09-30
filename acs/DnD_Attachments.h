@@ -24,6 +24,7 @@ enum {
 
 	DND_ATTACHMENT_PETICON,
 	DND_ATTACHMENT_STUNICON,
+	DND_ATTACHMENT_FLAMMABILITY,
 };
 
 Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
@@ -74,6 +75,11 @@ Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 				zoff <<= 1;
                 zoff += 12.0;
 				res = CreateMonsterAttachment(tid, "StunFXMarker", 0, 0, zoff);
+			break;
+			case DND_ATTACHMENT_FLAMMABILITY:
+				zoff <<= 1;
+				zoff += 4.0;
+				res = CreateMonsterAttachment(tid, "FlammabilityFXMarker", 0, 0, zoff);
 			break;
 
 			// normal elite sparkles
@@ -169,6 +175,100 @@ Script "DnD Remove Blind FX Count" (void) CLIENTSIDE {
 	RemoveAttachment(this - DND_MONSTERTID_BEGIN, CheckInventory("DnD_BlindFXToRemove") - 1, false);
 	SetInventory("DnD_BlindFXToRemove", 0);
 	SetResultValue(0);
+}
+
+// ---- player attachments -------------------------------------------------------------------------
+//
+// Deliberately NOT the monster system above. That one hands out tids from a band and tracks them in
+// a bitfield, which works because a monster tid means the same thing on both sides. A PLAYER tid is
+// assigned server side only, so a client cannot resolve one and nothing clientside could aim a warp
+// at it.
+//
+// So a player attachment is carried as INVENTORY instead. Inventory crosses the network on its own,
+// the marker is spawned by the player's OWN decorate on every machine that has it, and the effect
+// tears itself down when the marker goes. No tid band, no bitfield, nothing per side to keep in step.
+enum {
+	DND_PLAYERFX_ANGERAURA,
+};
+
+// The item whose presence IS the attachment. The FX watches it and stops when it goes.
+str GetPlayerAttachmentMarker(int which) {
+	switch(which) {
+		case DND_PLAYERFX_ANGERAURA: return "DnD_AngerAuraActive";
+	}
+	return "";
+}
+
+// The token that spawns it. A DnD_Activator, so giving it runs its Pickup state and nothing lingers.
+str GetPlayerAttachmentSpawner(int which) {
+	switch(which) {
+		case DND_PLAYERFX_ANGERAURA: return "Spell_AngerAura_FXSpawner";
+	}
+	return "";
+}
+
+str GetPlayerAttachmentFX(int which) {
+	switch(which) {
+		case DND_PLAYERFX_ANGERAURA: return "Spell_AngerAuraFX";
+	}
+	return "";
+}
+
+// Called BY the token's Pickup state, so the activator is the player wearing it. Built exactly like
+// "DnD Wanderer Return Circle", which is the one player attached aura in the mod known to work:
+// spawn onto a scratch tid, point it at the owner, release the tid.
+//
+// It must be reached with ACS_NamedExecuteWithResult. That call runs inline and keeps the actor as
+// activator; ACS_NamedExecuteAlways starts a detached script and the activator is lost, which is
+// exactly how this fails -- ActivatorTID() comes back 0 and the aura is pointed at nothing.
+Script "DnD Spawn Player Aura" (int which) CLIENTSIDE {
+	int tid = ActivatorTID();
+	str fx = GetPlayerAttachmentFX(which);
+
+	if(tid && fx != "" &&
+		SpawnForced(fx, GetActorX(tid), GetActorY(tid), GetActorZ(tid), DND_PLAYERAURA_TID, 0)) {
+		SetActivator(DND_PLAYERAURA_TID);
+		SetPointer(AAPTR_TARGET, tid);
+		SetActorProperty(DND_PLAYERAURA_TID, APROP_TARGETTID, tid);
+
+		// Grown by the caster's area modifiers, off whatever scale the actor declares in DECORATE --
+		// so the art keeps its own size and this only ever multiplies it. Passing 1.0 as the radius
+		// makes ScalePlayerAoERadius hand back the factor itself rather than a distance.
+		int pnum = PlayerNumber();
+		if(pnum >= 0) {
+			int f = ScalePlayerAoERadius(pnum, 1.0, DND_AOESRC_NONWEAPON);
+			if(f != 1.0) {
+				SetActorProperty(DND_PLAYERAURA_TID, APROP_SCALEX,
+					FixedMul(GetActorProperty(DND_PLAYERAURA_TID, APROP_SCALEX), f));
+				SetActorProperty(DND_PLAYERAURA_TID, APROP_SCALEY,
+					FixedMul(GetActorProperty(DND_PLAYERAURA_TID, APROP_SCALEY), f));
+			}
+		}
+
+		Thing_ChangeTID(0, 0);
+	}
+
+	SetResultValue(0);
+}
+
+// Idempotent both ways, so it can be called every tick from whatever already knows the state.
+void SetPlayerAttachment(int pnum, int which, bool on) {
+	int ptid = pnum + P_TIDSTART;
+	str marker = GetPlayerAttachmentMarker(which);
+	if(marker == "")
+		return;
+
+	if(!on) {
+		TakeActorInventory(ptid, marker, 1);
+		return;
+	}
+
+	// Already up. Re-issuing the token would stack a second effect on one marker.
+	if(CheckActorInventory(ptid, marker))
+		return;
+
+	GiveActorInventory(ptid, marker, 1);
+	GiveActorInventory(ptid, GetPlayerAttachmentSpawner(which), 1);
 }
 
 // When a monster is killed this is called to do cleanup

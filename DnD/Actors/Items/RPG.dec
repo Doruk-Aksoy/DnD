@@ -469,6 +469,9 @@ Actor DnD_SpellBusy : DnD_Info { }
 
 Actor DnD_FireExposed : DnD_Info { }
 Actor DnD_FireExposedTimer : DnD_Info { }
+// Flammability. The base ignite chance the curse grants attackers against this monster.
+Actor DnD_Flammable : DnD_Info { }
+Actor DnD_FlammableTimer : DnD_Info { }
 
 Actor DnD_Rage : DnD_Info {
 	inventory.maxamount 30

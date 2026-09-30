@@ -2732,6 +2732,7 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 		case INV_STAT_STRENGTH:
 			IncPlayerModValue(pnum, atype, aval);
 			UpdatePlayerKnockbackResist();
+			UpdateStaminaCap(pnum);
 
 			temp = GetSpawnHealth();
 			i = GetActorProperty(0, APROP_HEALTH) - temp;
@@ -2849,7 +2850,7 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 
 		case INV_INC_STAMINA:
 			IncPlayerModValue(pnum, atype, aval);
-			SetAmmoCapacity("DnD_Stamina", DND_BASE_STAMINA * (100 + PlayerModData[pnum].vals[PSTAT_INC_STAMINA]) / 100);
+			UpdateStaminaCap(pnum);
 			ACS_NamedExecuteWithResult("DnD Start Stamina Recovery");
 		break;
 

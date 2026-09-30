@@ -335,6 +335,7 @@ void GiveStat(int stat_id, int amt) {
 	if(stat_id == STAT_STR) {
 		UpdatePlayerKnockbackResist();
 		SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
+		UpdateStaminaCap(PlayerNumber());
 	}
 }
 
@@ -348,6 +349,7 @@ void TakeStat(int stat_id, int amt) {
 	if(stat_id == STAT_STR) {
 		UpdatePlayerKnockbackResist();
 		SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
+		UpdateStaminaCap(PlayerNumber());
 	}
 }
 
@@ -2394,7 +2396,12 @@ int GetPlayerBaseSpread(int pnum, int spread_val) {
 }
 
 int GetPlayerStaminaRecoveryRate(int pnum) {
-	int base = DND_BASE_STAMINA_RECOVERYRATE * (100 - PlayerModData[pnum].vals[PSTAT_INC_STAMINARECOVERYRATE]) / 100;
+	// A bigger bar refills proportionally faster, at half rate. Without this the flat gain made a
+	// larger cap strictly slower to refill, which punished the players who built for it.
+	int scale = DND_BASE_STAMINA + (GetPlayerStaminaCap(pnum) - DND_BASE_STAMINA) * DND_STAMINA_CAPSCALE_PCT / 100;
+	int base = DND_BASE_STAMINA_RECOVERYRATE * DND_BASE_STAMINA / Max(DND_BASE_STAMINA, scale);
+
+	base = base * (100 - PlayerModData[pnum].vals[PSTAT_INC_STAMINARECOVERYRATE]) / 100;
 
 	// Ultimatum / Rapid Exhaustion. base is a tic DELAY -- the line above already reads a
 	// recovery increase as a smaller number -- so reduced recovery makes it bigger.
@@ -2406,7 +2413,9 @@ int GetPlayerStaminaRecoveryRate(int pnum) {
 
 	if(less)
 		base = base * 100 / Max(1, 100 - Min(less, 90));
-	if(base <= 0)
+	// Cap scaling and a recovery roll now compound, so the floor has to be a real clamp -- the old
+	// <= 0 test could not reach 3 tics from above.
+	if(base < 3)
 		base = 3; // minimum value is 3 for tic delay here
 	return base;
 }

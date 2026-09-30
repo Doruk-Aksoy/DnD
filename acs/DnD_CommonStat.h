@@ -47,6 +47,14 @@ enum {
 #define DND_BASE_STAMINA 100
 #define DND_BASE_STAMINA_RECOVERYRATE 17
 #define DND_BASE_STAMINA_GAIN 5
+// STR's share of the bar. Deliberately smaller per slot than INV_INC_STAMINA, which only rolls
+// on the melee weapon -- STR is what the other five slots can reach.
+#define DND_STAMINA_PER_STR 1
+#define DND_STAMINA_STR_DIV 2
+// How much of the cap above base speeds recovery. Flat recovery made a bigger bar refill slower
+// in absolute time, so stacking cap was a trap; half scaling removes most of that without
+// making the refill free. See .claude/notes for the numbers.
+#define DND_STAMINA_CAPSCALE_PCT 50
 #define DND_LOWSTAMINA_FACTOR 25
 #define DND_DEPLETEDSTAMINA_FACTOR 50
 
@@ -203,7 +211,8 @@ enum {
 
 #define DND_BASE_PLAYERSPEED 0.9
 #define DND_LOWEST_PLAYERSPEED 0.05
-#define DND_HP_PER_STR 2
+#define DND_HP_PER_STR 3
+#define DND_HP_STR_DIV 2
 #define DND_HP_PER_LVL 5
 
 #define BASE_PET_CAP 3
@@ -667,7 +676,7 @@ int GetRawSpawnHealth(bool bypassEShieldCheck, int pnum) {
 	if(!bypassEShieldCheck && PlayerModData[pnum].vals[PSTAT_EX_HEALTHATONE])
 		return 1;
 
-	int str_bonus = GetStrengthEffect(pnum, DND_HP_PER_STR);
+	int str_bonus = GetStrengthEffect(pnum, DND_HP_PER_STR, DND_HP_STR_DIV);
 	int res = CalculateHealthCapBonuses(pnum) + DND_BASE_HEALTH + DND_HP_PER_LVL * (CheckActorInventory(tid, "Level") - 1) + str_bonus;
 	// consider percent bonuses from here on
 	int percent  = PlayerModData[pnum].vals[PSTAT_HP_PCT];
@@ -825,12 +834,34 @@ int GetPlayerAoEIncrease(int pnum, int src) {
 // AREA, not radius -- the same correction "DnD Explosion Radius Retrieve" makes on the integer side.
 // The factor is taken first and multiplied in instead of squaring the radius: FixedMul(r, r)
 // overflows past 181.0 and several of these are larger than that.
-int ScalePlayerAoERadius(int pnum, int r, int src) {
-	int aoe = ApplyUltimatumFeebleReach(GetPlayerAoEIncrease(pnum, src));
+// extra_inc joins the ADDITIVE pool rather than multiplying the finished radius -- a spell rank that
+// reads "increased area of effect" has to stack with the player's own increases, not on top of them.
+int ScalePlayerAoERadius(int pnum, int r, int src, int extra_inc = 0) {
+	int aoe = ApplyUltimatumFeebleReach(GetPlayerAoEIncrease(pnum, src) + extra_inc);
 	if(!aoe)
 		return r;
 
 	return FixedMul(r, fsqrt(((100 + aoe) << 16) / 100));
+}
+
+// The cap the clientside stamina bar and the stats menu read. Carried as an amount on
+// P_StaminaCap because a SetAmmoCapacity does not cross to the client -- same reason as P_ManaCap.
+int GetPlayerStaminaCap(int pnum) {
+	int base = DND_BASE_STAMINA + GetStrengthEffect(pnum, DND_STAMINA_PER_STR, DND_STAMINA_STR_DIV);
+	return Max(1, base * (100 + PlayerModData[pnum].vals[PSTAT_INC_STAMINA]) / 100);
+}
+
+// Pushes both copies together so the server's capacity and the client's number cannot disagree.
+// Activator relative, like the SetAmmoCapacity it wraps -- call it with the player as activator.
+void UpdateStaminaCap(int pnum) {
+	int cap = GetPlayerStaminaCap(pnum);
+
+	SetInventory("P_StaminaCap", cap);
+	SetAmmoCapacity("DnD_Stamina", cap);
+
+	// A shrunk cap must not leave the player holding more than it.
+	if(CheckInventory("DnD_Stamina") > cap)
+		SetInventory("DnD_Stamina", cap);
 }
 
 // Generic Player RPG Stat restore function
@@ -868,6 +899,10 @@ void RestoreRPGStat (int statflag) {
 	
 	// So the player respawns with his actual new max hp
 	SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
+
+	// Health is computed on demand so it cannot go stale; the stamina cap is stored, so it must
+	// be pushed here too.
+	UpdateStaminaCap(pnum);
 	
 	if(!(statflag & RES_NOCLASSPERK))
 		HandleClassPerks(ActivatorTID());

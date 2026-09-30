@@ -202,6 +202,22 @@ Actor ManaVisual : Ammo {
 	+IGNORESKILL
 }
 
+Actor P_ManaRegen : Ammo {
+	inventory.amount 1
+	inventory.maxamount 65000
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor P_StaminaCap : Ammo {
+	inventory.amount 1
+	inventory.maxamount 65000
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
 Actor P_HealthCap : Ammo {
 	inventory.amount 1
 	inventory.maxamount 65000

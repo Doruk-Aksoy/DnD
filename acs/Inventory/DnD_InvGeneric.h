@@ -609,6 +609,7 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 					special_roll = INV_IMP_CANROLL_MAGIC;
 					imp_func(item_pos, INV_IMP_INCMITSHIELD, 85, 0, item_tier, 30, DND_ITEMBASE_BODY_ESHIELD);
 					imp_func(item_pos, INV_IMP_CANROLL_MAGIC, 1, -1, 0, 0, 0);
+					imp_func(item_pos, INV_IMP_CANROLL_SPELL, 1, -1, 0, 0, 0);
 				break;
 				case BODYARMOR_DEMO:
 					special_roll = INV_IMP_CANROLL_EXPLOSIVE;
@@ -641,6 +642,7 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 				case BODYARMOR_NECRO:
 					imp_func(item_pos, INV_IMP_INCMITARMOR, 150, 0, item_tier, 60, DND_ITEMBASE_BODY_ARMOR_MITIGATION);
 					imp_func(item_pos, INV_IMP_NECROARMOR, 15, 0, item_tier, 3, 0);
+					imp_func(item_pos, INV_IMP_CANROLL_SPELL, 1, -1, 0, 0, 0);
 				break;
 				case BODYARMOR_KNIGHT:
 					imp_func(item_pos, INV_IMP_INCARMOR, 250, 0, item_tier, 100, DND_ITEMBASE_BODY_ARMOR);
@@ -708,6 +710,7 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 				case BOOTS_DRAKESKIN:
 					imp_func(item_pos, INV_IMP_INCARMOR, 35, 0, item_tier, 10, DND_ITEMBASE_BOOT_ARMOR);
 					imp_func(item_pos, INV_IMP_LESSFIRETAKEN, 0.1, -1, 0, 0, 0);
+					imp_func(item_pos, INV_IMP_CANROLL_SPELL, 1, -1, 0, 0, 0);
 				break;
 				case BOOTS_WARRIORSABATON:
 					imp_func(item_pos, INV_IMP_INCARMOR, 25, 0, item_tier, 15, DND_ITEMBASE_BOOT_ARMOR);
@@ -721,6 +724,7 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 				case HELMS_LICH:
 					imp_func(item_pos, INV_IMP_INCARMORSHIELD, 45, 0, item_tier, 18, DND_ITEMBASE_HELM_ARMOR_ESHIELD);
 					imp_func(item_pos, INV_IMP_BONUSPETCAP, 1, -1, 0, 0, 0);
+					imp_func(item_pos, INV_IMP_CANROLL_SPELL, 1, -1, 0, 0, 0);
 				break;
 				case HELMS_WARRIOR:
 					imp_func(item_pos, INV_IMP_INCARMOR, 80, 0, item_tier, 40, DND_ITEMBASE_HELM_ARMOR);
@@ -750,6 +754,7 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 				case HELMS_ROBE:
 					imp_func(item_pos, INV_IMP_INCMITSHIELD, 36, 0, item_tier, 16, DND_ITEMBASE_HELM_ESHIELD_MITIGATION);
 					imp_func(item_pos, INV_MAGIC_NEGATION, 5, 0, item_tier, 2, 0);
+					imp_func(item_pos, INV_IMP_CANROLL_SPELL, 1, -1, 0, 0, 0);
 				break;
 				case HELMS_ELDER:
 					special_roll = random(INV_CORR_MAXFRENZY, INV_CORR_MAXPOWER);

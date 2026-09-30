@@ -125,9 +125,10 @@ str GetModTierText(int attr, int item_type, int tier, int extra) {
 // The tag list for one mod, as a dim second line. No switch: tags are a bitmask on the mod table,
 // so this is one loop over the bits and nothing has to be kept in sync when a mod's tags change.
 //
-// Bound to AILMENT_ID, NOT MAX_ATTRIB_TAG_GROUPS -- that constant stops at LIGHTNING_ID because it
-// sizes the ORB FORCEABLE subset, and bounding here would silently hide stamina, flask, armor,
-// eshield, mitigation and ailment. Bound to the thing you are iterating.
+// Bound to the LAST TAG ID, NOT MAX_ATTRIB_TAG_GROUPS -- that constant stops at LIGHTNING_ID because
+// it sizes the ORB FORCEABLE subset, and bounding here would silently hide stamina, flask, armor,
+// eshield, mitigation, ailment, mana and spell. Bound to the thing you are iterating, and move it
+// when a tag is added past the end.
 // The ailment Anathema allows, by name. Four of the five ARE the menu's ailment names, so they are
 // read from there instead of copied -- one rename keeps both in step.
 //
@@ -149,7 +150,7 @@ str GetModTagText(int attr) {
 		return "";
 
 	str res = "";
-	for(int i = INV_ATTR_TAG_DAMAGE_ID; i <= INV_ATTR_TAG_AILMENT_ID; ++i)
+	for(int i = INV_ATTR_TAG_DAMAGE_ID; i <= INV_ATTR_TAG_SPELL_ID; ++i)
 		if(ItemModTable[attr].tags & (1 << i))
 			res = StrParam(s:res, s:res != "" ? ", " : "", l:StrParam(s:"IATTR_TAG", d:i));
 
