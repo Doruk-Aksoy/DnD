@@ -300,9 +300,14 @@ enum {
 
 	// ---- crit, sustain and the misc scalars -----------------------------------------------------
 	// Critical strikes.
-	PSTAT_CRITCHANCE_INCREASE,
-	PSTAT_CRITDAMAGE_INCREASE,
-	PSTAT_CRITPERCENT_INCREASE,
+	// ATTACK suffixed because the mods feeding them say "attacks" -- they must not reach a spell.
+	// The GLOBAL pair below is the unqualified wording and feeds both sides; the spell equivalents
+	// live with the other PSTAT_SPELL_* slots further down.
+	PSTAT_CRITCHANCE_ATTACK,
+	PSTAT_CRITDAMAGE_ATTACK,
+	PSTAT_CRITPERCENT_ATTACK,
+	PSTAT_CRITPERCENT_GLOBAL,
+	PSTAT_CRITDAMAGE_GLOBAL,
 	PSTAT_EX_CRITIGNORERESCHANCE,
 	PSTAT_EX_MORECRIT_LIGHTNING,
 	PSTAT_EX_SWAPFROMMELEECRIT,
@@ -741,7 +746,9 @@ enum {
 	PSTAT_SPELL_CDR,
 	PSTAT_SPELL_HASTE,
 	PSTAT_SPELL_DAMAGE,
-	PSTAT_SPELL_CRIT,			// fixed point, like every other crit chance
+	PSTAT_SPELL_CRIT,			// FLAT spell crit chance, fixed point like every other crit chance
+	PSTAT_SPELL_CRITPERCENT,	// INCREASED spell crit chance, the percent pile
+	PSTAT_SPELL_CRITDAMAGE,		// spell crit damage, integer percent
 	PSTAT_SPELL_DURATION,
 	PSTAT_SPELL_AOE,
 
@@ -1059,6 +1066,8 @@ enum {
 	WANDERER_AURA_TID = AUX_PARRY_TID + MAXPLAYERS,
 	// Held only long enough to point a freshly spawned player aura at its owner, then released.
 	DND_PLAYERAURA_TID,
+	// Pins an exploding spell projectile while its numbers are resolved -- see the explosion setup.
+	DND_SPELLEXP_TID,
 	
 	AVATAR_SOUL_TID,
 	

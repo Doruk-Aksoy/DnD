@@ -10,6 +10,41 @@ enum {
 	DND_SPELL_LIGHTNINGSPEAR,
 };
 
+// ---- per monster spell markers --------------------------------------------------------------
+// Inventory on the VICTIM rather than state in a module: the damage path reads inventory far more
+// cheaply than it can walk a buff list, and a marker has to outlive the script that set it.
+//
+// These sat in ProjectileBase.dec, which is about projectile and explosion BASES and has no
+// business knowing what Heat Shield is. Nothing about them changed in the move -- ACS reaches
+// them by name through CheckActorInventory, so only DECORATE inheritance cares where they are,
+// and DnD_Info is defined in Items/Base.dec, included well before this file.
+
+// Blaze's burn, which is its own DoT rather than the ignite subsystem -- see "DnD Blaze Burn".
+// Timer counts ticks remaining; Damage is the per tick figure, kept so a stronger recast wins.
+Actor DnD_BlazeTimer : DnD_Info { }
+
+// How many "DnD Blaze Burn" loops are alive on this monster -- the ONLY thing that may be read as
+// "the burn already has an owner". The timer cannot: it is inventory, a caller may set it to hand in
+// a duration, and it outlives the script. Same rule and same reason as DnD_IgniteScripts, which stayed
+// behind in ProjectileBase.dec with the other ailment markers.
+Actor DnD_BlazeScripts : DnD_Info { }
+
+// Heat Shield's retaliation half. The buff carries the armor; these carry the "enemies that hit it
+// are ignited" part, because the damage path can read inventory far more cheaply than a buff list.
+// Rank is the WEARER's copy of the caster's, so the thresholds resolve on a shielded ally too.
+Actor DnD_HeatShieldRank : DnD_Info { }
+
+// Infernal Strike's armed swing. Holds the caster's rank so the thresholds resolve when the swing
+// lands rather than when it was armed.
+Actor DnD_InfernalStrikeRank : DnD_Info { }
+
+Actor DnD_HeatShieldEnd : DnD_Info { }
+
+// Same job for Boiling Blood: a recast stamps its own end tic and the older drain bows out.
+Actor DnD_BoilingBloodEnd : DnD_Info { }
+
+Actor DnD_BlazeDamage : DnD_Info { }
+
 Actor PetCounter : Inventory {
 	inventory.maxamount 32
 }

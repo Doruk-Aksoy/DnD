@@ -1,0 +1,58 @@
+Actor Spell_FlamePillar : DnD_Spell {
+    PROJECTILE
+    MaxStepHeight 96
+    Height 4
+    Radius 2
+    Speed 30
+    ReactionTime 18
+    +STEPMISSILE
+    +DONTSPLASH
+    +THRUACTORS
+    States {
+        SpawnState:
+            // Through ACS, not A_CustomMissile -- a DECORATE spawn does not carry user_spellid, so
+            // the flame would price itself as spell 0 and resolve as Blaze.
+            TNT1 A 4 ACS_NamedExecuteWithResult("DnD Flame Pillar Drop")
+            TNT1 A 0 A_Countdown
+        Loop
+        Death:
+            TNT1 A 1
+        Stop
+    }
+}
+
+// The standing flame. Damage is dealt on EVERY frame, so the pillar burns whatever stands in it for
+// as long as it is lit rather than bursting once.
+//
+// The numbers are resolved ONCE on spawn instead of per frame: they cannot change while it burns,
+// and a single cast lays down dozens of these -- re-resolving damage 23 times each would be a full
+// GetSpellValue pass plus a synergy walk per frame, per pillar. "DnD Prep Explosion" only ORs a flag
+// into Stamina, so it is idempotent and belongs in the same one-off step.
+Actor Spell_FlamePillarDamage : DnD_Spell {
+    PROJECTILE
+    Renderstyle Add
+    Alpha 1.0
+    Damage (0)
+    Speed 0
+    +THRUACTORS
+    +NOGRAVITY
+    +PAINLESS
+
+    // copied over here because inheriting explosive base isn't of much use here for this particular thing
+	var int user_expdmg;
+	var int user_expradius;
+	var int user_fullexpradius;
+	var int user_expflags;
+
+    States {
+        SpawnState:
+            TNT1 A 0 ACS_NamedExecuteWithResult("DnD Spell Explosion Setup")
+            TNT1 A 0 ACS_NamedExecuteWithResult("DnD Prep Explosion")
+            TNT1 A 0 A_PlaySound("FlamePillar/Fire")
+            DGFL ABCDEFGHIJKLMNOPRSTUVW 2 Bright A_Explode(100, user_expradius, 1, 0, user_fullexpradius)
+        Stop
+        Death:
+            TNT1 A 1
+        Stop
+    }
+}

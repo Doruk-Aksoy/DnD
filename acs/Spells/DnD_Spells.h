@@ -142,7 +142,7 @@ void CheckHeartOfFire(int pnum, int cast_spell) {
 		if(cut <= 0)
 			continue;
 
-		GetSpellCooldowns().at[pnum][s] -= cut;
+		ReduceSpellCooldown(pnum, s, cut);
 
 		// "A fire spell that BECOMES READY with this" -- only the ones this cut actually finished off,
 		// so a proc that merely shortens a long cooldown grants nothing.
@@ -178,8 +178,10 @@ Script "DnD Searing Bond Snare" (void) {
 	if(SetActivator(0, AAPTR_TRACER))
 		victim = ActivatorTID();
 
-	if(victim && IsActorAlive(victim))
+	if(victim && IsActorAlive(victim)) {
 		SnareMonster(victim, tics);
+		ACS_NamedExecuteAlways("DnD Snare FX", 0, victim);
+	}
 
 	// "Also binds enemies within 160 units of the target." Measured from the bolt rather than from the
 	// victim, because a bolt that struck geometry has no victim to measure from and should still bind.
@@ -192,8 +194,10 @@ Script "DnD Searing Bond Snare" (void) {
 			if(i == victim || !IsActorAlive(i) || !CheckFlag(i, "SHOOTABLE"))
 				continue;
 
-			if(fdistance_delta(bx - GetActorX(i), by - GetActorY(i), bz - GetActorZ(i)) <= r)
+			if(fdistance_delta(bx - GetActorX(i), by - GetActorY(i), bz - GetActorZ(i)) <= r) {
 				SnareMonster(i, tics);
+				ACS_NamedExecuteAlways("DnD Snare FX", 0, i);
+			}
 		}
 	}
 
@@ -566,7 +570,12 @@ void CastWarmth(int pnum) {
 // rather than by the buff, because the retaliation fires from the damage path and that path can read
 // inventory far more cheaply than it can walk a buff list.
 void CastHeatShield(int pnum) {
-	int target = GetSpellSupportTarget(pnum);
+	// Whoever the soft lock settled on during the cast. Falls back to the caster if they died or
+	// left while the bar was running.
+	int target = GetSpellLockTarget(pnum);
+	if(target < 0 || !PlayerInGame(target) || !IsActorAlive(target + P_TIDSTART))
+		target = pnum;
+
 	int dur = GetSpellDurationTics(pnum, SPL_HEATSHIELD);
 
 	PlaySound(pnum + P_TIDSTART, "HeatShield/Cast", CHAN_6);
@@ -575,9 +584,16 @@ void CastHeatShield(int pnum) {
 	HandlePlayerBuffAssignment(target, pnum + P_TIDSTART, BTI_SPELL_HEATSHIELD, 0, 0, dur,
 		GetSpellValue(pnum, SPL_HEATSHIELD, SPELLVAL_DAMAGE));
 
+	// Tested BEFORE the stamp below: a recast on someone who already has the shield refreshes it, and
+	// issuing the token again would leave a second pair of shields on them.
+	bool wasUp = !!CheckActorInventory(target + P_TIDSTART, "DnD_HeatShieldRank");
+
 	// Rank is stamped on the marker so the retaliation can read the caster's thresholds off the
 	// WEARER, who may not be the caster.
 	SetActorInventory(target + P_TIDSTART, "DnD_HeatShieldRank", GetSpellRank(pnum, SPL_HEATSHIELD, true));
+
+	if(!wasUp)
+		RaisePlayerAttachment(target, DND_PLAYERFX_HEATSHIELD);
 	ACS_NamedExecuteAlways("DnD Heat Shield Timer", 0, target, Timer() + dur);
 }
 
@@ -599,6 +615,9 @@ void CastBoilingBlood(int pnum) {
 		cdr *= 2;
 
 	int ptid = pnum + P_TIDSTART;
+
+	PlaySound(ptid, "BloodBoil/Cast", CHAN_5);
+
 	HandlePlayerBuffAssignment(pnum, ptid, BTI_SPELL_BOILINGBLOOD, 0, 0, dur,
 		GetSpellValue(pnum, SPL_BOILINGBLOOD, SPELLVAL_DAMAGE));
 	HandlePlayerBuffAssignment(pnum, ptid, BTI_SPELL_BOILINGBLOOD_CDR, 0, 0, dur, cdr);
@@ -607,21 +626,125 @@ void CastBoilingBlood(int pnum) {
 		GetSpellValue(pnum, SPL_BOILINGBLOOD, SPELLVAL_DAMAGE2), dur);
 }
 
+// Immolation. A real time toggle: the cast switches it on, a second cast switches it off, and it
+// also stops on running dry or dying. NOT IsSpellToggleable -- that is the menu opt out, which is a
+// build decision taken out of combat, and this spell deliberately does not have one.
+//
+// The running flag is raised HERE rather than in the ticker so a second press in the same breath
+// cannot slip past it and start a second loop.
+#define DND_IMMOLATION_R5_COSTCUT 4
+
+void CastImmolation(int pnum) {
+	// Activation only. A press that switches the spell OFF is answered by TryCastSpell and never
+	// reaches the cast path at all, so there is nothing here to guard against.
+	PlaySound(pnum + P_TIDSTART, "Immolation/Cast", CHAN_6);
+
+	SetSpellRunning(pnum, SPL_IMMOLATION, true);
+	ACS_NamedExecuteAlways("DnD Immolation Tick", 0, pnum);
+}
+
+Script "DnD Immolation Tick" (int pnum) {
+	int ptid = pnum + P_TIDSTART;
+	SetPlayerAttachment(pnum, DND_PLAYERFX_IMMOLATION, true);
+
+	int i, mn, v, dealt, r, dmg, cost;
+	bool first = true;
+
+	while(true) {
+		// Three ways out, and the flag covers two of them: a second cast clears it, and so does a
+		// teardown elsewhere. Death and leaving are tested directly.
+		if(!IsSpellRunning(pnum, SPL_IMMOLATION) || !PlayerInGame(pnum) || !IsActorAlive(ptid))
+			break;
+
+		cost = GetSpellValue(pnum, SPL_IMMOLATION, SPELLVAL_COST) >> 16;
+
+		// "Mana cost reduced by 4."
+		if(SpellThresholdMet(pnum, SPL_IMMOLATION, DND_SPELL_THRESH_LOW))
+			cost = Max(0, cost - DND_IMMOLATION_R5_COSTCUT);
+
+		// The press already bought the first second, the same way a channel's first tick is free.
+		if(!first) {
+			if(GetPlayerMana(pnum) < cost)
+				break;
+			SetPlayerMana(pnum, GetPlayerMana(pnum) - cost);
+		}
+		first = false;
+
+		// One per damage pass, on its own channel so it never cuts the activation. Per monster would
+		// stack a copy for every enemy in the ring.
+		PlaySound(ptid, "Immolation/Proc", CHAN_7);
+
+		r = ScalePlayerAoERadius(pnum, GetSpellValue(pnum, SPL_IMMOLATION, SPELLVAL_RADIUS) << 16,
+			DND_AOESRC_NONWEAPON);
+		dmg = GetSpellValue(pnum, SPL_IMMOLATION, SPELLVAL_DAMAGE);
+
+		for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
+			v = UsedMonsterTIDs[mn];
+			if(!IsActorAlive(v) || !CheckFlag(v, "SHOOTABLE"))
+				continue;
+			if(fdistance(ptid, v) > r)
+				continue;
+
+			// ISDAMAGEOVERTIME is what stops the tick rolling a crit, the same way Blaze's burn does.
+			// A periodic aura attached to the player is damage over time by nature -- it would roll a
+			// fresh crit several times a second otherwise, which no single hit ever gets to do.
+			dealt = HandleDamageDeal(ptid, v, dmg, DND_DAMAGETYPE_FIRE, SPL_IMMOLATION,
+				DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISRADIUSDMG | DND_DAMAGEFLAG_ISDAMAGEOVERTIME,
+				0, 0, 0, 0, true);
+			if(dealt > 0)
+				Thing_Damage2(v, dealt, "SkipHandle");
+
+			// "The damage also applies Blaze." Blaze's own burn, priced off Blaze.
+			if(SpellThresholdMet(pnum, SPL_IMMOLATION, DND_SPELL_THRESH_HIGH))
+				ACS_NamedExecuteAlways("DnD Blaze Burn", 0, v, pnum,
+					GetSpellValue(pnum, SPL_BLAZE, SPELLVAL_DAMAGE));
+		}
+
+		Delay(const:TICRATE);
+	}
+
+	SetSpellRunning(pnum, SPL_IMMOLATION, false);
+	SetPlayerAttachment(pnum, DND_PLAYERFX_IMMOLATION, false);
+}
+
 // The health price. Separate from the buff because the buff system grants values, it does not bill
 // for them, and because this has to stop the moment the player dies.
 Script "DnD Boiling Blood Drain" (int pnum, int per_second, int dur) {
 	int ptid = pnum + P_TIDSTART;
+	int endtic = Timer() + dur;
 
-	for(int t = 0; t < dur; t += TICRATE) {
+	// A recast takes OWNERSHIP rather than adding a second drain. The cooldown is shorter than the
+	// duration, so recasting mid effect is the normal case and not an edge one -- two loops billed the
+	// health twice a second, and the first to finish tore the visual down under the second. Same end
+	// tic stamp "DnD Heat Shield Timer" uses, for the same reason.
+	SetActorInventory(ptid, "DnD_BoilingBloodEnd", endtic);
+
+	// The visual rides this loop rather than the buff, so it lasts exactly as long as the spell is
+	// being paid for -- and stops when the player dies partway through.
+	SetPlayerAttachment(pnum, DND_PLAYERFX_BOILINGBLOOD, true);
+
+	while(Timer() < endtic) {
 		Delay(const:TICRATE);
 
 		if(!PlayerInGame(pnum) || !IsActorAlive(ptid))
+			break;
+
+		// Superseded. The newer cast owns the drain and the visual now, so this one leaves without
+		// billing and without tearing anything down.
+		if(CheckActorInventory(ptid, "DnD_BoilingBloodEnd") != endtic)
 			Terminate;
 
 		// Never lethal: the spell is a cost, not a suicide. One health is the floor.
 		int hp = GetActorProperty(ptid, APROP_HEALTH);
 		if(hp > per_second)
 			Thing_Damage2(ptid, per_second, "SkipHandle");
+	}
+
+	// Only the owner clears up, so a run superseded a tick before its own end cannot pull the visual
+	// out from under the one still going.
+	if(CheckActorInventory(ptid, "DnD_BoilingBloodEnd") == endtic) {
+		SetActorInventory(ptid, "DnD_BoilingBloodEnd", 0);
+		SetPlayerAttachment(pnum, DND_PLAYERFX_BOILINGBLOOD, false);
 	}
 }
 
@@ -635,11 +758,11 @@ Script "DnD Heat Shield Timer" (int pnum, int endtic) {
 	while(Timer() < endtic && IsActorAlive(ptid) && CheckActorInventory(ptid, "DnD_HeatShieldEnd") == endtic)
 		Delay(const:TICRATE / 2);
 
-	PlaySound(pnum + P_TIDSTART, "HeatShield/End", CHAN_6);
-
 	if(CheckActorInventory(ptid, "DnD_HeatShieldEnd") == endtic) {
 		SetActorInventory(ptid, "DnD_HeatShieldRank", 0);
 		SetActorInventory(ptid, "DnD_HeatShieldEnd", 0);
+
+		PlaySound(pnum + P_TIDSTART, "HeatShield/End", CHAN_6);
 	}
 }
 
@@ -724,7 +847,7 @@ Script "DnD Blaze Burn" (int victim, int pnum, int base) {
 			//
 			// wepid -1, not the spell id: this one indexes Player_Weapon_Infos, and -1 is its "no weapon"
 			// path. That is a different argument from HandleDamageDeal's wepid, which takes the spell.
-			dmg = GetGenericDoTDamage(pnum, CheckActorInventory(victim, "DnD_BlazeDamage"), victim, -1);
+			dmg = GetGenericDoTDamage(pnum, CheckActorInventory(victim, "DnD_BlazeDamage"), victim, -1, true);
 
 			// ISDAMAGEOVERTIME is what keeps the tick from rolling a crit -- HandleDamageDeal gates the
 			// spell crit roll on its absence, the same as the ignite, poison and bleed tics do. wep_neg
@@ -833,6 +956,15 @@ Script "DnD Incinerate Burst" (int pnum, int victim) {
 // Likewise Spell_Pyroblast's.
 #define DND_PYROBLAST_SPEED 24
 
+// Likewise Spell_FireJet's.
+#define DND_FIREJET_SPEED 36
+
+// Matches the actor's own Speed and the description's "advances 30 units per tic".
+#define DND_FLAMEPILLAR_SPEED 30
+
+// Rank 10's second pillar. 32 units to each side, so the pair runs 64 apart.
+#define DND_FLAMEPILLAR_SIDEOFF 32.0
+
 #define DND_PYROBLAST_FRAGMENTS 8
 #define DND_PYROBLAST_FRAGSPEED 24
 
@@ -922,6 +1054,157 @@ Script "DnD Flammability Area FX" (int cx, int cy, int cz, int r) CLIENTSIDE {
 	}
 
 	SetResultValue(0);
+}
+
+// Rain of Fire. Marks a patch of ground and drops comets into it for the duration.
+//
+// The comets are aimed rather than dropped straight down: a landing point is picked inside the
+// scatter disc first, the comet is started high and to one side of it, and its velocity points at
+// the landing point. That is what makes them fall at varied angles and still all land in the area.
+#define DND_RAINOFFIRE_SPEED 40.0
+#define DND_RAINOFFIRE_R5_SPEEDUP 20        // percent, "comets fall 20% faster"
+#define DND_RAINOFFIRE_RATE 6               // tics between volleys -- mid-high over a 4 second rain
+#define DND_RAINOFFIRE_PERVOLLEY 2          // comets per volley. Density without a faster cadence.
+#define DND_RAINOFFIRE_MARKRATE (TICRATE / 2)
+#define DND_RAINOFFIRE_RISE 384.0           // how high they start when the ceiling is far away
+#define DND_RAINOFFIRE_HEADROOM 24.0        // kept clear of the ceiling so they do not spawn inside it
+#define DND_RAINOFFIRE_SLANT 128.0          // how far to the side a comet may start from its landing point
+
+// The ring, redrawn on a timer so it lasts the rain without the markers needing a duration.
+Script "DnD Rain Of Fire Mark" (int cx, int cy, int packed) CLIENTSIDE {
+	int cz = packed << 16;
+	int r = (packed >> 16) << 16;
+	if(r <= 0) {
+		SetResultValue(0);
+		Terminate;
+	}
+
+	int n = Clamp_Between((FixedDiv(r, DND_FLAMMABILITY_RINGSTEP) >> 16) * 6,
+		DND_FLAMMABILITY_RINGMIN, DND_FLAMMABILITY_RINGMAX);
+
+	int i, a;
+	for(i = 0; i < n; ++i) {
+		a = (i * 1.0) / n;
+		SpawnForced("Spell_RainOfFireMarkerFX",
+			cx + FixedMul(cos(a), r),
+			cy + FixedMul(sin(a), r),
+			cz + DND_FLAMMABILITY_RINGLIFT, 0, 0);
+	}
+
+	SetResultValue(0);
+}
+
+Script "DnD Rain Of Fire" (int pnum) {
+	int caster = pnum + P_TIDSTART;
+	int cx, cy, cz;
+
+	// Same two ways in as Flammability: what the player is looking at, else where the aim puff struck.
+	int target = PickActor(caster, GetActorAngle(caster), GetActorPitch(caster),
+		DND_SPELL_HITSCANRANGE, 0, MF_SHOOTABLE, ML_BLOCKEVERYTHING, PICKAF_RETURNTID);
+
+	if(target && IsActorAlive(target)) {
+		cx = GetActorX(target);
+		cy = GetActorY(target);
+		cz = GetActorZ(target);
+	}
+	else {
+		if(!TraceSpellAim(pnum, DND_SPELL_HITSCANRANGE))
+			Terminate;
+
+		int wait = 0;
+		while(!ReadSpellAim(pnum) && wait < DND_SPELLAIM_WAIT) {
+			Delay(const:1);
+			++wait;
+		}
+
+		if(!SpellAimReady(pnum) || !PlayerInGame(pnum) || !IsActorAlive(caster))
+			Terminate;
+
+		auto aim = GetSpellAim();
+		cx = aim.x[pnum];
+		cy = aim.y[pnum];
+		cz = aim.z[pnum];
+	}
+
+	// AMOUNT is the scatter radius -- the patch itself -- and grows with area modifiers. RADIUS is
+	// each comet's own blast and is left to the explosion, which reads it off user_spellid.
+	int scatter = ScalePlayerAoERadius(pnum,
+		GetSpellValue(pnum, SPL_RAINOFFIRE, SPELLVAL_AMOUNT) << 16, DND_AOESRC_NONWEAPON);
+	int dur = GetSpellDurationTics(pnum, SPL_RAINOFFIRE);
+
+	int speed = DND_RAINOFFIRE_SPEED;
+
+	// "Comets fall 20% faster."
+	if(SpellThresholdMet(pnum, SPL_RAINOFFIRE, DND_SPELL_THRESH_LOW))
+		speed = speed * (100 + DND_RAINOFFIRE_R5_SPEEDUP) / 100;
+
+	// Floor and ceiling read ONCE from the middle rather than per comet: the patch is one room in
+	// almost every case, and a dummy spawn for each of two dozen comets is not worth the difference.
+	int probe = TEMPORARY_DATADUMMY_TID + pnum;
+	int ground = cz, roof = cz + DND_RAINOFFIRE_RISE;
+
+	if(SpawnForced("DnD_SpellAnchor", cx, cy, cz, probe, 0)) {
+		ground = GetActorFloorZ(probe);
+		roof = Min(GetActorCeilingZ(probe) - DND_RAINOFFIRE_HEADROOM, ground + DND_RAINOFFIRE_RISE);
+		Thing_Remove(probe);
+	}
+
+	// A low ceiling would otherwise put the start point under the landing point.
+	if(roof <= ground + DND_RAINOFFIRE_HEADROOM)
+		roof = ground + DND_RAINOFFIRE_HEADROOM;
+
+	int tid = TEMPORARY_SPELL_TID + pnum;
+	int t, c, a, d, lx, ly, sx, sy, dx, dy, dz, len;
+
+	for(t = 0; t < dur; t += DND_RAINOFFIRE_RATE) {
+		if(!PlayerInGame(pnum))
+			break;
+
+		// Redrawn on its own slower cadence so the ring persists without a marker per comet.
+		if(!(t % DND_RAINOFFIRE_MARKRATE))
+			ACS_NamedExecuteWithResult("DnD Rain Of Fire Mark", cx, cy,
+				((scatter >> 16) << 16) | ((ground >> 16) & 0xFFFF));
+
+		// A VOLLEY, not a comet. Each one rolls its own landing point and its own slant, so they come
+		// down together but never as a pair on the same line.
+		for(c = 0; c < DND_RAINOFFIRE_PERVOLLEY; ++c) {
+			// Uniform over the disc rather than over the radius -- without the square root they bunch
+			// up in the middle and the edge of the patch stays empty.
+			a = random(0, 1.0);
+			d = FixedMul(scatter, fsqrt(random(0, 1.0)));
+			lx = cx + FixedMul(cos(a), d);
+			ly = cy + FixedMul(sin(a), d);
+
+			// Started high and to one side, so it comes down at an angle and still lands on the spot.
+			a = random(0, 1.0);
+			d = random(0, DND_RAINOFFIRE_SLANT);
+			sx = lx + FixedMul(cos(a), d);
+			sy = ly + FixedMul(sin(a), d);
+
+			if(!SpawnForced("Spell_RainOfFire", sx, sy, roof, tid, 0))
+				continue;
+
+			// Stamps the spell identity, which is what the Damage expression and the blast radius both
+			// resolve off. Without it the comet prices itself as spell 0.
+			SetupSpellActor(tid, pnum, SPL_RAINOFFIRE);
+
+			dx = lx - sx;
+			dy = ly - sy;
+			dz = ground - roof;
+			len = fdistance_delta(dx, dy, dz);
+
+			if(len > 0)
+				SetActorVelocity(tid,
+					FixedMul(FixedDiv(dx, len), speed),
+					FixedMul(FixedDiv(dy, len), speed),
+					FixedMul(FixedDiv(dz, len), speed), false, false);
+
+			// Released before the next comet of the volley takes the same scratch tid.
+			Thing_ChangeTID(tid, 0);
+		}
+
+		Delay(const:DND_RAINOFFIRE_RATE);
+	}
 }
 
 // Two ways to find the centre, because the curse has to land on a patch of floor as readily as on a
@@ -1072,11 +1355,36 @@ Script "DnD Spell Cast" (int spell, int pnum) {
 	// driven by the attack button and so cannot share it. A plain cast time leaves the player free to
 	// keep shooting through it.
 	int ct = GetSpellCastTics(pnum, spell);
+	bool ally = !!(SpellDefs[spell].flags & SPLF_ALLYTARGET);
+
 	if(ct > 0) {
+		BeginSpellCasting(pnum);
 		int casting = StartSpellCastBar(pnum, spell, ct);
-		Delay(ct);
+
+		if(ally) {
+			// Re-aimed every tic for the first stretch of the bar, then COMMITTED. The last quarter is
+			// locked in so the spell lands where the marker said it would, rather than on whoever the
+			// crosshair happened to cross on the final tic.
+			int track = ct * DND_SPELLLOCK_TRACKPCT / 100;
+			for(int e = 0; e < ct; ++e) {
+				if(e < track)
+					SetSpellLockTarget(pnum, GetSpellAllyTarget(pnum));
+				Delay(const:1);
+			}
+		}
+		else
+			Delay(ct);
+
 		EndSpellCastBar(pnum, casting);
+		EndSpellCasting(pnum);
+
+		// The box goes now; WHO was locked is still needed by the cast below.
+		if(ally)
+			DropSpellLockMarker(pnum);
 	}
+	else if(ally)
+		// No bar to lock during -- resolve it on the spot, and no marker is ever shown.
+		SetSpellLockTarget(pnum, GetSpellAllyTarget(pnum));
 
 	int i, count, victim, temp;
 
@@ -1088,6 +1396,8 @@ Script "DnD Spell Cast" (int spell, int pnum) {
 			victim = SpellHitscan(pnum, spell, "Spell_BlazePuff");
 			if(!victim)
 				break;
+
+			PlaySound(pnum + P_TIDSTART, "Blaze/Cast", CHAN_6);
 
 			// The trace already dealt one tick's worth; the burn carries the rest.
 			count = GetSpellValue(pnum, spell, SPELLVAL_DAMAGE);
@@ -1126,6 +1436,33 @@ Script "DnD Spell Cast" (int spell, int pnum) {
 		case SPL_SEARINGBOND:
 			// A seeker, so it only needs throwing in the right general direction.
 			SpawnSpellProjectile(pnum, spell, "Spell_SearingBond", DND_SEARINGBOND_SPEED);
+		break;
+
+		case SPL_FIREJET:
+			// The jet throws its own sideways flames as it flies, so this only has to launch it.
+			SpawnSpellProjectile(pnum, spell, "Spell_FireJet", DND_FIREJET_SPEED);
+		break;
+
+		case SPL_FLAMEPILLAR:
+			// The pillar lays its own flame down as it advances, so this only has to launch it.
+			// Rank 10 runs a parallel pair instead of one, offset sideways rather than fanned --
+			// they are meant to sweep a corridor abreast, not diverge.
+			if(SpellThresholdMet(pnum, spell, DND_SPELL_THRESH_HIGH)) {
+				SpawnSpellProjectile(pnum, spell, "Spell_FlamePillar", DND_FLAMEPILLAR_SPEED, 0, 0,
+					DND_FLAMEPILLAR_SIDEOFF);
+				SpawnSpellProjectile(pnum, spell, "Spell_FlamePillar", DND_FLAMEPILLAR_SPEED, 0, 0,
+					-DND_FLAMEPILLAR_SIDEOFF);
+			}
+			else
+				SpawnSpellProjectile(pnum, spell, "Spell_FlamePillar", DND_FLAMEPILLAR_SPEED);
+		break;
+
+		case SPL_RAINOFFIRE:
+			ACS_NamedExecuteAlways("DnD Rain Of Fire", 0, pnum);
+		break;
+
+		case SPL_IMMOLATION:
+			CastImmolation(pnum);
 		break;
 
 		case SPL_FLAMMABILITY:

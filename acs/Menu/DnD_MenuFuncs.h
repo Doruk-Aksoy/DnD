@@ -6090,6 +6090,33 @@ void DrawPlayerStats(int pnum, int category) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_GLOBALCRITMULT", s:"\n");
 				++k;
 			}
+
+			// The spell axis is separate from the attack one above -- different mods feed each, and a
+			// build can have one without the other. Shown only when there is something to show, so a
+			// pure gunner does not carry two dead lines.
+			val = GetCritChance_Display(pnum, true);
+			if(val) {
+				if(val <= 1.0)
+					pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_SPELLCRIT", s:"\n");
+				else {
+					val -= 1.0;
+					if(val > 10.0)
+						val = 10.0;
+					pstat_text.text = StrParam(
+						s:pstat_text.text, s:"\c[Q9]100.0",
+						s:" (\cd", s:GetFixedRepresentation(val, true), s:"\c[Q9])%\c- ", l:"DND_MENU_SPELLCRIT", s:"\n"
+					);
+				}
+				++k;
+			}
+
+			// Only the delta against the attack multiplier would be misleading, so this is the real
+			// figure a spell crit uses -- the global pile plus the spell one.
+			val = GetIndependentCritModifier(pnum, true, true);
+			if(val && val != GetIndependentCritModifier(pnum)) {
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_SPELLCRITMULT", s:"\n");
+				++k;
+			}
 			// crit block ends
 			
 			
@@ -6923,6 +6950,44 @@ void DrawPlayerStats(int pnum, int category) {
 			val = CheckInventory("P_ManaRegen");
 			pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", s:GetFixedRepresentation((val << 16) / 100, false), s:"\c- ", l:"DND_MENU_MANAREGEN", s:"\n");
 			++k;
+
+			// The rest of the spell kit. Each is skipped at zero -- a gunner never spends a line on them,
+			// and a caster sees only what they actually carry.
+			val = PlayerModData[pnum].vals[PSTAT_SPELL_DAMAGE];
+			if(val) {
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_SPELLDMG", s:"\n");
+				++k;
+			}
+
+			val = PlayerModData[pnum].vals[PSTAT_SPELL_CDR];
+			if(val) {
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_SPELLCDR", s:"\n");
+				++k;
+			}
+
+			val = PlayerModData[pnum].vals[PSTAT_SPELL_HASTE];
+			if(val) {
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_SPELLHASTE", s:"\n");
+				++k;
+			}
+
+			val = PlayerModData[pnum].vals[PSTAT_SPELL_AOE];
+			if(val) {
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_SPELLAOE", s:"\n");
+				++k;
+			}
+
+			val = PlayerModData[pnum].vals[PSTAT_SPELL_DURATION];
+			if(val) {
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_SPELLDURATION", s:"\n");
+				++k;
+			}
+
+			val = PlayerModData[pnum].vals[PSTAT_MANARESERVE_EFF];
+			if(val) {
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_MANARESERVE", s:"\n");
+				++k;
+			}
 
 			// ripper block
 			val = PlayerModData[pnum].vals[PSTAT_RIPCOUNT];

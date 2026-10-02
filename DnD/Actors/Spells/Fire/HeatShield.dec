@@ -1,0 +1,51 @@
+// Heat Shield's shields. A pair, one on each flank of the WEARER -- who may not be the caster, since
+// the spell is targeted at an ally.
+//
+// There is no marker actor here: DnD_HeatShieldRank already marks exactly when the shield is up, and
+// on the right player. "DnD Heat Shield Timer" clears it on expiry, which is what stops these.
+
+// The token that raises the pair. A CustomInventory, so its Pickup state runs with the PLAYER as self
+// on every machine that receives the item.
+//
+// WithResult, not Always: the former runs inline and keeps the player as activator, which is the only
+// thing the spawner has to aim the shields at. Always starts a detached script and loses it.
+Actor Spell_HeatShield_FXSpawner : DnD_Activator {
+    States {
+        Pickup:
+            TNT1 A 1 ACS_NamedExecuteWithResult("DnD Spawn Player Aura", PLAYERFX_HEATSHIELD)
+        Stop
+    }
+}
+
+// One shield. Two are spawned, and each is told where to sit by the spawner:
+//   score = how far to its side, +20 for one and -20 for the other
+//   mass  = how high up, the wearer's own height / 2, so it rides at body height
+//
+// Both ride APROP_SCORE and APROP_MASS rather than user vars because that is how the monster
+// attachments carry their offsets, and A_Warp can read them directly.
+//
+// No WARPF_USECALLERANGLE. That flag rotates the offsets by the SHIELD's own angle, which is zero and
+// never changes, so the pair sat on a fixed world axis instead of on the player's flanks. Left out,
+// A_Warp rotates them by the TARGET's angle and sets the shield's angle to match -- so they hold
+// their sides and turn with the player. Positive y is the player's right, negative their left.
+Actor Spell_HeatShieldFX {
+    Renderstyle Add
+    Alpha 0.9
+    Scale 0.666
+    +CLIENTSIDEONLY
+    +NOINTERACTION
+    +NOTONAUTOMAP
+    States {
+        // One tic, not zero. The actor has to survive to its first Tick for NoDelay to fire, and a
+        // zero length spawn frame that does not jump is gone before anything sees it.
+        Spawn:
+            TNT1 A 1 NoDelay A_JumpIfInTargetInventory("DnD_HeatShieldRank", 1, "Active")
+        Stop
+
+        Active:
+            S006 A 1 Bright A_Warp(AAPTR_TARGET, 0, score, mass, 0,
+                WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+            TNT1 A 0 A_JumpIfInTargetInventory("DnD_HeatShieldRank", 1, "Active")
+        Stop
+    }
+}

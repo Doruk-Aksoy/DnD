@@ -2,6 +2,13 @@ const int SPECIAL_FX_TID = 2147483647;
 const int SPELLAIM_TID = 2147483646;
 // Must match the DND_PLAYERFX_* enum in acs/DnD_Attachments.h.
 const int PLAYERFX_ANGERAURA = 0;
+const int PLAYERFX_HEATSHIELD = 1;
+const int PLAYERFX_BOILINGBLOOD = 2;
+const int PLAYERFX_IMMOLATION = 3;
+const int PLAYERFX_ALLYLOCK = 4;
+// Mirrors DND_SPELL_THRESH_* in acs/Spells/DnD_SpellDefs.h.
+const int SPELLTHRESH_LOW = 5;
+const int SPELLTHRESH_HIGH = 10;
 
 /*
 	Members used to embed data:
@@ -25,6 +32,7 @@ const int PLAYERFX_ANGERAURA = 0;
 #include "Actors/Items/Scoreboard.dec"
 
 #include "Actors/ProjectileBase.dec"
+#include "Actors/Ailments.dec"
 
 #include "Actors/AttackIDs.dec"
 #include "Actors/WeaponIDs.dec"
@@ -75,6 +83,21 @@ const int PLAYERFX_ANGERAURA = 0;
 #include "Actors/Spells/Fire/Incinerate.dec"
 #include "Actors/Spells/Fire/Flammability.dec"
 #include "Actors/Spells/Fire/Anger.dec"
+#include "Actors/Spells/Fire/HeatShield.dec"
+#include "Actors/Spells/Fire/BoilingBlood.dec"
+#include "Actors/Spells/Fire/Immolation.dec"
+#include "Actors/Spells/Fire/RainOfFire.dec"
+#include "Actors/Spells/Fire/FireJet.dec"
+// Empty for now -- included up front so a spell's actors go live the moment they are written.
+// A .dec with no #include is the quiet failure mode: the class simply does not exist and every
+// spawn of it fails without a word.
+#include "Actors/Spells/Fire/FlamePillar.dec"
+#include "Actors/Spells/Fire/MoltenBoulder.dec"
+#include "Actors/Spells/Fire/FireDemon.dec"
+#include "Actors/Spells/Fire/RighteousFire.dec"
+#include "Actors/Spells/Fire/Annihilus.dec"
+#include "Actors/Spells/Fire/Volcano.dec"
+#include "Actors/Spells/AllyLock.dec"
 
 #include "Actors/Hud.dec"
 #include "Actors/Puffs.dec"

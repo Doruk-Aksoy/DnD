@@ -1739,6 +1739,11 @@ void ClearLingeringBuffs(int pnum) {
 	SetInventory("DnD_Parrying", 0);
 	TakeInventory("DnD_ParryCooldown", 1);
 
+	// A cast or a channel cut short by death leaves its marker behind, and the marker is what bars
+	// casting -- so a stale one is a player who can never cast again.
+	TakeInventory("DnD_SpellCasting", 1);
+	TakeInventory("DnD_SpellBusy", 1);
+
 	SetInventory("DnD_FrenzyChargeCount", 0);
 	SetInventory("DnD_EnduranceChargeCount", 0);
 	SetInventory("DnD_PowerChargeCount", 0);

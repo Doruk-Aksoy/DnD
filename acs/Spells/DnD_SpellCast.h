@@ -11,6 +11,9 @@
 // house rule for anything this size -- see GetPerkScroll. This one is MAXPLAYERS x MAX_SPELL_IDS.
 typedef struct {
 	int at[MAXPLAYERS][MAX_SPELL_IDS];
+	// The second charge's own end tic, for spells that hold more than one. Untouched -- and so
+	// permanently zero, which reads as ready -- for every spell that does not.
+	int atb[MAXPLAYERS][MAX_SPELL_IDS];
 } spell_cooldown_T;
 
 // Heart of Fire's rank 5 window: the tic a spell's empowerment runs out on, or 0. Sits next to the
@@ -68,12 +71,48 @@ int GetSpellCastTics(int pnum, int spell) {
 	return Max(1, ct * 100 / (100 + haste));
 }
 
-bool IsSpellOnCooldown(int pnum, int spell) {
-	return GetSpellCooldowns().at[pnum][spell] > Timer();
+// How many casts a spell banks before it has to wait. Each charge runs its own cooldown, so two
+// charges is not a halved cooldown -- it is two of them in parallel.
+#define DND_SPELL_MAXCHARGES 2
+
+int GetSpellMaxCharges(int pnum, int spell) {
+	// "Holds two charges, each on its own cooldown."
+	if(spell == SPL_RAINOFFIRE && SpellThresholdMet(pnum, spell, DND_SPELL_THRESH_HIGH))
+		return 2;
+
+	return 1;
 }
 
+int GetSpellChargesReady(int pnum, int spell) {
+	auto cd = GetSpellCooldowns();
+	int t = Timer(), ready = 0;
+
+	if(cd.at[pnum][spell] <= t)
+		++ready;
+
+	if(GetSpellMaxCharges(pnum, spell) > 1 && cd.atb[pnum][spell] <= t)
+		++ready;
+
+	return ready;
+}
+
+// Blocked only when EVERY charge is down. One free charge is a castable spell.
+bool IsSpellOnCooldown(int pnum, int spell) {
+	return !GetSpellChargesReady(pnum, spell);
+}
+
+// What the player is actually waiting on: the charge that comes back SOONEST. Zero the moment any
+// of them is free.
 int GetSpellCooldownLeft(int pnum, int spell) {
-	return Max(0, GetSpellCooldowns().at[pnum][spell] - Timer());
+	auto cd = GetSpellCooldowns();
+	int t = Timer();
+	int a = Max(0, cd.at[pnum][spell] - t);
+
+	if(GetSpellMaxCharges(pnum, spell) < 2 || !a)
+		return a;
+
+	int b = Max(0, cd.atb[pnum][spell] - t);
+	return b ? Min(a, b) : 0;
 }
 
 // 0-100 for the hotbar overlay. The total is recomputed rather than stored: a second array per
@@ -91,18 +130,47 @@ int GetSpellCooldownPercent(int pnum, int spell) {
 	return Min(100, left * 100 / total);
 }
 
+// Takes time off whichever charge the player is actually waiting on -- the one returning soonest.
+// Anything shortening a cooldown has to come through here rather than touching a lane directly, or
+// it silently only ever works on the first charge.
+void ReduceSpellCooldown(int pnum, int spell, int cut) {
+	auto c = GetSpellCooldowns();
+	int t = Timer();
+
+	if(GetSpellMaxCharges(pnum, spell) > 1 && c.atb[pnum][spell] > t &&
+		(c.at[pnum][spell] <= t || c.atb[pnum][spell] < c.at[pnum][spell]))
+		c.atb[pnum][spell] -= cut;
+	else
+		c.at[pnum][spell] -= cut;
+}
+
+// Puts the cooldown on a FREE charge rather than on the spell. The first lane is used while it is
+// free so a single charge spell never touches the second; past that the second takes it, and if
+// both are somehow busy the one returning soonest is pushed back.
 void StartSpellCooldown(int pnum, int spell) {
 	int cd = GetSpellCooldownTics(pnum, spell);
-	if(cd > 0)
-		GetSpellCooldowns().at[pnum][spell] = Timer() + cd;
+	if(cd > 0) {
+		auto c = GetSpellCooldowns();
+		int t = Timer();
+
+		if(c.at[pnum][spell] <= t || GetSpellMaxCharges(pnum, spell) < 2)
+			c.at[pnum][spell] = t + cd;
+		else if(c.atb[pnum][spell] <= t || c.atb[pnum][spell] < c.at[pnum][spell])
+			c.atb[pnum][spell] = t + cd;
+		else
+			c.at[pnum][spell] = t + cd;
+	}
 
 	// Every bind holding this spell, since one spell may sit on several.
 	SyncHotbarForSpell(pnum, spell);
 }
 
 void ResetAllSpellCooldownsNew(int pnum) {
-	for(int i = 0; i < MAX_SPELL_IDS; ++i)
-		GetSpellCooldowns().at[pnum][i] = 0;
+	auto cd = GetSpellCooldowns();
+	for(int i = 0; i < MAX_SPELL_IDS; ++i) {
+		cd.at[pnum][i] = 0;
+		cd.atb[pnum][i] = 0;
+	}
 }
 
 // ---- spell points ----------------------------------------------------------------------------
@@ -148,7 +216,7 @@ int GiveSpellPointsFromToken(int pnum, int amt) {
 bool CanAllocateSpellPoint(int pnum, int spell) {
 	return GetSpellPoints(pnum) > 0 &&
 		GetSpellAllocatedRank(pnum, spell) < DND_SPELL_RANKCAP &&
-		IsSpellUnlockable(pnum, spell);
+		IsSpellUnlockable(pnum, spell, GetSpellAllocatedRank(pnum, spell) + 1);
 }
 
 bool AllocateSpellPoint(int pnum, int spell) {
@@ -193,7 +261,10 @@ void SetupSpellActor(int tid, int pnum, int spell) {
 // Thrown along where the player is looking. Goes through CreateProjectile rather than SpawnForced
 // plus SetActorVelocity: that path already owns the ProjectileHelper trick, which exists because
 // moving the player to the muzzle position jitters them.
-void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags = 0, int angle_off = 0) {
+// side_off slides the spawn point PERPENDICULAR to the facing, where angle_off rotates the shot.
+// Two parallel pillars 32 units out need the former; a fan of fireballs needs the latter.
+void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags = 0, int angle_off = 0,
+	int side_off = 0) {
 	int owner = pnum + P_TIDSTART;
 
 	// + 1.0 before the wrap: an offset to the left is negative, and the modulo of a negative angle
@@ -203,6 +274,13 @@ void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags =
 	int cosp = cos(pt);
 
 	Vec3_T* vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 15.0);
+
+	// a + 0.25 is 90 degrees left of the facing, so a positive side_off goes left.
+	if(side_off) {
+		int sa = (a + 0.25) % 1.0;
+		vPos.x += FixedMul(side_off, cos(sa));
+		vPos.y += FixedMul(side_off, sin(sa));
+	}
 	Vec3_T* vProj = GetVec3();
 
 	vProj.x = speed * FixedMul(cos(a), cosp);
@@ -243,6 +321,109 @@ int FanOffset(int index, int step) {
 
 	int pair = (index + 1) / 2;
 	return (index & 1) ? pair * step : -pair * step;
+}
+
+// ---- ally soft lock ---------------------------------------------------------------------------
+//
+// Forgiving aim for the support spells. PickActor wants a pixel on the target; this wants the
+// target merely NEAR the crosshair, which is what makes healing a moving teammate playable.
+//
+// Horizontal and vertical are SEPARATE tolerances, not one 3D cone. Vertical is much wider, so a
+// teammate up a step or down a stair is still an easy lock -- but it is bounded, because looking
+// sharply down has to be able to release the lock and target yourself with an ally in front of you.
+#define DND_SPELLLOCK_CONE 0.0278           // ~10 degrees either side of the crosshair
+#define DND_SPELLLOCK_PITCHCONE 0.0695      // ~25 degrees above or below
+#define DND_SPELLLOCK_RANGE 1024.0
+// How much of the cast is still free to re-aim. The last quarter is committed, so the spell lands
+// where the bar said it would rather than wherever the crosshair drifted at the final tic.
+#define DND_SPELLLOCK_TRACKPCT 75
+
+// Stored +1, because a zeroed static has to read as NONE rather than as player 0.
+typedef struct {
+	int target[MAXPLAYERS];
+} spell_lock_T;
+
+spell_lock_T module& GetSpellLock() {
+	static spell_lock_T s;
+	return s;
+}
+
+int GetSpellLockTarget(int pnum) {
+	return GetSpellLock().target[pnum] - 1;
+}
+
+// The ally under -- or merely near -- the crosshair. Returns the caster when nothing qualifies, so
+// a support spell always has somewhere to land.
+int GetSpellAllyTarget(int pnum) {
+	int caster = pnum + P_TIDSTART;
+	int a = GetActorAngle(caster);
+	int cx = cos(a), cy = sin(a);
+
+	// Seeded at the edge of the cone, so only something genuinely inside it can win.
+	int best = pnum, bestdot = cos(DND_SPELLLOCK_CONE);
+	int i, t, dx, dy, dz, len, dot;
+
+	for(i = 0; i < MAXPLAYERS; ++i) {
+		if(i == pnum || !PlayerInGame(i))
+			continue;
+
+		t = i + P_TIDSTART;
+		if(!IsActorAlive(t) || fdistance(caster, t) > DND_SPELLLOCK_RANGE)
+			continue;
+
+		// No locking through walls, however forgiving the cone is.
+		if(!CheckSight(caster, t, CSF_NOBLOCKALL))
+			continue;
+
+		dx = GetActorX(t) - GetActorX(caster);
+		dy = GetActorY(t) - GetActorY(caster);
+		len = VectorLength(dx, dy);
+		if(len <= 0)
+			continue;
+
+		// Eye to chest, so the elevation is what the player is actually looking along. Compared
+		// through cos rather than by subtracting angles, which wraps correctly for free.
+		dz = GetActorZ(t) + (GetActorProperty(t, APROP_HEIGHT) >> 1)
+			- (GetActorZ(caster) + GetActorViewHeight(caster));
+
+		if(cos(-GetActorPitch(caster) - VectorAngle(len, dz)) < cos(DND_SPELLLOCK_PITCHCONE))
+			continue;
+
+		// Nearest to the CROSSHAIR, not nearest in distance and not the first found -- with two
+		// players stood together, anything else picks the wrong one and looks broken.
+		dot = FixedMul(FixedDiv(dx, len), cx) + FixedMul(FixedDiv(dy, len), cy);
+		if(dot > bestdot) {
+			bestdot = dot;
+			best = i;
+		}
+	}
+
+	return best;
+}
+
+// Moves the marker with the lock: off whoever had it, onto whoever has it now. The caster never
+// gets one -- a box on your own feet tells you nothing.
+void SetSpellLockTarget(int pnum, int target) {
+	auto lk = GetSpellLock();
+	int prev = lk.target[pnum] - 1;
+
+	if(prev == target)
+		return;
+
+	if(prev >= 0 && prev != pnum)
+		SetPlayerAttachment(prev, DND_PLAYERFX_ALLYLOCK, false);
+
+	lk.target[pnum] = target + 1;
+
+	if(target >= 0 && target != pnum)
+		SetPlayerAttachment(target, DND_PLAYERFX_ALLYLOCK, true);
+}
+
+// Takes the box off without forgetting WHO was locked -- the cast still has to land on them.
+void DropSpellLockMarker(int pnum) {
+	int cur = GetSpellLock().target[pnum] - 1;
+	if(cur >= 0 && cur != pnum)
+		SetPlayerAttachment(cur, DND_PLAYERFX_ALLYLOCK, false);
 }
 
 // ---- aiming ----------------------------------------------------------------------------------
@@ -439,6 +620,25 @@ void EndSpellBusy(int pnum) {
 	TakeActorInventory(pnum + P_TIDSTART, "DnD_SpellBusy", 1);
 }
 
+// Held for the length of a CAST TIME. Separate from DnD_SpellBusy, which a channel holds: that one
+// also stands the weapon down, and a plain cast time deliberately does not -- the player keeps
+// shooting through it. What both of them bar is starting a SECOND spell.
+void BeginSpellCasting(int pnum) {
+	GiveActorInventory(pnum + P_TIDSTART, "DnD_SpellCasting", 1);
+}
+
+void EndSpellCasting(int pnum) {
+	TakeActorInventory(pnum + P_TIDSTART, "DnD_SpellCasting", 1);
+}
+
+// One spell at a time. A cast time running or a channel being held both count, so neither can be
+// interrupted by starting something else.
+bool IsSpellInProgress(int pnum) {
+	int ptid = pnum + P_TIDSTART;
+	return !!CheckActorInventory(ptid, "DnD_SpellCasting") ||
+		!!CheckActorInventory(ptid, "DnD_SpellBusy");
+}
+
 // ---- casting ---------------------------------------------------------------------------------
 
 enum {
@@ -469,6 +669,11 @@ int CanCastSpell(int pnum, int spell) {
 	if(SpellDefs[spell].flags & (SPLF_PASSIVE | SPLF_AURA))
 		return CAST_PASSIVE;
 
+	// Ahead of the cooldown and the mana, so a press made mid cast is simply refused rather than
+	// reported as some other failure.
+	if(IsSpellInProgress(pnum))
+		return CAST_BUSY;
+
 	if(IsSpellOnCooldown(pnum, spell))
 		return CAST_COOLDOWN;
 
@@ -484,6 +689,15 @@ int CanCastSpell(int pnum, int spell) {
 // The one entry point. Mana is spent and the cooldown started here rather than inside each spell,
 // so no spell can forget either, and a spell that fails to spend never reaches its effect.
 int TryCastSpell(int pnum, int spell) {
+	// A real time toggle answers its second press by STOPPING, before any gate is consulted. Turning
+	// something off cannot be blocked by its own cooldown and must not be charged for, so this sits
+	// ahead of CanCastSpell and the mana spend rather than inside them. The running spell's own loop
+	// watches the flag and tears itself down.
+	if(IsSpellRunning(pnum, spell)) {
+		SetSpellRunning(pnum, spell, false);
+		return CAST_OK;
+	}
+
 	int res = CanCastSpell(pnum, spell);
 	if(res != CAST_OK)
 		return res;

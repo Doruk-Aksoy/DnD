@@ -1905,58 +1905,6 @@ Frame MSP1O { Light SatyrLordRedMissile10 }
 Frame MSP1P { Light SatyrLordRedMissile11 }
 }
 
-PointLight PillarFlash
-{
-	Color 0.9 0.9 0.08
-	Size 64
-}
-
-PointLight BurningFlash
-{
-	Color 1.0 1.0 0.0
-	Size 56
-}
-
-PointLight BurningFlash2
-{
-	Color 1.0 1.0 0.0
-	Size 40
-}
-
-FlickerLight BurningFlash3
-{
-	Color 1.0 1.0 0.0
-	Size 32
-	SecondarySize 24
-}
-
-Object FirePillarShot
-{
-	frame DGFLA { light PillarFlash }
-	frame DGFLB { light PillarFlash }
-	frame DGFLC { light PillarFlash }
-	frame DGFLD { light PillarFlash }
-	frame DGFLE { light PillarFlash }
-	frame DGFLF { light PillarFlash }
-	frame DGFLG { light PillarFlash }
-	frame DGFLH { light PillarFlash }
-	frame DGFLI { light PillarFlash }
-	frame DGFLJ { light PillarFlash }
-	frame DGFLK { light BurningFlash }
-	frame DGFLL { light BurningFlash }
-	frame DGFLM { light BurningFlash }
-	frame DGFLN { light BurningFlash2 }
-	frame DGFLO { light BurningFlash2 }
-	frame DGFLP { light BurningFlash2 }
-	frame DGFLQ { light BurningFlash2 }
-	frame DGFLR { light BurningFlash2 }
-	frame DGFLS { light BurningFlash3 }
-	frame DGFLT { light BurningFlash3 }
-	frame DGFLU { light BurningFlash3 }
-	frame DGFLV { light BurningFlash3 }
-	frame DGFLW { light BurningFlash3 }
-}
-
 Pointlight STracer1
 {
 Color 0.6 0.5 0.0

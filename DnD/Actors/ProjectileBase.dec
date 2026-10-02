@@ -28,68 +28,11 @@ enum {
 };
 
 Actor DnD_ShotgunDamageHolder : DnD_Info { }
-Actor DnD_PoisonStacks : DnD_Info { }
-Actor DnD_ChillStacks: DnD_Info { }
-Actor DnD_FreezeTimer : DnD_Info { }
-Actor DnD_IgniteTimer : DnD_Info { }
-Actor DnD_CurrentIgniteDamage : DnD_Info { }
-
-// Blaze's burn, which is its own DoT rather than the ignite subsystem -- see "DnD Blaze Burn".
-// Timer counts ticks remaining; Damage is the per tick figure, kept so a stronger recast wins.
-Actor DnD_BlazeTimer : DnD_Info { }
-
-// How many "DnD Blaze Burn" loops are alive on this monster -- the ONLY thing that may be read as
-// "the burn already has an owner". The timer cannot: it is inventory, a caller may set it to hand in
-// a duration, and it outlives the script. Same rule and same reason as DnD_IgniteScripts above.
-Actor DnD_BlazeScripts : DnD_Info { }
-
-// Heat Shield's retaliation half. The buff carries the armor; these carry the "enemies that hit it
-// are ignited" part, because the damage path can read inventory far more cheaply than a buff list.
-// Rank is the WEARER's copy of the caster's, so the thresholds resolve on a shielded ally too.
-Actor DnD_HeatShieldRank : DnD_Info { }
-
-// Infernal Strike's armed swing. Holds the caster's rank so the thresholds resolve when the swing
-// lands rather than when it was armed.
-Actor DnD_InfernalStrikeRank : DnD_Info { }
-Actor DnD_HeatShieldEnd : DnD_Info { }
-Actor DnD_BlazeDamage : DnD_Info { }
-
-// How many "DnD Monster Ignite" scripts are alive on this monster -- the ONLY thing that may be
-// read as "the burn already has an owner". DnD_IgniteTimer cannot: it is inventory and the burn is
-// a script, so a desync left the monster lit and taking nothing forever. A refcount is non-zero
-// only while a script holds it, so a dead script always frees it.
-Actor DnD_IgniteScripts : DnD_Info { }
-Actor DnD_BleedTimer : DnD_Info { }
-Actor DnD_CurrentBleedDamage : DnD_Info { }
-
-// The bleed half of the same rule as DnD_IgniteScripts above: DnD_BleedTimer is inventory, the
-// bleed is a script, and inventory outlives scripts. While the timer was the ownership test a
-// monster could carry a non-zero one with nothing behind it, and nothing could restart the bleed.
-Actor DnD_BleedScripts : DnD_Info { }
-Actor DnD_OverloadTimer : DnD_Info { }
-Actor DnD_OverloadDamage : DnD_Info { }
-Actor DnD_OverloadLockTime : PowerProtection {
-	damagefactor "normal", 1.0
-	powerup.duration -2
-}
 
 Actor TakeThruSpecies : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_ChangeFlag("THRUSPECIES", 0)
-		Stop
-	}
-}
-
-Actor DnD_OverloadZapCandidate : PowerProtection {
-	damagefactor "normal", 1.0
-	powerup.duration 3
-}
-
-Actor DnD_OverloadZapGiver : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_RadiusGive("DnD_OverloadZapCandidate", 512 + radius, RGF_MONSTERS, 1)
 		Stop
 	}
 }
@@ -253,6 +196,11 @@ Actor DnD_ExplosiveBase {
 	+DONTBLAST
 	+AMBUSH // DENOTES PLAYER SOURCED PROJECTILE
 	//+THRUACTORS
+	// Declared even though nothing here writes it: "DnD Projectile Checks" stamps user_beat on every
+	// player projectile, and ResolveMetronomeHalf reads it back off anything flagged AMBUSH -- which
+	// this is. Without the declaration the write went nowhere and Metronome silently fell back to the
+	// IMPACT time instead of the firing time.
+	var int user_beat;
 	var int user_count;
 	var int user_expdmg;
 	var int user_expradius;
@@ -357,6 +305,11 @@ Actor DnD_FastRipperBase : FastProjectile {
 	+AMBUSH // DENOTES PLAYER SOURCED PROJECTILE
 	//+THRUACTORS
 	
+	// Declared even though nothing here writes it: "DnD Projectile Checks" stamps user_beat on every
+	// player projectile, and ResolveMetronomeHalf reads it back off anything flagged AMBUSH -- which
+	// this is. Without the declaration the write went nowhere and Metronome silently fell back to the
+	// IMPACT time instead of the firing time.
+	var int user_beat;
 	var int user_count;
 	var int user_expdmg;
 	var int user_expradius;
@@ -441,34 +394,6 @@ Actor ApplyNoReflect : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_ChangeFlag("DONTREFLECT", 1)
-		Stop
-	}
-}
-
-Actor ApplyDousing : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_RadiusGive("RemoveIgnite", 48, RGF_PLAYERS, 1)
-		Stop
-	}
-}
-
-Actor ApplyThawing : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_RadiusGive("RemoveChillFreeze", 48, RGF_PLAYERS, 1)
-		Stop
-	}
-}
-
-Actor ApplyThawing_LowChance : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_Jump(216, "Nothing")
-			TNT1 A 0 A_RadiusGive("RemoveChillFreeze", 48, RGF_PLAYERS, 1)
-		Stop
-		Nothing:
-			TNT1 A 0
 		Stop
 	}
 }

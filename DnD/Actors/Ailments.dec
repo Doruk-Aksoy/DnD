@@ -1,0 +1,75 @@
+// Ailment state, as inventory on the monster carrying it -- the damage path reads inventory far
+// more cheaply than per monster state, and a marker has to outlive the script that set it.
+//
+// Moved out of ProjectileBase.dec, which is about projectile and explosion BASES. What stayed
+// there is everything acting on a PROJECTILE rather than on an ailment: TakeThruSpecies,
+// ApplyNetherMaskBuff, ApplyNoReflect, ApplyForceRadiusDMG, DnD_ShotgunDamageHolder.
+
+Actor DnD_PoisonStacks : DnD_Info { }
+Actor DnD_ChillStacks: DnD_Info { }
+Actor DnD_FreezeTimer : DnD_Info { }
+Actor DnD_IgniteTimer : DnD_Info { }
+Actor DnD_CurrentIgniteDamage : DnD_Info { }
+
+// How many "DnD Monster Ignite" scripts are alive on this monster -- the ONLY thing that may be
+// read as "the burn already has an owner". DnD_IgniteTimer cannot: it is inventory and the burn is
+// a script, so a desync left the monster lit and taking nothing forever. A refcount is non-zero
+// only while a script holds it, so a dead script always frees it.
+Actor DnD_IgniteScripts : DnD_Info { }
+Actor DnD_BleedTimer : DnD_Info { }
+Actor DnD_CurrentBleedDamage : DnD_Info { }
+
+// The bleed half of the same rule as DnD_IgniteScripts above: DnD_BleedTimer is inventory, the
+// bleed is a script, and inventory outlives scripts. While the timer was the ownership test a
+// monster could carry a non-zero one with nothing behind it, and nothing could restart the bleed.
+Actor DnD_BleedScripts : DnD_Info { }
+Actor DnD_OverloadTimer : DnD_Info { }
+Actor DnD_OverloadDamage : DnD_Info { }
+
+Actor DnD_OverloadLockTime : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration -2
+}
+
+Actor DnD_OverloadZapCandidate : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 3
+}
+
+Actor DnD_OverloadZapGiver : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_RadiusGive("DnD_OverloadZapCandidate", 512 + radius, RGF_MONSTERS, 1)
+		Stop
+	}
+}
+
+// The two ailment CLEARERS. RemoveIgnite and RemoveChillFreeze themselves are artifact granted
+// powers and live in Items/Artifacts.dec; these are just the appliers.
+Actor ApplyDousing : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_RadiusGive("RemoveIgnite", 48, RGF_PLAYERS, 1)
+		Stop
+	}
+}
+
+Actor ApplyThawing : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_RadiusGive("RemoveChillFreeze", 48, RGF_PLAYERS, 1)
+		Stop
+	}
+}
+
+Actor ApplyThawing_LowChance : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_Jump(216, "Nothing")
+			TNT1 A 0 A_RadiusGive("RemoveChillFreeze", 48, RGF_PLAYERS, 1)
+		Stop
+		Nothing:
+			TNT1 A 0
+		Stop
+	}
+}

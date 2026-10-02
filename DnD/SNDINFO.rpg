@@ -132,6 +132,8 @@ Spell/LightningSpearCast2	LGSPCST2
 Spell/LightningSpearCast3	LGSPCST3
 $random Spell/LightningSpearCast { Spell/LightningSpearCast1 Spell/LightningSpearCast2 Spell/LightningSpearCast3 }
 
+Blaze/Cast                  BLAZECST
+
 SearingBond/Fire            SEARBONF
 
 ScorchingRay/Start1         SCRAYST1
@@ -155,3 +157,38 @@ $random HeatShield/End { HeatShield/End1 HeatShield/End2 }
 Flammability/Cast1          FLAMM1
 Flammability/Cast2          FLAMM2
 $random Flammability/Cast { Flammability/Cast1 Flammability/Cast2 }
+
+BloodBoil/Cast1             BBOILST1
+BloodBoil/Cast2             BBOILST2
+$random BloodBoil/Cast { BloodBoil/Cast1 BloodBoil/Cast2 }
+BloodBoil/End1              BBOILEN1
+BloodBoil/End2              BBOILEN2
+$random BloodBoil/End { BloodBoil/End1 BloodBoil/End2 }
+
+Immolation/Cast             IMMOSTR
+Immolation/Proc             IMMOHIT
+
+RainOfFire/Hit1             RAINFH1
+RainOfFire/Hit2             RAINFH2
+RainOfFire/Hit3             RAINFH3
+$random RainOfFire/Hit { RainOfFire/Hit1 RainOfFire/Hit2 RainOfFire/Hit3 }
+
+RainOfFire/Spawn1           RAINFS1
+RainOfFire/Spawn2           RAINFS2
+RainOfFire/Spawn3           RAINFS3
+$random RainOfFire/Spawn { RainOfFire/Spawn1 RainOfFire/Spawn2 RainOfFire/Spawn3 }
+
+RainOfFire/Whoosh1          RAINFW1
+RainOfFire/Whoosh2          RAINFW2
+RainOfFire/Whoosh3          RAINFW3
+RainOfFire/Whoosh4          RAINFW4
+$rolloff RainOfFire/Whoosh1 128 256
+$rolloff RainOfFire/Whoosh2 128 256
+$rolloff RainOfFire/Whoosh3 128 256
+$rolloff RainOfFire/Whoosh4 128 256
+$random RainOfFire/Whoosh { RainOfFire/Whoosh1 RainOfFire/Whoosh2 RainOfFire/Whoosh3 RainOfFire/Whoosh4 }
+
+FireJet/Shoot               FIREJETS
+
+FlamePillar/Fire            FLMPILF
+$limit FlamePillar/Fire 0

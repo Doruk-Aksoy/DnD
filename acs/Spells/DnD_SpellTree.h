@@ -547,8 +547,9 @@ str FixedToTenths(int v) {
 }
 
 // Built from the def rather than authored, so a requirement line cannot disagree with the rule that
-// actually gates the spell.
-str BuildSpellReqText(int spell) {
+// actually gates the spell. at_rank is the rank the player would buy next, so the level shown is
+// the one standing in their way rather than rank 1's, which they already cleared.
+str BuildSpellReqText(int spell, int at_rank = 1) {
 	str res = "";
 	int i, req, n = 0;
 	bool any = SpellDefs[spell].flags & SPLF_REQ_ANY;
@@ -564,10 +565,11 @@ str BuildSpellReqText(int spell) {
 		++n;
 	}
 
-	if(SpellDefs[spell].req_level > 1) {
+	int lvl = GetSpellRankLevelReq(spell, at_rank);
+	if(lvl > 1) {
 		if(n)
 			res = StrParam(s:res, s:", ");
-		res = StrParam(s:res, l:"DND_SPLPANEL_LEVEL", s:" ", d:SpellDefs[spell].req_level);
+		res = StrParam(s:res, l:"DND_SPLPANEL_LEVEL", s:" ", d:lvl);
 		++n;
 	}
 
@@ -599,11 +601,38 @@ void HandleSpellHoverPanel(int pnum, int spell) {
 	PanelText(StrParam(s:"\c-", l:GetSpellDescLump(spell)));
 	PanelText("");
 
+	// Damage is read LIVE, like cost and cooldown beside it. It used to live only in the authored
+	// DND_SPLPER prose, which cannot express a compounding curve -- "+60 damage per rank" stopped
+	// being true the moment ranks started multiplying. Only fields the def marked as real damage
+	// are shown, so a percent or a health figure never gets printed as "damage".
+	for(i = 0; i < SPELLVAL_MAX; ++i) {
+		if(!(SpellDefs[spell].scale_mask & (1 << i)))
+			continue;
+
+		temp = GetSpellValue(pnum, spell, i, preview);
+		PanelText(StrParam(s:"\c[Y5]", l:GetSpellFieldLump(i), s:": \c-", d:temp));
+
+		// What the next point actually buys, since the step is no longer the flat per_rank value.
+		if(alloc && alloc < DND_SPELL_RANKCAP) {
+			int nxt = GetSpellValue(pnum, spell, i, alloc + 1);
+			if(nxt > temp)
+				PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_NEXTRANK", s:" \c-", d:nxt,
+					s:" (+", d:nxt - temp, s:")"));
+		}
+	}
+
 	temp = GetSpellValue(pnum, spell, SPELLVAL_COST, preview) >> 16;
 	if(SpellDefs[spell].flags & SPLF_RESERVES)
 		PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_RESERVE", s:" \c-", d:temp, s:"% mana"));
-	else if(temp)
+	else if(temp) {
 		PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_COST", s:" \c-", d:temp, s:" mana"));
+		if(alloc && alloc < DND_SPELL_RANKCAP) {
+			int nc = GetSpellValue(pnum, spell, SPELLVAL_COST, alloc + 1) >> 16;
+			if(nc > temp)
+				PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_NEXTRANK", s:" \c-", d:nc,
+					s:" mana (+", d:nc - temp, s:")"));
+		}
+	}
 
 	// Whether the effect is actually running, for the spells that can be switched off. Directly under
 	// the cost, so an aura's reservation and whether it is being paid read as one thought. Only once
@@ -625,7 +654,11 @@ void HandleSpellHoverPanel(int pnum, int spell) {
 		s:temp ? StrParam(s:TicsToSeconds(temp), s:"s") : StrParam(l:"DND_SPLPANEL_INSTANT")));
 
 	PanelText("");
-	PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_PERRANK", s:" \c-", l:GetSpellPerRankLump(spell)));
+	// Empty for any spell whose per rank gain is now entirely in the live lines above. Skipped
+	// rather than printed blank, so the pocket does not grow a stray heading with nothing under it.
+	str per = StrParam(l:GetSpellPerRankLump(spell));
+	if(StrLen(per))
+		PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_PERRANK", s:" \c-", s:per));
 
 	// Body is plain white whether or not the threshold is met -- the dim grey read as purple
 	// against this backdrop. The label alone carries the colour.
@@ -633,7 +666,10 @@ void HandleSpellHoverPanel(int pnum, int spell) {
 
 	PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_RANK10", s:" \c-", l:GetSpellThresholdLump(spell, DND_SPELL_THRESH_HIGH)), "\c-");
 
-	str req = BuildSpellReqText(spell);
+	// The rank they would buy next, so "Requires: Level N" is the gate in front of them. A maxed
+	// spell has no next rank, so it keeps showing the last one it needed.
+	int next = alloc < DND_SPELL_RANKCAP ? alloc + 1 : DND_SPELL_RANKCAP;
+	str req = BuildSpellReqText(spell, next);
 	if(StrLen(req)) {
 		PanelText("");
 		PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_REQUIRES", s:" \c-", s:req), "\c-");
@@ -809,7 +845,9 @@ int GetRowCellX(int index, int count) {
 	return DND_SPELLTREE_LEFT + (DND_SPELLTREE_BOARDW - w) / 2 + index * DND_SPELLHOTBAR_PITCH;
 }
 
-void DrawSpellCell(int spell, int x, int y, int id, bool lit) {
+// lit is the cursor; chosen is the slot already picked. Separate ids, because the picker's cells
+// are drawn after the slots and a shared one let a hovered spell erase the chosen slot's frame.
+void DrawSpellCell(int spell, int x, int y, int id, bool lit, bool chosen = false) {
 	int sc = DND_SPELLTREE_ICONSCALE;
 
 	SetHudSize(HUDMAX_X * sc, HUDMAX_Y * sc, 1);
@@ -820,10 +858,10 @@ void DrawSpellCell(int spell, int x, int y, int id, bool lit) {
 	HudMessage(s:"A"; HUDMSG_PLAIN, id, CR_UNTRANSLATED,
 		((x * sc) << 16) + 0.1, ((y * sc) << 16) + 0.1, 0.0);
 
-	if(lit) {
+	if(lit || chosen) {
 		SetFont("SPLSLCT");
-		HudMessage(s:"A"; HUDMSG_PLAIN, SPELLTREE_HOVER_ID, CR_UNTRANSLATED,
-			((x * sc) << 16) + 0.1, ((y * sc) << 16) + 0.1, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, chosen ? SPELLTREE_PICKSEL_ID : SPELLTREE_HOVER_ID,
+			CR_UNTRANSLATED, ((x * sc) << 16) + 0.1, ((y * sc) << 16) + 0.1, 0.0);
 	}
 
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
@@ -832,6 +870,7 @@ void DrawSpellCell(int spell, int x, int y, int id, bool lit) {
 void HandleSpellHotbarDraw(int pnum, int boxid, menu_pane_T module& p) {
 	spell_scroll_T module& ss = GetSpellScroll();
 	int i, n, spell, x, y, hovered = -1;
+	bool chosen = false;
 	int slots = GetHotbarSlotCount(pnum);
 	int bindable = GetBindableCount(pnum);
 	bool framed = false;
@@ -864,11 +903,14 @@ void HandleSpellHotbarDraw(int pnum, int boxid, menu_pane_T module& p) {
 		y = DND_SPELLHOTBAR_Y;
 		spell = CheckActorInventory(pnum + P_TIDSTART, GetHotbarSlotItem(i)) - 1;
 
-		if(boxid == MBOX_1 + n || ss.picking_slot == i)
+		if(boxid == MBOX_1 + n)
 			framed = true;
 
+		if(ss.picking_slot == i)
+			chosen = true;
+
 		DrawSpellCell(spell, x, y, SPELLTREE_NODE_ID + n,
-			boxid == MBOX_1 + n || ss.picking_slot == i);
+			boxid == MBOX_1 + n, ss.picking_slot == i);
 
 		SetFont("SMALLFONT");
 		HudMessage(s:"\c[Y5]", d:i + 1;
@@ -922,6 +964,10 @@ void HandleSpellHotbarDraw(int pnum, int boxid, menu_pane_T module& p) {
 	// off hovered deleted it the moment it was drawn.
 	if(!framed)
 		DeleteText(SPELLTREE_HOVER_ID);
+
+	// Survives the cursor moving off the slot and onto a spell -- that is the whole point of it.
+	if(!chosen)
+		DeleteText(SPELLTREE_PICKSEL_ID);
 
 	// Published for the server: the bind script reads the spell from here, exactly as it does for the
 	// hotbar keys, so assigning from this page reuses that path instead of inventing a second one.

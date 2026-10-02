@@ -355,6 +355,10 @@ enum {
 	HOTBAR_SLOT_ID = 3120,
 	HOTBAR_ICON_ID = 3110,
 	HOTBAR_CD_ID = 3100,
+	// A second cooldown square, drawn over the first when every charge of a multi charge spell is
+	// down, and the count of charges still ready. Both in FRONT of the square, so lower ids.
+	HOTBAR_CD2_ID = 3090,
+	HOTBAR_CHG_ID = 3080,
 
 	// The two bars. Descending id is back to front per the note above, so each block lists its layers
 	// in reverse: the trough is the highest id in its block and the text the lowest.
@@ -381,7 +385,10 @@ enum {
 	SPELLTREE_HEAD_ID = 980,		// page and pocket headings
 	SPELLTREE_RANK_ID = 1000,		// one per spell
 	SPELLTREE_BAR_ID = 1040,		// the pocket's own scrollbar: grip, cap, thumb, track
-	SPELLTREE_HOVER_ID = 1045,		// the selection frame, in front of the icon it sits on
+	SPELLTREE_HOVER_ID = 1045,		// the hover frame, in front of the icon it sits on
+	// The CHOSEN hotbar slot, which has to stay framed while the cursor is off picking a spell. Its
+	// own id because one frame cannot be in two places, and the picker draws after the slots.
+	SPELLTREE_PICKSEL_ID = 1046,
 	SPELLTREE_NODE_ID = 1050,		// one per spell
 
 	// Crossings sit BETWEEN the nodes and the lines: in front of every run, behind every icon.

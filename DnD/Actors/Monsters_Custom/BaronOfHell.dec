@@ -1357,8 +1357,6 @@ Actor FirePillarShot {
 			TNT1 A 0 A_CountDown
 			DGFL P 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime) / 2, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
 			TNT1 A 0 A_CountDown
-			DGFL Q 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime) / 2, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
-			TNT1 A 0 A_CountDown
 			DGFL R 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime) / 2, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )
 			TNT1 A 0 A_CountDown
 			DGFL S 1 Bright A_Warp(AAPTR_TARGET, 32 + (maxdur - reactiontime) * 2, 32 + (maxdur - reactiontime) * 2, 0, (maxdur - reactiontime) / 2, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE | WARPF_USECALLERANGLE )

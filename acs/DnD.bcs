@@ -6762,7 +6762,13 @@ Script "DnD Projectile Checks" (int isPet, int isExplosive) {
 	//printbold(s:"owner is ", d:owner);
 	
 	// hack for crit store on burst fire projectiles -- they call this on their initialization phase so at this point we should be able to check the wepid
-	if((wepid != -1 && GetPlayerWeaponCritState(pnum, wepid)) || CheckActorInventory(owner, "DnD_CritToken"))
+	//
+	// NOT on a spell. This token is a WEAPON crit that was already rolled, and the damage path turns it
+	// into DND_ACTORFLAG_CONFIRMEDCRIT, which the spell branch accepts as a confirmed crit BEFORE it
+	// rolls its own. Casting with a weapon crit queued was a free guaranteed spell crit that consumed
+	// nothing. Spells roll their own chance; a weapon's roll is not theirs to inherit.
+	if(!(GetActorProperty(0, APROP_STAMINA) & DND_DAMAGEFLAG_ISSPELL) &&
+		((wepid != -1 && GetPlayerWeaponCritState(pnum, wepid)) || CheckActorInventory(owner, "DnD_CritToken")))
 		SetActorProperty(0, APROP_ACCURACY, DND_CRIT_TOKEN);
 	
 	if(CheckActorInventory(owner, "NetherCheck"))

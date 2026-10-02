@@ -1014,9 +1014,12 @@ bool IsTargetOnLowLife(int victim) {
 	return maxhp > 0 && GetActorProperty(victim, APROP_HEALTH) * 2 <= maxhp;
 }
 
-int GetBaseCritChance(int pnum) {
+// The FLAT crit chance pile. There is no global flat source: a point of crit chance is either
+// an attack one or a spell one, because the mods are authored that way. The class perk below is
+// unqualified ("Gain 0.1% crit chance per 1% mitigation chance") so it feeds both.
+int GetBaseCritChance(int pnum, bool isSpell = false) {
 	// was + PERK_DEADLINESS_BONUS per Deadliness point; Assassination's Deadliness replaces it
-	int base = PlayerModData[pnum].vals[PSTAT_CRITCHANCE_INCREASE];
+	int base = PlayerModData[pnum].vals[isSpell ? PSTAT_SPELL_CRIT : PSTAT_CRITCHANCE_ATTACK];
 	
 	// this one is percentage based, like 1.0 is 1%, but crit is 0.01 = 1%, so adjust
 	if(HasClassPerk_Fast(DND_PLAYER_TRICKSTER, 1)) {
@@ -1027,12 +1030,31 @@ int GetBaseCritChance(int pnum) {
 	return base;
 }
 
-int GetPercentCritChanceIncrease(int pnum, int wepid) {
-	int val = 	Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITPERCENT][WMOD_ITEMS].val +
+// The INCREASED crit chance pile, split three ways by what each source is WORDED as:
+//
+//   PSTAT_CRITPERCENT_GLOBAL      unqualified, so both sides get it
+//   PSTAT_SPELL_CRITPERCENT       spells only
+//   PSTAT_CRITPERCENT_ATTACK      "attacks", so it sits inside the wepid block with the rest
+//
+// wepid -1 means "no weapon", which is how a SPELL asks, and everything weapon indexed must stay
+// behind that check for a second reason beyond scope: Player_Weapon_Infos[pnum][-1] and
+// Weapons_Data[-1] are out of bounds reads, and a spell took both on every crit roll before this.
+//
+// The two melee rows are weapon worded too ("increased MELEE crit chance", "swapping from a MELEE
+// WEAPON grants"), so they belong in the same block. The buffs are unqualified and apply to both.
+int GetPercentCritChanceIncrease(int pnum, int wepid, bool isSpell = false) {
+	int val = PlayerModData[pnum].vals[PSTAT_CRITPERCENT_GLOBAL];
+
+	if(isSpell)
+		val += PlayerModData[pnum].vals[PSTAT_SPELL_CRITPERCENT];
+
+	if(wepid != -1) {
+		val +=	PlayerModData[pnum].vals[PSTAT_CRITPERCENT_ATTACK] +
+				Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITPERCENT][WMOD_ITEMS].val +
 				Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITPERCENT][WMOD_WEP].val +
-				PlayerModData[pnum].vals[PSTAT_CRITPERCENT_INCREASE] +
 				CheckInventory("DnD_SwappedFromMelee") * PlayerModData[pnum].vals[PSTAT_EX_SWAPFROMMELEECRIT] +
 				(IsMeleeWeapon(wepid) && !IsOnLowStamina()) * PlayerModData[pnum].vals[PSTAT_MELEECRIT_NOTONLOWSTAMINA];
+	}
 
 	val += pbuffs[pnum].buff_net_values[BUFF_CRITPERCENT].additive + pbuffs[pnum].buff_net_values[BUFF_POWERCHARGE].additive;
 
@@ -1040,12 +1062,11 @@ int GetPercentCritChanceIncrease(int pnum, int wepid) {
 }
 
 int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0, bool isSpell = false) {
-	int chance = GetBaseCritChance(pnum);
+	// PSTAT_SPELL_CRIT is the flat source INSIDE this call now, not an extra on top of the attack
+	// one -- adding both was what let a spell inherit attack crit chance.
+	int chance = GetBaseCritChance(pnum, isSpell);
 	int pct_bonus;
 
-	// Spells have no weapon to carry a crit roll, so this is their whole source of added crit.
-	if(isSpell)
-		chance += PlayerModData[pnum].vals[PSTAT_SPELL_CRIT];
 	// add other flat crit bonuses here
 	if(wepid != -1) {
 		chance += Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRIT][WMOD_ITEMS].val + Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRIT][WMOD_WEP].val;
@@ -1080,7 +1101,11 @@ int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0, bool isS
 
 	// Perception / Lucky Bullet. Flat, not a multiplier: the notes give it as "+2.5% chance", and
 	// every other flat crit source in this function is added the same way.
-	if(CheckActorInventory(pnum + P_TIDSTART, "DnD_LuckyBullet"))
+	//
+	// Weapon only. "The very last round in your magazine/reserve" names ammunition, and the flag is
+	// SetInventory("DnD_LuckyBullet", left <= 1) -- it STAYS set while the magazine is low, so a
+	// spell cast on that last round was collecting it.
+	if(wepid != -1 && CheckActorInventory(pnum + P_TIDSTART, "DnD_LuckyBullet"))
 		chance += PlayerModData[pnum].vals[PSTAT_LASTROUND_CRIT];
 
 	// Assassination / Preparation. A MULTIPLIER on the whole chance, like the two below -- "50%
@@ -1105,21 +1130,31 @@ int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0, bool isS
 	if((pct_bonus = PlayerModData[pnum].vals[PSTAT_CRITCHANCE_VS_LOWLIFE]) && IsTargetOnLowLife(victim))
 		chance = FixedMul(chance, 1.0 + ((pct_bonus << 16) / 100));
 
-	// more player crit chance bonuses, only on sniper rifle currently
-	pct_bonus = CheckInventory("SniperZoomTimer");
-	if(pct_bonus)
-		chance = FixedMul(chance, 1.0 + pct_bonus * SNIPER_CRIT_BOOST_PER);
+	// Both name a weapon, so neither may reach a spell. The handgun one also has to be gated for
+	// safety rather than only for design -- IsHandgun(-1) indexes Weapons_Data out of bounds.
+	if(wepid != -1) {
+		// more player crit chance bonuses, only on sniper rifle currently
+		pct_bonus = CheckInventory("SniperZoomTimer");
+		if(pct_bonus)
+			chance = FixedMul(chance, 1.0 + pct_bonus * SNIPER_CRIT_BOOST_PER);
 
-	pct_bonus = CheckInventory("DnD_HandgunMoreCritShots");
-	if(pct_bonus && IsHandgun(wepid))
-		chance = FixedMul(chance, 1.0 + PlayerModData[pnum].vals[PSTAT_IMP_HANDGUNBONUS]);
+		pct_bonus = CheckInventory("DnD_HandgunMoreCritShots");
+		if(pct_bonus && IsHandgun(wepid))
+			chance = FixedMul(chance, 1.0 + PlayerModData[pnum].vals[PSTAT_IMP_HANDGUNBONUS]);
+	}
 
 	// monster related bonuses
 	//if(victim != -1)
 	
 	// add percent bonuses here
-	pct_bonus = 1.0 + GetPercentCritChanceIncrease(pnum, wepid) + (!!isLightning) * PlayerModData[pnum].vals[PSTAT_EX_MORECRIT_LIGHTNING];
-	if(PlayerModData[pnum].vals[PSTAT_EX_DEADEYEBONUS])
+	// The lightning roll reads "increased crit chance to lightning ATTACKS", so a lightning spell
+	// does not get it.
+	pct_bonus = 1.0 + GetPercentCritChanceIncrease(pnum, wepid, isSpell) +
+		(wepid != -1 && !!isLightning) * PlayerModData[pnum].vals[PSTAT_EX_MORECRIT_LIGHTNING];
+	// Deadeye is an ATTACK mod in all three of its halves, so a spell gets none of them. Keyed off
+	// isSpell rather than wepid: the sheet asks with wepid -1 and no weapon in hand, and Deadeye
+	// still belongs in the attack figure it draws.
+	if(!isSpell && PlayerModData[pnum].vals[PSTAT_EX_DEADEYEBONUS])
 		pct_bonus += DND_DEADEYE_BONUSF * (GetActorProperty(0, APROP_ACCURACY) / DND_DEADEYE_PLUSPER);
 
 	// Tormentor / Cornered Prey. INCREASED, so it belongs in this pool rather than among the
@@ -1209,21 +1244,26 @@ void HandleHunterTalisman() {
 // copy. Applying both multiplied the modifier TWICE, and the doubled product wrapped
 // for base > 1311 at a 5.0 crit chance -- the "if(base < 100) base = 100" floor then
 // caught the negative, so crits landed for exactly base damage.
-int GetIndependentCritModifier(int pnum, bool applyExcess = true) {
+int GetIndependentCritModifier(int pnum, bool applyExcess = true, bool isSpell = false) {
 	// was + DND_SAVAGERY_BONUS per Savagery point
-	int base = DND_BASE_CRITMODIFIER + PlayerModData[pnum].vals[PSTAT_CRITDAMAGE_INCREASE];
-	if(PlayerModData[pnum].vals[PSTAT_EX_DEADEYEBONUS])
+	int base = DND_BASE_CRITMODIFIER + PlayerModData[pnum].vals[PSTAT_CRITDAMAGE_GLOBAL] +
+		PlayerModData[pnum].vals[isSpell ? PSTAT_SPELL_CRITDAMAGE : PSTAT_CRITDAMAGE_ATTACK];
+	// Attack only, like the rest of Deadeye. This half is a PENALTY, so leaving it on spells would
+	// have handed them the drawback of a mod they get no benefit from.
+	if(!isSpell && PlayerModData[pnum].vals[PSTAT_EX_DEADEYEBONUS])
 		base -= DND_DEADEYE_BONUS * (GetActorProperty(0, APROP_ACCURACY) / DND_DEADEYE_MINUSPER);
 
 	int temp;
-	if(applyExcess && PlayerModData[pnum].vals[PSTAT_INC_EXCESSCRIT] && (temp = GetCritChance_Display(pnum)) > 1.0)
+	// Same axis it is converting for: scaling a spell multiplier by ATTACK crit chance would report
+	// and apply excess the build does not have on that side.
+	if(applyExcess && PlayerModData[pnum].vals[PSTAT_INC_EXCESSCRIT] && (temp = GetCritChance_Display(pnum, isSpell)) > 1.0)
 		base = FixedMul(base, temp);
 
 	return base;
 }
 
-int GetBaseCritModifier(int pnum, int wepid, bool applyExcess = true) {
-	int base = GetIndependentCritModifier(pnum, applyExcess);
+int GetBaseCritModifier(int pnum, int wepid, bool applyExcess = true, bool isSpell = false) {
+	int base = GetIndependentCritModifier(pnum, applyExcess, isSpell);
 	int wep_bonus = 0;
 	
 	if(wepid != -1)
@@ -1231,19 +1271,19 @@ int GetBaseCritModifier(int pnum, int wepid, bool applyExcess = true) {
 	return base + wep_bonus;
 }
 
-int GetCritModifier(int pnum, int victim, int wepid, bool forcedReturn = false) {
+int GetCritModifier(int pnum, int victim, int wepid, bool forcedReturn = false, bool isSpell = false) {
 	// forced return would skip this to get the value for dot multiplier bonus calculation
 	if(!forcedReturn && PlayerModData[pnum].vals[PSTAT_INC_CRITFORDOT])
 		return 100;
 
-	int base = GetBaseCritModifier(pnum, wepid, false); // excess-crit is applied below with the real crit chance
+	int base = GetBaseCritModifier(pnum, wepid, false, isSpell); // excess-crit is applied below with the real crit chance
 	int temp;
 	
 	// berserker perk50 check
 	base += (CheckInventory("Berserker_HitTracker") == DND_BERSERKER_PERK60_MAXSTACKS) * DND_BERSERKER_PERK60_CRITBONUS;
 
-	// Perception / Lucky Bullet, multiplier half.
-	if(CheckActorInventory(pnum + P_TIDSTART, "DnD_LuckyBullet"))
+	// Perception / Lucky Bullet, multiplier half. Weapon only, same reasoning as the chance half.
+	if(wepid != -1 && CheckActorInventory(pnum + P_TIDSTART, "DnD_LuckyBullet"))
 		base += PlayerModData[pnum].vals[PSTAT_LASTROUND_CRITDMG];
 
 	// Assassination / Steady Shot. The stationary counter is kept by "DnD Fall Impact", which already
@@ -1315,11 +1355,13 @@ bool HasWeaponPower(int pnum, int wep, int power) {
 //
 // The wepid >= 0 guard is new: callers pass -1 for spells and DoTs, and
 // IsPrecisionWeapon(-1) indexes Weapons_Data out of bounds.
-int GetPlayerAccuracyDamageBonus(int pnum, int wepid) {
+int GetPlayerAccuracyDamageBonus(int pnum, int wepid, bool isSpell = false) {
 	int res = 0;
 	int acc = GetActorProperty(pnum + P_TIDSTART, APROP_ACCURACY);
 
-	if(PlayerModData[pnum].vals[PSTAT_EX_DEADEYEBONUS])
+	// Attack only. Keyed off isSpell rather than wepid, because a WEAPON applied DoT reaches here
+	// with wepid -1 and must keep the bonus -- only a spell loses it.
+	if(!isSpell && PlayerModData[pnum].vals[PSTAT_EX_DEADEYEBONUS])
 		res += DND_DEADEYE_BONUS * (acc / DND_DEADEYE_PLUSPER);
 
 	if(wepid >= 0 && IsPrecisionWeapon(wepid) && PlayerModData[pnum].vals[PSTAT_INC_ACCURACYFORPRECISION])
@@ -1582,18 +1624,22 @@ int GetPlayerMeleeRange(int pnum, int range) {
 // ailment_multi is the caller's PSTAT_DOTMULTI_* slot, or -1 for a DoT that is none of the three.
 // The per-ailment slots add to the all-ailment one rather than replacing it, so a build that stacks
 // generic and poison multi gets both.
-int GetPlayerDOTMulti(int pnum, int victim = -1, int wepid = -1, int ailment_multi = -1) {
+//
+// isSpell decides WHICH crit damage pile INC_CRITFORDOT converts. A spell DoT has to convert the
+// spell pile and a weapon DoT the attack one -- wepid cannot answer this, because a weapon applied
+// DoT also arrives with wepid -1.
+int GetPlayerDOTMulti(int pnum, int victim = -1, int wepid = -1, int ailment_multi = -1, bool isSpell = false) {
 	int base = PlayerModData[pnum].vals[PSTAT_DOTMULTI];
 	if(ailment_multi != -1)
 		base += PlayerModData[pnum].vals[ailment_multi];
 	int temp = 0;
 	if((temp = PlayerModData[pnum].vals[PSTAT_INC_CRITFORDOT]))
-		base += GetCritModifier(pnum, victim, wepid, true) * (100 + temp) / 100;
+		base += GetCritModifier(pnum, victim, wepid, true, isSpell) * (100 + temp) / 100;
 	return base;
 }
 
 #define DND_BASE_IGNITEDMG 20
-int GetFireDOTDamage(int pnum, int bonus = 0, int victim = -1, int wepid = -1) {
+int GetFireDOTDamage(int pnum, int bonus = 0, int victim = -1, int wepid = -1, bool isSpell = false) {
 	// flat dmg
 	int dmg = 	DND_BASE_IGNITEDMG + 
 				bonus +
@@ -1602,10 +1648,10 @@ int GetFireDOTDamage(int pnum, int bonus = 0, int victim = -1, int wepid = -1) {
 				PlayerModData[pnum].vals[PSTAT_DOT_FLAT];
 	
 	// percent increase
-	dmg = dmg * (100 + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_FIRE, 0) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1) + PlayerModData[pnum].vals[PSTAT_IGN_DMG] + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED]) / 100;
+	dmg = dmg * (100 + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_FIRE, 0) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1, isSpell) + PlayerModData[pnum].vals[PSTAT_IGN_DMG] + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED]) / 100;
 	
 	// dot multi;
-	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid, PSTAT_DOTMULTI_FIRE)) / 100;
+	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid, PSTAT_DOTMULTI_FIRE, isSpell)) / 100;
 	
 	dmg = ApplyAilmentMoreDamage(pnum, dmg);
 
@@ -1619,7 +1665,7 @@ int GetFireDOTDamage(int pnum, int bonus = 0, int victim = -1, int wepid = -1) {
 #define DND_BASE_POISON_STACKS 5
 
 // dont include flat ele dmg and percent damage here, as they are applied to the attacks that inflicted the poison already, no double application!
-int GetPoisonDOTDamage(int pnum, int base_poison, int victim = -1, int wepid = -1) {
+int GetPoisonDOTDamage(int pnum, int base_poison, int victim = -1, int wepid = -1, bool isSpell = false) {
 	int dmg = base_poison;
 	if(!dmg)
 		dmg = 1;
@@ -1629,24 +1675,24 @@ int GetPoisonDOTDamage(int pnum, int base_poison, int victim = -1, int wepid = -
 			PlayerModData[pnum].vals[PSTAT_DOT_FLAT];
 	
 	// percent increase
-	dmg = dmg * (100 + PlayerModData[pnum].vals[PSTAT_POIS_DMG_PCT] + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_POISON, 0) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1) + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED]) / 100;
+	dmg = dmg * (100 + PlayerModData[pnum].vals[PSTAT_POIS_DMG_PCT] + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_POISON, 0) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1, isSpell) + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED]) / 100;
 	
 	// dot multi
-	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid, PSTAT_DOTMULTI_POISON)) / 100;
+	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid, PSTAT_DOTMULTI_POISON, isSpell)) / 100;
 	dmg = ApplyAilmentMoreDamage(pnum, dmg);
 	
 	return dmg;
 }
 
 // this doesn't consider INV_EX_FLATDOT here because the weapon that calls this does -- if wepid is left at -1, it should then consider it!
-int GetGenericDoTDamage(int pnum, int base, int victim = -1, int wepid = -1) {
+int GetGenericDoTDamage(int pnum, int base, int victim = -1, int wepid = -1, bool isSpell = false) {
 	if(wepid == -1)
 		base += PlayerModData[pnum].vals[PSTAT_DOT_FLAT];
 	
 	base = base * (100 + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED]) / 100;
 	
 	// dot multi
-	base = base * (100 + GetPlayerDOTMulti(pnum, victim, wepid)) / 100;
+	base = base * (100 + GetPlayerDOTMulti(pnum, victim, wepid, -1, isSpell)) / 100;
 	base = ApplyAilmentMoreDamage(pnum, base);
 
 	return base;
@@ -2140,8 +2186,10 @@ int GetMonsterFreezeChance(int m_id, int stacks) {
 	return DND_BASE_FREEZECHANCE_PERSTACK * 5 * stacks / 2;
 }
 
-int GetCritChance_Display(int pnum) {
-	int base = GetCritChance(pnum, -1, -1);
+// isSpell picks which of the two crit axes to report. wepid stays -1 either way: the sheet has no
+// weapon in hand to price against, so this is the build's crit BEFORE per weapon rolls.
+int GetCritChance_Display(int pnum, bool isSpell = false) {
+	int base = GetCritChance(pnum, -1, -1, 0, isSpell);
 	
 	// how it works: let crit chance be "p", you either get a crit, which is probability "p", or you don't and then you get it, which is p * (1 - p)
 	// add them both, we get: 2p - p^2, which is our theoretical crit chance if we are lucky

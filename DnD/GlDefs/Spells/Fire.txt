@@ -43,3 +43,28 @@ object Spell_SearingBond {
     frame S004B { light ArbiterFlameLight }
     frame S004C { light ArbiterFlameLight }
 }
+
+object Spell_FlamePillarDamage {
+frame DGFLA { light PillarFlash }
+	frame DGFLB { light PillarFlash }
+	frame DGFLC { light PillarFlash }
+	frame DGFLD { light PillarFlash }
+	frame DGFLE { light PillarFlash }
+	frame DGFLF { light PillarFlash }
+	frame DGFLG { light PillarFlash }
+	frame DGFLH { light PillarFlash }
+	frame DGFLI { light PillarFlash }
+	frame DGFLJ { light PillarFlash }
+	frame DGFLK { light BurningFlash }
+	frame DGFLL { light BurningFlash }
+	frame DGFLM { light BurningFlash }
+	frame DGFLN { light BurningFlash2 }
+	frame DGFLO { light BurningFlash2 }
+	frame DGFLP { light BurningFlash2 }
+	frame DGFLR { light BurningFlash2 }
+	frame DGFLS { light BurningFlash3 }
+	frame DGFLT { light BurningFlash3 }
+	frame DGFLU { light BurningFlash3 }
+	frame DGFLV { light BurningFlash3 }
+	frame DGFLW { light BurningFlash3 }
+}

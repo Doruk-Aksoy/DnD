@@ -95,12 +95,39 @@ enum {
 	SPLF_PROJECTILE		= 32,
 	SPLF_TARGETED		= 64,		// wants a target point rather than a facing
 	SPLF_RESERVES		= 128,		// COST is a reservation percent, not a spend
-	SPLF_REQ_ANY		= 256		// the requirement list is OR rather than AND
+	SPLF_REQ_ANY		= 256,		// the requirement list is OR rather than AND
+	SPLF_ALLYTARGET		= 512		// soft locks onto an ally while the cast runs
 };
 
 #define DND_SPELL_RANKCAP 10
 #define DND_SPELL_THRESH_LOW 5
 #define DND_SPELL_THRESH_HIGH 10
+
+// ---- the rank curve --------------------------------------------------------------------------
+// Two problems this solves. Ranks past the first used to cost nothing but a point, so a spell was
+// maxed the moment it unlocked; and the linear per_rank step meant rank 10 was ~2.5x rank 1 while
+// monster health over the same stretch grows ~8x, so every spell fell flat.
+//
+// Ranks now ladder up to a level cap, and damage-like fields take a compounding multiplier on top
+// of the linear step. The growth rises with req_level, so a late spell climbs harder than an early
+// one -- that direction is deliberate: it widens the gap to the capstones instead of closing it,
+// which is what keeps Blaze from ever approaching Annihilus. See .claude/notes/dnd-spell-scaling.md.
+#define DND_SPELL_RANKSPAN 40		// levels from unlock to rank 10, before the cap bites
+#define DND_SPELL_MAXREQLEVEL 83	// no rank may ever ask for more than this
+#define DND_SPELL_TOPREQLEVEL 52	// highest req_level in any tree, the growth ramp's far end
+#define DND_SPELL_GROWBASE 13		// percent per rank at req_level 0
+#define DND_SPELL_GROWSPAN 11		// added percent per rank by DND_SPELL_TOPREQLEVEL
+
+// COST takes the same curve at a fraction of the rate. Without this the damage curve makes
+// mana free: Pyroblast's damage grows 9.3x over its ladder against a 2.35x linear cost, so
+// damage per mana improved ~4x just by ranking up. At 50 it improves ~2x, which still rewards
+// the investment without the pool becoming irrelevant.
+#define DND_SPELL_COSTGROWSHARE 50	// percent OF rank_grow that COST climbs at
+
+// Spells that charge HEALTH instead of mana (Boiling Blood's drain, Righteous Fire's health
+// percent) climb gentler still. A health cost is paid out of the thing that keeps you alive,
+// so it cannot track a mana cost one for one without the spell turning into a suicide button.
+#define DND_SPELL_DRAINGROWSHARE 20	// percent OF rank_grow that a self-cost field climbs at
 
 typedef struct {
 	int base[SPELLVAL_MAX];
@@ -111,11 +138,70 @@ typedef struct {
 	int req_tree_ranks;
 	int tree;
 	int flags;
+	int scale_mask;						// which SPELLVAL_* fields take the rank curve, as 1 << field
+	int drain_mask;						// fields that are a SELF cost in health, on the gentler curve
 	int tx;								// authored position in tree space
 	int ty;
 } spell_def_T;
 
 global spell_def_T 46: SpellDefs[MAX_SPELL_IDS];
+
+// The level at which this spell can reach DND_SPELL_RANKCAP. Capped, so a late spell gets a
+// shorter ladder rather than one running past where the player can go.
+int GetSpellMaxLevel(int spell) {
+	return Min(SpellDefs[spell].req_level + DND_SPELL_RANKSPAN, DND_SPELL_MAXREQLEVEL);
+}
+
+// Ranks spread evenly between unlock and the cap. Rank 1 is always the spell's own req_level.
+int GetSpellRankLevelReq(int spell, int rank) {
+	if(rank <= 1)
+		return SpellDefs[spell].req_level;
+	return SpellDefs[spell].req_level +
+		(GetSpellMaxLevel(spell) - SpellDefs[spell].req_level) * (rank - 1) / (DND_SPELL_RANKCAP - 1);
+}
+
+// Percent compounded per rank, keyed off how deep in the tree the spell sits.
+int GetSpellRankGrow(int spell) {
+	return DND_SPELL_GROWBASE +
+		DND_SPELL_GROWSPAN * SpellDefs[spell].req_level / DND_SPELL_TOPREQLEVEL;
+}
+
+// A reservation is a percent of the pool, so it must never compound -- an aura would march itself
+// to 100% reserved. Everything that actually spends mana scales.
+int GetSpellCostGrow(int spell) {
+	if(SpellDefs[spell].flags & SPLF_RESERVES)
+		return 0;
+	return GetSpellRankGrow(spell) * DND_SPELL_COSTGROWSHARE / 100;
+}
+
+int GetSpellDrainGrow(int spell) {
+	return GetSpellRankGrow(spell) * DND_SPELL_DRAINGROWSHARE / 100;
+}
+
+// Compounded, as a percent. Integer truncation each step is intentional -- it keeps this identical
+// on client and server, which a fixed point pow would not.
+//
+// The loop is bounded because the rank reaching here comes from GetSpellRank(.., true), which adds
+// PSTAT_SPELLLEVEL_* UNCAPPED. Nothing writes those today, but a garbage value must not spin here,
+// and a +levels mod must not multiply damage without someone deciding the cap first.
+int CompoundRankMult(int grow, int rank) {
+	int res = 100, top = Min(rank, DND_SPELL_RANKCAP);
+	for(int i = 1; i < top; ++i)
+		res = res * (100 + grow) / 100;
+	return res;
+}
+
+int GetSpellRankMult(int spell, int rank) {
+	return CompoundRankMult(GetSpellRankGrow(spell), rank);
+}
+
+int GetSpellCostMult(int spell, int rank) {
+	return CompoundRankMult(GetSpellCostGrow(spell), rank);
+}
+
+int GetSpellDrainMult(int spell, int rank) {
+	return CompoundRankMult(GetSpellDrainGrow(spell), rank);
+}
 
 // ---- synergies -------------------------------------------------------------------------------
 // "5% more damage per Blaze rank" is one row, not a line inside Blaze's cast code. per_rank is
@@ -192,8 +278,10 @@ bool SpellThresholdMet(int pnum, int spell, int at) {
 }
 
 // Requirements read the ALLOCATED rank on both sides, so no amount of +levels opens a branch.
-bool IsSpellUnlockable(int pnum, int spell) {
-	if(GetActorLevel(pnum + P_TIDSTART) < SpellDefs[spell].req_level)
+// at_rank is the rank being bought, so the level gate ladders instead of only guarding rank 1.
+// It defaults to 1, which is the "can this node ever open" question the tree draw asks.
+bool IsSpellUnlockable(int pnum, int spell, int at_rank = 1) {
+	if(GetActorLevel(pnum + P_TIDSTART) < GetSpellRankLevelReq(spell, at_rank))
 		return false;
 
 	int i, req, listed = 0, met = 0;
@@ -236,6 +324,17 @@ int GetSpellValue(int pnum, int spell, int which, int rank_at = 0) {
 
 	int res = SpellDefs[spell].base[which] + (rank - 1) * SpellDefs[spell].per_rank[which];
 
+	// The compounding part of the curve. Only fields the def opted in carry it -- DAMAGE doubles
+	// as a percent or a health figure on plenty of spells, and those must stay linear.
+	if(SpellDefs[spell].scale_mask & (1 << which))
+		res = res * GetSpellRankMult(spell, rank) / 100;
+	// Never more than one -- COST and the drain fields are kept out of scale_mask so neither can
+	// take the full damage rate.
+	else if(SpellDefs[spell].drain_mask & (1 << which))
+		res = res * GetSpellDrainMult(spell, rank) / 100;
+	else if(which == SPELLVAL_COST)
+		res = res * GetSpellCostMult(spell, rank) / 100;
+
 	int i, src, more = 0;
 	for(i = 0; i < MAX_SPELL_SYNERGIES && SpellSynergies[i].target; ++i) {
 		if(SpellSynergies[i].target - 1 != spell || SpellSynergies[i].field != which)
@@ -270,6 +369,31 @@ int GetSpellValue(int pnum, int spell, int which, int rank_at = 0) {
 // off: auras, which hold a mana reservation, and passives, whose effect a build may not want.
 bool IsSpellToggleable(int spell) {
 	return !!(SpellDefs[spell].flags & (SPLF_AURA | SPLF_PASSIVE));
+}
+
+// Whether a real time toggle is currently RUNNING. A different thing from the menu opt out below:
+// that one is a build decision the player leaves set, this one is switched on and off mid fight by
+// casting. Deliberately outside SpellPlayerData, which is saved -- a spell left running at logout
+// must come back off, and a map change clearing this is the behaviour we want.
+typedef struct {
+	int words[MAXPLAYERS][SPELL_AURA_INTS];
+} spell_running_T;
+
+spell_running_T module& GetSpellRunningData() {
+	static spell_running_T s;
+	return s;
+}
+
+bool IsSpellRunning(int pnum, int spell) {
+	return !!(GetSpellRunningData().words[pnum][spell >> 5] & (1 << (spell & 31)));
+}
+
+void SetSpellRunning(int pnum, int spell, bool on) {
+	auto run = GetSpellRunningData();
+	if(on)
+		run.words[pnum][spell >> 5] |= 1 << (spell & 31);
+	else
+		run.words[pnum][spell >> 5] &= ~(1 << (spell & 31));
 }
 
 // The bit means TOGGLED OFF, not "on". A zeroed global is the common case -- a spell the player has

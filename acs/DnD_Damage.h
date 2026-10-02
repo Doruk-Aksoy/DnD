@@ -1143,7 +1143,7 @@ int ApplyNonWeaponBaseDamageBonus(int tid, int dmg, int damage_type, int flags) 
 	
 	// overall percentage bonuses -- this is basically ScaleCachedDamage but unwrapped, we need to rewrite these into a common function that just retrieves the overall bonus factor to multiply with!
 	// uncached path, so the buff term is read live right here
-	int factor = 100 + GetPlayerPercentDamage(pnum, -1, damage_category, flags) + GetPlayerBuffIncreasedDamage(pnum) + GetRageDamageBonus(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1);
+	int factor = 100 + GetPlayerPercentDamage(pnum, -1, damage_category, flags) + GetPlayerBuffIncreasedDamage(pnum) + GetRageDamageBonus(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1, !!(flags & DND_DAMAGEFLAG_ISSPELL));
 	
 	// apply flat health to damage conversion if player has any
 	int temp = PlayerModData[pnum].vals[PSTAT_EX_PHYSDAMAGEPER_FLATHEALTH];
@@ -2913,7 +2913,7 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags, int str_
 	// dont let dot double dip
 	if(!(flags & DND_WDMG_ISDOT)) {
 		// uncached path, so the buff term is read live right here
-		temp = GetPlayerPercentDamage(pnum, -1, damage_category, dmg_flag_mapping) + GetPlayerBuffIncreasedDamage(pnum) + GetRageDamageBonus(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1);
+		temp = GetPlayerPercentDamage(pnum, -1, damage_category, dmg_flag_mapping) + GetPlayerBuffIncreasedDamage(pnum) + GetRageDamageBonus(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1, isSpell);
 		if(temp/* && !isSpell*/)
 			pct_bonus += temp;
 
@@ -2988,11 +2988,14 @@ void MarkIgnitedBefore(int m_id) {
 
 // What one tick is worth, priced with the applier's stats and weapon. Pulled out of
 // "DnD Monster Ignite" so an application landing on an ALREADY burning monster can price itself.
-int GetIgniteTickDamage(int pnum, int victim, int wepid, int added_dmg) {
-	return HandleNonWeaponDamageScale(GetFireDOTDamage(pnum, added_dmg, victim, wepid), DND_DAMAGECATEGORY_FIRE, DND_WDMG_ISDOT);
+int GetIgniteTickDamage(int pnum, int victim, int wepid, int added_dmg, bool isSpell = false) {
+	return HandleNonWeaponDamageScale(GetFireDOTDamage(pnum, added_dmg, victim, wepid, isSpell), DND_DAMAGECATEGORY_FIRE,
+		DND_WDMG_ISDOT | (isSpell * DND_WDMG_ISSPELL));
 }
 
-void HandleIgniteEffects(int pnum, int victim, int wepid, int flags, int dmg_within_tic) {
+// isSpell rides along so the burn is priced against the pile that applied it -- a spell ignite
+// converts spell crit damage through INC_CRITFORDOT, a weapon ignite the attack pile.
+void HandleIgniteEffects(int pnum, int victim, int wepid, int flags, int dmg_within_tic, bool isSpell = false) {
 	// addedIgn adds damage to ignite from weapons' base and gives extra ignite chance, scaleIgn is just damage
 	bool addedIgn = !!(flags & DND_DAMAGETICFLAG_ADDEDIGNITE);
 	bool scaleIgn = addedIgn || (flags & DND_DAMAGETICFLAG_SCALEIGNITE);
@@ -3075,7 +3078,8 @@ void ApplyForcedIgnite(int pnum, int victim, int dur_pct = 100, bool force_proli
 		SetActorInventory(victim, "DnD_Cremated", 1);
 
 	int amt = Max(1, GetIgniteDuration(pnum) * dur_pct / 100);
-	int tick_dmg = GetIgniteTickDamage(pnum, victim, -1, 0);
+	// Spell sourced: this is only ever called from the spell trees.
+	int tick_dmg = GetIgniteTickDamage(pnum, victim, -1, 0, true);
 	int ign_flags = DND_IGNITEFLAG_CANPROLIF;
 	if(force_prolif)
 		ign_flags |= DND_IGNITEFLAG_FORCEPROLIF;
@@ -3424,8 +3428,14 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 			ACS_NamedExecuteAlways("DnD Pressure Points Timer", 0, victim_tid);
 		}
 
-		// amplify the overall damage as a crit here -- wepid negativity check happens inside np
-		more_dmg = GetCritModifier(pnum, victim_tid, wepid);
+		// Amplify the overall damage as a crit. The negativity check does NOT happen inside:
+		// GetBaseCritModifier only tests wepid == -1, and a spell arrives here with its SPELL ID in
+		// wepid, which is a perfectly valid index into Player_Weapon_Infos. A spell crit was picking
+		// up whatever WEP_MOD_CRITDMG the weapon at that index happened to have rolled.
+		// DND_DAMAGETICFLAG_SPELL is set from DND_DAMAGEFLAG_ISSPELL at the call site, so this is the
+		// one place downstream that can still tell a spell crit from an attack crit.
+		more_dmg = GetCritModifier(pnum, victim_tid, (wep_neg & 1) ? -1 : wepid, false,
+			!!(flags & DND_DAMAGETICFLAG_SPELL));
 
 		PlayerDamageTic[pnum].total[victim_data] = MulPercent_Exact(PlayerDamageTic[pnum].total[victim_data], more_dmg);
 
@@ -3516,7 +3526,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 			HandleChillEffects(pnum, victim_tid);
 
 		if(can_ail && ((tic_flags & DND_DAMAGETICFLAG_FIRE) || (tic_flags & DND_DAMAGETICFLAG_ADDEDIGNITE))) // should be able to ign if it has addedignite flag even if damagetype isnt fire!
-			HandleIgniteEffects(pnum, victim_tid, wepid, tic_flags, GetPlayerIgniteAddedDmg(pnum, wepid, GetIgniteScaleSource(pnum, victim_data, tic_flags)));
+			HandleIgniteEffects(pnum, victim_tid, wepid, tic_flags, GetPlayerIgniteAddedDmg(pnum, wepid, GetIgniteScaleSource(pnum, victim_data, tic_flags)), !!(tic_flags & DND_DAMAGETICFLAG_SPELL));
 			ReflectUltimatumAilment(pnum, GetTicElementDamage(pnum, victim_data, DND_TICELEM_FIRE), DND_DAMAGETYPEFLAG_FIRE);
 
 		// The Halo widens this further than the incursion mod does. That one opens ice, fire and
@@ -4075,6 +4085,30 @@ void SnareMonster(int victim, int tics) {
 		SetActorInventory(victim, "DnD_SlowTimer", tics);
 
 	ACS_NamedExecuteAlways("DnD Monster Slow Ticker", 0, victim);
+}
+
+// Searing Bond's marker. Launched by that spell alone, not by SnareMonster, so a snare from any
+// future source does not inherit this spell's art -- SnareMonster stays a pure mechanic.
+//
+// It still WATCHES the slow lane rather than a mark of its own: a snare is a slow of 100, so the
+// visual lasts exactly as long as the monster is held, however that ends. Guarded like the slow
+// ticker is, because ExecuteAlways starts a fresh instance per call and two would orphan an
+// attachment.
+Script "DnD Snare FX" (int victim) {
+	if(CheckActorInventory(victim, "DnD_SnareFXRunning"))
+		Terminate;
+
+	GiveActorInventory(victim, "DnD_SnareFXRunning", 1);
+	int sfx_id = ACS_NamedExecuteWithResult("DND Spawn Attachment", victim, DND_ATTACHMENT_SNARE);
+
+	while(CheckActorInventory(victim, "DnD_SlowTimer") &&
+		CheckActorInventory(victim, "DnD_SlowPercent") >= 100 && isActorAlive(victim))
+		Delay(const:1);
+
+	if(isActorAlive(victim))
+		ACS_NamedExecuteWithResult("DnD Remove Monster Attachment", victim, sfx_id);
+
+	TakeActorInventory(victim, "DnD_SnareFXRunning", 1);
 }
 
 // Scorching Ray and Flammability share this lane -- both are fire resistance the MONSTER has lost, and

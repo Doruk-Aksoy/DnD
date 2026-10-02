@@ -25,6 +25,7 @@ enum {
 	DND_ATTACHMENT_PETICON,
 	DND_ATTACHMENT_STUNICON,
 	DND_ATTACHMENT_FLAMMABILITY,
+	DND_ATTACHMENT_SNARE,
 };
 
 Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
@@ -80,6 +81,11 @@ Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 				zoff <<= 1;
 				zoff += 4.0;
 				res = CreateMonsterAttachment(tid, "FlammabilityFXMarker", 0, 0, zoff);
+			break;
+			// Around the feet: this one is a shackle, not an overhead icon. The actor warps itself to
+			// a fixed 16 up every tic, so this only decides where it first appears.
+			case DND_ATTACHMENT_SNARE:
+				res = CreateMonsterAttachment(tid, "SearingBondAttachmentFX", 0, 0, 16.0);
 			break;
 
 			// normal elite sparkles
@@ -189,12 +195,25 @@ Script "DnD Remove Blind FX Count" (void) CLIENTSIDE {
 // tears itself down when the marker goes. No tid band, no bitfield, nothing per side to keep in step.
 enum {
 	DND_PLAYERFX_ANGERAURA,
+	DND_PLAYERFX_HEATSHIELD,
+	DND_PLAYERFX_BOILINGBLOOD,
+	DND_PLAYERFX_IMMOLATION,
+	DND_PLAYERFX_ALLYLOCK,
 };
+
+// How far out to either side a paired attachment sits, past a player's own 16 unit radius.
+#define DND_PLAYERFX_SIDEDIST 24.0
 
 // The item whose presence IS the attachment. The FX watches it and stops when it goes.
 str GetPlayerAttachmentMarker(int which) {
 	switch(which) {
 		case DND_PLAYERFX_ANGERAURA: return "DnD_AngerAuraActive";
+		// Owned by the spell, not by this system: the rank stamp already marks exactly when the
+		// shield is up, and on the WEARER rather than the caster.
+		case DND_PLAYERFX_HEATSHIELD: return "DnD_HeatShieldRank";
+		case DND_PLAYERFX_BOILINGBLOOD: return "DnD_BoilingBloodActive";
+		case DND_PLAYERFX_IMMOLATION: return "DnD_ImmolationActive";
+		case DND_PLAYERFX_ALLYLOCK: return "DnD_AllyLockActive";
 	}
 	return "";
 }
@@ -203,6 +222,10 @@ str GetPlayerAttachmentMarker(int which) {
 str GetPlayerAttachmentSpawner(int which) {
 	switch(which) {
 		case DND_PLAYERFX_ANGERAURA: return "Spell_AngerAura_FXSpawner";
+		case DND_PLAYERFX_HEATSHIELD: return "Spell_HeatShield_FXSpawner";
+		case DND_PLAYERFX_BOILINGBLOOD: return "Spell_BoilingBlood_FXSpawner";
+		case DND_PLAYERFX_IMMOLATION: return "Spell_Immolation_FXSpawner";
+		case DND_PLAYERFX_ALLYLOCK: return "Spell_AllyLock_FXSpawner";
 	}
 	return "";
 }
@@ -210,8 +233,21 @@ str GetPlayerAttachmentSpawner(int which) {
 str GetPlayerAttachmentFX(int which) {
 	switch(which) {
 		case DND_PLAYERFX_ANGERAURA: return "Spell_AngerAuraFX";
+		case DND_PLAYERFX_HEATSHIELD: return "Spell_HeatShieldFX";
+		case DND_PLAYERFX_BOILINGBLOOD: return "Spell_BoilingBloodFX";
+		case DND_PLAYERFX_IMMOLATION: return "Spell_ImmolationFX";
+		case DND_PLAYERFX_ALLYLOCK: return "Spell_AllyLockFX";
 	}
 	return "";
+}
+
+// How many copies, and whether they sit to either side. One is the default -- an aura is a single
+// thing under the player; Heat Shield is a pair, one on each flank.
+int GetPlayerAttachmentSides(int which) {
+	switch(which) {
+		case DND_PLAYERFX_HEATSHIELD: return 2;
+	}
+	return 1;
 }
 
 // Called BY the token's Pickup state, so the activator is the player wearing it. Built exactly like
@@ -224,31 +260,59 @@ str GetPlayerAttachmentFX(int which) {
 Script "DnD Spawn Player Aura" (int which) CLIENTSIDE {
 	int tid = ActivatorTID();
 	str fx = GetPlayerAttachmentFX(which);
+	if(!tid || fx == "") {
+		SetResultValue(0);
+		Terminate;
+	}
 
-	if(tid && fx != "" &&
-		SpawnForced(fx, GetActorX(tid), GetActorY(tid), GetActorZ(tid), DND_PLAYERAURA_TID, 0)) {
+	// Offsets ride APROP_MASS and APROP_SCORE rather than user vars, the same way the monster
+	// attachments carry theirs -- DECORATE reads them straight out of A_Warp.
+	int zoff = GetActorProperty(tid, APROP_HEIGHT) >> 1;
+	int pnum = PlayerNumber();
+	int sides = GetPlayerAttachmentSides(which);
+	int i, side, f = 1.0;
+
+	// Grown by the caster's area modifiers, off whatever scale the actor declares in DECORATE, so the
+	// art keeps its own size and this only multiplies it. Passing 1.0 as the radius makes
+	// ScalePlayerAoERadius hand back the factor itself rather than a distance.
+	if(pnum >= 0)
+		f = ScalePlayerAoERadius(pnum, 1.0, DND_AOESRC_NONWEAPON);
+
+	for(i = 0; i < sides; ++i) {
+		if(!SpawnForced(fx, GetActorX(tid), GetActorY(tid), GetActorZ(tid), DND_PLAYERAURA_TID, 0))
+			continue;
+
 		SetActivator(DND_PLAYERAURA_TID);
 		SetPointer(AAPTR_TARGET, tid);
 		SetActorProperty(DND_PLAYERAURA_TID, APROP_TARGETTID, tid);
 
-		// Grown by the caster's area modifiers, off whatever scale the actor declares in DECORATE --
-		// so the art keeps its own size and this only ever multiplies it. Passing 1.0 as the radius
-		// makes ScalePlayerAoERadius hand back the factor itself rather than a distance.
-		int pnum = PlayerNumber();
-		if(pnum >= 0) {
-			int f = ScalePlayerAoERadius(pnum, 1.0, DND_AOESRC_NONWEAPON);
-			if(f != 1.0) {
-				SetActorProperty(DND_PLAYERAURA_TID, APROP_SCALEX,
-					FixedMul(GetActorProperty(DND_PLAYERAURA_TID, APROP_SCALEX), f));
-				SetActorProperty(DND_PLAYERAURA_TID, APROP_SCALEY,
-					FixedMul(GetActorProperty(DND_PLAYERAURA_TID, APROP_SCALEY), f));
-			}
+		// A single attachment sits centred; a pair is pushed out to either flank.
+		side = 0;
+		if(sides > 1)
+			side = i ? -DND_PLAYERFX_SIDEDIST : DND_PLAYERFX_SIDEDIST;
+
+		SetActorProperty(DND_PLAYERAURA_TID, APROP_MASS, zoff >> 16);
+		SetActorProperty(DND_PLAYERAURA_TID, APROP_SCORE, side >> 16);
+
+		if(f != 1.0) {
+			SetActorProperty(DND_PLAYERAURA_TID, APROP_SCALEX,
+				FixedMul(GetActorProperty(DND_PLAYERAURA_TID, APROP_SCALEX), f));
+			SetActorProperty(DND_PLAYERAURA_TID, APROP_SCALEY,
+				FixedMul(GetActorProperty(DND_PLAYERAURA_TID, APROP_SCALEY), f));
 		}
 
+		// Released straight away -- the next copy takes the same scratch tid.
 		Thing_ChangeTID(0, 0);
+		SetActivator(tid);
 	}
 
 	SetResultValue(0);
+}
+
+// For an attachment whose marker belongs to the spell rather than to this system. Nothing here
+// writes the marker -- the caller has already decided the effect is up, and the FX watches it.
+void RaisePlayerAttachment(int pnum, int which) {
+	GiveActorInventory(pnum + P_TIDSTART, GetPlayerAttachmentSpawner(which), 1);
 }
 
 // Idempotent both ways, so it can be called every tick from whatever already knows the state.

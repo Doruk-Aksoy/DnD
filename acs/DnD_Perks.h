@@ -1224,8 +1224,8 @@ void SetupPerkStats() {
     SetPerkStat(PERK_ACRO_TAILWIND, PSTAT_TAILWIND_CDREDUCE, 0, 1);
 
     // ---------------- Assassination ----------------
-    // fixed point: INV_CRITCHANCE_INCREASE authors 0.005..0.009, so 1% is 0.01
-    SetPerkStat(PERK_ASSN_DEADLINESS, PSTAT_CRITCHANCE_INCREASE, 0.01, 0.015, PERKF_AFFECTSDAMAGE);
+    // fixed point: INV_CRITCHANCE_INCREASE_ATTACK authors 0.005..0.009, so 1% is 0.01
+    SetPerkStat(PERK_ASSN_DEADLINESS, PSTAT_CRITCHANCE_ATTACK, 0.01, 0.015, PERKF_AFFECTSDAMAGE);
 
     // already conditional in GetCritChance, which gates it on IsPrecisionWeapon -- fixed point too
     SetPerkStat(PERK_ASSN_PLANNEDEXECUTION, PSTAT_IMP_PRECISIONCRITBONUS, 0.05, -0x7FFFFFFF, PERKF_AFFECTSDAMAGE);

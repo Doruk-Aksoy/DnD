@@ -69,6 +69,18 @@ str GetHotbarCdItem(int slot) {
 	return StrParam(s:"P_HotbarCd", d:slot + 1);
 }
 
+// The SECOND charge's cooldown word. Named CdB rather than Cd2 because P_HotbarCd2 is already
+// slot 2's.
+str GetHotbarCdBItem(int slot) {
+	return StrParam(s:"P_HotbarCdB", d:slot + 1);
+}
+
+// How many charges the spell HAS. Without it the client cannot tell a ready second charge from a
+// spell that never had one -- both read as a zero word.
+str GetHotbarChgItem(int slot) {
+	return StrParam(s:"P_HotbarChg", d:slot + 1);
+}
+
 // Server side. Called when a binding changes and when a cast starts, never on a timer.
 void SyncHotbarSlot(int pnum, int slot) {
 	int tid = pnum + P_TIDSTART;
@@ -76,13 +88,23 @@ void SyncHotbarSlot(int pnum, int slot) {
 
 	SetActorInventory(tid, GetHotbarSlotItem(slot), spell + 1);
 
+	// Cleared TOGETHER. A slot that loses its spell must drop the charge count too, or the hotbar
+	// keeps drawing a number over an empty slot.
 	if(spell < 0) {
 		SetActorInventory(tid, GetHotbarCdItem(slot), 0);
+		SetActorInventory(tid, GetHotbarCdBItem(slot), 0);
+		SetActorInventory(tid, GetHotbarChgItem(slot), 0);
 		return;
 	}
 
+	auto cd = GetSpellCooldowns();
+	int charges = GetSpellMaxCharges(pnum, spell);
 	int total = Min(GetSpellCooldownTics(pnum, spell), DND_HOTBARCD_MASK);
-	SetActorInventory(tid, GetHotbarCdItem(slot), (GetSpellCooldowns().at[pnum][spell] << DND_HOTBARCD_SHIFT) | total);
+
+	SetActorInventory(tid, GetHotbarCdItem(slot), (cd.at[pnum][spell] << DND_HOTBARCD_SHIFT) | total);
+	SetActorInventory(tid, GetHotbarCdBItem(slot),
+		charges > 1 ? ((cd.atb[pnum][spell] << DND_HOTBARCD_SHIFT) | total) : 0);
+	SetActorInventory(tid, GetHotbarChgItem(slot), charges);
 }
 
 // Server side, bracketing the cast delay. P_CastProgress is packed exactly as P_HotbarCd is, so the
@@ -139,6 +161,33 @@ int GetHotbarCooldownPercent(int slot) {
 	return Min(100, left * 100 / total);
 }
 
+// The second charge, on the same arithmetic. Zero when the spell holds only one.
+int GetHotbarCooldownBPercent(int slot) {
+	int packed = CheckInventory(GetHotbarCdBItem(slot));
+	if(!packed)
+		return 0;
+
+	int total = packed & DND_HOTBARCD_MASK;
+	if(total <= 0)
+		return 0;
+
+	int left = (packed >> DND_HOTBARCD_SHIFT) - Timer();
+	if(left <= 0)
+		return 0;
+
+	return Min(100, left * 100 / total);
+}
+
+// Charges still castable. Worked out from the same two words the squares are drawn from, so the
+// number and the shading can never disagree.
+int GetHotbarChargesReady(int slot) {
+	int charges = CheckInventory(GetHotbarChgItem(slot));
+	if(charges < 2)
+		return 0;
+
+	return (GetHotbarCooldownPercent(slot) ? 0 : 1) + (GetHotbarCooldownBPercent(slot) ? 0 : 1);
+}
+
 // Flush right and growing leftward: slot 0 is leftmost, so gaining a slot shifts the rest left and
 // never renumbers a bind the player already learned.
 int GetHotbarSlotX(int slot, int count) {
@@ -170,6 +219,8 @@ void DrawSpellHotbar(int pnum) {
 			DeleteText(HOTBAR_SLOT_ID + i);
 			DeleteText(HOTBAR_ICON_ID + i);
 			DeleteText(HOTBAR_CD_ID + i);
+			DeleteText(HOTBAR_CD2_ID + i);
+			DeleteText(HOTBAR_CHG_ID + i);
 			continue;
 		}
 
@@ -183,9 +234,11 @@ void DrawSpellHotbar(int pnum) {
 		// cooldown ticks and the art is revealed from the top. Anchoring at the top instead made it
 		// recede upward, which reads as the cooldown running backwards. The clip is in the same canvas
 		// as the draw, so it scales with it.
+		int cdh;
+
 		pct = GetHotbarCooldownPercent(i);
 		if(pct) {
-			int cdh = DND_HOTBAR_ICON * sc * pct / 100;
+			cdh = DND_HOTBAR_ICON * sc * pct / 100;
 			SetHudClipRect(x * sc, GetHotbarSlotY() * sc + DND_HOTBAR_ICON * sc - cdh,
 				DND_HOTBAR_ICON * sc, cdh);
 			SetFont("SPLCDBLK");
@@ -196,9 +249,33 @@ void DrawSpellHotbar(int pnum) {
 		else
 			DeleteText(HOTBAR_CD_ID + i);
 
-		// Which key casts it, under the icon.
+		// The second charge, as a square of its own laid over the first. Both down therefore reads as
+		// a visibly darker icon, and each drains on its own clock -- the two squares come back at
+		// different times, which is what tells the player a charge has returned.
+		pct = GetHotbarCooldownBPercent(i);
+		if(pct) {
+			cdh = DND_HOTBAR_ICON * sc * pct / 100;
+			SetHudClipRect(x * sc, GetHotbarSlotY() * sc + DND_HOTBAR_ICON * sc - cdh,
+				DND_HOTBAR_ICON * sc, cdh);
+			SetFont("SPLCDBLK");
+			HudMessage(s:"A"; HUDMSG_PLAIN, HOTBAR_CD2_ID + i, CR_UNTRANSLATED,
+				((x * sc) << 16) + 0.1, ((GetHotbarSlotY() * sc) << 16) + 0.1, 0.1);
+			SetHudClipRect(0, 0, 0, 0);
+		}
+		else
+			DeleteText(HOTBAR_CD2_ID + i);
+
+		// Charges left, top right of the icon. Only for a spell that holds more than one -- on
+		// everything else it would be a permanent "1" saying nothing.
 		SetHudSize(HUDMAX_X, HUDMAX_Y, 0);
 		SetFont("SMALLFONT");
+		if(CheckInventory(GetHotbarChgItem(i)) > 1)
+			HudMessage(s:"\c[Y5]", d:GetHotbarChargesReady(i); HUDMSG_PLAIN, HOTBAR_CHG_ID + i, CR_WHITE,
+				((x + DND_HOTBAR_ICON - 2) << 16) + 0.4, ((GetHotbarSlotY() + 1) << 16) + 0.1, 0.1);
+		else
+			DeleteText(HOTBAR_CHG_ID + i);
+
+		// Which key casts it, under the icon.
 		HudMessage(s:"\c[Y5]", d:i + 1; HUDMSG_PLAIN, HOTBAR_SLOT_ID + i, CR_WHITE,
 			((x + DND_HOTBAR_ICON / 2) << 16) + 0.4,
 			((GetHotbarSlotY() + DND_HOTBAR_ICON + 1) << 16) + 0.1, 0.1);

@@ -1,0 +1,100 @@
+Actor Spell_FireJet : DnD_SpellExplosive {
+	PROJECTILE
+	+PUFFGETSOWNER
+	+DONTBLAST
+	Height 8
+	Radius 4
+	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE))
+	DamageType "Fire"
+	Speed 36
+	Renderstyle Add
+	Alpha 0.85
+	Scale 1.35
+	// Counts the flight down. Set once on spawn from the spell's DURATION row.
+	var int user_jetframes;
+	SeeSound "FireJet/Shoot"
+    DeathSound "weapons/phoenixhit"
+	States {
+        // Length comes from the table, not from a run of identical frames -- see
+        // "DnD Fire Jet Lifetime".
+        SpawnState:
+            TNT1 A 0 A_SetUserVar("user_jetframes",
+                ACS_NamedExecuteWithResult("DnD Fire Jet Lifetime"))
+        Flight:
+            S008 N 2 Bright A_SpawnItem("Spell_FireJetTrail")
+            TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Jet Sides")
+            TNT1 A 0 A_SetUserVar("user_jetframes", user_jetframes - 1)
+            TNT1 A 0 A_JumpIf(user_jetframes > 0, "Flight")
+        Goto Death
+        // The burst is the rank 5 -- the setup script answers whether there is one, and the
+        // visuals play either way.
+        Death:
+            TNT1 A 0 A_Stop
+            TNT1 A 0 A_PlaySound("FireJet/Hit", CHAN_VOICE)
+            TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Spell Explosion Setup"), "DoExplosionDamage")
+        Goto ContinueFromExplosion
+        ContinueFromExplosion:
+            S008 QRSTUVWXYZ 2 Bright
+        Goto FinishExplosion
+	}
+}
+
+Actor Spell_FireJetSide : DnD_Spell {
+	PROJECTILE
+	-NOGRAVITY
+	+SKYEXPLODE
+	+BLOODLESSIMPACT
+	+DONTBLAST
+	Alpha 0.8
+	Gravity 1.5
+	// DAMAGE2, not DAMAGE: "160 damage on a direct hit and 24 to the sides" are two rows, and this
+	// is the second one.
+	Damage (ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE2))
+	DamageType "Fire"
+    DeathSound "weapons/phoenixhit"
+	Height 6
+	Radius 4
+	Speed 0
+    const int v = 12;
+	States {
+        SpawnState:
+            // "The sideways flames rip through enemies" at rank 10. A_ChangeFlag rather than
+            // ACS: this Zandronum has no SetActorFlag. Safe on the first tick because the
+            // spawner stamps the spell id before this ever runs.
+            TNT1 A 0 A_ChangeFlag("RIPPER",
+                ACS_NamedExecuteWithResult("DnD Spell Threshold", SPELLTHRESH_HIGH))
+            TNT1 A 1
+            S009 A 4 A_ChangeVelocity(v * cos(angle), v * sin(angle), velz, CVF_REPLACE)
+            S009 BC 2 Bright 
+            S009 D 1 Bright
+            S009 EF 2 Bright
+            S009 G 1 Bright A_ChangeVelocity(velx * 0.8, vely * 0.8, velz, CVF_REPLACE)
+            S009 HI 2 Bright
+            S009 J 1 Bright 
+            S009 K 2 Bright A_ChangeVelocity(velx * 0.75, vely * 0.75, velz, CVF_REPLACE)
+            S009 L 3 Bright
+            S009 M 3 Bright
+            S009 N 2 Bright A_ChangeVelocity(velx * 0.666, vely * 0.666, velz, CVF_REPLACE)
+            S009 O 3 Bright
+            S009 P 2 Bright
+        Stop
+        Death:
+            "####" "######" 1 Bright A_FadeOut(0.09)
+        Stop
+	}
+}
+
+Actor Spell_FireJetTrail {
+	Height 1
+	Radius 1
+    +NOINTERACTION
+	+CLIENTSIDEONLY
+	Renderstyle Add
+	Alpha 0.85
+	Scale 1.2
+	States {
+        Spawn:
+            S008 OOPP 1 Bright A_FadeOut(0.1)
+        Stop
+	}
+}

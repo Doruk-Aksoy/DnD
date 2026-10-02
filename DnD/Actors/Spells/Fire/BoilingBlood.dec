@@ -1,0 +1,52 @@
+// Boiling Blood's visual: spheres boiling off the player for as long as the spell is being paid for.
+//
+// The marker is raised and dropped by "DnD Boiling Blood Drain", which is the loop that bills the
+// health, so the effect cannot outlive what it is showing -- including when the player dies mid cast.
+Actor DnD_BoilingBloodActive : DnD_Boolean {}
+
+// The token that raises it. A CustomInventory, so its Pickup state runs with the PLAYER as self on
+// every machine that receives the item.
+//
+// WithResult, not Always: the former runs inline and keeps the player as activator, which is the only
+// thing the spawner has to aim the effect at. Always starts a detached script and loses it.
+Actor Spell_BoilingBlood_FXSpawner : DnD_Activator {
+    States {
+        Pickup:
+            TNT1 A 1 ACS_NamedExecuteWithResult("DnD Spawn Player Aura", PLAYERFX_BOILINGBLOOD)
+        Stop
+    }
+}
+
+// Invisible itself -- it rides the player and throws the spheres. UberSphereFX is already
+// CLIENTSIDEONLY and tags itself into SPECIAL_FX_TID, so the spheres clean themselves up and this
+// only has to decide where and how often.
+//
+// One every 7 tics against their own 22 tic life leaves about three in the air at a time, which is
+// the "a few, boiling off you" reading rather than a fountain. The two consts below are the knobs:
+// rate for how many, spread for how wide.
+Actor Spell_BoilingBloodFX {
+    +CLIENTSIDEONLY
+    +NOINTERACTION
+    +NOTONAUTOMAP
+
+    const float spread = 24.0;
+    const float lo = 8.0;
+    const float hi = 52.0;
+
+    States {
+        // One tic, not zero. The actor has to survive to its first Tick for NoDelay to fire, and a
+        // zero length spawn frame that does not jump is gone before anything sees it.
+        Spawn:
+            TNT1 A 1 NoDelay A_JumpIfInTargetInventory("DnD_BoilingBloodActive", 1, "Active")
+        Stop
+
+        Active:
+            TNT1 A 7 A_Warp(AAPTR_TARGET, 0, 0, 0, 0,
+                WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+            TNT1 A 0 A_SpawnItemEx("UberSphereFX",
+                frandom(-spread, spread), frandom(-spread, spread), frandom(lo, hi),
+                0, 0, frandom(0.2, 0.8), 0, SXF_NOCHECKPOSITION)
+            TNT1 A 0 A_JumpIfInTargetInventory("DnD_BoilingBloodActive", 1, "Active")
+        Stop
+    }
+}

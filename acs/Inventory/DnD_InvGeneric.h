@@ -894,7 +894,7 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 			switch(subtype) {
 				case CLAW_RAKE:
 					imp_func(item_pos, INV_IMP_INCMIT, 2.0, 0, item_tier, 0.75, DND_ITEMBASE_SPECIALTY_TRICKSTER_MITIGATION);
-					imp_func(item_pos, INV_CRITDAMAGE_INCREASE, 10, 0, item_tier, 5, 0);
+					imp_func(item_pos, INV_CRITDAMAGE_INCREASE_ATTACK, 10, 0, item_tier, 5, 0);
 				break;
 				case CLAW_CESTUS:
 					imp_func(item_pos, INV_IMP_INCARMOR, 40, 0, item_tier, 10, DND_ITEMBASE_SPECIALTY_TRICKSTER_ARMOR);
