@@ -95,9 +95,21 @@ void SetPlayerMana(int pnum, int val) {
 // TID -- is server only, so the client cannot recompute it.
 void UpdateManaVisualCap(int pnum) {
 	int tid = pnum + P_TIDSTART;
+	int cap = GetUnreservedManaCap(pnum);
+
 	SetActorInventory(tid, "P_ManaCap", GetPlayerManaCap(pnum));
-	SetActorInventory(tid, "ManaVisual", GetUnreservedManaCap(pnum));
+	SetActorInventory(tid, "ManaVisual", cap);
 	SetActorInventory(tid, "P_ManaRegen", GetPlayerManaRegen(pnum));
+
+	// A SHRINKING cap has to take the surplus with it. GiveMana clamps on the way in, so nothing
+	// could ever push a player over their cap -- but unequipping a +mana charm lowers the cap
+	// under mana already held, and that surplus used to sit there indefinitely. CanAffordSpell
+	// reads the held amount, so a spell the player could no longer pay for stayed castable.
+	//
+	// Here rather than at the equip sites: this is what every cap change already calls, and the
+	// once-a-second regeneration tick calls it too, so gear applied by any route is caught.
+	if(CheckActorInventory(tid, "Mana") > cap)
+		SetActorInventory(tid, "Mana", cap);
 }
 
 // Clamped on the way in so a shrinking cap -- a swapped charm, a newly enabled aura -- cannot leave
@@ -115,11 +127,13 @@ bool CanAffordSpell(int pnum, int spell) {
 }
 
 // Returns false without spending when the player cannot pay, so the cast site can simply bail.
-bool SpendSpellMana(int pnum, int spell) {
+// pct scales the row cost for callers whose instances are not all worth the same -- Annihilus bills
+// a rising charge on a rising price. It defaults to the plain row cost, so nothing else changes.
+bool SpendSpellMana(int pnum, int spell, int pct = 100) {
 	if(SpellDefs[spell].flags & (SPLF_PASSIVE | SPLF_RESERVES))
 		return true;
 
-	int cost = GetSpellValue(pnum, spell, SPELLVAL_COST) >> 16;
+	int cost = (GetSpellValue(pnum, spell, SPELLVAL_COST) >> 16) * pct / 100;
 	if(GetPlayerMana(pnum) < cost)
 		return false;
 
@@ -144,9 +158,9 @@ void ValidateAuraReservations(int pnum) {
 			pct += r;
 	}
 
+	// The clamp lives inside this now, so switching an aura on still cannot leave the player
+	// holding more than the reservation left them.
 	UpdateManaVisualCap(pnum);
-	if(GetPlayerMana(pnum) > GetUnreservedManaCap(pnum))
-		SetPlayerMana(pnum, GetUnreservedManaCap(pnum));
 }
 
 #endif

@@ -166,3 +166,63 @@ Model Spell_AngerAuraFX {
 	
 	FrameIndex AURA J 0 3
 }
+
+Model Spell_AnnihilusAnchorFlip {
+	Path "Models/Auras"
+	Model 0 "flat.md3"
+
+	Path "Graphics/ShaderTex"
+	Skin 0 "ANNIHILS.png"
+
+	// The mirror, and the whole point of this entry. It must negate an axis the quad actually SPANS.
+	//
+	// RenderTriangles submits glVertex3f(x, z, y), so the model z axis becomes GL y -- and this quad
+	// is flat, every vertex having model z 0. Negating zscale therefore moves nothing, the projected
+	// triangle comes out identical and GL, which decides facing from SCREEN SPACE winding rather
+	// than from the matrix determinant, culls it exactly as before.
+	//
+	// yscale reaches GL z, which the quad does span, so negating it genuinely mirrors the disc and
+	// reverses the winding. The art is radially symmetric, so the mirror itself is invisible.
+	Scale 1.0 -1.0 1.0
+
+	// Back to +1: the offset is divided by ZSCALE, which is no longer negated, so this matches the
+	// upright copy and keeps the two coplanar.
+	Zoffset 1
+	ROTATING
+
+	FrameIndex AURA L 0 3
+}
+
+Model Spell_AnnihilusAnchor {
+	Path "Models/Auras"
+	Model 0 "flat.md3"
+
+	// Skin out of Graphics/, where the lump has a NAME and can therefore carry a GLDEFS shader.
+	// Same split, and the same reason, as Spell_RighteousFireFX below.
+	Path "Graphics/ShaderTex"
+	Skin 0 "ANNIHILS.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 1
+	ROTATING
+
+	FrameIndex AURA L 0 3
+}
+
+Model Spell_RighteousFireFX {
+	Path "Models/Auras"   
+	Model 0 "flat.md3"   
+
+	// Path is re-set so the skin resolves out of Graphics/, where the lump gets a NAME.
+	// Models/ maps to no namespace, so a skin loaded from there is nameless and no GLDEFS
+	// HardwareShader block can target it. Confirmed by test: walls and sprites took a shader,
+	// this skin could not. Safe to reassign -- every other block sets its own Path, and this
+	// is the last one in the lump.
+	Path "Graphics/ShaderTex"
+	Skin 0 "RGHTFIRE.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 1
+	ROTATING
+	//DONTCULLBACKFACES
+	
+	FrameIndex AURA K 0 3
+}

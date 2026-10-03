@@ -26,10 +26,20 @@ Actor Spell_AngerAura_FXSpawner : DnD_Activator {
 // Drawn by MODELDEF as "Spell_AngerAuraFX" on frame AURA J -- that entry is already in MODELDEF.aura
 // using ANGERAUR.png on flat.md3, alongside the other auras. The sprite lump for J does not need to
 // exist: AURA C has no lump either and Wanderer_ReturnCircle renders on it fine.
+//
+// Scale is MEASURED, not the 4.0 that the old "64 radius units per scale unit" note implied.
+//
+// flat.md3 holds four frames at escalating sizes and MODELDEF picks frame 3, whose quad is
+// +-15.62 units -- not the +-1.0 of frame 0. ANGERAUR.png fills 87.9% of its texture, so one scale
+// unit is 13.73 units of visible radius, and the 256 unit base radius needs 18.65.
+//
+// At 4.0 this ring drew 55 units while the spell reached 256, about a quarter of its real
+// size. "DnD Spawn Player Aura" multiplies this by the area modifiers and the spell row growth,
+// so correcting the base corrects every rank with it.
 Actor Spell_AngerAuraFX {
     Renderstyle Add
     Alpha 0.85
-    Scale 4.0
+    Scale 18.65
     +CLIENTSIDEONLY
     +NOINTERACTION
     +NOTONAUTOMAP

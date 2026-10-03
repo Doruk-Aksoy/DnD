@@ -1,0 +1,105 @@
+// Annihilus. The anchor is the charge itself: ACS plants it at the aim point, grows it while the
+// channel builds, and removes it when the blast lands -- every exit from "DnD Annihilus" falls
+// through the same teardown, so no path can leave one standing.
+//
+// Drawn by MODELDEF.aura as "Spell_AnnihilusAnchor" on frame AURA L, using ANNIHILS.png on
+// flat.md3. The sprite lump for L does not need to exist, the same way AURA K carries Righteous
+// Fire without one.
+//
+// NOT clientside, unlike the auras: ACS owns this one by tid and rescales it every tic, so it has
+// to exist on the machine running the channel.
+Actor Spell_AnnihilusAnchor {
+	Renderstyle Add
+
+	// Full alpha: under Add the contribution is roughly colour*alpha, so anything less here
+	// is a flat dimmer on the shader and this is supposed to be the highlight of the scene.
+	Alpha 1.0
+
+	// Overwritten every tic by the channel, which sizes it off the blast radius. This is only what
+	// it looks like for the one tic before the first update lands.
+	Scale 1.0
+
+	// Purely a SIGHT origin -- NOINTERACTION and NOBLOCKMAP mean this collides with nothing.
+	// A sight trace starts at z + 0.75 * height, so the default 16 would have the blast checking
+	// line of sight from 12 units off the floor, where a step or a crate blocks it. 56 puts the
+	// trace at 42, about chest height, which is where the fireball actually is.
+	Height 56
+	+NOINTERACTION
+	+NOBLOCKMAP
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	States {
+		// Held open indefinitely -- the script decides when it goes, not a frame count.
+		Spawn:
+			AURA L -1 Bright NoDelay A_PlaySound("Annihilus/Loop", CHAN_BODY, 1.0, true)
+		Stop
+        // Half a second all told, which is the window the script paces the scatter over: 7 tics
+        // held at full, then 10 fading at 0.1. The fade alone was 10, so the charge went before
+        // its own explosions had finished landing.
+        //
+        // Bright on the fade frame too -- without it the model drops out of fullbright halfway
+        // through and the lava visibly darkens on the way out.
+        Vanish:
+            TNT1 A 0 A_StopSound(CHAN_BODY)
+            AURA L 7 Bright
+        VanishLoop:
+            AURA L 1 Bright A_FadeOut(0.075)
+        Loop
+	}
+}
+
+// The same charge, seen from below. The quad is one sided and this Zandronum has no
+// DONTCULLBACKFACES, so the other face comes from a second copy whose model scale negates an axis:
+// a negative determinant reverses triangle winding, which is what GL_CULL_FACE keys off.
+//
+// It SHARES the anchor tid. Every SetActorProperty, SetActorState and Thing_ChangeTID the script
+// already does reaches both, so nothing in "DnD Annihilus" has to know there are two of these.
+Actor Spell_AnnihilusAnchorFlip : Spell_AnnihilusAnchor {
+    States {
+        // No hum. The anchor above already holds the loop on CHAN_BODY and a second copy would
+        // simply double it. Vanish is inherited; its A_StopSound is harmless on a silent actor.
+        Spawn:
+            AURA L -1 Bright
+        Stop
+    }
+}
+
+Actor Spell_AnnihilusMainExplosionFX {
+    Renderstyle Add
+    Alpha 1.0
+    Scale 3.0
+    +NOINTERACTION
+    +CLIENTSIDEONLY
+    States {
+        Spawn:
+            MSP4 E 3 Bright NoDelay A_ChangeVelocity(0, 0, 0.75, CVF_REPLACE)
+            TNT1 A 0 A_PlaySound("Annihilus/MainExp")
+            MSP4 FGHI 3 Bright
+        Stop
+    }
+}
+
+// The scattered bursts. ExplosionFX1 with a voice: the Spawn state is restated rather than
+// inherited because the sound has to land on the first frame, and the Thing_ChangeTID below it is
+// what puts the FX on the shared effect tid -- dropping it would strand them off that band.
+//
+// Annihilus/MiniExp is a $random of four in SNDINFO, so the variety comes from there; these three
+// differ only in size, which is what keeps a scatter of them from looking stamped.
+Actor Spell_AnnihilusMiniExplosionFX : ExplosionFX1 {
+    States {
+        Spawn:
+            TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+            TNT1 A 1
+            TNT1 A 0 A_PlaySound("Annihilus/MiniExp", CHAN_AUTO, 1.0, false, ATTN_NORM)
+            FXPO ABBCDEFGHIJKLM 1 Bright A_FadeOut(0.05)
+        Stop
+    }
+}
+
+Actor Spell_AnnihilusMiniExplosionFX2 : Spell_AnnihilusMiniExplosionFX {
+    Scale 0.8
+}
+
+Actor Spell_AnnihilusMiniExplosionFX3 : Spell_AnnihilusMiniExplosionFX {
+    Scale 0.65
+}

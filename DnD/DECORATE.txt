@@ -6,6 +6,7 @@ const int PLAYERFX_HEATSHIELD = 1;
 const int PLAYERFX_BOILINGBLOOD = 2;
 const int PLAYERFX_IMMOLATION = 3;
 const int PLAYERFX_ALLYLOCK = 4;
+const int PLAYERFX_RIGHTEOUSFIRE = 5;
 // Mirrors DND_SPELL_THRESH_* in acs/Spells/DnD_SpellDefs.h.
 const int SPELLTHRESH_LOW = 5;
 const int SPELLTHRESH_HIGH = 10;

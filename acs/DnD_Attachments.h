@@ -199,6 +199,7 @@ enum {
 	DND_PLAYERFX_BOILINGBLOOD,
 	DND_PLAYERFX_IMMOLATION,
 	DND_PLAYERFX_ALLYLOCK,
+	DND_PLAYERFX_RIGHTEOUSFIRE,
 };
 
 // How far out to either side a paired attachment sits, past a player's own 16 unit radius.
@@ -214,6 +215,7 @@ str GetPlayerAttachmentMarker(int which) {
 		case DND_PLAYERFX_BOILINGBLOOD: return "DnD_BoilingBloodActive";
 		case DND_PLAYERFX_IMMOLATION: return "DnD_ImmolationActive";
 		case DND_PLAYERFX_ALLYLOCK: return "DnD_AllyLockActive";
+		case DND_PLAYERFX_RIGHTEOUSFIRE: return "DnD_RighteousFireActive";
 	}
 	return "";
 }
@@ -226,6 +228,7 @@ str GetPlayerAttachmentSpawner(int which) {
 		case DND_PLAYERFX_BOILINGBLOOD: return "Spell_BoilingBlood_FXSpawner";
 		case DND_PLAYERFX_IMMOLATION: return "Spell_Immolation_FXSpawner";
 		case DND_PLAYERFX_ALLYLOCK: return "Spell_AllyLock_FXSpawner";
+		case DND_PLAYERFX_RIGHTEOUSFIRE: return "Spell_RighteousFire_FXSpawner";
 	}
 	return "";
 }
@@ -237,6 +240,7 @@ str GetPlayerAttachmentFX(int which) {
 		case DND_PLAYERFX_BOILINGBLOOD: return "Spell_BoilingBloodFX";
 		case DND_PLAYERFX_IMMOLATION: return "Spell_ImmolationFX";
 		case DND_PLAYERFX_ALLYLOCK: return "Spell_AllyLockFX";
+		case DND_PLAYERFX_RIGHTEOUSFIRE: return "Spell_RighteousFireFX";
 	}
 	return "";
 }
@@ -275,8 +279,13 @@ Script "DnD Spawn Player Aura" (int which) CLIENTSIDE {
 	// Grown by the caster's area modifiers, off whatever scale the actor declares in DECORATE, so the
 	// art keeps its own size and this only multiplies it. Passing 1.0 as the radius makes
 	// ScalePlayerAoERadius hand back the factor itself rather than a distance.
-	if(pnum >= 0)
+	if(pnum >= 0) {
 		f = ScalePlayerAoERadius(pnum, 1.0, DND_AOESRC_NONWEAPON);
+
+		// And by how far the spell's own radius has outgrown the base the art was drawn for.
+		// Through a named script because this file expands before the spell headers.
+		f = FixedMul(f, ACS_NamedExecuteWithResult("DnD Aura Radius Factor", which));
+	}
 
 	for(i = 0; i < sides; ++i) {
 		if(!SpawnForced(fx, GetActorX(tid), GetActorY(tid), GetActorZ(tid), DND_PLAYERAURA_TID, 0))

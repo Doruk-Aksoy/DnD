@@ -415,12 +415,16 @@ Script "DnD Scorching Ray" (int pnum) {
 			TraceScorchRay(pnum, -rx, -ry, -half, len, pierces);
 
 			// One hit per monster, however many rays found it.
+			// Hoisted: it does not vary per target, and the buff lookup is a global read.
+			int ray_dmg = ApplySpellMoreDamage(pnum, SPL_SCORCHINGRAY,
+				GetSpellValue(pnum, SPL_SCORCHINGRAY, SPELLVAL_DAMAGE));
+
 			for(i = 0; i < sr.count; ++i) {
 				v = sr.hit[i];
 				if(!IsActorAlive(v))
 					continue;
 
-				dealt = HandleDamageDeal(caster, v, GetSpellValue(pnum, SPL_SCORCHINGRAY, SPELLVAL_DAMAGE),
+				dealt = HandleDamageDeal(caster, v, ray_dmg,
 				DND_DAMAGETYPE_FIRE, SPL_SCORCHINGRAY, DND_DAMAGEFLAG_ISSPELL, 0, 0, 0, 0, true);
 				if(dealt > 0) {
 					// SkipHandle, not "Fire": HandleDamageDeal has already applied resists, and the handler's
@@ -676,7 +680,8 @@ Script "DnD Immolation Tick" (int pnum) {
 
 		r = ScalePlayerAoERadius(pnum, GetSpellValue(pnum, SPL_IMMOLATION, SPELLVAL_RADIUS) << 16,
 			DND_AOESRC_NONWEAPON);
-		dmg = GetSpellValue(pnum, SPL_IMMOLATION, SPELLVAL_DAMAGE);
+		dmg = ApplySpellMoreDamage(pnum, SPL_IMMOLATION,
+			GetSpellValue(pnum, SPL_IMMOLATION, SPELLVAL_DAMAGE));
 
 		for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
 			v = UsedMonsterTIDs[mn];
@@ -961,6 +966,34 @@ Script "DnD Incinerate Burst" (int pnum, int victim) {
 
 // Matches the actor's own Speed and the description's "advances 30 units per tic".
 #define DND_FLAMEPILLAR_SPEED 30
+
+// Matches the old MOLTENBOULDER_BASESPEED. The boulder drops from the ceiling with this as its
+// horizontal push, then takes its velocity over from its own states.
+#define DND_MOLTENBOULDER_SPEED 20
+
+// How far under the ceiling it appears, as the old cast placed it.
+#define DND_MOLTENBOULDER_DROP 64.0
+
+// "Lasts 3 seconds longer." Added at the cast like every other threshold duration bonus --
+// GetSpellDurationTics is the raw table value and knows nothing about ranks.
+#define DND_MOLTENBOULDER_R5_BONUS (3 * TICRATE)
+
+// Rank 10: "Sends six Pyroblasts outward when it shatters."
+// "You gain 25% additional fire resistance against this spell." Against THIS spell, so it is
+// applied to the self burn here rather than added to the player's fire resistance generally.
+#define DND_RIGHTEOUSFIRE_R5_RESIST 25
+
+// The burn hum. Held for as long as the aura is. CHAN_6 keeps it off CHAN_7, where Scorching Ray
+// holds its own loop and calls StopSound when it ends -- that would have killed this one
+// outright rather than merely interrupting it.
+#define DND_RIGHTEOUSFIRE_CHAN CHAN_6
+
+// The spell damage buff is renewed every second, so it only has to outlast the gap between two
+// renewals. Two seconds, so a tick arriving late never lets it lapse mid burn.
+#define DND_RIGHTEOUSFIRE_BUFFTICS (2 * TICRATE)
+
+#define DND_MOLTENBOULDER_SHARDS 6
+#define DND_MOLTENBOULDER_SHARDSPEED 24
 
 // Rank 10's second pillar. 32 units to each side, so the pair runs 64 apart.
 #define DND_FLAMEPILLAR_SIDEOFF 32.0
@@ -1275,6 +1308,42 @@ Script "DnD Flammability Cast" (int pnum) {
 
 }
 
+// Molten Boulder. The same spawn as the pre-tree version -- dropped from just under the ceiling at
+// the caster's angle, pushed horizontally, then left to roll -- plus the two things the old cast
+// could not do: SetupSpellActor stamps the spell identity its damagers now read back, and the
+// lifetime comes off SPELLVAL_DURATION instead of the actor's hardcoded ReactionTime.
+// Righteous Fire. A toggle, like Immolation: the press that switches it OFF is answered by
+// TryCastSpell and never reaches here, so there is nothing to guard against.
+void CastRighteousFire(int pnum) {
+	SetSpellRunning(pnum, SPL_RIGHTEOUSFIRE, true);
+	ACS_NamedExecuteAlways("DnD Righteous Fire Tick", 0, pnum);
+}
+
+void CastMoltenBoulder(int pnum) {
+	int caster = pnum + P_TIDSTART;
+	int tid = TEMPORARY_SPELL_TID + pnum;
+	int a = GetActorAngle(caster);
+
+	// Byte angle for SpawnForced, as everywhere else that spawns by hand.
+	if(!SpawnForced("Spell_MoltenBoulder", GetActorX(caster), GetActorY(caster),
+		GetActorCeilingZ(caster) - DND_MOLTENBOULDER_DROP, tid, a >> 8))
+		return;
+
+	SetupSpellActor(tid, pnum, SPL_MOLTENBOULDER_S);
+
+	// A_CountDown runs about once a tic across the boulder's loops, so the tic count IS the countdown.
+	int tics = GetSpellDurationTics(pnum, SPL_MOLTENBOULDER_S);
+	if(SpellThresholdMet(pnum, SPL_MOLTENBOULDER_S, DND_SPELL_THRESH_LOW))
+		tics += DND_MOLTENBOULDER_R5_BONUS;
+
+	// At least one, so a zeroed row still produces a boulder rather than one that dies on spawn.
+	SetActorProperty(tid, APROP_REACTIONTIME, Max(1, tics));
+
+	SetActorVelocity(tid, DND_MOLTENBOULDER_SPEED * cos(a), DND_MOLTENBOULDER_SPEED * sin(a), 0,
+		false, false);
+	Thing_ChangeTID(tid, 0);
+}
+
 void CastInfernalStrike(int pnum) {
 	SetActorInventory(pnum + P_TIDSTART, "DnD_InfernalStrikeRank",
 		GetSpellRank(pnum, SPL_INFERNALSTRIKE, true));
@@ -1348,6 +1417,15 @@ Script "DnD Heat Shield Retaliate" (int pnum, int attacker) {
 // Effects for the new spell system. TryCastSpell has already checked the gates, spent the mana and
 // started the cooldown by the time this runs -- this script only produces the effect.
 Script "DnD Spell Cast" (int spell, int pnum) {
+	// Monsters wake to a hostile cast the way they wake to a gunshot. At the START of the cast, not
+	// when the effect lands, so a long cast bar cannot be used to open on a sleeping room for free
+	// -- Molten Boulder would otherwise get 2.5 seconds of silence before anything noticed.
+	//
+	// MonsterWaker is a CustomInventory whose Pickup runs A_AlertMonsters through whoever holds it,
+	// so it needs a live carrier; the caster is one by definition at this point.
+	if(IsHostileSpell(spell))
+		GiveActorInventory(pnum + P_TIDSTART, "MonsterWaker", 1);
+
 	// The cast time is spent HERE rather than in TryCastSpell, which has already taken the mana and
 	// started the cooldown -- so a cast that is interrupted still costs, and the cooldown runs from the
 	// press rather than from the finish. The effect is what waits.
@@ -1443,6 +1521,14 @@ Script "DnD Spell Cast" (int spell, int pnum) {
 			SpawnSpellProjectile(pnum, spell, "Spell_FireJet", DND_FIREJET_SPEED);
 		break;
 
+		case SPL_RIGHTEOUSFIRE:
+			CastRighteousFire(pnum);
+		break;
+
+		case SPL_MOLTENBOULDER_S:
+			CastMoltenBoulder(pnum);
+		break;
+
 		case SPL_FLAMEPILLAR:
 			// The pillar lays its own flame down as it advances, so this only has to launch it.
 			// Rank 10 runs a parallel pair instead of one, offset sideways rather than fanned --
@@ -1473,6 +1559,10 @@ Script "DnD Spell Cast" (int spell, int pnum) {
 			ACS_NamedExecuteAlways("DnD Scorching Ray", 0, pnum);
 		break;
 
+		case SPL_ANNIHILUS:
+			ACS_NamedExecuteAlways("DnD Annihilus", 0, pnum);
+		break;
+
 		case SPL_PYROBLAST:
 			// One bolt. The rank 10 fragments are not thrown here -- the explosion spawns them from
 			// its own state, so they come off the blast rather than off the caster.
@@ -1493,6 +1583,618 @@ Script "DnD Spell Cast" (int spell, int pnum) {
 					FanOffset(i, DND_FIREBALL_SPREAD));
 		break;
 	}
+}
+
+// Molten Boulder's two blasts. Spawned from ACS for the same reason Fire Jet's sides and Flame
+// Pillar's flame are: user variables do NOT transfer on a DECORATE spawn, so an A_SpawnItemEx
+// damager carries no spell id, prices itself as spell 0 and resolves as Blaze.
+//
+// isBump picks which damager to drop; each asks the explosion setup for its own field and radius.
+// Position is the boulder's own, which is what A_SpawnItemEx with no offset gave.
+Script "DnD Molten Boulder Damage" (int isBump) {
+	int pnum = GetSpellActorOwner();
+	if(pnum == -1) {
+		SetResultValue(0);
+		Terminate;
+	}
+
+	int spell = GetUserVariable(0, "user_spellid");
+	int tid = TEMPORARY_SPELL_TID + pnum;
+
+	if(SpawnForced(isBump ? "Spell_MoltenBoulder_Bump" : "Spell_MoltenBoulder_Roll",
+		GetActorX(0), GetActorY(0), GetActorZ(0), tid, 0)) {
+		SetupSpellActor(tid, pnum, spell);
+		Thing_ChangeTID(tid, 0);
+	}
+
+	SetResultValue(0);
+}
+
+// "It shatters on a wall": one tic with no movement at all means it is wedged. The legacy
+// "DnD Boulder Hit Check" does the same job for the old boulder and gives the old token.
+Script "DnD Spell Boulder Stall" (void) {
+	int x = GetActorX(0), y = GetActorY(0), z = GetActorZ(0);
+	Delay(1);
+	if(x == GetActorX(0) && y == GetActorY(0) && z == GetActorZ(0))
+		GiveInventory("Spell_MoltenBoulderStall", 1);
+}
+
+// Rank 10's six shards, thrown by the shatter. Called unconditionally from the Death state and
+// gated HERE rather than with a state jump, so the shatter's own FX sequence keeps the exact shape
+// it had in the old file.
+//
+// Fanned evenly on the horizontal, which is what "outward" asks for; they take their own arcs from
+// there like any other Pyroblast.
+Script "DnD Molten Boulder Shards" (void) {
+	int pnum = GetSpellActorOwner();
+	if(pnum == -1) {
+		SetResultValue(0);
+		Terminate;
+	}
+
+	int spell = GetUserVariable(0, "user_spellid");
+	if(!SpellThresholdMet(pnum, spell, DND_SPELL_THRESH_HIGH)) {
+		SetResultValue(0);
+		Terminate;
+	}
+
+	int x = GetActorX(0), y = GetActorY(0), z = GetActorZ(0);
+	int tid = TEMPORARY_SPELL_TID + pnum;
+	int rank = Max(1, GetSpellRank(pnum, SPL_PYROBLAST, true));
+	int i, a;
+
+	for(i = 0; i < DND_MOLTENBOULDER_SHARDS; ++i) {
+		if(!SpawnForced("Spell_MoltenBoulder_Shard", x, y, z, tid, 0))
+			continue;
+
+		// Stamped as PYROBLAST, not as the boulder: these are Pyroblasts and are priced like them.
+		SetupSpellActor(tid, pnum, SPL_PYROBLAST);
+
+		// At the caster's own Pyroblast rank, or rank 1 if they never took it. The tree does not
+		// require Pyroblast -- this spell's only prerequisite is Flame Pillar, which has none -- and
+		// GetSpellValue returns 0 for an unallocated spell, so without the floor the rank 10 would
+		// silently do nothing for such a build.
+		SetUserVariable(tid, "user_rankat", rank);
+		SetUserVariable(tid, "user_spellrank", rank);
+
+		a = (1.0 * i) / DND_MOLTENBOULDER_SHARDS;
+		SetActorAngle(tid, a);
+		SetActorVelocity(tid, DND_MOLTENBOULDER_SHARDSPEED * cos(a),
+			DND_MOLTENBOULDER_SHARDSPEED * sin(a), 0, false, false);
+
+		// Released before the next one takes the same tid.
+		Thing_ChangeTID(tid, 0);
+	}
+
+	SetResultValue(0);
+}
+
+// Righteous Fire's burn. Modelled on "DnD Immolation Tick" -- same toggle flag, same teardown, same
+// once-a-second cadence.
+//
+// The damage is a PERCENT OF THE CASTER rather than a flat row: "50% of your health and energy
+// shield". Recomputed every second so a shield that regenerates mid burn counts, which is the whole
+// reason the spell scales with a defensive build at all.
+Script "DnD Righteous Fire Tick" (int pnum) {
+	int ptid = pnum + P_TIDSTART;
+	SetPlayerAttachment(pnum, DND_PLAYERFX_RIGHTEOUSFIRE, true);
+
+	// Looping, and paired with the StopSound in the teardown below. Started HERE rather than in
+	// CastRighteousFire so the two sit together: every way out of this script -- a toggle off, life
+	// bottoming out, death, leaving the game -- falls through to that teardown, so there is no exit
+	// that can leave the hum running.
+	PlaySound(ptid, "RighteousFire/Loop", DND_RIGHTEOUSFIRE_CHAN, 1.0, true);
+
+	int mn, v, dealt, r, dmg, self_rate, t;
+
+	// Carries the sub-tic remainder between seconds, so spreading the degen never rounds any of
+	// it away. Outside the loop deliberately.
+	int acc = 0;
+
+	// Rank 5's resistance is against THIS spell only, so it is a straight cut on the self burn rather
+	// than anything added to the player's fire resistance. Read once -- a rank cannot change mid burn.
+	int res = SpellThresholdMet(pnum, SPL_RIGHTEOUSFIRE, DND_SPELL_THRESH_LOW) ?
+		DND_RIGHTEOUSFIRE_R5_RESIST : 0;
+
+	while(true) {
+		// Three ways out, and the flag covers two: a second cast clears it, so does a teardown
+		// elsewhere. Death and leaving are tested directly.
+		if(!IsSpellRunning(pnum, SPL_RIGHTEOUSFIRE) || !PlayerInGame(pnum) || !IsActorAlive(ptid))
+			break;
+
+		r = ScalePlayerAoERadius(pnum, GetSpellValue(pnum, SPL_RIGHTEOUSFIRE, SPELLVAL_RADIUS) << 16,
+			DND_AOESRC_NONWEAPON);
+
+		// A percent of the MAXIMUM health and shield, not the current. Off current health the figure
+		// fell as the burn ate into it -- taking half of what was left every second, which is
+		// repeated halving rather than a steady degeneration, and it made the damage dealt decay
+		// along with it. Off the caps it is a flat rate for as long as the spell is up.
+		dmg = (GetSpawnHealth(false, pnum) + GetPlayerEnergyShieldCap(pnum)) *
+			GetSpellValue(pnum, SPL_RIGHTEOUSFIRE, SPELLVAL_DAMAGE) / 100;
+
+		// "20% more spell damage while it burns." Renewed each second rather than granted once, so it
+		// lasts exactly as long as the burn is actually being paid for.
+		HandlePlayerBuffAssignment(pnum, ptid, BTI_SPELL_RIGHTEOUSFIRE, 0, 0,
+			DND_RIGHTEOUSFIRE_BUFFTICS, GetSpellValue(pnum, SPL_RIGHTEOUSFIRE, SPELLVAL_DAMAGE2));
+
+		// Rank 10: cannot be chilled, frozen or ignited while burning. Re-stamped every second
+		// rather than read once like res, so gear that crosses the threshold mid burn counts.
+		SetActorInventory(ptid, "DnD_RighteousFireWard",
+			SpellThresholdMet(pnum, SPL_RIGHTEOUSFIRE, DND_SPELL_THRESH_HIGH));
+
+		for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
+			v = UsedMonsterTIDs[mn];
+			if(!IsActorAlive(v) || !CheckFlag(v, "SHOOTABLE"))
+				continue;
+			if(fdistance(ptid, v) > r)
+				continue;
+
+			// ISDAMAGEOVERTIME keeps the tick from rolling a crit, as Immolation's does. A periodic aura
+			// attached to the player is damage over time by nature.
+			dealt = HandleDamageDeal(ptid, v, dmg, DND_DAMAGETYPE_FIRE, SPL_RIGHTEOUSFIRE,
+				DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISRADIUSDMG | DND_DAMAGEFLAG_ISDAMAGEOVERTIME,
+				0, 0, 0, 0, true);
+			if(dealt > 0)
+				Thing_Damage2(v, dealt, "SkipHandle");
+		}
+
+		// And it burns the caster -- as DEGENERATION, not as damage. Righteous Fire is not the player
+		// hurting themselves; it fights their regeneration to offset it, so nothing that triggers on
+		// being hurt may fire. DegenPlayer is what guarantees that, and why this is not a Thing_Damage2.
+		//
+		// Shield recharge is still held down for the duration, but that happens in
+		// ChargePoolInterrupted off the aura marker rather than through a hit timer here.
+		self_rate = dmg * (100 - res) / 100;
+
+		// Spread across the second rather than taken as one lump. Regeneration also lands once a
+		// second, so a lump made survival depend on which of the two happened to run first; a tic by
+		// tic drain genuinely contends with it, which is what a degeneration is meant to do.
+		for(t = 0; t < TICRATE; ++t) {
+			acc += self_rate;
+			if(acc >= TICRATE) {
+				DegenPlayer(pnum, acc / TICRATE);
+				acc %= TICRATE;
+			}
+
+			if(!PlayerInGame(pnum) || !IsActorAlive(ptid))
+				break;
+
+			// Switches itself off at one life. DegenPlayer floors there, so this is the moment the
+			// burn has taken everything it can -- holding it on past that would be a dead aura
+			// reserving a spell slot and still interrupting shield recharge for nothing.
+			if(GetActorProperty(ptid, APROP_HEALTH) <= 1) {
+				SetSpellRunning(pnum, SPL_RIGHTEOUSFIRE, false);
+				break;
+			}
+
+			Delay(const:1);
+		}
+	}
+
+	SetSpellRunning(pnum, SPL_RIGHTEOUSFIRE, false);
+	SetPlayerAttachment(pnum, DND_PLAYERFX_RIGHTEOUSFIRE, false);
+	SetActorInventory(ptid, "DnD_RighteousFireWard", 0);
+	StopSound(ptid, DND_RIGHTEOUSFIRE_CHAN);
+}
+
+// Immolation scatters its flames over this many units at the spell's BASE radius. Kept in step
+// with the fallback const of the same name in Spell_ImmolationFX.
+#define DND_IMMOLATION_SPREAD 40
+
+// How wide the emitter should throw them NOW. The flames keep the same proportion of the radius
+// that the old fixed 40 had of the base 96, so a grown radius widens the field the player stands
+// in rather than only reaching further to deal damage.
+//
+// A number rather than a scale factor, because Spell_ImmolationFX is an invisible TNT1 emitter --
+// there is no art on it for the aura spawner to grow, and DECORATE places the flames itself.
+Script "DnD Immolation Spread" (void) CLIENTSIDE {
+	// The emitter is the activator here, and the caster is its target.
+	if(!SetActivatorToTarget(0)) {
+		SetResultValue(DND_IMMOLATION_SPREAD);
+		Terminate;
+	}
+
+	int pnum = PlayerNumber();
+	int base = SpellDefs[SPL_IMMOLATION].base[SPELLVAL_RADIUS];
+	if(pnum < 0 || base <= 0) {
+		SetResultValue(DND_IMMOLATION_SPREAD);
+		Terminate;
+	}
+
+	// Built exactly like the damage radius in "DnD Immolation Tick", so the two cannot drift.
+	int r = ScalePlayerAoERadius(pnum, GetSpellValue(pnum, SPL_IMMOLATION, SPELLVAL_RADIUS) << 16,
+		DND_AOESRC_NONWEAPON) >> 16;
+
+	SetResultValue(Max(1, r * DND_IMMOLATION_SPREAD / base));
+}
+
+// ============================ Annihilus ============================
+// A charge planted at a point and grown by channelling, released as one blast. The anchor is
+// server side and held by tid for the whole channel, which is safe because BeginSpellBusy bars a
+// second spell -- nothing else of this player can claim the same scratch tid meanwhile.
+
+#define DND_ANNIHILUS_TICKRATE (TICRATE / 2)   // the 0.5s the damage is quoted on
+#define DND_ANNIHILUS_SLOW 50                  // percent movement lost while channelling
+#define DND_ANNIHILUS_BUFFTICS (TICRATE / 2)   // slow refresh window, one damage period
+#define DND_ANNIHILUS_R5_RANGE 768             // rank 5 raises the reach to this
+#define DND_ANNIHILUS_R10_PROCCHANCE 20        // rank 10, percent per charge to detonate early
+// Radius units per scale unit, MEASURED rather than taken from the aura comment that claims 64.
+//
+// flat.md3 carries four frames at escalating sizes and MODELDEF selects frame 3, whose quad is
+// +-15.62 units -- not the +-1.0 of frame 0. The lava fills 88.8% of ANNIHILS.png, so one scale
+// unit is 15.62 * 0.888 = 13.9 units of visible radius.
+//
+// The old 56.8 came from that comment and drew the charge about a quarter of its true blast.
+#define DND_ANNIHILUS_SCALEDIV 13.9
+#define DND_ANNIHILUS_FULLRADIUS 512           // units the blast reaches at FULL channel
+#define DND_ANNIHILUS_ESCALATE 30              // percent each later instance is worth over the first
+#define DND_ANNIHILUS_FXCOUNT 14               // scattered bursts at the BASE radius
+#define DND_ANNIHILUS_FXMAX 30                 // and the most a widened one may spawn
+#define DND_ANNIHILUS_HOLD (TICRATE / 2)       // how long the charge rides out its own blast
+#define DND_ANNIHILUS_FXLIFT 48.0              // how far up a burst may sit off the floor
+#define DND_ANNIHILUS_FXINNER 0.30             // bursts stay out of this share of the middle
+#define DND_ANNIHILUS_MAINEXTRA 3              // big explosions around the centre, besides it
+#define DND_ANNIHILUS_MAINRING 0.55            // how far out those sit, as a share of the radius
+#define DND_ANNIHILUS_FXBASE 96.0              // the radius the FX scales are drawn for
+
+// Doubled at rank 10, which is the whole of that threshold.
+// Rank 5 raises the reach to 768. Max rather than assignment, so a row or a modifier that already
+// reaches further is never pulled back down to it.
+int GetAnnihilusRange(int pnum) {
+	int r = GetSpellValue(pnum, SPL_ANNIHILUS, SPELLVAL_AMOUNT);
+	if(SpellThresholdMet(pnum, SPL_ANNIHILUS, DND_SPELL_THRESH_LOW))
+		r = Max(r, DND_ANNIHILUS_R5_RANGE);
+	return r;
+}
+
+// One detonation at the anchor: everything inside r takes dmg, and the blast is drawn. Shared by
+// the final explosion and by the rank 10 procs, so the two can never end up describing different
+// explosions. Self damage is NOT here -- only the final blast can hurt the caster, and only below
+// rank 5, which rank 10 implies anyway.
+void AnnihilusDetonate(int pnum, int tid, int dmg, int r) {
+	int caster = pnum + P_TIDSTART;
+	int mn, v, dealt;
+
+	// Drawn clientside. Every FX actor the blast uses is +CLIENTSIDEONLY through DnD_SpecialFX, so
+	// spawning them from here would put nothing on anyone screen -- the same reason the aura
+	// spawner is CLIENTSIDE. Packed like Rain of Fire packs its ring: radius high, floor Z low.
+	ACS_NamedExecuteAlways("DnD Annihilus Blast FX", 0, GetActorX(tid), GetActorY(tid),
+		(((r >> 16) & 0xFFFF) << 16) | ((GetActorZ(tid) >> 16) & 0xFFFF));
+
+	// Measured from the ANCHOR, which is why it is kept standing until the blast is resolved --
+	// fdistance wants two actors, and the charge is one of them.
+	for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
+		v = UsedMonsterTIDs[mn];
+		if(!IsActorAlive(v) || !CheckFlag(v, "SHOOTABLE"))
+			continue;
+		if(fdistance(tid, v) > r)
+			continue;
+
+		// Walls stop it. This loop is hand rolled rather than an A_Explode, and P_RadiusAttack does
+		// its own P_CheckSight from the bomb spot -- so every other explosion in the mod already
+		// behaves this way and this one was the exception, killing through walls.
+		//
+		// NOBLOCKALL so ML_BLOCKEVERYTHING lines do not stop it, matching the ignite proliferation
+		// check; those are usually invisible blockers that an explosion has no business respecting.
+		if(!CheckSight(tid, v, CSF_NOBLOCKALL))
+			continue;
+
+		// One hit, not a tick, so no ISDAMAGEOVERTIME -- these are allowed to crit.
+		dealt = HandleDamageDeal(caster, v, dmg, DND_DAMAGETYPE_FIRE, SPL_ANNIHILUS,
+			DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISRADIUSDMG, 0, 0, 0, 0, true);
+		if(dealt > 0)
+			Thing_Damage2(v, dealt, "SkipHandle");
+	}
+}
+
+// The blast, drawn. CLIENTSIDE because every actor it spawns is +CLIENTSIDEONLY: a server side
+// SpawnForced of one of those produces nothing on any client, which is the bug this replaced.
+//
+// Scales come off the blast radius, so a widened Annihilus reads as a bigger detonation instead of
+// the same puffs spread over more ground.
+Script "DnD Annihilus Blast FX" (int cx, int cy, int packed) CLIENTSIDE {
+	int cz = (packed & 0xFFFF) << 16;
+	int r = ((packed >> 16) & 0xFFFF) << 16;
+	if(r <= 0) {
+		SetResultValue(0);
+		Terminate;
+	}
+
+	// Square rooted on purpose. A 512 blast is over five times the base radius, and scaling each
+	// burst by that made single puffs wider than the explosion they belong to. Damped size, more
+	// of them, which is what a bigger detonation actually looks like.
+	int f = fsqrt(FixedDiv(r, DND_ANNIHILUS_FXBASE));
+	int n = Clamp_Between(FixedMul(DND_ANNIHILUS_FXCOUNT << 16, f) >> 16,
+		DND_ANNIHILUS_FXCOUNT, DND_ANNIHILUS_FXMAX);
+
+	// Paced so the whole scatter lands inside the half second the anchor lingers for, however many
+	// bursts a widened blast asked for -- a fixed rate emptied early on a small one and overran a
+	// big one.
+	int rate = Max(1, (n + DND_ANNIHILUS_HOLD - 1) / DND_ANNIHILUS_HOLD);
+
+	int tid = DND_PLAYERAURA_TID;
+	int i, a, d, bx, by, base_a;
+	str fx;
+
+	// The big ones, before the scatter so it lands on top of them rather than under. One on the
+	// centre and MAINEXTRA more pushed out around it: a single sprite in the middle of a 512 unit
+	// blast left the whole outer half with nothing large happening in it.
+	//
+	// The ring is rotated by a random amount each time, so repeat casts do not stamp the same
+	// three points on the ground.
+	base_a = random(0, 1.0);
+	for(i = 0; i <= DND_ANNIHILUS_MAINEXTRA; ++i) {
+		bx = cx;
+		by = cy;
+		if(i) {
+			a = base_a + FixedDiv((i - 1) << 16, DND_ANNIHILUS_MAINEXTRA << 16);
+			bx += FixedMul(cos(a), FixedMul(r, DND_ANNIHILUS_MAINRING));
+			by += FixedMul(sin(a), FixedMul(r, DND_ANNIHILUS_MAINRING));
+		}
+
+		if(!SpawnForced("Spell_AnnihilusMainExplosionFX", bx, by, cz, tid, 0))
+			continue;
+
+		SetActorProperty(tid, APROP_SCALEX,
+			FixedMul(GetActorProperty(tid, APROP_SCALEX), f));
+		SetActorProperty(tid, APROP_SCALEY,
+			FixedMul(GetActorProperty(tid, APROP_SCALEY), f));
+
+		// Only the centre one speaks. Four overlapping copies of the same sample is not four times
+		// as impressive, just louder. Played on the FX rather than written into the actor, so that
+		// one stays a pure visual.
+		if(!i)
+			PlaySound(tid, "Annihilus/MainExp", CHAN_AUTO);
+
+		Thing_ChangeTID(tid, 0);
+	}
+
+	for(i = 0; i < n; ++i) {
+		// Angle as a full turn in fixed point. The distance IS area corrected now -- a flat random
+		// packs most of the bursts into the middle, which reads as one clump rather than a field --
+		// and it is held out of the centre, where the main explosion already is.
+		a = random(0, 1.0);
+		d = FixedMul(r, DND_ANNIHILUS_FXINNER +
+			FixedMul(1.0 - DND_ANNIHILUS_FXINNER, fsqrt(random(0, 1.0))));
+
+		// Size only -- the four way $random on Annihilus/MiniExp supplies the audible variety.
+		switch(random(0, 2)) {
+			case 0: fx = "Spell_AnnihilusMiniExplosionFX"; break;
+			case 1: fx = "Spell_AnnihilusMiniExplosionFX2"; break;
+			default: fx = "Spell_AnnihilusMiniExplosionFX3"; break;
+		}
+
+		if(SpawnForced(fx, cx + FixedMul(cos(a), d), cy + FixedMul(sin(a), d),
+			cz + random(0, DND_ANNIHILUS_FXLIFT), tid, 0)) {
+			SetActorProperty(tid, APROP_SCALEX,
+				FixedMul(GetActorProperty(tid, APROP_SCALEX), f));
+			SetActorProperty(tid, APROP_SCALEY,
+				FixedMul(GetActorProperty(tid, APROP_SCALEY), f));
+
+			// Released before the next spawn takes the same scratch tid, with no Delay in between,
+			// so two blasts on one tic cannot collide over it.
+			Thing_ChangeTID(tid, 0);
+		}
+
+		if(!((i + 1) % rate))
+			Delay(const:1);
+	}
+
+	SetResultValue(0);
+}
+
+Script "DnD Annihilus" (int pnum) {
+	int caster = pnum + P_TIDSTART;
+	int range = GetAnnihilusRange(pnum) << 16;
+	int cx, cy, cz;
+
+	// Same two ways in as Rain of Fire: what the player is looking at, else where the aim puff hit.
+	// Traced at the SPELL's own range rather than the generic hitscan one, so the cap IS the cap.
+	int target = PickActor(caster, GetActorAngle(caster), GetActorPitch(caster),
+		range, 0, MF_SHOOTABLE, ML_BLOCKEVERYTHING, PICKAF_RETURNTID);
+
+	if(target && IsActorAlive(target)) {
+		cx = GetActorX(target);
+		cy = GetActorY(target);
+		cz = GetActorZ(target);
+	}
+	else {
+		if(!TraceSpellAim(pnum, range))
+			Terminate;
+
+		int wait = 0;
+		while(!ReadSpellAim(pnum) && wait < DND_SPELLAIM_WAIT) {
+			Delay(const:1);
+			++wait;
+		}
+
+		if(!SpellAimReady(pnum) || !PlayerInGame(pnum) || !IsActorAlive(caster))
+			Terminate;
+
+		auto aim = GetSpellAim();
+		cx = aim.x[pnum];
+		cy = aim.y[pnum];
+		cz = aim.z[pnum];
+	}
+
+	int tid = TEMPORARY_SPELL_TID + pnum;
+	if(!SpawnForced("Spell_AnnihilusAnchor", cx, cy, cz, tid, 0))
+		Terminate;
+
+	// Dropped onto the floor it was aimed at, so a charge thrown at a wall still reads as planted.
+	SetActorPosition(tid, cx, cy, GetActorFloorZ(tid), false);
+
+	// The underside. Same tid on purpose -- the scaling, the Vanish and the tid release below all
+	// address the pair as one, so a charge aimed upward is visible from beneath without this
+	// script tracking a second actor. A failure here costs the back face and nothing else.
+	SpawnForced("Spell_AnnihilusAnchorFlip", GetActorX(tid), GetActorY(tid), GetActorZ(tid), tid, 0);
+
+	BeginSpellBusy(pnum);
+
+	// The charge hum is DECORATE's: Spawn starts it on CHAN_BODY and Vanish stops it, so it lives
+	// and dies with the actor rather than needing a matching StopSound on every exit here.
+
+	// The row radius is where the blast STARTS; FULLRADIUS is where a full channel takes it. Stated
+	// as a TARGET rather than a multiplier so retuning the table row moves the floor without
+	// quietly breaking the reach the description promises.
+	//
+	// BOTH ends go through ScalePlayerAoERadius, so area of effect gear widens the whole ramp
+	// rather than only its start -- a 512 blast is 512 before area modifiers and more after.
+	int rbase = ScalePlayerAoERadius(pnum, GetSpellValue(pnum, SPL_ANNIHILUS, SPELLVAL_RADIUS) << 16,
+		DND_AOESRC_NONWEAPON);
+	int rfull = ScalePlayerAoERadius(pnum, DND_ANNIHILUS_FULLRADIUS << 16, DND_AOESRC_NONWEAPON);
+
+	// A row that already reaches further than the target keeps its own reach; this only ever grows.
+	rfull = Max(rfull, rbase);
+
+	int r = rbase;
+
+	// Instances rather than tics, so the 2.5s cap lands on exactly the number of 0.5s periods the
+	// text promises instead of on whatever the tic arithmetic rounds to.
+	int maxinst = Max(1, GetSpellDurationTics(pnum, SPL_ANNIHILUS) / DND_ANNIHILUS_TICKRATE);
+
+	// The charge grows against TICS, not against instances: five discrete jumps a second apart
+	// read as a charge that is not growing at all.
+	//
+	// maxinst - 1, not maxinst. The loop stops the moment the LAST instance lands, which is one
+	// period before the full window elapses -- counting the whole window left the ramp at 80%,
+	// so a full channel reached 429 units instead of the 512 it promises.
+	int captics = Max(1, (maxinst - 1) * DND_ANNIHILUS_TICKRATE);
+	int per = GetSpellValue(pnum, SPL_ANNIHILUS, SPELLVAL_DAMAGE);
+
+	bool held = false;
+	int t = 0, inst = 0, charge = 0, prog, weight, added, self_dmg;
+
+	while(inst < maxinst) {
+		if(!PlayerInGame(pnum) || !IsActorAlive(caster))
+			break;
+
+		// Held ends it; not yet held is forgiven until the grace window runs out. Letting go early is
+		// the "cast again to release it for less damage" the description promises.
+		if(IsChannelHeld())
+			held = true;
+		else if(held || t >= DND_CHANNEL_GRACE)
+			break;
+
+		// Billed on the same 0.5s the damage is quoted on, so cost and payoff stay in step.
+		//
+		// EVERY instance pays, including the first -- `first` is passed false rather than !t. The other
+		// channels waive it because TryCastSpell already charged at the press, but here the press buys
+		// the right to start charging and nothing more: no part of this blast is free.
+		//
+		// Later instances are worth progressively MORE in DAMAGE, so a full channel is worth holding
+		// for rather than being five identical taps.
+		//
+		// The COST stays flat at the row value -- no pct, so PayChannelTick bills exactly what the
+		// row says. That figure already grows with rank through GetSpellValue, so a rank that prices
+		// the spell at 60 pays 60 every half second rather than 50.
+		if(!(t % DND_ANNIHILUS_TICKRATE)) {
+			weight = 100 + inst * DND_ANNIHILUS_ESCALATE;
+			if(!PayChannelTick(pnum, SPL_ANNIHILUS, false))
+				break;
+
+			added = per * weight / 100;
+			charge += added;
+			++inst;
+
+			// Rank 10: each charge may go off on its own. It spends nothing -- the charge it just
+			// added stays in the pool for the final blast -- so this is free damage for holding, at
+			// whatever radius the charge has reached by now.
+			if(SpellThresholdMet(pnum, SPL_ANNIHILUS, DND_SPELL_THRESH_HIGH) &&
+				random(1, 100) <= DND_ANNIHILUS_R10_PROCCHANCE) {
+				AnnihilusDetonate(pnum, tid, ApplySpellMoreDamage(pnum, SPL_ANNIHILUS, added), r);
+			}
+		}
+
+		HandlePlayerBuffAssignment(pnum, caster, BTI_SPELL_ANNIHILUS_SLOW, 0, 0,
+			DND_ANNIHILUS_BUFFTICS, DND_ANNIHILUS_SLOW);
+
+		// The radius itself grows, and the anchor is scaled to it. Both are live every tic, so the
+		// charge visibly swells instead of sitting at one size until it goes off.
+		prog = Min(1.0, FixedDiv(t << 16, captics << 16));
+		r = rbase + FixedMul(rfull - rbase, prog);
+
+		SetActorProperty(tid, APROP_SCALEX, FixedDiv(r, DND_ANNIHILUS_SCALEDIV));
+		SetActorProperty(tid, APROP_SCALEY, FixedDiv(r, DND_ANNIHILUS_SCALEDIV));
+
+		Delay(const:1);
+		++t;
+	}
+
+	EndSpellBusy(pnum);
+
+	// Nothing was ever charged -- the channel died inside the first period. Clean up and go.
+	if(charge <= 0) {
+		Thing_Remove(tid);
+		Terminate;
+	}
+
+	charge = ApplySpellMoreDamage(pnum, SPL_ANNIHILUS, charge);
+	AnnihilusDetonate(pnum, tid, charge, r);
+
+	// "No longer harms you" at rank 5. Below it the caster is in their own blast like anything else,
+	// and at full charge that is lethal -- which is the point of standing clear.
+	//
+	// SkipHandle, with the resist applied by hand first, which is how every other ACS self damage
+	// in the mod does it. A real damage type here went through the event handler instead, and that
+	// prices player damage off a MONSTER source -- there is none, so the hit came to nothing and
+	// the spell appeared not to hurt the caster at all.
+	if(!SpellThresholdMet(pnum, SPL_ANNIHILUS, DND_SPELL_THRESH_LOW) &&
+		IsActorAlive(caster) && fdistance(tid, caster) <= r &&
+		CheckSight(tid, caster, CSF_NOBLOCKALL)) {
+		// Fire lives under the elemental resist, the same slot the Crackle self damage uses.
+		self_dmg = ApplyPlayerDamageResist(pnum, charge, DND_PRESIST_ELEM);
+		if(self_dmg > 0)
+			Thing_Damage2(caster, self_dmg, "SkipHandle");
+	}
+
+	// Handed to its own Vanish state rather than deleted: it fades through the explosions it just
+	// set off, and stops its own hum on the way. The tid goes back straight away, so a spell cast
+	// during that half second cannot land on the same scratch tid.
+	SetActorState(tid, "Vanish");
+	Thing_ChangeTID(tid, 0);
+}
+
+// The spell an aura belongs to, or -1. Only rows whose art DRAWS THE EDGE of the effect are listed,
+// because that is the art the radius is supposed to describe -- anything absent keeps the behaviour
+// it had, which is area modifiers only.
+//
+// Immolation is deliberately absent. Its damage radius scales like the others, but Spell_ImmolationFX
+// is an invisible TNT1 emitter that throws flames at a fixed 40 unit spread, so scaling it would move
+// nothing: there is no art on it to grow, and the flames are placed by DECORATE.
+int GetPlayerAttachmentSpell(int which) {
+	switch(which) {
+		case DND_PLAYERFX_ANGERAURA: return SPL_ANGER;
+		case DND_PLAYERFX_RIGHTEOUSFIRE: return SPL_RIGHTEOUSFIRE;
+	}
+	return -1;
+}
+
+// How far the spell row has grown past its base radius, as a fixed point factor for the aura art.
+// GetSpellValue already folds in rank, synergies and spell area gear; the global area modifiers
+// are applied separately by the caller, which is exactly how the damage radius is built too.
+//
+// A named script rather than a function because the caller lives in DnD_Attachments.h, which
+// expands before the spell headers -- a script name resolves at runtime, so the order stops
+// mattering. CLIENTSIDE to match that caller.
+Script "DnD Aura Radius Factor" (int which) CLIENTSIDE {
+	int pnum = PlayerNumber();
+	int spell = GetPlayerAttachmentSpell(which);
+	if(pnum < 0 || spell == -1) {
+		SetResultValue(1.0);
+		Terminate;
+	}
+
+	int base = SpellDefs[spell].base[SPELLVAL_RADIUS];
+	int cur = GetSpellValue(pnum, spell, SPELLVAL_RADIUS);
+
+	// An unranked or radiusless row leaves the art exactly as DECORATE declared it.
+	if(base <= 0 || cur <= 0) {
+		SetResultValue(1.0);
+		Terminate;
+	}
+
+	SetResultValue((cur << 16) / base);
 }
 
 #endif

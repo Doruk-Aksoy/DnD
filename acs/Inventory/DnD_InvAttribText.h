@@ -187,6 +187,31 @@ str GetInventoryAttributeText(int attr) {
 	return StrParam(s:"IATTR_TX", d:UNIQUE_MAP_MACRO(attr));
 }
 
+// Hundredths as a decimal: 10 reads 0.10, 250 reads 2.50.
+//
+// Mana regen is stored in hundredths end to end -- the stat, the buff and the base alike, see the
+// unit note above GetPlayerManaRegen. The character sheet already divides for display; the item
+// tooltip did not, so a roll of 10 advertised itself as "+10%" when it is a tenth of a mana.
+str HundredthsText(int v) {
+	int a = abs(v);
+	return StrParam(s:v < 0 ? "-" : "", d:a / 100, s:".", d:(a / 10) % 10, d:a % 10);
+}
+
+// GetDetailedModRange, but printing the rolled band in those same hundredths. The ordinary one
+// prints the raw stat, which for this mod is the wrong unit rather than the wrong number.
+str GetDetailedModRangeHundredths(int attr, int item_type, int item_subtype, int tier) {
+	str col_tag = GetCharmString(GetModTierColourIndex(attr, item_type, tier), CHARMSTR_COLORCODE);
+	int tier_mapping = GetModTierRangeMapper(attr, tier);
+	int f = GetItemAttributeFactor(item_type, item_subtype);
+
+	return StrParam(
+		s:"\c-(",
+		s:col_tag, s:HundredthsText(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW, f)),
+		s:"\c--",
+		s:col_tag, s:HundredthsText(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH, f)), s:"\c-)"
+	);
+}
+
 str ItemAttributeString(
 	int attr, int item_type, int item_subtype, 
 	int val, int tier = 0, bool showDetailedMods = false, 
@@ -352,6 +377,19 @@ str ItemAttributeString(
 			}
 			return StrParam(s:ess_tag, s:"+", s:col_tag, d:val, s:"% ", s:ess_tag, l:text, s:col_tag, d:attr_extra, s:"% ", s:ess_tag, l:"IATTR_TE1S");
 		
+		// Flat AND fractional, which no other branch here covers: stored in hundredths of mana per
+		// second, so it is neither a percentage nor a whole number. Falling through to the default
+		// printed a 0.10/s roll as "+10%".
+		case INV_FLAT_MANAREGEN:
+			if(showDetailedMods) {
+				return StrParam(
+					s:"+", s:col_tag, s:HundredthsText(val),
+					s:GetDetailedModRangeHundredths(attr, item_type, item_subtype, tier),
+					s:no_tag, l:text, s:" - ", s:GetModTierText(attr, item_type, tier, extra)
+				);
+			}
+			return StrParam(s:"+", s:col_tag, s:HundredthsText(val), s:no_tag, l:text);
+
 		// since percentages are handled in default case, we will handle all flat value attributes under here
 		case INV_HP_INCREASE:
 		case INV_ARMOR_INCREASE:

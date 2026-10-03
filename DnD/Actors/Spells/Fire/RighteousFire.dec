@@ -1,0 +1,60 @@
+// Righteous Fire. The same shape as Anger and Immolation -- see the player attachment section in
+// acs/DnD_Attachments.h for why a player aura is carried as inventory rather than by tid.
+
+// The marker. Its PRESENCE is the aura: the tick gives it when the spell switches on and takes it
+// when it switches off, and the effect below watches it.
+Actor DnD_RighteousFireActive : DnD_Boolean {}
+
+// Rank 10's ailment ward. Kept separate from the marker above so every check site is a plain
+// inventory test: the chill and ignite gates live in DnD_Damage.h and DnD_Stat.h, and the latter
+// expands before the spell headers, so it cannot ask the spell its rank directly.
+Actor DnD_RighteousFireWard : DnD_Boolean {}
+
+// The token that raises the effect. WithResult, not Always: the former runs inline and keeps the
+// player as activator, which is the only thing the spawner has to aim the aura at.
+Actor Spell_RighteousFire_FXSpawner : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 1 ACS_NamedExecuteWithResult("DnD Spawn Player Aura", PLAYERFX_RIGHTEOUSFIRE)
+		Stop
+	}
+}
+
+// The effect. Drawn by MODELDEF.aura as "Spell_RighteousFireFX" on frame AURA K, which that entry
+// already maps to RGHTFIRE.png on flat.md3. AURA K is the ONLY frame it ever shows -- the sprite
+// lump for K does not need to exist, the same way AURA J carries Anger without one.
+//
+// Scale is MEASURED, not the 4.0 that the old "64 radius units per scale unit" note implied.
+//
+// flat.md3 holds four frames at escalating sizes and MODELDEF picks frame 3, whose quad is
+// +-15.62 units -- not the +-1.0 of frame 0. RGHTFIRE.png fills 95.7% of its texture, so one scale
+// unit is 14.95 units of visible radius, and the 256 unit base radius needs 17.13.
+//
+// At 4.0 this ring drew 60 units while the spell reached 256, about a quarter of its real
+// size. "DnD Spawn Player Aura" multiplies this by the area modifiers and the spell row growth,
+// so correcting the base corrects every rank with it.
+//
+// The base only, and deliberately so: "DnD Spawn Player Aura" multiplies this at spawn by the
+// global area modifiers AND by how far the spell row has grown past this base -- rank, the
+// Immolation synergy and spell area gear. Changing this number rescales all of that with it.
+Actor Spell_RighteousFireFX {
+	Renderstyle Add
+	Alpha 0.85
+	Scale 17.13
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOTONAUTOMAP
+	States {
+		// One tic, not zero. The actor has to survive to its first Tick for NoDelay to fire, and a
+		// zero length spawn frame that does not jump is gone before anything sees it.
+		Spawn:
+			TNT1 A 1 NoDelay A_JumpIfInTargetInventory("DnD_RighteousFireActive", 1, "Active")
+		Stop
+
+		Active:
+			AURA K 1 Bright A_Warp(AAPTR_TARGET, 0, 0, 0, 0,
+				WARPF_INTERPOLATE | WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_RighteousFireActive", 1, "Active")
+		Stop
+	}
+}

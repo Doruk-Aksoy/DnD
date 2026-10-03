@@ -2349,6 +2349,11 @@ int GetPlayerElementalAvoidChance(int pnum, int avoid_id) {
 	if(avoid_id == DND_PAVOID_IGNITE && HasPlayerFlag(pnum, PFLAG_CANNOTBEIGNITED))
 		return 100;
 
+	// Righteous Fire rank 10, answered here for the reason Cinderstep is: this gate is exactly
+	// "can the player be ignited", so the stat page reads 100% while the burn is up.
+	if(avoid_id == DND_PAVOID_IGNITE && CheckActorInventory(ptid, "DnD_RighteousFireWard"))
+		return 100;
+
 	// was + RISK_AVERSION_VALUE per RiskAversion point
 	return PlayerModData[pnum].vals[PSTAT_AVOID_BASE + avoid_id] + PlayerModData[pnum].vals[PSTAT_AVOID_ELEALL];
 }

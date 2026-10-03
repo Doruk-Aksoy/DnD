@@ -76,7 +76,7 @@ void InitSpellDefs() {
 	SPELL_REQ(0, SPL_BLAZE, 2);
 	SPELL_REQ(1, SPL_FIREBALL, 2);
 
-	SPELL_DEF(SPL_WARMTH, DND_SKILLTREE_FIRE, 8, SPLF_REQ_ANY, 5, 1);
+	SPELL_DEF(SPL_WARMTH, DND_SKILLTREE_FIRE, 8, SPLF_REQ_ANY | SPLF_SUPPORT, 5, 1);
 	SPELL_VAL(SPELLVAL_DAMAGE,		50,		10);	// percent mana regen
 	SPELL_VAL(SPELLVAL_DAMAGE2,		0,		0.25);	// flat mana regen per rank
 	SPELL_VAL(SPELLVAL_COST,		10.0,	1.0);
@@ -87,7 +87,7 @@ void InitSpellDefs() {
 	SPELL_REQ(0, SPL_BLAZE, 4);
 	SPELL_REQ(1, SPL_FIREBALL, 4);
 
-	SPELL_DEF(SPL_HEATSHIELD, DND_SKILLTREE_FIRE, 16, SPLF_TARGETED | SPLF_ALLYTARGET, 7, 2);
+	SPELL_DEF(SPL_HEATSHIELD, DND_SKILLTREE_FIRE, 16, SPLF_TARGETED | SPLF_ALLYTARGET | SPLF_SUPPORT, 7, 2);
 	SPELL_VAL(SPELLVAL_DAMAGE,		100,	25);	// armor rating granted
 	SPELL_VAL(SPELLVAL_COST,		10.0,	2.0);
 	SPELL_VAL(SPELLVAL_COOLDOWN,	3.0,	0);
@@ -101,7 +101,7 @@ void InitSpellDefs() {
 	SPELL_VAL(SPELLVAL_RADIUS,		128,	0);
 	SPELL_REQ(0, SPL_WARMTH, 3);
 
-	SPELL_DEF(SPL_BOILINGBLOOD, DND_SKILLTREE_FIRE, 24, SPLF_REQ_ANY, 5, 3);
+	SPELL_DEF(SPL_BOILINGBLOOD, DND_SKILLTREE_FIRE, 24, SPLF_REQ_ANY | SPLF_SUPPORT, 5, 3);
 	SPELL_VAL(SPELLVAL_DAMAGE,		25,		1);		// percent move speed
 	SPELL_VAL(SPELLVAL_DAMAGE2,		5,		1);		// health lost per second -- this spell's whole cost
 	SPELL_DRAIN(SPELLVAL_DAMAGE2);
@@ -112,7 +112,7 @@ void InitSpellDefs() {
 	SPELL_REQ(1, SPL_FIREJET, 1);
 	SPELL_REQ(2, SPL_HEATSHIELD, 1);
 
-	SPELL_DEF(SPL_ANGER, DND_SKILLTREE_FIRE, 24, SPLF_PASSIVE | SPLF_AURA | SPLF_RESERVES | SPLF_REQ_ANY, 6, 3);
+	SPELL_DEF(SPL_ANGER, DND_SKILLTREE_FIRE, 24, SPLF_PASSIVE | SPLF_AURA | SPLF_RESERVES | SPLF_REQ_ANY | SPLF_SUPPORT, 6, 3);
 	SPELL_VAL(SPELLVAL_DAMAGE,		15.0,	1.0);	// more fire damage
 	SPELL_VAL(SPELLVAL_DAMAGE2,		10,		0);		// base ignite chance
 	SPELL_VAL(SPELLVAL_COST,		30.0,	0);		// reservation percent
@@ -224,9 +224,10 @@ void InitSpellDefs() {
 	SPELL_DEF(SPL_MOLTENBOULDER_S, DND_SKILLTREE_FIRE, 45, SPLF_PROJECTILE, 6, 5);
 	SPELL_VAL(SPELLVAL_DAMAGE,		24,		6);		// travel
 	SPELL_VAL(SPELLVAL_DAMAGE2,		256,	48);	// impact
+	SPELL_VAL(SPELLVAL_RADIUS,		96,		0);		// roll blast; the impact one is 200% of this
 	SPELL_VAL(SPELLVAL_COST,		60.0,	4.0);
-	SPELL_VAL(SPELLVAL_COOLDOWN,	25.0,	0);
-	SPELL_VAL(SPELLVAL_CASTTIME,	4.0,	0);
+	SPELL_VAL(SPELLVAL_COOLDOWN,	35.0,	0);
+	SPELL_VAL(SPELLVAL_CASTTIME,	2.5,	0);
 	SPELL_VAL(SPELLVAL_DURATION,	6.0,	0);
 	SPELL_SCALE(SPELLVAL_DAMAGE);
 	SPELL_SCALE(SPELLVAL_DAMAGE2);
@@ -239,7 +240,7 @@ void InitSpellDefs() {
 	SPELL_VAL(SPELLVAL_DAMAGE,		50,		2);		// percent of health and shield
 	SPELL_VAL(SPELLVAL_DAMAGE2,		20,		0);		// percent more spell damage
 	SPELL_VAL(SPELLVAL_COOLDOWN,	1.0,	0);
-	SPELL_VAL(SPELLVAL_RADIUS,		128,	8);
+	SPELL_VAL(SPELLVAL_RADIUS,		256,	16);	// Spell_RighteousFireFX Scale tracks the BASE
 	SPELL_REQ(0, SPL_FLAMEPILLAR, 2);
 	SPELL_SYN(SPL_RIGHTEOUSFIRE, SPL_IMMOLATION, SPELLVAL_RADIUS, 8, SYNF_FLAT);
 
@@ -255,9 +256,14 @@ void InitSpellDefs() {
 	SPELL_REQ(0, SPL_MOLTENBOULDER_S, 4);
 	SPELL_SYN(SPL_ANNIHILUS, SPL_MOLTENBOULDER_S, SPELLVAL_CASTTIME, 5.0, SYNF_MORE);
 
+	// Area of effect, which for a spell IS the radius field: GetSpellValue applies PSTAT_SPELL_AOE
+	// to SPELLVAL_RADIUS linearly, so a percent here means the same thing spell area gear means.
+	// It rides the whole ramp, since the blast lerps from this row toward FULLRADIUS.
+	SPELL_SYN(SPL_ANNIHILUS, SPL_RIGHTEOUSFIRE, SPELLVAL_RADIUS, 10.0, SYNF_MORE);
+
 	// Centred on the last row between Volcano and Annihilus. RESERVES, so it holds mana for as long
 	// as it is switched on, and PASSIVE, so it never reaches the hotbar and can be toggled.
-	SPELL_DEF(SPL_HEARTOFFIRE, DND_SKILLTREE_FIRE, 45, SPLF_PASSIVE | SPLF_RESERVES, 4, 6);
+	SPELL_DEF(SPL_HEARTOFFIRE, DND_SKILLTREE_FIRE, 45, SPLF_PASSIVE | SPLF_RESERVES | SPLF_SUPPORT, 4, 6);
 	SPELL_VAL(SPELLVAL_DAMAGE,		10.0,	0.75);	// percent of MAX cooldown removed per proc
 	SPELL_VAL(SPELLVAL_DAMAGE2,		25,		5);		// percent chance to proc
 	SPELL_VAL(SPELLVAL_COST,		20.0,	0);		// reservation percent
@@ -271,10 +277,19 @@ void InitSpellDefs() {
 	SPELL_VAL(SPELLVAL_CASTTIME,	2.0,	0);
 	SPELL_VAL(SPELLVAL_DURATION,	10.0,	0.5);
 	SPELL_VAL(SPELLVAL_RADIUS,		80,		0);
+
+	// PLACEHOLDER COUNT. Volcano is not implemented yet and nothing reads this, but the Immolation
+	// synergy below scales it, and a synergy against a zero row is silently worth nothing. 20 is
+	// one rock every half second across the 10 second duration -- retune when the spell is built.
+	SPELL_VAL(SPELLVAL_AMOUNT,		20,		0);		// rocks hurled over the duration
 	SPELL_SCALE(SPELLVAL_DAMAGE);
 	SpellDefs[id].req_tree_ranks = 20;
 	SPELL_REQ(0, SPL_IMMOLATION, 1);
 	SPELL_REQ(1, SPL_RIGHTEOUSFIRE, 1);
+
+	// Percent per rank of the source, accumulated additively and applied once -- "increased", not
+	// "more", despite the flag name. Same shape as every other non-FLAT synergy in this table.
+	SPELL_SYN(SPL_VOLCANO, SPL_IMMOLATION, SPELLVAL_AMOUNT, 10.0, SYNF_MORE);
 
 	// ============================== COLD ==============================
 
@@ -331,7 +346,7 @@ void InitSpellDefs() {
 	SPELL_SYN(SPL_CREEPINGFROST, SPL_GUSTOFFROST, SPELLVAL_AMOUNT, 3.0, SYNF_MORE);
 	SPELL_SYN(SPL_CREEPINGFROST, SPL_FREEZINGPULSE, SPELLVAL_DAMAGE2, 2.5, SYNF_MORE);
 
-	SPELL_DEF(SPL_ICESHIELD_S, DND_SKILLTREE_ICE, 12, 0, 1, 1);
+	SPELL_DEF(SPL_ICESHIELD_S, DND_SKILLTREE_ICE, 12, SPLF_SUPPORT, 1, 1);
 	SPELL_VAL(SPELLVAL_DAMAGE,		75,		25);	// health per barrier
 	SPELL_VAL(SPELLVAL_COST,		20.0,	2.0);
 	SPELL_VAL(SPELLVAL_COOLDOWN,	18.0,	0);
@@ -390,7 +405,7 @@ void InitSpellDefs() {
 	SPELL_SYN(SPL_ICEGOLEM, SPL_ICESHIELD_S, SPELLVAL_DAMAGE, 2.0, SYNF_MORE);
 	SPELL_SYN(SPL_ICEGOLEM, SPL_GUSTOFFROST, SPELLVAL_AMOUNT, 2.0, SYNF_MORE);
 
-	SPELL_DEF(SPL_HATRED, DND_SKILLTREE_ICE, 24, SPLF_PASSIVE | SPLF_AURA | SPLF_RESERVES, 4, 4);
+	SPELL_DEF(SPL_HATRED, DND_SKILLTREE_ICE, 24, SPLF_PASSIVE | SPLF_AURA | SPLF_RESERVES | SPLF_SUPPORT, 4, 4);
 	SPELL_VAL(SPELLVAL_DAMAGE,		15.0,	1.5);	// more cold damage
 	SPELL_VAL(SPELLVAL_COST,		30.0,	0);		// reservation percent
 	SPELL_VAL(SPELLVAL_RADIUS,		256,	0);
@@ -460,7 +475,7 @@ void InitSpellDefs() {
 	SPELL_SYN(SPL_GLACIALCASCADE, SPL_ICESPEAR, SPELLVAL_DAMAGE, 5.0, SYNF_MORE);
 	SPELL_SYN(SPL_GLACIALCASCADE, SPL_GLACIALSPIKE, SPELLVAL_RADIUS, 2.5, SYNF_MORE);
 
-	SPELL_DEF(SPL_SHIVERINGARMOR, DND_SKILLTREE_ICE, 46, SPLF_TARGETED, 4, 5);
+	SPELL_DEF(SPL_SHIVERINGARMOR, DND_SKILLTREE_ICE, 46, SPLF_TARGETED | SPLF_SUPPORT, 4, 5);
 	SPELL_VAL(SPELLVAL_DAMAGE,		15.0,	1.5);	// percent damage reduction
 	SPELL_VAL(SPELLVAL_DAMAGE2,		20,		0);		// percent freeze on being hit
 	SPELL_VAL(SPELLVAL_COST,		30.0,	2.5);

@@ -56,6 +56,7 @@ enum {
 	BUFF_MANAREGENFLAT,		// whole mana per second, same reader
 	BUFF_SPELLCDR,			// percent, read by GetSpellCooldownRate
 	BUFF_IGNITECHANCE,		// flat percent, read by GetPlayerIgniteChance
+	BUFF_SPELLDAMAGE,		// percent, read by "DnD Spell Damage". MORE, so use BUFF_F_MORETYPE
 
 	BUFF_TYPES_MAX
 };

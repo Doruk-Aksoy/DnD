@@ -51,9 +51,12 @@ Actor Spell_ImmolationFireFX {
 // "surrounded with fire" the spell describes and deliberately denser than Boiling Blood's spheres.
 // The consts are the knobs: rate for how many, spread for how wide, lo/hi for how tall.
 //
-// spread sits inside the spell's own 96 unit radius rather than tracking it. The damage radius grows
-// with rank; the fire is meant to read as being ON the player, not to draw the edge of the effect.
+// spread TRACKS the radius: "DnD Immolation Spread" returns it in units, keeping the same share of
+// the radius that this fallback has of the base 96, so ranking up widens the field the player is
+// standing in instead of only reaching further to deal damage. The const is the fallback for when
+// that script cannot resolve a caster, and must stay equal to DND_IMMOLATION_SPREAD.
 Actor Spell_ImmolationFX {
+    var int user_spread;
     +CLIENTSIDEONLY
     +NOINTERACTION
     +NOTONAUTOMAP
@@ -70,11 +73,15 @@ Actor Spell_ImmolationFX {
         Stop
 
         Active:
+            // Re-read every cycle rather than once, so a rank or gear change widens the field
+            // without having to toggle the spell off and on.
+            TNT1 A 0 A_SetUserVar("user_spread",
+                ACS_NamedExecuteWithResult("DnD Immolation Spread"))
             TNT1 A 4 A_Warp(AAPTR_TARGET, 0, 0, 0, 0,
                 WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
             TNT1 A 0 A_SpawnItemEx("Spell_ImmolationFireFX",
-                frandom(-spread, spread), frandom(-spread, spread), frandom(lo, hi),
-                0, 0, 0, 0, SXF_NOCHECKPOSITION)
+                frandom(-user_spread, user_spread), frandom(-user_spread, user_spread),
+                frandom(lo, hi), 0, 0, 0, 0, SXF_NOCHECKPOSITION)
             TNT1 A 0 A_JumpIfInTargetInventory("DnD_ImmolationActive", 1, "Active")
         Stop
     }

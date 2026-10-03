@@ -188,16 +188,16 @@ DND_SPLR5_17    = "Lasts 3 seconds longer.";
 DND_SPLR10_17   = "Sends six Pyroblasts outward when it shatters.";
 
 // Righteous Fire
-DND_SPLDESC18   = "Engulfs you in flame, burning everything within 128 units each second for 50% of your health and energy shield as fire damage. Grants 20% more spell damage while it burns.";
-DND_SPLPER18    = "+2% health as damage, +8 unit radius.";
+DND_SPLDESC18   = "Engulfs you in flame, burning yourself and enemies within 160 units each second for 50% of your health and energy shield as fire damage. Grants 20% more spell damage to other spells while it burns.";
+DND_SPLPER18    = "+2% health as damage, +16 unit radius.";
 DND_SPLR5_18    = "You gain 25% additional fire resistance against this spell.";
 DND_SPLR10_18   = "You cannot be chilled, frozen or ignited while burning.";
 
 // Annihilus
-DND_SPLDESC19   = "Channel to build an explosion at a location up to 512 units away, for up to 2.5 seconds, starting at 250 damage in a 96 unit radius. Cast again to release it early for less damage. You are slowed by 50% while channeling.";
+DND_SPLDESC19   = "Channel to build an explosion at a location up to 512 units away, for up to 2.5 seconds. Every 0.5 seconds adds a charge, starting at 250 damage and growing 30% each time, while the blast widens from 96 units to 512. Cast again to release it early for less damage. You are slowed by 50% while channeling.";
 DND_SPLPER19    = "";
-DND_SPLR5_19    = "No longer harms you.";
-DND_SPLR10_19   = "Maximum range doubles to 1024 units.";
+DND_SPLR5_19    = "No longer harms you, and maximum range becomes 768 units.";
+DND_SPLR10_19   = "Has a 20% chance to trigger explosions at each charge.";
 
 // Volcano
 DND_SPLDESC20   = "Conjures a volcano at a location that hurls molten rock and lava for 10 seconds, each piece dealing 40 damage in an 80 unit area.";

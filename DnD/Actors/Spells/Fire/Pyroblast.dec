@@ -18,14 +18,21 @@ Actor Spell_Pyroblast : DnD_SpellExplosive {
         SpawnStateLoop:
             T000 AB 3 Bright
         Loop
-        FinishExplosion:
-            TNT1 A 0 A_JumpIf(user_spellrank >= DND_SPELL_THRESH_HIGH, "MaxRankBlast")
+        // The threshold check belongs at the TOP of ContinueFromExplosion, not behind
+        // FinishExplosion: the base jumps straight here from DoExplosionDamage, so a check sitting
+        // in FinishExplosion was never reached and the rank 10 burst never fired.
+        //
+        // The visuals end in Goto FinishExplosion as the base contract asks, and MaxRankBlast
+        // rejoins them at BlastVisuals rather than at the top -- re-entering the top would test the
+        // threshold again and burst forever.
         ContinueFromExplosion:
+            TNT1 A 0 A_JumpIf(user_spellrank >= DND_SPELL_THRESH_HIGH, "MaxRankBlast")
+        BlastVisuals:
             T000 CDEFGH 3 Bright
-        Stop
+        Goto FinishExplosion
         MaxRankBlast:
             TNT1 A 0 ACS_NamedExecuteWithResult("DnD Pyroblast Burst")
-        Goto ContinueFromExplosion
+        Goto BlastVisuals
     }
 }
 

@@ -3,3 +3,24 @@ HardwareShader Texture H_BGLEFW   { Shader "GLDefs/Shaders/Pulse_Phasing.fp" }
 HardwareShader Texture PROMPT {
 	Shader "GLDefs/Shaders/PromptBG.fp"
 }
+
+// Righteous Fire, on the aura model skin.
+//
+// No type keyword, but the type is NOT what matters here: CheckForTexture defaults to
+// TEXMAN_TryAny, so even "Texture" would fall back past a usetype mismatch. What matters is that
+// the skin has a NAME at all -- Models/ maps to no namespace, so a lump under it is nameless and
+// this block silently does nothing. See the Path split in MODELDEF.aura.
+//
+// Speed is the one knob this side has: timer arrives at the shader already multiplied by it, so
+// every drift, swirl and flicker rate in the shader scales together off this number.
+HardwareShader RGHTFIRE {
+	Shader "GLDefs/Shaders/RighteousFire.fp"
+	Speed 1.0
+}
+
+// Annihilus. Same naming rule as RGHTFIRE: the skin lives in Graphics/ so the lump HAS a name,
+// which is the only reason this block can find it at all.
+HardwareShader ANNIHILS {
+	Shader "GLDefs/Shaders/Annihilus.fp"
+	Speed 1.0
+}

@@ -1,0 +1,34 @@
+ Actor Spell_Volcano : DnD_SpellObject {
+	Height 64
+	Radius 32
+	Mass 2048
+	DamageType "FireExp"
+	+NOCLIP
+	+INVULNERABLE
+	+SOLID
+	-SHOOTABLE
+	+DONTBLAST
+	+NOTELESTOMP
+	+DONTSPLASH
+	+FORCERADIUSDMG
+    Scale 0.05
+	ReactionTime 16    // calculated so its lifetime is 10 seconds
+    const float f = 1.25;
+    States {
+        Spawn:
+            TNT1 A 0
+            UP26 FFFFFGGGGGHHHHHAAAA 1 A_SetScale(scalex * f, scaley * f)
+        SpawnStuff:
+            // sum tics below, /35 * 10
+            UP26 E 9 Bright
+            UP26 A 35
+            UP26 BC 3
+            UP26 DB 2
+            UP26 CDBCD 1
+            UP26 A 1 A_CountDown
+        Loop
+        Death:
+            UP26 HHHHHGGGGGFFFFF 1 A_SetScale(scalex / f, scaley / f)
+        Stop
+    }
+ }

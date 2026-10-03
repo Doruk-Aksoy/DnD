@@ -142,6 +142,22 @@ Actor DnD_SpellExplosive : DnD_ExplosiveBase {
 	}
 }
 
+// Spell actors that exist as a real object in the world rather than as a projectile or an anchor.
+// Molten Boulder is the first: solid, gravity bound, and it rolls. Everything physical is the
+// derived actor's business -- this carries only the spell identity contract, which is the part
+// every spell actor needs and the part that is easy to forget.
+Actor DnD_SpellObject {
+	// 65536 is DND_DAMAGEFLAG_ISSPELL. Same literal and same reason as DnD_Spell above.
+	Stamina 65536
+
+	Species "Player"
+	+THRUSPECIES
+
+	var int user_spellid;
+	var int user_spellrank;
+	var int user_extra;
+}
+
 // Anchors that sit still and do their work over time: Immolation's ring, Frost Bomb's crystal,
 // Blizzard's storm, Volcano. NOCLIP so a spawn point inside geometry does not eject it, and
 // NOINTERACTION because the damage comes from its own script rather than from touching anything.

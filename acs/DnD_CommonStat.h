@@ -1129,6 +1129,36 @@ void GiveChargePool(int pnum, int amt) {
 		AddActorEnergyShield(pnum + P_TIDSTART, amt);
 }
 
+// The inverse of GiveHealPool: DEGENERATION, which is not the same thing as damage.
+//
+// A degen offsets regeneration rather than landing a hit, so nothing watching for the player
+// BEING HURT may fire -- no pain state, no pain sound, no damage flash, none of the on-hit hooks.
+// Thing_Damage2 with "SkipHandle" is NOT equivalent and was the first attempt here: it skips the
+// mod's own handler, but it is still real damage to the actor, so ZDoom runs pain regardless and
+// anything reading the damage tic still sees one.
+//
+// Shield first, as a hit would, then health. One health is the floor: a degen must never be the
+// thing that kills the player -- running dry is what they are meant to notice instead.
+void DegenPlayer(int pnum, int amt) {
+	if(amt <= 0)
+		return;
+
+	int ptid = pnum + P_TIDSTART;
+	int shield = CheckActorInventory(ptid, "EShieldAmount");
+	if(shield > 0) {
+		int absorbed = Min(shield, amt);
+		SetActorEnergyShield(ptid, shield - absorbed);
+		amt -= absorbed;
+	}
+
+	if(amt <= 0)
+		return;
+
+	SetActorProperty(ptid, APROP_HEALTH,
+		Max(1, GetActorProperty(ptid, APROP_HEALTH) - amt));
+}
+
+
 void SetChargePool(int pnum, int val) {
 	if(ChargeFillsHealth(pnum))
 		SetActorProperty(pnum + P_TIDSTART, APROP_HEALTH, val);
@@ -1145,7 +1175,23 @@ bool HealPoolInterrupted(int pnum) {
 }
 
 bool ChargePoolInterrupted(int pnum) {
-	if(ChargeFillsHealth(pnum))
+	bool to_health = ChargeFillsHealth(pnum);
+
+	// Righteous Fire holds the ENERGY SHIELD down for as long as it burns, the same way a hit
+	// does. Read off the aura marker rather than the spell running flag: this header loads long
+	// before the spell system, and the marker means the same thing.
+	//
+	// Skipped when the charge pool IS health -- Sanguine Covenant swaps the two, and the spell has
+	// to leave health recovery alone. That is also why its self burn uses SkipHandle: off the swap
+	// both pools watch DnD_Hit_CombatTimer, so no hit timer can stop one without the other.
+	//
+	// Here rather than at the damage site so the cannot-be-interrupted modifiers exempt it for
+	// free: CanRegenEShield and the in-progress abort in "DnD Energy Shield Regen" both bypass
+	// this function when the player carries one.
+	if(!to_health && CheckActorInventory(pnum + P_TIDSTART, "DnD_RighteousFireActive"))
+		return true;
+
+	if(to_health)
 		return CheckActorInventory(pnum + P_TIDSTART, "DnD_Hit_HealthTimer") != 0;
 	return CheckActorInventory(pnum + P_TIDSTART, "DnD_Hit_CombatTimer") != 0;
 }

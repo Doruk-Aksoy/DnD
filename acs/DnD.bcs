@@ -7480,9 +7480,10 @@ Script 68 (int x) NET {
 			//SpawnFlask(0, 0);
 			SpawnBoot(0, 0);
 			SpawnArmor(0, 0);
+			SpawnCharmWithMods_ForAll(INV_INC_MANA);
 			/*
-				pukename "DnD Spawn Unique" 518            Kineticrushers, at your feet
-				pukename "DnD Spawn Unique All" 133        Nullforce, one for every player
+				pukename "DnD Spawn Unique" 518            Kineticrushers
+				pukename "DnD Spawn Unique All" 133        Nullforce
 				pukename "DnD Spawn Unique Range" 512 519  every boot unique, inclusive
 			*/
 

@@ -57,6 +57,8 @@ enum {
     BTI_SPELL_BOILINGBLOOD_CDR,
     BTI_SPELL_ANGER,
     BTI_SPELL_ANGER_IGNITE,
+    BTI_SPELL_RIGHTEOUSFIRE,
+    BTI_SPELL_ANNIHILUS_SLOW,
 
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
@@ -614,6 +616,28 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
         // The two halves of Anger. An aura has no duration of its own -- the maintenance pass
         // refreshes it while the aura is on and lets it lapse when it goes off -- so the duration is
         // whatever that pass hands in, a little longer than its own period.
+        // Righteous Fire. MORE spell damage, so BUFF_F_MORETYPE -- "increased" would have joined
+        // the additive pile and meant something different. A general BUFF_SPELLDAMAGE rather than a
+        // spell specific hook, so an item or a perk can grant the same thing later.
+        case BTI_SPELL_RIGHTEOUSFIRE:
+            btype = BUFF_SPELLDAMAGE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect * 1.0 / 100;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Annihilus' self slow while channelling. MORE type and negative, the shape every other
+        // slow in this table uses. Refreshed by the channel rather than granted for its whole
+        // length, so it cannot outlive a channel that was cut short.
+        case BTI_SPELL_ANNIHILUS_SLOW:
+            btype = BUFF_SPEED;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = -(inc_effect * 1.0 / 100);
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
         case BTI_SPELL_ANGER:
             btype = BUFF_FIREDAMAGEDEALT;
             bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;

@@ -6090,6 +6090,11 @@ void HandlePlayerChill(int pnum, int m_id, int dmg_received, int dmg_data) {
 	if(CheckActorInventory(pnum + P_TIDSTART, "DnD_ColdImmuneTimer"))
 		return;
 
+	// Righteous Fire rank 10, beside the line above for the same reason: it is an immunity
+	// rather than a resistance, so there is no roll and no stack gained either.
+	if(CheckActorInventory(pnum + P_TIDSTART, "DnD_RighteousFireWard"))
+		return;
+
 	// PlayerHitGainedFlags carries the touch traits' contribution: our caller only ever had the
 	// attack's own type flags, so a RIMETOUCH monster's cold would be invisible here without it.
 	// Rolled once, before the ice gate, because both answers are needed in three places below and

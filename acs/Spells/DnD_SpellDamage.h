@@ -64,6 +64,30 @@ int GetSpellActorOwner() {
 // div splits the result, for a spell whose text gives a fragment of its own damage to something else
 // -- Pyroblast's rank 10 fireballs take an eighth. Applied AFTER the scale, so the fragment is an
 // eighth of what the parent would really have dealt rather than an eighth of its table row.
+// MORE spell damage, from any source granting BUFF_SPELLDAMAGE -- Righteous Fire today, an item or a
+// perk tomorrow. Multiplicative, so it is applied here rather than joining the increased pile.
+//
+// A spell OPTS IN by calling this. Spells priced through a DECORATE Damage expression get it from
+// "DnD Spell Damage" below; the ones that price themselves and call HandleDamageDeal straight have to
+// ask, which is why Scorching Ray and Immolation do and Infernal Strike deliberately does not.
+//
+// Righteous Fire is refused its OWN grant here rather than at the call sites, so no future caller can
+// reintroduce the feedback: the buff is what the burn BUYS, and its damage is already a percent of
+// the health it costs, so compounding it would hit the same pool twice.
+int ApplySpellMoreDamage(int pnum, int spell, int dmg) {
+	if(spell == SPL_RIGHTEOUSFIRE)
+		return dmg;
+
+	int more = pbuffs[pnum].buff_net_values[BUFF_SPELLDAMAGE].multiplicative;
+	if(!more || more == 1.0)
+		return dmg;
+
+	return FixedMul(dmg, more);
+}
+
+// user_rankat lets an actor price itself at a rank OTHER than the caster's live allocation.
+// Declared on the one actor that needs it, and GetUserVariable returns 0 for a class that does not
+// declare it at all, so every other spell reads 0 and keeps resolving against the live rank.
 Script "DnD Spell Damage" (int which, int flags, int div) {
 	int pnum = GetSpellActorOwner();
 	if(pnum == -1) {
@@ -74,7 +98,7 @@ Script "DnD Spell Damage" (int which, int flags, int div) {
 	// All read before the scale script runs: AdjustDamageRetrievePointers moves the activator off
 	// the spell actor and onto the caster.
 	int spell = GetUserVariable(0, "user_spellid");
-	int dmg = GetSpellValue(pnum, spell, which);
+	int dmg = GetSpellValue(pnum, spell, which, GetUserVariable(0, "user_rankat"));
 	int dtype = GetSpellDamageType(spell);
 	int cat = GetSpellDamageCategory(spell);
 
@@ -91,6 +115,9 @@ Script "DnD Spell Damage" (int which, int flags, int div) {
 	int prime = GetSpellPrimes().ends[pnum][spell];
 	if(prime && Timer() <= prime)
 		dmg = dmg * (100 + GetSpellValue(pnum, SPL_HEARTOFFIRE, SPELLVAL_AMOUNT)) / 100;
+
+	// Beside the prime for the same reason: both are MORE, so both multiply after the scale.
+	dmg = ApplySpellMoreDamage(pnum, spell, dmg);
 
 	// Never below 1: a fragment of a small hit should still be a hit, not nothing.
 	if(div > 1)
@@ -193,7 +220,17 @@ Script "DnD Flame Pillar Drop" (void) {
 // activator off the projectile and onto the caster, so anything written afterwards by activator
 // lands on the wrong actor. Radius is resolved BEFORE damage for the same reason -- it reads the
 // spell id off the activator.
-Script "DnD Spell Explosion Setup" (void) {
+// div divides the result, for a blast that is a FRACTION of the field it reads -- Molten
+// Boulder's rank 10 shards split its impact six ways. Passed to "DnD Spell Damage" as its own
+// div argument, never applied to what that returns: the return is a PACKED word carrying the
+// damage, the element and the spell id together, so dividing it corrupts all three.
+//
+// which selects the damage field, so a spell with two blasts can price each separately --
+// Molten Boulder rolls for SPELLVAL_DAMAGE and lands for SPELLVAL_DAMAGE2. radius_pct scales
+// SPELLVAL_RADIUS for the same reason. Both default to 0 because DECORATE passes 0 for the
+// arguments it omits, and 0 reads as "SPELLVAL_DAMAGE at the full radius" -- which is exactly
+// what every existing caller wants.
+Script "DnD Spell Explosion Setup" (int which, int radius_pct, int div) {
 	int pnum = GetSpellActorOwner();
 	if(pnum == -1) {
 		SetResultValue(0);
@@ -224,10 +261,14 @@ Script "DnD Spell Explosion Setup" (void) {
 		Terminate;
 	}
 
-	// "A direct hit explodes for HALF its damage."
-	int div = (spell == SPL_FIREJET) ? 2 : 0;
+	// "A direct hit explodes for HALF its damage." Only when the caller named no divisor of its
+	// own, so an explicit one always wins.
+	if(!div && spell == SPL_FIREJET)
+		div = 2;
 
 	int radius = ACS_NamedExecuteWithResult("DnD Spell Radius", SPELLVAL_RADIUS);
+	if(radius_pct > 0)
+		radius = radius * radius_pct / 100;
 
 	// The core that takes the hit at full strength, with no distance falloff. A PERCENT of the blast,
 	// not a distance -- so it is taken off the already scaled radius and tracks area modifiers for
@@ -235,11 +276,11 @@ Script "DnD Spell Explosion Setup" (void) {
 	//
 	// Zero on every spell that does not want one, and A_Explode reads a zero core as "falloff all the
 	// way in", so this costs the others nothing.
-	int full = GetSpellValue(pnum, spell, SPELLVAL_AMOUNT);
+	int full = GetSpellValue(pnum, spell, SPELLVAL_AMOUNT, GetUserVariable(0, "user_rankat"));
 	if(full > 0)
 		full = radius * Min(full, 100) / 100;
 
-	int dmg = ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE, DND_WDMG_ISRADIUSDMG, div);
+	int dmg = ACS_NamedExecuteWithResult("DnD Spell Damage", which, DND_WDMG_ISRADIUSDMG, div);
 
 	SetUserVariable(me, "user_expdmg", dmg);
 	SetUserVariable(me, "user_expradius", radius);
@@ -263,7 +304,8 @@ Script "DnD Spell Radius" (int which) {
 		Terminate;
 	}
 
-	int r = GetSpellValue(pnum, GetUserVariable(0, "user_spellid"), which);
+	int r = GetSpellValue(pnum, GetUserVariable(0, "user_spellid"), which,
+		GetUserVariable(0, "user_rankat"));
 	SetResultValue(ACS_NamedExecuteWithResult("DnD Explosion Radius Retrieve", r, 1, DND_AOESRC_NONWEAPON));
 }
 

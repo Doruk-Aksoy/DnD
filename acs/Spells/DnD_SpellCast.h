@@ -608,8 +608,8 @@ bool IsChannelHeld() {
 // Returns false when the player can no longer afford it, which is one of the two ways a channel ends
 // -- the other is letting go. Nothing is spent on the instance that fails, so running dry cannot
 // leave a negative balance.
-bool PayChannelTick(int pnum, int spell, bool first) {
-	return first || SpendSpellMana(pnum, spell);
+bool PayChannelTick(int pnum, int spell, bool first, int pct = 100) {
+	return first || SpendSpellMana(pnum, spell, pct);
 }
 
 void BeginSpellBusy(int pnum) {

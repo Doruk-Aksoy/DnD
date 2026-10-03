@@ -36,7 +36,6 @@ Actor Spell_FlamePillarDamage : DnD_Spell {
     Speed 0
     +THRUACTORS
     +NOGRAVITY
-    +PAINLESS
 
     // copied over here because inheriting explosive base isn't of much use here for this particular thing
 	var int user_expdmg;
@@ -49,7 +48,9 @@ Actor Spell_FlamePillarDamage : DnD_Spell {
             TNT1 A 0 ACS_NamedExecuteWithResult("DnD Spell Explosion Setup")
             TNT1 A 0 ACS_NamedExecuteWithResult("DnD Prep Explosion")
             TNT1 A 0 A_PlaySound("FlamePillar/Fire")
-            DGFL ABCDEFGHIJKLMNOPRSTUVW 2 Bright A_Explode(100, user_expradius, 1, 0, user_fullexpradius)
+            DGFL A 2 Bright A_Explode(100, user_expradius, 1, 0, user_fullexpradius)
+            TNT1 A 0 A_ChangeFlag("PAINLESS", 1) // make it painless after first attempt, no more tries
+            DGFL BCDEFGHIJKLMNOPRSTUVW 2 Bright A_Explode(100, user_expradius, 1, 0, user_fullexpradius)
         Stop
         Death:
             TNT1 A 1

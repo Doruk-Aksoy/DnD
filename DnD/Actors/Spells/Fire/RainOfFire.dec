@@ -12,9 +12,11 @@ Actor Spell_RainOfFire : DnD_SpellExplosive {
     // dividing it corrupts all three. div is applied after the scale, inside the packing.
     Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE, 0, 4))
     DamageType "Fire"
+    +NOCLIP
     States {
         SpawnState:
-            RW6G E 3 Bright
+            RW6G E 2 Bright
+            RW6G E 1 Bright A_ChangeFlag("NOCLIP", 0)
             TNT1 A 0 A_PlaySound("RainOfFire/Whoosh")
         SpawnStateLoop:
             RW6G FGE 3 Bright

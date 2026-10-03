@@ -192,3 +192,27 @@ FireJet/Shoot               FIREJETS
 
 FlamePillar/Fire            FLMPILF
 $limit FlamePillar/Fire 0
+
+RighteousFire/Loop          RFIRLOOP
+
+Annihilus/Loop1             SANNIXL1
+Annihilus/Loop2             SANNIXL2
+$random Annihilus/Loop { Annihilus/Loop1 Annihilus/Loop2 }
+
+Annihilus/MainExp1          SANNIEX1
+Annihilus/MainExp2          SANNIEX2
+Annihilus/MainExp3          SANNIEX3
+$random Annihilus/MainExp { Annihilus/MainExp1 Annihilus/MainExp2 Annihilus/MainExp3 }
+$limit Annihilus/MainExp1 0
+$limit Annihilus/MainExp2 0
+$limit Annihilus/MainExp3 0
+
+Annihilus/MiniExp1          SANNIX1
+Annihilus/MiniExp2          SANNIX2
+Annihilus/MiniExp3          SANNIX3
+Annihilus/MiniExp4          SANNIX4
+$random Annihilus/MiniExp { Annihilus/MiniExp1 Annihilus/MiniExp2 Annihilus/MiniExp3 Annihilus/MiniExp4 }
+$limit Annihilus/MiniExp1 0
+$limit Annihilus/MiniExp2 0
+$limit Annihilus/MiniExp3 0
+$limit Annihilus/MiniExp4 0

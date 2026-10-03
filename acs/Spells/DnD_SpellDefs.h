@@ -96,7 +96,8 @@ enum {
 	SPLF_TARGETED		= 64,		// wants a target point rather than a facing
 	SPLF_RESERVES		= 128,		// COST is a reservation percent, not a spend
 	SPLF_REQ_ANY		= 256,		// the requirement list is OR rather than AND
-	SPLF_ALLYTARGET		= 512		// soft locks onto an ally while the cast runs
+	SPLF_ALLYTARGET		= 512,		// soft locks onto an ally while the cast runs
+	SPLF_SUPPORT		= 1024		// self or ally only; nothing hostile happens when it is cast
 };
 
 #define DND_SPELL_RANKCAP 10
@@ -317,6 +318,19 @@ bool IsSpellUnlockable(int pnum, int spell, int at_rank = 1) {
 // trees are cooldown RECOVERY RATE, which is asymptotic through FinalCD = CD / (1 + rate/100).
 // rank_at previews a rank the player does not have, which is the only way the tree can show a
 // locked spell's numbers. Zero means "whatever they actually have".
+// v * pct / 100 without overflowing int32, for the curve below.
+//
+// SPELLVAL_COST and the other time fields are 16.16, so Volcano's 235 mana is already 15,400,960
+// before the curve touches it. Times a 272% rank multiplier that is 4.19 BILLION, which wraps to
+// -105,906,176 -- a cost of -17. SpendSpellMana then passes its affordability check against a
+// negative number and SUBTRACTS it, handing the caster mana for casting.
+//
+// Splitting the divide across quotient and remainder keeps the full precision of the old form and
+// never builds the product that wrapped.
+int ScaleSpellValue(int v, int pct) {
+	return (v / 100) * pct + ((v % 100) * pct) / 100;
+}
+
 int GetSpellValue(int pnum, int spell, int which, int rank_at = 0) {
 	int rank = rank_at ? rank_at : GetSpellRank(pnum, spell, true);
 	if(!rank)
@@ -327,13 +341,13 @@ int GetSpellValue(int pnum, int spell, int which, int rank_at = 0) {
 	// The compounding part of the curve. Only fields the def opted in carry it -- DAMAGE doubles
 	// as a percent or a health figure on plenty of spells, and those must stay linear.
 	if(SpellDefs[spell].scale_mask & (1 << which))
-		res = res * GetSpellRankMult(spell, rank) / 100;
+		res = ScaleSpellValue(res, GetSpellRankMult(spell, rank));
 	// Never more than one -- COST and the drain fields are kept out of scale_mask so neither can
 	// take the full damage rate.
 	else if(SpellDefs[spell].drain_mask & (1 << which))
-		res = res * GetSpellDrainMult(spell, rank) / 100;
+		res = ScaleSpellValue(res, GetSpellDrainMult(spell, rank));
 	else if(which == SPELLVAL_COST)
-		res = res * GetSpellCostMult(spell, rank) / 100;
+		res = ScaleSpellValue(res, GetSpellCostMult(spell, rank));
 
 	int i, src, more = 0;
 	for(i = 0; i < MAX_SPELL_SYNERGIES && SpellSynergies[i].target; ++i) {
@@ -360,6 +374,18 @@ int GetSpellValue(int pnum, int spell, int which, int rank_at = 0) {
 		res = res * Max(0, 100 + PlayerModData[pnum].vals[PSTAT_SPELL_DURATION]) / 100;
 
 	return res;
+}
+
+// Whether casting this is a HOSTILE ACT -- which is a wider question than whether it deals
+// damage. A curse, a slow and a summon all announce you to a room without a point of damage
+// between them.
+//
+// Hostile by DEFAULT, and a support spell opts out with SPLF_SUPPORT. That direction is the
+// deliberate one: forgetting the flag on a new buff costs a pointless alert, where the inverse
+// would let a new attack spell silently sneak up on a sleeping room. An earlier version tested
+// scale_mask instead and missed exactly the cases this was meant to catch.
+bool IsHostileSpell(int spell) {
+	return !(SpellDefs[spell].flags & SPLF_SUPPORT);
 }
 
 // Icons are positional: SPL<id> in colour, SPL<id>G greyscale for a locked tree node. The prefix
