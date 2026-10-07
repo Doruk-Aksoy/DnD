@@ -614,6 +614,74 @@ int GetActorPetCap(int tid) {
 	return BASE_PET_CAP + PlayerModData[tid - P_TIDSTART].vals[PSTAT_IMP_BONUSPETCAP];
 }
 
+// When each pet was summoned, parallel to PetMonsterProperties and indexed the same way.
+//
+// The cap evicts by AGE and nothing else records one: GivePetTID hands out the first FREE slot in
+// the player's band, so a low slot index means an early gap was reused, not an old pet.
+global int 59: PetSummonTic[DND_MAX_PETS];
+
+int GetPlayerPetSlotBase(int pnum) {
+	return DND_PETTID_BEGIN + pnum * DND_MAX_PETS_PER_PLAYER;
+}
+
+// How many live pets of this kind the player has. Reads each pet's OWN stored id rather than
+// trusting a caller, so a shared base actor cannot misreport its kind.
+int CountPlayerPetsOfKind(int pnum, int petid) {
+	int i, tid, n = 0, base = GetPlayerPetSlotBase(pnum);
+	for(i = 0; i < DND_MAX_PETS_PER_PLAYER; ++i) {
+		tid = base + i;
+		if(IsActorAlive(tid) && PetMonsterProperties[tid - DND_PETTID_BEGIN].id == petid)
+			++n;
+	}
+	return n;
+}
+
+// The longest standing live pet OF A KIND, or 0. Which one a per kind cap evicts: the oldest of
+// that kind, never an unrelated pet.
+int FindOldestPlayerPetOfKind(int pnum, int petid) {
+	int i, tid, t, best = 0, best_tic = 0;
+	int base = GetPlayerPetSlotBase(pnum);
+	for(i = 0; i < DND_MAX_PETS_PER_PLAYER; ++i) {
+		tid = base + i;
+		if(!IsActorAlive(tid) || PetMonsterProperties[tid - DND_PETTID_BEGIN].id != petid)
+			continue;
+
+		t = PetSummonTic[tid - DND_PETTID_BEGIN];
+		if(!best || t < best_tic) {
+			best = tid;
+			best_tic = t;
+		}
+	}
+	return best;
+}
+
+// The longest standing live pet, or 0. A dead slot simply fails the alive test, so this needs no
+// upkeep and cannot drift out of step with reality the way a hand maintained stack would.
+int FindOldestPlayerPet(int pnum) {
+	int i, tid, t, best = 0, best_tic = 0;
+	int base = GetPlayerPetSlotBase(pnum);
+	for(i = 0; i < DND_MAX_PETS_PER_PLAYER; ++i) {
+		tid = base + i;
+		if(!IsActorAlive(tid))
+			continue;
+
+		t = PetSummonTic[tid - DND_PETTID_BEGIN];
+		if(!best || t < best_tic) {
+			best = tid;
+			best_tic = t;
+		}
+	}
+	return best;
+}
+
+// Killed the way its own timer kills it, NOT Thing_Remove: the death states are what run the
+// summon death check, and that is what hands the cap slot back. Removing it outright would leak
+// a point of PetCounter every time.
+void UnsummonPet(int tid) {
+	if(tid && IsActorAlive(tid))
+		Thing_Damage2(tid, GetActorProperty(tid, APROP_HEALTH) * 3, "Perish");
+}
+
 bool CanActorHaveMorePets(int tid) {
 	return CheckActorInventory(tid, "PetCounter") < GetActorPetCap(tid);
 }

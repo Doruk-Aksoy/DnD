@@ -65,40 +65,7 @@ const int SPELLTHRESH_HIGH = 10;
 
 #include "Actors/Effects.dec"
 
-// Spells
-#include "Actors/Spells/SpellBase.dec"
 #include "Actors/Spells/Common.dec"
-#include "Actors/Spells/Rally.dec"
-#include "Actors/Spells/LightningSpear.dec"
-#include "Actors/Spells/MoltenBoulder.dec"
-#include "Actors/Spells/PoisonNova.dec"
-#include "Actors/Spells/IceShield.dec"
-#include "Actors/Spells/RaiseZombie.dec"
-
-// Fire Spells
-#include "Actors/Spells/Fire/Blaze.dec"
-#include "Actors/Spells/Fire/Fireball.dec"
-#include "Actors/Spells/Fire/Pyroblast.dec"
-#include "Actors/Spells/Fire/SearingBond.dec"
-#include "Actors/Spells/Fire/ScorchingRay.dec"
-#include "Actors/Spells/Fire/Incinerate.dec"
-#include "Actors/Spells/Fire/Flammability.dec"
-#include "Actors/Spells/Fire/Anger.dec"
-#include "Actors/Spells/Fire/HeatShield.dec"
-#include "Actors/Spells/Fire/BoilingBlood.dec"
-#include "Actors/Spells/Fire/Immolation.dec"
-#include "Actors/Spells/Fire/RainOfFire.dec"
-#include "Actors/Spells/Fire/FireJet.dec"
-// Empty for now -- included up front so a spell's actors go live the moment they are written.
-// A .dec with no #include is the quiet failure mode: the class simply does not exist and every
-// spawn of it fails without a word.
-#include "Actors/Spells/Fire/FlamePillar.dec"
-#include "Actors/Spells/Fire/MoltenBoulder.dec"
-#include "Actors/Spells/Fire/FireDemon.dec"
-#include "Actors/Spells/Fire/RighteousFire.dec"
-#include "Actors/Spells/Fire/Annihilus.dec"
-#include "Actors/Spells/Fire/Volcano.dec"
-#include "Actors/Spells/AllyLock.dec"
 
 #include "Actors/Hud.dec"
 #include "Actors/Puffs.dec"
@@ -141,6 +108,44 @@ const int SPELLTHRESH_HIGH = 10;
 #include "Actors/Traps/FireJets.dec"
 #include "Actors/Traps/Spikes.dec"
 #include "Actors/Traps/SpinnyBlade.dec"
+
+// Spells
+#include "Actors/Spells/SpellBase.dec"
+#include "Actors/Spells/Rally.dec"
+#include "Actors/Spells/LightningSpear.dec"
+#include "Actors/Spells/MoltenBoulder.dec"
+#include "Actors/Spells/PoisonNova.dec"
+#include "Actors/Spells/IceShield.dec"
+#include "Actors/Spells/RaiseZombie.dec"
+
+// Fire Spells
+#include "Actors/Spells/Fire/Blaze.dec"
+#include "Actors/Spells/Fire/Fireball.dec"
+#include "Actors/Spells/Fire/Pyroblast.dec"
+#include "Actors/Spells/Fire/SearingBond.dec"
+#include "Actors/Spells/Fire/ScorchingRay.dec"
+#include "Actors/Spells/Fire/Incinerate.dec"
+#include "Actors/Spells/Fire/Flammability.dec"
+#include "Actors/Spells/Fire/Anger.dec"
+#include "Actors/Spells/Fire/HeatShield.dec"
+#include "Actors/Spells/Fire/BoilingBlood.dec"
+#include "Actors/Spells/Fire/Immolation.dec"
+#include "Actors/Spells/Fire/RainOfFire.dec"
+#include "Actors/Spells/Fire/FireJet.dec"
+// Empty for now -- included up front so a spell's actors go live the moment they are written.
+// A .dec with no #include is the quiet failure mode: the class simply does not exist and every
+// spawn of it fails without a word.
+#include "Actors/Spells/Fire/FlamePillar.dec"
+#include "Actors/Spells/Fire/MoltenBoulder.dec"
+#include "Actors/Spells/Fire/FireDemon.dec"
+#include "Actors/Spells/Fire/RighteousFire.dec"
+#include "Actors/Spells/Fire/Annihilus.dec"
+#include "Actors/Spells/Fire/Volcano.dec"
+// ================= COLD =================
+#include "Actors/Spells/Cold/IceBolt.dec"
+#include "Actors/Spells/Cold/FreezingPulse.dec"
+
+#include "Actors/Spells/AllyLock.dec"
 
 #include "Actors/IncursionBase.dec"
 

@@ -453,7 +453,11 @@ void HandleSpellIndexDraw(int pnum, int boxid) {
 
 // The pocket CLIPS, so this only has to stay inside the id band: DESC starts at 900 and HEAD is at
 // 980, so forty is comfortably clear.
-#define DND_SPELLPANEL_MAXLINES 40
+// One HUD message id per line, from SPELLTREE_DESC_ID. 40 silently DROPPED every line past it,
+// which is what cut Annihilus and Molten Boulder short -- the panel scrolls, so this was never a
+// pixel limit. The next id range starts at 980 and this one at 900, so 72 is the headroom there
+// has always been, with 8 ids to spare.
+#define DND_SPELLPANEL_MAXLINES 72
 #define DND_SPELLBAR_PANEL 1		// shares the perk panel's bar; the pages are never up together
 // The pocket's right column. This is past x 480, which the cursor only reaches because the page
 // asks for DND_SPELLCURSOR_OVERREACH -- see the GetCursorPos call in the menu loop.
@@ -544,6 +548,11 @@ str TicsToSeconds(int tics) {
 // A 16.16 percent to one decimal, because 2.5% is a real value in the synergy table.
 str FixedToTenths(int v) {
 	return StrParam(d:v >> 16, s:".", d:((v * 10) >> 16) % 10);
+}
+
+// Two places, for values a tenth cannot describe -- 0.25 a rank reads as "0.2" through the above.
+str FixedToHundredths(int v) {
+	return StrParam(d:v >> 16, s:".", d:((v * 10) >> 16) % 10, d:((v * 100) >> 16) % 10);
 }
 
 // Built from the def rather than authored, so a requirement line cannot disagree with the rule that
@@ -687,9 +696,13 @@ void HandleSpellHoverPanel(int pnum, int spell) {
 
 		temp = SpellSynergies[i].source;
 		if(SpellSynergies[i].flags & SYNF_FLAT)
+			// Printed in the FIELD's unit. A flat bonus is a raw row value, and the rows are not all the
+			// same kind -- a duration one is fixed point and showed its raw 16384.
 			PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_SYNERGY", s:" - \c-", l:GetSpellNameLump(temp),
-				s:": +", d:SpellSynergies[i].per_rank, s:" ", l:GetSpellFieldLump(SpellSynergies[i].field),
-				s:" per rank"));
+				s:": +", s:IsSpellFieldFixedPoint(SpellSynergies[i].field) ?
+					FixedToHundredths(SpellSynergies[i].per_rank) :
+					StrParam(d:SpellSynergies[i].per_rank),
+				s:" ", l:GetSpellFieldLump(SpellSynergies[i].field), s:" per rank"));
 		else
 			PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_SYNERGY", s:" - \c-", l:GetSpellNameLump(temp),
 				s:": ", s:FixedToTenths(SpellSynergies[i].per_rank), s:"% more ",

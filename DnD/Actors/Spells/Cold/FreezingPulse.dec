@@ -1,0 +1,83 @@
+// Freezing Pulse. One of the five sub-projectiles the cast fans out; the crescent is the union of
+// their hitboxes, not a shape any one of them has. A Doom hitbox is an axis aligned BOX -- Radius is
+// a half WIDTH, not a circle -- so a curved wave is composed out of several boxes or not at all.
+//
+// The cast places them a step apart laterally and takes speed off each by the SQUARE of how far out
+// it sits, which is the sagitta of the arc they ride. Taking it off the speed rather than the spawn
+// point is what makes the bow deepen as the wave travels.
+//
+// RIPSONCE in Stamina plus the shared DnD_RipperId claimed below is what makes the whole fan hit a
+// given enemy exactly once. Without the shared id each piece would dedupe only against itself and an
+// enemy caught by three of them would take three hits.
+//
+// Nothing here or in ACS scans for victims: the engine's blockmap finds them, HandleRipperHit
+// dedupes them, and the freeze roll rides the cold on-hit seam in "DnD Damage Accumulate".
+Actor Spell_FreezingPulse_Part : DnD_Spell {
+	PROJECTILE
+	+RIPPER
+	+DONTBLAST
+	+NoExplodeFloor
+	+BloodlessImpact
+	+DONTSPLASH
+	+STEPMISSILE
+	// 65536 | 32768 -- ISSPELL so the packed damage word is read as a spell's, RIPSONCE so the
+	// handler refuses a second hit on a monster this ripper already touched.
+	Stamina 98304
+	MaxStepHeight 128
+	Speed 26
+	Radius 14
+	Height 20
+	Scale 1.1
+	RenderStyle Add
+	Alpha 0.85
+	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE))
+	DamageType "Ice"
+	States {
+		// One shot, ahead of the loop. The owner is already on APROP_SCORE by now, so the claim
+		// finds the id its fan shares without being handed one.
+		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Freezing Pulse Claim")
+		Wave:
+			// One tic a frame so A_CountDown spends REACTIONTIME at one a tic -- the cast sets it to
+			// the flight length in tics, and the falloff is measured on the same clock.
+			TNT1 A 1 A_CountDown
+		Loop
+		Death:
+			TNT1 A 3
+		Stop
+	}
+}
+
+
+Actor Spell_FreezingPulse : DnD_Spell {
+	PROJECTILE
+	Damage 0
+	Renderstyle Add
+	Alpha 0.95
+	Scale 2
+	SeeSound "FreezingPulse/Fire"
+	MaxStepHeight 128
+	+RIPPER
+	+DONTBLAST
+	+NoExplodeFloor
+	+BloodlessImpact
+	+DONTSPLASH
+	+STEPMISSILE
+	States {
+		SpawnState:
+			// Sized to the fan it stands in for, before a frame is drawn. One shot, ahead of the loop.
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Freezing Pulse Scale")
+		// BRIGHT. The shader finishes on rgb * color.rgb, and color is the LIT vertex colour -- in a
+		// dark sector that is near black and it crushes the whole model to nothing, leaving only the
+		// brightest texels visible as thin streaks. Every model-bearing FX actor in the mod is
+		// fullbright for this reason; see AURA K 1 Bright on Spell_RighteousFireFX.
+		Fly:
+			FPUL A 1 Bright A_CountDown
+		Loop
+		Death:
+			TNT1 A 0 A_PlaySound("FreezingPulse/End")
+		DeathLoop:
+			FPUL A 1 Bright A_FadeOut(0.1)
+		Loop
+	}
+}

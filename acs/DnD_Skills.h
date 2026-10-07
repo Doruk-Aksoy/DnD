@@ -7,6 +7,74 @@
 #include "Spells/DnD_SpellTree.h"
 #include "Spells/DnD_Spells.h"
 
+// ---- minion ability cooldowns -------------------------------------------------------------
+//
+// Held as an inventory COUNT on the minion and ticked down by a script, not as a powerup. A
+// powerup fixes its duration the moment it is given, so a cooldown recovery rate could never
+// affect one already running, and there would be nothing to read a rate off either.
+//
+// The count is in HUNDREDTHS OF A TIC. That is what lets the rate be a percentage: at 0 it steps
+// 100 a tic and lands exactly on the base length, and a +50% rate steps 150 without a slow
+// cooldown rounding away to nothing the way a per tic integer would.
+
+// MUST match the DND_MINIONCD_* enum in DnD/Actors/Spells/Fire/FireDemon.dec, in order: DECORATE
+// passes these numerically, the same contract the pet ids have.
+enum {
+	DND_MINIONCD_BURNINGGROUND
+};
+
+#define DND_MINIONCD_SCALE 100
+#define DND_FIREDEMON_GROUNDCD 245    // tics, the demon's burning ground
+
+str GetMinionCooldownItem(int which) {
+	switch(which) {
+		case DND_MINIONCD_BURNINGGROUND: return "Spell_FireDemon_BurningGround_Cooldown";
+	}
+	return "";
+}
+
+int GetMinionCooldownTics(int which) {
+	switch(which) {
+		case DND_MINIONCD_BURNINGGROUND: return DND_FIREDEMON_GROUNDCD;
+	}
+	return 0;
+}
+
+// Percent faster a minion recovers its abilities. Nothing grants it yet -- this is the seam that
+// stat arrives through, and it is a function rather than a constant so adding one is a single
+// edit here instead of a rework of the counter below.
+int GetMinionCooldownRate(int pnum) {
+	return 0;
+}
+
+// Started BY the minion, and runs on it. Gives the cooldown and then spends it.
+Script "DnD Minion Cooldown" (int which) {
+	str item = GetMinionCooldownItem(which);
+	int tics = GetMinionCooldownTics(which);
+	if(item == "" || tics <= 0)
+		Terminate;
+
+	// Set, not given: a second cast while one is still running restarts it rather than stacking two
+	// lengths together. The DECORATE side already refuses to attack while any is left, so this only
+	// matters if something else ever starts one.
+	SetInventory(item, tics * DND_MINIONCD_SCALE);
+
+	int pnum = GetActorProperty(0, APROP_MASTERTID) - P_TIDSTART;
+	int step;
+
+	while(IsAlive() && CheckInventory(item) > 0) {
+		Delay(const:1);
+
+		// Read every tic on purpose, so a rate gained or lost midway takes effect immediately --
+		// which is the whole reason this is a counter and not a powerup.
+		step = DND_MINIONCD_SCALE;
+		if(pnum >= 0 && pnum < MAXPLAYERS)
+			step += GetMinionCooldownRate(pnum);
+
+		TakeInventory(item, Max(1, step));
+	}
+}
+
 void HandleZombieRaiseOnDeath(int target) {
 	int pet_tid = target - P_TIDSTART + TEMPORARY_PET_TID;
 	int this = ActivatorTID();
@@ -44,11 +112,20 @@ void CastRandomElementalSpell() {
 	ACS_NamedExecuteAlways("DnD Cast Spell", 0, pick, 0);
 }
 
-int GetPetDamageFactor(int base, int master) {
-	base >>= 16;
-	switch(base) {
-		case MONSTER_PET_ZOMBIE:
-		return GetIntellectEffect(master - P_TIDSTART, ZOMBIE_INT_DAMAGE_FACTOR);
+// One rate for every pet. The per kind switch is gone: it keyed off the id shifted out of the
+// caller's damage argument, and every pet passes a plain number there, so every pet collected the
+// zombie's figure regardless -- a bug that was invisible while the zombie was the only pet, and
+// pointless to fix when the answer is the same for all of them anyway.
+int GetPetDamageFactor(int master) {
+	return GetIntellectEffect(master - P_TIDSTART, DND_PET_DMG_PER_INT);
+}
+
+// The summoning spell's "more minion damage", looked up by pet kind. Carried on the pet at spawn
+// so the damage scale can apply it without knowing which spell produced the thing it is scaling.
+int GetPetSpellDamageBonus(int pnum, int petid) {
+	switch(petid) {
+		case MONSTER_PET_FIREDEMON:
+		return GetSpellValue(pnum, SPL_FIREDEMON, SPELLVAL_DAMAGE2);
 	}
 	return 0;
 }

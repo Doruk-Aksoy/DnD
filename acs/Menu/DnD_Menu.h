@@ -1410,14 +1410,9 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				else
 					HudMessage(s:"\c[Y5]", l:"DND_MENU_RESEARCH"; HUDMSG_PLAIN, RPGMENULISTID - 6, -1, 97.0, 251.0, 0.0);
 				
-				// Blinks while there are points to spend, the same shape and the same colour DrawHighLightBar
-				// gives Stats and Perks -- every other spendable pool announces itself that way.
-				if(CheckInventory("SpellPoint") && !(framecounter % 2))
-					HudMessage(s:"\c[B3]", l:"DND_MENU_HEAD_SPELLS"; HUDMSG_PLAIN, RPGMENULISTID - 4, -1, 96.0, 269.0, 0.0);
-				else if(mainboxid == MAINBOX_SPELL)
-					HudMessage(s:"\c[B1]", l:"DND_MENU_HEAD_SPELLS"; HUDMSG_PLAIN, RPGMENULISTID - 4, -1, 96.0, 269.0, 0.0);
-				else
-					HudMessage(s:"\c[Y5]", l:"DND_MENU_HEAD_SPELLS"; HUDMSG_PLAIN, RPGMENULISTID - 4, -1, 96.0, 269.0, 0.0);
+				// Spells is NOT drawn here. It blinks, and a blink needs a redraw every tic -- it lives in
+				// DrawHighLightBar with Stats and Perks for that reason. Drawing it here as well would
+				// overwrite that one on every redraw frame, since both use RPGMENULISTID - 4.
 				
 				if(mainboxid == MAINBOX_HELP)
 					HudMessage(s:"\c[B1]", l:"DND_MENU_HELP"; HUDMSG_PLAIN, RPGMENULISTID - 5, -1, 96.0, 287.0, 0.0);

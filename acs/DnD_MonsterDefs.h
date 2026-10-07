@@ -673,10 +673,14 @@ enum {
 	DND_MWEIGHT_ENDMARKER = -1
 };
 
+// MUST match the DND_PET_*ID enum at the top of DnD/Actors/Pets.dec, in order: DECORATE passes
+// those values into ACS numerically. The two agreed on the zombie only because both started at
+// zero, which stops being luck the moment a second pet exists.
 enum {
-	MONSTER_PET_ZOMBIE
+	MONSTER_PET_ZOMBIE,
+	MONSTER_PET_FIREDEMON
 };
-#define MAX_PET_TYPES MONSTER_PET_ZOMBIE + 1
+#define MAX_PET_TYPES (MONSTER_PET_FIREDEMON + 1)
 
 enum {
 	DND_ZOMBIEMANID,

@@ -194,16 +194,32 @@ void SpawnResearch(int pnum, bool noRepeat = false) {
 		} while(ResearchFlags[temp].res_flags & RESF_NODROP);
 	}
 	
+	// Handed over rather than dropped. The ResearchModule_MP pickup is gone: the roll above already
+	// decided who found what, and making the player walk to an item to collect a result that was
+	// settled the moment the monster died only ever lost researches to pickups left behind.
+	//
+	// DISCOVERY only. The research still has to be bought with budget in the menu -- this replaces
+	// the pickup, not the purchase.
+	//
+	// GiveResearch writes to the ACTIVATOR and reads PlayerNumber() for its message, so each
+	// player is made the activator in turn. The old activator is whatever died here, which may
+	// have no tid at all, so it is restored only if there was one.
+	int prev = ActivatorTID();
+
 	if(GameType() != GAME_SINGLE_PLAYER) {
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			drop_rate = i + P_TIDSTART;
-			// spawn this only if this isn't already found by the player
-			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && !CheckActorResearchStatus(drop_rate, temp))
-				SpawnDrop("ResearchModule_MP", 24.0, 16, i + 1, temp, false, drop_rate);
+			// only if this isn't already found by the player
+			if(PlayerInGame(i) && IsActorAlive(drop_rate) && !CheckActorResearchStatus(drop_rate, temp) &&
+				SetActivator(drop_rate))
+				GiveResearch(temp, true);
 		}
 	}
-	else if(!CheckResearchStatus(temp)) // 1 before temp is player (0 + 1)
-		SpawnDrop("ResearchModule_MP", 24.0, 16, 1, temp, false, P_TIDSTART);
+	else if(!CheckResearchStatus(temp) && SetActivator(P_TIDSTART))
+		GiveResearch(temp, true);
+
+	if(prev)
+		SetActivator(prev);
 	
 	// input "noRepeat" as true so we don't call this again
 	//if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, X) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)

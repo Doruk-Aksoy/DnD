@@ -38,8 +38,11 @@ Actor Spell_AngerAura_FXSpawner : DnD_Activator {
 // so correcting the base corrects every rank with it.
 Actor Spell_AngerAuraFX {
     Renderstyle Add
-    Alpha 0.85
-    Scale 18.65
+    Alpha 0.5
+    // Deliberately NOT the 18.65 that would match the 256 unit radius. An aura ring is a marker,
+    // not a measurement, and at full size it read as a floor rather than an effect -- it also sat
+    // visibly off the ground, because MODELDEF Zoffset is applied in SCALED space.
+    Scale 7.0
     +CLIENTSIDEONLY
     +NOINTERACTION
     +NOTONAUTOMAP

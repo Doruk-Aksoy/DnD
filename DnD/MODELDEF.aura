@@ -158,9 +158,15 @@ Model DnD_Ultimatum_Stormcall_Tier4 {
 Model Spell_AngerAuraFX {
 	Path "Models/Auras"   
 	Model 0 "flat.md3"   
+
+	// Skin out of Graphics/, where the lump has a NAME and can therefore carry a GLDEFS shader.
+	// Same split, and the same reason, as the other shaded auras.
+	Path "Graphics/ShaderTex"
 	Skin 0 "ANGERAUR.png"
 	Scale 1.0 1.0 1.0
-	Zoffset 1
+	// Halved: this is multiplied by the actor scale, so it lifts the ring further the bigger it
+	// gets. At 1 the ring floated off the floor once the scale went up.
+	Zoffset 0.5
 	ROTATING
 	//DONTCULLBACKFACES
 	

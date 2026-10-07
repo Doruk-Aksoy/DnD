@@ -24,3 +24,17 @@ HardwareShader ANNIHILS {
 	Shader "GLDefs/Shaders/Annihilus.fp"
 	Speed 1.0
 }
+
+// Anger. Same naming rule as the rest: the skin lives under Graphics/ so the lump HAS a name.
+HardwareShader ANGERAUR {
+	Shader "GLDefs/Shaders/Anger.fp"
+	Speed 1.0
+}
+
+// Freezing Pulse. Same naming rule again. Note this one is bound to a MODEL skin rather than a
+// sprite, which works only because the lump is under Graphics/ -- a skin loaded from Models/ is
+// created with a blank name and no HardwareShader block can ever match it.
+HardwareShader FREEZPUL {
+	Shader "GLDefs/Shaders/FreezingPulse.fp"
+	Speed 1.0
+}

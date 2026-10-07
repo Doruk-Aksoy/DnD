@@ -48,6 +48,12 @@ int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1, ASPECT_4_3 };
 #define MILLION_MINUS_ONE 999999
 #define THOUSAND_MINUS_ONE 999
 
+// The research granted notice. One line, one id, fades itself out -- it is a notification rather
+// than a panel, so it needs no range and nothing has to clear it.
+#define DND_RESEARCHNOTIFY_ID 899
+#define DND_RESEARCHNOTIFY_HOLD 3.0
+#define DND_RESEARCHNOTIFY_FADE 1.0
+
 #define TIPBOX_TOPLEN 70.0
 #define TIPBOX_MIDLEN 39.0
 

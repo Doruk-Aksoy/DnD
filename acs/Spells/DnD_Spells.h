@@ -387,7 +387,7 @@ Script "DnD Scorching Ray" (int pnum) {
 
 		// Every tic, so the beam turns with the player. The second argument is how much wider than
 		// base it is right now, which the beads scale themselves by.
-		ACS_NamedExecuteAlways("DnD Scorching Ray FX", 0, GetScorchRayCutoff(pnum, len),
+		ACS_NamedExecuteAlways("DnD Scorching Ray FX", 0, GetScorchRayCutoff(pnum, len, t % DND_SCORCHRAY_TICKRATE),
 			FixedDiv(GetScorchRayWidth(pnum), DND_SCORCHRAY_BASEWIDTH));
 
 		// Damage on its own cadence, not the draw's. Written as a positive test rather than an early
@@ -416,8 +416,9 @@ Script "DnD Scorching Ray" (int pnum) {
 
 			// One hit per monster, however many rays found it.
 			// Hoisted: it does not vary per target, and the buff lookup is a global read.
-			int ray_dmg = ApplySpellMoreDamage(pnum, SPL_SCORCHINGRAY,
-				GetSpellValue(pnum, SPL_SCORCHINGRAY, SPELLVAL_DAMAGE));
+			int ray_dmg = ApplySpellIntScaling(pnum,
+				ApplySpellMoreDamage(pnum, SPL_SCORCHINGRAY,
+					GetSpellValue(pnum, SPL_SCORCHINGRAY, SPELLVAL_DAMAGE)));
 
 			for(i = 0; i < sr.count; ++i) {
 				v = sr.hit[i];
@@ -454,7 +455,7 @@ Script "DnD Scorching Ray" (int pnum) {
 // How far the beam is allowed to be DRAWN: wherever a trace that ignores actors first meets
 // geometry. Server side, like everything else here -- the Wanderer ray guesses at this by watching a
 // Spawn fail, and asking the engine is exact.
-int GetScorchRayCutoff(int pnum, int len) {
+int GetScorchRayCutoff(int pnum, int len, bool withSmoke) {
 	int caster = pnum + P_TIDSTART;
 	int puff = TEMPORARY_DATADUMMY_TID + pnum;
 	int helper = PROJECTILE_HELPER_TID + pnum;
@@ -479,8 +480,10 @@ int GetScorchRayCutoff(int pnum, int len) {
 	SetActorAngle(helper, a);
 	SetActorPitch(helper, p);
 
-	LineAttack(helper, a, p, 0, "Spell_ScorchRayMarker", "None", len - nose,
-		FHF_NORANDOMPUFFZ | FHF_NOIMPACTDECAL, puff);
+	if(!withSmoke)
+		LineAttack(helper, a, p, 0, "Spell_ScorchRayMarker", "None", len - nose, FHF_NORANDOMPUFFZ | FHF_NOIMPACTDECAL, puff);
+	else
+		LineAttack(helper, a, p, 0, "Spell_ScorchRayMarker_WithFX", "None", len - nose, FHF_NORANDOMPUFFZ | FHF_NOIMPACTDECAL, puff);
 
 	Thing_ChangeTID(helper, 0);
 
@@ -680,14 +683,19 @@ Script "DnD Immolation Tick" (int pnum) {
 
 		r = ScalePlayerAoERadius(pnum, GetSpellValue(pnum, SPL_IMMOLATION, SPELLVAL_RADIUS) << 16,
 			DND_AOESRC_NONWEAPON);
-		dmg = ApplySpellMoreDamage(pnum, SPL_IMMOLATION,
-			GetSpellValue(pnum, SPL_IMMOLATION, SPELLVAL_DAMAGE));
+		dmg = ApplySpellIntScaling(pnum, ApplySpellMoreDamage(pnum, SPL_IMMOLATION,
+			GetSpellValue(pnum, SPL_IMMOLATION, SPELLVAL_DAMAGE)));
 
 		for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
 			v = UsedMonsterTIDs[mn];
 			if(!IsActorAlive(v) || !CheckFlag(v, "SHOOTABLE"))
 				continue;
 			if(fdistance(ptid, v) > r)
+				continue;
+
+			// Walls stop it. A burning aura is not a gas: distance alone had it cooking things through
+			// the floor and in the next room, the same bug Annihilus had.
+			if(!CheckSight(ptid, v, CSF_NOBLOCKALL))
 				continue;
 
 			// ISDAMAGEOVERTIME is what stops the tick rolling a crit, the same way Blaze's burn does.
@@ -739,10 +747,13 @@ Script "DnD Boiling Blood Drain" (int pnum, int per_second, int dur) {
 		if(CheckActorInventory(ptid, "DnD_BoilingBloodEnd") != endtic)
 			Terminate;
 
-		// Never lethal: the spell is a cost, not a suicide. One health is the floor.
-		int hp = GetActorProperty(ptid, APROP_HEALTH);
-		if(hp > per_second)
-			Thing_Damage2(ptid, per_second, "SkipHandle");
+		// DegenPlayer, not Thing_Damage2. This is upkeep, not a hit: it should not roll pain, and it
+		// should not be eaten by armour on the way in -- the drain was going in as damage and not
+		// landing on health at all. Righteous Fire pays its own cost through the same primitive, and
+		// that one visibly works.
+		//
+		// Never lethal either: DegenPlayer floors at one health, which is the rule this already had.
+		DegenPlayer(pnum, per_second);
 	}
 
 	// Only the owner clears up, so a run superseded a tick before its own end cannot pull the visual
@@ -852,7 +863,8 @@ Script "DnD Blaze Burn" (int victim, int pnum, int base) {
 			//
 			// wepid -1, not the spell id: this one indexes Player_Weapon_Infos, and -1 is its "no weapon"
 			// path. That is a different argument from HandleDamageDeal's wepid, which takes the spell.
-			dmg = GetGenericDoTDamage(pnum, CheckActorInventory(victim, "DnD_BlazeDamage"), victim, -1, true);
+			dmg = ApplySpellIntScaling(pnum,
+				GetGenericDoTDamage(pnum, CheckActorInventory(victim, "DnD_BlazeDamage"), victim, -1, true));
 
 			// ISDAMAGEOVERTIME is what keeps the tick from rolling a crit -- HandleDamageDeal gates the
 			// spell crit roll on its absence, the same as the ignite, poison and bleed tics do. wep_neg
@@ -966,6 +978,10 @@ Script "DnD Incinerate Burst" (int pnum, int victim) {
 
 // Matches the actor's own Speed and the description's "advances 30 units per tic".
 #define DND_FLAMEPILLAR_SPEED 30
+
+// One pass of the pillar's SpawnState: a 4 tic frame and a 0 tic A_Countdown. Its life is counted
+// in those passes, so the duration row has to be divided by this to become a ReactionTime.
+#define DND_FLAMEPILLAR_LOOPTICS 4
 
 // Matches the old MOLTENBOULDER_BASESPEED. The boulder drops from the ceiling with this as its
 // horizontal push, then takes its velocity over from its own states.
@@ -1096,11 +1112,17 @@ Script "DnD Flammability Area FX" (int cx, int cy, int cz, int r) CLIENTSIDE {
 // the landing point. That is what makes them fall at varied angles and still all land in the area.
 #define DND_RAINOFFIRE_SPEED 40.0
 #define DND_RAINOFFIRE_R5_SPEEDUP 20        // percent, "comets fall 20% faster"
+#define DND_RAINOFFIRE_R5_MORECOMETS 15     // percent, "rains 15% more comets"
 #define DND_RAINOFFIRE_RATE 6               // tics between volleys -- mid-high over a 4 second rain
 #define DND_RAINOFFIRE_PERVOLLEY 2          // comets per volley. Density without a faster cadence.
 #define DND_RAINOFFIRE_MARKRATE (TICRATE / 2)
 #define DND_RAINOFFIRE_RISE 384.0           // how high they start when the ceiling is far away
 #define DND_RAINOFFIRE_HEADROOM 24.0        // kept clear of the ceiling so they do not spawn inside it
+// A share of every volley is aimed at an inner circle instead of the whole patch, so the fall has
+// a dense heart rather than reading as even drizzle across the ground.
+#define DND_RAINOFFIRE_COREPCT 40    // percent of comets aimed at it
+#define DND_RAINOFFIRE_COREFRAC 0.5 // its radius, as a share of the full scatter
+
 #define DND_RAINOFFIRE_SLANT 128.0          // how far to the side a comet may start from its landing point
 
 // The ring, redrawn on a timer so it lasts the rain without the markers needing a duration.
@@ -1167,8 +1189,11 @@ Script "DnD Rain Of Fire" (int pnum) {
 
 	int speed = DND_RAINOFFIRE_SPEED;
 
+	// Both halves of rank 5 hang off this, so it is asked once.
+	bool r5 = SpellThresholdMet(pnum, SPL_RAINOFFIRE, DND_SPELL_THRESH_LOW);
+
 	// "Comets fall 20% faster."
-	if(SpellThresholdMet(pnum, SPL_RAINOFFIRE, DND_SPELL_THRESH_LOW))
+	if(r5)
 		speed = speed * (100 + DND_RAINOFFIRE_R5_SPEEDUP) / 100;
 
 	// Floor and ceiling read ONCE from the middle rather than per comet: the patch is one room in
@@ -1187,7 +1212,13 @@ Script "DnD Rain Of Fire" (int pnum) {
 		roof = ground + DND_RAINOFFIRE_HEADROOM;
 
 	int tid = TEMPORARY_SPELL_TID + pnum;
-	int t, c, a, d, lx, ly, sx, sy, dx, dy, dz, len;
+	int t, c, a, d, lx, ly, sx, sy, dx, dy, dz, len, reach, n;
+
+	// Hundredths of a comet carried between volleys. "15% more" of a 2 comet volley is 0.3, which
+	// no integer volley size can express -- rolling for it would make the rank a coin flip that
+	// might never land, and raising PERVOLLEY or dropping RATE both overshoot badly at these sizes.
+	// Accumulated, the extra arrives on schedule and the rain is exactly 15% heavier.
+	int comet_acc = 0;
 
 	for(t = 0; t < dur; t += DND_RAINOFFIRE_RATE) {
 		if(!PlayerInGame(pnum))
@@ -1200,11 +1231,25 @@ Script "DnD Rain Of Fire" (int pnum) {
 
 		// A VOLLEY, not a comet. Each one rolls its own landing point and its own slant, so they come
 		// down together but never as a pair on the same line.
-		for(c = 0; c < DND_RAINOFFIRE_PERVOLLEY; ++c) {
+		n = DND_RAINOFFIRE_PERVOLLEY;
+		if(r5) {
+			comet_acc += DND_RAINOFFIRE_PERVOLLEY * DND_RAINOFFIRE_R5_MORECOMETS;
+			n += comet_acc / 100;
+			comet_acc %= 100;
+		}
+
+		for(c = 0; c < n; ++c) {
+			// Rolled per comet, not per volley: a volley that went entirely to the middle or entirely
+			// to the edge would read as two different spells taking turns.
+			reach = scatter;
+			if(random(1, 100) <= DND_RAINOFFIRE_COREPCT)
+				reach = FixedMul(scatter, DND_RAINOFFIRE_COREFRAC);
+
 			// Uniform over the disc rather than over the radius -- without the square root they bunch
-			// up in the middle and the edge of the patch stays empty.
+			// up in the middle and the edge of the patch stays empty. Applied to whichever reach was
+			// drawn, so the inner circle is evenly covered too and does not grow its own hot spot.
 			a = random(0, 1.0);
-			d = FixedMul(scatter, fsqrt(random(0, 1.0)));
+			d = FixedMul(reach, fsqrt(random(0, 1.0)));
 			lx = cx + FixedMul(cos(a), d);
 			ly = cy + FixedMul(sin(a), d);
 
@@ -1358,7 +1403,8 @@ Script "DnD Infernal Strike Hit" (int pnum, int victim) {
 
 	SetActorInventory(ptid, "DnD_InfernalStrikeRank", 0);
 
-	int dmg = GetSpellValue(pnum, SPL_INFERNALSTRIKE, SPELLVAL_DAMAGE);
+	int dmg = ApplySpellIntScaling(pnum,
+		GetSpellValue(pnum, SPL_INFERNALSTRIKE, SPELLVAL_DAMAGE));
 	int flags = DND_DAMAGEFLAG_ISSPELL;
 	int actor_flags = 0;
 
@@ -1416,6 +1462,185 @@ Script "DnD Heat Shield Retaliate" (int pnum, int attacker) {
 
 // Effects for the new spell system. TryCastSpell has already checked the gates, spent the mana and
 // started the cooldown by the time this runs -- this script only produces the effect.
+// ============================ Ice Bolt ============================
+// A plain projectile. Nothing here walks the monster list: the slow is applied by the cold on-hit
+// seam in "DnD Damage Accumulate" when the bolt damages something, and the rank 10 splash is an
+// A_Explode through the shared spell explosion machinery.
+
+#define DND_ICEBOLT_SPEED 25
+
+// The doc gives no duration. Two seconds sits in chill's own rhythm -- its stacks decay one a
+// second -- and outlasts the 1 second cast without becoming permanent on everything you touch.
+#define DND_ICEBOLT_SLOWTICS (2 * TICRATE)
+
+#define DND_ICEBOLT_R5_SLOW 75
+
+// ============================ Freezing Pulse ============================
+// A fan of ripping sub-projectiles whose boxes overlap into the crescent the spell is meant to be.
+// One actor cannot be a crescent: a Doom hitbox is an axis aligned BOX of Radius x Radius x Height,
+// so a shape is composed out of several of them or not at all.
+//
+// Laterally they sit a step apart; forward they lag by the sagitta of the arc they sit on, which is
+// quadratic in that step -- the outer pair falls back four times as far as the inner pair. The lag
+// is applied as a SPEED difference rather than a spawn offset so the bow deepens as the wave
+// travels, which is what the reference art does.
+//
+// Every sub-projectile carries the same reserved DnD_RipperId, so RIPSONCE dedupes the whole fan as
+// ONE attack. Without that an enemy caught by three of them would be hit three times.
+
+#define DND_FREEZINGPULSE_COUNT 5     // odd, so there is a centre
+#define DND_FREEZINGPULSE_SPEED 26
+
+// Off the floor, not the eyeline -- a wave that flies level from chest height just floats.
+#define DND_FREEZINGPULSE_Z 2.0
+#define DND_FREEZINGPULSE_SPACING 26.0
+
+// Speed lost per step out from the centre, squared -- this IS the arc. 1 per step means the outer
+// pair trails the centre by about four units a tic.
+#define DND_FREEZINGPULSE_LAG 1
+
+// A little outward so the fan opens as it goes. Fixed point angle, 0.006 is a bit over two degrees.
+#define DND_FREEZINGPULSE_SPREAD 0.006
+
+#define DND_FREEZINGPULSE_R5_RANGE 25   // percent further
+#define DND_FREEZINGPULSE_R10_WIDTH 25  // percent wider
+
+// GUESS: the doc states a freeze chance but no freeze length.
+#define DND_FREEZINGPULSE_FREEZETICS TICRATE
+
+// When each caster last loosed a pulse, and the id its fan shares. The tic is what the falloff is
+// measured against -- the whole fan leaves at once and travels at one speed, so time since the cast
+// is the distance it has come, and no projectile has to be asked.
+// A module& must return a reference to a STRUCT, so the cell is one.
+typedef struct {
+	int val;
+} pulse_cell_T;
+
+pulse_cell_T module& GetPulseCastTic(int pnum) {
+	static pulse_cell_T tics[MAXPLAYERS];
+	return tics[pnum];
+}
+
+pulse_cell_T module& GetPulseRipperId(int pnum) {
+	static pulse_cell_T ids[MAXPLAYERS];
+	return ids[pnum];
+}
+
+// How many tics a pulse is in the air, which is also the span its freeze chance decays over.
+// How much wider than base this cast is. ONE number, because the arcs and the model it is drawn
+// with have to agree -- the visual is a claim about where the damage is.
+//
+// Rank 10's +25% joins the ADDITIVE area pool rather than multiplying the finished width, which is
+// what ScalePlayerAoERadius exists to do: a rank that reads "increased" stacks with the player's
+// own increases instead of compounding on top of them. Asking it to scale exactly 1.0 hands back
+// the factor itself.
+int GetPulseWidthFactor(int pnum) {
+	return ScalePlayerAoERadius(pnum, 1.0, DND_AOESRC_NONWEAPON,
+		DND_FREEZINGPULSE_R10_WIDTH * SpellThresholdMet(pnum, SPL_FREEZINGPULSE, DND_SPELL_THRESH_HIGH));
+}
+
+// Set by the carrier on its first tic. The actor's scaleX drives the model's x AND y, and scaleY
+// drives its z, so one factor on both grows the wave evenly with the fan it is standing in for.
+Script "DnD Freezing Pulse Scale" (void) {
+	int pnum = GetSpellActorOwner();
+	if(pnum != -1) {
+		int f = GetPulseWidthFactor(pnum);
+
+		// MULTIPLIED into whatever the actor already carries, not assigned. The DECORATE Scale is the
+		// base size of the wave and stays the place to change it; this only applies the cast's own
+		// widening on top. Assigning would silently throw that base away.
+		SetActorProperty(0, APROP_SCALEX, FixedMul(GetActorProperty(0, APROP_SCALEX), f));
+		SetActorProperty(0, APROP_SCALEY, FixedMul(GetActorProperty(0, APROP_SCALEY), f));
+	}
+
+	SetResultValue(0);
+}
+
+int GetPulseFlightTics(int pnum) {
+	int range = GetSpellValue(pnum, SPL_FREEZINGPULSE, SPELLVAL_RADIUS);
+	if(SpellThresholdMet(pnum, SPL_FREEZINGPULSE, DND_SPELL_THRESH_LOW))
+		range = range * (100 + DND_FREEZINGPULSE_R5_RANGE) / 100;
+
+	return Max(1, range / DND_FREEZINGPULSE_SPEED);
+}
+
+// Claimed by each sub-projectile on its first tic. The owner is already on APROP_SCORE by then --
+// "DnD Projectile Checks" put it there -- so the fan finds its shared id without being handed one.
+Script "DnD Freezing Pulse Claim" (void) {
+	int pnum = GetSpellActorOwner();
+	if(pnum != -1)
+		SetInventory("DnD_RipperId", GetPulseRipperId(pnum).val + 1);
+
+	SetResultValue(0);
+}
+
+void CastFreezingPulse(int pnum) {
+	auto tic = GetPulseCastTic(pnum);
+	tic.val = Timer();
+
+	// One id for the whole fan, reserved BEFORE any of it exists so every piece claims the same one.
+	auto rid = GetPulseRipperId(pnum);
+	rid.val = ReserveRipperId();
+
+	int life = GetPulseFlightTics(pnum);
+
+	// Same factor the carrier scales its model by, so the two never drift apart.
+	int step = FixedMul(DND_FREEZINGPULSE_SPACING, GetPulseWidthFactor(pnum));
+
+	// The arcs. Spell_FreezingPulse_Part, NOT Spell_FreezingPulse: the damage lives on the invisible
+	// fan, and the named actor is the single visible carrier spawned below. Spawning the carrier
+	// here instead would stack five copies of the model and deal nothing, since it has Damage 0.
+	int k, off;
+	int mid = DND_FREEZINGPULSE_COUNT / 2;
+	for(k = 0; k < DND_FREEZINGPULSE_COUNT; ++k) {
+		off = k - mid;
+
+		// off * off is the sagitta term: the arc depth grows with the SQUARE of how far out this
+		// piece sits, which is what separates a bowed wave from a flat rank of projectiles.
+		// flat: a wave travels along the floor, so pitch is ignored and only facing is used.
+		SpawnSpellProjectile(pnum, SPL_FREEZINGPULSE, "Spell_FreezingPulse_Part",
+			DND_FREEZINGPULSE_SPEED - DND_FREEZINGPULSE_LAG * off * off,
+			0, DND_FREEZINGPULSE_SPREAD * off, step * off, life, 0, true, DND_FREEZINGPULSE_Z);
+	}
+
+	// One carrier down the middle at the centre speed, which is what wears the model. The model is
+	// itself the whole cascade, so it is spawned ONCE -- one per arc would be five cascades inside
+	// each other. It deals nothing and claims no ripper id; it only has to be in the right place.
+	SpawnSpellProjectile(pnum, SPL_FREEZINGPULSE, "Spell_FreezingPulse",
+		DND_FREEZINGPULSE_SPEED, 0, 0, 0, life, 0, true, DND_FREEZINGPULSE_Z);
+}
+
+
+// ============================ cold, on hit ============================
+// Reached from "DnD Damage Accumulate" the moment a cold SPELL damages a monster, so a spell never
+// has to go looking for who it hit. One damage instance, one call -- and RIPSONCE already makes that
+// one instance per enemy for the ripping spells.
+Script "DnD Spell Cold On Hit" (int pnum, int victim, int spell) {
+	int pct, chance, gone, span;
+
+	switch(spell) {
+		case SPL_ICEBOLT:
+			pct = SpellThresholdMet(pnum, SPL_ICEBOLT, DND_SPELL_THRESH_LOW) ?
+				DND_ICEBOLT_R5_SLOW : GetSpellValue(pnum, SPL_ICEBOLT, SPELLVAL_DAMAGE2);
+			SlowMonster(victim, pct, DND_ICEBOLT_SLOWTICS);
+		break;
+
+		case SPL_FREEZINGPULSE:
+			// Full at the muzzle, nothing at the edge. Measured in TIME since the cast: the fan leaves
+			// together and holds its speed, so this is the distance it has come without asking any
+			// projectile for its position.
+			span = GetPulseFlightTics(pnum);
+			gone = Clamp_Between(Timer() - GetPulseCastTic(pnum).val, 0, span);
+
+			chance = GetSpellValue(pnum, SPL_FREEZINGPULSE, SPELLVAL_DAMAGE2) * (span - gone) / span;
+			if(chance > 0 && random(1, 100) <= chance)
+				FreezeMonster(pnum, victim, DND_FREEZINGPULSE_FREEZETICS);
+		break;
+	}
+
+	SetResultValue(0);
+}
+
 Script "DnD Spell Cast" (int spell, int pnum) {
 	// Monsters wake to a hostile cast the way they wake to a gunshot. At the START of the cast, not
 	// when the effect lands, so a long cast bar cannot be used to open on a sleeping room for free
@@ -1464,7 +1689,7 @@ Script "DnD Spell Cast" (int spell, int pnum) {
 		// No bar to lock during -- resolve it on the spot, and no marker is ever shown.
 		SetSpellLockTarget(pnum, GetSpellAllyTarget(pnum));
 
-	int i, count, victim, temp;
+	int i, count, victim, temp, pillar_life;
 
 	// "When you finish casting a fire spell" -- after the cast time, not at the press.
 	CheckHeartOfFire(pnum, spell);
@@ -1534,13 +1759,18 @@ Script "DnD Spell Cast" (int spell, int pnum) {
 			// Rank 10 runs a parallel pair instead of one, offset sideways rather than fanned --
 			// they are meant to sweep a corridor abreast, not diverge.
 			if(SpellThresholdMet(pnum, spell, DND_SPELL_THRESH_HIGH)) {
+				// ReactionTime off the row. DECORATE had 18 frozen into it, which is 72 tics against the
+				// 70 the duration asks for -- near enough by luck, and completely deaf to the row.
+				pillar_life = Max(1, GetSpellDurationTics(pnum, spell) / DND_FLAMEPILLAR_LOOPTICS);
+
 				SpawnSpellProjectile(pnum, spell, "Spell_FlamePillar", DND_FLAMEPILLAR_SPEED, 0, 0,
-					DND_FLAMEPILLAR_SIDEOFF);
+					DND_FLAMEPILLAR_SIDEOFF, pillar_life);
 				SpawnSpellProjectile(pnum, spell, "Spell_FlamePillar", DND_FLAMEPILLAR_SPEED, 0, 0,
-					-DND_FLAMEPILLAR_SIDEOFF);
+					-DND_FLAMEPILLAR_SIDEOFF, pillar_life);
 			}
 			else
-				SpawnSpellProjectile(pnum, spell, "Spell_FlamePillar", DND_FLAMEPILLAR_SPEED);
+				SpawnSpellProjectile(pnum, spell, "Spell_FlamePillar", DND_FLAMEPILLAR_SPEED, 0, 0, 0,
+					Max(1, GetSpellDurationTics(pnum, spell) / DND_FLAMEPILLAR_LOOPTICS));
 		break;
 
 		case SPL_RAINOFFIRE:
@@ -1561,6 +1791,23 @@ Script "DnD Spell Cast" (int spell, int pnum) {
 
 		case SPL_ANNIHILUS:
 			ACS_NamedExecuteAlways("DnD Annihilus", 0, pnum);
+		break;
+
+		case SPL_VOLCANO:
+			ACS_NamedExecuteAlways("DnD Volcano", 0, pnum);
+		break;
+
+		case SPL_FIREDEMON:
+			ACS_NamedExecuteAlways("DnD Summon Fire Demon", 0, pnum);
+		break;
+
+		case SPL_ICEBOLT:
+			// Everything cold about it waits for the impact, which is where the rank is read.
+			SpawnSpellProjectile(pnum, spell, "Spell_IceBolt", DND_ICEBOLT_SPEED);
+		break;
+
+		case SPL_FREEZINGPULSE:
+			CastFreezingPulse(pnum);
 		break;
 
 		case SPL_PYROBLAST:
@@ -1685,7 +1932,7 @@ Script "DnD Righteous Fire Tick" (int pnum) {
 	// that can leave the hum running.
 	PlaySound(ptid, "RighteousFire/Loop", DND_RIGHTEOUSFIRE_CHAN, 1.0, true);
 
-	int mn, v, dealt, r, dmg, self_rate, t;
+	int mn, v, dealt, r, dmg, enemy_dmg, self_rate, t;
 
 	// Carries the sub-tic remainder between seconds, so spreading the degen never rounds any of
 	// it away. Outside the loop deliberately.
@@ -1712,6 +1959,11 @@ Script "DnD Righteous Fire Tick" (int pnum) {
 		dmg = (GetSpawnHealth(false, pnum) + GetPlayerEnergyShieldCap(pnum)) *
 			GetSpellValue(pnum, SPL_RIGHTEOUSFIRE, SPELLVAL_DAMAGE) / 100;
 
+		// Intellect scales what it BURNS, never what it costs. dmg prices both halves here, so the
+		// enemy figure is taken apart from it -- otherwise investing in the stat would quietly raise
+		// your own upkeep and the spell would get harder to hold the better you got at it.
+		enemy_dmg = ApplySpellIntScaling(pnum, dmg);
+
 		// "20% more spell damage while it burns." Renewed each second rather than granted once, so it
 		// lasts exactly as long as the burn is actually being paid for.
 		HandlePlayerBuffAssignment(pnum, ptid, BTI_SPELL_RIGHTEOUSFIRE, 0, 0,
@@ -1731,7 +1983,7 @@ Script "DnD Righteous Fire Tick" (int pnum) {
 
 			// ISDAMAGEOVERTIME keeps the tick from rolling a crit, as Immolation's does. A periodic aura
 			// attached to the player is damage over time by nature.
-			dealt = HandleDamageDeal(ptid, v, dmg, DND_DAMAGETYPE_FIRE, SPL_RIGHTEOUSFIRE,
+			dealt = HandleDamageDeal(ptid, v, enemy_dmg, DND_DAMAGETYPE_FIRE, SPL_RIGHTEOUSFIRE,
 				DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISRADIUSDMG | DND_DAMAGEFLAG_ISDAMAGEOVERTIME,
 				0, 0, 0, 0, true);
 			if(dealt > 0)
@@ -1808,6 +2060,207 @@ Script "DnD Immolation Spread" (void) CLIENTSIDE {
 	SetResultValue(Max(1, r * DND_IMMOLATION_SPREAD / base));
 }
 
+// ======================= Summon: Fire Demon =======================
+// One demon per caster, and it obeys the pet cap by EVICTING rather than refusing: a full roster
+// would otherwise make the spell silently do nothing, which reads as a broken button.
+
+#define DND_FIREDEMON_DIST 96.0    // how far in front of the caster it appears
+
+// Rank 10: the demon throws its OWNER's Fire Jet, at the rank THEY have it -- so the reward is
+// worth more the more they invested in the jet, and worth nothing if they never took it.
+//
+// Rolls and casts in one call, returning whether it fired, so the demon only needs a single jump.
+#define DND_FIREDEMON_JETCHANCE 25
+
+Script "DnD Fire Demon Jet" (void) {
+	int demon = ActivatorTID();
+	int pnum = GetActorProperty(0, APROP_MASTERTID) - P_TIDSTART;
+
+	// Both halves have to be there: the demon's own rank 10, and an actual Fire Jet to borrow.
+	if(pnum < 0 || pnum >= MAXPLAYERS ||
+		!SpellThresholdMet(pnum, SPL_FIREDEMON, DND_SPELL_THRESH_HIGH) ||
+		!GetSpellRank(pnum, SPL_FIREJET, true) ||
+		random(1, 100) > DND_FIREDEMON_JETCHANCE) {
+		SetResultValue(0);
+		Terminate;
+	}
+
+	// Launched FROM the demon, owned BY the caster: SpawnSpellProjectile stamps the caster on it, so
+	// the jet prices itself off their SPL_FIREJET row and their stats exactly as if they had cast it.
+	SpawnSpellProjectile(pnum, SPL_FIREJET, "Spell_FireJet", DND_FIREJET_SPEED, 0, 0, 0, 0, demon);
+	SetResultValue(1);
+}
+
+Script "DnD Summon Fire Demon" (int pnum) {
+	int caster = pnum + P_TIDSTART;
+
+	// How many demons may stand at once, from the row. At its current 1 this reads as "recasting
+	// replaces the one you have"; raise the row and it becomes a real roster limit with no code
+	// change. The point is that the PET cap alone would happily be filled with nothing but these.
+	int maxkind = Max(1, GetSpellValue(pnum, SPL_FIREDEMON, SPELLVAL_AMOUNT));
+
+	// The oldest DEMON makes way, not an unrelated pet, and only once the kind is actually full.
+	// Done BEFORE the global cap is consulted, so a demon never costs something else its place.
+	if(CountPlayerPetsOfKind(pnum, MONSTER_PET_FIREDEMON) >= maxkind)
+		UnsummonPet(FindOldestPlayerPetOfKind(pnum, MONSTER_PET_FIREDEMON));
+
+	// Still full, so the longest standing pet makes way. The kill runs its death states, which is
+	// what returns the PetCounter point this summon is about to take.
+	if(!CanActorHaveMorePets(caster))
+		UnsummonPet(FindOldestPlayerPet(pnum));
+
+	// In front where there is room, and around the caster where there is not.
+	int tid = TEMPORARY_PET_TID + pnum;
+	if(!SpawnSummonNear("Spell_FireDemon", caster, tid, DND_FIREDEMON_DIST))
+		Terminate;
+
+	// Dropped to the floor it actually landed over, which is not the caster's if it fanned out.
+	SetActorPosition(tid, GetActorX(tid), GetActorY(tid), GetActorFloorZ(tid), false);
+
+	// Health off the row, and it has to be written BEFORE the demon takes its first tic: "DnD Pet
+	// Monster Scale" reads APROP_HEALTH as its base there and levels up from it. Writing it here is
+	// what makes the spell's own number the one that gets scaled, rather than the 500 in DECORATE.
+	SetActorProperty(tid, APROP_HEALTH,
+		Max(1, GetSpellValue(pnum, SPL_FIREDEMON, SPELLVAL_DAMAGE)));
+
+	SetActorProperty(tid, APROP_MASTERTID, caster);
+	SetActivator(tid);
+	SetPointer(AAPTR_MASTER, caster);
+	SetActorProperty(0, APROP_FRIENDLY, true);
+
+	// No "DnD Timed Monster" call: the demon stands until something kills it. The zombie is the
+	// timed pet, and SPL_FIREDEMON carries no DURATION row to read any more either.
+	Thing_ChangeTID(tid, 0);
+
+	GiveActorInventory(caster, "PetCounter", 1);
+
+	SetActivator(caster);
+	ACS_NamedExecuteAlways("DnD On Pet Summon", 0);
+}
+
+// ============================ Volcano ============================
+// A cone planted at the aim point that erupts on a loop until its countdown runs out.
+
+#define DND_VOLCANO_LOOPTICS 43       // one pass of SpawnStuff in DECORATE, in tics
+
+// Crater height. The grow-in applies A_SetScale 19 times at 1.2125, so the cone settles at 1.95
+// and the sprite stands about 68 units. 58 is its summit.
+#define DND_VOLCANO_MOUTH 58.0
+
+// Scattered across the mouth, which is narrow: the sprite is 31 units wide at the BASE, and the
+// cone has tapered well past that by the time it reaches MOUTH.
+#define DND_VOLCANO_SPREAD 9.0
+// Horizontal throw. NOT the actor's own Speed, which nothing reads here -- the velocity is set
+// outright. Flight is about 48 tics at the default rise and gravity, so every unit here is ~48
+// units of reach: 15 threw rocks over 700 units from a cone 31 wide.
+#define DND_VOLCANO_SPEED 11.0
+#define DND_VOLCANO_SPEEDVAR 25       // percent either way
+#define DND_VOLCANO_RISE 16.0         // upward kick, which is what makes them arc rather than spray
+#define DND_VOLCANO_RISEVAR 40        // percent either way, the loosest of the three on purpose
+#define DND_VOLCANO_GRAVITY 0.666     // matches the actor's own Gravity
+#define DND_VOLCANO_GRAVVAR 30        // percent either way, so they do not all land together
+
+// v, give or take pct percent. Fixed point in and out.
+int VaryFixedByPercent(int v, int pct) {
+	return v + FixedMul(v, (random(-pct, pct) << 16) / 100);
+}
+
+Script "DnD Volcano" (int pnum) {
+	int caster = pnum + P_TIDSTART;
+	int cx, cy, cz;
+
+	// Same two ways in as Rain of Fire: what the player is looking at, else where the aim puff hit.
+	int target = PickActor(caster, GetActorAngle(caster), GetActorPitch(caster),
+		DND_SPELL_HITSCANRANGE, 0, MF_SHOOTABLE, ML_BLOCKEVERYTHING, PICKAF_RETURNTID);
+
+	if(target && IsActorAlive(target)) {
+		cx = GetActorX(target);
+		cy = GetActorY(target);
+		cz = GetActorZ(target);
+	}
+	else {
+		if(!TraceSpellAim(pnum, DND_SPELL_HITSCANRANGE))
+			Terminate;
+
+		int wait = 0;
+		while(!ReadSpellAim(pnum) && wait < DND_SPELLAIM_WAIT) {
+			Delay(const:1);
+			++wait;
+		}
+
+		if(!SpellAimReady(pnum) || !PlayerInGame(pnum) || !IsActorAlive(caster))
+			Terminate;
+
+		auto aim = GetSpellAim();
+		cx = aim.x[pnum];
+		cy = aim.y[pnum];
+		cz = aim.z[pnum];
+	}
+
+	int tid = TEMPORARY_SPELL_TID + pnum;
+	if(!SpawnForced("Spell_Volcano", cx, cy, cz, tid, 0))
+		Terminate;
+
+	// Sat on the floor it was aimed at: the cone grows upward out of its own base.
+	SetActorPosition(tid, cx, cy, GetActorFloorZ(tid), false);
+	SetupSpellActor(tid, pnum, SPL_VOLCANO);
+
+	// A_CountDown fires once per SpawnStuff pass, so the countdown is in LOOPS rather than tics.
+	// Read off the row so the +0.5s a rank in DURATION actually lengthens the eruption.
+	SetActorProperty(tid, APROP_REACTIONTIME,
+		Max(1, GetSpellDurationTics(pnum, SPL_VOLCANO) / DND_VOLCANO_LOOPTICS));
+
+	Thing_ChangeTID(tid, 0);
+}
+
+// One eruption. The volcano itself is the activator, called inline from its own frame.
+//
+// Everything it needs off the activator is read UP FRONT: SetupSpellActor below reassigns the
+// activator to each rock and only restores it when the previous one had a tid, which this one does
+// not. Reading first makes that irrelevant instead of load bearing.
+Script "DnD Volcano Erupt" (void) {
+	int pnum = GetSpellActorOwner();
+	if(pnum == -1)
+		Terminate;
+
+	int n = GetSpellValue(pnum, SPL_VOLCANO, SPELLVAL_DAMAGE2);
+	if(n <= 0)
+		Terminate;
+
+	int x = GetActorX(0);
+	int y = GetActorY(0);
+	int z = GetActorZ(0) + DND_VOLCANO_MOUTH;
+
+	int btid = TEMPORARY_DATADUMMY_TID + pnum;
+	int i, a, hs, vs;
+
+	for(i = 0; i < n; ++i) {
+		// Scattered across the mouth rather than all from one point, so the column has width.
+		a = random(0, 1.0);
+		if(!SpawnForced("Spell_VolcanoBit",
+			x + FixedMul(cos(a), random(0, DND_VOLCANO_SPREAD)),
+			y + FixedMul(sin(a), random(0, DND_VOLCANO_SPREAD)), z, btid, 0))
+			continue;
+
+		SetupSpellActor(btid, pnum, SPL_VOLCANO);
+
+		// Its own direction, its own throw, its own weight. Sharing any of the three made an eruption
+		// a single fan of identical rocks landing in one ring at the same moment.
+		a = random(0, 1.0);
+		hs = VaryFixedByPercent(DND_VOLCANO_SPEED, DND_VOLCANO_SPEEDVAR);
+		vs = VaryFixedByPercent(DND_VOLCANO_RISE, DND_VOLCANO_RISEVAR);
+
+		SetActorVelocity(btid, FixedMul(cos(a), hs), FixedMul(sin(a), hs), vs, false, false);
+
+		// Gravity last, and per rock: SpawnProjectile only takes gravity as an on/off flag, so varying
+		// the WEIGHT has to be a property write. It is what spreads the landings out in time.
+		SetActorProperty(btid, APROP_GRAVITY,
+			VaryFixedByPercent(DND_VOLCANO_GRAVITY, DND_VOLCANO_GRAVVAR));
+
+		Thing_ChangeTID(btid, 0);
+	}
+}
+
 // ============================ Annihilus ============================
 // A charge planted at a point and grown by channelling, released as one blast. The anchor is
 // server side and held by tid for the whole channel, which is safe because BeginSpellBusy bars a
@@ -1853,6 +2306,10 @@ int GetAnnihilusRange(int pnum) {
 // rank 5, which rank 10 implies anyway.
 void AnnihilusDetonate(int pnum, int tid, int dmg, int r) {
 	int caster = pnum + P_TIDSTART;
+
+	// Here rather than at the two call sites, so the final blast and the rank 10 procs are scaled
+	// once each and cannot drift apart.
+	dmg = ApplySpellIntScaling(pnum, dmg);
 	int mn, v, dealt;
 
 	// Drawn clientside. Every FX actor the blast uses is +CLIENTSIDEONLY through DnD_SpecialFX, so

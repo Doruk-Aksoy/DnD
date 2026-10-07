@@ -44,9 +44,7 @@ Actor Spell_AllyLockFX {
         Stop
 
         Active:
-            CMRK A 2 Bright A_Warp(AAPTR_TARGET, 0, 0, lift, 0,
-                WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
-            CMRK B 2 Bright A_Warp(AAPTR_TARGET, 0, 0, lift, 0,
+            CMRK DD 2 Bright A_Warp(AAPTR_TARGET, 0, 0, lift, 0,
                 WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
             TNT1 A 0 A_JumpIfInTargetInventory("DnD_AllyLockActive", 1, "Active")
         Stop

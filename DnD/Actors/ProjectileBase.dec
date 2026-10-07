@@ -258,6 +258,54 @@ Actor DnD_ExplosiveBase_ForPets {
 	}
 }
 
+// Pet counterparts of DnD_BaseProjectile and DnD_BaseFastProjectile: the checks script resolves the
+// owner through the pet's MASTER, because a pet projectile's own target is the pet.
+Actor DnD_BaseProjectile_ForPets {
+	PROJECTILE
+	Species "Player"
+	+HITTRACER
+	+MTHRUSPECIES
+	+THRUSPECIES
+	+NODAMAGETHRUST
+	+DONTBLAST
+	+AMBUSH // DENOTES PLAYER SOURCED PROJECTILE
+	Damage 0
+
+	var int user_hitcount;
+	var int user_beat;
+
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Projectile Checks", 1)
+			TNT1 A 35 A_Jump(256, "SpawnState")
+		Wait
+	}
+}
+
+// The first TNT1 A 0 is needed, NoDelay doesn't work properly with fastprojectiles
+Actor DnD_BaseFastProjectile_ForPets : FastProjectile {
+	PROJECTILE
+	Species "Player"
+	+THRUSPECIES
+	+HITTRACER
+	+MTHRUSPECIES
+	+DONTBLAST
+	+NODAMAGETHRUST
+	+AMBUSH // DENOTES PLAYER SOURCED PROJECTILE
+	Damage 0
+
+	var int user_hitcount;
+	var int user_beat;
+
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Projectile Checks", 1)
+			TNT1 A 35 A_Jump(256, "SpawnState")
+		Wait
+	}
+}
+
 Actor DnD_RipperExploded : DnD_Boolean { }
 
 Actor DnD_RipperBase : DnD_ExplosiveBase {

@@ -2696,7 +2696,20 @@ Script "DnD Adjust Impact Damage" (int flags, int dmg, int owner) {
 	SetResultValue(dmg);
 }
 
-void HandleRipperHitSound(int tid, int owner, int wepid) {
+// wepid is a WEAPON id or a SPELL id depending on the hit, and the two are separate enums of small
+// positive numbers -- the first weapon and SPL_BLAZE are both 0. Nothing about the value says which
+// it is, so the caller has to, and the switch below must never be reached with a spell id or a
+// Freezing Pulse would occasionally make the axe noise and spawn a BladeHitFX.
+void HandleRipperHitSound(int tid, int owner, int wepid, bool isSpell = false) {
+	if(isSpell) {
+		switch(wepid) {
+			case SPL_FREEZINGPULSE:
+				PlaySound(tid, "FreezingPulse/Hit", 5, 1.0);
+			break;
+		}
+		return;
+	}
+
 	switch(wepid) {
 		case DND_WEAPON_AXE:
 			PlaySound(tid, "Axe/HitBleeding", 5, 1.0);
@@ -3522,8 +3535,20 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 		// Independent tests, not an if/else chain. A chain can only ever fire ONE ailment, so a
 		// physical weapon with added cold would chill or bleed depending on which component landed
 		// first and never both.
-		if(can_ail && (tic_flags & DND_DAMAGETICFLAG_ICE))
+		if(can_ail && (tic_flags & DND_DAMAGETICFLAG_ICE)) {
 			HandleChillEffects(pnum, victim_tid);
+
+			// A cold SPELL also applies whatever its own row promises on a hit -- a stated slow, a
+			// stated freeze chance. Here because this is the one place that already knows a cold hit
+			// landed on a particular monster: the alternative is every cold spell walking
+			// UsedMonsterTIDs to find out, which is a full scan to answer a question the engine just
+			// answered. wepid carries the spell id when the SPELL flag is set, as it does for ignite.
+			//
+			// A named script because the spell tables live past this file in the include order and
+			// there are no forward declarations anywhere in the mod.
+			if(tic_flags & DND_DAMAGETICFLAG_SPELL)
+				ACS_NamedExecuteAlways("DnD Spell Cold On Hit", 0, pnum, victim_tid, wepid);
+		}
 
 		if(can_ail && ((tic_flags & DND_DAMAGETICFLAG_FIRE) || (tic_flags & DND_DAMAGETICFLAG_ADDEDIGNITE))) // should be able to ign if it has addedignite flag even if damagetype isnt fire!
 			HandleIgniteEffects(pnum, victim_tid, wepid, tic_flags, GetPlayerIgniteAddedDmg(pnum, wepid, GetIgniteScaleSource(pnum, victim_data, tic_flags)), !!(tic_flags & DND_DAMAGETICFLAG_SPELL));
@@ -4005,7 +4030,6 @@ Script "DnD Spawn Poison FX" (int orig, int amt) CLIENTSIDE {
 
 Script "DnD Monster Chill" (int victim, int pnum) {
 	int cur_stacks;
-	int base_speed = GetActorProperty(victim, APROP_SPEED);
 	
 	// revoke monster's extra fast flag if it has it
 	if(HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_HASTE))
@@ -4015,8 +4039,12 @@ Script "DnD Monster Chill" (int victim, int pnum) {
 		AddMonsterAilment(ActivatorTID(), victim, DND_AILMENT_CHILL);
 	
 	while((cur_stacks = CheckActorInventory(victim, "DnD_ChillStacks"))) {
-		// slow down
-		SetActorProperty(victim, APROP_SPEED, FixedMul(base_speed, 1.0 - GetChillEffect(pnum, cur_stacks)));
+		// Publish the magnitude; the slow ticker owns APROP_SPEED. Two loops each capturing their
+		// own base speed is how a monster ends up permanently crawling. Floored at 1 so a tiny
+		// chill still holds the ticker open rather than reading as "no chill".
+		SetActorInventory(victim, "DnD_ChillPercent",
+			Max(1, (GetChillEffect(pnum, cur_stacks) * 100) >> 16));
+		ACS_NamedExecuteAlways("DnD Monster Slow Ticker", 0, victim);
 		ACS_NamedExecuteAlways("DnD Monster Chill FX", 0, victim);
 
 		// Tormentor / Permafrost. A second a stack is what this loop already spends, so the perk
@@ -4032,7 +4060,9 @@ Script "DnD Monster Chill" (int victim, int pnum) {
 		TakeActorInventory(victim, "DnD_ChillStacks", 1);
 	}
 	
-	SetActorProperty(victim, APROP_SPEED, base_speed);
+	// Dropping the magnitude is all this does -- the ticker sees it go and restores the speed it
+	// captured, which is the only base either lane is allowed to believe in.
+	SetActorInventory(victim, "DnD_ChillPercent", 0);
 	
 	// retain super fast property after chill ends
 	if(HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_HASTE))
@@ -4042,30 +4072,43 @@ Script "DnD Monster Chill" (int victim, int pnum) {
 		RemoveMonsterAilment(victim, DND_AILMENT_CHILL);
 }
 
-// Martialist / Exhauster. A plain speed penalty with none of chill's meaning -- no stacks, no freeze
-// build-up, no ailment, no FX. Sources set DnD_SlowPercent to the strongest slow they want and
-// refresh DnD_SlowTimer; this owns the property and restores what it captured when the timer runs
-// out. The running token keeps one ticker per monster, so a second hit refreshes rather than
-// capturing an ALREADY SLOWED speed as the base and ratcheting the monster to a standstill.
+// The ONE owner of a monster's APROP_SPEED. Two lanes feed it and neither touches the property:
 //
-// Chill is not routed through here yet: it captures and restores its own base in its own loop, so a
-// monster that is both chilled and slowed has whichever loop ticks last decide its speed. Unifying
-// the two is the right fix and wants doing the next time chill is touched.
+//   DnD_SlowPercent + DnD_SlowTimer   timed slows -- Exhauster, snares, cold spells
+//   DnD_ChillPercent                  chill, whose own loop owns the stack decay and writes this
+//
+// Strongest wins. They are deliberately NOT added: two 30% slows are still a 30% slow, and adding
+// them would reach a standstill off effects that never advertised one. The running token keeps one
+// ticker per monster, so a second source refreshes rather than capturing an ALREADY SLOWED speed as
+// the base and ratcheting the monster down.
 Script "DnD Monster Slow Ticker" (int victim) {
 	if(CheckActorInventory(victim, "DnD_SlowTickerRunning"))
 		Terminate;
 
 	GiveActorInventory(victim, "DnD_SlowTickerRunning", 1);
 	int base_speed = GetActorProperty(victim, APROP_SPEED);
+	int slow, chill;
 
-	while(CheckActorInventory(victim, "DnD_SlowTimer") && isActorAlive(victim)) {
-		SetActorProperty(victim, APROP_SPEED,
-			base_speed * (100 - CheckActorInventory(victim, "DnD_SlowPercent")) / 100);
+	while(isActorAlive(victim) &&
+		(CheckActorInventory(victim, "DnD_SlowTimer") || CheckActorInventory(victim, "DnD_ChillPercent"))) {
+		// A percent only counts while its own timer does. Chill carries no timer here because its
+		// stacks ARE its timer.
+		slow = CheckActorInventory(victim, "DnD_SlowTimer") ?
+			CheckActorInventory(victim, "DnD_SlowPercent") : 0;
+		chill = CheckActorInventory(victim, "DnD_ChillPercent");
+
+		SetActorProperty(victim, APROP_SPEED, base_speed * (100 - Max(slow, chill)) / 100);
 		Delay(const:DND_SLOWTICKER_RATE);
 
 		// TakeActorInventory floors at zero, so a timer that is not a whole multiple of the step
 		// simply ends on the tick that would have taken it negative.
 		TakeActorInventory(victim, "DnD_SlowTimer", DND_SLOWTICKER_RATE);
+
+		// Cleared the moment its timer runs out rather than at the end of the loop: chill can hold
+		// this open for a long time, and a stale strong percent would block every weaker slow that
+		// arrived in the meantime.
+		if(!CheckActorInventory(victim, "DnD_SlowTimer"))
+			SetActorInventory(victim, "DnD_SlowPercent", 0);
 	}
 
 	SetActorProperty(victim, APROP_SPEED, base_speed);
@@ -4073,18 +4116,78 @@ Script "DnD Monster Slow Ticker" (int victim) {
 	TakeActorInventory(victim, "DnD_SlowTickerRunning", 1);
 }
 
-// A snare is a slow of 100, routed through the same ticker so there is still exactly ONE owner of
-// APROP_SPEED for slows -- a second loop capturing its own base speed is how a monster ends up
-// permanently crawling. Strongest wins and longest wins, independently: a short snare must not cut a
-// long weak slow short, and a weak slow must not water down a live snare.
-void SnareMonster(int victim, int tics) {
-	if(CheckActorInventory(victim, "DnD_SlowPercent") < 100)
-		SetActorInventory(victim, "DnD_SlowPercent", 100);
+// A timed slow of a stated magnitude. Strongest wins and longest wins, INDEPENDENTLY: a short hard
+// slow must not cut a long weak one short, and a weak one must not water down a hard one that is
+// still running. That is why the two are compared separately rather than kept as a pair.
+void SlowMonster(int victim, int pct, int tics) {
+	if(pct <= 0 || tics <= 0)
+		return;
+
+	if(CheckActorInventory(victim, "DnD_SlowPercent") < pct)
+		SetActorInventory(victim, "DnD_SlowPercent", pct);
 
 	if(CheckActorInventory(victim, "DnD_SlowTimer") < tics)
 		SetActorInventory(victim, "DnD_SlowTimer", tics);
 
 	ACS_NamedExecuteAlways("DnD Monster Slow Ticker", 0, victim);
+}
+
+// A snare is a slow of 100.
+void SnareMonster(int victim, int tics) {
+	SlowMonster(victim, 100, tics);
+}
+
+// Chill, without the missing-health threshold HandleChillEffects rolls against. A cold spell that
+// says it chills, chills -- but through the SAME stacks, so Permafrost, Lingering Cold, the ailment
+// and the freeze build-up all still see it. Granting a stack rather than just applying a slow is the
+// whole point.
+void ChillMonster(int pnum, int victim, int stacks = 1) {
+	if(UltimatumMonstersUnstoppable() ||
+		!CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_FROSTBLOOD))
+		return;
+
+	int cur = CheckActorInventory(victim, "DnD_ChillStacks");
+	if(cur >= DND_BASE_CHILL_CAP)
+		return;
+
+	GiveActorInventory(victim, "DnD_ChillStacks", Min(stacks, DND_BASE_CHILL_CAP - cur));
+
+	// Only the first stack needs the loop started; after that it reads the count itself.
+	if(!cur)
+		ACS_NamedExecuteWithResult("DnD Monster Chill", victim, pnum);
+}
+
+// DnD_FreezeTimer is in units of 6 tics, which is what the freeze loop spends per step.
+#define DND_FREEZE_TICSPERUNIT 6
+
+// Freeze for a stated time. The freeze inside HandleChillEffects is the tail of a chill build-up and
+// rolls its own chance off the stack count; a spell states both its chance and its duration, so it
+// needs a way in that does not demand chill first. Answers to the same three immunities, so a spell
+// cannot freeze what a weapon cannot.
+bool FreezeMonster(int pnum, int victim, int tics) {
+	int m_id = victim - DND_MONSTERTID_BEGIN;
+
+	if(UltimatumMonstersUnstoppable() || IsUniqueBossMonster(m_id) ||
+		!CheckAilmentImmunity(pnum, m_id, DND_FROSTBLOOD) ||
+		GetActorProperty(victim, APROP_HEALTH) <= 0)
+		return false;
+
+	// A third of it on a boss, the same concession the chill path makes.
+	if(CheckFlag(victim, "BOSS"))
+		tics /= 3;
+
+	int units = Max(1, tics / DND_FREEZE_TICSPERUNIT);
+
+	// Longest wins, as everywhere else: a 1 second spell freeze must not clip the 3 second one a
+	// chill build-up just landed.
+	bool running = !!CheckActorInventory(victim, "DnD_FreezeTimer");
+	if(CheckActorInventory(victim, "DnD_FreezeTimer") < units)
+		SetActorInventory(victim, "DnD_FreezeTimer", units);
+
+	if(!running)
+		ACS_NamedExecuteAlways("DnD Monster Freeze", victim);
+
+	return true;
 }
 
 // Searing Bond's marker. Launched by that spell alone, not by SnareMonster, so a snare from any
@@ -5934,11 +6037,40 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster, bool isDot = fa
 	}
 }
 
-bool HandleRipperHit(int shooter, int victim) {
-	// increment id by 1 for each call, doesnt matter if it overflows
-	static int ripper_count = 0;
-	static int ripper_hits[MAX_RIPPERS_ACTIVE][MAX_RIPPER_HITS_STORED];
+// The ripper hit table, reachable without a hit so a GROUP of projectiles can be made to share one
+// entry. A fan that is one logical attack has to dedupe as one -- five sub-projectiles each with
+// their own id would hit a monster caught by three of them three times.
+// A module& must return a reference to a STRUCT, so the cell is one.
+typedef struct {
+	int val;
+} ripper_cell_T;
 
+ripper_cell_T module& GetRipperHits(int ripper_id, int slot) {
+	static ripper_cell_T ripper_hits[MAX_RIPPERS_ACTIVE][MAX_RIPPER_HITS_STORED];
+	return ripper_hits[ripper_id][slot];
+}
+
+ripper_cell_T module& GetRipperCount() {
+	static ripper_cell_T ripper_count[1];
+	return ripper_count[0];
+}
+
+// Takes the next id and empties it. Call once per logical attack, then stamp the result on every
+// projectile that belongs to it with SetInventory("DnD_RipperId", id + 1).
+int ReserveRipperId() {
+	auto count = GetRipperCount();
+	int id = count.val;
+	count.val = (count.val + 1) % MAX_RIPPERS_ACTIVE;
+
+	for(int i = 0; i < MAX_RIPPER_HITS_STORED; ++i) {
+		auto slot = GetRipperHits(id, i);
+		slot.val = 0;
+	}
+
+	return id;
+}
+
+bool HandleRipperHit(int shooter, int victim) {
 	int i;
 
 	// Id stored +1 so the item's zero state is "no id yet". Victims are stored +1 for the same reason:
@@ -5947,19 +6079,15 @@ bool HandleRipperHit(int shooter, int victim) {
 	// "already hit", which is a RIPSONCE weapon silently dealing nothing. 0 has to BE the empty slot.
 	int ripper_id = CheckInventory("DnD_RipperId") - 1;
 	if(ripper_id < 0) {
-		ripper_id = ripper_count;
-		ripper_count = (ripper_count + 1) % MAX_RIPPERS_ACTIVE;
-
-		for(i = 0; i < MAX_RIPPER_HITS_STORED; ++i)
-			ripper_hits[ripper_id][i] = 0;
-
+		// Nothing reserved one for us, so this projectile is an attack of its own.
+		ripper_id = ReserveRipperId();
 		SetInventory("DnD_RipperId", ripper_id + 1);
 	}
 
 	bool found = false;
 
-	for(i = 0; i < MAX_RIPPER_HITS_STORED && ripper_hits[ripper_id][i]; ++i) {
-		if(ripper_hits[ripper_id][i] == victim + 1) {
+	for(i = 0; i < MAX_RIPPER_HITS_STORED && GetRipperHits(ripper_id, i).val; ++i) {
+		if(GetRipperHits(ripper_id, i).val == victim + 1) {
 			found = true;
 			break;
 		}
@@ -5967,7 +6095,8 @@ bool HandleRipperHit(int shooter, int victim) {
 
 	// record it as added into the array and return true
 	if(!found && i < MAX_RIPPER_HITS_STORED) {
-		ripper_hits[ripper_id][i] = victim + 1;
+		auto slot = GetRipperHits(ripper_id, i);
+		slot.val = victim + 1;
 		return false;
 	}
 
@@ -6713,8 +6842,11 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					dmg_data ^= DND_DAMAGEFLAG_COUNTSASMELEE;
 				}
 
+				// isArmorPiercing is what the RIPSONCE branch above sets when HandleRipperHit registered a
+				// victim it had NOT already seen -- so for a ripping spell this runs exactly once per enemy
+				// per cast, and a fan sharing one ripper id makes a sound only for the first arc to arrive.
 				if(isArmorPiercing)
-					HandleRipperHitSound(victim, shooter, m_id);
+					HandleRipperHitSound(victim, shooter, m_id, !!(dmg_data & DND_DAMAGEFLAG_ISSPELL));
 
 				// damage boost on overheating things
 				// factor variable isnt used below for anything saved prior so we can use it too
@@ -7029,6 +7161,18 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			SetResultValue(0);
 		}
 		else if(IsPet(shooter) && shooter != victim) {
+			// Nothing a pet does touches its own side. No DECORATE flag can do this -- see
+			// .claude/notes/dnd-pet-damage-routing.md.
+			if(IsPlayer(victim) || IsPet(victim)) {
+				SetResultValue(0);
+				Terminate;
+			}
+
+			// Kill credit -- "DND On Kill" credits nobody without this token. NOT
+			// HandlePetMonsterDamageScale: a pet tid pet is scaled in its own DECORATE already.
+			if(IsMonster(victim) && GetActorProperty(victim, APROP_HEALTH) <= dmg)
+				GiveActorInventory(victim, "MonsterKilledByPlayer", 1);
+
 			// shooter is pet, it most likely attacked a monster, factor in things related to pets and put damage numbers!
 			// make sure activator is the player themselves now
 			SetActivator(GetActorProperty(shooter, APROP_MASTERTID));

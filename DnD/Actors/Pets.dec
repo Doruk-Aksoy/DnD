@@ -1,5 +1,12 @@
 enum {
-	DND_PET_ZOMBIEID
+	DND_PET_ZOMBIEID,
+	DND_PET_FIREDEMONID,
+};
+
+// Ids for "DnD Minion Cooldown". MUST match the DND_MINIONCD_* enum in acs/DnD_Skills.h, in
+// order -- these are passed into ACS numerically.
+enum {
+	DND_MINIONCD_BURNINGGROUND,
 };
 
 Actor MovePetCooldown : PowerDamage {
@@ -11,6 +18,24 @@ Actor PetTargetClear : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_ClearTarget
+		Stop
+	}
+}
+
+// The flag writers for "DnD Pet Reactivity". ACS cannot set an actor flag in Zandronum, so the
+// window is opened and closed from a Pickup state.
+Actor PetRetaliateOff : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("QUICKTORETALIATE", 0)
+		Stop
+	}
+}
+
+Actor PetRetaliateOn : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("QUICKTORETALIATE", 1)
 		Stop
 	}
 }
@@ -34,17 +59,11 @@ Actor PetMonsterBase {
 	+NEVERRESPAWN
 	+NEVERFAST
 	+DONTHARMSPECIES
+	// On by default so a pet answers whatever is hitting it instead of ignoring it until its
+	// threshold runs out. "DnD Pet Reactivity" takes it off while the pet commits to a new target.
+	+QUICKTORETALIATE
 	
-	States {
-		Death:
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Summon Death Check", 0, DND_PET_ZOMBIEID)
-			"####" "#" 0 A_Jump(256, "DeathAnim")
-		Wait
-		XDeath:
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Summon Death Check", 0, DND_PET_ZOMBIEID)
-			"####" "#" 0 A_Jump(256, "XDeathAnim")
-		Wait
-	}
+	// No shared Death block here -- see the note in each pet's own Death state.
 }
 
 ACTOR ZombiePet : PetMonsterBase {
@@ -87,14 +106,21 @@ ACTOR ZombiePet : PetMonsterBase {
 			ZFOD H 4
 			ZFOD H 4 A_Pain
 		Goto See
-		DeathAnim:
+		// The death script runs HERE, not in a shared PetMonsterBase block. That block ended a 0 tic
+		// state with A_Jump, and every A_Jump is a no-op on a client, so the state never left and the
+		// client spun it until the engine's loop breaker fired. A same class fall-through cannot: it is
+		// linked at load. A base block cannot be fixed this way either, because a parent Goto resolves
+		// to the PARENT's label, not to the child's override.
+		Death:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Summon Death Check", 0, DND_PET_ZOMBIEID)
 			ZFOD I 7
 			ZFOD J 7 A_Scream
 			ZFOD K 5 A_NoBlocking
 			ZFOD L 5 A_SpawnItemEx("FodderSoul",0,0,10,0,0,1)
 			ZFOD M -1
 		Stop
-		XDeathAnim:
+		XDeath:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Summon Death Check", 0, DND_PET_ZOMBIEID)
 			ZFOD N 5
 			ZFOD O 5 A_XScream
 			ZFOD P 5 A_NoBlocking

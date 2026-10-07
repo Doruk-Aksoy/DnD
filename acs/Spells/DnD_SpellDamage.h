@@ -13,7 +13,13 @@
 // This lives here rather than beside the spell tables because DND_DAMAGETYPE_ is declared in
 // DnD_Damage.h and enums do not forward reference.
 
-#define DND_SPELL_INT_ATTUNE 50		// 0.5 per point, matching the legacy skills
+// 0.4% spell damage per point of intellect, in hundredths of a percent -- the unit "DND Player
+// Damage Scale" unpacks back to a fixed fraction.
+#define DND_SPELL_INT_ATTUNE 40
+
+// The same figure as the fixed fraction HandleStatBonus takes directly, derived from the one
+// above so the two cannot drift. Shift before dividing, or the result truncates low.
+#define DND_SPELL_INT_SCALE ((DND_SPELL_INT_ATTUNE << 16) / 10000)
 
 // Every tree deals its own element. A spell that deals something else takes a case of its own above
 // the tree switch -- none do yet.
@@ -64,6 +70,25 @@ int GetSpellActorOwner() {
 // div splits the result, for a spell whose text gives a fragment of its own damage to something else
 // -- Pyroblast's rank 10 fireballs take an eighth. Applied AFTER the scale, so the fragment is an
 // eighth of what the parent would really have dealt rather than an eighth of its table row.
+// The intellect attunement, for spells that price themselves and call HandleDamageDeal straight.
+//
+// The projectile and explosion path picks this up inside "DnD Spell Damage"; without this the
+// two halves of the tree disagreed, and whether a spell scaled with INT came down to how it
+// happened to be implemented rather than to anything about the spell.
+//
+// DAMAGE OVER TIME IS INCLUDED, deliberately. HandleNonWeaponDamageScale withholds the attribute
+// bonus from anything flagged DOT, but that rule is about WEAPONS: a weapon ignite is derived from
+// a hit that already took the attunement, so counting it again would be a second helping of the
+// same stat. A spell tick is not -- Immolation and Blaze are priced straight off the spell row and
+// Righteous Fire off the health pool, so there is no earlier application to double.
+//
+// These spells reach HandleDamageDeal directly and never pass through that block at all, so this
+// is their only application. Intellect is meant to read as increased spell damage per point, and
+// a stat that silently skipped three spells would not.
+int ApplySpellIntScaling(int pnum, int dmg) {
+	return dmg * (100 + HandleStatBonus(pnum, 0, 0, DND_SPELL_INT_SCALE, false)) / 100;
+}
+
 // MORE spell damage, from any source granting BUFF_SPELLDAMAGE -- Righteous Fire today, an item or a
 // perk tomorrow. Multiplicative, so it is applied here rather than joining the increased pile.
 //

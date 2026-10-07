@@ -1,0 +1,216 @@
+ACTOR Spell_FireDemon : PetMonsterBase {
+	Health 650
+	GibHealth -100
+	Radius 28
+	Height 72
+	Speed 9
+	PainChance 32
+	Stamina 1
+	SeeSound "FireDemonMinion/See"
+	PainSound "FireDemonMinion/pain"
+	DeathSound "FireDemonMinion/death"
+	ActiveSound "FireDemonMinion/active"
+	Obituary "%o was burned by a Fire Demon."
+	Tag "Fire Demon"
+	MeleeRange 88
+	Renderstyle Translucent
+	Alpha 0.1
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pet Monster Scale", 0, DND_PET_FIREDEMONID, DND_FIRECREATURE, -1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pet Distance Move", 0)
+			TNT1 A 0 A_SpawnItemEx("BlazeHitFX2", 18 * cos(angle), 18 * sin(angle), 4, 1.25 * cos(angle), 1.25 * sin(angle), 0.75)
+			TNT1 A 0 A_SpawnItemEx("BlazeHitFX2", 18 * cos(angle + 60), 18 * sin(angle + 60), 4, 1.25 * cos(angle + 60), 1.25 * sin(angle + 60), 0.75)
+			TNT1 A 0 A_SpawnItemEx("BlazeHitFX2", 18 * cos(angle + 120), 18 * sin(angle + 120), 4, 1.25 * cos(angle + 120), 1.25 * sin(angle + 120), 0.75)
+			TNT1 A 0 A_SpawnItemEx("BlazeHitFX2", 18 * cos(angle + 180), 18 * sin(angle + 180), 4, 1.25 * cos(angle + 180), 1.25 * sin(angle + 180), 0.75)
+			TNT1 A 0 A_SpawnItemEx("BlazeHitFX2", 18 * cos(angle + 240), 18 * sin(angle + 240), 4, 1.25 * cos(angle + 240), 1.25 * sin(angle + 240), 0.75)
+			TNT1 A 0 A_SpawnItemEx("BlazeHitFX2", 18 * cos(angle + 300), 18 * sin(angle + 300), 4, 1.25 * cos(angle + 300), 1.25 * sin(angle + 300), 0.75)
+			S010 AAAAAAAAA 1 A_FadeIn(0.1)
+			TNT1 A 0 A_PlaySound("FireDemonMinion/See", CHAN_VOICE)
+		Idle:
+			S010 AB 6 A_Look
+		Goto See
+		See:
+			S010 A 0 A_SetTranslucent(1.0)
+		SeeLoop:
+			S010 AABBCCDD 2 A_Chase
+		Loop
+		Melee:
+			S010 A 0 A_SetTranslucent(1.0)
+		SeeLoop:
+			TNT1 A 0 A_AlertMonsters(0, AMF_TARGETNONPLAYER)
+			S010 E 6 A_FaceTarget
+			S010 F 5 A_FaceTarget
+			S010 G 2 A_CustomMeleeAttack(ACS_NamedExecuteWithResult("DND Pet Monster Damage Scale", 7, 5 | (6 << 16), 0), "baron/melee")
+			S010 G 4
+		Goto See
+		Missile:
+			S010 A 0 A_SetTranslucent(1.0)
+		SeeLoop:
+			TNT1 A 0 A_PlaySound("FireDemonMinion/Attack", CHAN_VOICE)
+			TNT1 A 0 A_AlertMonsters(0, AMF_TARGETNONPLAYER)
+			S010 E 5 A_FaceTarget
+			// Rank 10. The script rolls AND casts, so a true return means the jet is already away.
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Fire Demon Jet"), "JetRecover")
+			TNT1 A 0 A_Jump(96, "BurningGround")
+		Goto ThrowBall
+		JetRecover:
+			S010 FG 4 A_FaceTarget
+		Goto See
+		BurningGround:
+			TNT1 A 0 A_JumpIfInventory("Spell_FireDemon_BurningGround_Cooldown", 1, "ThrowBall")
+			S010 F 4 A_FaceTarget
+			S010 G 2 A_CustomMissile("Spell_FireDemon_BurningGround", 48)
+			// The cooldown was CHECKED above and never started, so it never engaged once.
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Minion Cooldown", 0, DND_MINIONCD_BURNINGGROUND)
+			S010 G 3
+		Goto See
+		ThrowBall:
+			S010 F 4 A_FaceTarget
+			S010 G 2 A_CustomMissile("Spell_FireDemon_Fireball", 32, -16)
+			S010 G 3
+		Goto See
+		Pain:
+			S010 H 3 A_SetTranslucent(1.0)
+			S010 H 3 A_Pain
+		Goto See
+		// The death script runs HERE, not in a shared PetMonsterBase block. That block ended a 0 tic
+		// state with A_Jump, and every A_Jump is a no-op on a client, so the state never left and the
+		// client spun it until the engine's loop breaker fired. A same class fall-through cannot: it is
+		// linked at load. A base block cannot be fixed this way either, because a parent Goto resolves
+		// to the PARENT's label, not to the child's override.
+		Death:
+		XDeath:
+			"####" "#" 0 A_SpawnItemEx("BlazeHitFX2", 18 * cos(angle), 18 * sin(angle), 4, 1.25 * cos(angle), 1.25 * sin(angle), 0.75)
+			"####" "#" 0 A_SpawnItemEx("BlazeHitFX2", 18 * cos(angle), 18 * sin(angle), 4, 1.25 * cos(angle), 1.25 * sin(angle), 0.75)
+			"####" "#" 0 A_SpawnItemEx("BlazeHitFX2", 18 * cos(angle + 60), 18 * sin(angle + 60), 4, 1.25 * cos(angle + 60), 1.25 * sin(angle + 60), 0.75)
+			"####" "#" 0 A_SpawnItemEx("BlazeHitFX2", 18 * cos(angle + 120), 18 * sin(angle + 120), 4, 1.25 * cos(angle + 120), 1.25 * sin(angle + 120), 0.75)
+			"####" "#" 0 A_SpawnItemEx("BlazeHitFX2", 18 * cos(angle + 180), 18 * sin(angle + 180), 4, 1.25 * cos(angle + 180), 1.25 * sin(angle + 180), 0.75)
+			"####" "#" 0 A_SpawnItemEx("BlazeHitFX2", 18 * cos(angle + 240), 18 * sin(angle + 240), 4, 1.25 * cos(angle + 240), 1.25 * sin(angle + 240), 0.75)
+			"####" "#" 0 A_SpawnItemEx("BlazeHitFX2", 18 * cos(angle + 300), 18 * sin(angle + 300), 4, 1.25 * cos(angle + 300), 1.25 * sin(angle + 300), 0.75)
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Summon Death Check", 0, DND_PET_FIREDEMONID)
+			S010 H 1 A_Scream
+			S010 HHHHHHHHHHHH 1 A_FadeOut(0.0875)
+		Stop
+	}
+}
+
+// Counted down by that script a tic at a time, so a future minion cooldown recovery stat can
+// change one WHILE it runs. The amount is hundredths of a tic; ACS owns both the length and the
+// rate, so nothing here needs to know either.
+Actor Spell_FireDemon_BurningGround_Cooldown : DnD_Info { }
+
+Actor Spell_FireDemon_Fireball : DnD_BaseProjectile_ForPets {
+	Speed 36
+	Damage(ACS_NamedExecuteWithResult("DND Pet Monster Damage Scale", 16, 6 | (10 << 16), DND_USETARGET))
+	Height 16
+	Radius 8
+	SeeSound "Beast/Attack"
+    DeathSound "weapons/phoenixhit"
+	+DONTBLAST
+    DamageType "Fire"
+    States {
+        SpawnState:
+            FX14 ABC 3 Bright
+        Loop
+        Death:
+            TNT1 A 0 A_CustomMissile("ExplosionFX10", 0, 0, random(0,360), 2, random(0,360))
+            TNT1 AAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
+            TNT1 AAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
+            FX14 DEFGH 3 Bright
+        Stop
+    }
+}
+
+// -NOGRAVITY undoes the one part of PROJECTILE this must not have: the pod is thrown to ARC down
+// onto the floor. Same for the two below it.
+Actor Spell_FireDemon_BurningGround : DnD_BaseProjectile_ForPets {
+	Damage 0
+	Speed 8
+	-NOGRAVITY
+	+NoBlockMap
+	+Painless
+	+BloodlessImpact
+	+Missile
+	+DropOff
+	States {
+		SpawnState:
+			TNT1 A 1
+		Loop
+		Death:
+			TNT1 A 0 Bright A_CustomMissile("Spell_FireDemon_BurningGround2", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 Bright A_CustomMissile("Spell_FireDemon_BurningGround2", 0, 16, -5, CMF_TRACKOWNER)
+			TNT1 A 0 Bright A_CustomMissile("Spell_FireDemon_BurningGround2", 0, 32, -10, CMF_TRACKOWNER)
+			TNT1 A 0 Bright A_CustomMissile("Spell_FireDemon_BurningGround2", 0, -16, +5, CMF_TRACKOWNER)
+			TNT1 A 0 Bright A_CustomMissile("Spell_FireDemon_BurningGround2", 0, -32, +10, CMF_TRACKOWNER)
+			TNT1 A 10 Bright A_PlaySound("weapons/phoenixpowshoot")
+		Stop
+	}
+}
+
+Actor Spell_FireDemon_BurningGround2 : DnD_BaseProjectile_ForPets {
+	Damage 0
+	-NOGRAVITY
+	+Ripper
+	+NoExplodeFloor
+	+Painless
+	+BloodlessImpact
+	+Missile
+	+DropOff
+	Speed 3
+	States {
+		SpawnState:
+			TNT1 A 10 A_CustomMissile("Spell_FireDemon_BurningGround_Final", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 10 A_CustomMissile("Spell_FireDemon_BurningGround_Final", 0, 16, 0, CMF_TRACKOWNER)
+			TNT1 A 10 A_CustomMissile("Spell_FireDemon_BurningGround_Final", 0, -16, 0, CMF_TRACKOWNER)
+			TNT1 A 10 A_CustomMissile("Spell_FireDemon_BurningGround_Final", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 10 A_CustomMissile("Spell_FireDemon_BurningGround_Final", 0, 16, 0, CMF_TRACKOWNER)
+			TNT1 A 10 A_CustomMissile("Spell_FireDemon_BurningGround_Final", 0, -16, 0, CMF_TRACKOWNER)
+			TNT1 A 10 A_CustomMissile("Spell_FireDemon_BurningGround_Final", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 10 A_CustomMissile("Spell_FireDemon_BurningGround_Final", 0, 16, 0, CMF_TRACKOWNER)
+			TNT1 A 10 A_CustomMissile("Spell_FireDemon_BurningGround_Final", 0, -16, 0, CMF_TRACKOWNER)
+			TNT1 A 10 A_CustomMissile("Spell_FireDemon_BurningGround_Final", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 10 A_CustomMissile("Spell_FireDemon_BurningGround_Final", 0, 16, 0, CMF_TRACKOWNER)
+			TNT1 A 10 A_CustomMissile("Spell_FireDemon_BurningGround_Final", 0, -16, 0, CMF_TRACKOWNER)
+			TNT1 A 10 A_CustomMissile("Spell_FireDemon_BurningGround_Final", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 10 A_CustomMissile("Spell_FireDemon_BurningGround_Final", 0, 16, 0, CMF_TRACKOWNER)
+			TNT1 A 10 A_CustomMissile("Spell_FireDemon_BurningGround_Final", 0, -16, 0, CMF_TRACKOWNER)
+		Stop
+	}
+}
+
+// The +MISSILE this picks up from the base is what makes its SELF spawned copies work: the
+// CMF_TRACKOWNER walk-back in A_CustomMissile only runs off a missile, so the second generation
+// used to own itself and scale off nothing. Death routes to Done so a wall still burns out.
+Actor Spell_FireDemon_BurningGround_Final : DnD_BaseProjectile_ForPets {
+	-NOGRAVITY
+	+Ripper
+	+NoExplodeFloor
+	+BloodlessImpact
+	+DropOff
+	+Randomize
+	+PAINLESS
+	Scale 1.5
+	Speed 1
+	RenderStyle Add
+	Alpha 0.67
+	DamageType "Fire"
+	var int user_dmg;
+	States {
+		SpawnState:
+			TNT1 A 8
+			S011 A 3 Bright A_SetUserVar("user_dmg", ACS_NamedExecuteWithResult("DND Pet Monster Damage Scale", 10, 0, DND_USETARGET))
+			// CMF_TRACKOWNER carried the demon down the chain as this missile's target, so DND_USETARGET
+			// reaches the owner's intellect, minion damage and level scale.
+			S011 BC 3 Bright A_Explode(user_dmg, 64, 0, 0, 40)
+			TNT1 A 0 A_Explode(user_dmg, 64, 0, 0, 40)
+			TNT1 A 0 A_Jump(192, "Done")
+			TNT1 A 0 A_CustomMissile("Spell_FireDemon_BurningGround_Final", 0, 24, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("Spell_FireDemon_BurningGround_Final", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("Spell_FireDemon_BurningGround_Final", 0, -24, 0, CMF_TRACKOWNER)
+		Death:
+		Done:
+			S011 DEFGHIJKLMNO 3 Bright
+		Stop
+	}
+}

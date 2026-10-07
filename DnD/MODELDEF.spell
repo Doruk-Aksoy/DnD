@@ -1,0 +1,12 @@
+// No PITCHFROMMOMENTUM: the pulse is FLOORHUGGER and must stay level, not tip as it settles.
+Model Spell_FreezingPulse {
+	Path "Models/Proj"
+	Model 0 "FREEZWAV.md3"
+
+	// Skin from Graphics/ so the lump has a name; a Models/ skin is nameless and no shader binds.
+	Path "Graphics/ShaderTex"
+	Skin 0 "FREEZPUL.png"
+	Scale 1.0 1.0 1.0
+
+	FrameIndex FPUL A 0 0
+}

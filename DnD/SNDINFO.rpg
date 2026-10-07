@@ -107,9 +107,9 @@ Hobo/Stim2			HOBOSTM2
 $random Hobo/Stim { Hobo/Stim1 Hobo/Stim2 }
 
 /*
-********************
-****** SPELLS ******
-********************
+*************************
+****** FIRE SPELLS ******
+*************************
 */
 
 Spell/RallyCast				CST_RLLY
@@ -195,6 +195,12 @@ $limit FlamePillar/Fire 0
 
 RighteousFire/Loop          RFIRLOOP
 
+FireDemonMinion/See             FIRDMSEE
+FireDemonMinion/Pain            FIRDMPN
+FireDemonMinion/Active          FIRDMACT
+FireDemonMinion/Death           FIRDMDTH
+FıreDemonMinion/Attack          FIRDMATK
+
 Annihilus/Loop1             SANNIXL1
 Annihilus/Loop2             SANNIXL2
 $random Annihilus/Loop { Annihilus/Loop1 Annihilus/Loop2 }
@@ -216,3 +222,72 @@ $limit Annihilus/MiniExp1 0
 $limit Annihilus/MiniExp2 0
 $limit Annihilus/MiniExp3 0
 $limit Annihilus/MiniExp4 0
+
+Volcano/Loop                VOLCALO
+Volcano/Explode1            VOLCALX1
+Volcano/Explode2            VOLCALX2
+Volcano/Explode3            VOLCALX3
+$random Volcano/Explode { Volcano/Explode1 Volcano/Explode2 Volcano/Explode3 }
+$limit Volcano/Explode1 0
+$limit Volcano/Explode2 0
+$limit Volcano/Explode3 0
+
+Volcano/ExplodeAdd1         VOLCALY1
+Volcano/ExplodeAdd2         VOLCALY2
+Volcano/ExplodeAdd3         VOLCALY3
+Volcano/ExplodeAdd4         VOLCALY4
+$random Volcano/ExplodeAdd { Volcano/ExplodeAdd1 Volcano/ExplodeAdd2 Volcano/ExplodeAdd3 Volcano/ExplodeAdd4 }
+$limit Volcano/ExplodeAdd1 0
+$limit Volcano/ExplodeAdd2 0
+$limit Volcano/ExplodeAdd3 0
+$limit Volcano/ExplodeAdd4 0
+
+Volcano/BigBurst1           VOLCANB1
+Volcano/BigBurst2           VOLCANB2
+Volcano/BigBurst3           VOLCANB3
+$random Volcano/BigBurst { Volcano/BigBurst1 Volcano/BigBurst2 Volcano/BigBurst3 }
+
+Volcano/RegularBoom1        VOLCANR1
+Volcano/RegularBoom2        VOLCANR2
+Volcano/RegularBoom3        VOLCANR3
+Volcano/RegularBoom4        VOLCANR4
+$random Volcano/RegularBoom { Volcano/RegularBoom1 Volcano/RegularBoom2 Volcano/RegularBoom3 Volcano/RegularBoom4 }
+
+Volcano/Rise1               VOLCANP1
+Volcano/Rise2               VOLCANP2
+$random Volcano/Rise { Volcano/Rise1 Volcano/Rise2 }
+
+Volcano/Lower1              VOLCANU1
+Volcano/Lower2              VOLCANU2
+$random Volcano/Lower { Volcano/Lower1 Volcano/Lower2 }
+
+/*
+************************
+****** ICE SPELLS ******
+************************
+*/
+
+IceBolt/Fire1               ICEBOLF1
+IceBolt/Fire2               ICEBOLF2
+IceBolt/Fire3               ICEBOLF3
+$random IceBolt/Fire { IceBolt/Fire1 IceBolt/Fire2 IceBolt/Fire3 }
+
+IceBolt/Hit1                ICEBOLH1
+IceBolt/Hit2                ICEBOLH2
+IceBolt/Hit3                ICEBOLH3
+IceBolt/Hit4                ICEBOLH4
+$random IceBolt/Hit { IceBolt/Hit1 IceBolt/Hit2 IceBolt/Hit3 IceBolt/Hit4 }
+
+FreezingPulse/Fire1         FPULSF1
+FreezingPulse/Fire2         FPULSF2
+FreezingPulse/Fire3         FPULSF3
+$random FreezingPulse/Fire { FreezingPulse/Fire1 FreezingPulse/Fire2 FreezingPulse/Fire3 }
+
+FreezingPulse/Hit1          FPULSH1
+FreezingPulse/Hit2          FPULSH2
+FreezingPulse/Hit3          FPULSH3
+$random FreezingPulse/Hit { FreezingPulse/Hit1 FreezingPulse/Hit2 FreezingPulse/Hit3 }
+
+FreezingPulse/End1          FPULSE1
+FreezingPulse/End2          FPULSE2
+$random FreezingPulse/End { FreezingPulse/End1 FreezingPulse/End2 }

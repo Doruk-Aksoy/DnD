@@ -15,25 +15,25 @@ Actor Spell_FireJet : DnD_SpellExplosive {
 	SeeSound "FireJet/Shoot"
     DeathSound "weapons/phoenixhit"
 	States {
-        // Length comes from the table, not from a run of identical frames -- see
-        // "DnD Fire Jet Lifetime".
         SpawnState:
             TNT1 A 0 A_SetUserVar("user_jetframes",
                 ACS_NamedExecuteWithResult("DnD Fire Jet Lifetime"))
         Flight:
-            S008 N 2 Bright A_SpawnItem("Spell_FireJetTrail")
+            TNT1 A 0 A_JumpIf(user_jetframes <= 0, "Expire")
+            S008 N 2 Bright A_SpawnItemEx("Spell_FireJetTrail")
             TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Jet Sides")
             TNT1 A 0 A_SetUserVar("user_jetframes", user_jetframes - 1)
-            TNT1 A 0 A_JumpIf(user_jetframes > 0, "Flight")
-        Goto Death
-        // The burst is the rank 5 -- the setup script answers whether there is one, and the
-        // visuals play either way.
+        Loop
         Death:
+        Expire:
             TNT1 A 0 A_Stop
             TNT1 A 0 A_PlaySound("FireJet/Hit", CHAN_VOICE)
             TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Spell Explosion Setup"), "DoExplosionDamage")
         Goto ContinueFromExplosion
         ContinueFromExplosion:
+            TNT1 A 0 A_CustomMissile("ExplosionFX10", 0, 0, random(0,360), 2, random(0,360))
+            TNT1 AAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
+            TNT1 AAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
             S008 QRSTUVWXYZ 2 Bright
         Goto FinishExplosion
 	}
@@ -94,7 +94,8 @@ Actor Spell_FireJetTrail {
 	Scale 1.2
 	States {
         Spawn:
-            S008 OOPP 1 Bright A_FadeOut(0.1)
+            TNT1 A 1
+            S008 OOOPPP 1 Bright A_FadeOut(0.1)
         Stop
 	}
 }

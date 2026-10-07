@@ -5338,9 +5338,15 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int damage_category, int flags) 
 Script "DND Player Damage Scale" (int dmg, int damage_category, int flags, int attunements) {
 	AdjustDamageRetrievePointers(flags, true);
 
-	int str_scaling = 0.01 * (attunements & ATTUNEMENT_MASK);
-	int dex_scaling = 0.01 * ((attunements >> DEX_ATTUNE_BITS) & ATTUNEMENT_MASK);
-	int int_scaling = 0.01 * ((attunements >> INT_ATTUNE_BITS) & ATTUNEMENT_MASK);
+	// HUNDREDTHS OF A PERCENT per stat point, so 40 is 0.4%. The old form multiplied by the fixed
+	// literal 0.01 and landed on 0.5 FIXED -- half a multiplier per point, ten times the 0.05 cap
+	// DND_STAT_ATTUNEMENT_GAIN sets and a hundred times what the comment beside it claimed.
+	//
+	// Shifted BEFORE dividing on purpose: the direct spelling, 0.0001 * n, truncates that literal
+	// to 6 and comes out 8% short.
+	int str_scaling = ((attunements & ATTUNEMENT_MASK) << 16) / 10000;
+	int dex_scaling = (((attunements >> DEX_ATTUNE_BITS) & ATTUNEMENT_MASK) << 16) / 10000;
+	int int_scaling = (((attunements >> INT_ATTUNE_BITS) & ATTUNEMENT_MASK) << 16) / 10000;
 
 	dmg = HandleNonWeaponDamageScale(
 		dmg, 
@@ -5683,6 +5689,14 @@ Script "DnD Research Fancy Message" (int res_id) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
 	Log(s:"\cc", l:"DND_PICKUP_RESEARCH", s:":\c[Y5] ", l:GetResearchLabel(res_id), s:"!");
+
+	// On screen as well as in the console. A research is granted outright now rather than bought,
+	// so the console line was the only notice a player got that anything had happened at all.
+	SetFont("SMALLFONT");
+	HudMessage(s:"\cc", l:"DND_PICKUP_RESEARCH", s:":\c[Y5] ", l:GetResearchLabel(res_id), s:"!";
+		HUDMSG_FADEOUT | HUDMSG_LOG, DND_RESEARCHNOTIFY_ID, CR_UNTRANSLATED,
+		0.5, 0.75, DND_RESEARCHNOTIFY_HOLD, DND_RESEARCHNOTIFY_FADE);
+
 	LocalAmbientSound("items/research", 127);
 	ACS_NamedExecuteAlways("DND Announcer", 0, DND_ANNOUNCER_RESEARCHDISCOVER, res_id);
 }
@@ -6075,20 +6089,27 @@ Script "DnD Pet Monster Scale" (int petid, int trait1, int trait2) {
 		add = GetMonsterHPScaleForLevel(level);
 
 		add = ApplyHPScale(base, add);
-		
-		// flat int scaling to pets
-		add += GetIntellectEffect(pnum, SKILL_ZOMBIE_HP_PER_INT);
-
-		// and re-clamp: the flat intellect bonus above lands after the scale, so it can push the total
-		// back over the ceiling on its own
-		if(add > DND_MAX_MONSTER_HP - base)
-			add = DND_MAX_MONSTER_HP - base;
-		if(add < 0)
-			add = 0;
 	}
+
+	// Intellect, as a PERCENT of whatever the level curve produced. Outside the level check on
+	// purpose: it used to sit inside it, so a level 1 summoner got no intellect health at all --
+	// not a reduced amount, none.
+	add += (base + add) / 10000 * GetIntellectEffect(pnum, DND_PET_HP_PER_INT);
+
+	// Re-clamped: the intellect term lands after the scale and can push the total over the ceiling
+	// on its own.
+	if(add > DND_MAX_MONSTER_HP - base)
+		add = DND_MAX_MONSTER_HP - base;
+	if(add < 0)
+		add = 0;
 	SetActorProperty(0, APROP_HEALTH, base + add);
 	ScaleMonsterMass(level);
 	PetMonsterProperties[m_id].id = petid;
+
+	// When it arrived, for the cap to evict by age, and what its spell says its damage is worth.
+	// dmg_bonus is free on a pet -- only MonsterProperties ever used it.
+	PetSummonTic[m_id] = Timer();
+	PetMonsterProperties[m_id].dmg_bonus = GetPetSpellDamageBonus(pnum, petid);
 	PetMonsterProperties[m_id].basehp = base;
 	PetMonsterProperties[m_id].maxhp = base + add;
 	PetMonsterProperties[m_id].level = level;
@@ -6114,6 +6135,39 @@ Script "DnD Pet Monster Scale" (int petid, int trait1, int trait2) {
 
 	// pet icon
 	ACS_NamedExecuteAlways("DND Spawn Attachment", 0, this, DND_ATTACHMENT_PETICON);
+
+	// Started here rather than from each pet's DECORATE: every pet already routes through this
+	// script, so a new one gets it without remembering to ask.
+	ACS_NamedExecuteAlways("DnD Pet Reactivity", 0);
+}
+
+// Keeps a pet from ping-ponging. +QUICKTORETALIATE lets it answer whatever hurt it, which is the
+// behaviour we want, but left on it re-aims on every incoming hit and never finishes an attack. So
+// the moment it settles on a new target the flag comes off, and it goes back on once the pet has
+// had DND_PET_COMMIT_TICS to actually fight that one.
+//
+// ACS cannot write an actor flag in Zandronum -- the two CustomInventory items in Pets.dec do it
+// from a Pickup state, the same trick the rip immunity window uses.
+Script "DnD Pet Reactivity" (void) {
+	int targ, last = 0, commit = 0;
+
+	while(IsAlive()) {
+		targ = GetActorProperty(0, APROP_TARGETTID);
+
+		if(targ && targ != last) {
+			last = targ;
+			commit = DND_PET_COMMIT_TICS;
+			GiveInventory("PetRetaliateOff", 1);
+		}
+
+		if(commit > 0) {
+			commit -= DND_PET_REACT_TICS;
+			if(commit <= 0)
+				GiveInventory("PetRetaliateOn", 1);
+		}
+
+		Delay(const:DND_PET_REACT_TICS);
+	}
 }
 
 Script "DnD Master Skill Info" (int skill_id) {
@@ -6128,14 +6182,14 @@ Script "DnD Master Skill Info" (int skill_id) {
 }
 
 Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
-	if(flags & 1) // target
+	if(flags & DND_WDMG_USETARGET) // target
 		SetactivatorToTarget(0);
 	int this = ActivatorTID();
 	int master = GetActorProperty(0, APROP_MASTERTID);
 	int res = 1.0 + Clamp_Between(PetMonsterProperties[this - DND_PETTID_BEGIN].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100);
 	if(flags & DND_WDMG_ISRIPPER)
 		res >>= 1;
-	res += GetPetDamageFactor(base, master);
+	res += GetPetDamageFactor(master);
 	// we don't need monster id from here onwards
 	base &= 0xFFFF;
 	// apply the monster's base damage first
@@ -6168,20 +6222,39 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 		HandleHunterTalisman();
 	}
 
+	// The summoning spell's own "more minion damage". Stamped on the pet at spawn, so a demon keeps
+	// the rank it was summoned at even if the caster respecs afterwards.
+	temp = PetMonsterProperties[this - DND_PETTID_BEGIN].dmg_bonus;
+	if(temp)
+		res = res * (100 + temp) / 100;
+
 	if(rnd)
 		res *= random(rnd & 0xFFFF, rnd >> 16);
 
 	SetResultValue(res);
 }
 
+// monsterID is what DECORATE passed, which is the SHARED base actor's guess -- PetMonsterBase
+// names the zombie for every pet that inherits it. The pet's own stored id is used instead, and
+// the parameter only survives as a fallback for a pet that never reached the scale script.
 Script "DnD On Summon Death Check" (int monsterID) {
-	switch(monsterID) {
-		case MONSTER_PET_ZOMBIE:
-			SetActivator(0, AAPTR_MASTER);
-			TakeInventory("SummonedZombiePets", 1);
-			TakeInventory("PetCounter", 1);
-		break;
-	}
+	int m_id = ActivatorTID() - DND_PETTID_BEGIN;
+	bool known = m_id >= 0 && m_id < DND_MAX_PETS;
+	int petid = known ? PetMonsterProperties[m_id].id : monsterID;
+
+	// The slot is free the moment it dies, so it can never be picked as the oldest again.
+	if(known)
+		PetSummonTic[m_id] = 0;
+
+	if(!SetActivator(0, AAPTR_MASTER))
+		Terminate;
+
+	// EVERY pet counts against the cap, so every pet gives the point back. Only the zombie keeps
+	// its own separate tally.
+	TakeInventory("PetCounter", 1);
+
+	if(petid == MONSTER_PET_ZOMBIE)
+		TakeInventory("SummonedZombiePets", 1);
 }
 
 Script "DnD On Pet Summon" (void) {

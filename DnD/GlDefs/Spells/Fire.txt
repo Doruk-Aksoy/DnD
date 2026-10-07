@@ -11,6 +11,18 @@ object Spell_Fireball
     frame FX14H { light SERPENTBALL_X4 }
 }
 
+object Spell_FireDemon_Fireball {
+    frame FX14A { light SERPENTBALL }
+    frame FX14B { light SERPENTBALL }
+    frame FX14C { light SERPENTBALL }
+
+    frame FX14D { light SERPENTBALL_X1 }
+    frame FX14E { light SERPENTBALL_X2 }
+    frame FX14F { light SERPENTBALL_X3 }
+    frame FX14G { light SERPENTBALL_X4 }
+    frame FX14H { light SERPENTBALL_X4 }
+}
+
 object Spell_Pyroblast_TinyFireballs
 {
     frame FX14A { light SERPENTBALL }
@@ -45,7 +57,7 @@ object Spell_SearingBond {
 }
 
 object Spell_FlamePillarDamage {
-frame DGFLA { light PillarFlash }
+    frame DGFLA { light PillarFlash }
 	frame DGFLB { light PillarFlash }
 	frame DGFLC { light PillarFlash }
 	frame DGFLD { light PillarFlash }
@@ -67,4 +79,138 @@ frame DGFLA { light PillarFlash }
 	frame DGFLU { light BurningFlash3 }
 	frame DGFLV { light BurningFlash3 }
 	frame DGFLW { light BurningFlash3 }
+}
+
+flickerlight2 AnnihilusLight {
+    color 1.0 0.5 0.0
+    size 128
+    secondarySize 160
+    interval 1
+    offset 0 40 0
+}
+
+object Spell_AnnihilusAnchor {
+    frame AURAL { light AnnihilusLight }
+}
+
+object Spell_RainOfFire {
+	frame RW6FI { light MeteorLauncherLight4 }
+	frame RW6FJ { light MeteorLauncherLight5 }
+	frame RW6FK { light MeteorLauncherLight6 }
+	frame RW6FL { light MeteorLauncherLight7 }
+}
+
+Pointlight HellFire
+{
+    Color 1.0 0.5 0.0
+    Offset 0 0 0
+    Size 5
+}
+
+Pointlight HellFire_2
+{
+    Color 1.0 0.5 0.0
+    Offset 0 0 0
+    Size 15
+}
+
+Pointlight HellFire_3
+{
+    Color 1.0 0.5 0.0
+    Offset 0 0 0
+    Size 35
+}
+
+Pointlight HellFire_4
+{
+    Color 1.0 0.5 0.0
+    Offset 0 0 0
+    Size 34
+}
+
+Pointlight HellFire_5
+{
+    Color 1.0 0.5 0.0
+    Offset 0 0 0
+    Size 32
+}
+
+Pointlight HellFire_6
+{
+    Color 1.0 0.5 0.0
+    Offset 0 0 0
+    Size 30
+}
+
+Pointlight HellFire_7
+{
+    Color 1.0 0.5 0.0
+    Offset 0 0 0
+    Size 25
+}
+
+Pointlight HellFire_8
+{
+    Color 1.0 0.5 0.0
+    Offset 0 0 0
+    Size 20
+}
+
+Pointlight HellFire_9
+{
+    Color 1.0 0.5 0.0
+    Offset 0 0 0
+    Size 15
+}
+
+Pointlight HellFire_10
+{
+    Color 1.0 0.5 0.0
+    Offset 0 0 0
+    Size 5
+}
+
+Pointlight HellFire_11
+{
+    Color 1.0 0.5 0.0
+    Offset 0 0 0
+    Size 4
+}
+
+Pointlight HellFire_12
+{
+    Color 1.0 0.5 0.0
+    Offset 0 0 0
+    Size 3
+}
+
+Pointlight HellFire_13
+{
+    Color 1.0 0.5 0.0
+    Offset 0 0 0
+    Size 2
+}
+
+Pointlight HellFire_14
+{
+    Color 1.0 0.5 0.0
+    Offset 0 0 0
+    Size 1
+}
+
+Object Spell_FireDemon_BurningGround_Final {
+    Frame S011A { Light HellFire }
+    Frame S011B { Light HellFire_2 }
+    Frame S011C { Light HellFire_3 }
+    Frame S011D { Light HellFire_4 }
+    Frame S011E { Light HellFire_5 }
+    Frame S011F { Light HellFire_6 }
+    Frame S011G { Light HellFire_7 }
+    Frame S011H { Light HellFire_8 }
+    Frame S011I { Light HellFire_9 }
+    Frame S011J { Light HellFire_10 }
+    Frame S011K { Light HellFire_11 }
+    Frame S011L { Light HellFire_12 }
+    Frame S011M { Light HellFire_13 }
+    Frame S011N { Light HellFire_14 }
 }

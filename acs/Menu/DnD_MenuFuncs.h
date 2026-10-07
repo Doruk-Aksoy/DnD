@@ -1392,6 +1392,17 @@ void DrawHighLightBar (int posy, int framecounter) {
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_SIDE_PERKS"; HUDMSG_PLAIN, RPGMENULISTID - 1, -1, 96.0, 186.0, 0.0);
 
 
+	// Spells, on the same terms as the two above. It used to be drawn in the menu REDRAW block, so
+	// its colour could only change when something else forced a redraw -- which is why it appeared
+	// to blink while panels were being hovered and sat still the rest of the time. framecounter
+	// only advances out here, so this is the only place the blink can actually happen.
+	if(CheckInventory("SpellPoint") && !(framecounter % 2))
+		HudMessage(s:"\c[B3]", l:"DND_MENU_HEAD_SPELLS"; HUDMSG_PLAIN, RPGMENULISTID - 4, -1, 96.0, 269.0, 0.0);
+	else if(posy == MAINBOX_SPELL)
+		HudMessage(s:"\c[B1]", l:"DND_MENU_HEAD_SPELLS"; HUDMSG_PLAIN, RPGMENULISTID - 4, -1, 96.0, 269.0, 0.0);
+	else
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_HEAD_SPELLS"; HUDMSG_PLAIN, RPGMENULISTID - 4, -1, 96.0, 269.0, 0.0);
+
 	if(posy == MAINBOX_NONE)
 		HudMessage(s:""; HUDMSG_PLAIN, RPGMENUHIGHLIGHTID, -1, 47.1, 99.1, 0.0);
 	else if(posy < FIRST_CLICKABLE_BOXID) {

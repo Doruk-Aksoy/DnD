@@ -1,0 +1,43 @@
+// Slow comes from the cold on-hit seam in "DnD Damage Accumulate", not from here.
+// On DnD_SpellExplosive for the rank 10 splash alone, as Fire Jet is.
+Actor Spell_IceBolt : DnD_SpellExplosive {
+	PROJECTILE
+	Speed 25
+	Radius 6
+	Height 12
+	Scale 1.5
+	RenderStyle Add
+	Alpha 1.0
+	SeeSound "IceBolt/Fire"
+	DeathSound "IceBolt/Hit"
+	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE))
+	DamageType "Ice"
+	States {
+		SpawnState:
+			S012 A 2 Bright A_SpawnItemEx("Spell_IceBolt_Trail", -8, 0, 0, 0, 0, 0, 0, 128)
+		Loop
+		Death:
+			// Rank 10 only. The splash's victims are slowed by the same seam the direct hit uses,
+			// because to them it is simply another cold spell hit.
+			TNT1 A 0 A_JumpIf(user_spellrank < DND_SPELL_THRESH_HIGH, "ContinueFromExplosion")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Spell Explosion Setup"), "DoExplosionDamage")
+		Goto ContinueFromExplosion
+		ContinueFromExplosion:
+			TNT1 A 0 A_SpawnItemEx("BlueParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			S012 BCDEFG 3 Bright
+		Goto FinishExplosion
+	}
+}
+
+Actor Spell_IceBolt_Trail {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	RenderStyle Add
+	Alpha 1.0
+	States {
+		Spawn:
+			TNT1 A 1
+			S012 HIJK 2 Bright
+		Stop
+	}
+}

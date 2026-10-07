@@ -13,6 +13,7 @@ Actor Spell_FlamePillar : DnD_Spell {
             // Through ACS, not A_CustomMissile -- a DECORATE spawn does not carry user_spellid, so
             // the flame would price itself as spell 0 and resolve as Blaze.
             TNT1 A 4 ACS_NamedExecuteWithResult("DnD Flame Pillar Drop")
+            TNT1 A 0 A_Quake(3, 17, 0, 192, "")
             TNT1 A 0 A_Countdown
         Loop
         Death:

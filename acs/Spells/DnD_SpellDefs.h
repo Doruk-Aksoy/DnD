@@ -136,7 +136,6 @@ typedef struct {
 	int req_spell[DND_MAX_SKILL_REQ];	// stored +1 so an unset slot reads 0
 	int req_rank[DND_MAX_SKILL_REQ];
 	int req_level;
-	int req_tree_ranks;
 	int tree;
 	int flags;
 	int scale_mask;						// which SPELLVAL_* fields take the rank curve, as 1 << field
@@ -153,12 +152,17 @@ int GetSpellMaxLevel(int spell) {
 	return Min(SpellDefs[spell].req_level + DND_SPELL_RANKSPAN, DND_SPELL_MAXREQLEVEL);
 }
 
-// Ranks spread evenly between unlock and the cap. Rank 1 is always the spell's own req_level.
+// Front loaded, half linear half quadratic: cheap early ranks, dear late ones. Endpoints unchanged.
+// See .claude/notes/dnd-spell-scaling.md.
 int GetSpellRankLevelReq(int spell, int rank) {
 	if(rank <= 1)
 		return SpellDefs[spell].req_level;
-	return SpellDefs[spell].req_level +
-		(GetSpellMaxLevel(spell) - SpellDefs[spell].req_level) * (rank - 1) / (DND_SPELL_RANKCAP - 1);
+
+	int k = rank - 1;
+	int n = DND_SPELL_RANKCAP - 1;
+	int span = GetSpellMaxLevel(spell) - SpellDefs[spell].req_level;
+
+	return SpellDefs[spell].req_level + span * (n * k + k * k) / (2 * n * n);
 }
 
 // Percent compounded per rank, keyed off how deep in the tree the spell sits.
@@ -302,14 +306,6 @@ bool IsSpellUnlockable(int pnum, int spell, int at_rank = 1) {
 	else if(met != listed)
 		return false;
 
-	if(SpellDefs[spell].req_tree_ranks) {
-		int spent = 0, first = GetTreeFirstSpell(SpellDefs[spell].tree);
-		for(i = 0; i < DND_SPELLS_PER_TREE; ++i)
-			spent += GetSpellAllocatedRank(pnum, first + i);
-		if(spent < SpellDefs[spell].req_tree_ranks)
-			return false;
-	}
-
 	return true;
 }
 
@@ -329,6 +325,25 @@ bool IsSpellUnlockable(int pnum, int spell, int at_rank = 1) {
 // never builds the product that wrapped.
 int ScaleSpellValue(int v, int pct) {
 	return (v / 100) * pct + ((v % 100) * pct) / 100;
+}
+
+// The rank of `source` that `spell` FORCES the player to own before it can be unlocked at all.
+//
+// Zero under SPLF_REQ_ANY: there the list is an OR, so the source may never have been bought and
+// any ranks in it genuinely were a choice.
+int GetForcedSourceRank(int spell, int source) {
+	if(SpellDefs[spell].flags & SPLF_REQ_ANY)
+		return 0;
+
+	int i;
+	for(i = 0; i < DND_MAX_SKILL_REQ; ++i) {
+		if(!SpellDefs[spell].req_spell[i])
+			continue;
+		if(SpellDefs[spell].req_spell[i] - 1 == source)
+			return SpellDefs[spell].req_rank[i];
+	}
+
+	return 0;
 }
 
 int GetSpellValue(int pnum, int spell, int which, int rank_at = 0) {
@@ -355,7 +370,16 @@ int GetSpellValue(int pnum, int spell, int which, int rank_at = 0) {
 			continue;
 
 		src = GetSpellRank(pnum, SpellSynergies[i].source, true);
-		if(!src)
+
+		// Only ranks the player CHOSE pay out. Where this spell already forces the source to a rank,
+		// those are the price of entry rather than a synergy -- counting them handed the spell its
+		// own synergy bonus for free the instant it unlocked, which made it part of the base value
+		// wearing a synergy label.
+		//
+		// EFFECTIVE rank against an ALLOCATED floor on purpose: +spell level from gear was never
+		// forced, so it still counts.
+		src -= GetForcedSourceRank(spell, SpellSynergies[i].source);
+		if(src <= 0)
 			continue;
 
 		if(SpellSynergies[i].flags & SYNF_FLAT)
@@ -384,6 +408,14 @@ int GetSpellValue(int pnum, int spell, int which, int rank_at = 0) {
 // deliberate one: forgetting the flag on a new buff costs a pointless alert, where the inverse
 // would let a new attack spell silently sneak up on a sleeping room. An earlier version tested
 // scale_mask instead and missed exactly the cases this was meant to catch.
+// COST, COOLDOWN, CASTTIME and DURATION are stored as fixed point; DAMAGE, RADIUS and AMOUNT are
+// plain integers. Anything printing a raw row value has to know which, or a +0.25s duration bonus
+// reads as "+16384".
+bool IsSpellFieldFixedPoint(int field) {
+	return field == SPELLVAL_COST || field == SPELLVAL_COOLDOWN ||
+		field == SPELLVAL_CASTTIME || field == SPELLVAL_DURATION;
+}
+
 bool IsHostileSpell(int spell) {
 	return !(SpellDefs[spell].flags & SPLF_SUPPORT);
 }

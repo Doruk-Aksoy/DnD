@@ -41,6 +41,11 @@ Actor DnD_SlowPercent : DnD_Info { }
 Actor DnD_SlowTimer : DnD_Info { }
 Actor DnD_SlowTickerRunning : DnD_Info { }
 
+// Chill's magnitude, published by "DnD Monster Chill" for the slow ticker to read. Chill does
+// not write APROP_SPEED itself -- the ticker owns it and takes the stronger of this and the
+// timed slow, so the two cannot fight over the property.
+Actor DnD_ChillPercent : DnD_Info { }
+
 Actor BlindCancelledSignal : PowerDamage {
 	damagefactor "normal", 1.0
 	powerup.duration 7

@@ -263,17 +263,31 @@ void SetupSpellActor(int tid, int pnum, int spell) {
 // moving the player to the muzzle position jitters them.
 // side_off slides the spawn point PERPENDICULAR to the facing, where angle_off rotates the shot.
 // Two parallel pillars 32 units out need the former; a fan of fireballs needs the latter.
+// rtime, when given, is written to APROP_REACTIONTIME before the scratch tid goes back. It is for
+// projectiles whose life is an A_Countdown rather than a frame count, so the number can come off
+// the spell row instead of being frozen into DECORATE.
+// origin, when given, is the actor the projectile LAUNCHES from. The caster still OWNS it, so it
+// is still priced off their spell row and still credits them the kill -- a pet casting its
+// owner's spell needs exactly that split, and nothing else wants it.
+// Launch height: the eyeline unless a caller asks for a height above the caster's feet instead.
+#define DND_SPELLPROJ_FROMVIEW -1
+
+// flat ignores the caster's pitch and sends the shot level along their facing.
 void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags = 0, int angle_off = 0,
-	int side_off = 0) {
+	int side_off = 0, int rtime = 0, int origin = 0, bool flat = false,
+	int zoff = DND_SPELLPROJ_FROMVIEW) {
 	int owner = pnum + P_TIDSTART;
+	int from = origin ? origin : owner;
 
 	// + 1.0 before the wrap: an offset to the left is negative, and the modulo of a negative angle
 	// does not come back inside 0..1 on its own.
-	int a = (GetActorAngle(owner) + angle_off + 1.0) % 1.0;
-	int pt = Clamp_Between(GetActorPitch(owner), -0.248, 0.248);
+	int a = (GetActorAngle(from) + angle_off + 1.0) % 1.0;
+	int pt = flat ? 0 : Clamp_Between(GetActorPitch(from), -0.248, 0.248);
 	int cosp = cos(pt);
 
-	Vec3_T* vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 15.0);
+	int z = zoff == DND_SPELLPROJ_FROMVIEW ?
+		GetActorViewHeight(from) - 15.0 : zoff;
+	Vec3_T* vPos = GetVec3(GetActorX(from), GetActorY(from), GetActorZ(from) + z);
 
 	// a + 0.25 is 90 degrees left of the facing, so a positive side_off goes left.
 	if(side_off) {
@@ -291,8 +305,12 @@ void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags =
 	// returns, so setting the spell up on that tid afterwards reached nothing at all and every spell
 	// projectile flew with user_spellid still 0 -- resolving its damage as spell 0 rather than its own.
 	int tid = TEMPORARY_SPELL_TID + pnum;
-	CreateProjectile(owner, PROJECTILE_HELPER_TID + pnum, actor, a, pt, speed, vProj, vPos, flags, 0, 0, 0, tid);
+	CreateProjectile(from, PROJECTILE_HELPER_TID + pnum, actor, a, pt, speed, vProj, vPos, flags, 0, 0, 0, tid);
 	SetupSpellActor(tid, pnum, spell);
+
+	if(rtime > 0)
+		SetActorProperty(tid, APROP_REACTIONTIME, rtime);
+
 	Thing_ChangeTID(tid, 0);
 
 	bcs::free(vProj);
@@ -321,6 +339,41 @@ int FanOffset(int index, int step) {
 
 	int pair = (index + 1) / 2;
 	return (index & 1) ? pair * step : -pair * step;
+}
+
+// ---- summon placement ---------------------------------------------------------------------
+//
+// Puts a summon down near its owner: dead ahead first, then fanning out around a ring, then at
+// widening rings. A player standing against a wall or in a doorway would otherwise get nothing.
+//
+// Spawn, NOT SpawnForced, for the attempts: Spawn refuses a spot the actor does not fit in, which
+// is exactly the test wanted, while SpawnForced plants it regardless and would report success from
+// inside a wall. The LAST resort is a forced spawn on top of the owner, because a summon that
+// silently never appears is worse than one standing somewhere awkward -- the cast is already paid
+// for by then.
+#define DND_SUMMON_ARC 8          // candidates per ring
+#define DND_SUMMON_RINGS 3        // how many widening rings before giving up on a clean spot
+#define DND_SUMMON_RINGSTEP 40.0  // how much further out each ring reaches
+
+bool SpawnSummonNear(str actor, int owner, int tid, int dist) {
+	int i, ring, d, ang;
+	int a = GetActorAngle(owner);
+	int ox = GetActorX(owner), oy = GetActorY(owner), oz = GetActorZ(owner);
+
+	for(ring = 0; ring < DND_SUMMON_RINGS; ++ring) {
+		d = dist + ring * DND_SUMMON_RINGSTEP;
+
+		for(i = 0; i < DND_SUMMON_ARC; ++i) {
+			// FanOffset alternates either side of 0, so index 0 is straight ahead and the next tries
+			// are still in front of the player rather than behind them.
+			ang = a + FanOffset(i, 1.0 / DND_SUMMON_ARC);
+
+			if(Spawn(actor, ox + FixedMul(cos(ang), d), oy + FixedMul(sin(ang), d), oz, tid, ang >> 8))
+				return true;
+		}
+	}
+
+	return !!SpawnForced(actor, ox, oy, oz, tid, a >> 8);
 }
 
 // ---- ally soft lock ---------------------------------------------------------------------------
