@@ -1468,12 +1468,24 @@ Script "DnD Heat Shield Retaliate" (int pnum, int attacker) {
 // A_Explode through the shared spell explosion machinery.
 
 #define DND_ICEBOLT_SPEED 25
+#define DND_ICENOVA_Z 8.0
+#define DND_GLACIALSPIKE_SPEED 34
 
 // The doc gives no duration. Two seconds sits in chill's own rhythm -- its stacks decay one a
 // second -- and outlasts the 1 second cast without becoming permanent on everything you touch.
 #define DND_ICEBOLT_SLOWTICS (2 * TICRATE)
 
 #define DND_ICEBOLT_R5_SLOW 75
+
+// Up here rather than with the rest of Chilling Breath: the cold on-hit seam reads them and sits
+// above that block in the file.
+#define DND_CHILLINGBREATH_R5_SLOW 50
+#define DND_CHILLINGBREATH_SLOWTICS (2 * TICRATE)
+
+// Same reason, for Frost Bomb.
+#define DND_FROSTBOMB_NOREGEN (5 * TICRATE)
+#define DND_FROSTBOMB_R5_EXPOSE 15      // rank 5: cold resistance points taken off
+#define DND_FROSTBOMB_EXPOSETICS (4 * TICRATE)
 
 // ============================ Freezing Pulse ============================
 // A fan of ripping sub-projectiles whose boxes overlap into the crescent the spell is meant to be.
@@ -1508,9 +1520,7 @@ Script "DnD Heat Shield Retaliate" (int pnum, int attacker) {
 // GUESS: the doc states a freeze chance but no freeze length.
 #define DND_FREEZINGPULSE_FREEZETICS TICRATE
 
-// When each caster last loosed a pulse, and the id its fan shares. The tic is what the falloff is
-// measured against -- the whole fan leaves at once and travels at one speed, so time since the cast
-// is the distance it has come, and no projectile has to be asked.
+// Per caster: when the pulse left, and the ripper id its fan shares.
 // A module& must return a reference to a STRUCT, so the cell is one.
 typedef struct {
 	int val;
@@ -1528,27 +1538,19 @@ pulse_cell_T module& GetPulseRipperId(int pnum) {
 
 // How many tics a pulse is in the air, which is also the span its freeze chance decays over.
 // How much wider than base this cast is. ONE number, because the arcs and the model it is drawn
-// with have to agree -- the visual is a claim about where the damage is.
-//
-// Rank 10's +25% joins the ADDITIVE area pool rather than multiplying the finished width, which is
-// what ScalePlayerAoERadius exists to do: a rank that reads "increased" stacks with the player's
-// own increases instead of compounding on top of them. Asking it to scale exactly 1.0 hands back
-// the factor itself.
 int GetPulseWidthFactor(int pnum) {
 	return ScalePlayerAoERadius(pnum, 1.0, DND_AOESRC_NONWEAPON,
 		DND_FREEZINGPULSE_R10_WIDTH * SpellThresholdMet(pnum, SPL_FREEZINGPULSE, DND_SPELL_THRESH_HIGH));
 }
 
-// Set by the carrier on its first tic. The actor's scaleX drives the model's x AND y, and scaleY
+// Set by the carrier on its first tic. scaleX drives the model's x and y, scaleY its z.
 // drives its z, so one factor on both grows the wave evenly with the fan it is standing in for.
 Script "DnD Freezing Pulse Scale" (void) {
 	int pnum = GetSpellActorOwner();
 	if(pnum != -1) {
 		int f = GetPulseWidthFactor(pnum);
 
-		// MULTIPLIED into whatever the actor already carries, not assigned. The DECORATE Scale is the
-		// base size of the wave and stays the place to change it; this only applies the cast's own
-		// widening on top. Assigning would silently throw that base away.
+		// Multiplied in, not assigned: the DECORATE Scale stays the base size.
 		SetActorProperty(0, APROP_SCALEX, FixedMul(GetActorProperty(0, APROP_SCALEX), f));
 		SetActorProperty(0, APROP_SCALEY, FixedMul(GetActorProperty(0, APROP_SCALEY), f));
 	}
@@ -1564,7 +1566,7 @@ int GetPulseFlightTics(int pnum) {
 	return Max(1, range / DND_FREEZINGPULSE_SPEED);
 }
 
-// Claimed by each sub-projectile on its first tic. The owner is already on APROP_SCORE by then --
+// Claimed by each sub-projectile on its first tic; the owner is on APROP_SCORE by then.
 // "DnD Projectile Checks" put it there -- so the fan finds its shared id without being handed one.
 Script "DnD Freezing Pulse Claim" (void) {
 	int pnum = GetSpellActorOwner();
@@ -1587,25 +1589,20 @@ void CastFreezingPulse(int pnum) {
 	// Same factor the carrier scales its model by, so the two never drift apart.
 	int step = FixedMul(DND_FREEZINGPULSE_SPACING, GetPulseWidthFactor(pnum));
 
-	// The arcs. Spell_FreezingPulse_Part, NOT Spell_FreezingPulse: the damage lives on the invisible
-	// fan, and the named actor is the single visible carrier spawned below. Spawning the carrier
-	// here instead would stack five copies of the model and deal nothing, since it has Damage 0.
+	// The arcs carry the damage; Spell_FreezingPulse below is the visible carrier.
 	int k, off;
 	int mid = DND_FREEZINGPULSE_COUNT / 2;
 	for(k = 0; k < DND_FREEZINGPULSE_COUNT; ++k) {
 		off = k - mid;
 
-		// off * off is the sagitta term: the arc depth grows with the SQUARE of how far out this
+		// off * off is the sagitta: arc depth grows with the square of the lateral step.
 		// piece sits, which is what separates a bowed wave from a flat rank of projectiles.
-		// flat: a wave travels along the floor, so pitch is ignored and only facing is used.
 		SpawnSpellProjectile(pnum, SPL_FREEZINGPULSE, "Spell_FreezingPulse_Part",
 			DND_FREEZINGPULSE_SPEED - DND_FREEZINGPULSE_LAG * off * off,
 			0, DND_FREEZINGPULSE_SPREAD * off, step * off, life, 0, true, DND_FREEZINGPULSE_Z);
 	}
 
-	// One carrier down the middle at the centre speed, which is what wears the model. The model is
-	// itself the whole cascade, so it is spawned ONCE -- one per arc would be five cascades inside
-	// each other. It deals nothing and claims no ripper id; it only has to be in the right place.
+	// One carrier, centred: the model IS the whole cascade, so one per arc would nest five.
 	SpawnSpellProjectile(pnum, SPL_FREEZINGPULSE, "Spell_FreezingPulse",
 		DND_FREEZINGPULSE_SPEED, 0, 0, 0, life, 0, true, DND_FREEZINGPULSE_Z);
 }
@@ -1613,8 +1610,6 @@ void CastFreezingPulse(int pnum) {
 
 // ============================ cold, on hit ============================
 // Reached from "DnD Damage Accumulate" the moment a cold SPELL damages a monster, so a spell never
-// has to go looking for who it hit. One damage instance, one call -- and RIPSONCE already makes that
-// one instance per enemy for the ripping spells.
 Script "DnD Spell Cold On Hit" (int pnum, int victim, int spell) {
 	int pct, chance, gone, span;
 
@@ -1625,10 +1620,23 @@ Script "DnD Spell Cold On Hit" (int pnum, int victim, int spell) {
 			SlowMonster(victim, pct, DND_ICEBOLT_SLOWTICS);
 		break;
 
+		case SPL_CHILLINGBREATH:
+			// Rank 5 only; below it the breath just damages.
+			if(SpellThresholdMet(pnum, SPL_CHILLINGBREATH, DND_SPELL_THRESH_LOW))
+				SlowMonster(victim, DND_CHILLINGBREATH_R5_SLOW, DND_CHILLINGBREATH_SLOWTICS);
+		break;
+
+		case SPL_FROSTBOMB:
+			// Every pulse refreshes it, so standing in the crystal is a rolling 5 seconds of no regen.
+			PauseMonsterRegen(victim, DND_FROSTBOMB_NOREGEN);
+
+			if(SpellThresholdMet(pnum, SPL_FROSTBOMB, DND_SPELL_THRESH_LOW))
+				ApplyColdExposure(victim, DND_FROSTBOMB_R5_EXPOSE, DND_FROSTBOMB_EXPOSETICS);
+		break;
+
 		case SPL_FREEZINGPULSE:
 			// Full at the muzzle, nothing at the edge. Measured in TIME since the cast: the fan leaves
 			// together and holds its speed, so this is the distance it has come without asking any
-			// projectile for its position.
 			span = GetPulseFlightTics(pnum);
 			gone = Clamp_Between(Timer() - GetPulseCastTic(pnum).val, 0, span);
 
@@ -1641,22 +1649,893 @@ Script "DnD Spell Cold On Hit" (int pnum, int victim, int spell) {
 	SetResultValue(0);
 }
 
+// ============================ Ice Shield ============================
+// The spell-system port of the legacy skill. Numbers off the row, and its own fade token.
+
+#define DND_ICESHIELD_R5_BONUS 2.5    // extra seconds at rank 5
+#define DND_ICESHIELD_FADETICS 20     // how long the barriers take to fade once told to
+
+Script "DnD Ice Shield" (int pnum) {
+	int caster = pnum + P_TIDSTART;
+	int tid = TEMPORARY_SPELL_TID + pnum;
+
+	int count = Max(1, GetSpellValue(pnum, SPL_ICESHIELD_S, SPELLVAL_AMOUNT));
+	int hp = Max(1, GetSpellValue(pnum, SPL_ICESHIELD_S, SPELLVAL_DAMAGE));
+
+	// Intellect, as a percent of the ranked value. INT is the spell stat, so a defensive pool
+	// answers to it the same way minion health does.
+	hp += hp / 10000 * GetIntellectEffect(pnum, DND_SPELL_BARRIERHP_PER_INT);
+	bool hard = SpellThresholdMet(pnum, SPL_ICESHIELD_S, DND_SPELL_THRESH_HIGH);
+
+	int tics = GetSpellDurationTics(pnum, SPL_ICESHIELD_S);
+	if(SpellThresholdMet(pnum, SPL_ICESHIELD_S, DND_SPELL_THRESH_LOW))
+		tics += (DND_ICESHIELD_R5_BONUS * TICRATE) >> 16;
+
+	// A stale token from a previous cast would fade this one on its first tic.
+	TakeActorInventory(caster, "Spell_IceShieldFade", 1);
+
+	ActivatorSound("Spell/IceShieldCast", 127);
+
+	int i;
+	for(i = 0; i < count; ++i) {
+		// Byte angle, evenly around the caster.
+		if(!SpawnForced("Spell_IceShieldBarrier", GetActorX(caster), GetActorY(caster),
+			GetActorZ(caster), tid, (i * 255) / count))
+			continue;
+
+		SetActivator(tid);
+		SetPointer(AAPTR_TRACER, caster);
+		SetActorProperty(0, APROP_HEALTH, hp);
+		if(hard)
+			GiveInventory("Spell_IceShieldHarden", 1);
+		Thing_ChangeTID(0, 0);
+		SetActivator(caster);
+	}
+
+	Delay(tics);
+
+	GiveActorInventory(caster, "Spell_IceShieldFade", 1);
+	Delay(const:DND_ICESHIELD_FADETICS);
+	TakeActorInventory(caster, "Spell_IceShieldFade", 1);
+}
+
+// ============================ Glacial Spike ============================
+// Rips each enemy once through RIPSONCE, and stops after AMOUNT of them. The cap is counted on the
+
+#define DND_GLACIALSPIKE_LIFE 105      // tics in the air before it shatters on its own
+#define DND_GLACIALSPIKE_R5_FREEZE 2.0
+#define DND_GLACIALSPIKE_SHATTER 96.0 // GUESS: how far the shatter freezes
+
+Script "DnD Glacial Spike Setup" (void) {
+	int pnum = GetSpellActorOwner();
+	if(pnum != -1) {
+		// DnD_RipLimit is the mod's own rip bookkeeping: the handler tallies DnD_RipCount per NEW
+		// victim and hands out TakeRipperAway at the limit.
+		SetInventory("DnD_RipLimit", Max(1, GetSpellValue(pnum, SPL_GLACIALSPIKE, SPELLVAL_AMOUNT)));
+
+		// Rank 10: rips through Hardened Skin. Still only AMOUNT of them.
+		if(SpellThresholdMet(pnum, SPL_GLACIALSPIKE, DND_SPELL_THRESH_HIGH))
+			GiveInventory("DnD_RipThruHardened", 1);
+	}
+
+	SetActorProperty(0, APROP_REACTIONTIME, DND_GLACIALSPIKE_LIFE);
+	SetResultValue(0);
+}
+
+// One shot on impact, not a per-tic sweep: the shatter happens once and then the spike is gone.
+Script "DnD Glacial Spike Shatter" (void) {
+	int pnum = GetSpellActorOwner();
+	if(pnum == -1)
+		Terminate;
+
+	int tics = GetSpellDurationTics(pnum, SPL_GLACIALSPIKE);
+	if(SpellThresholdMet(pnum, SPL_GLACIALSPIKE, DND_SPELL_THRESH_LOW))
+		tics = (DND_GLACIALSPIKE_R5_FREEZE * TICRATE) >> 16;
+
+	int r = ScalePlayerAoERadius(pnum, DND_GLACIALSPIKE_SHATTER, DND_AOESRC_NONWEAPON);
+	int cut = r >> 16;
+	int ox = GetActorX(0) >> 16, oy = GetActorY(0) >> 16, oz = GetActorZ(0) >> 16;
+
+	int i, mn, dx, dy, dz;
+	for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
+		i = UsedMonsterTIDs[mn];
+
+		// Box reject first: UsedMonsterTIDs counts every monster the map ever spawned.
+		dx = (GetActorX(i) >> 16) - ox;
+		if(dx > cut || dx < -cut)
+			continue;
+		dy = (GetActorY(i) >> 16) - oy;
+		if(dy > cut || dy < -cut)
+			continue;
+		dz = (GetActorZ(i) >> 16) - oz;
+		if(dz > cut || dz < -cut)
+			continue;
+
+		if(dx * dx + dy * dy + dz * dz > cut * cut)
+			continue;
+		if(!IsActorAlive(i) || !CheckFlag(i, "SHOOTABLE"))
+			continue;
+
+		FreezeMonster(pnum, i, tics);
+	}
+}
+
+// ============================ Chilling Breath ============================
+// Channelled. A constant stream of short ripping puffs, each its own attack.
+
+#define DND_CHILLINGBREATH_TICK 17     // tics between MANA payments, ie. half a second
+#define DND_CHILLINGBREATH_GAPMIN 2    // and between puffs, which is a separate clock now
+#define DND_CHILLINGBREATH_GAPMAX 3
+#define DND_CHILLINGBREATH_EXTRA 33    // percent chance of a second puff in the same breath
+#define DND_CHILLINGBREATH_ARC 0.030   // half-arc, fixed point angle. ~22 degrees total
+#define DND_CHILLINGBREATH_VARC 0.022  // and vertically, so the cone has height
+#define DND_CHILLINGBREATH_JITTER 5    // speed either side of base, so they do not fly as a wall
+#define DND_CHILLINGBREATH_R10_WIDE 30 // percent wider at rank 10
+#define DND_CHILLINGBREATH_SPEED 24
+#define DND_CHILLINGBREATH_SMOKE 2     // smoke puffs a breath
+#define DND_CHILLINGBREATH_SMOKEZ 15.0 // below the eye, where the breath leaves
+#define DND_CHILLINGBREATH_SMOKEFWD 24.0
+#define DND_CHILLINGBREATH_SMOKESPD 11
+
+// The smoke. PlasmaSmoke2 is +CLIENTSIDEONLY through DnD_SpecialFX, so a server side spawn of it
+// draws on nobody's screen -- the client has to make its own, as Scorching Ray's beads do.
+Script "DnD Chilling Breath FX" (int arc) CLIENTSIDE {
+	if(!isAlive())
+		Terminate;
+
+	int a = GetActorAngle(0), p = GetActorPitch(0);
+	int ox = GetActorX(0), oy = GetActorY(0);
+	int oz = GetActorZ(0) + GetActorViewHeight(0) - DND_CHILLINGBREATH_SMOKEZ;
+
+	// One tid, reused and released for each puff of smoke in turn.
+	int tid = TEMPORARY_DATADUMMY_TID + ConsolePlayerNumber();
+
+	int k, sa, sp, cp;
+	for(k = 0; k < DND_CHILLINGBREATH_SMOKE; ++k) {
+		// Its own scatter, so the smoke fills the cone rather than tracing the exact aim.
+		sa = (a + random(-arc, arc) + 1.0) % 1.0;
+		sp = Clamp_Between(p + random(-DND_CHILLINGBREATH_VARC, DND_CHILLINGBREATH_VARC),
+			-0.248, 0.248);
+		cp = cos(sp);
+
+		// Forced: smoke is scenery and must not be dropped because something happens to be stood
+		// in front of the caster.
+		if(!SpawnForced("PlasmaSmoke2",
+			ox + FixedMul(DND_CHILLINGBREATH_SMOKEFWD, FixedMul(cos(sa), cp)),
+			oy + FixedMul(DND_CHILLINGBREATH_SMOKEFWD, FixedMul(sin(sa), cp)),
+			oz - FixedMul(DND_CHILLINGBREATH_SMOKEFWD, sin(sp)), tid, 0))
+			continue;
+
+		SetActorVelocity(tid,
+			DND_CHILLINGBREATH_SMOKESPD * FixedMul(cos(sa), cp),
+			DND_CHILLINGBREATH_SMOKESPD * FixedMul(sin(sa), cp),
+			-sin(sp) * DND_CHILLINGBREATH_SMOKESPD, false, false);
+
+		// Released before the next one takes it. The smoke retags itself on its own first tic.
+		Thing_ChangeTID(tid, 0);
+	}
+
+	SetResultValue(0);
+}
+
+// One puff. Pulled out because the breath throws a second one a third of the time.
+void BreatheChillingPuff(int pnum, int arc) {
+	// Before the projectile: SpawnSpellProjectile moves the activator about, and the FX needs the
+	// caster to still be it.
+	ACS_NamedExecuteAlways("DnD Chilling Breath FX", 0, arc);
+
+	SpawnSpellProjectile(pnum, SPL_CHILLINGBREATH, "Spell_ChillingBreath",
+		DND_CHILLINGBREATH_SPEED + random(-DND_CHILLINGBREATH_JITTER, DND_CHILLINGBREATH_JITTER),
+		0, random(-arc, arc), 0, 0, 0, false, DND_SPELLPROJ_FROMVIEW,
+		random(-DND_CHILLINGBREATH_VARC, DND_CHILLINGBREATH_VARC));
+}
+
+// No ripper id is claimed here on purpose. Every puff is its OWN attack, and HandleRipperHit
+// reserves an id for a projectile that has none -- so each lands once on each enemy it passes.
+Script "DnD Chilling Breath Claim" (void) {
+	int pnum = GetSpellActorOwner();
+	if(pnum == -1) {
+		SetResultValue(0);
+		Terminate;
+	}
+
+	// MAX_RIPCOUNT is the one limit that skips the rip budget. UNSET reads as 0, which strips the
+	// ripper on contact number one -- which is why the breath was not ripping at all.
+	SetInventory("DnD_RipLimit", MAX_RIPCOUNT);
+
+	// Reach, as tics of flight. The row is in units and the puff covers SPEED of them a tic.
+	int reach = GetSpellValue(pnum, SPL_CHILLINGBREATH, SPELLVAL_RADIUS);
+	SetActorProperty(0, APROP_REACTIONTIME, Max(2, reach / DND_CHILLINGBREATH_SPEED));
+	SetResultValue(0);
+}
+
+Script "DnD Chilling Breath" (int pnum) {
+	int caster = pnum + P_TIDSTART;
+
+	BeginSpellBusy(pnum);
+	PlaySound(caster, "ScorchingRay/Loop", CHAN_7, 1.0, true);
+
+	int arc = DND_CHILLINGBREATH_ARC;
+	if(SpellThresholdMet(pnum, SPL_CHILLINGBREATH, DND_SPELL_THRESH_HIGH))
+		arc = arc * (100 + DND_CHILLINGBREATH_R10_WIDE) / 100;
+
+	bool held = false, first = true;
+	int t = 0, due = 0;
+
+	while(true) {
+		if(!PlayerInGame(pnum) || !IsActorAlive(caster))
+			break;
+
+		if(IsChannelHeld())
+			held = true;
+		else if(held || t >= DND_CHANNEL_GRACE)
+			break;
+
+		// Mana keeps its own half second clock; the breath no longer pauses between payments.
+		if(!(t % DND_CHILLINGBREATH_TICK)) {
+			if(!PayChannelTick(pnum, SPL_CHILLINGBREATH, first))
+				break;
+			first = false;
+		}
+
+		// Rapid and uneven rather than metronomic: the gap is rerolled every time and the breath
+		// sometimes doubles up, so it reads as breathing instead of as a rank of projectiles.
+		if(t >= due) {
+			BreatheChillingPuff(pnum, arc);
+
+			if(random(1, 100) <= DND_CHILLINGBREATH_EXTRA)
+				BreatheChillingPuff(pnum, arc);
+
+			due = t + random(DND_CHILLINGBREATH_GAPMIN, DND_CHILLINGBREATH_GAPMAX);
+		}
+
+		Delay(const:1);
+		++t;
+	}
+
+	StopSound(caster, CHAN_7);
+	EndSpellBusy(pnum);
+	StartSpellCooldown(pnum, SPL_CHILLINGBREATH);
+}
+
+// ============================ Creeping Frost ============================
+// Bursts, then leaves crawlers that creep toward whatever is nearest and pulse as they go.
+
+#define DND_CREEPINGFROST_SPEED 28
+// One. Three seeked independently and read as three separate things rather than one spreading
+// patch; raising this brings that back unless they are made to share a tracer.
+#define DND_CREEPINGFROST_CRAWLERS 1
+#define DND_CREEPINGFROST_SPREAD 0.11   // how far apart the crawlers set off
+#define DND_CREEPINGFROST_PULSE 7       // tics per crawler pulse; divides TICRATE exactly
+#define DND_CREEPINGFROST_PPS 5         // and so this many a second, which DAMAGE2 is split by
+
+// Half-extent the quad actually SHOWS at scale 1: flat.md3 frame 3 is 15.62 and the shader's mask
+// trims it to about 0.81 of that. The crawler scales itself off this so the frost matches its blast.
+#define DND_CREEPINGFROST_QUADR 12.65
+#define DND_CREEPINGFROST_R5_BONUS 4.0  // extra seconds at rank 5
+#define DND_CREEPINGFROST_R10_RISE 64.0 // rank 10: how much higher it may climb
+#define DND_CREEPINGFROST_SEEK 384      // how far a crawler looks for something to crawl at
+
+Script "DnD Creeping Frost Burst" (void) {
+	int pnum = GetSpellActorOwner();
+	if(pnum == -1)
+		Terminate;
+
+	int tics = GetSpellDurationTics(pnum, SPL_CREEPINGFROST);
+	if(SpellThresholdMet(pnum, SPL_CREEPINGFROST, DND_SPELL_THRESH_LOW))
+		tics += (DND_CREEPINGFROST_R5_BONUS * TICRATE) >> 16;
+
+	// Counted down one per pulse loop, so the lifetime is in pulses rather than tics.
+	int life = Max(1, tics / DND_CREEPINGFROST_PULSE);
+	int caster = pnum + P_TIDSTART;
+	bool climbs = SpellThresholdMet(pnum, SPL_CREEPINGFROST, DND_SPELL_THRESH_HIGH);
+
+	// The FLOOR under the impact, not the impact itself. A direct hit on an enemy dies at chest
+	// height, and crawlers born there spend their first tics dropping -- which read as sinking.
+	int x = GetActorX(0), y = GetActorY(0), z = GetActorFloorZ(0);
+	int a = GetActorAngle(0);
+	int tid = TEMPORARY_SPELL_TID + pnum;
+
+	int k, off;
+	int mid = DND_CREEPINGFROST_CRAWLERS / 2;
+	for(k = 0; k < DND_CREEPINGFROST_CRAWLERS; ++k) {
+		off = k - mid;
+		if(!SpawnForced("Spell_CreepingFrost_Crawl", x, y, z, tid,
+			((a + DND_CREEPINGFROST_SPREAD * off + 1.0) % 1.0) >> 8))
+			continue;
+
+		SetupSpellActor(tid, pnum, SPL_CREEPINGFROST);
+		SetActorProperty(tid, APROP_REACTIONTIME, life);
+		if(climbs)
+			SetActorProperty(tid, APROP_MAXSTEPHEIGHT, DND_CREEPINGFROST_R10_RISE);
+
+		// Hand spawned, so it has no target -- and "DnD Projectile Checks" reads the owner off one.
+		// Without this the crawler never learns who cast it and every pulse prices as nothing.
+		SetActivator(tid);
+		SetPointer(AAPTR_TARGET, caster);
+		SetActivator(caster);
+
+		// Settled onto the floor it actually landed over, which is not the impact's if it fanned out.
+		SetActorPosition(tid, GetActorX(tid), GetActorY(tid), GetActorFloorZ(tid), false);
+
+		Thing_ChangeTID(tid, 0);
+	}
+}
+
+// Sizes the patch to the blast it does, so the two agree under area gear as well as at base.
+Script "DnD Creeping Frost Size" (void) {
+	int pnum = GetSpellActorOwner();
+	if(pnum != -1) {
+		int r = ScalePlayerAoERadius(pnum,
+			GetSpellValue(pnum, SPL_CREEPINGFROST, SPELLVAL_RADIUS) << 16, DND_AOESRC_NONWEAPON);
+
+		SetActorProperty(0, APROP_SCALEX, FixedDiv(r, DND_CREEPINGFROST_QUADR));
+	}
+
+	SetResultValue(0);
+}
+
+// ============================ Frost Shards ============================
+
+#define DND_FROSTSHARDS_SPEED 30
+#define DND_FROSTSHARDS_VOLLEY 17      // tics a volley cycle, ie. half a second
+#define DND_FROSTSHARDS_FORM 10         // of which this many are spent materialising
+#define DND_FROSTSHARDS_R5_EXTRA 2     // more shards a volley at rank 5
+#define DND_FROSTSHARDS_SPREAD 36.0    // half-width of the arc they form along
+#define DND_FROSTSHARDS_RISE 20.0      // and how far the middle of it caps over the ends
+#define DND_FROSTSHARDS_CONVERGE 640.0 // where the arc meets when nothing is under the crosshair
+#define DND_FROSTSHARDS_NEAR 96.0      // and the closest it will ever be told to meet
+#define DND_FROSTSHARDS_ARC 0.0012     // leftover jitter, so a volley is not one solid line
+#define DND_FROSTSHARDS_VARC 0.0012
+#define DND_FROSTSHARDS_RIPS 3         // rank 10: how many each may pass through
+
+// Distance to whatever the crosshair is actually on, so the volley meets THERE.
+int FrostShardsAimDist(int caster) {
+	int t = PickActor(caster, GetActorAngle(caster), GetActorPitch(caster),
+		DND_SPELL_HITSCANRANGE, 0, MF_SHOOTABLE, ML_BLOCKEVERYTHING, PICKAF_RETURNTID);
+
+	if(!t)
+		return DND_FROSTSHARDS_CONVERGE;
+
+	int d = magnitudeTwo((GetActorX(t) - GetActorX(caster)) >> 16,
+		(GetActorY(t) - GetActorY(caster)) >> 16) << 16;
+
+	return Max(DND_FROSTSHARDS_NEAR, d);
+}
+
+// Where shard k sits in the arc: runs -1 to 1 across it, left to right.
+int FrostShardPos(int k, int count) {
+	if(count < 2)
+		return 0;
+
+	return ((k << 17) / (count - 1)) - 1.0;
+}
+
+int FrostShardOffset(int k, int count) {
+	return -FixedMul(DND_FROSTSHARDS_SPREAD, FrostShardPos(k, count));
+}
+
+// A parabola over the same t, so the middle of the arc caps up over the ends.
+int FrostShardRise(int k, int count) {
+	int t = FrostShardPos(k, count);
+	return FixedMul(DND_FROSTSHARDS_RISE, 1.0 - FixedMul(t, t));
+}
+
+// Rank 10 only: the shards rip, once per enemy and only so many.
+Script "DnD Frost Shard Setup" (void) {
+	int pnum = GetSpellActorOwner();
+	if(pnum != -1 && SpellThresholdMet(pnum, SPL_FROSTSHARDS, DND_SPELL_THRESH_HIGH)) {
+		// ACS cannot set an actor flag in Zandronum, so the pickup does it.
+		GiveInventory("DnD_MakeRipper", 1);
+		SetActorProperty(0, APROP_STAMINA, GetActorProperty(0, APROP_STAMINA) | DND_DAMAGEFLAG_RIPSONCE);
+		SetInventory("DnD_RipLimit", DND_FROSTSHARDS_RIPS);
+	}
+
+	SetResultValue(0);
+}
+
+// The shards the player watches form. CLIENTSIDE because a server side SpawnForced of a
+// CLIENTSIDEONLY actor draws on nobody's screen and reports no error.
+Script "DnD Frost Shards Form" (int count) CLIENTSIDE {
+	if(!isAlive())
+		Terminate;
+
+	int caster = PlayerNumber() + P_TIDSTART;
+	int tid = TEMPORARY_DATADUMMY_TID + ConsolePlayerNumber();
+
+	// Read once: the loop swaps the activator about, so it must not depend on one.
+	int x = GetActorX(0), y = GetActorY(0), z = GetActorZ(0);
+
+	int k;
+	for(k = 0; k < count; ++k) {
+		// Dropped on the caster; the actor's own A_Warp puts it out front and keeps it there.
+		if(!SpawnForced("Spell_FrostShard_Form", x, y, z, tid, 0))
+			continue;
+
+		SetActivator(tid);
+		SetPointer(AAPTR_TARGET, caster);
+		SetActorProperty(tid, APROP_TARGETTID, caster);
+		// Plain units: DECORATE reads an int handed to a fixed parameter as whole units.
+		SetUserVariable(tid, "user_side", FrostShardOffset(k, count) >> 16);
+		SetUserVariable(tid, "user_rise", FrostShardRise(k, count) >> 16);
+		SetActivator(caster);
+
+		Thing_ChangeTID(tid, 0);
+	}
+
+	SetResultValue(0);
+}
+
+Script "DnD Frost Shards" (int pnum) {
+	int caster = pnum + P_TIDSTART;
+
+	int count = Max(1, GetSpellValue(pnum, SPL_FROSTSHARDS, SPELLVAL_AMOUNT));
+	if(SpellThresholdMet(pnum, SPL_FROSTSHARDS, DND_SPELL_THRESH_LOW))
+		count += DND_FROSTSHARDS_R5_EXTRA;
+
+	int volleys = Max(1, GetSpellDurationTics(pnum, SPL_FROSTSHARDS) / DND_FROSTSHARDS_VOLLEY);
+
+	int v, k, d, rise, eye, aim;
+	for(v = 0; v < volleys; ++v) {
+		if(!PlayerInGame(pnum) || !IsActorAlive(caster))
+			break;
+
+		ACS_NamedExecuteAlways("DnD Frost Shards Form", 0, count);
+		Delay(const:DND_FROSTSHARDS_FORM);
+
+		if(!PlayerInGame(pnum) || !IsActorAlive(caster))
+			break;
+
+		eye = GetActorViewHeight(caster) - 15.0;
+		aim = FrostShardsAimDist(caster);
+
+		for(k = 0; k < count; ++k) {
+			d = FrostShardOffset(k, count);
+			rise = FrostShardRise(k, count);
+
+			// Turned in by exactly what it takes to reach the aim point, so the arc closes on the
+			// crosshair. Left is positive, hence -d; pitch down is positive, so rise is not negated.
+			SpawnSpellProjectile(pnum, SPL_FROSTSHARDS, "Spell_FrostShard", DND_FROSTSHARDS_SPEED, 0,
+				VectorAngle(aim, -d) + random(-DND_FROSTSHARDS_ARC, DND_FROSTSHARDS_ARC),
+				d, 0, 0, false, eye + rise,
+				VectorAngle(aim, rise) + random(-DND_FROSTSHARDS_VARC, DND_FROSTSHARDS_VARC));
+		}
+
+		Delay(const:DND_FROSTSHARDS_VOLLEY - DND_FROSTSHARDS_FORM);
+	}
+}
+
+// ============================ Ice Nova ============================
+// An expanding set of blasts. Each step hurts only the ANNULUS it just reached, so "once per cast"
+// falls out of the geometry and needs no bookkeeping at all.
+
+#define DND_ICENOVA_STEPS 7            // expansions in one cast
+#define DND_ICENOVA_STEPTICS 2         // tics between them, and so the whole span
+#define DND_ICENOVA_R5_FASTER 20       // percent quicker at rank 5
+#define DND_ICENOVA_R10_WEAKEN 15      // percent less damage dealt, rank 10
+#define DND_ICENOVA_R10_TICS (3 * TICRATE)
+
+// Half-extent the quad shows at scale 1: flat2.md3 is 15.62 and IceNova.fp fills it to the spike
+// tips, so the ring radius IS this times the scale. That is what keeps it on the blast.
+#define DND_ICENOVA_QUADR 15.62
+#define DND_ICENOVA_START 24           // the ring is born this wide, so it does not pop from nothing
+
+// Ease, 16.16 in and out: 3u^2 - 2u^3. Rest, accelerate, then settle at the far edge -- a ring
+// crawling out at a constant rate is what read as mechanical.
+int NovaEase(int u) {
+	return FixedMul(FixedMul(u, u), 3.0 - 2 * u);
+}
+
+Script "DnD Ice Nova" (int pnum) {
+	int caster = pnum + P_TIDSTART;
+
+	// Reach off the row, through the area stat. The last step lands exactly here.
+	int full = ScalePlayerAoERadius(pnum,
+		GetSpellValue(pnum, SPL_ICENOVA, SPELLVAL_RADIUS) << 16, DND_AOESRC_NONWEAPON) >> 16;
+	if(full < 1)
+		Terminate;
+
+	// Rank 5 expands quicker, which is fewer tics a step rather than more steps.
+	int wait = DND_ICENOVA_STEPTICS;
+	if(SpellThresholdMet(pnum, SPL_ICENOVA, DND_SPELL_THRESH_LOW))
+		wait = Max(1, wait * 100 / (100 + DND_ICENOVA_R5_FASTER));
+
+	bool weaken = SpellThresholdMet(pnum, SPL_ICENOVA, DND_SPELL_THRESH_HIGH);
+
+	int ox = GetActorX(caster), oy = GetActorY(caster);
+	int bx = ox >> 16, by = oy >> 16;
+
+	// The drawn ring, on a tid of its own for the whole cast because its size is rewritten every
+	// tic. It does not have to land on the damage steps -- it has to look smooth.
+	int fx = DND_ICENOVA_FX_TID + pnum;
+	bool drawn = !!SpawnForced("Spell_IceNova", ox, oy, GetActorFloorZ(caster) + DND_ICENOVA_Z, fx, 0);
+	int span = DND_ICENOVA_STEPS * wait;
+	if(drawn) {
+		SetupSpellActor(fx, pnum, SPL_ICENOVA);
+		SetActorProperty(fx, APROP_REACTIONTIME, span);
+	}
+
+	int dmg = ApplySpellIntScaling(pnum, GetSpellValue(pnum, SPL_ICENOVA, SPELLVAL_DAMAGE));
+
+	// Never wider than the blast it is drawing, however small that is.
+	int start = Min(DND_ICENOVA_START, full);
+
+	int t, step = 0, prev = 0, r, ring, i, mn, dx, dy, d2, out;
+	for(t = 1; t <= span; ++t) {
+		// SCALEX only. For a model the HORIZONTAL pair both come off scaleX and scaleY is the
+		// VERTICAL one -- writing it is what made the ring climb as it grew.
+		if(drawn && IsActorAlive(fx)) {
+			// Parenthesised: >> binds looser than +, so without these the start radius gets shifted.
+			ring = start +
+				(FixedMul(NovaEase((t << 16) / span), (full - start) << 16) >> 16);
+			SetActorProperty(fx, APROP_SCALEX, FixedDiv(ring << 16, DND_ICENOVA_QUADR));
+		}
+
+		// The damage keeps its own steps; only the drawing is eased.
+		if(t % wait) {
+			Delay(const:1);
+			continue;
+		}
+
+		++step;
+		r = full * step / DND_ICENOVA_STEPS;
+
+		for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
+			i = UsedMonsterTIDs[mn];
+
+			// Box reject first: UsedMonsterTIDs counts every monster the map ever spawned.
+			dx = (GetActorX(i) >> 16) - bx;
+			if(dx > r || dx < -r)
+				continue;
+			dy = (GetActorY(i) >> 16) - by;
+			if(dy > r || dy < -r)
+				continue;
+
+			// The ANNULUS, not the disc. Anything nearer was caught by an earlier step.
+			d2 = dx * dx + dy * dy;
+			if(d2 > r * r || d2 <= prev * prev)
+				continue;
+			if(!IsActorAlive(i) || !CheckFlag(i, "SHOOTABLE"))
+				continue;
+
+			out = HandleDamageDeal(caster, i, dmg, GetSpellDamageType(SPL_ICENOVA), SPL_ICENOVA,
+				DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISRADIUSDMG, 0, 0, 0, 0, true);
+			if(out > 0)
+				Thing_Damage2(i, out, "SkipHandle");
+
+			// "Enemies hit near the furthest section." Only the last step reaches out there, and a
+			// monster is in exactly one annulus, so this needs no distance test of its own.
+			if(weaken && step == DND_ICENOVA_STEPS)
+				WeakenMonster(i, DND_ICENOVA_R10_WEAKEN, DND_ICENOVA_R10_TICS);
+		}
+
+		prev = r;
+		Delay(const:1);
+	}
+
+	if(drawn && IsActorAlive(fx))
+		Thing_ChangeTID(fx, 0);
+}
+
+// ============================ Gust of Frost ============================
+// ONE sweep at cast rather than a travelling hitbox: the answer cannot change mid-gust.
+
+#define DND_GUSTOFFROST_HALFARC 0.14    // GUESS: half the cone, ie. about 50 degrees a side
+#define DND_GUSTOFFROST_PUSH 26         // GUESS: shove at the caster, tapering to nothing at the edge
+#define DND_GUSTOFFROST_MINPUSH 6
+#define DND_GUSTOFFROST_SLOWTICS (3 * TICRATE)
+#define DND_GUSTOFFROST_R5_SLOW 60
+#define DND_GUSTOFFROST_R10_TOSS 18
+#define DND_GUSTOFFROST_TOSSDELAY 12    // tics between the shove and the toss aside
+#define DND_GUSTOFFROST_MAXTOSS 32
+#define DND_GUSTOFFROST_PUFFS 9
+#define DND_GUSTOFFROST_PUFFSPEED 34
+#define DND_GUSTOFFROST_PUFFARC 0.030
+#define DND_GUSTOFFROST_PUFFZ 20.0
+
+Script "DnD Gust Of Frost" (int pnum) {
+	int caster = pnum + P_TIDSTART;
+	int face = GetActorAngle(caster);
+
+	int cut = ScalePlayerAoERadius(pnum,
+		GetSpellValue(pnum, SPL_GUSTOFFROST, SPELLVAL_RADIUS) << 16, DND_AOESRC_NONWEAPON) >> 16;
+	if(cut < 1)
+		Terminate;
+
+	int pct = SpellThresholdMet(pnum, SPL_GUSTOFFROST, DND_SPELL_THRESH_LOW) ?
+		DND_GUSTOFFROST_R5_SLOW : GetSpellValue(pnum, SPL_GUSTOFFROST, SPELLVAL_DAMAGE2);
+
+	// Flat, and living exactly as long as the reach: the puffs are the gust, so they must not
+	// outrun or fall short of what it just moved.
+	int k, life = Max(2, cut / DND_GUSTOFFROST_PUFFSPEED);
+	for(k = 0; k < DND_GUSTOFFROST_PUFFS; ++k)
+		SpawnSpellProjectile(pnum, SPL_GUSTOFFROST, "Spell_GustOfFrost_Puff",
+			DND_GUSTOFFROST_PUFFSPEED, 0, FanOffset(k, DND_GUSTOFFROST_PUFFARC), 0, life, 0,
+			true, DND_GUSTOFFROST_PUFFZ);
+
+	// Placeholder: the gust has no cast sound of its own yet.
+	PlaySound(caster, "Spell/IceShieldCast", CHAN_BODY);
+
+	int ox = GetActorX(caster) >> 16, oy = GetActorY(caster) >> 16;
+
+	int tossed[DND_GUSTOFFROST_MAXTOSS];
+	int n = 0;
+
+	int i, mn, dx, dy, d2, to, off;
+	for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
+		i = UsedMonsterTIDs[mn];
+
+		// Box reject first: UsedMonsterTIDs counts every monster the map ever spawned.
+		dx = (GetActorX(i) >> 16) - ox;
+		if(dx > cut || dx < -cut)
+			continue;
+		dy = (GetActorY(i) >> 16) - oy;
+		if(dy > cut || dy < -cut)
+			continue;
+
+		d2 = dx * dx + dy * dy;
+		if(d2 > cut * cut)
+			continue;
+		if(!IsActorAlive(i) || !CheckFlag(i, "SHOOTABLE"))
+			continue;
+
+		// A cone off the facing, not a ring -- this blows forward.
+		to = VectorAngle(dx << 16, dy << 16);
+		off = abs(to - face);
+		if(off > 0.5)
+			off = 1.0 - off;
+		if(off > DND_GUSTOFFROST_HALFARC)
+			continue;
+
+		SlowMonster(i, pct, DND_GUSTOFFROST_SLOWTICS);
+
+		// Along the line from the CASTER, so something off to one side is blown outward rather
+		// than dragged across the front. Hardest up close, so the wind reads as having a front.
+		ThrustThing(to >> 8,
+			Max(DND_GUSTOFFROST_MINPUSH, DND_GUSTOFFROST_PUSH * (cut - sqrt(d2)) / cut), 1, i);
+
+		if(n < DND_GUSTOFFROST_MAXTOSS)
+			tossed[n++] = i;
+	}
+
+	// Rank 10's toss aside. The "damage proportional to their mass" half of that line has no
+	// mechanic behind it yet -- see the Owed section of .claude/notes/dnd-cold-tree.md.
+	if(!n || !SpellThresholdMet(pnum, SPL_GUSTOFFROST, DND_SPELL_THRESH_HIGH))
+		Terminate;
+
+	Delay(const:DND_GUSTOFFROST_TOSSDELAY);
+
+	// One side for the whole gust, so it reads as the wind turning rather than as each enemy
+	// picking a direction of its own.
+	int side = (face + (random(0, 1) ? 0.25 : 0.75)) % 1.0;
+	for(k = 0; k < n; ++k)
+		if(IsActorAlive(tossed[k]))
+			ThrustThing(side >> 8, DND_GUSTOFFROST_R10_TOSS, 1, tossed[k]);
+}
+
+// ============================ Frost Bomb ============================
+// Planted where you aimed. DECORATE's frame run paces the pulses; PULSE must match it.
+
+#define DND_FROSTBOMB_PULSE 17          // tics a pulse, ie. half a second
+#define DND_FROSTBOMB_RISE 24.0         // off the floor, so the blast is not half buried
+#define DND_FROSTBOMB_R10_RADIUS 180    // rank 10, and absolute -- it replaces the row
+
+Script "DnD Frost Bomb Setup" (void) {
+	int pnum = GetSpellActorOwner();
+	if(pnum != -1)
+		SetActorProperty(0, APROP_REACTIONTIME,
+			Max(1, GetSpellDurationTics(pnum, SPL_FROSTBOMB) / DND_FROSTBOMB_PULSE));
+
+	SetResultValue(0);
+}
+
+Script "DnD Frost Bomb" (int pnum) {
+	int caster = pnum + P_TIDSTART;
+	int cx, cy, cz;
+
+	// Same two ways in as Rain of Fire and Volcano: what the player is looking at, else where the
+	// aim puff landed.
+	int target = PickActor(caster, GetActorAngle(caster), GetActorPitch(caster),
+		DND_SPELL_HITSCANRANGE, 0, MF_SHOOTABLE, ML_BLOCKEVERYTHING, PICKAF_RETURNTID);
+
+	if(target && IsActorAlive(target)) {
+		cx = GetActorX(target);
+		cy = GetActorY(target);
+		cz = GetActorZ(target);
+	}
+	else {
+		if(!TraceSpellAim(pnum, DND_SPELL_HITSCANRANGE))
+			Terminate;
+
+		int wait = 0;
+		while(!ReadSpellAim(pnum) && wait < DND_SPELLAIM_WAIT) {
+			Delay(const:1);
+			++wait;
+		}
+
+		if(!SpellAimReady(pnum) || !PlayerInGame(pnum) || !IsActorAlive(caster))
+			Terminate;
+
+		auto aim = GetSpellAim();
+		cx = aim.x[pnum];
+		cy = aim.y[pnum];
+		cz = aim.z[pnum];
+	}
+
+	int tid = TEMPORARY_SPELL_TID + pnum;
+	if(!SpawnForced("Spell_FrostBomb", cx, cy, cz, tid, 0))
+		Terminate;
+
+	// Lifted off the floor it was aimed at, so the blast is centred on the crystal rather than
+	// half buried in the ground.
+	SetActorPosition(tid, cx, cy, GetActorFloorZ(tid) + DND_FROSTBOMB_RISE, false);
+	SetupSpellActor(tid, pnum, SPL_FROSTBOMB);
+	Thing_ChangeTID(tid, 0);
+
+	PlaySound(caster, "Spell/IceShieldCast", CHAN_BODY);
+}
+
+// ============================ Summon: Ice Golem ============================
+// Built on the Fire Demon, which is the mod's one worked example of a spell summon.
+
+#define DND_ICEGOLEM_DIST 72
+#define DND_ICEGOLEM_DASHMULT 3         // the doc's 50 melee and 150 dash are exactly this
+#define DND_ICEGOLEM_BOLTCHANCE 30
+#define DND_ICEGOLEM_R5_MANAREGEN 50    // percent, rank 5
+#define DND_ICEGOLEM_AURATICS 35        // how often the rank 5 buff is pushed out again
+
+// Melee off the row, with the dash a straight multiple of it -- so the dash has no field to drift
+// from and both move together when the row does.
+Script "DnD Ice Golem Melee" (int mult) {
+	int pnum = GetActorProperty(0, APROP_MASTERTID) - P_TIDSTART;
+	if(pnum < 0 || pnum >= MAXPLAYERS) {
+		SetResultValue(0);
+		Terminate;
+	}
+
+	SetResultValue(ACS_NamedExecuteWithResult("DND Pet Monster Damage Scale",
+		GetSpellValue(pnum, SPL_ICEGOLEM, SPELLVAL_DAMAGE2) * Max(1, mult), 0, 0));
+}
+
+// Rank 10: the golem throws its OWNER's Ice Bolt at the rank THEY have it, so the reward is worth
+// what they put into the bolt and nothing if they never took it. Rolls and casts in one call.
+Script "DnD Ice Golem Bolt" (void) {
+	int golem = ActivatorTID();
+	int pnum = GetActorProperty(0, APROP_MASTERTID) - P_TIDSTART;
+
+	if(pnum < 0 || pnum >= MAXPLAYERS ||
+		!SpellThresholdMet(pnum, SPL_ICEGOLEM, DND_SPELL_THRESH_HIGH) ||
+		!GetSpellRank(pnum, SPL_ICEBOLT, true) ||
+		random(1, 100) > DND_ICEGOLEM_BOLTCHANCE) {
+		SetResultValue(0);
+		Terminate;
+	}
+
+	// Thrown FROM the golem, owned BY the caster, exactly as the demon's jet is.
+	SpawnSpellProjectile(pnum, SPL_ICEBOLT, "Spell_IceBolt", DND_ICEBOLT_SPEED, 0, 0, 0, 0, golem);
+	SetResultValue(1);
+}
+
+Script "DnD Summon Ice Golem" (int pnum) {
+	int caster = pnum + P_TIDSTART;
+
+	int maxkind = Max(1, GetSpellValue(pnum, SPL_ICEGOLEM, SPELLVAL_AMOUNT));
+
+	// The oldest GOLEM makes way first, and only once its own kind is full, so a golem never costs
+	// an unrelated pet its place.
+	if(CountPlayerPetsOfKind(pnum, MONSTER_PET_ICEGOLEM) >= maxkind)
+		UnsummonPet(FindOldestPlayerPetOfKind(pnum, MONSTER_PET_ICEGOLEM));
+
+	if(!CanActorHaveMorePets(caster))
+		UnsummonPet(FindOldestPlayerPet(pnum));
+
+	int tid = TEMPORARY_PET_TID + pnum;
+	if(!SpawnSummonNear("Spell_IceGolem", caster, tid, DND_ICEGOLEM_DIST))
+		Terminate;
+
+	SetActorPosition(tid, GetActorX(tid), GetActorY(tid), GetActorFloorZ(tid), false);
+
+	// Before its first tic: "DnD Pet Monster Scale" reads APROP_HEALTH as the base it levels up
+	// from, so this is what makes the row's number the one that gets scaled.
+	SetActorProperty(tid, APROP_HEALTH, Max(1, GetSpellValue(pnum, SPL_ICEGOLEM, SPELLVAL_DAMAGE)));
+
+	SetActorProperty(tid, APROP_MASTERTID, caster);
+	SetActivator(tid);
+	SetPointer(AAPTR_MASTER, caster);
+	SetActorProperty(0, APROP_FRIENDLY, true);
+	Thing_ChangeTID(tid, 0);
+
+	GiveActorInventory(caster, "PetCounter", 1);
+
+	SetActivator(caster);
+	ACS_NamedExecuteAlways("DnD On Pet Summon", 0);
+
+	if(SpellThresholdMet(pnum, SPL_ICEGOLEM, DND_SPELL_THRESH_HIGH) ||
+		SpellThresholdMet(pnum, SPL_ICEGOLEM, DND_SPELL_THRESH_LOW))
+		ACS_NamedExecuteAlways("DnD Ice Golem Aura", 0, pnum);
+}
+
+// Rank 5's mana regeneration. Pushed out again while a golem stands rather than granted once for a
+// fixed time: the spell says "grants", so it has to end when the golem does.
+Script "DnD Ice Golem Aura" (int pnum) {
+	if(!SpellThresholdMet(pnum, SPL_ICEGOLEM, DND_SPELL_THRESH_LOW))
+		Terminate;
+
+	int caster = pnum + P_TIDSTART;
+
+	// One ticker per player, however many times a golem is recast.
+	if(CheckActorInventory(caster, "Spell_IceGolemAura") )
+		Terminate;
+
+	GiveActorInventory(caster, "Spell_IceGolemAura", 1);
+
+	while(PlayerInGame(pnum) && IsActorAlive(caster) &&
+		CountPlayerPetsOfKind(pnum, MONSTER_PET_ICEGOLEM) > 0) {
+
+		// Twice the refresh, so a late tick never leaves a gap in the middle.
+		HandlePlayerBuffAssignment(pnum, caster, BTI_SPELL_ICEGOLEM_MANA, 0, 0,
+			DND_ICEGOLEM_AURATICS * 2, DND_ICEGOLEM_R5_MANAREGEN);
+
+		Delay(const:DND_ICEGOLEM_AURATICS);
+	}
+
+	TakeActorInventory(caster, "Spell_IceGolemAura", 1);
+}
+
+// ============================ Ice Spear ============================
+// Two phases in ONE actor, so the owner and rip bookkeeping survive the change. Rank 5 and 10 are
+// added crit, which no spell can grant yet -- see .claude/notes/dnd-cold-tree.md.
+
+#define DND_ICESPEAR_PHASE1 14          // GUESS: tics in the slow form; the 7 x 2 frame run in DECORATE
+#define DND_ICESPEAR_PHASE2 70          // and tics it lives after
+#define DND_ICESPEAR_FASTMULT 4         // how much quicker the evolved form travels
+#define DND_ICESPEAR_RIPS 10            // flat in the doc, hence a define and not a field
+#define DND_ICESPEAR_LAUNCH 20          // placeholder speed, replaced by the setup on tic one
+
+// Phase 1 speed is a FIELD, so a synergy can move it, and the evolved speed is a multiple of it.
+Script "DnD Ice Spear Setup" (void) {
+	int pnum = GetSpellActorOwner();
+	if(pnum == -1) {
+		SetResultValue(0);
+		Terminate;
+	}
+
+	SetActorProperty(0, APROP_SPEED,
+		Max(1, GetSpellValue(pnum, SPL_ICESPEAR, SPELLVAL_AMOUNT)) << 16);
+
+	SetResultValue(0);
+}
+
+// The evolution. Velocity is rewritten rather than only APROP_SPEED: speed is what a projectile is
+// LAUNCHED at, and this one is already in the air.
+Script "DnD Ice Spear Evolve" (void) {
+	int pnum = GetSpellActorOwner();
+	if(pnum == -1) {
+		SetResultValue(0);
+		Terminate;
+	}
+
+	SetActorVelocity(0, GetActorVelX(0) * DND_ICESPEAR_FASTMULT,
+		GetActorVelY(0) * DND_ICESPEAR_FASTMULT, GetActorVelZ(0) * DND_ICESPEAR_FASTMULT,
+		false, false);
+
+	// Each enemy once, and only so many of them, which is the same bookkeeping Glacial Spike uses.
+	GiveInventory("DnD_MakeRipper", 1);
+	SetActorProperty(0, APROP_STAMINA, GetActorProperty(0, APROP_STAMINA) | DND_DAMAGEFLAG_RIPSONCE);
+	SetInventory("DnD_RipLimit", DND_ICESPEAR_RIPS);
+
+	SetActorProperty(0, APROP_REACTIONTIME, DND_ICESPEAR_PHASE2);
+	SetResultValue(0);
+}
+
 Script "DnD Spell Cast" (int spell, int pnum) {
 	// Monsters wake to a hostile cast the way they wake to a gunshot. At the START of the cast, not
 	// when the effect lands, so a long cast bar cannot be used to open on a sleeping room for free
-	// -- Molten Boulder would otherwise get 2.5 seconds of silence before anything noticed.
-	//
-	// MonsterWaker is a CustomInventory whose Pickup runs A_AlertMonsters through whoever holds it,
-	// so it needs a live carrier; the caster is one by definition at this point.
 	if(IsHostileSpell(spell))
 		GiveActorInventory(pnum + P_TIDSTART, "MonsterWaker", 1);
 
 	// The cast time is spent HERE rather than in TryCastSpell, which has already taken the mana and
 	// started the cooldown -- so a cast that is interrupted still costs, and the cooldown runs from the
-	// press rather than from the finish. The effect is what waits.
-	// Deliberately does NOT lock the weapon. Only a channel does that, because only a channel is
-	// driven by the attack button and so cannot share it. A plain cast time leaves the player free to
-	// keep shooting through it.
 	int ct = GetSpellCastTics(pnum, spell);
 	bool ally = !!(SpellDefs[spell].flags & SPLF_ALLYTARGET);
 
@@ -1667,7 +2546,6 @@ Script "DnD Spell Cast" (int spell, int pnum) {
 		if(ally) {
 			// Re-aimed every tic for the first stretch of the bar, then COMMITTED. The last quarter is
 			// locked in so the spell lands where the marker said it would, rather than on whoever the
-			// crosshair happened to cross on the final tic.
 			int track = ct * DND_SPELLLOCK_TRACKPCT / 100;
 			for(int e = 0; e < ct; ++e) {
 				if(e < track)
@@ -1808,6 +2686,47 @@ Script "DnD Spell Cast" (int spell, int pnum) {
 
 		case SPL_FREEZINGPULSE:
 			CastFreezingPulse(pnum);
+		break;
+
+		case SPL_GLACIALSPIKE:
+			SpawnSpellProjectile(pnum, spell, "Spell_GlacialSpike", DND_GLACIALSPIKE_SPEED);
+		break;
+
+		case SPL_ICESHIELD_S:
+			ACS_NamedExecuteAlways("DnD Ice Shield", 0, pnum);
+		break;
+
+		case SPL_CHILLINGBREATH:
+			ACS_NamedExecuteAlways("DnD Chilling Breath", 0, pnum);
+		break;
+
+		case SPL_CREEPINGFROST:
+			SpawnSpellProjectile(pnum, spell, "Spell_CreepingFrost", DND_CREEPINGFROST_SPEED);
+		break;
+
+		case SPL_FROSTSHARDS:
+			ACS_NamedExecuteAlways("DnD Frost Shards", 0, pnum);
+		break;
+
+		case SPL_ICENOVA:
+			ACS_NamedExecuteAlways("DnD Ice Nova", 0, pnum);
+		break;
+
+		case SPL_GUSTOFFROST:
+			ACS_NamedExecuteAlways("DnD Gust Of Frost", 0, pnum);
+		break;
+
+		case SPL_FROSTBOMB:
+			ACS_NamedExecuteAlways("DnD Frost Bomb", 0, pnum);
+		break;
+
+		case SPL_ICEGOLEM:
+			ACS_NamedExecuteAlways("DnD Summon Ice Golem", 0, pnum);
+		break;
+
+		case SPL_ICESPEAR:
+			// Speed is overwritten by the setup; this only has to be non zero to launch.
+			SpawnSpellProjectile(pnum, spell, "Spell_IceSpear", DND_ICESPEAR_LAUNCH);
 		break;
 
 		case SPL_PYROBLAST:

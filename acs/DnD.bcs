@@ -4325,6 +4325,38 @@ Script "DnD Fire Exposure Timer" (int m_tid) {
 	SetActorInventory(m_tid, "DnD_FireExposedTimer", 0);
 }
 
+Script "DnD Monster Weaken Timer" (int m_tid) {
+	while(CheckActorInventory(m_tid, "DnD_WeakenedTimer") && isActorAlive(m_tid)) {
+		TakeActorInventory(m_tid, "DnD_WeakenedTimer", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(m_tid, "DnD_Weakened", 0);
+	SetActorInventory(m_tid, "DnD_WeakenedTimer", 0);
+}
+
+Script "DnD Cold Exposure Timer" (int m_tid) {
+	while(CheckActorInventory(m_tid, "DnD_ColdExposedTimer") && isActorAlive(m_tid)) {
+		TakeActorInventory(m_tid, "DnD_ColdExposedTimer", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(m_tid, "DnD_ColdExposed", 0);
+	SetActorInventory(m_tid, "DnD_ColdExposedTimer", 0);
+}
+
+// The golem's own states give and take MonsterRegenPause around its attacks, so this only ever
+// clears what it set: a monster that pauses its own regen is not holding this timer.
+Script "DnD Regen Pause Timer" (int m_tid) {
+	while(CheckActorInventory(m_tid, "DnD_RegenPauseTimer") && isActorAlive(m_tid)) {
+		TakeActorInventory(m_tid, "DnD_RegenPauseTimer", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(m_tid, "DnD_RegenPauseTimer", 0);
+	TakeActorInventory(m_tid, "MonsterRegenPause", 1);
+}
+
 // Flammability. Owns the ignite chance lane and the curse marker; the fire resistance half rides the
 // shared exposure lane and is torn down by its own ticker above.
 Script "DnD Flammability Timer" (int m_tid) {

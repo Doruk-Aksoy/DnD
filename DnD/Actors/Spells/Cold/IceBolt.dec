@@ -11,7 +11,7 @@ Actor Spell_IceBolt : DnD_SpellExplosive {
 	SeeSound "IceBolt/Fire"
 	DeathSound "IceBolt/Hit"
 	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE))
-	DamageType "Ice"
+	DamageType "P_Ice"
 	States {
 		SpawnState:
 			S012 A 2 Bright A_SpawnItemEx("Spell_IceBolt_Trail", -8, 0, 0, 0, 0, 0, 0, 128)

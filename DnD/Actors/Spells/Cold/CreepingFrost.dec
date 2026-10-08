@@ -1,0 +1,83 @@
+// Mirrors DND_CREEPINGFROST_PPS in acs/Spells/DnD_Spells.h.
+const int CREEPINGFROST_PPS = 5;
+
+// Bursts on impact, then leaves crawlers that creep along the floor hurting what they pass.
+Actor Spell_CreepingFrost : DnD_Spell {
+	PROJECTILE
+	+DONTBLAST
+	+BloodlessImpact
+	Speed 28
+	Radius 8
+	Height 14
+	Scale 1.0
+	RenderStyle Add
+	Alpha 1.0
+	SeeSound "IceBolt/Fire"
+	DeathSound "IceBolt/Hit"
+	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE))
+	DamageType "P_Ice"
+	States {
+		SpawnState:
+			S012 A 2 Bright A_SpawnItemEx("Spell_IceBolt_Trail", -8, 0, 0, 0, 0, 0, 0, 128)
+		Loop
+		Death:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Creeping Frost Burst")
+			TNT1 A 0 A_SpawnItemEx("BlueParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			S012 BCDEFG 3 Bright
+		Stop
+	}
+}
+
+// The crawler. REACTIONTIME is its lifetime, counted in pulses.
+Actor Spell_CreepingFrost_Crawl : DnD_Spell {
+	PROJECTILE
+	-NOGRAVITY
+	+NoExplodeFloor
+	+BloodlessImpact
+	+DONTSPLASH
+	+FLOORHUGGER
+	+PAINLESS
+	+SEEKERMISSILE
+	+THRUACTORS
+	BounceType Hexen
+	// ISSPELL | ISRADIUSDMG | ISDAMAGEOVERTIME. The last stops the pulse rolling crit.
+	Stamina 65546
+	Speed 4
+	Radius 10
+	Height 12
+	Scale 0.8
+	RenderStyle Add
+	Alpha 0.8
+	Damage 0
+	DamageType "P_Ice"
+
+	// Written by "DnD Spell Explosion Setup", read by A_Explode below.
+	var int user_expdmg;
+	var int user_expradius;
+	var int user_fullexpradius;
+	var int user_expflags;
+
+	States {
+		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Creeping Frost Size")
+
+			// Once, not per pulse: the blast never changes over the crawler's life.
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Spell Explosion Setup", SPELLVAL_DAMAGE2, 0, CREEPINGFROST_PPS)
+
+			// Core set here: the setup reads SPELLVAL_AMOUNT, which this spell uses for crawl speed.
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius * 2 / 3)
+			TNT1 A 1 A_PlaySound("CreepingFrost/Loop", CHAN_BODY, 1, true)
+		// CFRS carries the quad model. Bright, or the shader is multiplied by a dark sector.
+		Crawl:
+			// SMF_LOOK needs the +SEEKERMISSILE above, or IsOkayToAttack rejects every candidate.
+			TNT1 A 0 A_SeekerMissile(5, 10, SMF_LOOK, 70, 6)
+			CFRS A 7 Bright A_Explode(100, user_expradius, 1, 0, user_fullexpradius)
+			TNT1 A 0 A_CountDown
+		Loop
+		Death:
+			TNT1 A 0 A_StopSound(CHAN_BODY)
+		DeathLoop:
+			CFRS A 2 Bright A_FadeOut(0.12)
+		Loop
+	}
+}

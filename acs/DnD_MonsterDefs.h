@@ -678,9 +678,10 @@ enum {
 // zero, which stops being luck the moment a second pet exists.
 enum {
 	MONSTER_PET_ZOMBIE,
-	MONSTER_PET_FIREDEMON
+	MONSTER_PET_FIREDEMON,
+	MONSTER_PET_ICEGOLEM
 };
-#define MAX_PET_TYPES (MONSTER_PET_FIREDEMON + 1)
+#define MAX_PET_TYPES (MONSTER_PET_ICEGOLEM + 1)
 
 enum {
 	DND_ZOMBIEMANID,

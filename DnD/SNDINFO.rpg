@@ -291,3 +291,5 @@ $random FreezingPulse/Hit { FreezingPulse/Hit1 FreezingPulse/Hit2 FreezingPulse/
 FreezingPulse/End1          FPULSE1
 FreezingPulse/End2          FPULSE2
 $random FreezingPulse/End { FreezingPulse/End1 FreezingPulse/End2 }
+
+CreepingFrost/Loop          FROSCREE

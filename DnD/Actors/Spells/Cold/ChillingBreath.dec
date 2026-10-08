@@ -1,0 +1,31 @@
+Actor Spell_ChillingBreath : DnD_Spell {
+	PROJECTILE
+	+RIPPER
+	+DONTBLAST
+	+NoExplodeFloor
+	+BloodlessImpact
+	+DONTSPLASH
+	// 65536 | 32768 -- ISSPELL | RIPSONCE.
+	Stamina 98304
+	Speed 24
+	Radius 16
+	Height 24
+	Scale 0.9
+	RenderStyle Add
+	Alpha 0.875
+	// Each puff lands the row's damage in full; the half second in the row prices the MANA.
+	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE))
+	DamageType "P_Ice"
+	States {
+		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Chilling Breath Claim")
+		Fly:
+			// A_CountDown is what makes the row's reach real: the 24 frame run alone flew 576 units
+			// whatever SPELLVAL_RADIUS said, and REACTIONTIME was written but never read.
+			CLSM ABCDEFGHIJKLMNOPQRSTUVWX 1 Bright
+		Stop
+		Death:
+			"####" "#" 1 Bright A_FadeOut(0.09)
+		Loop
+	}
+}

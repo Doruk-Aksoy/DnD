@@ -232,15 +232,15 @@ DND_SPLR5_34    = "Freeze lasts 2 seconds.";
 DND_SPLR10_34   = "Rips through enemies with Hardened Skin.";
 
 // Chilling Breath
-DND_SPLDESC35   = "Channeled. Breathes a cone of cold in front of you, dealing 40 damage every 0.5 seconds.";
+DND_SPLDESC35   = "Breathe a cone of cold winds in front of you, each dealing 25 damage. Channeled.";
 DND_SPLPER35    = "";
 DND_SPLR5_35    = "Slows enemies by 50%.";
 DND_SPLR10_35   = "The cone becomes 30% wider.";
 
 // Creeping Frost
-DND_SPLDESC36   = "Fires an icy projectile that bursts on impact for 30 damage and creeps along the floor toward nearby targets for 5 seconds, dealing 125 damage per second. Cannot stagger enemies.";
+DND_SPLDESC36   = "Fires an icy projectile that bursts on impact for 30 damage and creeps along the floor toward nearby targets for 5 seconds, dealing 200 damage per second. Cannot stagger enemies.";
 DND_SPLPER36    = "";
-DND_SPLR5_36    = "Lasts 2 seconds longer.";
+DND_SPLR5_36    = "Lasts 4 seconds longer.";
 DND_SPLR10_36   = "Can crawl 64 units higher.";
 
 // Ice Shield

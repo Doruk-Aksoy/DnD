@@ -469,6 +469,14 @@ Actor DnD_SpellBusy : DnD_Info { }
 
 Actor DnD_FireExposed : DnD_Info { }
 Actor DnD_FireExposedTimer : DnD_Info { }
+// The cold half of the same idea. Frost Bomb's rank 5 today, Frostbite's curse later.
+Actor DnD_ColdExposed : DnD_Info { }
+Actor DnD_ColdExposedTimer : DnD_Info { }
+// Frost Bomb. MonsterRegenPause is a boolean with no clock of its own, so this is its clock.
+Actor DnD_RegenPauseTimer : DnD_Info { }
+// Ice Nova rank 10. Percent LESS damage the monster deals, read in HandlePlayerResists.
+Actor DnD_Weakened : DnD_Info { }
+Actor DnD_WeakenedTimer : DnD_Info { }
 // Flammability. The base ignite chance the curse grants attackers against this monster.
 Actor DnD_Flammable : DnD_Info { }
 Actor DnD_FlammableTimer : DnD_Info { }

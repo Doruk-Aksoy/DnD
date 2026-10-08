@@ -50,8 +50,6 @@
 #define DND_PLAYER_BURNING_MINTIME 3
 #define DND_PLAYER_BURNING_MAXTIME 6
 
-#define MAX_RIPCOUNT 4096
-
 #define DND_MAX_CHEGOVAX_TICS 15 // INV_ESS_CHEGOVAX stops ramping an ignite after this many damage tics
 #define DND_MAX_POISON_TICDMG_CAP 100 // 100% multiplier on the tic dmg, essentially double damage
 
@@ -2171,6 +2169,8 @@ int FactorResists(int source, int victim, int wepid, int dmg, int damage_type, i
 	// exactly the enemies it is cast at most. Element specific, so only a fire hit reads it.
 	if(damage_category == DND_DAMAGECATEGORY_FIRE)
 		resist -= CheckActorInventory(victim, "DnD_FireExposed");
+	else if(damage_category == DND_DAMAGECATEGORY_ICE)
+		resist -= CheckActorInventory(victim, "DnD_ColdExposed");
 
 	// Every reduction above has landed on the TRUE resist, so this is where the cap finally goes on.
 	// Capping here rather than at spawn is what makes an overcapped monster genuinely resistant to
@@ -4230,6 +4230,46 @@ void ApplyFireExposure(int victim, int pct, int tics) {
 		ACS_NamedExecuteAlways("DnD Fire Exposure Timer", 0, victim);
 }
 
+// Ice Nova rank 10. A monster that DEALS less damage, which nothing offered before: every other
+// "weaken" in here reduces what a monster TAKES. Read in HandlePlayerResists.
+void WeakenMonster(int victim, int pct, int tics) {
+	if(CheckActorInventory(victim, "DnD_Weakened") < pct)
+		SetActorInventory(victim, "DnD_Weakened", pct);
+
+	bool ticking = !!CheckActorInventory(victim, "DnD_WeakenedTimer");
+	if(CheckActorInventory(victim, "DnD_WeakenedTimer") < tics)
+		SetActorInventory(victim, "DnD_WeakenedTimer", tics);
+
+	if(!ticking)
+		ACS_NamedExecuteAlways("DnD Monster Weaken Timer", 0, victim);
+}
+
+// The cold twin of the above, same strongest-wins and longest-wins rule.
+void ApplyColdExposure(int victim, int pct, int tics) {
+	if(CheckActorInventory(victim, "DnD_ColdExposed") < pct)
+		SetActorInventory(victim, "DnD_ColdExposed", pct);
+
+	bool ticking = !!CheckActorInventory(victim, "DnD_ColdExposedTimer");
+	if(CheckActorInventory(victim, "DnD_ColdExposedTimer") < tics)
+		SetActorInventory(victim, "DnD_ColdExposedTimer", tics);
+
+	if(!ticking)
+		ACS_NamedExecuteAlways("DnD Cold Exposure Timer", 0, victim);
+}
+
+// Frost Bomb. CanHealMonster already reads MonsterRegenPause, so stopping regeneration is only a
+// matter of holding that item -- this gives it the clock it has never had.
+void PauseMonsterRegen(int victim, int tics) {
+	bool ticking = !!CheckActorInventory(victim, "DnD_RegenPauseTimer");
+	if(CheckActorInventory(victim, "DnD_RegenPauseTimer") < tics)
+		SetActorInventory(victim, "DnD_RegenPauseTimer", tics);
+
+	if(!ticking) {
+		GiveActorInventory(victim, "MonsterRegenPause", 1);
+		ACS_NamedExecuteAlways("DnD Regen Pause Timer", 0, victim);
+	}
+}
+
 // Martialist / Cranium Bash. The Stunned state on DnD_BaseMonster loops while StunDurationCounter is
 // non-zero and nothing in DECORATE decrements it, so the countdown has to live here. Clearing it on
 // death matters: the state machine is gone by then and a stale counter would stun the next monster
@@ -5069,6 +5109,11 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	// caller passed. A caller that did not pass one is not a monster hit and cannot qualify.
 	if(m_id != -1 && (temp = PlayerModData[pnum].vals[PSTAT_OVERLOAD_DMGREDUCE]) &&
 		CheckActorInventory(m_id + DND_MONSTERTID_BEGIN, "DnD_OverloadTimer"))
+		mult = CombineFactors(mult, -((temp << 16) / 100));
+
+	// Ice Nova rank 10, and the only other thing here that reads the ATTACKER -- same reason as
+	// the perk above, and the same m_id requirement.
+	if(m_id != -1 && (temp = CheckActorInventory(m_id + DND_MONSTERTID_BEGIN, "DnD_Weakened")))
 		mult = CombineFactors(mult, -((temp << 16) / 100));
 
 	int res_to_apply = DND_PRESIST_NONE;
@@ -7028,11 +7073,16 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					// Perception / Unstoppable Force. Only the HARDENED SKIN half of this is a chance --
 					// the other half is the ripper running out of rips, which the perk says nothing about
 					// and which would be unbounded piercing if it could be skipped.
-					if(isArmorPiercing != MAX_RIPCOUNT && (HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_HARDENED_SKIN) || isReflected >= isArmorPiercing)) {
+					// DnD_RipThruHardened on the ripper waives the hardened skin stop, never the rip
+					// LIMIT -- so it buys "tough skin does not end this", not unlimited pierce.
+					// Activator is the inflictor here, so the check reads the projectile.
+					if(isArmorPiercing != MAX_RIPCOUNT &&
+						((HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_HARDENED_SKIN) && !CheckInventory("DnD_RipThruHardened")) ||
+						isReflected >= isArmorPiercing)) {
 						// factor holds the survive chance; the skinned test is inlined, it was read once
 						factor = PlayerModData[pnum].vals[PSTAT_RIPPER_SURVIVECHANCE];
 
-						if(!(HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_HARDENED_SKIN) && isReflected < isArmorPiercing) ||
+						if(!(HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_HARDENED_SKIN) && !CheckInventory("DnD_RipThruHardened") && isReflected < isArmorPiercing) ||
 							!factor || random(1, 100) > factor)
 							GiveInventory("TakeRipperAway", 1);
 					}

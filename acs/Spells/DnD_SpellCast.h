@@ -275,14 +275,15 @@ void SetupSpellActor(int tid, int pnum, int spell) {
 // flat ignores the caster's pitch and sends the shot level along their facing.
 void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags = 0, int angle_off = 0,
 	int side_off = 0, int rtime = 0, int origin = 0, bool flat = false,
-	int zoff = DND_SPELLPROJ_FROMVIEW) {
+	int zoff = DND_SPELLPROJ_FROMVIEW, int pitch_off = 0) {
 	int owner = pnum + P_TIDSTART;
 	int from = origin ? origin : owner;
 
 	// + 1.0 before the wrap: an offset to the left is negative, and the modulo of a negative angle
 	// does not come back inside 0..1 on its own.
 	int a = (GetActorAngle(from) + angle_off + 1.0) % 1.0;
-	int pt = flat ? 0 : Clamp_Between(GetActorPitch(from), -0.248, 0.248);
+	// pitch_off still applies when flat: flat drops the CASTER's aim, not a spread the caller wants.
+	int pt = Clamp_Between((flat ? 0 : GetActorPitch(from)) + pitch_off, -0.248, 0.248);
 	int cosp = cos(pt);
 
 	int z = zoff == DND_SPELLPROJ_FROMVIEW ?

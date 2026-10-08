@@ -1068,8 +1068,12 @@ enum {
 	DND_PLAYERAURA_TID,
 	// Pins an exploding spell projectile while its numbers are resolved -- see the explosion setup.
 	DND_SPELLEXP_TID,
+
+	// 64 player temp tid range. Held for a whole Ice Nova so its ring can be resized every step --
+	// TEMPORARY_SPELL_TID cannot, any spell cast in those tics would take it back.
+	DND_ICENOVA_FX_TID,
 	
-	AVATAR_SOUL_TID,
+	AVATAR_SOUL_TID = DND_ICENOVA_FX_TID + MAXPLAYERS,
 	
 	// has 6000 skip here, supports max 2000 avatars x 3 = 6000
 	AVATAR_CUBE_TID,

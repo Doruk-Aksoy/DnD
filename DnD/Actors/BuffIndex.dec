@@ -55,6 +55,7 @@ enum {
     BTI_SPELL_ANGER_IGNITE,
     BTI_SPELL_RIGHTEOUSFIRE,
     BTI_SPELL_ANNIHILUS_SLOW,
+    BTI_SPELL_ICEGOLEM_MANA,
 
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,

@@ -1,0 +1,45 @@
+// Rips through enemies once each, then shatters on a wall or at the end of its flight and freezes
+// what is around it. RIPSONCE in Stamina is what makes "once each" true.
+Actor Spell_GlacialSpike : DnD_Spell {
+	PROJECTILE
+	+RIPPER
+	+DONTBLAST
+	+BloodlessImpact
+	// 65536 | 32768 -- ISSPELL | RIPSONCE.
+	Stamina 98304
+	Speed 36
+	Radius 8
+	Height 16
+	Scale 1.5
+	RenderStyle Add
+	Alpha 1.0
+	SeeSound "IceBolt/Fire"
+	DeathSound "IceBolt/Hit"
+	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE))
+	DamageType "P_Ice"
+	States {
+		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Glacial Spike Setup")
+		// SPIK carries the model. Bright, or a dark sector blacks it out through the shader.
+		Fly:
+			SPIK AA 1 Bright A_CountDown
+			TNT1 A 0 A_CountDown
+			TNT1 AA 0 A_SpawnItemEx("Spell_GlacialSpike_ParticleTrail", -8, frandom(-4, 4), frandom(-1, 1), -frandom(-2.5, -0.5), frandom(-2.5, 2.5), frandom(-1.25, 1.25), 0, 128)
+			SPIK A 1 Bright A_SpawnItemEx("Spell_GlacialSpike_Smoke", -8, 0, 0, -frandom(-1.25, -0.5), frandom(-1.75, 1.75), frandom(0.5, 1.25), 0, 128)
+		Loop
+		Death:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Glacial Spike Shatter")
+			TNT1 A 0 A_SpawnItemEx("BlueParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 A 0 A_SetTranslucent(1.0, 0)
+			S013 AAABBBCCCDDDEEE 1 Bright A_FadeOut(0.065)
+		Stop
+	}
+}
+
+Actor Spell_GlacialSpike_Smoke : PlasmaSmoke2 {
+	Scale 0.85
+}
+
+Actor Spell_GlacialSpike_ParticleTrail : Spell_IceBolt_Trail {
+	Scale 0.2
+}

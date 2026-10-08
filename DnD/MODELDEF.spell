@@ -10,3 +10,53 @@ Model Spell_FreezingPulse {
 
 	FrameIndex FPUL A 0 0
 }
+
+// Spins about its long axis: rotation-vector 1 0 0 is GL x, which is model x.
+Model Spell_GlacialSpike {
+	Path "Models/Proj"
+	Model 0 "GLACIAL.md3"
+
+	// Skin from Graphics/ so the lump has a name and GLACIAL can bind to it.
+	Path "Graphics/ShaderTex"
+	Skin 0 "GLACIAL.png"
+	Scale 1.0 1.0 1.0
+
+	PITCHFROMMOMENTUM
+
+	ROTATING
+	rotation-vector 1.0 0.0 0.0
+	rotation-speed 5.0
+
+	FrameIndex SPIK A 0 0
+}
+
+// A plain flat quad laid on the floor; the spiky rim is a shader mask, not geometry.
+Model Spell_IceNova {
+	Path "Models/Auras"
+	// flat2, so the ring is visible from below as well as above.
+	Model 0 "flat2.md3"
+
+	// Skin from Graphics/ so the lump has a name and ICENOVA can bind to it.
+	Path "Graphics/ShaderTex"
+	Skin 0 "ICENOVA.png"
+	// Scale 1: "DnD Ice Nova" rewrites it every step to track the blast.
+	Scale 1.0 1.0 1.0
+	Zoffset 2
+
+	FrameIndex ICNV A 0 0
+}
+
+// A plain flat quad; the craggy edge is a shader mask, not geometry.
+Model Spell_CreepingFrost_Crawl {
+	Path "Models/Auras"
+	// flat2, not flat: two quads back to back, so the patch is visible from underneath too.
+	Model 0 "flat2.md3"
+
+	Path "Graphics/ShaderTex"
+	Skin 0 "CRPFROST.png"
+	// Scale 1: "DnD Creeping Frost Size" sets it from the blast radius.
+	Scale 1.0 1.0 1.0
+	Zoffset 2
+
+	FrameIndex CFRS A 0 0
+}

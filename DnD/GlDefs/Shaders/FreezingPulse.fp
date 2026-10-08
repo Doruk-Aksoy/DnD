@@ -1,17 +1,4 @@
 // Freezing Pulse's wave. Bound to FREEZPUL in GlDefs/Shaders.txt.
-//
-// The model is four crescents, each a solid lofted along its arc. The mapping:
-//
-//   s  along the arc, horn to horn
-//   t  all the way AROUND the cross-section: 0 and 1 are the leading edge, 0.5 the back,
-//      0..0.5 the upper surface and 0.5..1 the underside
-//
-// WRITTEN SOLID FIRST. The mistake the previous version made was shading the silhouette rather than
-// filling it: a sharply peaked rim term, pow(1-|vert|,3), put a narrow bright stripe exactly where
-// vert crosses zero -- which is the leading and trailing EDGE of the section, running the whole
-// length of every arc. Against a dark level those stripes were all that read, so four solid
-// crescents looked like eight thin lines. There is no peaked term here. The body carries the light,
-// the shading only tilts it, and nothing is allowed to drop the surface toward invisible.
 
 uniform float timer;
 
@@ -43,8 +30,7 @@ vec4 Process(vec4 color) {
 	float lead = cos(ang) * 0.5 + 0.5;   // 1 at the leading edge, 0 at the back
 	float vert = sin(ang);               // +1 on top, -1 underneath
 
-	// One drifting field, dragged slowly around the section so the surface crawls. Kept gentle --
-	// the previous version's two high-frequency fields mostly produced aliasing at this size.
+	// One drifting field, kept gentle: two high-frequency ones just aliased at this size.
 	float veins = sin(arc * VEIN_A + timer * RATE_A) * 0.5 + 0.5;
 	vec4 tex = getTexel(vec2(arc, fract(ring - veins * CRAWL)));
 
@@ -56,8 +42,7 @@ vec4 Process(vec4 color) {
 	// A tilt from underside to top. No peak anywhere, so no term can draw a line of its own.
 	float form = (1.0 - TOPLIGHT) + TOPLIGHT * (vert * 0.5 + 0.5);
 
-	// The leading edge is where the ice is being made. An accent on top of a lit body, not a
-	// substitute for one.
+	// The leading edge is an accent on a lit body, not a substitute for one.
 	col += vec3(0.30, 0.58, 0.85) * EDGE_GAIN * pow(lead, EDGE_POW);
 
 	float horn = 1.0 - smoothstep(HORN_SOFT, 1.0, abs(arc * 2.0 - 1.0));
@@ -68,7 +53,6 @@ vec4 Process(vec4 color) {
 
 	vec3 rgb = col * (BASE_LIGHT + TEX_VARY * heat) * form * GAIN * pulse * horn * body;
 
-	// Alpha is flat apart from the horn taper and a little falloff toward the back. The silhouette
-	// belongs to the mesh; the shader's job is to fill it, not to carve it.
+	// Alpha is flat but for the horn taper; the silhouette belongs to the mesh.
 	return vec4(rgb * color.rgb, OPACITY * horn * body * color.a);
 }

@@ -110,6 +110,11 @@ int ApplySpellMoreDamage(int pnum, int spell, int dmg) {
 	return FixedMul(dmg, more);
 }
 
+// Which damage FIELD of a spell is a tick, not a hit. See .claude/notes/dnd-spell-system.md.
+bool IsSpellDoTField(int spell, int which) {
+	return spell == SPL_CREEPINGFROST && which == SPELLVAL_DAMAGE2;
+}
+
 // user_rankat lets an actor price itself at a rank OTHER than the caster's live allocation.
 // Declared on the one actor that needs it, and GetUserVariable returns 0 for a class that does not
 // declare it at all, so every other spell reads 0 and keeps resolving against the live rank.
@@ -132,8 +137,19 @@ Script "DnD Spell Damage" (int which, int flags, int div) {
 		Terminate;
 	}
 
+	// Priced through the DoT pile, as Blaze is. ISDOT then withholds the hit piles below.
+	bool isDot = IsSpellDoTField(spell, which);
+	if(isDot) {
+		dmg = GetGenericDoTDamage(pnum, dmg, -1, -1, true);
+		flags |= DND_WDMG_ISDOT;
+	}
+
 	dmg = ACS_NamedExecuteWithResult("DND Player Damage Scale", dmg, cat,
 		DND_WDMG_USETARGET | DND_WDMG_ISSPELL | flags, DND_SPELL_INT_ATTUNE << INT_ATTUNE_BITS);
+
+	// ISDOT skipped the attunement with them, so INT goes back on at the same rate a hit gets.
+	if(isDot)
+		dmg = ApplySpellIntScaling(pnum, dmg);
 
 	// Heart of Fire rank 5: a spell that its proc made ready hits harder for a few seconds. MORE, so
 	// it goes on after the scale rather than into it.
@@ -294,6 +310,11 @@ Script "DnD Spell Explosion Setup" (int which, int radius_pct, int div) {
 	int radius = ACS_NamedExecuteWithResult("DnD Spell Radius", SPELLVAL_RADIUS);
 	if(radius_pct > 0)
 		radius = radius * radius_pct / 100;
+
+	// "Radius increases to 180" is Frost Bomb's rank 10 -- absolute, so it REPLACES the row rather
+	// than scaling it, and still takes area modifiers on top.
+	if(spell == SPL_FROSTBOMB && SpellThresholdMet(pnum, spell, DND_SPELL_THRESH_HIGH))
+		radius = ScalePlayerAoERadius(pnum, DND_FROSTBOMB_R10_RADIUS << 16, DND_AOESRC_NONWEAPON);
 
 	// The core that takes the hit at full strength, with no distance falloff. A PERCENT of the blast,
 	// not a distance -- so it is taken off the already scaled radius and tracks area modifiers for

@@ -1,0 +1,99 @@
+// Mirrors DND_ICEGOLEM_DASHMULT in acs/Spells/DnD_Spells.h.
+const int ICEGOLEM_DASHMULT = 3;
+
+// Spell_, not IceGolem: that name is already a monster in Monsters_Custom/HellKnight.dec.
+// Built on the Fire Demon, with the GOL3 frames and the dash the monster golem already uses.
+ACTOR Spell_IceGolem : PetMonsterBase {
+	Health 500
+	GibHealth -100
+	Radius 24
+	Height 64
+	Speed 8
+	Mass 4096
+	PainChance 24
+	Stamina 1
+	SeeSound "EarthGolem/See"
+	PainSound "EarthGolem/Pain"
+	DeathSound "EarthGolem/Death"
+	ActiveSound "EarthGolem/Act"
+	Obituary "%o was crushed by an Ice Golem."
+	Tag "Ice Golem"
+	MeleeRange 76
+	MaxTargetRange 640
+	RenderStyle Add
+	Alpha 0.1
+	+NOBLOOD
+	+NODROPOFF
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pet Monster Scale", 0, DND_PET_ICEGOLEMID, DND_ICECREATURE, -1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pet Distance Move", 0)
+			TNT1 AAAA 0 A_SpawnItemEx("BlueParticleSpawner", frandom(-12, 12), frandom(-12, 12), frandom(0, 56), 0, 0, 0, 0, 128)
+			GOL3 AAAAAAAAA 1 A_FadeIn(0.1)
+			TNT1 A 0 A_PlaySound("EarthGolem/See", CHAN_VOICE)
+		Idle:
+			GOL3 AB 10 A_Look
+		Goto See
+		See:
+			GOL3 A 0 A_SetTranslucent(0.9)
+		SeeLoop:
+			GOL3 AABBCCDD 2 A_Chase
+		Loop
+		Melee:
+			GOL3 A 0 A_SetTranslucent(0.9)
+		SeeLoop:
+			TNT1 A 0 A_AlertMonsters(0, AMF_TARGETNONPLAYER)
+			TNT1 A 0 A_PlaySound("Golem/Swing")
+			GOL3 E 6 A_FaceTarget
+			GOL3 F 3 A_FaceTarget
+			GOL3 G 2 A_CustomMeleeAttack(ACS_NamedExecuteWithResult("DnD Ice Golem Melee", 1), "Golem/Hit")
+			GOL3 G 4
+		Goto See
+		Missile:
+			GOL3 A 0 A_SetTranslucent(0.9)
+		SeeLoop:
+			TNT1 A 0 A_AlertMonsters(0, AMF_TARGETNONPLAYER)
+			// Rank 10. The script rolls AND casts, so a true return means the bolt is already away.
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Ice Golem Bolt"), "BoltRecover")
+			TNT1 A 0 A_JumpIfCloser(320, "Dash")
+		Goto See
+		BoltRecover:
+			GOL3 EF 4 A_FaceTarget
+		Goto See
+		Dash:
+			GOL3 G 1 A_FaceTarget
+			TNT1 A 0 A_PlaySound("Golem/Slide")
+			// Sets the velocity outright; the golem's own Speed is far too low to close with.
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Vel Adjust", 0, 24)
+			GOL3 G 3 A_JumpIfTargetInLos("DashFinish", 90, JLOSF_DEADNOJUMP, 80)
+			TNT1 A 0 A_SpawnItemEx("BlueParticleSpawner", -8, -12, 8, 0, 0, 0, 0, 128)
+			GOL3 G 3 A_JumpIfTargetInLos("DashFinish", 90, JLOSF_DEADNOJUMP, 80)
+			TNT1 A 0 A_SpawnItemEx("BlueParticleSpawner", -8, 12, 8, 0, 0, 0, 0, 128)
+			GOL3 G 3 A_JumpIfTargetInLos("DashFinish", 90, JLOSF_DEADNOJUMP, 80)
+			TNT1 A 0 A_SpawnItemEx("BlueParticleSpawner", -8, -12, 8, 0, 0, 0, 0, 128)
+			GOL3 G 3 A_JumpIfTargetInLos("DashFinish", 90, JLOSF_DEADNOJUMP, 80)
+			GOL3 G 3 A_JumpIfTargetInLos("DashFinish", 90, JLOSF_DEADNOJUMP, 80)
+		Goto See
+		DashFinish:
+			GOL3 F 3 A_FaceTarget
+			GOL3 F 2 A_CustomMeleeAttack(ACS_NamedExecuteWithResult("DnD Ice Golem Melee", ICEGOLEM_DASHMULT), "Golem/Hit")
+			GOL3 E 5
+		Goto See
+		Pain:
+			GOL3 L 5 A_SetTranslucent(0.9)
+			GOL3 L 5 A_Pain
+		Goto See
+		// Spelled out here, not in PetMonsterBase: that block ends a 0 tic state on A_Jump, and a
+		// client no-ops every A_Jump and then spins the state until the engine's loop breaker fires.
+		Death:
+		XDeath:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Summon Death Check", 0, DND_PET_ICEGOLEMID)
+			TNT1 AAAAAA 0 A_SpawnItemEx("IceShield_ShatterFX", frandom(-12, 12), frandom(-12, 12), frandom(8, 56), 0, 0, frandom(-2, 6), frandom(0, 360))
+			GOL3 L 1 A_Scream
+			GOL3 LLLLLLLLLLLL 1 A_FadeOut(0.0875)
+		Stop
+	}
+}
+
+// Held by the CASTER while the rank 5 aura ticker runs, so a recast cannot start a second one.
+Actor Spell_IceGolemAura : DnD_Boolean { }

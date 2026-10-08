@@ -1,0 +1,54 @@
+// One shard of a volley.
+Actor Spell_FrostShard : DnD_Spell {
+	PROJECTILE
+	+DONTBLAST
+	+BloodlessImpact
+	Speed 30
+	Radius 6
+	Height 10
+	Scale 0.7
+	RenderStyle Add
+	Alpha 1.0
+	SeeSound "FrostFang/Fire1"
+	DeathSound "FrostFang/Hit1"
+	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE))
+	DamageType "P_Ice"
+	States {
+		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Frost Shard Setup")
+		Fly:
+			FFSD ABC 2 Bright A_SpawnItemEx("FrostFangFog", -(MomX/1.4), -(MomY/1.4), (MomZ/1.4*-1), (MomX/1.4), (MomY/1.4), (MomZ/1.4), -Angle, 138)
+		Loop
+		Death:
+			FFSD DEFGH 3 Bright
+		Stop
+	}
+}
+
+// The materialising shard. Clientside only, and warped to the caster every tic so it rides their
+// movement and turning. A_FadeIn 0.1 must match DND_FROSTSHARDS_FORM in acs/Spells/DnD_Spells.h.
+Actor Spell_FrostShard_Form {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 0.02
+	Scale 0.7
+
+	// Place in the arc, in the caster's frame. Written by the spawner.
+	var int user_side;
+	var int user_rise;
+
+	States {
+		Spawn:
+			TNT1 A 0
+		Form:
+			// No WARPF_ABSOLUTEOFFSET, so the offsets are in the caster's frame and it turns with them.
+			// 26 is where a spell projectile leaves a 41 unit view, so they fly off where they formed.
+			FFSD A 1 Bright A_Warp(AAPTR_TARGET, 48.0, user_side, 26 + user_rise, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_FadeIn(0.1)
+			TNT1 A 0 A_JumpIf(alpha < 0.98, "Form")
+		Stop
+	}
+}

@@ -59,6 +59,7 @@ enum {
     BTI_SPELL_ANGER_IGNITE,
     BTI_SPELL_RIGHTEOUSFIRE,
     BTI_SPELL_ANNIHILUS_SLOW,
+    BTI_SPELL_ICEGOLEM_MANA,
 
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
@@ -583,6 +584,16 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
         // Issued by the BTI_SPELL_WARMTH case rather than by the caster, the way Rally issues its speed.
         case BTI_SPELL_WARMTH_FLAT:
             btype = BUFF_MANAREGENFLAT;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Summon: Ice Golem's rank 5. Refreshed on a loop while the golem stands, so it lapses on
+        // its own a second after the golem dies -- nothing has to go looking for it.
+        case BTI_SPELL_ICEGOLEM_MANA:
+            btype = BUFF_MANAREGEN;
             bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
             bvalue = inc_effect;
             bduration = new_duration;

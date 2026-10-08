@@ -1,0 +1,24 @@
+// The drawn ring. It carries no damage at all -- "DnD Ice Nova" does that, and resizes this every
+// step so the circle sits exactly on the radius that step is about to hurt.
+Actor Spell_IceNova : DnD_Spell {
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOBLOCKMAP
+	+NOTONAUTOMAP
+	+DONTSPLASH
+	Radius 1
+	Height 1
+	Scale 1.0
+	RenderStyle Add
+	Alpha 1.0
+	States {
+		// ICNV carries the quad model. Bright, or a dark sector multiplies the shader away.
+		// REACTIONTIME is the expansion's length, so rank 5's quicker ring fades when it stops.
+		Spawn:
+			ICNV A 1 Bright A_CountDown
+		Loop
+		Death:
+			ICNV AAAAAAAA 1 Bright A_FadeOut(0.13)
+		Stop
+	}
+}

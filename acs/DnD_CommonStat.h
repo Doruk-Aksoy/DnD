@@ -90,6 +90,11 @@ enum {
 #define DND_FRENZYCHARGE_SPEEDBONUS 3
 #define DND_POWERCHARGE_BONUS 0.5
 
+// The handler's "super ripper" sentinel -- the one DnD_RipLimit value that skips the rip budget.
+// Lives here rather than in DnD_Damage.h because the spell headers are included before that one,
+// and a macro, unlike a function, is not visible ahead of where it is written.
+#define MAX_RIPCOUNT 4096
+
 enum {
 	DND_WDMG_USETARGET = 1,
 	DND_WDMG_ISOCCULT = 2,

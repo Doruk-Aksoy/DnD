@@ -1,0 +1,43 @@
+// One actor, two phases. It evolves in flight rather than dying and spawning a successor, so the
+// owner, the rip bookkeeping and the spell id all carry across instead of resetting.
+Actor Spell_IceSpear : DnD_Spell {
+	PROJECTILE
+	+DONTBLAST
+	+BloodlessImpact
+	Speed 20
+	Radius 8
+	Height 12
+	Scale 0.9
+	RenderStyle Add
+	Alpha 1.0
+	SeeSound "IceBolt/Fire"
+	DeathSound "IceBolt/Hit"
+	DamageType "P_Ice"
+
+	// The evolved form prices itself off its own field. Read per contact, so the change is live.
+	var int user_evolved;
+	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", user_evolved ? SPELLVAL_DAMAGE2 : SPELLVAL_DAMAGE))
+
+	States {
+		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Ice Spear Setup")
+		// A fixed run, NOT A_CountDown: an impact also ends in Death, so a countdown could not tell
+		// the two apart. 7 x 2 tics must equal DND_ICESPEAR_PHASE1 in acs/Spells/DnD_Spells.h.
+		Slow:
+			S012 AAAAAAA 2 Bright A_SpawnItemEx("Spell_IceBolt_Trail", -8, 0, 0, 0, 0, 0, 0, 128)
+		Evolve:
+			TNT1 A 0 A_SetUserVar("user_evolved", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Ice Spear Evolve")
+			TNT1 A 0 A_PlaySound("IceBolt/Fire", CHAN_BODY)
+			TNT1 AAAA 0 A_SpawnItemEx("BlueParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 A 0 A_SetScale(1.3)
+		Fast:
+			S012 A 1 Bright A_SpawnItemEx("Spell_IceBolt_Trail", -10, 0, 0, 0, 0, 0, 0, 128)
+			// Only phase 2 counts down, so Death is unambiguous from here on.
+			TNT1 A 0 A_CountDown
+		Loop
+		Death:
+			S012 BCDEFG 2 Bright
+		Stop
+	}
+}

@@ -1,0 +1,29 @@
+// Pure FX. The push and the slow are done in one sweep by "DnD Gust Of Frost"; these only draw it,
+// so they pass through everything and carry no damage at all.
+Actor Spell_GustOfFrost_Puff : DnD_Spell {
+	PROJECTILE
+	+PAINLESS
+	+THRUACTORS
+	+NOEXPLODEFLOOR
+	+BLOODLESSIMPACT
+	+DONTBLAST
+	+NOTONAUTOMAP
+	Damage 0
+	Speed 34
+	Radius 6
+	Height 10
+	Scale 1.7
+	RenderStyle Add
+	Alpha 0.5
+	States {
+		SpawnState:
+			S012 A 2 Bright A_FadeOut(0.025)
+			TNT1 A 0 A_SpawnItemEx("Spell_IceBolt_Trail", -10, 0, 0, 0, 0, 0, 0, 128)
+			// REACTIONTIME is the reach, handed over by SpawnSpellProjectile's rtime.
+			TNT1 A 0 A_CountDown
+		Loop
+		Death:
+			S012 BCDEFG 2 Bright
+		Stop
+	}
+}

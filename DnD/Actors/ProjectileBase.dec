@@ -507,7 +507,19 @@ Actor HitboxParticle2 : HitboxParticle {
 
 Actor DnD_RipCount : DnD_Info { }
 Actor DnD_RipLimit : DnD_Info { }
+
+// Waives the hardened skin stop for this ripper. The rip limit still applies.
+Actor DnD_RipThruHardened : DnD_Boolean { }
 Actor DnD_RipperId : DnD_Info { }
+
+// The counterpart to TakeRipperAway, for a projectile that becomes a ripper at a rank.
+Actor DnD_MakeRipper : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("RIPPER", 1)
+		Stop
+	}
+}
 
 Actor TakeRipperAway : DnD_Activator {
 	States {

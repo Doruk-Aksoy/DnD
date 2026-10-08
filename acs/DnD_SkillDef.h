@@ -135,6 +135,11 @@ str SpellInfo[MAX_SPELLS][3] = {
 // Taken off the SCALED health rather than the base, because the level curve is multiplicative --
 // against the base it would decay into nothing by level 50 exactly as the flat value did.
 #define DND_PET_HP_PER_INT 40
+
+// Hundredths of a percent per point, same rate as minion health: a barrier is a durability pool on
+// a conjured object, so it scales the way one does. The legacy skill used a FLAT +5, which on the
+// spell's 200 base would have buried the row.
+#define DND_SPELL_BARRIERHP_PER_INT 40
 #define ZOMBIE_INT_TIMER_FACTOR 10
 // Replaced by DND_PET_DMG_PER_INT below -- kept only so nothing referring to it breaks.
 #define ZOMBIE_INT_DAMAGE_FACTOR 0.125

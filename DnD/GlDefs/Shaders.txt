@@ -38,3 +38,23 @@ HardwareShader FREEZPUL {
 	Shader "GLDefs/Shaders/FreezingPulse.fp"
 	Speed 1.0
 }
+
+// Glacial Spike. Skin under Graphics/ for the same naming reason as the rest.
+HardwareShader GLACIAL {
+	Shader "GLDefs/Shaders/GlacialSpike.fp"
+	Speed 1.0
+}
+
+// Creeping Frost. Its own texture lump purely so it gets its own shader -- a HardwareShader binds
+// to a texture NAME, so sharing GLACIAL.png would have meant sharing the spike shader.
+HardwareShader CRPFROST {
+	Shader "GLDefs/Shaders/CreepingFrost.fp"
+	Speed 1.0
+}
+
+// Ice Nova. The texture is a flat sheet of scratched ice -- the circle, the ring and its teeth are
+// all the shader's doing.
+HardwareShader ICENOVA {
+	Shader "GLDefs/Shaders/IceNova.fp"
+	Speed 1.0
+}
