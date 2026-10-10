@@ -30,6 +30,315 @@ Model Spell_GlacialSpike {
 	FrameIndex SPIK A 0 0
 }
 
+// Ice Spear forming at the caster's side. Its pitch is fed from ACS, as A_Warp cannot copy it.
+Model Spell_IceSpear_Form {
+	Path "Models/Proj"
+	Model 0 "ICESPEAR.md3"
+
+	// Skin from Graphics/ so the lump has a name and ICESPEAR can bind to it.
+	Path "Graphics/ShaderTex"
+	Skin 0 "ICESPEAR.png"
+	Scale 1.0 1.0 1.0
+
+	INHERITACTORPITCH
+	ROTATING
+	rotation-vector 1.0 0.0 0.0
+	rotation-speed 1.5
+
+	FrameIndex ISPF A 0 0
+	FrameIndex ISPF B 0 1
+	FrameIndex ISPF C 0 2
+	FrameIndex ISPF D 0 3
+	FrameIndex ISPF E 0 4
+	FrameIndex ISPF F 0 5
+	FrameIndex ISPF G 0 6
+	FrameIndex ISPF H 0 7
+	FrameIndex ISPF I 0 8
+	FrameIndex ISPF J 0 9
+	FrameIndex ISPF K 0 10
+	FrameIndex ISPF L 0 11
+	FrameIndex ISPF M 0 12
+	FrameIndex ISPF N 0 13
+	FrameIndex ISPF O 0 14
+}
+
+// The spear in flight. Model 1 is the same md3 under the primed skin, which carries its own shader.
+Model Spell_IceSpear {
+	Path "Models/Proj"
+	Model 0 "ICESPEAR.md3"
+	Model 1 "ICESPEAR.md3"
+
+	Path "Graphics/ShaderTex"
+	Skin 0 "ICESPEAR.png"
+	Skin 1 "ICESPRP.png"
+	Scale 1.0 1.0 1.0
+
+	PITCHFROMMOMENTUM
+	ROTATING
+	rotation-vector 1.0 0.0 0.0
+	rotation-speed 4.0
+
+	FrameIndex ISPR A 0 14
+	FrameIndex ISPP A 1 15
+	FrameIndex ISPP B 1 16
+	FrameIndex ISPP C 1 17
+	FrameIndex ISPP D 1 18
+	FrameIndex ISPP E 1 19
+	FrameIndex ISPP F 1 20
+	FrameIndex ISPP G 1 21
+	FrameIndex ISPP H 1 22
+	FrameIndex ISPQ A 1 23
+	FrameIndex ISPQ B 1 24
+	FrameIndex ISPQ C 1 25
+	FrameIndex ISPQ D 1 26
+	FrameIndex ISPQ E 1 27
+	FrameIndex ISPQ F 1 28
+	FrameIndex ISPQ G 1 29
+	FrameIndex ISPQ H 1 30
+}
+
+// Gust of Frost's pieces. One md3, three surfaces; each frame shows one shape and collapses the rest.
+Model Spell_GustOfFrost_WispL {
+	Path "Models/Proj"
+	Model 0 "GUSTWIND.md3"
+	Skin 0 "GUSTWIND.png"
+	Scale 1.0 1.0 1.0
+
+	FrameIndex GWNA A 0 0
+	FrameIndex GWNA B 0 1
+	FrameIndex GWNA C 0 2
+	FrameIndex GWNA D 0 3
+	FrameIndex GWNA E 0 4
+	FrameIndex GWNA F 0 5
+	FrameIndex GWNA G 0 6
+	FrameIndex GWNA H 0 7
+	FrameIndex GWNA I 0 8
+	FrameIndex GWNA J 0 9
+	FrameIndex GWNA K 0 10
+	FrameIndex GWNA L 0 11
+	FrameIndex GWNA M 0 12
+	FrameIndex GWNA N 0 13
+	FrameIndex GWNC A 0 28
+	FrameIndex GWNC B 0 29
+	FrameIndex GWNC C 0 30
+	FrameIndex GWNC D 0 31
+	FrameIndex GWNC E 0 32
+	FrameIndex GWNC F 0 33
+	FrameIndex GWNC G 0 34
+	FrameIndex GWNC H 0 35
+	FrameIndex GWNC I 0 36
+	FrameIndex GWNC J 0 37
+	FrameIndex GWNC K 0 38
+	FrameIndex GWNC L 0 39
+	FrameIndex GWNC M 0 40
+	FrameIndex GWNC N 0 41
+}
+
+Model Spell_GustOfFrost_WispR {
+	Path "Models/Proj"
+	Model 0 "GUSTWIND.md3"
+	Skin 0 "GUSTWIND.png"
+	Scale 1.0 1.0 1.0
+
+	FrameIndex GWNB A 0 14
+	FrameIndex GWNB B 0 15
+	FrameIndex GWNB C 0 16
+	FrameIndex GWNB D 0 17
+	FrameIndex GWNB E 0 18
+	FrameIndex GWNB F 0 19
+	FrameIndex GWNB G 0 20
+	FrameIndex GWNB H 0 21
+	FrameIndex GWNB I 0 22
+	FrameIndex GWNB J 0 23
+	FrameIndex GWNB K 0 24
+	FrameIndex GWNB L 0 25
+	FrameIndex GWNB M 0 26
+	FrameIndex GWNB N 0 27
+	FrameIndex GWND A 0 42
+	FrameIndex GWND B 0 43
+	FrameIndex GWND C 0 44
+	FrameIndex GWND D 0 45
+	FrameIndex GWND E 0 46
+	FrameIndex GWND F 0 47
+	FrameIndex GWND G 0 48
+	FrameIndex GWND H 0 49
+	FrameIndex GWND I 0 50
+	FrameIndex GWND J 0 51
+	FrameIndex GWND K 0 52
+	FrameIndex GWND L 0 53
+	FrameIndex GWND M 0 54
+	FrameIndex GWND N 0 55
+}
+
+Model Spell_GustOfFrost_CloudL {
+	Path "Models/Proj"
+	Model 0 "GUSTWIND.md3"
+	Skin 0 "GUSTWIND.png"
+	Scale 1.0 1.0 1.0
+
+	FrameIndex GWNE A 0 56
+	FrameIndex GWNE B 0 57
+	FrameIndex GWNE C 0 58
+	FrameIndex GWNE D 0 59
+	FrameIndex GWNE E 0 60
+	FrameIndex GWNE F 0 61
+	FrameIndex GWNE G 0 62
+	FrameIndex GWNE H 0 63
+	FrameIndex GWNE I 0 64
+	FrameIndex GWNE J 0 65
+	FrameIndex GWNE K 0 66
+	FrameIndex GWNE L 0 67
+	FrameIndex GWNE M 0 68
+	FrameIndex GWNE N 0 69
+}
+
+Model Spell_GustOfFrost_CloudR {
+	Path "Models/Proj"
+	Model 0 "GUSTWIND.md3"
+	Skin 0 "GUSTWIND.png"
+	Scale 1.0 1.0 1.0
+
+	FrameIndex GWNF A 0 70
+	FrameIndex GWNF B 0 71
+	FrameIndex GWNF C 0 72
+	FrameIndex GWNF D 0 73
+	FrameIndex GWNF E 0 74
+	FrameIndex GWNF F 0 75
+	FrameIndex GWNF G 0 76
+	FrameIndex GWNF H 0 77
+	FrameIndex GWNF I 0 78
+	FrameIndex GWNF J 0 79
+	FrameIndex GWNF K 0 80
+	FrameIndex GWNF L 0 81
+	FrameIndex GWNF M 0 82
+	FrameIndex GWNF N 0 83
+}
+
+Model Spell_GustOfFrost_SwooshL {
+	Path "Models/Proj"
+	Model 0 "GUSTWIND.md3"
+	Skin 0 "GUSTWIND.png"
+	Scale 1.0 1.0 1.0
+
+	FrameIndex GWNG A 0 84
+	FrameIndex GWNG B 0 85
+	FrameIndex GWNG C 0 86
+	FrameIndex GWNG D 0 87
+	FrameIndex GWNG E 0 88
+	FrameIndex GWNG F 0 89
+	FrameIndex GWNG G 0 90
+	FrameIndex GWNG H 0 91
+	FrameIndex GWNG I 0 92
+	FrameIndex GWNG J 0 93
+	FrameIndex GWNG K 0 94
+	FrameIndex GWNG L 0 95
+	FrameIndex GWNG M 0 96
+	FrameIndex GWNG N 0 97
+}
+
+Model Spell_GustOfFrost_SwooshR {
+	Path "Models/Proj"
+	Model 0 "GUSTWIND.md3"
+	Skin 0 "GUSTWIND.png"
+	Scale 1.0 1.0 1.0
+
+	FrameIndex GWNH A 0 98
+	FrameIndex GWNH B 0 99
+	FrameIndex GWNH C 0 100
+	FrameIndex GWNH D 0 101
+	FrameIndex GWNH E 0 102
+	FrameIndex GWNH F 0 103
+	FrameIndex GWNH G 0 104
+	FrameIndex GWNH H 0 105
+	FrameIndex GWNH I 0 106
+	FrameIndex GWNH J 0 107
+	FrameIndex GWNH K 0 108
+	FrameIndex GWNH L 0 109
+	FrameIndex GWNH M 0 110
+	FrameIndex GWNH N 0 111
+}
+
+// Frost Bomb's crystal. 17 baked frames, one per tic of a pulse -- the punch and the settle are
+// in the GEOMETRY, so the facets flex rather than the whole thing zooming.
+Model Spell_FrostBomb {
+	Path "Models/Proj"
+	Model 0 "FROSTBMB.md3"
+
+	// Skin from Models/, NOT Graphics/: nameless on purpose, so GlacialSpike.fp does not bind to it.
+	Skin 0 "GLACIAL.png"
+	Scale 1.0 1.0 1.0
+
+	FrameIndex FBMB A 0 0
+	FrameIndex FBMB B 0 1
+	FrameIndex FBMB C 0 2
+	FrameIndex FBMB D 0 3
+	FrameIndex FBMB E 0 4
+	FrameIndex FBMB F 0 5
+	FrameIndex FBMB G 0 6
+	FrameIndex FBMB H 0 7
+	FrameIndex FBMB I 0 8
+	FrameIndex FBMB J 0 9
+	FrameIndex FBMB K 0 10
+	FrameIndex FBMB L 0 11
+	FrameIndex FBMB M 0 12
+	FrameIndex FBMB N 0 13
+	FrameIndex FBMB O 0 14
+	FrameIndex FBMB P 0 15
+	FrameIndex FBMB Q 0 16
+}
+
+// Blizzard's icicle, Avalanche's ice and Glacial Cascade's spikes all borrow Glacial Spike's model and shader.
+Model Spell_BlizzardIce {
+	Path "Models/Proj"
+	Model 0 "GLACIAL.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "GLACIAL.png"
+	// Shorter along x, the spike's length, and fatter across y and z: a shard rather than a spear.
+	Scale 0.45 2.0 2.0
+	PITCHFROMMOMENTUM
+	ROTATING
+	rotation-vector 1.0 0.0 0.0
+	rotation-speed 5.0
+	FrameIndex BLZI A 0 0
+}
+
+Model Spell_AvalancheIce {
+	Path "Models/Proj"
+	Model 0 "GLACIAL.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "GLACIAL.png"
+	Scale 1.0 1.0 1.0
+	PITCHFROMMOMENTUM
+	ROTATING
+	rotation-vector 1.0 0.0 0.0
+	rotation-speed 7.0
+	FrameIndex AVLI A 0 0
+}
+
+// Stood on end by its own pitch, through INHERITACTORPITCH.
+Model Spell_GlacialCascadeSpike {
+	Path "Models/Proj"
+	Model 0 "GLACIAL.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "GLACIAL.png"
+	Scale 1.0 1.0 1.0
+	INHERITACTORPITCH
+	FrameIndex GCSP A 0 0
+}
+
+// Winter Orb's sphere. ROTATING's default axis is the vertical one, so it only ever spins level.
+Model Spell_WinterOrb {
+	Path "Models/Proj"
+	Model 0 "WINTERORB.md3"
+	// Skin from Graphics/ so the lump has a name and WinterOrb.fp can bind to it.
+	Path "Graphics/ShaderTex"
+	Skin 0 "WNTRORB.png"
+	Scale 1.0 1.0 1.0
+	ROTATING
+	rotation-speed 1.2
+	FrameIndex WORB A 0 0
+}
+
 // A plain flat quad laid on the floor; the spiky rim is a shader mask, not geometry.
 Model Spell_IceNova {
 	Path "Models/Auras"

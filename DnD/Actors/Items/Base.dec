@@ -440,6 +440,9 @@ ACTOR ProjBullet : FastProjectile {
 		XDeath:
 			TNT1 A 4 A_SpawnItemEx("NashGore_Blood", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
 		Stop
+		// A NOBLOOD target takes Crash, and without one the engine falls back to XDeath and bleeds.
+		Crash:
+			Goto Death
 	}
 }
 

@@ -1,0 +1,59 @@
+// "Knocks back once": the cast tic of the cascade that last shoved this monster.
+Actor DnD_CascadeKnocked : DnD_Info { }
+
+// The wave's front: invisible, hugging the floor, and stopped by the first wall. It calls each burst.
+Actor Spell_GlacialCascade : DnD_Spell {
+	PROJECTILE
+	+FLOORHUGGER
+	+THRUACTORS
+	+DONTBLAST
+	+PAINLESS
+	+BloodlessImpact
+	Damage 0
+	Speed 16
+	Radius 8
+	Height 8
+	RenderStyle None
+
+	var int user_burst;
+
+	States {
+		// One burst every 8 tics, DND_GLACIALCASCADE_STEP; the last one sends the front to Done.
+		SpawnState:
+			TNT1 A 8
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Glacial Cascade Burst", user_burst)
+			TNT1 A 0 A_SetUserVar("user_burst", user_burst + 1)
+		Loop
+		// A wall broke the wave: it crashes there with the burst that was due.
+		Death:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Glacial Cascade Burst", user_burst)
+		Stop
+		Done:
+			TNT1 A 0
+		Stop
+	}
+}
+
+// One spike of a burst: Glacial Spike's model stood on end, punching up through the floor and shattering.
+Actor Spell_GlacialCascadeSpike {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 1.0
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_SetScale(frandom(0.6, 1.1))
+			// Nearly upright, leaning a little. Through INHERITACTORPITCH a positive pitch tips the point UP.
+			TNT1 A 0 A_SetPitch(frandom(65.0, 90.0))
+			TNT1 A 0 A_ChangeVelocity(0, 0, 9, CVF_REPLACE)
+			GCSP AAA 1 Bright
+			TNT1 A 0 A_Stop
+			GCSP AAAAAAAAAA 1 Bright
+			TNT1 A 0 A_SpawnItemEx("Spell_GlacialSpike_Smoke", 0, 0, 16, 0, frandom(-1.0, 1.0), frandom(0.5, 1.5), 0, 128)
+			GCSP AAAAAA 1 Bright A_FadeOut(0.16)
+		Stop
+	}
+}

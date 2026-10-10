@@ -547,4 +547,18 @@ str GetSpellFieldLump(int which) {
 	return StrParam(s:"DND_SPLFIELD", d:which);
 }
 
+// A field one spell uses for something its generic name does not describe: Blizzard's DAMAGE2 is
+// its volley rate in tenths of a percent, Rain of Fire's its extra comets per volley.
+bool IsSpellFieldTenthsPercent(int spell, int which) {
+	return spell == SPL_BLIZZARD && which == SPELLVAL_DAMAGE2;
+}
+
+str GetSpellFieldLumpFor(int spell, int which) {
+	if(IsSpellFieldTenthsPercent(spell, which))
+		return "DND_SPLFIELD_VOLLEYRATE";
+	if(spell == SPL_RAINOFFIRE && which == SPELLVAL_DAMAGE2)
+		return "DND_SPLFIELD_COMETS";
+	return GetSpellFieldLump(which);
+}
+
 #endif

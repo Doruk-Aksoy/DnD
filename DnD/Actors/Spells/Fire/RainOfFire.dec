@@ -13,6 +13,7 @@ Actor Spell_RainOfFire : DnD_SpellExplosive {
     Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE, 0, 4))
     DamageType "Fire"
     +NOCLIP
+    +FORCERADIUSDMG
     States {
         SpawnState:
             RW6G E 2 Bright

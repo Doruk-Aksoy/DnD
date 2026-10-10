@@ -4,15 +4,8 @@ HardwareShader Texture PROMPT {
 	Shader "GLDefs/Shaders/PromptBG.fp"
 }
 
-// Righteous Fire, on the aura model skin.
-//
-// No type keyword, but the type is NOT what matters here: CheckForTexture defaults to
-// TEXMAN_TryAny, so even "Texture" would fall back past a usetype mismatch. What matters is that
-// the skin has a NAME at all -- Models/ maps to no namespace, so a lump under it is nameless and
-// this block silently does nothing. See the Path split in MODELDEF.aura.
-//
-// Speed is the one knob this side has: timer arrives at the shader already multiplied by it, so
-// every drift, swirl and flicker rate in the shader scales together off this number.
+// Righteous Fire. The skin must have a NAME (Graphics/, not Models/) or this silently does nothing.
+// Speed scales every rate in the shader together: timer arrives already multiplied by it.
 HardwareShader RGHTFIRE {
 	Shader "GLDefs/Shaders/RighteousFire.fp"
 	Speed 1.0
@@ -31,9 +24,7 @@ HardwareShader ANGERAUR {
 	Speed 1.0
 }
 
-// Freezing Pulse. Same naming rule again. Note this one is bound to a MODEL skin rather than a
-// sprite, which works only because the lump is under Graphics/ -- a skin loaded from Models/ is
-// created with a blank name and no HardwareShader block can ever match it.
+// Freezing Pulse. A model skin, which binds only because the lump is under Graphics/ and so named.
 HardwareShader FREEZPUL {
 	Shader "GLDefs/Shaders/FreezingPulse.fp"
 	Speed 1.0
@@ -56,5 +47,28 @@ HardwareShader CRPFROST {
 // all the shader's doing.
 HardwareShader ICENOVA {
 	Shader "GLDefs/Shaders/IceNova.fp"
+	Speed 1.0
+}
+
+// Ice Spear. Two skins, two textures, purely so the primed one can carry a shader of its own.
+HardwareShader ICESPEAR {
+	Shader "GLDefs/Shaders/IceSpear.fp"
+	Speed 1.0
+}
+
+HardwareShader ICESPRP {
+	Shader "GLDefs/Shaders/IceSpearPrimed.fp"
+	Speed 1.0
+}
+
+// Winter Orb. Ice Nova's art under its own name, since a shader binds to the texture NAME.
+HardwareShader WNTRORB {
+	Shader "GLDefs/Shaders/WinterOrb.fp"
+	Speed 1.0
+}
+
+// Hatred's aura: drifting snow, a sweeping glint and twinkling sparkles.
+HardwareShader HATRED {
+	Shader "GLDefs/Shaders/Hatred.fp"
 	Speed 1.0
 }

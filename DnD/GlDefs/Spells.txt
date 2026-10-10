@@ -22,3 +22,26 @@ flickerlight LightningSpearLight {
 	secondarysize 36
 	chance 0.5
 }
+
+pointlight IceSpearLight {
+	color 0.30 0.55 1.0
+	size 28
+}
+
+// Primed: brighter, and throbbing in step with the primed shader's veins.
+pulselight IceSpearPrimedLight {
+	color 0.40 0.70 1.0
+	size 48
+	secondarysize 72
+	interval 0.9
+}
+
+object Spell_IceSpear_Form {
+	frame ISPF { light IceSpearLight }
+}
+
+object Spell_IceSpear {
+	frame ISPR { light IceSpearLight }
+	frame ISPP { light IceSpearPrimedLight }
+	frame ISPQ { light IceSpearPrimedLight }
+}

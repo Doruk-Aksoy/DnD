@@ -60,6 +60,10 @@ enum {
     BTI_SPELL_RIGHTEOUSFIRE,
     BTI_SPELL_ANNIHILUS_SLOW,
     BTI_SPELL_ICEGOLEM_MANA,
+    BTI_SPELL_HATRED,
+    BTI_SPELL_HATRED_CRIT,
+    BTI_SPELL_SHIVERINGARMOR,
+    BTI_SPELL_SHIVERINGARMOR_ARMOR,
 
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
@@ -659,6 +663,42 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
 
         case BTI_SPELL_ANGER_IGNITE:
             btype = BUFF_IGNITECHANCE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Hatred, Anger's cold twin. inc_effect is HUNDREDTHS of a percent: its rank step is 1.5%.
+        case BTI_SPELL_HATRED:
+            btype = BUFF_ICEDAMAGEDEALT;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect * 1.0 / 10000;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Hatred rank 10. inc_effect is already fixed point crit, 0.01 to the percent.
+        case BTI_SPELL_HATRED_CRIT:
+            btype = BUFF_COLDCRITCHANCE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Shivering Armor. Damage TAKEN, so MORE and negative; inc_effect in hundredths of a percent.
+        case BTI_SPELL_SHIVERINGARMOR:
+            btype = BUFF_DAMAGETAKEN;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = -(inc_effect * 1.0 / 10000);
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Its armor, which only the Ice Shield synergy grants. Heat Shield's shape.
+        case BTI_SPELL_SHIVERINGARMOR_ARMOR:
+            btype = BUFF_ARMORFLAT;
             bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
             bvalue = inc_effect;
             bduration = new_duration;

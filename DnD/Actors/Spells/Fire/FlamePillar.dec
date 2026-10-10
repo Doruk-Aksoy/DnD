@@ -37,6 +37,7 @@ Actor Spell_FlamePillarDamage : DnD_Spell {
     Speed 0
     +THRUACTORS
     +NOGRAVITY
+    +FORCERADIUSDMG
 
     // copied over here because inheriting explosive base isn't of much use here for this particular thing
 	var int user_expdmg;

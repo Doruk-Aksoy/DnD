@@ -256,16 +256,16 @@ DND_SPLR5_38    = "2 more shards every 0.5 seconds.";
 DND_SPLR10_38   = "Shards rip through enemies.";
 
 // Gust of Frost
-DND_SPLDESC39   = "Unleashes a chilling wind that pushes enemies away and slows them by 30%.";
-DND_SPLPER39    = "10% faster cooldown recovery rate.";
+DND_SPLDESC39   = "Unleashes a chilling wind that pushes enemies away and slows them by 30%. Enemies slammed into walls or each other take up to 620 physical damage, more the heavier they are.";
+DND_SPLPER39    = "10% faster cooldown recovery rate and push strength, +5% slam damage.";
 DND_SPLR5_39    = "Slow becomes 60%.";
-DND_SPLR10_39   = "Tosses enemies aside at the end of its range. Those thrown into walls take damage in proportion to their mass.";
+DND_SPLR10_39   = "Slammed enemies also take 10% of their maximum health as added base physical damage. This bonus is capped at the slam's base damage with at most double.";
 
 // Frost Bomb
 DND_SPLDESC40   = "Places a pulsing ice crystal that deals 60 damage in a 128 unit radius every 0.5 seconds for 5 seconds, and stops enemies regenerating life for 5 seconds.";
 DND_SPLPER40    = "";
 DND_SPLR5_40    = "Pulses apply Cold Exposure, reducing cold resistance by 15%.";
-DND_SPLR10_40   = "Radius increases to 180 units.";
+DND_SPLR10_40   = "Radius increases to 256 units.";
 
 // Ice Nova
 DND_SPLDESC41   = "Conjures a nova of ice dealing 250 damage that expands outward from you in a ring up to 320 units. Enemies can only be hurt once per cast.";
@@ -274,7 +274,7 @@ DND_SPLR5_41    = "The ring expands 20% faster.";
 DND_SPLR10_41   = "Enemies hit near the outer edge deal 15% less damage for 3 seconds.";
 
 // Summon: Ice Golem
-DND_SPLDESC42   = "Summons a golem of ice with 500 health to fight for you. It has a melee attack dealing 50 damage and a dash attack dealing 150. Can have up to 1 Ice Golem active at a time.";
+DND_SPLDESC42   = "Summons a golem of ice with 500 health to fight for you. It has a melee attack dealing 50 damage and a dash attack dealing 150 damage. Can have up to 1 Ice Golem active at a time.";
 DND_SPLPER42    = "+50 golem health, +5 golem damage.";
 DND_SPLR5_42    = "Grants you 50% increased mana regeneration.";
 DND_SPLR10_42   = "The golem casts Ice Bolt at your rank.";
@@ -292,19 +292,19 @@ DND_SPLR5_44    = "25% increased area of effect.";
 DND_SPLR10_44   = "+4 seconds duration.";
 
 // Blizzard
-DND_SPLDESC45   = "Calls a storm that rains ice over a 256 unit area every second for 5 seconds, each piece dealing 90 damage in a 64 unit radius.";
+DND_SPLDESC45   = "Calls a storm over a 256 unit area for 5 seconds, dropping a volley of 16 icicles every 0.66 seconds. Each deals 90 damage in a 48 unit radius.";
 DND_SPLPER45    = "";
-DND_SPLR5_45    = "+128 unit radius.";
-DND_SPLR10_45   = "Ice falls 30% faster, and 30% more of it.";
+DND_SPLR5_45    = "+128 unit radius, and each icicle's blast grows with it to 72 units.";
+DND_SPLR10_45   = "Volleys fall 30% more often, each with 30% more ice.";
 
 // Winter Orb
-DND_SPLDESC46   = "Releases a slow orb dealing 100 damage that slows enemies by 30% for 0.75 seconds, throwing Ice Bolts in a spiral as it travels. The bolts scale with your Ice Bolt rank.";
+DND_SPLDESC46   = "Releases a slow orb ripping once dealing 100 damage that slows enemies by 30% for 0.75 seconds, throwing Ice Bolts in a spiral as it travels. The bolts scale with your Ice Bolt rank.";
 DND_SPLPER46    = "";
 DND_SPLR5_46    = "The orb freezes enemies it passes through for 0.75 seconds instead.";
 DND_SPLR10_46   = "The orb also throws Frost Shards.";
 
 // Ice Spear
-DND_SPLDESC47   = "Hurls a spear of ice a short distance for 50 damage, then evolves it into a faster, stronger form dealing 250 that rips through 10 enemies with 10% added critical strike chance and 50% added critical multiplier.";
+DND_SPLDESC47   = "Hurls a spear of ice a short distance for 50 damage, then evolves it into a faster, stronger form dealing 250 damage that rips through 10 enemies with 10% added critical strike chance and 50% added critical multiplier.";
 DND_SPLPER47    = "";
 DND_SPLR5_47    = "+2% added critical strike chance.";
 DND_SPLR10_47   = "+50% added critical strike multiplier.";
@@ -338,6 +338,8 @@ DND_SPLFIELD5   = "duration";
 DND_SPLFIELD6   = "radius";
 DND_SPLFIELD7   = "amount";
 DND_SPLFIELD8   = "cooldown recovery rate";
+DND_SPLFIELD_VOLLEYRATE = "increased volley rate";
+DND_SPLFIELD_COMETS = "comet per volley";
 
 DND_SPLPANEL_PERRANK   = "Per Rank:";
 DND_SPLPANEL_RANK5     = "Rank 5:";

@@ -699,10 +699,12 @@ void HandleSpellHoverPanel(int pnum, int spell) {
 			// Printed in the FIELD's unit. A flat bonus is a raw row value, and the rows are not all the
 			// same kind -- a duration one is fixed point and showed its raw 16384.
 			PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_SYNERGY", s:" - \c-", l:GetSpellNameLump(temp),
-				s:": +", s:IsSpellFieldFixedPoint(SpellSynergies[i].field) ?
+				s:": +", s:IsSpellFieldTenthsPercent(spell, SpellSynergies[i].field) ?
+					StrParam(s:FixedToTenths((SpellSynergies[i].per_rank << 16) / 10), s:"%") :
+					IsSpellFieldFixedPoint(SpellSynergies[i].field) ?
 					FixedToHundredths(SpellSynergies[i].per_rank) :
 					StrParam(d:SpellSynergies[i].per_rank),
-				s:" ", l:GetSpellFieldLump(SpellSynergies[i].field), s:" per rank"));
+				s:" ", l:GetSpellFieldLumpFor(spell, SpellSynergies[i].field), s:" per rank"));
 		else
 			PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_SYNERGY", s:" - \c-", l:GetSpellNameLump(temp),
 				s:": ", s:FixedToTenths(SpellSynergies[i].per_rank), s:"% more ",

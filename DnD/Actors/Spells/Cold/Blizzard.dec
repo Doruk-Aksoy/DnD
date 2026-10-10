@@ -1,0 +1,43 @@
+// One icicle of the storm: Glacial Spike's model falling point first, bursting in RADIUS where it lands.
+Actor Spell_BlizzardIce : DnD_SpellExplosive {
+	PROJECTILE
+	Speed 36
+	Radius 6
+	Height 12
+	Scale 0.9
+	RenderStyle Add
+	Alpha 1.0
+	XScale 1.275
+	YScale 0.875
+	DeathSound "IceBolt/Hit"
+	// A quarter on a direct hit, as Rain of Fire's comets: the blast is the real damage.
+	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE, 0, 4))
+	DamageType "P_Ice"
+	+NOCLIP
+	+FORCERADIUSDMG
+	States {
+		// Spawned at the storm's roof, which may sit inside it: NOCLIP for the first tics, as the comets.
+		SpawnState:
+			BLZI A 2 Bright
+			BLZI A 1 Bright A_ChangeFlag("NOCLIP", 0)
+		Fly:
+			BLZI A 2 Bright A_SpawnItemEx("Spell_GlacialSpike_ParticleTrail", -8, 0, 0, 0, 0, 0, 0, 128)
+		Loop
+		// The whole blast at full strength. Set here because the setup reads its core off AMOUNT,
+		// which on this spell is the storm radius.
+		Death:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Spell Explosion Setup")
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
+		Goto DoExplosionDamage
+		ContinueFromExplosion:
+			TNT1 A 0 A_SpawnItemEx("BlueParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAAA 0 A_SpawnItemEx("Spell_GlacialSpike_Smoke", 0, 0, 4, frandom(-1.5, 1.5), frandom(-1.5, 1.5), frandom(0.5, 1.5), 0, 128)
+			S013 ABCDE 2 Bright
+		Goto FinishExplosion
+	}
+}
+
+// The storm's ring: Rain of Fire's marker under the Ice translation.
+Actor Spell_BlizzardMarkerFX : Spell_RainOfFireMarkerFX {
+	Translation Ice
+}

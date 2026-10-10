@@ -1142,6 +1142,14 @@ enum {
 
 	DND_ULTIMATUM_RAGINGDEAD_TID,
 	DND_ULTIMATUM_RAGINGDEAD_TID_END = DND_ULTIMATUM_RAGINGDEAD_TID + 16,
+
+	// 64 player range. Gust of Frost's planted origin, held for the wave as its CheckSight source.
+	DND_GUSTOFFROST_FX_TID,
+	DND_GUSTOFFROST_FX_TID_END = DND_GUSTOFFROST_FX_TID + MAXPLAYERS,
+
+	// 64 player range, client side only. Ice Spear's forming model, held while it is fed the pitch.
+	DND_ICESPEAR_FORM_TID,
+	DND_ICESPEAR_FORM_TID_END = DND_ICESPEAR_FORM_TID + MAXPLAYERS,
 	
 	DND_TORCH_TEMP_TID = bcs::INT_MAX - 2,
 	DND_DROP_TID,

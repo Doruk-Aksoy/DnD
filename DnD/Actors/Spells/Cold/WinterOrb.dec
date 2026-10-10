@@ -1,0 +1,81 @@
+// The orb: a frosted sphere spinning level, ripping each enemy once and throwing Ice Bolts as it goes.
+Actor Spell_WinterOrb : DnD_Spell {
+	PROJECTILE
+	+RIPPER
+	+DONTBLAST
+	+BloodlessImpact
+	// 65536 | 32768 -- ISSPELL | RIPSONCE, as Glacial Spike.
+	Stamina 98304
+	Speed 6
+	Radius 16
+	Height 24
+	Scale 1.0
+	RenderStyle Add
+	Alpha 0.9
+	// 28 throws, 5 tics apart: four seconds of flight.
+	ReactionTime 28
+	SeeSound "IceBolt/Fire"
+	DeathSound "FrostBomb/Pulse"
+	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE))
+	DamageType "P_Ice"
+
+	// Counts the throws, which is what turns the spiral.
+	var int user_throw;
+
+	States {
+		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Winter Orb Setup")
+			// Two companions on opposite sides, children of the orb on every machine that draws them.
+			TNT1 A 0 A_SpawnItemEx("Spell_WinterOrb_Orbiter", 0, 0, 0, 0, 0, 0, 0, SXF_SETMASTER | SXF_NOCHECKPOSITION | SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("Spell_WinterOrb_Orbiter", 0, 0, 0, 0, 0, 0, 180, SXF_SETMASTER | SXF_NOCHECKPOSITION | SXF_CLIENTSIDE)
+		// WORB carries the sphere. Bright, or a dark sector multiplies the shader away.
+		Fly:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Winter Orb Throw", user_throw)
+			TNT1 A 0 A_SetUserVar("user_throw", user_throw + 1)
+			WORB A 1 Bright A_SpawnItemEx("Spell_FrostBomb_Smoke", -12, frandom(-6.0, 6.0), frandom(-6.0, 6.0), 0, frandom(-0.5, 0.5), frandom(-0.5, 0.5), 0, 128)
+			WORB AAAA 1 Bright
+			TNT1 A 0 A_CountDown
+		Loop
+		Death:
+			// The companions go with the orb; their own warp check covers it if this does not reach them.
+			TNT1 A 0 A_RemoveChildren(true)
+			TNT1 AAA 0 A_SpawnItemEx("BlueParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAAAAAAA 0 A_SpawnItemEx("IceShield_ShatterFX", 0, 0, 0, 0, 0, frandom(-2.0, 6.0), frandom(0.0, 360.0), 128)
+			WORB AAAAAAAA 1 Bright A_FadeOut(0.12)
+		Stop
+	}
+}
+
+// Circles the orb level with its middle until the orb is gone. PLACEHOLDER look: Ice Bolt's sprite.
+Actor Spell_WinterOrb_Orbiter {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.6
+
+	// Degrees round the orb; starts at the angle it was spawned with, so the pair sit opposite.
+	var int user_angle;
+	const int orbit_r = 26;
+	const int orbit_z = 12;
+	const int orbit_speed = 10;
+
+	States {
+		// One tic, so it survives to the first Tick that NoDelay needs.
+		Spawn:
+			TNT1 A 1 NoDelay A_SetUserVar("user_angle", angle)
+		// The warp's success state keeps it drawn. Once the orb is gone there is nothing to warp to,
+		// the jump is skipped, and it falls through to Gone.
+		Orbit:
+			TNT1 A 0 A_Warp(AAPTR_MASTER, orbit_r, 0, orbit_z, user_angle, WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE, "Shown")
+		Goto Gone
+		Shown:
+			S012 A 1 Bright A_SetUserVar("user_angle", user_angle + orbit_speed)
+		Goto Orbit
+		Gone:
+			S012 AAAAA 1 Bright A_FadeOut(0.2)
+		Stop
+	}
+}

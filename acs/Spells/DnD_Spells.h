@@ -54,6 +54,16 @@ int GetSpellDurationTics(int pnum, int spell, int which = SPELLVAL_DURATION) {
 	return (GetSpellValue(pnum, spell, which) * TICRATE) >> 16;
 }
 
+// An aura's reach before area modifiers. Hatred's rank 5 doubles it; the ring art reads this too.
+#define DND_HATRED_R5_RADIUSMULT 2
+
+int GetSpellAuraRadius(int pnum, int spell) {
+	int r = GetSpellValue(pnum, spell, SPELLVAL_RADIUS);
+	if(spell == SPL_HATRED && SpellThresholdMet(pnum, SPL_HATRED, DND_SPELL_THRESH_LOW))
+		r *= DND_HATRED_R5_RADIUSMULT;
+	return r;
+}
+
 // The buff on the caster, and at rank 10 on every living ally inside the spell's radius. Allies are
 // other PLAYERS -- the radius values on these spells are written for a party, and a buff node can
 // only live on a player anyway.
@@ -65,7 +75,7 @@ void GiveSpellBuffAround(int pnum, int spell, int bti, int val, int dur, bool al
 		return;
 
 	// Grown by the caster's area modifiers, so the reach matches the ring the aura FX draws.
-	int r = ScalePlayerAoERadius(pnum, GetSpellValue(pnum, spell, SPELLVAL_RADIUS) << 16,
+	int r = ScalePlayerAoERadius(pnum, GetSpellAuraRadius(pnum, spell) << 16,
 		DND_AOESRC_NONWEAPON);
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(i == pnum || !PlayerInGame(i) || !IsActorAlive(i + P_TIDSTART))
@@ -105,6 +115,11 @@ void RefreshSpellAuras(int pnum) {
 	// Same pass raises and drops the visual. This runs every second whether the aura is on or off,
 	// which is exactly what a switchable effect needs -- there is no teardown path to forget.
 	SetPlayerAttachment(pnum, DND_PLAYERFX_ANGERAURA, anger);
+
+	bool hatred = IsSpellActive(pnum, SPL_HATRED);
+	if(hatred)
+		ApplyHatredAura(pnum, DND_SPELLAURA_REFRESH);
+	SetPlayerAttachment(pnum, DND_PLAYERFX_HATREDAURA, hatred);
 }
 
 // Heart of Fire. Finishing a fire spell's cast gives every OTHER fire spell on the hotbar that is on
@@ -801,6 +816,18 @@ void ApplyAngerAura(int pnum, int dur) {
 	GiveSpellBuffAround(pnum, SPL_ANGER, BTI_SPELL_ANGER_IGNITE, ign, dur, allies);
 }
 
+#define DND_HATRED_R10_CRIT 0.05        // "5% additional crit chance to cold spells and attacks"
+
+// Hatred, Anger's cold twin. DAMAGE is 16.16 with a 1.5 step, so it is handed over in hundredths of
+// a percent rather than whole ones, or every odd rank would lose its half.
+void ApplyHatredAura(int pnum, int dur) {
+	GiveSpellBuffAround(pnum, SPL_HATRED, BTI_SPELL_HATRED,
+		(GetSpellValue(pnum, SPL_HATRED, SPELLVAL_DAMAGE) * 100) >> 16, dur, true);
+
+	if(SpellThresholdMet(pnum, SPL_HATRED, DND_SPELL_THRESH_HIGH))
+		GiveSpellBuffAround(pnum, SPL_HATRED, BTI_SPELL_HATRED_CRIT, DND_HATRED_R10_CRIT, dur, true);
+}
+
 // Has to match Spell_Fireball's own Speed: CreateProjectile writes this onto the actor it spawns, so
 // the two disagreeing would leave DECORATE's figure silently overridden.
 #define DND_FIREBALL_SPEED 30
@@ -1105,6 +1132,39 @@ Script "DnD Flammability Area FX" (int cx, int cy, int cz, int r) CLIENTSIDE {
 	SetResultValue(0);
 }
 
+// Frostbite, Flammability's cold twin: the same targeting, with a cold exposure and a chill lane.
+#define DND_FROSTBITE_R5_AOE 25
+#define DND_FROSTBITE_R10_TICS (4 * TICRATE)
+
+int GetFrostbiteRadius(int pnum) {
+	// "25% increased area of effect" -- increased, so it joins the additive pool.
+	return ScalePlayerAoERadius(pnum, GetSpellValue(pnum, SPL_FROSTBITE, SPELLVAL_RADIUS) << 16,
+		DND_AOESRC_NONWEAPON,
+		DND_FROSTBITE_R5_AOE * SpellThresholdMet(pnum, SPL_FROSTBITE, DND_SPELL_THRESH_LOW));
+}
+
+// Flammability's ring, drawn with frost bursts instead. CLIENTSIDE for the same reason.
+Script "DnD Frostbite Area FX" (int cx, int cy, int cz, int r) CLIENTSIDE {
+	if(r <= 0) {
+		SetResultValue(0);
+		Terminate;
+	}
+
+	int n = Clamp_Between((FixedDiv(r, DND_FLAMMABILITY_RINGSTEP) >> 16) * 6,
+		DND_FLAMMABILITY_RINGMIN, DND_FLAMMABILITY_RINGMAX);
+
+	int i, a;
+	for(i = 0; i < n; ++i) {
+		a = (i * 1.0) / n;
+		SpawnForced("FrostbiteAreaMarkerFX",
+			cx + FixedMul(cos(a), r),
+			cy + FixedMul(sin(a), r),
+			cz + DND_FLAMMABILITY_RINGLIFT, 0, 0);
+	}
+
+	SetResultValue(0);
+}
+
 // Rain of Fire. Marks a patch of ground and drops comets into it for the duration.
 //
 // The comets are aimed rather than dropped straight down: a landing point is picked inside the
@@ -1126,7 +1186,8 @@ Script "DnD Flammability Area FX" (int cx, int cy, int cz, int r) CLIENTSIDE {
 #define DND_RAINOFFIRE_SLANT 128.0          // how far to the side a comet may start from its landing point
 
 // The ring, redrawn on a timer so it lasts the rain without the markers needing a duration.
-Script "DnD Rain Of Fire Mark" (int cx, int cy, int packed) CLIENTSIDE {
+// ice draws Blizzard's ring instead of the fire one.
+Script "DnD Rain Of Fire Mark" (int cx, int cy, int packed, int ice) CLIENTSIDE {
 	int cz = packed << 16;
 	int r = (packed >> 16) << 16;
 	if(r <= 0) {
@@ -1140,7 +1201,7 @@ Script "DnD Rain Of Fire Mark" (int cx, int cy, int packed) CLIENTSIDE {
 	int i, a;
 	for(i = 0; i < n; ++i) {
 		a = (i * 1.0) / n;
-		SpawnForced("Spell_RainOfFireMarkerFX",
+		SpawnForced(ice ? "Spell_BlizzardMarkerFX" : "Spell_RainOfFireMarkerFX",
 			cx + FixedMul(cos(a), r),
 			cy + FixedMul(sin(a), r),
 			cz + DND_FLAMMABILITY_RINGLIFT, 0, 0);
@@ -1219,6 +1280,7 @@ Script "DnD Rain Of Fire" (int pnum) {
 	// might never land, and raising PERVOLLEY or dropping RATE both overshoot badly at these sizes.
 	// Accumulated, the extra arrives on schedule and the rain is exactly 15% heavier.
 	int comet_acc = 0;
+	int volcano = Max(0, GetSpellValue(pnum, SPL_RAINOFFIRE, SPELLVAL_DAMAGE2));
 
 	for(t = 0; t < dur; t += DND_RAINOFFIRE_RATE) {
 		if(!PlayerInGame(pnum))
@@ -1231,9 +1293,10 @@ Script "DnD Rain Of Fire" (int pnum) {
 
 		// A VOLLEY, not a comet. Each one rolls its own landing point and its own slant, so they come
 		// down together but never as a pair on the same line.
-		n = DND_RAINOFFIRE_PERVOLLEY;
+		// Volcano's synergy adds whole comets; rank 5's 15% is then of the whole volley.
+		n = DND_RAINOFFIRE_PERVOLLEY + volcano;
 		if(r5) {
-			comet_acc += DND_RAINOFFIRE_PERVOLLEY * DND_RAINOFFIRE_R5_MORECOMETS;
+			comet_acc += n * DND_RAINOFFIRE_R5_MORECOMETS;
 			n += comet_acc / 100;
 			comet_acc %= 100;
 		}
@@ -1351,6 +1414,71 @@ Script "DnD Flammability Cast" (int pnum) {
 			ACS_NamedExecuteAlways("DnD Flammability Timer", 0, i);
 	}
 
+}
+
+// Same two ways in as Flammability, and the same one ticker per monster owning its marker.
+Script "DnD Frostbite Cast" (int pnum) {
+	int caster = pnum + P_TIDSTART;
+	int cx, cy, cz;
+
+	// Placeholder: Frostbite has no cast sound of its own yet.
+	PlaySound(caster, "Frostbite/Cast", 6);
+
+	int target = PickActor(caster, GetActorAngle(caster), GetActorPitch(caster),
+		DND_SPELL_HITSCANRANGE, 0, MF_SHOOTABLE, ML_BLOCKEVERYTHING, PICKAF_RETURNTID);
+
+	if(target && IsActorAlive(target)) {
+		cx = GetActorX(target);
+		cy = GetActorY(target);
+		cz = GetActorZ(target);
+	}
+	else {
+		if(!TraceSpellAim(pnum, DND_SPELL_HITSCANRANGE))
+			Terminate;
+
+		int wait = 0;
+		while(!ReadSpellAim(pnum) && wait < DND_SPELLAIM_WAIT) {
+			Delay(const:1);
+			++wait;
+		}
+
+		if(!SpellAimReady(pnum) || !PlayerInGame(pnum) || !IsActorAlive(caster))
+			Terminate;
+
+		auto aim = GetSpellAim();
+		cx = aim.x[pnum];
+		cy = aim.y[pnum];
+		cz = aim.z[pnum];
+	}
+
+	int r = GetFrostbiteRadius(pnum);
+	int tics = GetSpellDurationTics(pnum, SPL_FROSTBITE) +
+		DND_FROSTBITE_R10_TICS * SpellThresholdMet(pnum, SPL_FROSTBITE, DND_SPELL_THRESH_HIGH);
+
+	ACS_NamedExecuteWithResult("DnD Frostbite Area FX", cx, cy, cz, r);
+	int pct = GetSpellValue(pnum, SPL_FROSTBITE, SPELLVAL_DAMAGE);
+	int chance = GetSpellValue(pnum, SPL_FROSTBITE, SPELLVAL_DAMAGE2);
+
+	int i, mn;
+	for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
+		i = UsedMonsterTIDs[mn];
+		if(!IsActorAlive(i) || !CheckFlag(i, "SHOOTABLE"))
+			continue;
+		if(fdistance_delta(cx - GetActorX(i), cy - GetActorY(i), cz - GetActorZ(i)) > r)
+			continue;
+
+		ApplyColdExposure(i, pct, tics);
+
+		if(CheckActorInventory(i, "DnD_Frostbitten") < chance)
+			SetActorInventory(i, "DnD_Frostbitten", chance);
+
+		bool ticking = !!CheckActorInventory(i, "DnD_FrostbittenTimer");
+		if(CheckActorInventory(i, "DnD_FrostbittenTimer") < tics)
+			SetActorInventory(i, "DnD_FrostbittenTimer", tics);
+
+		if(!ticking)
+			ACS_NamedExecuteAlways("DnD Frostbite Timer", 0, i);
+	}
 }
 
 // Molten Boulder. The same spawn as the pre-tree version -- dropped from just under the ceiling at
@@ -1610,6 +1738,9 @@ void CastFreezingPulse(int pnum) {
 
 // ============================ cold, on hit ============================
 // Reached from "DnD Damage Accumulate" the moment a cold SPELL damages a monster, so a spell never
+#define DND_AVALANCHE_R5_FREEZE 15      // percent chance a piece freezes, rank 5
+#define DND_AVALANCHE_FREEZETICS TICRATE
+
 Script "DnD Spell Cold On Hit" (int pnum, int victim, int spell) {
 	int pct, chance, gone, span;
 
@@ -1643,6 +1774,20 @@ Script "DnD Spell Cold On Hit" (int pnum, int victim, int spell) {
 			chance = GetSpellValue(pnum, SPL_FREEZINGPULSE, SPELLVAL_DAMAGE2) * (span - gone) / span;
 			if(chance > 0 && random(1, 100) <= chance)
 				FreezeMonster(pnum, victim, DND_FREEZINGPULSE_FREEZETICS);
+		break;
+
+		case SPL_WINTERORB:
+			// One DURATION carries the slow and, from rank 5, the freeze -- it is what Gust's synergy lengthens.
+			span = GetSpellDurationTics(pnum, SPL_WINTERORB);
+			if(SpellThresholdMet(pnum, SPL_WINTERORB, DND_SPELL_THRESH_LOW))
+				FreezeMonster(pnum, victim, span);
+			else
+				SlowMonster(victim, GetSpellValue(pnum, SPL_WINTERORB, SPELLVAL_DAMAGE2), span);
+		break;
+
+		case SPL_AVALANCHE:
+			if(SpellThresholdMet(pnum, SPL_AVALANCHE, DND_SPELL_THRESH_LOW) && random(1, 100) <= DND_AVALANCHE_R5_FREEZE)
+				FreezeMonster(pnum, victim, DND_AVALANCHE_FREEZETICS);
 		break;
 	}
 
@@ -1853,7 +1998,7 @@ Script "DnD Chilling Breath" (int pnum) {
 	int caster = pnum + P_TIDSTART;
 
 	BeginSpellBusy(pnum);
-	PlaySound(caster, "ScorchingRay/Loop", CHAN_7, 1.0, true);
+	PlaySound(caster, "ChillingBreath/Start", CHAN_6, 1.0, false);
 
 	int arc = DND_CHILLINGBREATH_ARC;
 	if(SpellThresholdMet(pnum, SPL_CHILLINGBREATH, DND_SPELL_THRESH_HIGH))
@@ -1875,6 +2020,9 @@ Script "DnD Chilling Breath" (int pnum) {
 		if(!(t % DND_CHILLINGBREATH_TICK)) {
 			if(!PayChannelTick(pnum, SPL_CHILLINGBREATH, first))
 				break;
+
+			if(first)
+				PlaySound(caster, "ChillingBreath/Loop", CHAN_7, 1.0, true);
 			first = false;
 		}
 
@@ -2135,6 +2283,8 @@ Script "DnD Ice Nova" (int pnum) {
 	if(full < 1)
 		Terminate;
 
+	PlaySound(caster, "IceNova/Cast", CHAN_7);
+
 	// Rank 5 expands quicker, which is fewer tics a step rather than more steps.
 	int wait = DND_ICENOVA_STEPTICS;
 	if(SpellThresholdMet(pnum, SPL_ICENOVA, DND_SPELL_THRESH_LOW))
@@ -2218,20 +2368,60 @@ Script "DnD Ice Nova" (int pnum) {
 }
 
 // ============================ Gust of Frost ============================
-// ONE sweep at cast rather than a travelling hitbox: the answer cannot change mid-gust.
+// The hit front steps out with the drawn wave, so each enemy is struck as the wind reaches it.
 
 #define DND_GUSTOFFROST_HALFARC 0.14    // GUESS: half the cone, ie. about 50 degrees a side
 #define DND_GUSTOFFROST_PUSH 26         // GUESS: shove at the caster, tapering to nothing at the edge
 #define DND_GUSTOFFROST_MINPUSH 6
 #define DND_GUSTOFFROST_SLOWTICS (3 * TICRATE)
 #define DND_GUSTOFFROST_R5_SLOW 60
-#define DND_GUSTOFFROST_R10_TOSS 18
-#define DND_GUSTOFFROST_TOSSDELAY 12    // tics between the shove and the toss aside
-#define DND_GUSTOFFROST_MAXTOSS 32
-#define DND_GUSTOFFROST_PUFFS 9
-#define DND_GUSTOFFROST_PUFFSPEED 34
-#define DND_GUSTOFFROST_PUFFARC 0.030
-#define DND_GUSTOFFROST_PUFFZ 20.0
+#define DND_GUSTOFFROST_MAXHIT 128      // enemies one gust remembers, for once-only and the slam
+#define DND_GUSTOFFROST_FRAMES 28       // tics the front takes to cross the reach; the pieces keep its pace
+#define DND_GUSTOFFROST_LOOKBACK 32     // band re-checked behind the front, for enemies charging in
+#define DND_GUSTOFFROST_WINDLEN 72      // GUSTWIND.md3 at scale 1, so scale = reach / this
+#define DND_GUSTOFFROST_WINDZ 26.0
+#define DND_GUSTOFFROST_SLAMHPPCT 10    // rank 10: percent of max health added, never more than the mass part
+#define DND_GUSTOFFROST_MASSKNEE 900    // mass that takes half the ceiling; curve in .claude/notes/dnd-cold-tree.md
+#define DND_GUSTOFFROST_MASSCLAMP 100000  // clamped first, or ceiling * mass overflows a signed int
+#define DND_GUSTOFFROST_SLAMSPEED 8     // units a tic a push must still carry for a sudden stop to count
+#define DND_GUSTOFFROST_SLAMTRACK 35    // tics pushed enemies are still watched after the wave ends
+
+// Horizontal speed squared, in whole units a tic.
+int GustSpeed2(int tid) {
+	int vx = GetActorVelX(tid) >> 16, vy = GetActorVelY(tid) >> 16;
+	return vx * vx + vy * vy;
+}
+
+// Retries the move a stopped monster was making. One that stopped ITSELF -- an attack, a freeze --
+// can still make it and is put straight back; only a real wall or body refuses it.
+bool GustBlocked(int tid, int vx, int vy) {
+	int x = GetActorX(tid), y = GetActorY(tid), z = GetActorZ(tid);
+	if(!SetActorPosition(tid, x + vx, y + vy, z, false))
+		return true;
+	SetActorPosition(tid, x, y, z, false);
+	return false;
+}
+
+// The slam: the ceiling times a saturating mass share, so heavy enemies take nearly all of it.
+// Rank 10 adds a share of max health, divided first so a boss's health cannot overflow it.
+void GustSlam(int pnum, int caster, int victim, int ceiling, bool health) {
+	int m = Clamp_Between(GetActorProperty(victim, APROP_MASS), 0, DND_GUSTOFFROST_MASSCLAMP);
+	int dmg = ceiling * m / (m + DND_GUSTOFFROST_MASSKNEE);
+
+	int m_id = victim - DND_MONSTERTID_BEGIN;
+	if(health && m_id >= 0 && m_id < DND_MAX_MONSTERS)
+		dmg += Min(MonsterProperties[m_id].maxhp / 100 * DND_GUSTOFFROST_SLAMHPPCT, dmg);
+
+	// All of it is base damage, so INT and "more" spell damage scale the health share too.
+	dmg = ApplySpellIntScaling(pnum, ApplySpellMoreDamage(pnum, SPL_GUSTOFFROST, dmg));
+	if(dmg <= 0)
+		return;
+
+	int out = HandleDamageDeal(caster, victim, dmg, DND_DAMAGETYPE_PHYSICAL, SPL_GUSTOFFROST,
+		DND_DAMAGEFLAG_ISSPELL, 0, 0, 0, 0, true);
+	if(out > 0)
+		Thing_Damage2(victim, out, "SkipHandle");
+}
 
 Script "DnD Gust Of Frost" (int pnum) {
 	int caster = pnum + P_TIDSTART;
@@ -2245,72 +2435,134 @@ Script "DnD Gust Of Frost" (int pnum) {
 	int pct = SpellThresholdMet(pnum, SPL_GUSTOFFROST, DND_SPELL_THRESH_LOW) ?
 		DND_GUSTOFFROST_R5_SLOW : GetSpellValue(pnum, SPL_GUSTOFFROST, SPELLVAL_DAMAGE2);
 
-	// Flat, and living exactly as long as the reach: the puffs are the gust, so they must not
-	// outrun or fall short of what it just moved.
-	int k, life = Max(2, cut / DND_GUSTOFFROST_PUFFSPEED);
-	for(k = 0; k < DND_GUSTOFFROST_PUFFS; ++k)
-		SpawnSpellProjectile(pnum, SPL_GUSTOFFROST, "Spell_GustOfFrost_Puff",
-			DND_GUSTOFFROST_PUFFSPEED, 0, FanOffset(k, DND_GUSTOFFROST_PUFFARC), 0, life, 0,
-			true, DND_GUSTOFFROST_PUFFZ);
+	// The planted origin, on a tid held for the whole wave so walls can be checked from it. Scaled
+	// here, because a spawn frame's action never runs; the pieces it scatters copy the scale.
+	int fx = DND_GUSTOFFROST_FX_TID + pnum;
+	bool drawn = !!SpawnForced("Spell_GustOfFrost_Wind", GetActorX(caster), GetActorY(caster),
+		GetActorZ(caster) + DND_GUSTOFFROST_WINDZ, fx, GetActorAngle(caster) >> 8);
+	if(drawn) {
+		SetupSpellActor(fx, pnum, SPL_GUSTOFFROST);
+		SetActorProperty(fx, APROP_SCALEX, FixedDiv(cut << 16, DND_GUSTOFFROST_WINDLEN << 16));
+		SetActorProperty(fx, APROP_SCALEY, FixedDiv(cut << 16, DND_GUSTOFFROST_WINDLEN << 16));
+	}
+	int eye = drawn ? fx : caster;
 
-	// Placeholder: the gust has no cast sound of its own yet.
-	PlaySound(caster, "Spell/IceShieldCast", CHAN_BODY);
+	// Percent, 10 more a rank.
+	int push = GetSpellValue(pnum, SPL_GUSTOFFROST, SPELLVAL_AMOUNT);
+
+	PlaySound(caster, "GustOfFrost/Cast", CHAN_7);
 
 	int ox = GetActorX(caster) >> 16, oy = GetActorY(caster) >> 16;
 
-	int tossed[DND_GUSTOFFROST_MAXTOSS];
-	int n = 0;
+	// The slam's ceiling, before mass. Rank 10 adds the health share on top.
+	int slam = GetSpellValue(pnum, SPL_GUSTOFFROST, SPELLVAL_DAMAGE);
+	bool health = SpellThresholdMet(pnum, SPL_GUSTOFFROST, DND_SPELL_THRESH_HIGH);
 
-	int i, mn, dx, dy, d2, to, off;
-	for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
-		i = UsedMonsterTIDs[mn];
+	// Last speed squared (0 once no longer watched) and velocity, per blown enemy.
+	int blown[DND_GUSTOFFROST_MAXHIT], v2[DND_GUSTOFFROST_MAXHIT];
+	int vx[DND_GUSTOFFROST_MAXHIT], vy[DND_GUSTOFFROST_MAXHIT];
+	int n = 0, moving = 0;
 
-		// Box reject first: UsedMonsterTIDs counts every monster the map ever spawned.
-		dx = (GetActorX(i) >> 16) - ox;
-		if(dx > cut || dx < -cut)
+	int t, r, lo, prev = 0, i, k, mn, dx, dy, d2, to, off, s2;
+	for(t = 1; t <= DND_GUSTOFFROST_FRAMES ||
+		(moving && t <= DND_GUSTOFFROST_FRAMES + DND_GUSTOFFROST_SLAMTRACK); ++t) {
+		// A blocked monster's velocity is zeroed outright, while friction takes a tenth a tic. A drop of
+		// over half is then confirmed by GustBlocked, which rules out a monster that stopped itself.
+		for(k = 0; k < n && moving; ++k) {
+			if(!v2[k])
+				continue;
+
+			s2 = GustSpeed2(blown[k]);
+			if(s2 * 4 < v2[k]) {
+				if(IsActorAlive(blown[k]) && GustBlocked(blown[k], vx[k], vy[k]))
+					GustSlam(pnum, caster, blown[k], slam, health);
+				v2[k] = 0;
+				--moving;
+			}
+			else if(s2 < DND_GUSTOFFROST_SLAMSPEED * DND_GUSTOFFROST_SLAMSPEED) {
+				v2[k] = 0;
+				--moving;
+			}
+			else {
+				v2[k] = s2;
+				vx[k] = GetActorVelX(blown[k]);
+				vy[k] = GetActorVelY(blown[k]);
+			}
+		}
+
+		if(t > DND_GUSTOFFROST_FRAMES) {
+			Delay(const:1);
 			continue;
-		dy = (GetActorY(i) >> 16) - oy;
-		if(dy > cut || dy < -cut)
-			continue;
+		}
 
-		d2 = dx * dx + dy * dy;
-		if(d2 > cut * cut)
-			continue;
-		if(!IsActorAlive(i) || !CheckFlag(i, "SHOOTABLE"))
-			continue;
+		// Matches the pieces, which fly reach / FRAMES a tic.
+		r = cut * t / DND_GUSTOFFROST_FRAMES;
+		lo = prev - DND_GUSTOFFROST_LOOKBACK;
 
-		// A cone off the facing, not a ring -- this blows forward.
-		to = VectorAngle(dx << 16, dy << 16);
-		off = abs(to - face);
-		if(off > 0.5)
-			off = 1.0 - off;
-		if(off > DND_GUSTOFFROST_HALFARC)
-			continue;
+		for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
+			i = UsedMonsterTIDs[mn];
 
-		SlowMonster(i, pct, DND_GUSTOFFROST_SLOWTICS);
+			// Box reject first: UsedMonsterTIDs counts every monster the map ever spawned.
+			dx = (GetActorX(i) >> 16) - ox;
+			if(dx > r || dx < -r)
+				continue;
+			dy = (GetActorY(i) >> 16) - oy;
+			if(dy > r || dy < -r)
+				continue;
 
-		// Along the line from the CASTER, so something off to one side is blown outward rather
-		// than dragged across the front. Hardest up close, so the wind reads as having a front.
-		ThrustThing(to >> 8,
-			Max(DND_GUSTOFFROST_MINPUSH, DND_GUSTOFFROST_PUSH * (cut - sqrt(d2)) / cut), 1, i);
+			// Only the band the front just crossed, plus a little behind it.
+			d2 = dx * dx + dy * dy;
+			if(d2 > r * r || (lo > 0 && d2 <= lo * lo))
+				continue;
+			if(!IsActorAlive(i) || !CheckFlag(i, "SHOOTABLE"))
+				continue;
 
-		if(n < DND_GUSTOFFROST_MAXTOSS)
-			tossed[n++] = i;
+			// A cone off the facing at cast, not a ring -- this blows forward.
+			to = VectorAngle(dx << 16, dy << 16);
+			off = abs(to - face);
+			if(off > 0.5)
+				off = 1.0 - off;
+			if(off > DND_GUSTOFFROST_HALFARC)
+				continue;
+
+			// The lookback band overlaps the last step, so remember who was already blown.
+			for(k = 0; k < n; ++k)
+				if(blown[k] == i)
+					break;
+			if(k < n)
+				continue;
+
+			// Last, as the dearest test: the wind does not blow through walls.
+			if(!CheckSight(eye, i, 0))
+				continue;
+
+			SlowMonster(i, pct, DND_GUSTOFFROST_SLOWTICS);
+
+			// Along the line from the CASTER, so something off to one side is blown outward.
+			ThrustThing(to >> 8, push *
+				Max(DND_GUSTOFFROST_MINPUSH, DND_GUSTOFFROST_PUSH * (cut - sqrt(d2)) / cut) / 100, 1, i);
+
+			if(n < DND_GUSTOFFROST_MAXHIT) {
+				// Read straight after the shove, so a monster already against a wall still registers.
+				s2 = GustSpeed2(i);
+				if(s2 < DND_GUSTOFFROST_SLAMSPEED * DND_GUSTOFFROST_SLAMSPEED)
+					s2 = 0;
+				else
+					++moving;
+
+				blown[n] = i;
+				v2[n] = s2;
+				vx[n] = GetActorVelX(i);
+				vy[n++] = GetActorVelY(i);
+			}
+		}
+
+		prev = r;
+		Delay(const:1);
 	}
 
-	// Rank 10's toss aside. The "damage proportional to their mass" half of that line has no
-	// mechanic behind it yet -- see the Owed section of .claude/notes/dnd-cold-tree.md.
-	if(!n || !SpellThresholdMet(pnum, SPL_GUSTOFFROST, DND_SPELL_THRESH_HIGH))
-		Terminate;
-
-	Delay(const:DND_GUSTOFFROST_TOSSDELAY);
-
-	// One side for the whole gust, so it reads as the wind turning rather than as each enemy
-	// picking a direction of its own.
-	int side = (face + (random(0, 1) ? 0.25 : 0.75)) % 1.0;
-	for(k = 0; k < n; ++k)
-		if(IsActorAlive(tossed[k]))
-			ThrustThing(side >> 8, DND_GUSTOFFROST_R10_TOSS, 1, tossed[k]);
+	if(drawn && IsActorAlive(fx))
+		Thing_ChangeTID(fx, 0);
 }
 
 // ============================ Frost Bomb ============================
@@ -2318,7 +2570,7 @@ Script "DnD Gust Of Frost" (int pnum) {
 
 #define DND_FROSTBOMB_PULSE 17          // tics a pulse, ie. half a second
 #define DND_FROSTBOMB_RISE 24.0         // off the floor, so the blast is not half buried
-#define DND_FROSTBOMB_R10_RADIUS 180    // rank 10, and absolute -- it replaces the row
+#define DND_FROSTBOMB_R10_RADIUS 256    // rank 10, and absolute -- it replaces the row
 
 Script "DnD Frost Bomb Setup" (void) {
 	int pnum = GetSpellActorOwner();
@@ -2483,27 +2735,63 @@ Script "DnD Ice Golem Aura" (int pnum) {
 }
 
 // ============================ Ice Spear ============================
-// Two phases in ONE actor, so the owner and rip bookkeeping survive the change. Rank 5 and 10 are
-// added crit, which no spell can grant yet -- see .claude/notes/dnd-cold-tree.md.
+// Two phases in ONE actor, so the owner and rip bookkeeping survive. Its added crit is still owed.
 
-#define DND_ICESPEAR_PHASE1 14          // GUESS: tics in the slow form; the 7 x 2 frame run in DECORATE
+#define DND_ICESPEAR_PHASE1 14          // GUESS: tics in the slow form; DECORATE's 2 hidden + 6 x 2
 #define DND_ICESPEAR_PHASE2 70          // and tics it lives after
 #define DND_ICESPEAR_FASTMULT 4         // how much quicker the evolved form travels
+#define DND_ICESPEAR_FASTMAX 64.0       // but never faster than this, in units a tic
 #define DND_ICESPEAR_RIPS 10            // flat in the doc, hence a define and not a field
-#define DND_ICESPEAR_LAUNCH 20          // placeholder speed, replaced by the setup on tic one
+#define DND_ICESPEAR_CRIT 0.10          // added crit chance once primed; rank 5 adds R5_CRIT
+#define DND_ICESPEAR_R5_CRIT 0.02
+#define DND_ICESPEAR_CRITMULT 50        // added crit multiplier, integer percent; rank 10 adds R10
+#define DND_ICESPEAR_R10_CRITMULT 50
+#define DND_ICESPEAR_FORMTICS 14        // ISPF A-N in DECORATE; the spear launches as they end
+#define DND_ICESPEAR_HANDOFF 2          // the formed spear is held while the real one clears the hand
+#define DND_ICESPEAR_SIDE 16.0          // to the caster's right; Spell_IceSpear_Form's A_Warp must match
 
-// Phase 1 speed is a FIELD, so a synergy can move it, and the evolved speed is a multiple of it.
-Script "DnD Ice Spear Setup" (void) {
-	int pnum = GetSpellActorOwner();
-	if(pnum == -1) {
-		SetResultValue(0);
+// The spear the player watches form. CLIENTSIDE for the same reason as the Frost Shards one, and it
+// keeps running to hand the model the caster's pitch each tic, which A_Warp cannot copy.
+Script "DnD Ice Spear Form" (void) CLIENTSIDE {
+	if(!isAlive())
 		Terminate;
+
+	int pnum = PlayerNumber();
+	int caster = pnum + P_TIDSTART;
+	int tid = DND_ICESPEAR_FORM_TID + pnum;
+
+	// Dropped on the caster; the actor's own A_Warp puts it at their right and keeps it there.
+	if(!SpawnForced("Spell_IceSpear_Form", GetActorX(0), GetActorY(0), GetActorZ(0), tid, 0))
+		Terminate;
+
+	SetActivator(tid);
+	SetPointer(AAPTR_TARGET, caster);
+	SetActivator(caster);
+
+	// Negated: an inherited model pitch tips the point UP for a positive value, a view tips DOWN.
+	for(int t = 0; t < DND_ICESPEAR_FORMTICS + DND_ICESPEAR_HANDOFF; ++t) {
+		SetActorPitch(tid, -GetActorPitch(caster));
+		Delay(const:1);
 	}
 
-	SetActorProperty(0, APROP_SPEED,
-		Max(1, GetSpellValue(pnum, SPL_ICESPEAR, SPELLVAL_AMOUNT)) << 16);
+	Thing_ChangeTID(tid, 0);
+}
 
-	SetResultValue(0);
+// Forms at the caster's right, then flies from there to whatever the crosshair is on.
+Script "DnD Ice Spear" (int pnum) {
+	int caster = pnum + P_TIDSTART;
+
+	ACS_NamedExecuteAlways("DnD Ice Spear Form", 0);
+	Delay(const:DND_ICESPEAR_FORMTICS);
+
+	if(!PlayerInGame(pnum) || !IsActorAlive(caster))
+		Terminate;
+
+	// Launched AT the field's speed, so the synergy moves it; the evolved speed is a multiple of it.
+	// Turned in by what it takes to meet the crosshair from the right; a positive angle turns left.
+	SpawnSpellProjectile(pnum, SPL_ICESPEAR, "Spell_IceSpear",
+		Max(1, GetSpellValue(pnum, SPL_ICESPEAR, SPELLVAL_AMOUNT)), 0,
+		VectorAngle(FrostShardsAimDist(caster), DND_ICESPEAR_SIDE), -DND_ICESPEAR_SIDE);
 }
 
 // The evolution. Velocity is rewritten rather than only APROP_SPEED: speed is what a projectile is
@@ -2515,17 +2803,476 @@ Script "DnD Ice Spear Evolve" (void) {
 		Terminate;
 	}
 
-	SetActorVelocity(0, GetActorVelX(0) * DND_ICESPEAR_FASTMULT,
-		GetActorVelY(0) * DND_ICESPEAR_FASTMULT, GetActorVelZ(0) * DND_ICESPEAR_FASTMULT,
-		false, false);
+	// FASTMULT times quicker, capped at FASTMAX: the whole vector is rescaled, so the aim holds.
+	int vx = GetActorVelX(0), vy = GetActorVelY(0), vz = GetActorVelZ(0);
+	int speed = VectorLength(VectorLength(vx, vy), vz);
+	if(speed > 0) {
+		int scale = FixedDiv(Min(speed * DND_ICESPEAR_FASTMULT, DND_ICESPEAR_FASTMAX), speed);
+		SetActorVelocity(0, FixedMul(vx, scale), FixedMul(vy, scale), FixedMul(vz, scale), false, false);
+	}
 
 	// Each enemy once, and only so many of them, which is the same bookkeeping Glacial Spike uses.
 	GiveInventory("DnD_MakeRipper", 1);
 	SetActorProperty(0, APROP_STAMINA, GetActorProperty(0, APROP_STAMINA) | DND_DAMAGEFLAG_RIPSONCE);
 	SetInventory("DnD_RipLimit", DND_ICESPEAR_RIPS);
 
+	// Its own crit, which the damage event reads off the actor. Phase 1 has none.
+	SetUserVariable(0, "user_critchance", DND_ICESPEAR_CRIT +
+		SpellThresholdMet(pnum, SPL_ICESPEAR, DND_SPELL_THRESH_LOW) * DND_ICESPEAR_R5_CRIT);
+	SetUserVariable(0, "user_critmult", DND_ICESPEAR_CRITMULT +
+		SpellThresholdMet(pnum, SPL_ICESPEAR, DND_SPELL_THRESH_HIGH) * DND_ICESPEAR_R10_CRITMULT);
+
 	SetActorProperty(0, APROP_REACTIONTIME, DND_ICESPEAR_PHASE2);
 	SetResultValue(0);
+}
+
+// ============================ Blizzard ============================
+// Rain of Fire's loop with icicles: the same aim and slant, AMOUNT the storm and RADIUS one icicle's blast.
+
+#define DND_BLIZZARD_SPEED 36.0         // sets the volley's fall time; each icicle's own speed fits it
+#define DND_BLIZZARD_INTERVAL 23        // tics between volleys at the base rate (0.66 s); duration sets the count
+#define DND_BLIZZARD_PERVOLLEY 16       // icicles in one volley
+#define DND_BLIZZARD_R5_RADIUS 128      // added to the storm at rank 5
+#define DND_BLIZZARD_R10_MORE 30        // rank 10: percent increased volley rate, and percent more ice in each
+#define DND_BLIZZARD_SLANT 72.0         // windblown, but steeper than a comet
+#define DND_BLIZZARD_MARKRATE (TICRATE / 2)
+
+Script "DnD Blizzard" (int pnum) {
+	int caster = pnum + P_TIDSTART;
+	int cx, cy, cz;
+
+	// Same two ways in as Flammability: what the player is looking at, else where the aim puff struck.
+	int target = PickActor(caster, GetActorAngle(caster), GetActorPitch(caster),
+		DND_SPELL_HITSCANRANGE, 0, MF_SHOOTABLE, ML_BLOCKEVERYTHING, PICKAF_RETURNTID);
+
+	if(target && IsActorAlive(target)) {
+		cx = GetActorX(target);
+		cy = GetActorY(target);
+		cz = GetActorZ(target);
+	}
+	else {
+		if(!TraceSpellAim(pnum, DND_SPELL_HITSCANRANGE))
+			Terminate;
+
+		int wait = 0;
+		while(!ReadSpellAim(pnum) && wait < DND_SPELLAIM_WAIT) {
+			Delay(const:1);
+			++wait;
+		}
+
+		if(!SpellAimReady(pnum) || !PlayerInGame(pnum) || !IsActorAlive(caster))
+			Terminate;
+
+		auto aim = GetSpellAim();
+		cx = aim.x[pnum];
+		cy = aim.y[pnum];
+		cz = aim.z[pnum];
+	}
+
+	int storm = GetSpellValue(pnum, SPL_BLIZZARD, SPELLVAL_AMOUNT);
+	if(SpellThresholdMet(pnum, SPL_BLIZZARD, DND_SPELL_THRESH_LOW))
+		storm += DND_BLIZZARD_R5_RADIUS;
+	int scatter = ScalePlayerAoERadius(pnum, storm << 16, DND_AOESRC_NONWEAPON);
+	int dur = GetSpellDurationTics(pnum, SPL_BLIZZARD);
+	bool r10 = SpellThresholdMet(pnum, SPL_BLIZZARD, DND_SPELL_THRESH_HIGH);
+
+	// Floor and ceiling read once from the middle, as Rain of Fire does.
+	int probe = TEMPORARY_DATADUMMY_TID + pnum;
+	int ground = cz, roof = cz + DND_RAINOFFIRE_RISE;
+	if(SpawnForced("DnD_SpellAnchor", cx, cy, cz, probe, 0)) {
+		ground = GetActorFloorZ(probe);
+		roof = Min(GetActorCeilingZ(probe) - DND_RAINOFFIRE_HEADROOM, ground + DND_RAINOFFIRE_RISE);
+		Thing_Remove(probe);
+	}
+	if(roof <= ground + DND_RAINOFFIRE_HEADROOM)
+		roof = ground + DND_RAINOFFIRE_HEADROOM;
+
+	// DAMAGE2 is the volley RATE in tenths of a percent (1000 at base). Rank 10 and Ice Bolt's synergy
+	// are both "increased", so they add to it; the duration then decides how many volleys fall.
+	int rate = GetSpellValue(pnum, SPL_BLIZZARD, SPELLVAL_DAMAGE2), per = DND_BLIZZARD_PERVOLLEY;
+	if(r10) {
+		rate += DND_BLIZZARD_R10_MORE * 10;
+		per = (per * (100 + DND_BLIZZARD_R10_MORE) + 50) / 100;
+	}
+	rate = Max(1, rate);
+	int need = DND_BLIZZARD_INTERVAL * 1000;
+	int volleys = Max(1, dur * rate / need);
+
+	// Paced by an accumulator rather than a whole number of tics, so every tenth of a percent counts.
+	// Primed full, so the first volley falls at once.
+	int acc = need;
+
+	// One fall time for the whole volley: each icicle covers its own path in it, so they all land together.
+	int fall = Max(1, (roof - ground) / DND_BLIZZARD_SPEED);
+
+	int tid = TEMPORARY_SPELL_TID + pnum;
+	int t, v = 0, c, a, d, lx, ly, sx, sy, dx, dy, dz;
+
+	for(t = 0; v < volleys; ++t) {
+		if(!PlayerInGame(pnum))
+			break;
+
+		if(!(t % DND_BLIZZARD_MARKRATE))
+			ACS_NamedExecuteWithResult("DnD Rain Of Fire Mark", cx, cy,
+				((scatter >> 16) << 16) | ((ground >> 16) & 0xFFFF), true);
+
+		if(acc >= need) {
+			acc -= need;
+			++v;
+
+			for(c = 0; c < per; ++c) {
+				// A little toward the middle: u^0.75 sits between uniform over the disc (u^0.5) and u.
+				a = random(0, 1.0);
+				d = random(0, 1.0);
+				d = FixedMul(scatter, FixedMul(fsqrt(d), fsqrt(fsqrt(d))));
+				lx = cx + FixedMul(cos(a), d);
+				ly = cy + FixedMul(sin(a), d);
+
+				a = random(0, 1.0);
+				d = random(0, DND_BLIZZARD_SLANT);
+				sx = lx + FixedMul(cos(a), d);
+				sy = ly + FixedMul(sin(a), d);
+
+				dx = lx - sx;
+				dy = ly - sy;
+				dz = ground - roof;
+
+				// Faced along its fall, so the icicle model points the way it travels.
+				if(!SpawnForced("Spell_BlizzardIce", sx, sy, roof, tid, VectorAngle(dx, dy) >> 8))
+					continue;
+				SetupSpellActor(tid, pnum, SPL_BLIZZARD);
+
+				SetActorVelocity(tid, dx / fall, dy / fall, dz / fall, false, false);
+
+				Thing_ChangeTID(tid, 0);
+			}
+		}
+
+		acc += rate;
+		Delay(const:1);
+	}
+}
+
+// ============================ Avalanche ============================
+// After a brief delay, ice is hurled from behind and above the caster down onto the ground ahead.
+
+#define DND_AVALANCHE_DELAY 18          // GUESS: the "brief delay", in tics
+#define DND_AVALANCHE_SPAN 52           // GUESS: tics the whole throw is spread over
+#define DND_AVALANCHE_SPEED 30.0
+#define DND_AVALANCHE_BEHIND 96.0       // how far behind the caster the ice starts, give or take half
+#define DND_AVALANCHE_SPREAD 160.0      // half-width across the caster's back it starts from
+#define DND_AVALANCHE_RISE 112.0        // and how high above their feet
+#define DND_AVALANCHE_NEAR 96.0         // the band ahead it lands in
+#define DND_AVALANCHE_FAR 640.0
+#define DND_AVALANCHE_FANARC 0.07       // landing spread off the facing, a share of a turn (~25 degrees)
+#define DND_AVALANCHE_R10_RIP 25        // percent of the ice that rips, unbounded, at rank 10
+
+Script "DnD Avalanche" (int pnum) {
+	int caster = pnum + P_TIDSTART;
+
+	// Placeholder: Avalanche has no sounds of its own yet.
+	PlaySound(caster, "IceNova/Cast", CHAN_7);
+	Delay(const:DND_AVALANCHE_DELAY);
+
+	int total = Max(1, GetSpellValue(pnum, SPL_AVALANCHE, SPELLVAL_AMOUNT));
+	bool rips = SpellThresholdMet(pnum, SPL_AVALANCHE, DND_SPELL_THRESH_HIGH);
+	int tid = TEMPORARY_SPELL_TID + pnum;
+	int thrown = 0, t, due, face, ox, oy, oz, back, side, sx, sy, sz, la, ld, lx, ly, dx, dy, dz, len;
+
+	// Spread over SPAN tics: by tic t, total * t / SPAN pieces are due.
+	for(t = 1; t <= DND_AVALANCHE_SPAN && thrown < total; ++t) {
+		if(!PlayerInGame(pnum) || !IsActorAlive(caster))
+			break;
+
+		// Read every tic: the throw follows where the caster faces NOW.
+		face = GetActorAngle(caster);
+		ox = GetActorX(caster);
+		oy = GetActorY(caster);
+		oz = GetActorZ(caster);
+
+		due = total * t / DND_AVALANCHE_SPAN;
+		for(; thrown < due; ++thrown) {
+			back = random(DND_AVALANCHE_BEHIND / 2, DND_AVALANCHE_BEHIND * 3 / 2);
+			side = random(-DND_AVALANCHE_SPREAD, DND_AVALANCHE_SPREAD);
+			sx = ox - FixedMul(cos(face), back) + FixedMul(cos(face + 0.25), side);
+			sy = oy - FixedMul(sin(face), back) + FixedMul(sin(face + 0.25), side);
+			sz = oz + random(DND_AVALANCHE_RISE * 3 / 4, DND_AVALANCHE_RISE * 5 / 4);
+
+			la = face + random(-DND_AVALANCHE_FANARC, DND_AVALANCHE_FANARC);
+			ld = random(DND_AVALANCHE_NEAR, DND_AVALANCHE_FAR);
+			lx = ox + FixedMul(cos(la), ld);
+			ly = oy + FixedMul(sin(la), ld);
+			dx = lx - sx;
+			dy = ly - sy;
+			dz = oz - sz;
+
+			// Spawn, not SpawnForced: a start point inside a wall behind the caster is skipped.
+			if(!Spawn("Spell_AvalancheIce", sx, sy, sz, tid, VectorAngle(dx, dy) >> 8))
+				continue;
+			SetupSpellActor(tid, pnum, SPL_AVALANCHE);
+
+			// Rank 10, the same rip bookkeeping the evolved Ice Spear uses, without a limit.
+			if(rips && random(1, 100) <= DND_AVALANCHE_R10_RIP) {
+				GiveActorInventory(tid, "DnD_MakeRipper", 1);
+				SetActorProperty(tid, APROP_STAMINA, GetActorProperty(tid, APROP_STAMINA) | DND_DAMAGEFLAG_RIPSONCE);
+				SetActorInventory(tid, "DnD_RipLimit", MAX_RIPCOUNT);
+			}
+
+			len = fdistance_delta(dx, dy, dz);
+			if(len > 0)
+				SetActorVelocity(tid,
+					FixedMul(FixedDiv(dx, len), DND_AVALANCHE_SPEED),
+					FixedMul(FixedDiv(dy, len), DND_AVALANCHE_SPEED),
+					FixedMul(FixedDiv(dz, len), DND_AVALANCHE_SPEED), false, false);
+
+			Thing_ChangeTID(tid, 0);
+		}
+
+		Delay(const:1);
+	}
+}
+
+// ============================ Winter Orb ============================
+// A slow orb ripping each enemy once, throwing real Ice Bolts (the caster's own rank) in a spiral.
+
+#define DND_WINTERORB_SPEED 6           // GUESS
+#define DND_WINTERORB_SPIRALSTEP 0.11   // turn between throws, a share of a full turn (~40 degrees)
+
+Script "DnD Winter Orb Setup" (void) {
+	// Each enemy once, and no cap on how many: the doc gives none.
+	SetInventory("DnD_RipLimit", MAX_RIPCOUNT);
+	SetResultValue(0);
+}
+
+// Called by the orb on each throw; k counts them, which is what turns the spiral.
+Script "DnD Winter Orb Throw" (int k) {
+	int pnum = GetSpellActorOwner();
+	if(pnum == -1) {
+		SetResultValue(0);
+		Terminate;
+	}
+
+	// The orb borrows a scratch tid only for the spawn call, which takes its position and facing.
+	int orb = TEMPORARY_DATADUMMY_TID + pnum;
+	Thing_ChangeTID(0, orb);
+
+	bool shard = (k & 1) && SpellThresholdMet(pnum, SPL_WINTERORB, DND_SPELL_THRESH_HIGH);
+	int off = (k * DND_WINTERORB_SPIRALSTEP) % 1.0;
+
+	if(shard)
+		SpawnSpellProjectile(pnum, SPL_FROSTSHARDS, "Spell_FrostShard", DND_FROSTSHARDS_SPEED, 0, off,
+			0, 0, orb, true, 0);
+	else
+		SpawnSpellProjectile(pnum, SPL_ICEBOLT, "Spell_IceBolt", DND_ICEBOLT_SPEED, 0, off,
+			0, 0, orb, true, 0);
+
+	Thing_ChangeTID(orb, 0);
+	SetResultValue(0);
+}
+
+// ============================ Glacial Cascade ============================
+// An invisible floor-hugging front carries the wave, so a wall ends it; it calls a burst every STEP tics.
+
+#define DND_GLACIALCASCADE_STEP 8         // tics between bursts
+#define DND_GLACIALCASCADE_WIDTH 80       // GUESS: one burst's radius, before area modifiers
+#define DND_GLACIALCASCADE_ZBAND 64       // how far above or below the burst an enemy is still caught
+#define DND_GLACIALCASCADE_R5_RANGE 25    // percent increased range
+#define DND_GLACIALCASCADE_RAMP 120       // each burst as a percent of the last
+#define DND_GLACIALCASCADE_FINAL 200      // and the final one, of the one before it
+#define DND_GLACIALCASCADE_R10_WIDEN 120  // rank 10: each burst's width as a percent of the last
+#define DND_GLACIALCASCADE_KNOCK 18       // GUESS: the one shove
+
+void CastGlacialCascade(int pnum) {
+	int range = GetSpellValue(pnum, SPL_GLACIALCASCADE, SPELLVAL_RADIUS);
+	if(SpellThresholdMet(pnum, SPL_GLACIALCASCADE, DND_SPELL_THRESH_LOW))
+		range = range * (100 + DND_GLACIALCASCADE_R5_RANGE) / 100;
+
+	// Paced so burst k lands at (k + 1) / bursts of the range.
+	int bursts = Max(1, GetSpellValue(pnum, SPL_GLACIALCASCADE, SPELLVAL_AMOUNT));
+	int speed = Max(1, range / (bursts * DND_GLACIALCASCADE_STEP));
+
+	// Placeholder: Glacial Cascade has no sounds of its own yet.
+	PlaySound(pnum + P_TIDSTART, "IceNova/Cast", CHAN_7);
+	SpawnSpellProjectile(pnum, SPL_GLACIALCASCADE, "Spell_GlacialCascade", speed, 0, 0, 0, 0, 0, true);
+}
+
+// The front calls this with its own burst index. The cast tic it stamps on burst 0 is the cascade's
+// identity, so "knocks back once" holds across all four bursts without a list.
+Script "DnD Glacial Cascade Burst" (int k) {
+	int pnum = GetSpellActorOwner();
+	int bursts = pnum == -1 ? 0 : Max(1, GetSpellValue(pnum, SPL_GLACIALCASCADE, SPELLVAL_AMOUNT));
+	if(k >= bursts) {
+		SetActorState(0, "Done");
+		SetResultValue(0);
+		Terminate;
+	}
+
+	if(!k)
+		SetUserVariable(0, "user_extra", Timer());
+	int id = GetUserVariable(0, "user_extra");
+
+	int caster = pnum + P_TIDSTART;
+	int dmg = ApplySpellIntScaling(pnum, ApplySpellMoreDamage(pnum, SPL_GLACIALCASCADE,
+		GetSpellValue(pnum, SPL_GLACIALCASCADE, SPELLVAL_DAMAGE)));
+	int w = ScalePlayerAoERadius(pnum, DND_GLACIALCASCADE_WIDTH << 16, DND_AOESRC_NONWEAPON) >> 16;
+	bool widen = SpellThresholdMet(pnum, SPL_GLACIALCASCADE, DND_SPELL_THRESH_HIGH);
+
+	int i;
+	for(i = 1; i <= k; ++i) {
+		dmg = dmg * (i == bursts - 1 ? DND_GLACIALCASCADE_FINAL : DND_GLACIALCASCADE_RAMP) / 100;
+		if(widen)
+			w = w * DND_GLACIALCASCADE_R10_WIDEN / 100;
+	}
+
+	int bx = GetActorX(0), by = GetActorY(0), bz = GetActorZ(0);
+	int push = GetActorAngle(0) >> 8;
+
+	ACS_NamedExecuteWithResult("DnD Glacial Cascade FX", bx, by, bz, w);
+	PlaySound(0, "FrostBomb/Pulse", CHAN_BODY);
+
+	// Everything the front can tell is read; now the caster becomes the activator, as the damage path
+	// reads THEIR inventory and owns the hit beep.
+	if(k + 1 >= bursts)
+		SetActorState(0, "Done");
+	if(!SetActivator(caster)) {
+		SetResultValue(0);
+		Terminate;
+	}
+
+	int mn, v, dx, dy, out;
+	for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
+		v = UsedMonsterTIDs[mn];
+
+		dx = (GetActorX(v) - bx) >> 16;
+		if(dx > w || dx < -w)
+			continue;
+		dy = (GetActorY(v) - by) >> 16;
+		if(dy > w || dy < -w || dx * dx + dy * dy > w * w)
+			continue;
+		if(abs(GetActorZ(v) - bz) > (DND_GLACIALCASCADE_ZBAND << 16))
+			continue;
+		if(!IsActorAlive(v) || !CheckFlag(v, "SHOOTABLE"))
+			continue;
+
+		out = HandleDamageDeal(caster, v, dmg, GetSpellDamageType(SPL_GLACIALCASCADE), SPL_GLACIALCASCADE,
+			DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISRADIUSDMG, 0, 0, 0, 0, true);
+		if(out > 0)
+			Thing_Damage2(v, out, "SkipHandle");
+
+		// Once per cascade: the first burst to reach an enemy shoves it along the wave.
+		if(IsActorAlive(v) && CheckActorInventory(v, "DnD_CascadeKnocked") != id) {
+			SetActorInventory(v, "DnD_CascadeKnocked", id);
+			ThrustThing(push, DND_GLACIALCASCADE_KNOCK, 0, v);
+		}
+	}
+
+	SetResultValue(0);
+}
+
+// The eruption. CLIENTSIDE, as the spikes are; centre and width arrive from the server.
+#define DND_GLACIALCASCADE_SPIKESTEP 24   // one spike per this many units of burst radius
+#define DND_GLACIALCASCADE_SPIKEMIN 4
+#define DND_GLACIALCASCADE_SPIKEDEPTH 30.0
+
+Script "DnD Glacial Cascade FX" (int bx, int by, int bz, int w) CLIENTSIDE {
+	int n = Max(DND_GLACIALCASCADE_SPIKEMIN, w / DND_GLACIALCASCADE_SPIKESTEP);
+	int i, a, d;
+	for(i = 0; i < n; ++i) {
+		a = random(0, 1.0);
+		d = FixedMul(w << 16, fsqrt(random(0, 1.0)));
+		// Started under the floor; the spike rises into place.
+		SpawnForced("Spell_GlacialCascadeSpike", bx + FixedMul(cos(a), d), by + FixedMul(sin(a), d),
+			bz - DND_GLACIALCASCADE_SPIKEDEPTH, 0, random(0, 255));
+	}
+	SetResultValue(0);
+}
+
+// ============================ Shivering Armor ============================
+// Heat Shield's shape: a damage-taken buff, plus a freeze chance on the WEARER that hitting it rolls.
+
+// The ally nearest the caster, or -1.
+int GetNearestAlly(int pnum) {
+	int best = -1, bestd = 0x7FFFFFFF, d;
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		if(i == pnum || !PlayerInGame(i) || !IsActorAlive(i + P_TIDSTART))
+			continue;
+		d = fdistance(pnum + P_TIDSTART, i + P_TIDSTART);
+		if(d < bestd) {
+			bestd = d;
+			best = i;
+		}
+	}
+	return best;
+}
+
+void GrantShiveringArmor(int pnum, int target, int dur) {
+	int ptid = target + P_TIDSTART;
+
+	// Hundredths of a percent, as Hatred's: the rank step is 1.5.
+	HandlePlayerBuffAssignment(target, pnum + P_TIDSTART, BTI_SPELL_SHIVERINGARMOR, 0, 0, dur,
+		(GetSpellValue(pnum, SPL_SHIVERINGARMOR, SPELLVAL_DAMAGE) * 100) >> 16);
+
+	int armor = GetSpellValue(pnum, SPL_SHIVERINGARMOR, SPELLVAL_AMOUNT);
+	if(armor > 0)
+		HandlePlayerBuffAssignment(target, pnum + P_TIDSTART, BTI_SPELL_SHIVERINGARMOR_ARMOR, 0, 0, dur, armor);
+
+	// Tested BEFORE the stamp, so a recast refreshes rather than raising a second pair of crystals.
+	bool wasUp = !!CheckActorInventory(ptid, "DnD_ShiveringArmorChance");
+	SetActorInventory(ptid, "DnD_ShiveringArmorChance", GetSpellValue(pnum, SPL_SHIVERINGARMOR, SPELLVAL_DAMAGE2));
+
+	// Rank 10: rippers stop on the wearer. Dense Exoskeleton shares the flag, so each side checks the other.
+	if(SpellThresholdMet(pnum, SPL_SHIVERINGARMOR, DND_SPELL_THRESH_HIGH) &&
+		!CheckActorInventory(ptid, "DnD_ShiveringRipGuard")) {
+		SetActorInventory(ptid, "DnD_ShiveringRipGuard", 1);
+		GiveActorInventory(ptid, "Perk_RipImmunityOn", 1);
+	}
+
+	// Placeholder: Shivering Armor has no sounds of its own yet.
+	PlaySound(ptid, "Spell/IceShieldCast", CHAN_6);
+
+	if(!wasUp)
+		RaisePlayerAttachment(target, DND_PLAYERFX_SHIVERINGARMOR);
+	ACS_NamedExecuteAlways("DnD Shivering Armor Timer", 0, target, Timer() + dur);
+}
+
+void CastShiveringArmor(int pnum) {
+	int target = GetSpellLockTarget(pnum);
+	if(target < 0 || !PlayerInGame(target) || !IsActorAlive(target + P_TIDSTART))
+		target = pnum;
+
+	int dur = GetSpellDurationTics(pnum, SPL_SHIVERINGARMOR);
+	GrantShiveringArmor(pnum, target, dur);
+
+	// Rank 5: an ally target covers the caster too, and no target covers the nearest ally too.
+	if(SpellThresholdMet(pnum, SPL_SHIVERINGARMOR, DND_SPELL_THRESH_LOW)) {
+		if(target != pnum)
+			GrantShiveringArmor(pnum, pnum, dur);
+		else if((target = GetNearestAlly(pnum)) != -1)
+			GrantShiveringArmor(pnum, target, dur);
+	}
+}
+
+// Owns the wearer's markers; the reduction and armor are buffs and expire on their own ticker. The end
+// tic is stamped so a recast takes over and the older timer bows out, as Heat Shield's does.
+Script "DnD Shivering Armor Timer" (int pnum, int endtic) {
+	int ptid = pnum + P_TIDSTART;
+	SetActorInventory(ptid, "DnD_ShiveringArmorEnd", endtic);
+
+	while(Timer() < endtic && IsActorAlive(ptid) && CheckActorInventory(ptid, "DnD_ShiveringArmorEnd") == endtic)
+		Delay(const:TICRATE / 2);
+
+	if(CheckActorInventory(ptid, "DnD_ShiveringArmorEnd") != endtic)
+		Terminate;
+
+	SetActorInventory(ptid, "DnD_ShiveringArmorChance", 0);
+	SetActorInventory(ptid, "DnD_ShiveringArmorEnd", 0);
+
+	if(CheckActorInventory(ptid, "DnD_ShiveringRipGuard")) {
+		SetActorInventory(ptid, "DnD_ShiveringRipGuard", 0);
+		// Dense Exoskeleton may still hold the flag; it clears it itself when it ends.
+		if(!CheckActorInventory(ptid, "DnD_RipImmuneTimer"))
+			GiveActorInventory(ptid, "Perk_RipImmunityOff", 1);
+	}
 }
 
 Script "DnD Spell Cast" (int spell, int pnum) {
@@ -2663,6 +3410,30 @@ Script "DnD Spell Cast" (int spell, int pnum) {
 			ACS_NamedExecuteAlways("DnD Flammability Cast", 0, pnum);
 		break;
 
+		case SPL_FROSTBITE:
+			ACS_NamedExecuteAlways("DnD Frostbite Cast", 0, pnum);
+		break;
+
+		case SPL_BLIZZARD:
+			ACS_NamedExecuteAlways("DnD Blizzard", 0, pnum);
+		break;
+
+		case SPL_WINTERORB:
+			SpawnSpellProjectile(pnum, spell, "Spell_WinterOrb", DND_WINTERORB_SPEED);
+		break;
+
+		case SPL_GLACIALCASCADE:
+			CastGlacialCascade(pnum);
+		break;
+
+		case SPL_SHIVERINGARMOR:
+			CastShiveringArmor(pnum);
+		break;
+
+		case SPL_AVALANCHE:
+			ACS_NamedExecuteAlways("DnD Avalanche", 0, pnum);
+		break;
+
 		case SPL_SCORCHINGRAY:
 			ACS_NamedExecuteAlways("DnD Scorching Ray", 0, pnum);
 		break;
@@ -2725,8 +3496,7 @@ Script "DnD Spell Cast" (int spell, int pnum) {
 		break;
 
 		case SPL_ICESPEAR:
-			// Speed is overwritten by the setup; this only has to be non zero to launch.
-			SpawnSpellProjectile(pnum, spell, "Spell_IceSpear", DND_ICESPEAR_LAUNCH);
+			ACS_NamedExecuteAlways("DnD Ice Spear", 0, pnum);
 		break;
 
 		case SPL_PYROBLAST:
@@ -3542,6 +4312,7 @@ int GetPlayerAttachmentSpell(int which) {
 	switch(which) {
 		case DND_PLAYERFX_ANGERAURA: return SPL_ANGER;
 		case DND_PLAYERFX_RIGHTEOUSFIRE: return SPL_RIGHTEOUSFIRE;
+		case DND_PLAYERFX_HATREDAURA: return SPL_HATRED;
 	}
 	return -1;
 }
@@ -3562,7 +4333,7 @@ Script "DnD Aura Radius Factor" (int which) CLIENTSIDE {
 	}
 
 	int base = SpellDefs[spell].base[SPELLVAL_RADIUS];
-	int cur = GetSpellValue(pnum, spell, SPELLVAL_RADIUS);
+	int cur = GetSpellAuraRadius(pnum, spell);
 
 	// An unranked or radiusless row leaves the art exactly as DECORATE declared it.
 	if(base <= 0 || cur <= 0) {

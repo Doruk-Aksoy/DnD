@@ -1,0 +1,27 @@
+// Shivering Armor on the wearer. Its presence is the armor; ACS gives and takes it.
+Actor DnD_ShiveringArmorChance : DnD_Info { }
+Actor DnD_ShiveringArmorEnd : DnD_Info { }
+// Rank 10 holds DONTRIP through this; Dense Exoskeleton checks it before clearing the flag.
+Actor DnD_ShiveringRipGuard : DnD_Boolean { }
+
+// Raises the effect on every machine that receives it. WithResult, so the player stays the activator.
+Actor Spell_ShiveringArmor_FXSpawner : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 1 ACS_NamedExecuteWithResult("DnD Spawn Player Aura", PLAYERFX_SHIVERINGARMOR)
+		Stop
+	}
+}
+
+// PLACEHOLDER art: Heat Shield's flank crystals under the Ice translation, until it gets its own.
+Actor Spell_ShiveringArmorFX : Spell_HeatShieldFX {
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_JumpIfInTargetInventory("DnD_ShiveringArmorChance", 1, "Active")
+		Stop
+		Active:
+			S015 A 1 Bright A_Warp(AAPTR_TARGET, 0, score, mass, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_ShiveringArmorChance", 1, "Active")
+		Stop
+	}
+}

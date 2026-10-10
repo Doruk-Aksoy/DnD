@@ -1,0 +1,12 @@
+// Frostbite's curse marker, on Flammability's warp loop.
+Actor FrostbiteFXMarker : FlammabilityFXMarker {
+	States {
+		SpawnLoop:
+			S014 A 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+		Loop
+	}
+}
+
+Actor FrostbiteAreaMarkerFX : FlammabilityAreaMarkerFX {
+	Translation Ice
+}

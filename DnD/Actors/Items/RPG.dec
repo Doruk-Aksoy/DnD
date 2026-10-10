@@ -480,6 +480,9 @@ Actor DnD_WeakenedTimer : DnD_Info { }
 // Flammability. The base ignite chance the curse grants attackers against this monster.
 Actor DnD_Flammable : DnD_Info { }
 Actor DnD_FlammableTimer : DnD_Info { }
+// Frostbite. The base chill chance the curse grants attackers against this monster.
+Actor DnD_Frostbitten : DnD_Info { }
+Actor DnD_FrostbittenTimer : DnD_Info { }
 // Held while the snare's marker loop is alive, so a second snare cannot start a second one.
 Actor DnD_SnareFXRunning : DnD_Boolean { }
 

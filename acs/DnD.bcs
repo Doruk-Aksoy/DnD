@@ -4162,7 +4162,9 @@ Script "DnD Rip Immunity" (int ptid) {
 	}
 
 	SetActorInventory(ptid, "DnD_RipImmuneTimer", 0);
-	GiveActorInventory(ptid, "Perk_RipImmunityOff", 1);
+	// Shivering Armor's rank 10 may still hold the flag; its timer clears it when it ends.
+	if(!CheckActorInventory(ptid, "DnD_ShiveringRipGuard"))
+		GiveActorInventory(ptid, "Perk_RipImmunityOff", 1);
 }
 
 Script "DnD Ailment Immunity" (int ptid) {
@@ -4372,6 +4374,23 @@ Script "DnD Flammability Timer" (int m_tid) {
 
 	SetActorInventory(m_tid, "DnD_Flammable", 0);
 	SetActorInventory(m_tid, "DnD_FlammableTimer", 0);
+}
+
+// Frostbite, the cold twin of the above. Owns the chill chance lane and the curse marker; the cold
+// resistance half rides the cold exposure lane and its own ticker.
+Script "DnD Frostbite Timer" (int m_tid) {
+	int sfx_id = ACS_NamedExecuteWithResult("DND Spawn Attachment", m_tid, DND_ATTACHMENT_FROSTBITE);
+
+	while(CheckActorInventory(m_tid, "DnD_FrostbittenTimer") && isActorAlive(m_tid)) {
+		TakeActorInventory(m_tid, "DnD_FrostbittenTimer", 1);
+		Delay(const:1);
+	}
+
+	if(isActorAlive(m_tid))
+		ACS_NamedExecuteWithResult("DnD Remove Monster Attachment", m_tid, sfx_id);
+
+	SetActorInventory(m_tid, "DnD_Frostbitten", 0);
+	SetActorInventory(m_tid, "DnD_FrostbittenTimer", 0);
 }
 
 Script "DnD Expose Weakness Timer" (int m_tid) {

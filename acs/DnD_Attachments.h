@@ -26,6 +26,7 @@ enum {
 	DND_ATTACHMENT_STUNICON,
 	DND_ATTACHMENT_FLAMMABILITY,
 	DND_ATTACHMENT_SNARE,
+	DND_ATTACHMENT_FROSTBITE,
 };
 
 Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
@@ -81,6 +82,11 @@ Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 				zoff <<= 1;
 				zoff += 4.0;
 				res = CreateMonsterAttachment(tid, "FlammabilityFXMarker", 0, 0, zoff);
+			break;
+			case DND_ATTACHMENT_FROSTBITE:
+				zoff <<= 1;
+				zoff += 4.0;
+				res = CreateMonsterAttachment(tid, "FrostbiteFXMarker", 0, 0, zoff);
 			break;
 			// Around the feet: this one is a shackle, not an overhead icon. The actor warps itself to
 			// a fixed 16 up every tic, so this only decides where it first appears.
@@ -200,6 +206,8 @@ enum {
 	DND_PLAYERFX_IMMOLATION,
 	DND_PLAYERFX_ALLYLOCK,
 	DND_PLAYERFX_RIGHTEOUSFIRE,
+	DND_PLAYERFX_HATREDAURA,
+	DND_PLAYERFX_SHIVERINGARMOR,
 };
 
 // How far out to either side a paired attachment sits, past a player's own 16 unit radius.
@@ -216,6 +224,8 @@ str GetPlayerAttachmentMarker(int which) {
 		case DND_PLAYERFX_IMMOLATION: return "DnD_ImmolationActive";
 		case DND_PLAYERFX_ALLYLOCK: return "DnD_AllyLockActive";
 		case DND_PLAYERFX_RIGHTEOUSFIRE: return "DnD_RighteousFireActive";
+		case DND_PLAYERFX_HATREDAURA: return "DnD_HatredAuraActive";
+		case DND_PLAYERFX_SHIVERINGARMOR: return "DnD_ShiveringArmorChance";
 	}
 	return "";
 }
@@ -229,6 +239,8 @@ str GetPlayerAttachmentSpawner(int which) {
 		case DND_PLAYERFX_IMMOLATION: return "Spell_Immolation_FXSpawner";
 		case DND_PLAYERFX_ALLYLOCK: return "Spell_AllyLock_FXSpawner";
 		case DND_PLAYERFX_RIGHTEOUSFIRE: return "Spell_RighteousFire_FXSpawner";
+		case DND_PLAYERFX_HATREDAURA: return "Spell_HatredAura_FXSpawner";
+		case DND_PLAYERFX_SHIVERINGARMOR: return "Spell_ShiveringArmor_FXSpawner";
 	}
 	return "";
 }
@@ -241,6 +253,8 @@ str GetPlayerAttachmentFX(int which) {
 		case DND_PLAYERFX_IMMOLATION: return "Spell_ImmolationFX";
 		case DND_PLAYERFX_ALLYLOCK: return "Spell_AllyLockFX";
 		case DND_PLAYERFX_RIGHTEOUSFIRE: return "Spell_RighteousFireFX";
+		case DND_PLAYERFX_HATREDAURA: return "Spell_HatredAuraFX";
+		case DND_PLAYERFX_SHIVERINGARMOR: return "Spell_ShiveringArmorFX";
 	}
 	return "";
 }
@@ -250,6 +264,7 @@ str GetPlayerAttachmentFX(int which) {
 int GetPlayerAttachmentSides(int which) {
 	switch(which) {
 		case DND_PLAYERFX_HEATSHIELD: return 2;
+		case DND_PLAYERFX_SHIVERINGARMOR: return 2;
 	}
 	return 1;
 }

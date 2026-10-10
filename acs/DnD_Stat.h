@@ -1061,10 +1061,13 @@ int GetPercentCritChanceIncrease(int pnum, int wepid, bool isSpell = false) {
 	return val;
 }
 
-int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0, bool isSpell = false) {
+int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0, bool isSpell = false, int added = 0) {
 	// PSTAT_SPELL_CRIT is the flat source INSIDE this call now, not an extra on top of the attack
 	// one -- adding both was what let a spell inherit attack crit chance.
 	int chance = GetBaseCritChance(pnum, isSpell);
+
+	// The hit's OWN added crit, eg. a primed Ice Spear. Flat, so the increases below scale it too.
+	chance += added;
 	int pct_bonus;
 
 	// add other flat crit bonuses here
@@ -1178,13 +1181,13 @@ bool CheckGuaranteedCritCases() {
 	return CheckInventory("DnD_GuaranteeCrit_FromDeadliness") && CheckInventory("DnD_DeadlinessMasteryWindow");
 }
 
-bool CheckCritChance(int pnum, int victim, int wepid, bool isLightning, bool noToken = false, bool isSpell = false) {
+bool CheckCritChance(int pnum, int victim, int wepid, bool isLightning, bool noToken = false, bool isSpell = false, int added = 0) {
 	// veil disables crits for the cooldown period
 	if(CheckInventory("VeilCheck") && CheckInventory("VeilCooldown"))
 		return false;
 
 	bool res = false;
-	int chance = GetCritChance(pnum, victim, wepid, isLightning, isSpell);
+	int chance = GetCritChance(pnum, victim, wepid, isLightning, isSpell, added);
 		
 	//printbold(s:"running crit chance: ", f:chance);
 	
@@ -1271,13 +1274,16 @@ int GetBaseCritModifier(int pnum, int wepid, bool applyExcess = true, bool isSpe
 	return base + wep_bonus;
 }
 
-int GetCritModifier(int pnum, int victim, int wepid, bool forcedReturn = false, bool isSpell = false) {
+int GetCritModifier(int pnum, int victim, int wepid, bool forcedReturn = false, bool isSpell = false, int added = 0) {
 	// forced return would skip this to get the value for dot multiplier bonus calculation
 	if(!forcedReturn && PlayerModData[pnum].vals[PSTAT_INC_CRITFORDOT])
 		return 100;
 
 	int base = GetBaseCritModifier(pnum, wepid, false, isSpell); // excess-crit is applied below with the real crit chance
 	int temp;
+
+	// The hit's OWN added multiplier, integer percent like the rest; after the DoT early-out above.
+	base += added;
 	
 	// berserker perk50 check
 	base += (CheckInventory("Berserker_HitTracker") == DND_BERSERKER_PERK60_MAXSTACKS) * DND_BERSERKER_PERK60_CRITBONUS;

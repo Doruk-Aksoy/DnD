@@ -316,6 +316,13 @@ Script "DnD Spell Explosion Setup" (int which, int radius_pct, int div) {
 	if(spell == SPL_FROSTBOMB && SpellThresholdMet(pnum, spell, DND_SPELL_THRESH_HIGH))
 		radius = ScalePlayerAoERadius(pnum, DND_FROSTBOMB_R10_RADIUS << 16, DND_AOESRC_NONWEAPON);
 
+	// Blizzard's rank 5 grows each icicle's blast in step with the storm, so the bigger storm does not
+	// thin out. Divided first: radius is fixed point, and times 384 would overflow with area gear.
+	if(spell == SPL_BLIZZARD && SpellThresholdMet(pnum, spell, DND_SPELL_THRESH_LOW)) {
+		int storm = Max(1, GetSpellValue(pnum, spell, SPELLVAL_AMOUNT));
+		radius = radius / storm * (storm + DND_BLIZZARD_R5_RADIUS);
+	}
+
 	// The core that takes the hit at full strength, with no distance falloff. A PERCENT of the blast,
 	// not a distance -- so it is taken off the already scaled radius and tracks area modifiers for
 	// free, and a spell keeps the same shape however big its explosion grows.

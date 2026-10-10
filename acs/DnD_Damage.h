@@ -274,6 +274,8 @@ str DamageTypeList[MAX_DAMAGE_TYPES] = {
 };
 
 vec3_T PlayerDamageVector[MAXPLAYERS];
+// A hit's own added crit multiplier, handed to the accumulate it launches the same way as the vector.
+int PlayerDamageCritBonus[MAXPLAYERS];
 
 enum {
 	DND_SPECIALBLOOD_STONE
@@ -1774,10 +1776,10 @@ void HandleChillEffects(int pnum, int victim) {
 		int stacks = CheckActorInventory(victim, "DnD_ChillStacks");
 		int threshold = MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp * GetChillThreshold(pnum, stacks + 1) / 100;
 
-		// Bitter Frost rolls INSTEAD of the threshold, not as well as it: the perk is "regardless of
-		// health threshold", so a hit that already met the threshold does not roll at all.
-		if(hpdiff >= threshold || (PlayerModData[pnum].vals[PSTAT_CHILL_CHANCE_FLAT] &&
-			random(1, 100) <= PlayerModData[pnum].vals[PSTAT_CHILL_CHANCE_FLAT])) {
+		// Bitter Frost rolls INSTEAD of the threshold ("regardless of health threshold"), and Frostbite's
+		// "base chance to be chilled" joins that same roll, read off the monster.
+		int flat = PlayerModData[pnum].vals[PSTAT_CHILL_CHANCE_FLAT] + CheckActorInventory(victim, "DnD_Frostbitten");
+		if(hpdiff >= threshold || (flat && random(1, 100) <= flat)) {
 			// add a new stack of chill and check for freeze
 			HandleColdImmunityPerk(pnum);
 
@@ -2339,7 +2341,7 @@ void HandleTargetPicking(int montid) {
 // returns the filtered, reduced etc. damage when factoring in all resists or weaknesses ie. this is the final damage the actor will take
 // This is strictly for player doing damage to other monsters or shootables!
 // All damage factors here are applied in the "more" method, ie. multiplicative
-int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid, int flags, int ox, int oy, int oz, int actor_flags, bool wep_neg = false, bool oneTimeRipperHack = false) {
+int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid, int flags, int ox, int oy, int oz, int actor_flags, bool wep_neg = false, bool oneTimeRipperHack = false, int spell_crit = 0, int spell_critmult = 0) {
 	// Ultimatum / Occasional Impotence. Every point of player damage passes through here, so the
 	// dead window is one test. Read off the level timer, so nothing has to be synced for it.
 	if(IsUltimatumImpotenceActive())
@@ -2416,6 +2418,9 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 	
 	// extra property checks moved here
 	// WE CHECK FOR CRITS HERE, EITHER WEAPON OR SPELL! THE FINAL STEP BEFORE RESISTS
+
+	// Hatred rank 10: added crit on COLD hits only, weapon or spell, through the same added lane.
+	int cold_crit = IsIceDamage(damage_type) ? pbuffs[pnum].buff_net_values[BUFF_COLDCRITCHANCE].additive : 0;
 	if(!wep_neg) {
 		// chance to force pain
 		extra = GetPlayerWeaponModVal(pnum, wepid, WEP_MOD_FORCEPAINCHANCE);
@@ -2434,7 +2439,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		(
 			!(actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME) && 
 			!(flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME) && 
-			((actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) || GetPlayerWeaponCritState(pnum, wepid) || (!GetPlayerWeaponCritLock(pnum, wepid) && CheckCritChance(pnum, victim, wepid, IsLightningDamage(damage_type))))
+			((actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) || GetPlayerWeaponCritState(pnum, wepid) || (!GetPlayerWeaponCritLock(pnum, wepid) && CheckCritChance(pnum, victim, wepid, IsLightningDamage(damage_type), false, false, cold_crit)))
 		)
 		{
 			SetPlayerWeaponCritState(pnum, wepid);
@@ -2449,7 +2454,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		(
 			!(actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME) && 
 			!(flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME) && 
-			((actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) || CheckCritChance(pnum, victim, -1, IsLightningDamage(damage_type), false, true))
+			((actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) || CheckCritChance(pnum, victim, -1, IsLightningDamage(damage_type), false, true, spell_crit + cold_crit))
 		)
 		{
 			actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
@@ -2523,6 +2528,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		PlayerDamageVector[pnum].x = ox;
 		PlayerDamageVector[pnum].y = oy;
 		PlayerDamageVector[pnum].z = oz;
+		PlayerDamageCritBonus[pnum] = spell_critmult;
 		ACS_NamedExecuteWithResult("DnD Damage Accumulate", m_id | ((wep_neg | (oneTimeRipperHack << 1)) << DND_DAMAGE_ACCUM_SHIFT), wepid, extra, damage_type);
 	}
 
@@ -2705,6 +2711,10 @@ void HandleRipperHitSound(int tid, int owner, int wepid, bool isSpell = false) {
 		switch(wepid) {
 			case SPL_FREEZINGPULSE:
 				PlaySound(tid, "FreezingPulse/Hit", 5, 1.0);
+			break;
+			// Only the evolved spear rips, so every ripper hit from it is already the primed one.
+			case SPL_ICESPEAR:
+				PlaySound(tid, "IceSpear/Pierce", 5, 1.0);
 			break;
 		}
 		return;
@@ -3265,6 +3275,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 	int ox = PlayerDamageVector[pnum].x;
 	int oy = PlayerDamageVector[pnum].y;
 	int oz = PlayerDamageVector[pnum].z;
+	int crit_bonus = PlayerDamageCritBonus[pnum];
 
 	int victim_tid = victim_data + DND_MONSTERTID_BEGIN;
 	int temp;
@@ -3448,7 +3459,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 		// DND_DAMAGETICFLAG_SPELL is set from DND_DAMAGEFLAG_ISSPELL at the call site, so this is the
 		// one place downstream that can still tell a spell crit from an attack crit.
 		more_dmg = GetCritModifier(pnum, victim_tid, (wep_neg & 1) ? -1 : wepid, false,
-			!!(flags & DND_DAMAGETICFLAG_SPELL));
+			!!(flags & DND_DAMAGETICFLAG_SPELL), crit_bonus);
 
 		PlayerDamageTic[pnum].total[victim_data] = MulPercent_Exact(PlayerDamageTic[pnum].total[victim_data], more_dmg);
 
@@ -5483,6 +5494,11 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		CheckActorInventory(pnum + P_TIDSTART, "DnD_HeatShieldRank"))
 		ACS_NamedExecuteAlways("DnD Heat Shield Retaliate", 0, pnum, m_id + DND_MONSTERTID_BEGIN);
 
+	// Shivering Armor, by the same rules: off the wearer, and never on a DoT tick. "Frozen for 1 second."
+	int shiver = CheckActorInventory(pnum + P_TIDSTART, "DnD_ShiveringArmorChance");
+	if(from_monster && !isDot && dmg && m_id >= 0 && shiver && random(1, 100) <= shiver)
+		FreezeMonster(pnum, m_id + DND_MONSTERTID_BEGIN, TICRATE);
+
 	// final thing to check after damage reductions are applied, DoTs
 	// do not register more instances on dots from dots themselves as well
 	if((from_monster || (dmg_data & DND_DAMAGETYPEFLAG_LEVELHAZARD)) && !isDot && dmg) {
@@ -6732,6 +6748,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// extract the encoded damage data, and proceed
 			// stamina contains any special flags we might need
 			// variable swap here to fix a bug with radius damage projectiles that also rip once
+			int hit_crit = 0, hit_critmult = 0;
 			//printbold(s:"dmg ", d:dmg, s:" victim ", d:victim, s:" ", d:shooter, s:" ", d:dmg_data, s:" ", d:isReflected, s:" ", d:IsPlayer(isReflected));
 			if(!(dmg_data & DND_DAMAGEFLAG_ISREFLECTED) && (!isReflected || IsPlayer(isReflected))) {
 				factor = arg1;
@@ -6766,6 +6783,13 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					arg2 = factor;
 					arg1 = GetUserVariable(0, "user_expdmg");
 					dmg_data |= GetUserVariable(0, "user_expflags");
+				}
+
+				// A spell actor's own crit, read while it is still the activator. A class that does not
+				// declare these reads 0, so only spells pay for the two reads.
+				if(dmg_data & DND_DAMAGEFLAG_ISSPELL) {
+					hit_crit = GetUserVariable(0, "user_critchance");
+					hit_critmult = GetUserVariable(0, "user_critmult");
 				}
 				
 				SetActivator(shooter);
@@ -7108,7 +7132,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				dmg = DealDamageComponents(pnum, shooter, victim, m_id, added_dmgid, added_category, dmg, dmg_data, actor_flags);
 
 				if(dmg > 0)
-					dmg = HandleDamageDeal(shooter, victim, dmg, temp, m_id, dmg_data, ox, oy, oz, actor_flags, (m_id < 0) || (dmg_data & DND_DAMAGEFLAG_ISSPELL), 0);
+					dmg = HandleDamageDeal(shooter, victim, dmg, temp, m_id, dmg_data, ox, oy, oz, actor_flags, (m_id < 0) || (dmg_data & DND_DAMAGEFLAG_ISSPELL), 0, hit_crit, hit_critmult);
 
 				// Faraday Halo. The one point the final number is known, and the last before it is
 				// gone. Gated on the stat rather than inside the helper so a player without the helm

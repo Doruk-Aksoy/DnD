@@ -293,3 +293,55 @@ FreezingPulse/End2          FPULSE2
 $random FreezingPulse/End { FreezingPulse/End1 FreezingPulse/End2 }
 
 CreepingFrost/Loop          FROSCREE
+
+ChillingBreath/Start1       CHBRTHS1
+ChillingBreath/Start2       CHBRTHS2
+$random ChillingBreath/Start { ChillingBreath/Start1 ChillingBreath/Start2 }
+
+ChillingBreath/Loop1        CHBRTHL1
+ChillingBreath/Loop2        CHBRTHL2
+ChillingBreath/Loop3        CHBRTHL3
+$random ChillingBreath/Loop { ChillingBreath/Loop1 ChillingBreath/Loop2 ChillingBreath/Loop3 }
+
+IceNova/Cast1               ICENOVA1
+IceNova/Cast2               ICENOVA2
+IceNova/Cast3               ICENOVA3
+$random IceNova/Cast { IceNova/Cast1 IceNova/Cast2 IceNova/Cast3 }
+
+FrostBomb/Pulse1            FROSBOM1
+FrostBomb/Pulse2            FROSBOM2
+FrostBomb/Pulse3            FROSBOM3
+FrostBomb/Pulse4            FROSBOM4
+FrostBomb/Pulse5            FROSBOM5
+$random FrostBomb/Pulse { FrostBomb/Pulse1 FrostBomb/Pulse2 FrostBomb/Pulse3 FrostBomb/Pulse4 FrostBomb/Pulse5 }
+
+GustOfFrost/Cast            GUSTFROS
+
+IceSpear/Fire1              ICESPRF1
+IceSpear/Fire2              ICESPRF2
+IceSpear/Fire3              ICESPRF3
+$random IceSpear/Fire { IceSpear/Fire1 IceSpear/Fire2 IceSpear/Fire3 }
+
+IceSpear/Hit1               ICESPRH1
+IceSpear/Hit2               ICESPRH2
+IceSpear/Hit3               ICESPRH3
+$random IceSpear/Hit { IceSpear/Hit1 IceSpear/Hit2 IceSpear/Hit3 }
+
+IceSpear/Transition1        ICESPRT1
+IceSpear/Transition2        ICESPRT2
+$random IceSpear/Transition { IceSpear/Transition1 IceSpear/Transition2 }
+
+IceSpear/Pierce1            ICESPRP1
+IceSpear/Pierce2            ICESPRP2
+IceSpear/Pierce3            ICESPRP3
+IceSpear/Pierce4            ICESPRP4
+$random IceSpear/Pierce { IceSpear/Pierce1 IceSpear/Pierce2 IceSpear/Pierce3 IceSpear/Pierce4 }
+
+IceSpear/Appear1            ICESPRA1
+IceSpear/Appear2            ICESPRA2
+$random IceSpear/Appear { IceSpear/Appear1 IceSpear/Appear2 }
+
+Frostbite/Cast1             FROSBIT1
+Frostbite/Cast2             FROSBIT2
+Frostbite/Cast3             FROSBIT3
+$random Frostbite/Cast { Frostbite/Cast1 Frostbite/Cast2 Frostbite/Cast3 }

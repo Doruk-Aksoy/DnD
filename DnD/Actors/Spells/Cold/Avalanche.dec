@@ -1,0 +1,25 @@
+// One piece of the avalanche: a small icicle hurled from behind the caster onto the ground ahead.
+Actor Spell_AvalancheIce : DnD_Spell {
+	PROJECTILE
+	+BloodlessImpact
+	+DONTBLAST
+	Speed 30
+	Radius 6
+	Height 10
+	Scale 0.55
+	RenderStyle Add
+	Alpha 1.0
+	DeathSound "IceBolt/Hit"
+	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE))
+	DamageType "P_Ice"
+	States {
+		// AVLI carries Glacial Spike's model. Bright, or the shader is multiplied by a dark sector.
+		SpawnState:
+			AVLI A 2 Bright A_SpawnItemEx("Spell_GlacialSpike_ParticleTrail", -6, 0, 0, 0, 0, 0, 0, 128)
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx("Spell_GlacialSpike_Smoke", 0, 0, 2, 0, frandom(-1.0, 1.0), frandom(0.3, 1.0), 0, 128)
+			S013 ABCDE 2 Bright
+		Stop
+	}
+}

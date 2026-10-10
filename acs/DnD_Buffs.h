@@ -57,6 +57,7 @@ enum {
 	BUFF_SPELLCDR,			// percent, read by GetSpellCooldownRate
 	BUFF_IGNITECHANCE,		// flat percent, read by GetPlayerIgniteChance
 	BUFF_SPELLDAMAGE,		// percent, read by "DnD Spell Damage". MORE, so use BUFF_F_MORETYPE
+	BUFF_COLDCRITCHANCE,	// flat crit chance (0.01 = 1%) on COLD hits only, read by HandleDamageDeal
 
 	BUFF_TYPES_MAX
 };
