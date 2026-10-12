@@ -54,6 +54,64 @@ int GetSpellDurationTics(int pnum, int spell, int which = SPELLVAL_DURATION) {
 	return (GetSpellValue(pnum, spell, which) * TICRATE) >> 16;
 }
 
+enum {
+	DND_LOOPSOUND_BLIZZARD,
+	DND_LOOPSOUND_AVALANCHE
+};
+
+str GetSpellLoopSound(int which) {
+	if(which == DND_LOOPSOUND_AVALANCHE)
+		return "Avalanche/Loop";
+	return "Blizzard/Loop";
+}
+
+#define DND_LOOPSOUND_NEAR 256.0        // a spell loop is at full volume within this of its spot
+#define DND_LOOPSOUND_FAR 2048.0        // and silent past this
+
+// Per machine: the newest loop of each kind owns its channel, so an older one ending cannot cut it.
+int[] module& GetSpellLoopTickets() {
+	static int tickets[2];
+	return tickets;
+}
+
+// Starts a spell loop at a spot on every machine for tics, or until the caster leaves (or dies, with alive).
+void StartSpellLoopSound(int pnum, int which, int x, int y, int z, int tics, bool alive) {
+	ACS_NamedExecuteAlways("DnD Spell Loop Sound", 0, ((x >> 16) & 0xFFFF) | (y & 0xFFFF0000),
+		((z >> 16) & 0xFFFF) | (tics << 16), which | (pnum << 8) | (alive << 16));
+}
+
+// How loud a spell loop at x, y, z is to this listener: squared, so it eases off as a normal sound would.
+int SpellLoopVolume(int me, int x, int y, int z) {
+	int d = VectorLength(VectorLength(GetActorX(me) - x, GetActorY(me) - y), GetActorZ(me) - z);
+	if(d <= DND_LOOPSOUND_NEAR)
+		return 1.0;
+	if(d >= DND_LOOPSOUND_FAR)
+		return 0;
+	int v = FixedDiv(DND_LOOPSOUND_FAR - d, DND_LOOPSOUND_FAR - DND_LOOPSOUND_NEAR);
+	return FixedMul(v, v);
+}
+
+// Played on the listener's own player, the one place the engine ranks a sound high (80) so nothing crowds it
+// out, and turned by their distance to the spot every tic. A start at volume 0 never plays, hence the floor.
+Script "DnD Spell Loop Sound" (int xy, int zt, int packed) CLIENTSIDE {
+	int x = xy << 16, y = xy & 0xFFFF0000, z = zt << 16, tics = zt >> 16;
+	int which = packed & 0xFF, pnum = (packed >> 8) & 0xFF;
+	bool alive = packed >> 16;
+	int me = ConsolePlayerNumber() + P_TIDSTART;
+	int chan = which == DND_LOOPSOUND_AVALANCHE ? CHAN_6 : CHAN_7;
+	int[] module& tickets = GetSpellLoopTickets();
+	int ticket = ++tickets[which];
+
+	PlaySound(me, GetSpellLoopSound(which), chan, Max(SpellLoopVolume(me, x, y, z), 0.01), true);
+	for(int t = 0; t < tics && ticket == tickets[which] && PlayerInGame(pnum) &&
+		(!alive || IsActorAlive(pnum + P_TIDSTART)); ++t) {
+		Delay(const:1);
+		SoundVolume(me, chan, SpellLoopVolume(me, x, y, z));
+	}
+	if(ticket == tickets[which])
+		StopSound(me, chan);
+}
+
 // An aura's reach before area modifiers. Hatred's rank 5 doubles it; the ring art reads this too.
 #define DND_HATRED_R5_RADIUSMULT 2
 
@@ -1325,13 +1383,20 @@ Script "DnD Rain Of Fire" (int pnum) {
 			if(!SpawnForced("Spell_RainOfFire", sx, sy, roof, tid, 0))
 				continue;
 
+			// The roof was read at the middle: start under the ceiling where this one actually is, or not at all.
+			dz = GetActorCeilingZ(tid) - DND_RAINOFFIRE_HEADROOM;
+			if(dz < GetActorFloorZ(tid) + DND_RAINOFFIRE_HEADROOM || !SetActorPosition(tid, sx, sy, Min(dz, roof), 0)) {
+				Thing_Remove(tid);
+				continue;
+			}
+
 			// Stamps the spell identity, which is what the Damage expression and the blast radius both
 			// resolve off. Without it the comet prices itself as spell 0.
 			SetupSpellActor(tid, pnum, SPL_RAINOFFIRE);
 
 			dx = lx - sx;
 			dy = ly - sy;
-			dz = ground - roof;
+			dz = ground - GetActorZ(tid);
 			len = fdistance_delta(dx, dy, dz);
 
 			if(len > 0)
@@ -2829,13 +2894,15 @@ Script "DnD Ice Spear Evolve" (void) {
 // ============================ Blizzard ============================
 // Rain of Fire's loop with icicles: the same aim and slant, AMOUNT the storm and RADIUS one icicle's blast.
 
-#define DND_BLIZZARD_SPEED 36.0         // sets the volley's fall time; each icicle's own speed fits it
+#define DND_BLIZZARD_SPEED 28.0         // sets the volley's fall time; each icicle's own speed fits it
 #define DND_BLIZZARD_INTERVAL 23        // tics between volleys at the base rate (0.66 s); duration sets the count
 #define DND_BLIZZARD_PERVOLLEY 16       // icicles in one volley
 #define DND_BLIZZARD_R5_RADIUS 128      // added to the storm at rank 5
 #define DND_BLIZZARD_R10_MORE 30        // rank 10: percent increased volley rate, and percent more ice in each
 #define DND_BLIZZARD_SLANT 72.0         // windblown, but steeper than a comet
 #define DND_BLIZZARD_MARKRATE (TICRATE / 2)
+#define DND_BLIZZARD_CLEAR 16.0         // an icicle's height and a little: how far under a ceiling it starts
+#define DND_BLIZZARD_SOUNDLIFT 32.0     // how far over the storm's floor its loop sits
 
 Script "DnD Blizzard" (int pnum) {
 	int caster = pnum + P_TIDSTART;
@@ -2905,8 +2972,11 @@ Script "DnD Blizzard" (int pnum) {
 	// One fall time for the whole volley: each icicle covers its own path in it, so they all land together.
 	int fall = Max(1, (roof - ground) / DND_BLIZZARD_SPEED);
 
+	// Its sound at the storm, low over its floor, for as long as it rains and the last volley falls.
+	StartSpellLoopSound(pnum, DND_LOOPSOUND_BLIZZARD, cx, cy, ground + DND_BLIZZARD_SOUNDLIFT, dur + fall, false);
+
 	int tid = TEMPORARY_SPELL_TID + pnum;
-	int t, v = 0, c, a, d, lx, ly, sx, sy, dx, dy, dz;
+	int t, v = 0, c, a, d, lx, ly, sx, sy, sz, dx, dy;
 
 	for(t = 0; v < volleys; ++t) {
 		if(!PlayerInGame(pnum))
@@ -2935,14 +3005,21 @@ Script "DnD Blizzard" (int pnum) {
 
 				dx = lx - sx;
 				dy = ly - sy;
-				dz = ground - roof;
 
 				// Faced along its fall, so the icicle model points the way it travels.
 				if(!SpawnForced("Spell_BlizzardIce", sx, sy, roof, tid, VectorAngle(dx, dy) >> 8))
 					continue;
+
+				// The roof was read at the middle: start under the ceiling where this one actually is, or not at all.
+				sz = GetActorCeilingZ(tid) - DND_BLIZZARD_CLEAR;
+				if(sz < GetActorFloorZ(tid) + DND_BLIZZARD_CLEAR || !SetActorPosition(tid, sx, sy, Min(sz, roof), 0)) {
+					Thing_Remove(tid);
+					continue;
+				}
 				SetupSpellActor(tid, pnum, SPL_BLIZZARD);
 
-				SetActorVelocity(tid, dx / fall, dy / fall, dz / fall, false, false);
+				// The volley's one fall time from wherever it starts, so it still lands with the rest.
+				SetActorVelocity(tid, dx / fall, dy / fall, (ground - GetActorZ(tid)) / fall, false, false);
 
 				Thing_ChangeTID(tid, 0);
 			}
@@ -2957,54 +3034,153 @@ Script "DnD Blizzard" (int pnum) {
 // After a brief delay, ice is hurled from behind and above the caster down onto the ground ahead.
 
 #define DND_AVALANCHE_DELAY 18          // GUESS: the "brief delay", in tics
-#define DND_AVALANCHE_SPAN 52           // GUESS: tics the whole throw is spread over
+#define DND_AVALANCHE_SOUNDTAIL 20      // tics the last ice is still forming and falling after the throw
 #define DND_AVALANCHE_SPEED 30.0
 #define DND_AVALANCHE_BEHIND 96.0       // how far behind the caster the ice starts, give or take half
 #define DND_AVALANCHE_SPREAD 160.0      // half-width across the caster's back it starts from
 #define DND_AVALANCHE_RISE 112.0        // and how high above their feet
+#define DND_AVALANCHE_RISELOW 48.0      // the lowest start, about eye height, so some fly in near level
 #define DND_AVALANCHE_NEAR 96.0         // the band ahead it lands in
 #define DND_AVALANCHE_FAR 640.0
 #define DND_AVALANCHE_FANARC 0.07       // landing spread off the facing, a share of a turn (~25 degrees)
 #define DND_AVALANCHE_R10_RIP 25        // percent of the ice that rips, unbounded, at rank 10
+#define DND_AVALANCHE_PITCHMAX 0.125    // the committed aim is held within 45 degrees of level
+#define DND_AVALANCHE_SLOWEVERY 8       // tics between sweeps of the landing ground for its slow
+#define DND_AVALANCHE_SLOWTICS 12       // each sweep's slow outlasts the gap to the next
+#define DND_AVALANCHE_SLOWTAIL 3        // sweeps after the last throw, while the last ice comes down
+#define DND_AVALANCHE_SLOWMARGIN 32.0   // a monster's radius, give or take, past the fan's edges
+#define DND_AVALANCHE_SLOWZBAND 96.0    // how far above or below the aim's line an enemy is still on it
+
+// Where each caster stood and aimed as their cast bar ended: the barrage commits to all of it.
+typedef struct {
+	int x[MAXPLAYERS], y[MAXPLAYERS], z[MAXPLAYERS], angle[MAXPLAYERS], pitch[MAXPLAYERS];
+} avalanche_aim_T;
+
+avalanche_aim_T module& GetAvalancheAim() {
+	static avalanche_aim_T s;
+	return s;
+}
+
+// How hard one tic throws, as a multiple of the pace still needed: often nothing, now and then a burst.
+// The weights average out to the pace, so the throw still ends on time.
+int AvalancheSurge() {
+	int roll = random(1, 100);
+	if(roll <= 30)
+		return 0;
+	if(roll <= 60)
+		return 0.6;
+	if(roll <= 80)
+		return 1.4;
+	if(roll <= 93)
+		return 2.2;
+	return 3.5;
+}
+
+// Slows every enemy on the landing ground: the throw's own fan, NEAR to FAR along the committed aim and
+// within a band of the height it gives there. A box test throws out most of the list before any maths.
+void SlowAvalancheGround(int pnum, int ox, int oy, int oz, int face, int cp, int sp) {
+	int pct = GetSpellValue(pnum, SPL_AVALANCHE, SPELLVAL_DAMAGE2);
+	if(pct <= 0)
+		return;
+
+	int c = cos(face), s = sin(face);
+	int near = FixedMul(DND_AVALANCHE_NEAR, cp) - DND_AVALANCHE_SLOWMARGIN;
+	int far = FixedMul(DND_AVALANCHE_FAR, cp) + DND_AVALANCHE_SLOWMARGIN;
+	int spread = FixedDiv(sin(DND_AVALANCHE_FANARC), cos(DND_AVALANCHE_FANARC));
+	int mn, v, dx, dy, along, lat;
+	for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
+		v = UsedMonsterTIDs[mn];
+		dx = GetActorX(v) - ox;
+		if(dx > far || dx < -far)
+			continue;
+		dy = GetActorY(v) - oy;
+		if(dy > far || dy < -far)
+			continue;
+
+		along = FixedMul(dx, c) + FixedMul(dy, s);
+		if(along < near || along > far)
+			continue;
+		lat = FixedMul(dy, c) - FixedMul(dx, s);
+		if(abs(lat) > FixedMul(along, spread) + DND_AVALANCHE_SLOWMARGIN)
+			continue;
+		if(abs(GetActorZ(v) - (oz - FixedDiv(FixedMul(along, sp), cp))) > DND_AVALANCHE_SLOWZBAND)
+			continue;
+		if(!IsActorAlive(v) || !CheckFlag(v, "SHOOTABLE"))
+			continue;
+
+		SlowMonster(v, pct, DND_AVALANCHE_SLOWTICS);
+	}
+}
+
+// Called by "DnD Spell Cast" once the bar is done, before the script that throws gets to run.
+void RecordAvalancheAim(int pnum) {
+	int caster = pnum + P_TIDSTART;
+	GetAvalancheAim().x[pnum] = GetActorX(caster);
+	GetAvalancheAim().y[pnum] = GetActorY(caster);
+	GetAvalancheAim().z[pnum] = GetActorZ(caster);
+	GetAvalancheAim().angle[pnum] = GetActorAngle(caster);
+	GetAvalancheAim().pitch[pnum] = GetActorPitch(caster);
+}
 
 Script "DnD Avalanche" (int pnum) {
 	int caster = pnum + P_TIDSTART;
 
+	// Copied out at once, so a quick recast cannot move a barrage already under way.
+	int ox = GetAvalancheAim().x[pnum], oy = GetAvalancheAim().y[pnum], oz = GetAvalancheAim().z[pnum];
+	int face = GetAvalancheAim().angle[pnum];
+	int pitch = Clamp_Between(GetAvalancheAim().pitch[pnum], -DND_AVALANCHE_PITCHMAX, DND_AVALANCHE_PITCHMAX);
+	int cp = cos(pitch), sp = sin(pitch);
+
+	// The throw lasts the spell's duration, so gear stretches it; the ice keeps its pace, so more is thrown.
+	int span = Max(1, GetSpellDurationTics(pnum, SPL_AVALANCHE));
+
 	// Placeholder: Avalanche has no sounds of its own yet.
 	PlaySound(caster, "IceNova/Cast", CHAN_7);
+	// Its loop where the ice gathers, from the delay until the last of it is down.
+	StartSpellLoopSound(pnum, DND_LOOPSOUND_AVALANCHE, ox - FixedMul(cos(face), DND_AVALANCHE_BEHIND),
+		oy - FixedMul(sin(face), DND_AVALANCHE_BEHIND), oz + DND_AVALANCHE_RISE * 3 / 4,
+		DND_AVALANCHE_DELAY + span + DND_AVALANCHE_SOUNDTAIL, true);
+	// The storm round it is client side, so the aim goes along packed: whole-unit x | y, z | span, angle | pitch.
+	ACS_NamedExecuteAlways("DnD Avalanche FX", 0, ((ox >> 16) & 0xFFFF) | (oy & 0xFFFF0000),
+		((oz >> 16) & 0xFFFF) | (span << 16), (face & 0xFFFF) | (pitch << 16));
 	Delay(const:DND_AVALANCHE_DELAY);
 
-	int total = Max(1, GetSpellValue(pnum, SPL_AVALANCHE, SPELLVAL_AMOUNT));
+	int total = Max(1, GetSpellValue(pnum, SPL_AVALANCHE, SPELLVAL_AMOUNT) * span /
+		Max(1, (SpellDefs[SPL_AVALANCHE].base[SPELLVAL_DURATION] * TICRATE) >> 16));
 	bool rips = SpellThresholdMet(pnum, SPL_AVALANCHE, DND_SPELL_THRESH_HIGH);
 	int tid = TEMPORARY_SPELL_TID + pnum;
-	int thrown = 0, t, due, face, ox, oy, oz, back, side, sx, sy, sz, la, ld, lx, ly, dx, dy, dz, len;
+	int thrown = 0, t, rest, due, back, side, sx, sy, sz, la, ld, lx, ly, dx, dy, dz, len;
 
-	// Spread over SPAN tics: by tic t, total * t / SPAN pieces are due.
-	for(t = 1; t <= DND_AVALANCHE_SPAN && thrown < total; ++t) {
+	// Over SPAN tics, each one surging or stalling around the pace the rest still needs; the last
+	// throws whatever is left. The random fraction rounds a slow pace up now and then.
+	for(t = 1; t <= span && thrown < total; ++t) {
 		if(!PlayerInGame(pnum) || !IsActorAlive(caster))
 			break;
 
-		// Read every tic: the throw follows where the caster faces NOW.
-		face = GetActorAngle(caster);
-		ox = GetActorX(caster);
-		oy = GetActorY(caster);
-		oz = GetActorZ(caster);
+		if(t % DND_AVALANCHE_SLOWEVERY == 1)
+			SlowAvalancheGround(pnum, ox, oy, oz, face, cp, sp);
 
-		due = total * t / DND_AVALANCHE_SPAN;
+		rest = total - thrown;
+		if(t == span)
+			due = total;
+		else
+			due = thrown + Min(rest, (FixedMul(rest * 1.0 / (span - t + 1), AvalancheSurge()) +
+				random(0, 0.99)) >> 16);
 		for(; thrown < due; ++thrown) {
 			back = random(DND_AVALANCHE_BEHIND / 2, DND_AVALANCHE_BEHIND * 3 / 2);
 			side = random(-DND_AVALANCHE_SPREAD, DND_AVALANCHE_SPREAD);
 			sx = ox - FixedMul(cos(face), back) + FixedMul(cos(face + 0.25), side);
 			sy = oy - FixedMul(sin(face), back) + FixedMul(sin(face + 0.25), side);
-			sz = oz + random(DND_AVALANCHE_RISE * 3 / 4, DND_AVALANCHE_RISE * 5 / 4);
+			sz = oz + random(DND_AVALANCHE_RISELOW, DND_AVALANCHE_RISE * 5 / 4);
 
 			la = face + random(-DND_AVALANCHE_FANARC, DND_AVALANCHE_FANARC);
+			// Along the committed aim from the caster's feet: level lands on their floor, looking down nearer.
 			ld = random(DND_AVALANCHE_NEAR, DND_AVALANCHE_FAR);
-			lx = ox + FixedMul(cos(la), ld);
-			ly = oy + FixedMul(sin(la), ld);
+			lx = ox + FixedMul(cos(la), FixedMul(ld, cp));
+			ly = oy + FixedMul(sin(la), FixedMul(ld, cp));
 			dx = lx - sx;
 			dy = ly - sy;
-			dz = oz - sz;
+			dz = oz - FixedMul(ld, sp) - sz;
 
 			// Spawn, not SpawnForced: a start point inside a wall behind the caster is skipped.
 			if(!Spawn("Spell_AvalancheIce", sx, sy, sz, tid, VectorAngle(dx, dy) >> 8))
@@ -3018,14 +3194,177 @@ Script "DnD Avalanche" (int pnum) {
 				SetActorInventory(tid, "DnD_RipLimit", MAX_RIPCOUNT);
 			}
 
+			// It forms in the air first and launches itself, so the velocity waits on it. It hangs already
+			// pointing along the throw; INHERITACTORPITCH tips the point up for a positive pitch.
 			len = fdistance_delta(dx, dy, dz);
-			if(len > 0)
-				SetActorVelocity(tid,
-					FixedMul(FixedDiv(dx, len), DND_AVALANCHE_SPEED),
-					FixedMul(FixedDiv(dy, len), DND_AVALANCHE_SPEED),
-					FixedMul(FixedDiv(dz, len), DND_AVALANCHE_SPEED), false, false);
+			if(len > 0) {
+				SetUserVariable(tid, "user_vx", FixedMul(FixedDiv(dx, len), DND_AVALANCHE_SPEED));
+				SetUserVariable(tid, "user_vy", FixedMul(FixedDiv(dy, len), DND_AVALANCHE_SPEED));
+				SetUserVariable(tid, "user_vz", FixedMul(FixedDiv(dz, len), DND_AVALANCHE_SPEED));
+				int dip = VectorAngle(VectorLength(dx, dy), dz);
+				SetActorPitch(tid, dip > 0.5 ? dip - 1.0 : dip);
+			}
 
 			Thing_ChangeTID(tid, 0);
+		}
+
+		Delay(const:1);
+	}
+
+	// The last ice is still forming and falling, so the ground stays slow a little longer.
+	for(t = 0; t < DND_AVALANCHE_SLOWTAIL && PlayerInGame(pnum) && IsActorAlive(caster); ++t) {
+		Delay(const:DND_AVALANCHE_SLOWEVERY);
+		SlowAvalancheGround(pnum, ox, oy, oz, face, cp, sp);
+	}
+}
+
+// The storm round an avalanche, purely for show: Gust of Frost's winds blowing past the ice, its smoke
+// riders, and haze over where it lands. It builds through the delay and dies down after the throw.
+#define DND_AVALANCHE_FXAFTER 10        // tics the storm runs on after the throw
+#define DND_AVALANCHE_FXFADE 16         // tics it takes to die down at the end
+#define DND_AVALANCHE_WINDS 2.08        // winds a tic at the height of it
+#define DND_AVALANCHE_RIDERS 0.3        // smoke riders a tic
+#define DND_AVALANCHE_HAZE 0.9          // haze puffs a tic
+#define DND_AVALANCHE_WINDLEN 2.5714    // Gust's pacing: a piece crosses 72 x its scale over its life
+#define DND_AVALANCHE_SNOW 0.4          // snow clouds a tic, streaming down onto the landing ground
+#define DND_AVALANCHE_SNOWOVER 44.0     // how far above the landing ground each one is aimed
+#define DND_AVALANCHE_BILLOWS 0.35      // billows a tic, thrown up off the landing ground
+#define DND_AVALANCHE_BILLOWAT 14       // tics after the delay before the first ice is down
+#define DND_AVALANCHE_FLAKES 1.5        // flakes a tic in the spray
+
+// Which wind: mostly wisps, some clouds, a few swooshes, curling to the side they start on.
+str AvalancheWind(int side) {
+	int r = random(1, 100);
+	if(r <= 60)
+		return side > 0 ? "Spell_GustOfFrost_WispL" : "Spell_GustOfFrost_WispR";
+	if(r <= 85)
+		return side > 0 ? "Spell_GustOfFrost_CloudL" : "Spell_GustOfFrost_CloudR";
+	return side > 0 ? "Spell_GustOfFrost_SwooshL" : "Spell_GustOfFrost_SwooshR";
+}
+
+// One piece of the storm: along and side place it off the aim, sp sends it forward, s sizes it if set,
+// and turn faces the model that far off the way it flies.
+void SpawnAvalancheFX(str type, int ox, int oy, int oz, int face, int along, int side, int h, int sp, int s,
+	int turn = 0) {
+	int a = face + random(-0.025, 0.025);
+	int x = ox + FixedMul(cos(face), along) + FixedMul(cos(face + 0.25), side);
+	int y = oy + FixedMul(sin(face), along) + FixedMul(sin(face + 0.25), side);
+	int tid = ScratchTID();
+	if(!tid || !Spawn(type, x, y, oz + h, tid, ((a + turn) >> 8) & 0xFF))
+		return;
+	if(s) {
+		SetActorProperty(tid, APROP_SCALEX, s);
+		SetActorProperty(tid, APROP_SCALEY, s);
+	}
+	SetActorVelocity(tid, FixedMul(cos(a), sp), FixedMul(sin(a), sp), random(-0.8, 0.2), false, false);
+	Thing_ChangeTID(tid, 0);
+}
+
+// One piece of the snow, sent along vx, vy, vz a tic and sized s; a lift of 0 or more sets it on the floor.
+void SpawnAvalancheSnow(str type, int x, int y, int z, int vx, int vy, int vz, int s, int lift = -1) {
+	int tid = ScratchTID();
+	if(!tid || !Spawn(type, x, y, z, tid, 0))
+		return;
+	if(lift >= 0)
+		SetActorPosition(tid, x, y, GetActorFloorZ(tid) + lift, 0);
+	if(s) {
+		SetActorProperty(tid, APROP_SCALEX, s);
+		SetActorProperty(tid, APROP_SCALEY, s);
+	}
+	SetActorVelocity(tid, vx, vy, vz, false, false);
+	Thing_ChangeTID(tid, 0);
+}
+
+// Snow and flakes start where the ice gathers and are aimed as it is, onto the landing ground: a cloud
+// to SNOWOVER above it, arriving as it fades, and a flake under its own 0.4 gravity.
+void AvalancheSnowFlung(int ox, int oy, int oz, int face, int cp, int sp, bool flake) {
+	int back = random(0, DND_AVALANCHE_BEHIND * 3 / 2), side = random(-DND_AVALANCHE_SPREAD, DND_AVALANCHE_SPREAD);
+	int sx = ox - FixedMul(cos(face), back) + FixedMul(cos(face + 0.25), side);
+	int sy = oy - FixedMul(sin(face), back) + FixedMul(sin(face + 0.25), side);
+	int sz = oz + random(DND_AVALANCHE_RISE * 9 / 10, DND_AVALANCHE_RISE * 7 / 5);
+	int la = face + random(-DND_AVALANCHE_FANARC, DND_AVALANCHE_FANARC);
+	int ld = random(DND_AVALANCHE_NEAR * 3 / 2, DND_AVALANCHE_FAR * 9 / 10);
+	int dx = ox + FixedMul(cos(la), FixedMul(ld, cp)) - sx;
+	int dy = oy + FixedMul(sin(la), FixedMul(ld, cp)) - sy;
+	int dz = oz - FixedMul(ld, sp) - sz;
+	int trip;
+	if(flake) {
+		trip = random(16, 26);
+		SpawnAvalancheSnow(random(0, 2) ? (random(0, 1) ? "WhiteBallParticle2" : "WhiteBallParticle3") : "WhiteBallParticle4",
+			sx, sy, sz, dx / trip, dy / trip, dz / trip + trip * 0.2, 0);
+	}
+	else {
+		trip = random(40, 50);
+		SpawnAvalancheSnow("Spell_AvalancheSnow", sx, sy, sz, dx / trip, dy / trip, (dz + DND_AVALANCHE_SNOWOVER) / trip,
+			random(0.7, 1.0));
+	}
+}
+
+// Snow thrown up off the landing ground, drifting on and rising a little.
+void AvalancheSnowBillow(int ox, int oy, int oz, int face, int cp, int sp) {
+	int la = face + random(-DND_AVALANCHE_FANARC, DND_AVALANCHE_FANARC);
+	int ld = random(DND_AVALANCHE_NEAR * 6 / 5, DND_AVALANCHE_FAR);
+	int v = random(2.0, 4.0);
+	SpawnAvalancheSnow("Spell_AvalancheBillow", ox + FixedMul(cos(la), FixedMul(ld, cp)),
+		oy + FixedMul(sin(la), FixedMul(ld, cp)), oz - FixedMul(ld, sp), FixedMul(cos(la), v), FixedMul(sin(la), v),
+		random(0.2, 0.7), random(0.6, 0.9), random(0.0, 24.0));
+}
+
+Script "DnD Avalanche FX" (int xy, int zs, int aim) CLIENTSIDE {
+	int ox = xy << 16, oy = xy & 0xFFFF0000, oz = zs << 16;
+	int fxtics = DND_AVALANCHE_DELAY + (zs >> 16) + DND_AVALANCHE_FXAFTER;
+	int face = aim & 0xFFFF, pitch = aim >> 16;
+	int cp = cos(pitch), sp = sin(pitch);
+	// dnd_nofx leaves the snow out: it is the heaviest part of the storm to draw.
+	bool snow = !GetCVar("dnd_nofx");
+	int t, i, n, peak, side, s, roll;
+	for(t = 0; t < fxtics; ++t) {
+		if(t < DND_AVALANCHE_DELAY)
+			peak = (t + 1) * 1.0 / DND_AVALANCHE_DELAY;
+		else if(t >= fxtics - DND_AVALANCHE_FXFADE)
+			peak = (fxtics - t) * 1.0 / DND_AVALANCHE_FXFADE;
+		else
+			peak = 1.0;
+
+		// Winds from where the ice gathers, blowing out over where it lands. Half curl out to their side
+		// as Gust's do; half are turned a quarter onto the slope, with the variant that rolls them forward.
+		n = (FixedMul(DND_AVALANCHE_WINDS, peak) + random(0, 0.99)) >> 16;
+		for(i = 0; i < n; ++i) {
+			side = random(-DND_AVALANCHE_SPREAD, DND_AVALANCHE_SPREAD);
+			s = random(6.0, 9.0);
+			roll = random(0, 1);
+			SpawnAvalancheFX(AvalancheWind(roll ? -side : side), ox, oy, oz, face,
+				random(-DND_AVALANCHE_BEHIND * 3 / 2, 64.0), side, random(8.0, DND_AVALANCHE_RISE),
+				FixedMul(s, DND_AVALANCHE_WINDLEN), s, roll ? (side > 0 ? 0.25 : -0.25) : 0);
+		}
+
+		// Smoke riders low down, trailing Frost Bomb's smoke the length of the slope.
+		n = (FixedMul(DND_AVALANCHE_RIDERS, peak) + random(0, 0.99)) >> 16;
+		for(i = 0; i < n; ++i)
+			SpawnAvalancheFX("Spell_GustOfFrost_SmokeRider", ox, oy, oz, face,
+				random(-DND_AVALANCHE_BEHIND, 32.0), random(-DND_AVALANCHE_SPREAD, DND_AVALANCHE_SPREAD),
+				random(0.0, 48.0), random(12.0, 20.0), 0);
+
+		// Haze drifting over the whole landing ground.
+		n = (FixedMul(DND_AVALANCHE_HAZE, peak) + random(0, 0.99)) >> 16;
+		for(i = 0; i < n; ++i)
+			SpawnAvalancheFX(random(0, 1) ? "VeryGraySmoke2" : "VeryGraySmoke4", ox, oy, oz, face,
+				random(-DND_AVALANCHE_BEHIND, DND_AVALANCHE_FAR), random(-DND_AVALANCHE_SPREAD, DND_AVALANCHE_SPREAD),
+				random(0.0, 40.0), random(2.0, 5.0), 0);
+
+		// Snow: clouds and flakes flung down the slope, and billows off the ground once the ice is down.
+		if(snow) {
+			n = (FixedMul(DND_AVALANCHE_SNOW, peak) + random(0, 0.99)) >> 16;
+			for(i = 0; i < n; ++i)
+				AvalancheSnowFlung(ox, oy, oz, face, cp, sp, false);
+			n = (FixedMul(DND_AVALANCHE_FLAKES, peak) + random(0, 0.99)) >> 16;
+			for(i = 0; i < n; ++i)
+				AvalancheSnowFlung(ox, oy, oz, face, cp, sp, true);
+			if(t >= DND_AVALANCHE_DELAY + DND_AVALANCHE_BILLOWAT) {
+				n = (FixedMul(DND_AVALANCHE_BILLOWS, peak) + random(0, 0.99)) >> 16;
+				for(i = 0; i < n; ++i)
+					AvalancheSnowBillow(ox, oy, oz, face, cp, sp);
+			}
 		}
 
 		Delay(const:1);
@@ -3037,10 +3376,38 @@ Script "DnD Avalanche" (int pnum) {
 
 #define DND_WINTERORB_SPEED 6           // GUESS
 #define DND_WINTERORB_SPIRALSTEP 0.11   // turn between throws, a share of a full turn (~40 degrees)
+#define DND_WINTERORB_ORBITERS 2        // companions circling the orb, evenly spaced
 
 Script "DnD Winter Orb Setup" (void) {
 	// Each enemy once, and no cap on how many: the doc gives none.
 	SetInventory("DnD_RipLimit", MAX_RIPCOUNT);
+	SetResultValue(0);
+}
+
+// SXF_SETMASTER only links monsters here, so this points the companions at the orb, as the torch
+// flares do: the orb lends itself a local tid just long enough for SetPointer to find it.
+Script "DnD Winter Orb Orbiters" (void) CLIENTSIDE {
+	int old = ActivatorTID();
+	int orb = ScratchTID();
+	if(!orb) {
+		SetResultValue(0);
+		Terminate;
+	}
+	Thing_ChangeTID(0, orb);
+
+	for(int i = 0; i < DND_WINTERORB_ORBITERS; ++i) {
+		int tid = ScratchTID();
+		if(!tid || !SpawnForced("Spell_WinterOrb_Orbiter", GetActorX(orb), GetActorY(orb), GetActorZ(orb), tid, 0))
+			continue;
+
+		// The orbiter takes this as its starting place round the orb.
+		SetActorAngle(tid, GetActorAngle(orb) + i * 1.0 / DND_WINTERORB_ORBITERS);
+		SetActivator(tid);
+		SetPointer(AAPTR_MASTER, orb);
+		Thing_ChangeTID(tid, 0);
+	}
+
+	Thing_ChangeTID(orb, old);
 	SetResultValue(0);
 }
 
@@ -3061,10 +3428,10 @@ Script "DnD Winter Orb Throw" (int k) {
 
 	if(shard)
 		SpawnSpellProjectile(pnum, SPL_FROSTSHARDS, "Spell_FrostShard", DND_FROSTSHARDS_SPEED, 0, off,
-			0, 0, orb, true, 0);
+			0, 0, orb, true, 0, 0, SPL_WINTERORB);
 	else
 		SpawnSpellProjectile(pnum, SPL_ICEBOLT, "Spell_IceBolt", DND_ICEBOLT_SPEED, 0, off,
-			0, 0, orb, true, 0);
+			0, 0, orb, true, 0, 0, SPL_WINTERORB);
 
 	Thing_ChangeTID(orb, 0);
 	SetResultValue(0);
@@ -3079,8 +3446,16 @@ Script "DnD Winter Orb Throw" (int k) {
 #define DND_GLACIALCASCADE_R5_RANGE 25    // percent increased range
 #define DND_GLACIALCASCADE_RAMP 120       // each burst as a percent of the last
 #define DND_GLACIALCASCADE_FINAL 200      // and the final one, of the one before it
-#define DND_GLACIALCASCADE_R10_WIDEN 120  // rank 10: each burst's width as a percent of the last
+#define DND_GLACIALCASCADE_WIDEN 110      // each burst's width as a percent of the last
+#define DND_GLACIALCASCADE_R10_WIDEN 120  // and at rank 10, instead
 #define DND_GLACIALCASCADE_KNOCK 18       // GUESS: the one shove
+#define DND_GLACIALCASCADE_VOLMIN 0.7     // the first burst's volume; the last is at full
+
+// AMOUNT, and one more from rank 5, which also adds the range to keep them as far apart.
+int GetGlacialCascadeBursts(int pnum) {
+	return Max(1, GetSpellValue(pnum, SPL_GLACIALCASCADE, SPELLVAL_AMOUNT)) +
+		SpellThresholdMet(pnum, SPL_GLACIALCASCADE, DND_SPELL_THRESH_LOW);
+}
 
 void CastGlacialCascade(int pnum) {
 	int range = GetSpellValue(pnum, SPL_GLACIALCASCADE, SPELLVAL_RADIUS);
@@ -3088,19 +3463,19 @@ void CastGlacialCascade(int pnum) {
 		range = range * (100 + DND_GLACIALCASCADE_R5_RANGE) / 100;
 
 	// Paced so burst k lands at (k + 1) / bursts of the range.
-	int bursts = Max(1, GetSpellValue(pnum, SPL_GLACIALCASCADE, SPELLVAL_AMOUNT));
+	int bursts = GetGlacialCascadeBursts(pnum);
 	int speed = Max(1, range / (bursts * DND_GLACIALCASCADE_STEP));
 
-	// Placeholder: Glacial Cascade has no sounds of its own yet.
+	// Placeholder: the cast borrows Ice Nova's sound; the bursts have their own.
 	PlaySound(pnum + P_TIDSTART, "IceNova/Cast", CHAN_7);
 	SpawnSpellProjectile(pnum, SPL_GLACIALCASCADE, "Spell_GlacialCascade", speed, 0, 0, 0, 0, 0, true);
 }
 
 // The front calls this with its own burst index. The cast tic it stamps on burst 0 is the cascade's
-// identity, so "knocks back once" holds across all four bursts without a list.
+// identity, so "knocks back once" holds across all its bursts without a list.
 Script "DnD Glacial Cascade Burst" (int k) {
 	int pnum = GetSpellActorOwner();
-	int bursts = pnum == -1 ? 0 : Max(1, GetSpellValue(pnum, SPL_GLACIALCASCADE, SPELLVAL_AMOUNT));
+	int bursts = pnum == -1 ? 0 : GetGlacialCascadeBursts(pnum);
 	if(k >= bursts) {
 		SetActorState(0, "Done");
 		SetResultValue(0);
@@ -3115,20 +3490,26 @@ Script "DnD Glacial Cascade Burst" (int k) {
 	int dmg = ApplySpellIntScaling(pnum, ApplySpellMoreDamage(pnum, SPL_GLACIALCASCADE,
 		GetSpellValue(pnum, SPL_GLACIALCASCADE, SPELLVAL_DAMAGE)));
 	int w = ScalePlayerAoERadius(pnum, DND_GLACIALCASCADE_WIDTH << 16, DND_AOESRC_NONWEAPON) >> 16;
-	bool widen = SpellThresholdMet(pnum, SPL_GLACIALCASCADE, DND_SPELL_THRESH_HIGH);
+	int widen = SpellThresholdMet(pnum, SPL_GLACIALCASCADE, DND_SPELL_THRESH_HIGH) ?
+		DND_GLACIALCASCADE_R10_WIDEN : DND_GLACIALCASCADE_WIDEN;
 
 	int i;
 	for(i = 1; i <= k; ++i) {
 		dmg = dmg * (i == bursts - 1 ? DND_GLACIALCASCADE_FINAL : DND_GLACIALCASCADE_RAMP) / 100;
-		if(widen)
-			w = w * DND_GLACIALCASCADE_R10_WIDEN / 100;
+		w = w * widen / 100;
 	}
 
 	int bx = GetActorX(0), by = GetActorY(0), bz = GetActorZ(0);
 	int push = GetActorAngle(0) >> 8;
 
-	ACS_NamedExecuteWithResult("DnD Glacial Cascade FX", bx, by, bz, w);
-	PlaySound(0, "FrostBomb/Pulse", CHAN_BODY);
+	// Width, burst index, burst count and heading in one argument; the FX script has only four.
+	int info = Min(w, 0xFFF) | (k << 12) | (Min(bursts, 0xF) << 16) | ((push & 0xFF) << 20);
+	ACS_NamedExecuteWithResult("DnD Glacial Cascade FX", bx, by, bz, info);
+
+	// Both layers together, louder the further into the cascade: 0.6 on the first burst, 1.0 on the last.
+	int vol = DND_GLACIALCASCADE_VOLMIN + (1.0 - DND_GLACIALCASCADE_VOLMIN) * k / Max(1, bursts - 1);
+	PlaySound(0, "GlacialCascade/Explode", CHAN_5, vol);
+	PlaySound(0, "GlacialCascade/ExplodeAdd", CHAN_6, vol);
 
 	// Everything the front can tell is read; now the caster becomes the activator, as the damage path
 	// reads THEIR inventory and owns the hit beep.
@@ -3156,8 +3537,11 @@ Script "DnD Glacial Cascade Burst" (int k) {
 
 		out = HandleDamageDeal(caster, v, dmg, GetSpellDamageType(SPL_GLACIALCASCADE), SPL_GLACIALCASCADE,
 			DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISRADIUSDMG, 0, 0, 0, 0, true);
-		if(out > 0)
+		// Channel 5, as the ripper hit sounds use on their victims.
+		if(out > 0) {
+			PlaySound(v, "GlacialCascade/Hit", CHAN_5, 1.0);
 			Thing_Damage2(v, out, "SkipHandle");
+		}
 
 		// Once per cascade: the first burst to reach an enemy shoves it along the wave.
 		if(IsActorAlive(v) && CheckActorInventory(v, "DnD_CascadeKnocked") != id) {
@@ -3169,21 +3553,125 @@ Script "DnD Glacial Cascade Burst" (int k) {
 	SetResultValue(0);
 }
 
-// The eruption. CLIENTSIDE, as the spikes are; centre and width arrive from the server.
-#define DND_GLACIALCASCADE_SPIKESTEP 24   // one spike per this many units of burst radius
-#define DND_GLACIALCASCADE_SPIKEMIN 4
-#define DND_GLACIALCASCADE_SPIKEDEPTH 30.0
+// The eruption, CLIENTSIDE as the crystals are. Count and size run from the first burst's to the
+// last's by how far along the cascade it is, so the final one looks the same with four or five bursts.
+#define DND_GLACIALCASCADE_CRYSTALS 8      // the first burst's crystals, at the base width
+#define DND_GLACIALCASCADE_CRYSTALSEND 23  // the last burst's, before its extra
+#define DND_GLACIALCASCADE_CRYSTALSLAST 4  // the final burst's extra on top
+#define DND_GLACIALCASCADE_CRYSTALSMAX 40
+#define DND_GLACIALCASCADE_SIZE 110        // the first burst's crystals, in hundredths of the model
+#define DND_GLACIALCASCADE_SIZEEND 180     // the last burst's, before its kick
+#define DND_GLACIALCASCADE_GROWLAST 130    // and the final burst's kick on top
+#define DND_GLACIALCASCADE_FORWARD 1.6     // how hard the crystals turn to point along the wave
+#define DND_GLACIALCASCADE_FLOOR 115       // the floor patch's radius, as a percent of the burst's
+#define DND_GLACIALCASCADE_SMOKE 5         // smoke rounds off the first burst's floor, at the base width
+#define DND_GLACIALCASCADE_SMOKEEND 10     // and off the last's
+#define DND_GLACIALCASCADE_SMOKEMAX 16
+#define DND_GLACIALCASCADE_ALONG 135       // MODELDEF's stretch of the floor along the heading, in percent
+// Half-extent the floor quad SHOWS at scale 1: flat2 is 15.62, and CascadeFloor.fp's ragged rim trims it.
+#define DND_GLACIALCASCADE_QUADR 12.5
 
-Script "DnD Glacial Cascade FX" (int bx, int by, int bz, int w) CLIENTSIDE {
-	int n = Max(DND_GLACIALCASCADE_SPIKEMIN, w / DND_GLACIALCASCADE_SPIKESTEP);
-	int i, a, d;
+// One puff over a floor patch of radius r, landing within share percent of it and rising a little.
+void SpawnCascadeSmoke(str type, int bx, int by, int bz, int r, int fwd, int share) {
+	int lim = r * share / 100;
+	int along = random(-lim, lim) * DND_GLACIALCASCADE_ALONG / 100, across = random(-lim, lim);
+	int x = bx + FixedMul(cos(fwd), along << 16) - FixedMul(sin(fwd), across << 16);
+	int y = by + FixedMul(sin(fwd), along << 16) + FixedMul(cos(fwd), across << 16);
+	int tid = ScratchTID();
+	if(tid && SpawnForced(type, x, y, bz + (random(0, r * 13 / 100) << 16), tid, 0)) {
+		SetActorVelocity(tid, random(-3.5, 3.5), random(-3.5, 3.5), random(-1.5, 1.5), false, false);
+		Thing_ChangeTID(tid, 0);
+	}
+}
+
+Script "DnD Glacial Cascade FX" (int bx, int by, int bz, int info) CLIENTSIDE {
+	int w = info & 0xFFF;
+	int k = (info >> 12) & 0xF;
+	int bursts = Max(1, (info >> 16) & 0xF);
+	int fwd = ((info >> 20) & 0xFF) << 8;
+	bool last = k + 1 >= bursts;
+	// How far along the cascade this burst is, 0 to 1.
+	int prog = bursts > 1 ? k * 1.0 / (bursts - 1) : 1.0;
+
+	int size = DND_GLACIALCASCADE_SIZE + FixedMul(DND_GLACIALCASCADE_SIZEEND - DND_GLACIALCASCADE_SIZE, prog);
+	if(last)
+		size = size * DND_GLACIALCASCADE_GROWLAST / 100;
+
+	// A wider burst (the widening, area gear) packs proportionally more.
+	int n = (DND_GLACIALCASCADE_CRYSTALS + FixedMul(DND_GLACIALCASCADE_CRYSTALSEND - DND_GLACIALCASCADE_CRYSTALS, prog)) *
+		Max(w, DND_GLACIALCASCADE_WIDTH) / DND_GLACIALCASCADE_WIDTH;
+	if(last)
+		n += DND_GLACIALCASCADE_CRYSTALSLAST;
+	n = Min(n, DND_GLACIALCASCADE_CRYSTALSMAX);
+
+	// Additive crystals pile up to white, so the denser bursts are each a little fainter.
+	int alpha = 0.9 - FixedMul(0.45, prog);
+
+	// The frosted floor under it, stretched along the wave. Raised a hair per burst so overlaps never fight.
+	int pad = ScratchTID();
+	int r = w * DND_GLACIALCASCADE_FLOOR / 100;
+	if(pad && SpawnForced("Spell_GlacialCascadeFloor", bx, by, bz + k * 0.5, pad, 0)) {
+		SetActorAngle(pad, fwd);
+		SetUserVariable(pad, "user_s", FixedDiv(r << 16, DND_GLACIALCASCADE_QUADR) * 100 >> 16);
+		Thing_ChangeTID(pad, 0);
+	}
+
+	// Smoke off the floor: more rounds further along and on wider bursts. A round is all three
+	// smokes, the 2nd and 3rd skipping a fifth and two fifths of the time, the bigger ones landing wider.
+	int puffs = Min(DND_GLACIALCASCADE_SMOKEMAX,
+		(DND_GLACIALCASCADE_SMOKE + FixedMul(DND_GLACIALCASCADE_SMOKEEND - DND_GLACIALCASCADE_SMOKE, prog)) *
+		Max(w, DND_GLACIALCASCADE_WIDTH) / DND_GLACIALCASCADE_WIDTH);
+	for(int p = 0; p < puffs; ++p) {
+		SpawnCascadeSmoke("VeryGraySmoke", bx, by, bz, r, fwd, 35);
+		if(random(1, 5) <= 4)
+			SpawnCascadeSmoke("VeryGraySmoke2", bx, by, bz, r, fwd, 26);
+		if(random(1, 5) <= 3)
+			SpawnCascadeSmoke("VeryGraySmoke3", bx, by, bz, r, fwd, 17);
+	}
+
+	// The first crystal stands in the middle, and the rest must see it, so none erupts past a wall.
+	int i, anchor = 0, tid, a, d, lean, s, x, y;
 	for(i = 0; i < n; ++i) {
 		a = random(0, 1.0);
-		d = FixedMul(w << 16, fsqrt(random(0, 1.0)));
-		// Started under the floor; the spike rises into place.
-		SpawnForced("Spell_GlacialCascadeSpike", bx + FixedMul(cos(a), d), by + FixedMul(sin(a), d),
-			bz - DND_GLACIALCASCADE_SPIKEDEPTH, 0, random(0, 255));
+		if(i < 2) {
+			d = random(0, w / 5);
+			lean = random(0.03, 0.06);
+			s = size * random(105, 125) / 100;
+		}
+		else {
+			// Fanned out round the middle, leaning further the further out they stand.
+			d = FixedMul(w * 3 / 4, fsqrt(random(0, 1.0)));
+			lean = 0.09 + 0.07 * d / w + random(-0.02, 0.02);
+			s = size * random(70, 105) / 100 * (115 - 30 * d / w) / 100;
+		}
+
+		tid = ScratchTID();
+		x = bx + FixedMul(cos(a), d << 16);
+		y = by + FixedMul(sin(a), d << 16);
+		if(!tid || !SpawnForced("Spell_GlacialCascadeSpike", x, y, bz, tid, 0))
+			continue;
+		SetActorPosition(tid, x, y, GetActorFloorZ(tid), 0);
+		if(anchor && !CheckSight(anchor, tid, 0)) {
+			Thing_Remove(tid);
+			continue;
+		}
+
+		// Leaning outward, pulled hard forward along the wave. A positive pitch tips the point up.
+		SetActorAngle(tid, VectorAngle(cos(a) + FixedMul(DND_GLACIALCASCADE_FORWARD, cos(fwd)),
+			sin(a) + FixedMul(DND_GLACIALCASCADE_FORWARD, sin(fwd))) + random(-0.04, 0.04));
+		SetActorPitch(tid, 0.25 - lean);
+		SetActorProperty(tid, APROP_ALPHA, alpha);
+		SetUserVariable(tid, "user_sx", s);
+		SetUserVariable(tid, "user_sy", s * random(85, 130) / 100);
+
+		if(!anchor)
+			anchor = tid;
+		else
+			Thing_ChangeTID(tid, 0);
 	}
+
+	if(anchor)
+		Thing_ChangeTID(anchor, 0);
 	SetResultValue(0);
 }
 
@@ -3430,7 +3918,9 @@ Script "DnD Spell Cast" (int spell, int pnum) {
 			CastShiveringArmor(pnum);
 		break;
 
+		// The aim and footing are read here, as the cast ends, rather than whenever the script gets to run.
 		case SPL_AVALANCHE:
+			RecordAvalancheAim(pnum);
 			ACS_NamedExecuteAlways("DnD Avalanche", 0, pnum);
 		break;
 

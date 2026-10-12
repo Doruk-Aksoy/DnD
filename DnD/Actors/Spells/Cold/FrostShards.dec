@@ -13,9 +13,14 @@ Actor Spell_FrostShard : DnD_Spell {
 	DeathSound "FrostFang/Hit1"
 	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE))
 	DamageType "P_Ice"
+
+	// The spell that threw it, plus one; 0 when cast. Winter Orb's throws hit harder per orb rank.
+	var int user_parent;
+
 	States {
 		SpawnState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Frost Shard Setup")
+		// FFSD carries FROSTSHD.md3 (MODELDEF.spell), as it does on the Form below.
 		Fly:
 			FFSD ABC 2 Bright A_SpawnItemEx("FrostFangFog", -(MomX/1.4), -(MomY/1.4), (MomZ/1.4*-1), (MomX/1.4), (MomY/1.4), (MomZ/1.4), -Angle, 138)
 		Loop

@@ -132,7 +132,7 @@ Actor PuffyC {
 	}
 }
 
-Actor LavaDemonSmoke : msxgen_smoke {
+Actor LavaDemonSmoke : VeryGraySmoke {
 	Scale 0.55
 }
 

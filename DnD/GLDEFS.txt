@@ -301,3 +301,5 @@ Glow
 #include "GLDefs/Monsters/Incursion.txt"
 
 #include "GLDefs/Perks.txt"
+// Last: its object blocks borrow lights from the trap, research and monster files above.
+#include "GLDefs/Spells/Fire.txt"

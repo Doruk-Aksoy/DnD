@@ -76,7 +76,8 @@ Actor Spell_IceSpear : DnD_Spell {
 		Death:
 			TNT1 A 0 A_JumpIf(!user_evolved, "Shatter")
 			// The primed spear breaks into the same chunks the Ice Shield barriers do.
-			TNT1 AAAAAAAA 0 A_SpawnItemEx("IceShield_ShatterFX", frandom(-24.0, 8.0), frandom(-6.0, 6.0), frandom(-4.0, 8.0), 0, 0, frandom(-2.0, 6.0), frandom(0.0, 360.0), 128)
+			TNT1 AAAAAAAA 0 A_SpawnItemEx("Spell_IceShatterFX", frandom(-24.0, 8.0), frandom(-6.0, 6.0), frandom(-4.0, 8.0), 0, 0, frandom(-2.0, 6.0), frandom(0.0, 360.0), 128)
+			TNT1 A 0 A_SpawnItemEx("Spell_IceImpactLight", 0, 0, 0, 0, 0, 0, 0, 128)
 		Shatter:
 			S012 BCDEFG 2 Bright
 		Stop

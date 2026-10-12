@@ -1,7 +1,7 @@
 // One icicle of the storm: Glacial Spike's model falling point first, bursting in RADIUS where it lands.
 Actor Spell_BlizzardIce : DnD_SpellExplosive {
 	PROJECTILE
-	Speed 36
+	Speed 28
 	Radius 6
 	Height 12
 	Scale 0.9
@@ -13,14 +13,10 @@ Actor Spell_BlizzardIce : DnD_SpellExplosive {
 	// A quarter on a direct hit, as Rain of Fire's comets: the blast is the real damage.
 	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE, 0, 4))
 	DamageType "P_Ice"
-	+NOCLIP
 	+FORCERADIUSDMG
 	States {
-		// Spawned at the storm's roof, which may sit inside it: NOCLIP for the first tics, as the comets.
+		// No NOCLIP: a floor reached under it zeroes the fall. "DnD Blizzard" starts it under the ceiling instead.
 		SpawnState:
-			BLZI A 2 Bright
-			BLZI A 1 Bright A_ChangeFlag("NOCLIP", 0)
-		Fly:
 			BLZI A 2 Bright A_SpawnItemEx("Spell_GlacialSpike_ParticleTrail", -8, 0, 0, 0, 0, 0, 0, 128)
 		Loop
 		// The whole blast at full strength. Set here because the setup reads its core off AMOUNT,

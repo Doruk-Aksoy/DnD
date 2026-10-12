@@ -299,7 +299,7 @@ DND_SPLR10_45   = "Volleys fall 30% more often, each with 30% more ice.";
 
 // Winter Orb
 DND_SPLDESC46   = "Releases a slow orb ripping once dealing 100 damage that slows enemies by 30% for 0.75 seconds, throwing Ice Bolts in a spiral as it travels. The bolts scale with your Ice Bolt rank.";
-DND_SPLPER46    = "";
+DND_SPLPER46    = "+10% more damage on the bolts and shards it throws.";
 DND_SPLR5_46    = "The orb freezes enemies it passes through for 0.75 seconds instead.";
 DND_SPLR10_46   = "The orb also throws Frost Shards.";
 
@@ -310,10 +310,10 @@ DND_SPLR5_47    = "+2% added critical strike chance.";
 DND_SPLR10_47   = "+50% added critical strike multiplier.";
 
 // Glacial Cascade
-DND_SPLDESC48   = "An advancing wave of ice crashes forward in four bursts of 200 damage, each 20% stronger than the last. The final burst deals 100% more damage. Knocks enemies back once.";
+DND_SPLDESC48   = "An advancing wave of ice crashes forward in four bursts of 200 damage, each 20% stronger and 10% wider than the last. The final burst deals 100% more damage. Knocks enemies back once.";
 DND_SPLPER48    = "";
-DND_SPLR5_48    = "25% increased range.";
-DND_SPLR10_48   = "Each burst is 20% wider than the last.";
+DND_SPLR5_48    = "25% increased range, and one more burst.";
+DND_SPLR10_48   = "Each burst is 25% wider than the last, instead of 10%.";
 
 // Shivering Armor
 DND_SPLDESC49   = "Enchants your armor, or a targeted ally's, to reduce damage taken by 15% for 5 seconds. Enemies that hit it have a 20% chance to be frozen for 1 second.";
@@ -322,8 +322,8 @@ DND_SPLR5_49    = "Targeting an ally also grants the effect to you. Targeting no
 DND_SPLR10_49   = "The armor stops ripping attacks.";
 
 // Avalanche
-DND_SPLDESC50   = "After a brief delay, rains 75 pieces of ice behind you and forward in the direction you face, each dealing 16 damage.";
-DND_SPLPER50    = "+2 more ice thrown.";
+DND_SPLDESC50   = "After a brief delay, rains 180 pieces of ice over 2.25 seconds behind you towards the direction you face, each dealing 50 damage. Enemies on the ground it covers are slowed by 50%.";
+DND_SPLPER50    = "+9 additional ice thrown.";
 DND_SPLR5_50    = "Thrown ice has a 15% chance to freeze enemies for 1 second.";
 DND_SPLR10_50   = "Ice gains a 25% chance to rip through enemies.";
 

@@ -2617,4 +2617,61 @@ sprite X041X0, 200,200
         }
 }
 
+// fire particles
+sprite X057F0, 29, 24 {
+	Offset 12, 19
+	Patch X057Q0, 0, 0 {
+		Rotate -90
+	}
+}
+
+sprite X057G0, 30, 20 {
+	Offset 16, 18
+	Patch X057R0, 0, 0 {
+		Rotate -90
+	}
+}
+
+sprite X057H0, 31, 25 {
+	Offset 17, 19
+	Patch X057S0, 0, 0 {
+		Rotate -90
+	}
+}
+
+sprite X057I0, 31, 23 {
+	Offset 16, 17
+	Patch X057T0, 0, 0 {
+		Rotate -90
+	}
+}
+
+sprite X057J0, 22, 24 {
+	Offset 5, 17
+	Patch X057U0, 0, 0 {
+		Rotate -90
+	}
+}
+
+sprite X057K0, 22, 18 {
+	Offset 7, 16
+	Patch X057V0, 0, 0 {
+		Rotate -90
+	}
+}
+
+sprite X057L0, 16, 16 {
+	Offset 3, 14
+	Patch X057W0, 0, 0 {
+		Rotate -90
+	}
+}
+
+sprite X057M0, 15, 17 {
+	Offset 2, 17
+	Patch X057X0, 0, 0 {
+		Rotate -90
+	}
+}
+
 // End of texture definitions

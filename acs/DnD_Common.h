@@ -1150,7 +1150,11 @@ enum {
 	// 64 player range, client side only. Ice Spear's forming model, held while it is fed the pitch.
 	DND_ICESPEAR_FORM_TID,
 	DND_ICESPEAR_FORM_TID_END = DND_ICESPEAR_FORM_TID + MAXPLAYERS,
-	
+
+	// ScratchTID()'s window: far above every range here, just under the three fixed ones at the top.
+	DND_SCRATCH_TID = bcs::INT_MAX - 2 - 256,
+	DND_SCRATCH_TID_END = bcs::INT_MAX - 2,
+
 	DND_TORCH_TEMP_TID = bcs::INT_MAX - 2,
 	DND_DROP_TID,
 	SPECIAL_FX_TID
@@ -1158,6 +1162,12 @@ enum {
 
 #define DND_LASTMONSTER_TID (DND_MAX_MONSTERS + DND_MONSTERTID_BEGIN)
 #define DND_PETTID_END (DND_PETTID_BEGIN + MAX_PETS)
+
+// A tid that is free right now, from a window nothing else in the mod uses; 0 if every one is taken.
+// Hand it back before the script next waits: no scratch tid may outlive the tic it was taken in.
+int ScratchTID() {
+	return UniqueTID(DND_SCRATCH_TID, DND_SCRATCH_TID_END - DND_SCRATCH_TID);
+}
 
 enum {
 	SETUP_STATE1

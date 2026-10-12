@@ -45,3 +45,60 @@ object Spell_IceSpear {
 	frame ISPP { light IceSpearPrimedLight }
 	frame ISPQ { light IceSpearPrimedLight }
 }
+
+// Cold spells in flight.
+pointlight IceBoltLight {
+	color 0.30 0.55 1.00
+	size 40
+}
+
+pointlight GlacialCascadeLight {
+	color 0.25 0.50 0.95
+	size 56
+	offset 0 16 0
+}
+
+// Where cold spells land: Spell_IceImpactLight steps through these, swelling, then spreading as it fades.
+pointlight IceImpact1 {
+	color 0.20 0.36 0.66
+	size 24
+}
+
+pointlight IceImpact2 {
+	color 0.30 0.55 1.00
+	size 40
+}
+
+pointlight IceImpact3 {
+	color 0.27 0.50 0.91
+	size 50
+}
+
+pointlight IceImpact4 {
+	color 0.23 0.42 0.77
+	size 56
+}
+
+pointlight IceImpact5 {
+	color 0.18 0.33 0.60
+	size 60
+}
+
+pointlight IceImpact6 {
+	color 0.13 0.24 0.44
+	size 62
+}
+
+pointlight IceImpact7 {
+	color 0.08 0.15 0.27
+	size 64
+}
+
+pointlight IceImpact8 {
+	color 0.04 0.07 0.13
+	size 64
+}
+
+object Spell_IceBolt {
+	frame S012A { light IceBoltLight }
+}

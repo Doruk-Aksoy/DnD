@@ -2416,7 +2416,7 @@ Actor ShadowVaporSpawner {
 	}
 }
 
-Actor ShadowVapor : msxgen_smoke {
+Actor ShadowVapor : VeryGraySmoke {
 	Scale 0.85
 }
 

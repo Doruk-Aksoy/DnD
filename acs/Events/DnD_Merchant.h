@@ -786,7 +786,8 @@ int GetMerchantItemPrice(int item_pos) {
 
 // build merchant's items, uses TradeViewList[MAXPLAYERS][item#] as a list
 Script "DnD Merchant Items" (void) {
-    while(IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED) || PlayersNotReadyForHardcore() || !InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART])
+    // The item tables too: a class picked early finishes player setup before the mod pool cache exists.
+    while(!IsSetupComplete(SETUP_STATE1, SETUP_ITEMTABLES) || IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED) || PlayersNotReadyForHardcore() || !InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART])
         Delay(const:10);
 
 	int pcount =  InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART];

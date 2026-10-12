@@ -1,0 +1,330 @@
+// Locked spell icons on the tree: each is its normal icon desaturated, so no grey copy is kept.
+// GetSpellIcon adds the G, so a new spell's icon needs one entry here.
+
+Graphic "SP000G", 64, 64
+{
+	Patch "SP000", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP001G", 64, 64
+{
+	Patch "SP001", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP002G", 64, 64
+{
+	Patch "SP002", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP003G", 64, 64
+{
+	Patch "SP003", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP004G", 64, 64
+{
+	Patch "SP004", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP005G", 64, 64
+{
+	Patch "SP005", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP006G", 64, 64
+{
+	Patch "SP006", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP007G", 64, 64
+{
+	Patch "SP007", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP008G", 64, 64
+{
+	Patch "SP008", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP009G", 64, 64
+{
+	Patch "SP009", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP010G", 64, 64
+{
+	Patch "SP010", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP011G", 64, 64
+{
+	Patch "SP011", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP012G", 64, 64
+{
+	Patch "SP012", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP013G", 64, 64
+{
+	Patch "SP013", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP014G", 64, 64
+{
+	Patch "SP014", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP015G", 64, 64
+{
+	Patch "SP015", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP016G", 64, 64
+{
+	Patch "SP016", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP017G", 64, 64
+{
+	Patch "SP017", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP018G", 64, 64
+{
+	Patch "SP018", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP019G", 64, 64
+{
+	Patch "SP019", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP020G", 64, 64
+{
+	Patch "SP020", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP021G", 64, 64
+{
+	Patch "SP021", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP100G", 64, 64
+{
+	Patch "SP100", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP101G", 64, 64
+{
+	Patch "SP101", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP102G", 64, 64
+{
+	Patch "SP102", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP103G", 64, 64
+{
+	Patch "SP103", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP104G", 64, 64
+{
+	Patch "SP104", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP105G", 64, 64
+{
+	Patch "SP105", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP106G", 64, 64
+{
+	Patch "SP106", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP107G", 64, 64
+{
+	Patch "SP107", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP108G", 64, 64
+{
+	Patch "SP108", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP109G", 64, 64
+{
+	Patch "SP109", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP110G", 64, 64
+{
+	Patch "SP110", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP111G", 64, 64
+{
+	Patch "SP111", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP112G", 64, 64
+{
+	Patch "SP112", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP113G", 64, 64
+{
+	Patch "SP113", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP114G", 64, 64
+{
+	Patch "SP114", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP115G", 64, 64
+{
+	Patch "SP115", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP116G", 64, 64
+{
+	Patch "SP116", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP117G", 64, 64
+{
+	Patch "SP117", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP118G", 64, 64
+{
+	Patch "SP118", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}

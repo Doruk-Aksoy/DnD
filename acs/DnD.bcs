@@ -1805,7 +1805,10 @@ Script "DnD Setup Shootable" (void) {
 
 // Monster scaler -- add scaling stuff here
 Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite, int hp_mult) {
-	while(!IsSetupComplete(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS) || !IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS))
+	// GLOBALCONSTANTSETUPS too: on a fresh launch the elite trait tables are built a few tics after the TIDs
+	// reset, and an elite rolled before then read a null alias table.
+	while(!IsSetupComplete(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS) || !IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS) ||
+		!IsSetupComplete(SETUP_STATE1, SETUP_GLOBALCONSTANTSETUPS))
 		Delay(const:5);
 
 	GiveMonsterTID(ActivatorTID());
@@ -1987,7 +1990,10 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite, int
 // next 5 bits holds monster class (shotgunner, baron etc)
 // next 6 bits holds monster type powers (demon, undead, zombie, robot etc.)
 Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int traits3) {
-	while(!IsSetupComplete(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS) || !IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS))
+	// GLOBALCONSTANTSETUPS too: on a fresh launch the elite trait tables are built a few tics after the TIDs
+	// reset, and an elite rolled before then read a null alias table.
+	while(!IsSetupComplete(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS) || !IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS) ||
+		!IsSetupComplete(SETUP_STATE1, SETUP_GLOBALCONSTANTSETUPS))
 		Delay(const:5);
 
 	GiveMonsterTID(ActivatorTID());

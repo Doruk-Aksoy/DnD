@@ -365,6 +365,8 @@ enum {
 	// down, and the count of charges still ready. Both in FRONT of the square, so lower ids.
 	HOTBAR_CD2_ID = 3090,
 	HOTBAR_CHG_ID = 3080,
+	// The glint over a slot that just came off cooldown, in front of every hotbar layer.
+	HOTBAR_GLINT_ID = 3073,
 
 	// The two bars. Descending id is back to front per the note above, so each block lists its layers
 	// in reverse: the trough is the highest id in its block and the text the lowest.

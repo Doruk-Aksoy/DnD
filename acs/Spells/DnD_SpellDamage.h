@@ -128,6 +128,7 @@ Script "DnD Spell Damage" (int which, int flags, int div) {
 	// All read before the scale script runs: AdjustDamageRetrievePointers moves the activator off
 	// the spell actor and onto the caster.
 	int spell = GetUserVariable(0, "user_spellid");
+	int parent = GetUserVariable(0, "user_parent");
 	int dmg = GetSpellValue(pnum, spell, which, GetUserVariable(0, "user_rankat"));
 	int dtype = GetSpellDamageType(spell);
 	int cat = GetSpellDamageCategory(spell);
@@ -159,6 +160,10 @@ Script "DnD Spell Damage" (int which, int flags, int div) {
 
 	// Beside the prime for the same reason: both are MORE, so both multiply after the scale.
 	dmg = ApplySpellMoreDamage(pnum, spell, dmg);
+
+	// Winter Orb's ranks strengthen what it throws, read live like the rest. MORE, beside the others.
+	if(parent == SPL_WINTERORB + 1)
+		dmg = dmg * (100 + GetSpellValue(pnum, SPL_WINTERORB, SPELLVAL_AMOUNT)) / 100;
 
 	// Never below 1: a fragment of a small hit should still be a hit, not nothing.
 	if(div > 1)

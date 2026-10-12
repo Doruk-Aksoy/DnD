@@ -275,7 +275,7 @@ void SetupSpellActor(int tid, int pnum, int spell) {
 // flat ignores the caster's pitch and sends the shot level along their facing.
 void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags = 0, int angle_off = 0,
 	int side_off = 0, int rtime = 0, int origin = 0, bool flat = false,
-	int zoff = DND_SPELLPROJ_FROMVIEW, int pitch_off = 0) {
+	int zoff = DND_SPELLPROJ_FROMVIEW, int pitch_off = 0, int parent = -1) {
 	int owner = pnum + P_TIDSTART;
 	int from = origin ? origin : owner;
 
@@ -308,6 +308,10 @@ void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags =
 	int tid = TEMPORARY_SPELL_TID + pnum;
 	CreateProjectile(from, PROJECTILE_HELPER_TID + pnum, actor, a, pt, speed, vProj, vPos, flags, 0, 0, 0, tid);
 	SetupSpellActor(tid, pnum, spell);
+
+	// The spell that threw it, plus one, for a thrower whose ranks strengthen its throws (Winter Orb).
+	if(parent >= 0)
+		SetUserVariable(tid, "user_parent", parent + 1);
 
 	if(rtime > 0)
 		SetActorProperty(tid, APROP_REACTIONTIME, rtime);

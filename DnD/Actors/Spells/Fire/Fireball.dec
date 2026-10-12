@@ -4,6 +4,9 @@ Actor Spell_Fireball : DnD_Spell {
     Radius 8
     Height 16
     Scale 1.15
+    // Fireball.fp writes its own alpha, so the actor's Alpha only lowers the alpha test (to 0.05) for the streak's soft edge.
+    RenderStyle Translucent
+    Alpha 0.1
     SeeSound "Beast/Attack"
     DeathSound "weapons/phoenixhit"
     // This contains all the packed information necessary for the spell's damage
@@ -14,6 +17,8 @@ Actor Spell_Fireball : DnD_Spell {
             FX14 ABC 3 Bright
         Loop
         Death:
+            // Back to opaque for the FX14 blast sprites, or they would draw at the model's 0.1.
+            TNT1 A 0 A_SetTranslucent(1.0, 0)
             TNT1 A 0 A_CustomMissile("ExplosionFX10", 0, 0, random(0,360), 2, random(0,360))
             TNT1 AAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
             TNT1 AAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))

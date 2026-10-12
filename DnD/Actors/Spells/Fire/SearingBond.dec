@@ -9,6 +9,7 @@ Actor Spell_SearingBond : DnD_SpellExplosive {
 	DeathSound "SearingBond/Hit"
 	Renderstyle Add
 	Scale 0.75
+	ReactionTime 16
 	+SEEKERMISSILE
 	+SCREENSEEKER
 	States {
@@ -22,11 +23,11 @@ Actor Spell_SearingBond : DnD_SpellExplosive {
 			ARBM HH 1 Bright A_SpawnItem("SearingBondFX3")
 			TNT1 A 0 A_SeekerMissile(60, 60, SMF_PRECISE | SMF_LOOK)
 			ARBM II 1 Bright A_SpawnItem("SearingBondFX4")
-			ARBM F 1 Bright
-			TNT1 A 0 A_Stop
+			TNT1 A 0 A_CountDown
         Goto Death
 
 		Death:
+			TNT1 A 0 A_Stop
 			TNT1 A 0 A_SetUserVar("user_expdmg",
 				ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE, DND_WDMG_ISRADIUSDMG))
 			TNT1 A 0 A_SetUserVar("user_expradius", 0)

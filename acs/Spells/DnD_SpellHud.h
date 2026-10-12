@@ -18,6 +18,18 @@
 #define DND_HOTBAR_SCALE 3
 #define DND_HOTBAR_ICON 21
 #define DND_HOTBAR_GAP 5
+#define DND_HOTBAR_GLINTFRAMES 10       // SPLGLT01-10, a tic each
+
+// Client side: what each slot showed last tic, so the tic a spell comes back can be caught.
+typedef struct {
+	int spell[MAX_HOTBAR_SLOTS], ready[MAX_HOTBAR_SLOTS], at[MAX_HOTBAR_SLOTS];
+} hotbar_glint_T;
+
+// A static behind an accessor, not a file scope array: those are stack storage. See dnd-menu-sync.md.
+hotbar_glint_T module& GetHotbarGlint() {
+	static hotbar_glint_T s;
+	return s;
+}
 
 // Two anchors, neither of them a guess about the player's setup.
 //
@@ -221,6 +233,8 @@ void DrawSpellHotbar(int pnum) {
 			DeleteText(HOTBAR_CD_ID + i);
 			DeleteText(HOTBAR_CD2_ID + i);
 			DeleteText(HOTBAR_CHG_ID + i);
+			DeleteText(HOTBAR_GLINT_ID + i);
+			GetHotbarGlint().spell[i] = 0;
 			continue;
 		}
 
@@ -264,6 +278,23 @@ void DrawSpellHotbar(int pnum) {
 		}
 		else
 			DeleteText(HOTBAR_CD2_ID + i);
+
+		// The glint: the cooldown or a charge coming back starts it; a slot that just changed spell does not.
+		int ready = CheckInventory(GetHotbarChgItem(i)) > 1 ? GetHotbarChargesReady(i) :
+			(GetHotbarCooldownPercent(i) ? 0 : 1);
+		if(GetHotbarGlint().spell[i] == spell + 1 && ready > GetHotbarGlint().ready[i])
+			GetHotbarGlint().at[i] = Timer();
+		GetHotbarGlint().spell[i] = spell + 1;
+		GetHotbarGlint().ready[i] = ready;
+
+		int g = Timer() - GetHotbarGlint().at[i];
+		if(GetHotbarGlint().at[i] && g >= 0 && g < DND_HOTBAR_GLINTFRAMES) {
+			SetFont(StrParam(s:"SPLGLT", s:g < 9 ? "0" : "", d:g + 1));
+			HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ADDBLEND, HOTBAR_GLINT_ID + i, CR_UNTRANSLATED,
+				((x * sc) << 16) + 0.1, ((GetHotbarSlotY() * sc) << 16) + 0.1, 0.1);
+		}
+		else
+			DeleteText(HOTBAR_GLINT_ID + i);
 
 		// Charges left, top right of the icon. Only for a spell that holds more than one -- on
 		// everything else it would be a permanent "1" saying nothing.

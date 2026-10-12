@@ -37,6 +37,7 @@ object Spell_Pyroblast_TinyFireballs
 }
 
 object Spell_Pyroblast {
+    frame PYRB { light FireJetTrapLight }
     frame T000A { light FireJetTrapLight }
     frame T000B { light FireJetTrapLight }
     frame T000C { light FireJetTrapLight }

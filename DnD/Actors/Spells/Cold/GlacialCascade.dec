@@ -19,8 +19,9 @@ Actor Spell_GlacialCascade : DnD_Spell {
 
 	States {
 		// One burst every 8 tics, DND_GLACIALCASCADE_STEP; the last one sends the front to Done.
+		// Light() and not GLDEFS: a TNT1 frame has no sprite of its own to bind a light to.
 		SpawnState:
-			TNT1 A 8
+			TNT1 A 8 Light("GlacialCascadeLight")
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Glacial Cascade Burst", user_burst)
 			TNT1 A 0 A_SetUserVar("user_burst", user_burst + 1)
 		Loop
@@ -34,7 +35,34 @@ Actor Spell_GlacialCascade : DnD_Spell {
 	}
 }
 
-// One spike of a burst: Glacial Spike's model stood on end, punching up through the floor and shattering.
+// The frosted floor under one burst, on flat2 with CSCFLOOR.png. It outlasts that burst's crystals by a little.
+Actor Spell_GlacialCascadeFloor {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 0.85
+
+	// Full size in hundredths, set by "DnD Glacial Cascade FX", which also throws its smoke.
+	var int user_s;
+
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SpawnItemEx("Spell_IceImpactLight", 0, 0, 16, 0, 0, 0, 0, 128)
+			// Spreads as the crystals break out, and holds until just after their 22 tics are up.
+			// Y scale stays 1: the engine multiplies MODELDEF's Zoffset by it, which floated the patch.
+			CSCF A 1 Bright A_SetScale(user_s * 0.006, 1.0)
+			CSCF A 1 Bright A_SetScale(user_s * 0.008, 1.0)
+			CSCF A 1 Bright A_SetScale(user_s * 0.0093, 1.0)
+			CSCF A 1 Bright A_SetScale(user_s * 0.01, 1.0)
+			CSCF A 20 Bright
+			CSCF AAAAAA 1 Bright A_FadeOut(0.15)
+		Stop
+	}
+}
+
+// One crystal of a burst, on GCASCADE.md3. "DnD Glacial Cascade FX" sets its pose, alpha and full size.
 Actor Spell_GlacialCascadeSpike {
 	+CLIENTSIDEONLY
 	+NOINTERACTION
@@ -42,18 +70,43 @@ Actor Spell_GlacialCascadeSpike {
 	+NOTONAUTOMAP
 	RenderStyle Add
 	Alpha 1.0
+
+	// Full size in hundredths: x scales length and width, y the thickness.
+	var int user_sx;
+	var int user_sy;
+
 	States {
+		// A 0 tic first frame, so the script has set everything before the first state reads it.
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 A_SetScale(frandom(0.6, 1.1))
-			// Nearly upright, leaning a little. Through INHERITACTORPITCH a positive pitch tips the point UP.
-			TNT1 A 0 A_SetPitch(frandom(65.0, 90.0))
-			TNT1 A 0 A_ChangeVelocity(0, 0, 9, CVF_REPLACE)
-			GCSP AAA 1 Bright
-			TNT1 A 0 A_Stop
-			GCSP AAAAAAAAAA 1 Bright
-			TNT1 A 0 A_SpawnItemEx("Spell_GlacialSpike_Smoke", 0, 0, 16, 0, frandom(-1.0, 1.0), frandom(0.5, 1.5), 0, 128)
-			GCSP AAAAAA 1 Bright A_FadeOut(0.16)
+			TNT1 A 0 A_Jump(256, "Blade", "Prism", "Slab")
+		// The three shapes are frames of one model; "####" "#" keeps whichever was picked.
+		Blade:
+			GCSP A 0
+		Goto Erupt
+		Prism:
+			GCSP B 0
+		Goto Erupt
+		Slab:
+			GCSP C 0
+		Goto Erupt
+		// Its base is the model's origin at the floor, so growing it is the crystal breaking out.
+		// It tips 8 degrees further forward as it grows, so it stabs out rather than just rising.
+		Erupt:
+			"####" "#" 1 Bright A_SetScale(user_sx * 0.0035, user_sy * 0.0035)
+			"####" "#" 0 A_SpawnItemEx("Spell_GlacialSpike_Smoke", 0, 0, 4, frandom(-1.0, 1.0), frandom(-1.0, 1.0), frandom(0.3, 1.0), 0, 128)
+			"####" "#" 0 A_SetPitch(pitch - 2.0)
+			"####" "#" 1 Bright A_SetScale(user_sx * 0.0068, user_sy * 0.0068)
+			"####" "#" 0 A_SetPitch(pitch - 2.0)
+			"####" "#" 1 Bright A_SetScale(user_sx * 0.0090, user_sy * 0.0090)
+			"####" "#" 0 A_SetPitch(pitch - 2.0)
+			"####" "#" 1 Bright A_SetScale(user_sx * 0.0100, user_sy * 0.0100)
+			"####" "#" 0 A_SetPitch(pitch - 2.0)
+			"####" "#" 12 Bright
+			// Shatters where it stands; half of them throw a shard.
+			"####" "#" 0 A_SpawnItemEx("Spell_IceShatterFX", 0, 0, user_sx * 0.2, 0, 0, frandom(1.0, 4.0), frandom(0.0, 360.0), 128, 128)
+			"####" "#" 0 A_PlaySound("GlacialCascade/Break")
+			"####" "######" 1 Bright A_FadeOut(0.17)
 		Stop
 	}
 }

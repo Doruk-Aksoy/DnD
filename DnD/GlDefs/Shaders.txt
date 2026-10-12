@@ -36,6 +36,24 @@ HardwareShader GLACIAL {
 	Speed 1.0
 }
 
+// Ice Bolt and Frost Shards: faceted ice, lit by the shader as the model spins.
+HardwareShader ICEBOLT {
+	Shader "GLDefs/Shaders/IceBolt.fp"
+	Speed 1.0
+}
+
+// Glacial Cascade's crystals. GLACIAL's art under its own name, since a shader binds to the texture NAME.
+HardwareShader GCASCADE {
+	Shader "GLDefs/Shaders/GlacialCascade.fp"
+	Speed 1.0
+}
+
+// Glacial Cascade's floor. Ice Nova's art as a FILE copy: a model skin must be a file, never a TEXTURES name.
+HardwareShader CSCFLOOR {
+	Shader "GLDefs/Shaders/CascadeFloor.fp"
+	Speed 1.0
+}
+
 // Creeping Frost. Its own texture lump purely so it gets its own shader -- a HardwareShader binds
 // to a texture NAME, so sharing GLACIAL.png would have meant sharing the spike shader.
 HardwareShader CRPFROST {
@@ -58,6 +76,39 @@ HardwareShader ICESPEAR {
 
 HardwareShader ICESPRP {
 	Shader "GLDefs/Shaders/IceSpearPrimed.fp"
+	Speed 1.0
+}
+
+// Pyroblast: flames ray-marched inside PYROBLAS.md3's hull, so the bolt reads as a volume from every side.
+HardwareShader PYROBLAS {
+	Shader "GLDefs/Shaders/Pyroblast.fp"
+	Speed 1.0
+}
+
+// Fireball: an opaque, spinning ball of FIREBALL.png's lava and a straight streak; alpha-blended, unlike Pyroblast.
+HardwareShader FIREBALL {
+	Shader "GLDefs/Shaders/Fireball.fp"
+	Speed 1.0
+}
+
+// Avalanche's snow puffs, cut from SNOWTEX. Sprites with soft alpha, so the 50% alpha test stays off.
+HardwareShader sprite S018A0 {
+	Shader "GLDefs/Shaders/AvalancheSnow.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S018B0 {
+	Shader "GLDefs/Shaders/AvalancheSnow.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S018C0 {
+	Shader "GLDefs/Shaders/AvalancheSnow.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S018D0 {
+	Shader "GLDefs/Shaders/AvalancheSnow.fp"
 	Speed 1.0
 }
 

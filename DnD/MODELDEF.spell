@@ -30,6 +30,53 @@ Model Spell_GlacialSpike {
 	FrameIndex SPIK A 0 0
 }
 
+// Ice Bolt. Keep rotation-speed at BOLT_SPIN in .claude/tools/icebolt: the model carries it for IceBolt.fp.
+Model Spell_IceBolt {
+	Path "Models/Proj"
+	Model 0 "ICEBOLT.md3"
+
+	// Skin from Graphics/ so the lump has a name and ICEBOLT can bind to it.
+	Path "Graphics/ShaderTex"
+	Skin 0 "ICEBOLT.png"
+	// The model alone, so the S012 hit frames keep the actor's Scale.
+	Scale 1.5 1.5 1.5
+
+	PITCHFROMMOMENTUM
+	ROTATING
+	rotation-vector 1.0 0.0 0.0
+	rotation-speed 6.0
+
+	FrameIndex S012 A 0 0
+}
+
+// Frost Shards. Not ROTATING: that spins on global time, so a whole volley would flash in step.
+Model Spell_FrostShard {
+	Path "Models/Proj"
+	Model 0 "FROSTSHD.md3"
+
+	Path "Graphics/ShaderTex"
+	Skin 0 "ICEBOLT.png"
+	Scale 1.0 1.0 1.0
+
+	PITCHFROMMOMENTUM
+
+	FrameIndex FFSD A 0 0
+	FrameIndex FFSD B 0 0
+	FrameIndex FFSD C 0 0
+}
+
+// The shard forming at the caster's side.
+Model Spell_FrostShard_Form {
+	Path "Models/Proj"
+	Model 0 "FROSTSHD.md3"
+
+	Path "Graphics/ShaderTex"
+	Skin 0 "ICEBOLT.png"
+	Scale 1.0 1.0 1.0
+
+	FrameIndex FFSD A 0 0
+}
+
 // Ice Spear forming at the caster's side. Its pitch is fed from ACS, as A_Warp cannot copy it.
 Model Spell_IceSpear_Form {
 	Path "Models/Proj"
@@ -302,28 +349,63 @@ Model Spell_BlizzardIce {
 	FrameIndex BLZI A 0 0
 }
 
+// Avalanche's ice: a needle, a shard, a chunk and a splinter as four frames, spinning along the flight.
+// GCASCADE.png gives it Glacial Cascade's faceted shader; AVALICE.md3 keeps that shader's UV layout.
 Model Spell_AvalancheIce {
 	Path "Models/Proj"
-	Model 0 "GLACIAL.md3"
+	Model 0 "AVALICE.md3"
 	Path "Graphics/ShaderTex"
-	Skin 0 "GLACIAL.png"
+	Skin 0 "GCASCADE.png"
 	Scale 1.0 1.0 1.0
+	// While it forms it is still, so its own pitch aims it; once it flies the momentum does. They add.
 	PITCHFROMMOMENTUM
+	INHERITACTORPITCH
 	ROTATING
 	rotation-vector 1.0 0.0 0.0
 	rotation-speed 7.0
 	FrameIndex AVLI A 0 0
+	FrameIndex AVLI B 0 1
+	FrameIndex AVLI C 0 2
+	FrameIndex AVLI D 0 3
+	// Each shape forming: a quarter, just over half and most of its size, in shape order.
+	FrameIndex AVLF A 0 4
+	FrameIndex AVLF B 0 5
+	FrameIndex AVLF C 0 6
+	FrameIndex AVLF D 0 7
+	FrameIndex AVLF E 0 8
+	FrameIndex AVLF F 0 9
+	FrameIndex AVLF G 0 10
+	FrameIndex AVLF H 0 11
+	FrameIndex AVLF I 0 12
+	FrameIndex AVLF J 0 13
+	FrameIndex AVLF K 0 14
+	FrameIndex AVLF L 0 15
 }
 
-// Stood on end by its own pitch, through INHERITACTORPITCH.
+// Glacial Cascade's crystals: three shapes as three frames, stood up by their own pitch.
 Model Spell_GlacialCascadeSpike {
 	Path "Models/Proj"
-	Model 0 "GLACIAL.md3"
+	Model 0 "GCASCADE.md3"
+	// Skin from Graphics/ so the lump has a name and GlacialCascade.fp can bind to it.
 	Path "Graphics/ShaderTex"
-	Skin 0 "GLACIAL.png"
+	Skin 0 "GCASCADE.png"
 	Scale 1.0 1.0 1.0
 	INHERITACTORPITCH
 	FrameIndex GCSP A 0 0
+	FrameIndex GCSP B 0 1
+	FrameIndex GCSP C 0 2
+}
+
+// Glacial Cascade's floor under each burst: flat2, stretched along the wave; the ragged rim is the shader's.
+Model Spell_GlacialCascadeFloor {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "CSCFLOOR.png"
+	// x is the wave's heading. "DnD Glacial Cascade FX" sizes it off the burst.
+	Scale 1.35 1.0 1.0
+	Zoffset 2
+	FrameIndex CSCF A 0 0
 }
 
 // Winter Orb's sphere. ROTATING's default axis is the vertical one, so it only ever spins level.
@@ -368,4 +450,64 @@ Model Spell_CreepingFrost_Crawl {
 	Zoffset 2
 
 	FrameIndex CFRS A 0 0
+}
+
+// Pyroblast. One frame: the mesh is only a hull, and Pyroblast.fp ray-marches and animates the flames inside it.
+Model Spell_Pyroblast {
+	Path "Models/Proj"
+	Model 0 "PYROBLAS.md3"
+
+	// Skin from Graphics/ so the lump has a name and PYROBLAS can bind to it.
+	Path "Graphics/ShaderTex"
+	Skin 0 "PYROBLAS.png"
+	Scale 1.35 1.35 1.35
+
+	PITCHFROMMOMENTUM
+
+	FrameIndex PYRB A 0 0
+	FrameIndex PYRB B 0 0
+	FrameIndex PYRB C 0 0
+	FrameIndex PYRB D 0 0
+	FrameIndex PYRB E 0 0
+	FrameIndex PYRB F 0 0
+	FrameIndex PYRB G 0 0
+	FrameIndex PYRB H 0 0
+	FrameIndex PYRB I 0 0
+	FrameIndex PYRB J 0 0
+	FrameIndex PYRB K 0 0
+	FrameIndex PYRB L 0 0
+}
+
+// Fireball: Pyroblast's hull, with Fireball.fp drawing an opaque ball of FIREBALL.png's lava and a straight streak in it.
+Model Spell_Fireball {
+	Path "Models/Proj"
+	Model 0 "PYROBLAS.md3"
+
+	Path "Graphics/ShaderTex"
+	Skin 0 "FIREBALL.png"
+	Scale 0.8 0.8 0.8
+
+	PITCHFROMMOMENTUM
+
+	// Flight only: the death frames, FX14 D to H, stay sprites.
+	FrameIndex FX14 A 0 0
+	FrameIndex FX14 B 0 0
+	FrameIndex FX14 C 0 0
+}
+
+// Models bind per class, so Pyroblast's rank 10 fragments need their own; their actor Scale 0.6 shrinks it further.
+Model Spell_Pyroblast_TinyFireballs {
+	Path "Models/Proj"
+	Model 0 "PYROBLAS.md3"
+
+	Path "Graphics/ShaderTex"
+	Skin 0 "FIREBALL.png"
+	Scale 0.8 0.8 0.8
+
+	PITCHFROMMOMENTUM
+
+	// Flight only: the death frames, FX14 D to H, stay sprites.
+	FrameIndex FX14 A 0 0
+	FrameIndex FX14 B 0 0
+	FrameIndex FX14 C 0 0
 }

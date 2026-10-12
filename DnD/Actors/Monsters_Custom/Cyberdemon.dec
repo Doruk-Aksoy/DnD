@@ -1297,7 +1297,7 @@ actor Azazel : DnD_BaseHybridBoss 21181 {
     }
 }
 
-Actor AzazelSmoke : msxgen_smoke {
+Actor AzazelSmoke : VeryGraySmoke {
 	Scale 0.85
 }
 

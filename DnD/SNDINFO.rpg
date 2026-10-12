@@ -345,3 +345,62 @@ Frostbite/Cast1             FROSBIT1
 Frostbite/Cast2             FROSBIT2
 Frostbite/Cast3             FROSBIT3
 $random Frostbite/Cast { Frostbite/Cast1 Frostbite/Cast2 Frostbite/Cast3 }
+
+WinterOrb/Fire1             WINORBF1
+WinterOrb/Fire2             WINORBF2
+WinterOrb/Fire3             WINORBF3
+$random WinterOrb/Fire { WinterOrb/Fire1 WinterOrb/Fire2 WinterOrb/Fire3 }
+
+WinterOrb/Hit1              WINORBH1
+WinterOrb/Hit2              WINORBH2
+WinterOrb/Hit3              WINORBH3
+$random WinterOrb/Hit { WinterOrb/Hit1 WinterOrb/Hit2 WinterOrb/Hit3 }
+
+WinterOrb/End1              WINORBE1
+WinterOrb/End2              WINORBE2
+WinterOrb/End3              WINORBE3
+$random WinterOrb/End { WinterOrb/End1 WinterOrb/End2 WinterOrb/End3 }
+
+GlacialCascade/Hit1         GLACASH1
+GlacialCascade/Hit2         GLACASH2
+GlacialCascade/Hit3         GLACASH3
+GlacialCascade/Hit4         GLACASH4
+$random GlacialCascade/Hit { GlacialCascade/Hit1 GlacialCascade/Hit2 GlacialCascade/Hit3 GlacialCascade/Hit4 }
+
+GlacialCascade/Explode1     GLACASX1
+GlacialCascade/Explode2     GLACASX2
+GlacialCascade/Explode3     GLACASX3
+GlacialCascade/Explode4     GLACASX4
+$random GlacialCascade/Explode { GlacialCascade/Explode1 GlacialCascade/Explode2 GlacialCascade/Explode3 GlacialCascade/Explode4 }
+$limit GlacialCascade/Explode1 0
+$limit GlacialCascade/Explode2 0
+$limit GlacialCascade/Explode3 0
+$limit GlacialCascade/Explode4 0
+
+GlacialCascade/ExplodeAdd1  GLACASS1
+GlacialCascade/ExplodeAdd2  GLACASS2
+GlacialCascade/ExplodeAdd3  GLACASS3
+GlacialCascade/ExplodeAdd4  GLACASS4
+$random GlacialCascade/ExplodeAdd { GlacialCascade/ExplodeAdd1 GlacialCascade/ExplodeAdd2 GlacialCascade/ExplodeAdd3 GlacialCascade/ExplodeAdd4 }
+$limit GlacialCascade/ExplodeAdd1 0
+$limit GlacialCascade/ExplodeAdd2 0
+$limit GlacialCascade/ExplodeAdd3 0
+$limit GlacialCascade/ExplodeAdd4 0
+
+GlacialCascade/Break1       GLACASB1
+GlacialCascade/Break2       GLACASB2
+GlacialCascade/Break3       GLACASB3
+GlacialCascade/Break4       GLACASB4
+GlacialCascade/Break5       GLACASB5
+GlacialCascade/Break6       GLACASB6
+$random GlacialCascade/Break { GlacialCascade/Break1 GlacialCascade/Break2 GlacialCascade/Break3 GlacialCascade/Break4 GlacialCascade/Break5 GlacialCascade/Break6 }
+
+Blizzard/Loop1              BLIZLOO1
+Blizzard/Loop2              BLIZLOO2
+Blizzard/Loop3              BLIZLOO3
+$random Blizzard/Loop { Blizzard/Loop1 Blizzard/Loop2 Blizzard/Loop3 }
+
+Avalanche/Loop1             AVALOO1
+Avalanche/Loop2             AVALOO2
+Avalanche/Loop3             AVALOO3
+$random Avalanche/Loop { Avalanche/Loop1 Avalanche/Loop2 Avalanche/Loop3 }

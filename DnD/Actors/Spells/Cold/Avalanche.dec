@@ -1,4 +1,4 @@
-// One piece of the avalanche: a small icicle hurled from behind the caster onto the ground ahead.
+// One piece of the avalanche: a shard of ice hurled from behind the caster onto the ground ahead.
 Actor Spell_AvalancheIce : DnD_Spell {
 	PROJECTILE
 	+BloodlessImpact
@@ -6,20 +6,110 @@ Actor Spell_AvalancheIce : DnD_Spell {
 	Speed 30
 	Radius 6
 	Height 10
-	Scale 0.55
+	Scale 1.0
 	RenderStyle Add
 	Alpha 1.0
 	DeathSound "IceBolt/Hit"
 	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE))
 	DamageType "P_Ice"
+
+	// Its launch velocity, from "DnD Avalanche", held while it forms. Only the server's copy is read.
+	var int user_vx;
+	var int user_vy;
+	var int user_vz;
+
 	States {
-		// AVLI carries Glacial Spike's model. Bright, or the shader is multiplied by a dark sector.
+		// One of AVALICE.md3's four shapes, at a size of its own, gathering where it hangs.
 		SpawnState:
-			AVLI A 2 Bright A_SpawnItemEx("Spell_GlacialSpike_ParticleTrail", -6, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 A 0 A_SetScale(frandom(0.8, 1.2))
+			TNT1 A 0 A_SpawnItemEx("Spell_GlacialSpike_Smoke", 0, 0, 0, 0, frandom(-0.5, 0.5), frandom(0.0, 0.5), 0, 128)
+			TNT1 A 0 A_Jump(256, "Needle", "Shard", "Chunk", "Splinter")
+		// It grows through three model frames, played on every machine alike, then holds a moment.
+		Needle:
+			AVLF ABC 1 Bright
+			AVLI A 4 Bright
+		Goto Launch
+		Shard:
+			AVLF DEF 1 Bright
+			AVLI B 4 Bright
+		Goto Launch
+		Chunk:
+			AVLF GHI 1 Bright
+			AVLI C 4 Bright
+		Goto Launch
+		Splinter:
+			AVLF JKL 1 Bright
+			AVLI D 4 Bright
+		Goto Launch
+		// The pitch it formed at gives way to the flight's, which PITCHFROMMOMENTUM takes from here.
+		Launch:
+			"####" "#" 0 A_SetPitch(0)
+			"####" "#" 0 A_ChangeVelocity(user_vx / 65536.0, user_vy / 65536.0, user_vz / 65536.0, CVF_REPLACE)
+		// "####" "#" keeps the shape. Bright, or the shader is multiplied by a dark sector.
+		Fly:
+			"####" "#" 2 Bright A_SpawnItemEx("Spell_GlacialSpike_ParticleTrail", -6, 0, 0, 0, 0, 0, 0, 128)
 		Loop
 		Death:
 			TNT1 A 0 A_SpawnItemEx("Spell_GlacialSpike_Smoke", 0, 0, 2, 0, frandom(-1.0, 1.0), frandom(0.3, 1.0), 0, 128)
 			S013 ABCDE 2 Bright
 		Stop
+	}
+}
+
+// Avalanche's snow, cut from SNOWTEX: aimed down onto the landing ground by "DnD Avalanche FX".
+// Faint while it passes over the caster, it fills out on the way and thins away as it arrives.
+Actor Spell_AvalancheSnow {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	+FORCEXYBILLBOARD
+	RenderStyle Translucent
+	Alpha 0
+
+	var int user_hold;
+
+	States {
+		// A_Jump, not Goto: Spell_AvalancheBillow swaps in its own FadeIn, Hold and Fade.
+		Spawn:
+			TNT1 A 0 NoDelay A_Jump(256, "PuffA", "PuffB", "PuffC", "PuffD")
+		PuffA:
+			S018 A 0 A_Jump(256, "FadeIn")
+		PuffB:
+			S018 B 0 A_Jump(256, "FadeIn")
+		PuffC:
+			S018 C 0 A_Jump(256, "FadeIn")
+		PuffD:
+			S018 D 0 A_Jump(256, "FadeIn")
+		FadeIn:
+			"####" "#" 1 A_SetScale(scalex + 0.012)
+			"####" "#" 0 A_FadeIn(0.035)
+			"####" "#" 0 A_JumpIf(alpha < 0.5, "FadeIn")
+		Hold:
+			"####" "#" 1 A_SetScale(scalex + 0.012)
+			"####" "#" 0 A_SetUserVar("user_hold", user_hold + 1)
+			"####" "#" 0 A_JumpIf(user_hold < 8, "Hold")
+		Fade:
+			"####" "#" 1 A_SetScale(scalex + 0.012)
+			"####" "#" 0 A_FadeOut(0.025)
+		Loop
+	}
+}
+
+// Snow thrown up off the landing ground as the ice comes down: quick to show, slow to settle.
+Actor Spell_AvalancheBillow : Spell_AvalancheSnow {
+	States {
+		FadeIn:
+			"####" "#" 1 A_SetScale(scalex + 0.02)
+			"####" "#" 0 A_FadeIn(0.09)
+			"####" "#" 0 A_JumpIf(alpha < 0.55, "FadeIn")
+		Hold:
+			"####" "#" 1 A_SetScale(scalex + 0.02)
+			"####" "#" 0 A_SetUserVar("user_hold", user_hold + 1)
+			"####" "#" 0 A_JumpIf(user_hold < 16, "Hold")
+		Fade:
+			"####" "#" 1 A_SetScale(scalex + 0.02)
+			"####" "#" 0 A_FadeOut(0.03)
+		Loop
 	}
 }

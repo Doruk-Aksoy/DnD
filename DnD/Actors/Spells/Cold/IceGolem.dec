@@ -88,7 +88,7 @@ ACTOR Spell_IceGolem : PetMonsterBase {
 		Death:
 		XDeath:
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Summon Death Check", 0, DND_PET_ICEGOLEMID)
-			TNT1 AAAAAA 0 A_SpawnItemEx("IceShield_ShatterFX", frandom(-12, 12), frandom(-12, 12), frandom(8, 56), 0, 0, frandom(-2, 6), frandom(0, 360))
+			TNT1 AAAAAA 0 A_SpawnItemEx("Spell_IceShatterFX", frandom(-12, 12), frandom(-12, 12), frandom(8, 56), 0, 0, frandom(-2, 6), frandom(0, 360))
 			GOL3 L 1 A_Scream
 			GOL3 LLLLLLLLLLLL 1 A_FadeOut(0.0875)
 		Stop
