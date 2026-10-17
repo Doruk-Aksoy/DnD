@@ -12,6 +12,8 @@
 	#define DND_MERCHANT_ITEMCHANCE 0.4
 #endif
 
+// A slot past the item band rolls a gem below this, once the players average DND_GEM_MINLEVEL; else it rolls orbs.
+#define DND_MERCHANT_GEMCHANCE 0.45
 #define DND_MERCHANT_ORBCHANCE 0.9
 #define DND_MERCHANT_TOKENCHANCE 1.0
 
@@ -22,6 +24,9 @@
 #define DND_MERCHANT_CHARMCHANCE 1.0
 
 #define DND_BASE_MERCHANT_STACKABLECOST 500
+#define DND_BASE_MERCHANT_GEMCOST 6000
+#define DND_MERCHANT_GREATERGEM_FACTOR 3
+#define DND_MERCHANT_GEMROLE_PERCENT 50
 
 #define DND_BASE_MERCHANT_ITEMCOST 1000
 #define DND_MERCHANT_LEVEL_PERCENT 7
@@ -654,6 +659,18 @@ void RollOrbInfoOnMerchant(int item_pos, int ilvl) {
 	item.item_image = GetOrbItemImage(orbtype);
 }
 
+// Rolled on a scratch field slot like any drop, then copied over; never a boss role.
+void RollGemInfoOnMerchant(int item_pos) {
+	int c = CreateItemSpot();
+	if(c == -1)
+		return;
+
+	RollGemInfo(c);
+	auto to = GetMerchantItem(item_pos);
+	ClearInventoryItem(to);
+	SetItemToAnother(to, GetFieldItem(c));
+}
+
 void RollTokenInfoOnMerchant(int item_pos, int ilvl) {
     int i = 0, w = random(1, MAX_TOKEN_WEIGHT);
     
@@ -727,6 +744,14 @@ int GetMerchantItemPrice(int item_pos) {
 	int base = DND_BASE_MERCHANT_ITEMCOST;
 
 	auto item = GetMerchantItem(item_pos);
+
+	// A gem has no level or mods to price, only its tier and whether it carries a role.
+	if(item.item_type == DND_ITEM_GEM) {
+		base = DND_BASE_MERCHANT_GEMCOST * (IsGreaterGem(item.item_subtype) ? DND_MERCHANT_GREATERGEM_FACTOR : 1);
+		if(item.implicit[0].attrib_id != -1)
+			base = base * (100 + DND_MERCHANT_GEMROLE_PERCENT) / 100;
+		return base;
+	}
 
 	if(item.item_stack > 0) {
 		base = DND_BASE_MERCHANT_STACKABLECOST;
@@ -848,6 +873,8 @@ Script "DnD Merchant Items" (void) {
 			if(temp <= DND_MERCHANT_ITEMCORRUPTCHANCE)
 				CorruptMerchantItem(pos);
 		}
+		else if(temp <= DND_MERCHANT_GEMCHANCE && pcount >= DND_GEM_MINLEVEL)
+			RollGemInfoOnMerchant(pos);
 		else if(temp <= DND_MERCHANT_ORBCHANCE) {
 			//Log(s:"add orb merchant");
 			// roll some orbs

@@ -1195,10 +1195,27 @@ int ApplyNonWeaponBaseDamageBonus(int tid, int dmg, int damage_type, int flags) 
 // type, so emitting them separately would pay for two rounds of resists and two accumulator entries
 // without changing the number. They are computed apart because their amounts are of different kinds
 // and they take different flat effectiveness treatment.
+// Energy Blade's lightning for one hit of a melee weapon, scaled as added lightning on that weapon's cache slot. 0 while the blade is away.
+int GetEnergyBladeHit(int pnum, int slot, int dmgid, int wepid) {
+	int blade = GetEnergyBladeDamage(pnum, wepid);
+	if(!blade)
+		return 0;
+	int generic = 100 + GetCachedPlayerIncreased(pnum, slot, dmgid) + GetPlayerBuffIncreasedDamage(pnum) + GetRageDamageBonus(pnum) + GetPlayerAccuracyDamageBonus(pnum, wepid);
+	int factor = ApplyPackedMultiplier(generic + GetCachedPlayerIncreasedTyped(pnum, slot, dmgid, DND_DAMAGECATEGORY_LIGHTNING),
+		GetCachedPlayerMorePacked(pnum, slot, dmgid)) * DND_COMPFACTOR_SCALE;
+	int flat_eff = GetCachedPlayerFlatFactor(pnum, slot, dmgid);
+	if(flat_eff != 100)
+		factor = MulPercent_Round(factor, flat_eff);
+	return factor > 0 ? MulPercent_Round(blade, factor, 100 * DND_COMPFACTOR_SCALE) : 0;
+}
+
 int StageDamageComponents(int pnum, int slot, int dmgid, int wepid, int damage_category, int base) {
 	ResetComponentStage(pnum);
 
 	int mask = GetCachedComponentMask(pnum, slot, dmgid);
+	int blade = GetEnergyBladeHit(pnum, slot, dmgid, wepid);
+	if(blade)
+		mask |= 1 << DND_DAMAGECATEGORY_LIGHTNING;
 	if(!mask)
 		return 0;
 
@@ -1240,6 +1257,10 @@ int StageDamageComponents(int pnum, int slot, int dmgid, int wepid, int damage_c
 				// scale multiply out past what MulPercent's split can carry, and the shift is exact
 				dmg += (MulPercent_Round(part, factor, 100 * DND_COMPFACTOR_SCALE) + (DND_CONVFRAC_ONE >> 1)) >> DND_CONVFRAC_BITS;
 		}
+
+		// Energy Blade's lightning, already scaled as any added lightning on this weapon.
+		if(cat == DND_DAMAGECATEGORY_LIGHTNING)
+			dmg += blade;
 
 		if(dmg > 0) {
 			AddComponentStageValue(pnum, cat, dmg);
@@ -1702,9 +1723,9 @@ int DealDamageComponents(int pnum, int shooter, int victim, int wepid, int dmgid
 	return dmg - dealt;
 }
 
-// there may be things that add + to cull % later
-bool CheckCullRange(int source, int victim, int dmg) {
-	int base = DND_CULL_BASEPERCENT;
+// extra_pct widens it, as Executioner's greater gem does for its spell.
+bool CheckCullRange(int source, int victim, int dmg, int extra_pct = 0) {
+	int base = DND_CULL_BASEPERCENT + extra_pct;
 	base += HasActorClassPerk_Fast(source, DND_PLAYER_DOOMGUY, 4) * DND_DOOMGUY_CULLBONUS;
 	return GetActorProperty(victim, APROP_HEALTH) - dmg <= MulPercent_Exact(MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp, base);
 }
@@ -1764,10 +1785,22 @@ bool CanStunMonster(int victim) {
 	return !UltimatumMonstersUnstoppable() && !CheckActorInventory(victim, "StunDurationCounter");
 }
 
-void HandleChillEffects(int pnum, int victim) {
+// The one stun: fills the counter the Stunned state loops on and pushes the monster into it. False when it could not.
+bool StunMonster(int victim, int tics) {
+	if(!CanStunMonster(victim))
+		return false;
+
+	SetActorInventory(victim, "StunDurationCounter", tics);
+	SetActorState(victim, "Stunned");
+	ACS_NamedExecuteAlways("DnD Monster Stun Ticker", 0, victim);
+	return true;
+}
+
+// gem_flat is a spell gem's chance, joining the flat roll. True when a chill stack landed (a freeze needs one).
+bool HandleChillEffects(int pnum, int victim, int gem_flat = 0) {
 	// Ultimatum / Unstoppable Tide. Chill IS the monster slow, and freeze hangs off it below.
 	if(UltimatumMonstersUnstoppable())
-		return;
+		return false;
 
 	// not ailment immune
 	if(CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_FROSTBLOOD)) {
@@ -1778,7 +1811,7 @@ void HandleChillEffects(int pnum, int victim) {
 
 		// Bitter Frost rolls INSTEAD of the threshold ("regardless of health threshold"), and Frostbite's
 		// "base chance to be chilled" joins that same roll, read off the monster.
-		int flat = PlayerModData[pnum].vals[PSTAT_CHILL_CHANCE_FLAT] + CheckActorInventory(victim, "DnD_Frostbitten");
+		int flat = PlayerModData[pnum].vals[PSTAT_CHILL_CHANCE_FLAT] + CheckActorInventory(victim, "DnD_Frostbitten") + gem_flat;
 		if(hpdiff >= threshold || (flat && random(1, 100) <= flat)) {
 			// add a new stack of chill and check for freeze
 			HandleColdImmunityPerk(pnum);
@@ -1792,7 +1825,7 @@ void HandleChillEffects(int pnum, int victim) {
 			
 			// freeze checks --- added freeze chance % increase -- unique boss is immune to freeze
 			if(IsUniqueBossMonster(victim - DND_MONSTERTID_BEGIN))
-				return;
+				return true;
 			
 			hpdiff = GetFreezeChance(pnum, CheckActorInventory(victim, "DnD_ChillStacks"));
 			if(random(1, 100) <= hpdiff) {
@@ -1815,8 +1848,10 @@ void HandleChillEffects(int pnum, int victim) {
 						SetActorInventory(victim, "DnD_FreezeTimer", stacks);
 				}
 			}
+			return true;
 		}
 	}
+	return false;
 }
 
 // Martialist / Exhauster and Cranium Bash. Both ride an ordinary melee hit and both are chances
@@ -1893,19 +1928,17 @@ void HandleMeleeSubTypeEffects(int pnum, int victim, int wepid) {
 	// all this does is fill the counter and push the monster into it.
 	if(IsBluntWeapon(wepid)) {
 		temp = PlayerModData[pnum].vals[PSTAT_STUNCHANCE_BLUNT];
-		if(temp && random(1, 100) <= temp && CanStunMonster(victim)) {
-			SetActorInventory(victim, "StunDurationCounter", DND_CRANIUMBASH_STUNTICS);
-			SetActorState(victim, "Stunned");
-			ACS_NamedExecuteAlways("DnD Monster Stun Ticker", 0, victim);
-		}
+		if(temp && random(1, 100) <= temp)
+			StunMonster(victim, DND_CRANIUMBASH_STUNTICS);
 	}
 }
 
-void HandleBleedEffects(int pnum, int victim, int wepid, int overall_dmg) {
+// gem_chance is a spell gem's; gem_only rolls it alone, for a spell hit that is not physical.
+void HandleBleedEffects(int pnum, int victim, int wepid, int overall_dmg, int gem_chance = 0, bool gem_only = false) {
 	if
 	(
 		CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_STONECREATURE) &&
-		CheckBleedChance(pnum, wepid, victim)
+		(gem_only ? random(1, 100) <= gem_chance : (CheckBleedChance(pnum, wepid, victim) || (gem_chance && random(1, 100) <= gem_chance)))
 	)
 	{
 		int amt = GetPlayerBleedTime(pnum);
@@ -1937,12 +1970,17 @@ void HandleBleedEffects(int pnum, int victim, int wepid, int overall_dmg) {
 // HandleIgniteEffects lives further down, just under HandleNonWeaponDamageScale -- it has to price
 // the tick it is applying, and that needs a function BCS has not parsed yet up here.
 
-void HandleOverloadEffects(int pnum, int victim) {
+// gem_chance and gem_only as for bleed. True when Jolt's stun landed, which Resolute counts as a stagger.
+bool HandleOverloadEffects(int pnum, int victim, int gem_chance = 0, bool gem_only = false) {
 	int temp;
+	bool stunned = false;
 	if
 	(
 		CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_INSULATED) &&
-		random(1, 100) <= DND_BASE_OVERLOADCHANCE * (100 + PlayerModData[pnum].vals[PSTAT_OVERLOADCHANCE]) / 100 && IsActorAlive(victim)
+		(gem_only ? random(1, 100) <= gem_chance :
+			(random(1, 100) <= (DND_BASE_OVERLOADCHANCE + CheckActorInventory(victim, "DnD_Conductive") + pbuffs[pnum].buff_net_values[BUFF_OVERLOADCHANCE].additive) *
+				(100 + PlayerModData[pnum].vals[PSTAT_OVERLOADCHANCE]) / 100 ||
+			(gem_chance && random(1, 100) <= gem_chance))) && IsActorAlive(victim)
 	)
 	{
 		if(!CheckActorInventory(victim, "DnD_OverloadTimer")) {
@@ -1968,15 +2006,13 @@ void HandleOverloadEffects(int pnum, int victim) {
 			// roll needs no bookkeeping of its own. Same three-step stun as Cranium Bash, and it
 			// defers to a stun already running rather than restarting one.
 			temp = PlayerModData[pnum].vals[PSTAT_OVERLOAD_STUNCHANCE];
-			if(temp && random(1, 100) <= temp && CanStunMonster(victim)) {
-				SetActorInventory(victim, "StunDurationCounter", PlayerModData[pnum].vals[PSTAT_OVERLOAD_STUNTICS]);
-				SetActorState(victim, "Stunned");
-				ACS_NamedExecuteAlways("DnD Monster Stun Ticker", 0, victim);
-			}
+			if(temp && random(1, 100) <= temp)
+				stunned = StunMonster(victim, PlayerModData[pnum].vals[PSTAT_OVERLOAD_STUNTICS]);
 		}
 		else
 			SetActorInventory(victim, "DnD_OverloadTimer", GetOverloadTime(pnum));
 	}
+	return stunned;
 }
 
 enum {
@@ -2068,6 +2104,10 @@ int FactorResists(int source, int victim, int wepid, int dmg, int damage_type, i
 	if(IsNulledByAvatarOfFire(pnum, damage_category))
 		return 0;
 	int pen = GetResistPenetration(pnum, damage_category);
+
+	// Destroyer: the spell's own penetration, in the same percent points.
+	if(flags & DND_DAMAGEFLAG_ISSPELL)
+		pen += GetSpellGemMod(pnum, wepid, GEMSTAT_PENETRATION);
 	
 	// if doomguy perk 50 is there and this is a monster, ignore res
 	// added crit ignore res modifier here from below
@@ -2173,6 +2213,8 @@ int FactorResists(int source, int victim, int wepid, int dmg, int damage_type, i
 		resist -= CheckActorInventory(victim, "DnD_FireExposed");
 	else if(damage_category == DND_DAMAGECATEGORY_ICE)
 		resist -= CheckActorInventory(victim, "DnD_ColdExposed");
+	else if(damage_category == DND_DAMAGECATEGORY_LIGHTNING)
+		resist -= CheckActorInventory(victim, "DnD_LightningExposed");
 
 	// Every reduction above has landed on the TRUE resist, so this is where the cap finally goes on.
 	// Capping here rather than at spawn is what makes an overcapped monster genuinely resistant to
@@ -2273,6 +2315,11 @@ int HandlePlayerBuffs(int p_tid, int enemy_tid, int damage_type, int wepid, int 
 	// read the player and this branch never fired
 	if(CheckActorInventory(enemy_tid, "HateWeakness"))
 		more_bonus = more_bonus * (100 + DND_HATESHARD_BUFF) / 100;
+
+	// Shock, in tenths of a percent: lightning only, or every element when it came from rank 10.
+	int shock = CheckActorInventory(enemy_tid, "DnD_Shocked");
+	if(shock && (IsLightningDamage(damage_type) || (CheckActorInventory(enemy_tid, "DnD_ShockedAll") && IsElementalDamageType(damage_type))))
+		more_bonus = more_bonus * (1000 + shock) / 1000;
 	
 	return more_bonus;
 }
@@ -2345,6 +2392,10 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 	// Ultimatum / Occasional Impotence. Every point of player damage passes through here, so the
 	// dead window is one test. Read off the level timer, so nothing has to be synced for it.
 	if(IsUltimatumImpotenceActive())
+		return 0;
+
+	// A player's own minions: ACS damage arrives here with SkipHandle, past the event handler's guard.
+	if(IsPlayerAlly(victim))
 		return 0;
 
 	str s_damagetype = DamageTypeList[damage_type];
@@ -2450,6 +2501,31 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		LockPlayerCritState(pnum, wepid);
 	}
 	else if(flags & DND_DAMAGEFLAG_ISSPELL) {
+		// The spell's gems onto the hit's own crit; wepid is the spell id here. The multiplier reaches the accumulator below.
+		spell_crit += GetSpellGemMod(pnum, wepid, GEMSTAT_CRITCHANCE);
+		spell_critmult += GetSpellGemMod(pnum, wepid, GEMSTAT_CRITMULT);
+
+		// Merciless, and Executioner's licence to cull.
+		if(IsTargetOnLowLife(victim))
+			dmg = ApplySpellGemMore(pnum, wepid, GEMSTAT_MORE_LOWLIFE, dmg);
+		if(GetSpellGemMod(pnum, wepid, GEMSTAT_CANCULL))
+			flags |= DND_DAMAGEFLAG_CULL;
+
+		// Archmage: a share of unreserved mana as its own lightning hit, dealt the way an added component is.
+		if
+		(
+			!GemArchmageGuard && !(flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME) && !(actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME) &&
+			(temp = GetSpellGemMod(pnum, wepid, GEMSTAT_ARCHMAGE)) && (temp = GetUnreservedManaCap(pnum) * temp / 100) > 0
+		)
+		{
+			GemArchmageGuard = true;
+			temp = HandleDamageDeal(source, victim, temp, DND_DAMAGETYPE_LIGHTNING, wepid, flags | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, actor_flags, true);
+			GemArchmageGuard = false;
+			if(temp > 0) {
+				HandleMonsterDeathConfirm(victim, temp);
+				Thing_Damage2(victim, temp, "Special_NoPain");
+			}
+		}
 		if
 		(
 			!(actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME) && 
@@ -2558,7 +2634,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 	int dealt = dmg;
 
 	// cull checks
-	if(CheckCullRange(source, victim, dmg)) {
+	if(CheckCullRange(source, victim, dmg, (flags & DND_DAMAGEFLAG_ISSPELL) ? GetSpellGemMod(pnum, wepid, GEMSTAT_CULLRANGE) : 0)) {
 		//printbold(s:"can cull");
 		if((flags & DND_DAMAGEFLAG_CULL) || (!wep_neg && HasWeaponPower(pnum, wepid, WEP_POWER_CULL))) {
 			// if self cull is in effect simply destroy it otherwise return from here
@@ -2661,6 +2737,13 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		// through a second call here with wep_neg set, so it cannot re-arm or re-trigger itself.
 		if(damage_type == DND_DAMAGETYPE_MELEE || damage_type == DND_DAMAGETYPE_MELEEOCCULT)
 			ACS_NamedExecuteAlways("DnD Infernal Strike Hit", 0, pnum, victim);
+
+		// Overcharge is spent by the next weapon hit of any kind. Taken here, before the script starts, so a
+		// shotgun's other pellets in the same tic find nothing left to spend.
+		if((temp = CheckActorInventory(source, "DnD_OverchargeReady"))) {
+			SetActorInventory(source, "DnD_OverchargeReady", 0);
+			ACS_NamedExecuteAlways("DnD Overcharge Release", 0, pnum, victim, temp);
+		}
 	}
 
 	return dmg;
@@ -2892,9 +2975,12 @@ void HandleLifesteal(int pnum, int wepid, int flags, int dmg) {
 }
 
 // str_att, dex_att and int_att must assume 0.01 to be 1%!
-int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags, int str_att = 0,  int dex_att = 0, int int_att = 0) {
+// pnum is for callers whose activator is not the player (spells priced from their own actors); -1 reads the activator.
+int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags, int str_att = 0,  int dex_att = 0, int int_att = 0, int pnum = -1) {
 	int temp, temp2;
-	int pnum = PlayerNumber();
+	if(pnum == -1)
+		pnum = PlayerNumber();
+	int ptid = pnum + P_TIDSTART;
 	int pct_bonus = 0;
 	bool isSpell = flags & DND_WDMG_ISSPELL;
 	int dmg_flag_mapping = (flags & DND_WDMG_ISRADIUSDMG) ? DND_DAMAGEFLAG_ISRADIUSDMG : 0;
@@ -2907,7 +2993,7 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags, int str_
 	}*/
 	
 	if(flags & DMG_WDMG_ESHIELDSCALE)
-		dmg += CheckInventory("EShieldAmount") / 25; // 4%
+		dmg += CheckActorInventory(ptid, "EShieldAmount") / 25; // 4%
 	
 	// attribute bonus only applied if not DOT
 	if(!(flags & DND_WDMG_ISDOT)) {
@@ -2924,10 +3010,10 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags, int str_
 	}
 	
 	if((flags & DND_WDMG_ISOCCULT) || damage_category == DND_DAMAGECATEGORY_OCCULT) // is occult (add demon bane bonus)
-		dmg = dmg * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;
+		dmg = dmg * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ptid, DND_ACCESSORY_DEMONBANE)) / 100;
 		
 	if(flags & DMG_WDMG_ISARTIFACT)
-		dmg = dmg * (100 + DND_ARTIFACT_GAIN * CheckInventory("Ability_Arcanery")) / 100;
+		dmg = dmg * (100 + DND_ARTIFACT_GAIN * CheckActorInventory(ptid, "Ability_Arcanery")) / 100;
 	
 	temp = PlayerModData[pnum].vals[PSTAT_EX_PHYSDAMAGEPER_FLATHEALTH];
 	if((damage_category == DND_DAMAGECATEGORY_MELEE || damage_category == DND_DAMAGECATEGORY_BULLET) && temp)
@@ -3035,7 +3121,8 @@ void HandleIgniteEffects(int pnum, int victim, int wepid, int flags, int dmg_wit
 		CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_MOLTENBLOOD) &&
 		// Flammability rides the same flat bucket as the weapon side bonus, so the player's percent
 		// ignite chance scales the curse too -- "base chance to be ignited" is exactly that bucket.
-		CheckIgniteChance(pnum, addedIgn * DND_ADDEDIGNITE_CHANCE + CheckActorInventory(victim, "DnD_Flammable"))
+		CheckIgniteChance(pnum, addedIgn * DND_ADDEDIGNITE_CHANCE + CheckActorInventory(victim, "DnD_Flammable") +
+			isSpell * GetSpellGemMod(pnum, wepid, GEMSTAT_IGNITECHANCE))
 	)
 	{
 		int amt = GetIgniteDuration(pnum);
@@ -3203,35 +3290,35 @@ int GetMonsterPainCooldown(int m_id) {
 //
 // FORCEPAIN beats NOPAIN and the cooldown both; that is what makes it a bypass rather than a bonus.
 // The roll itself. painful/forced are passed in because the two callers learn them differently:
-// the damage tic reads its bits, a direct delivery knows its own nature.
-void DoMonsterPain(int victim_tid, int m_id, int dmg, bool painful, bool forced) {
+// the damage tic reads its bits, a direct delivery knows its own nature. True when the monster flinched.
+bool DoMonsterPain(int victim_tid, int m_id, int dmg, bool painful, bool forced) {
 	if(!IsActorAlive(victim_tid))
-		return;
+		return false;
 
 	// +NOPAIN on the actor, which also marks every variant with no PainState of its own. This is
 	// STRUCTURAL, so nothing bypasses it -- not FORCEPAIN, not the ultimatum. A monster with no
 	// PainState still enters the inherited Pain: state, whose A_Jump then finds nothing and leaves
 	// it standing still for 35 tics; that freeze is what this prevents.
 	if(CheckFlag(victim_tid, "NOPAIN"))
-		return;
+		return false;
 
 	// nothing here could flinch it
 	if(!forced && !painful)
-		return;
+		return false;
 
 	if(!forced) {
 		// the TRAIT is a gameplay grant -- an elite roll or a dungeon attribute -- so FORCEPAIN,
 		// which skipped this whole branch, is still allowed to beat it
 		if(HasMonsterTrait(m_id, DND_NOPAIN))
-			return;
+			return false;
 
 		// cooldown holds until its tic, however many hits land in between
 		if(MonsterProperties[m_id].pain_cd > Timer())
-			return;
+			return false;
 
 		// 0-256, same scale as DECORATE. 0 never flinches.
 		if(random(1, 256) > GetMonsterTicPainChance(m_id, dmg))
-			return;
+			return false;
 	}
 
 	int cd = GetMonsterPainCooldown(m_id);
@@ -3240,13 +3327,67 @@ void DoMonsterPain(int victim_tid, int m_id, int dmg, bool painful, bool forced)
 
 	// pure state change -- knockback is handled separately by the damage push
 	SetActorState(victim_tid, "Pain", 0);
+	return true;
 }
 
 // once per damage tic, off the bits the hits in it set
-void HandleMonsterPain(int pnum, int victim_tid, int m_id, int dmg) {
-	DoMonsterPain(victim_tid, m_id, dmg,
+bool HandleMonsterPain(int pnum, int victim_tid, int m_id, int dmg) {
+	return DoMonsterPain(victim_tid, m_id, dmg,
 		DamageTicWasPainful(pnum, m_id), DamageTicForcedPain(pnum, m_id));
 }
+
+// ---- spell gem effects the damage tic carries out ---------------------------------------------
+#define DND_GEM_ELUSIVE_TICS (5 * TICRATE / 2)
+
+// Ravager, Resolute, Powerful: a gem's chance to gain the charge its trigger names.
+void RollSpellGemCharge(int pnum, int spell, int stat) {
+	int v = GetSpellGemMod(pnum, spell, stat);
+	if(!v || random(1, 100) > v)
+		return;
+
+	if(stat == GEMSTAT_ENDURANCECHANCE)
+		GainEnduranceCharge(pnum);
+	else
+		HandlePlayerBuffAssignment(pnum, 0, stat == GEMSTAT_FRENZYCHANCE ? BTI_FRENZYCHARGE : BTI_POWERCHARGE);
+}
+
+// A spell gem's ailment chances on a hit of another element; each element's own route above already took its gem chance.
+// True when the gem's overload stunned (Jolt), for Resolute.
+bool HandleSpellGemAilments(int pnum, int victim_tid, int m_id, int spell, int tic_flags, bool overload_route) {
+	int total = PlayerDamageTic[pnum].total[m_id], v;
+	bool stunned = false;
+
+	if((v = GetSpellGemMod(pnum, spell, GEMSTAT_IGNITECHANCE)) && !(tic_flags & (DND_DAMAGETICFLAG_FIRE | DND_DAMAGETICFLAG_ADDEDIGNITE)) && random(1, 100) <= v)
+		ApplyForcedIgnite(pnum, victim_tid);
+
+	if((v = GetSpellGemMod(pnum, spell, GEMSTAT_CHILLCHANCE)) && !(tic_flags & DND_DAMAGETICFLAG_ICE) && random(1, 100) <= v && ChillMonster(pnum, victim_tid))
+		RollSpellGemCharge(pnum, spell, GEMSTAT_FRENZYCHANCE);
+
+	if((v = GetSpellGemMod(pnum, spell, GEMSTAT_OVERLOADCHANCE)) && !overload_route)
+		stunned = HandleOverloadEffects(pnum, victim_tid, v, true);
+
+	if((v = GetSpellGemMod(pnum, spell, GEMSTAT_BLEEDCHANCE)) && !((tic_flags & DND_DAMAGETICFLAG_PHYSICAL) && !(tic_flags & DND_DAMAGETICFLAG_DOT)))
+		HandleBleedEffects(pnum, victim_tid, -1, total, v, true);
+
+	// The poison route above stacks on every poison hit, so only the other elements roll here.
+	if
+	(
+		(v = GetSpellGemMod(pnum, spell, GEMSTAT_POISONCHANCE)) && !(tic_flags & (DND_DAMAGETICFLAG_POISON | DND_DAMAGETICFLAG_INFLICTPOISON)) &&
+		random(1, 100) <= v && CheckAilmentImmunity(pnum, m_id, DND_TOXICBLOOD)
+	)
+	{
+		v = Max(total * DND_BASE_POISON_FACTOR / 100, 1);
+		bool first = !CheckActorInventory(victim_tid, "DnD_PoisonStacks");
+		int extra = GainPoisonStacks(pnum, victim_tid);
+		ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim_tid, v, -1, first);
+		while(extra-- > 0)
+			ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim_tid, v, -1, 0);
+	}
+	return stunned;
+}
+
+// Archmage's extra lightning is a second hit dealt from inside the first; this keeps it from feeding itself.
+int GemArchmageGuard;
 
 // A hit delivered straight to the engine with no damage tic behind it -- a parry burst, the
 // Thumper, melee splash. Those used to flinch through the engine's own roll; with DECORATE at 0
@@ -3270,6 +3411,8 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 	if(PlayerModData[pnum].vals[PSTAT_MAGICKILL_PEN])
 		SetActorInventory(victim_data + DND_MONSTERTID_BEGIN, "DnD_LastHitMagic", IsOccultDamage(damage_type));
 	int wep_neg = victim_data >> DND_DAMAGE_ACCUM_SHIFT;
+	// The weapon behind this hit, or -1: a spell's id rides in wepid and overlaps weapon ids, so trait tests use this.
+	int wep = (wep_neg & 1) ? -1 : wepid;
 	victim_data &= DND_MONSTER_TICDATA_BITMASK;
 
 	int ox = PlayerDamageVector[pnum].x;
@@ -3322,7 +3465,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 	// Perception / Sharpshooter. Ramps to its full value at DND_SHARPSHOOTER_MAXRANGE and is flat
 	// past it -- "up to 30% ... capped at 2048 units" caps the DISTANCE the ramp reads, not the bonus,
 	// so a shot from across a map is worth the same as one from exactly 2048 rather than more.
-	if((temp = PlayerModData[pnum].vals[PSTAT_PRECISION_FALLOFF]) && IsPrecisionWeapon(wepid)) {
+	if((temp = PlayerModData[pnum].vals[PSTAT_PRECISION_FALLOFF]) && IsPrecisionWeapon(wep)) {
 		int dist = AproxDistance(
 			GetActorX(victim_tid) - GetActorX(pnum + P_TIDSTART),
 			GetActorY(victim_tid) - GetActorY(pnum + P_TIDSTART)
@@ -3398,7 +3541,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 	// deadly strike doubles damage
 	if
 	(
-		(IsMeleeWeapon(wepid) || (flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) && !(flags & DND_DAMAGETICFLAG_DOT) &&
+		(IsMeleeWeapon(wep) || (flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) && !(flags & DND_DAMAGETICFLAG_DOT) &&
 		(temp = PlayerModData[pnum].vals[PSTAT_DEADLYSTRIKE]) && random(1, 100) <= temp
 	) 
 	{
@@ -3439,7 +3582,18 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 		if((acrit = PlayerModData[pnum].vals[PSTAT_ELUSIVE_ONCRIT]) &&
 			!CheckActorInventory(ptid, "DnD_Elusive") && random(1, 100) <= acrit) {
 			SetActorInventory(ptid, "DnD_Elusive", DND_ELUSIVE_TICS);
+			SetActorInventory(ptid, "DnD_ElusiveSpan", DND_ELUSIVE_TICS);
 			ACS_NamedExecuteAlways("DnD Elusive Timer", 0, ptid);
+		}
+
+		// Assassin: the spell's own chance at a shorter Elusive, decaying over its own span. Powerful: a power charge.
+		if(flags & DND_DAMAGETICFLAG_SPELL) {
+			if((acrit = GetSpellGemMod(pnum, wepid, GEMSTAT_ELUSIVE)) && !CheckActorInventory(ptid, "DnD_Elusive") && random(1, 100) <= acrit) {
+				SetActorInventory(ptid, "DnD_Elusive", DND_GEM_ELUSIVE_TICS);
+				SetActorInventory(ptid, "DnD_ElusiveSpan", DND_GEM_ELUSIVE_TICS);
+				ACS_NamedExecuteAlways("DnD Elusive Timer", 0, ptid);
+			}
+			RollSpellGemCharge(pnum, wepid, GEMSTAT_POWERCHANCE);
 		}
 
 		// Pressure Points. Stores the TYPE alongside the amount, because the exposure only applies to
@@ -3519,13 +3673,20 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 	if((flags & DND_DAMAGETICFLAG_PUSH) && PlayerDamageTic[pnum].total[victim_data] > 0)
 		HandleDamagePush(2 * PlayerDamageTic[pnum].total[victim_data], ox, oy, oz, victim_tid, wep_neg & 2);
 
-	HandleMonsterPain(pnum, victim_tid, victim_data, PlayerDamageTic[pnum].total[victim_data]);
+	// Resolute: a spell hit that staggers -- its pain state here, or a stun the ailments below land -- rolls once.
+	bool staggered = HandleMonsterPain(pnum, victim_tid, victim_data, PlayerDamageTic[pnum].total[victim_data]) && (flags & DND_DAMAGETICFLAG_SPELL);
 	
 	// has wepid non neg
 	if(!(wep_neg & 1)) {
 		// check if player has lifesteal, if they do reward some hp back
 		if(!HasMonsterTrait(victim_data, DND_BLOODLESS) && !(flags & DND_DAMAGETICFLAG_DOT))
 			HandleLifesteal(pnum, wepid, flags, PlayerDamageTic[pnum].total[victim_data]);
+	}
+	// Vampire: the spell's own leech, in tenths of a percent, through the same capped pool.
+	else if((flags & DND_DAMAGETICFLAG_SPELL) && !(flags & DND_DAMAGETICFLAG_DOT) && !HasMonsterTrait(victim_data, DND_BLOODLESS)) {
+		int leech = PlayerDamageTic[pnum].total[victim_data] * GetSpellGemMod(pnum, wepid, GEMSTAT_LEECH) / 1000;
+		if(leech > 0)
+			ResolveLifesteal(pnum, leech, GetHealPoolCap(pnum));
 	}
 
 	// ox, oy and oz arent used below
@@ -3546,8 +3707,11 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 		// Independent tests, not an if/else chain. A chain can only ever fire ONE ailment, so a
 		// physical weapon with added cold would chill or bleed depending on which component landed
 		// first and never both.
+		bool gem_hit = !!(tic_flags & DND_DAMAGETICFLAG_SPELL);
 		if(can_ail && (tic_flags & DND_DAMAGETICFLAG_ICE)) {
-			HandleChillEffects(pnum, victim_tid);
+			// Cryomancer joins the flat chill roll; Ravager rolls on whatever chill lands.
+			if(HandleChillEffects(pnum, victim_tid, gem_hit ? GetSpellGemMod(pnum, wepid, GEMSTAT_CHILLCHANCE) : 0) && gem_hit)
+				RollSpellGemCharge(pnum, wepid, GEMSTAT_FRENZYCHANCE);
 
 			// A cold SPELL also applies whatever its own row promises on a hit -- a stated slow, a
 			// stated freeze chance. Here because this is the one place that already knows a cold hit
@@ -3561,15 +3725,18 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 				ACS_NamedExecuteAlways("DnD Spell Cold On Hit", 0, pnum, victim_tid, wepid);
 		}
 
-		if(can_ail && ((tic_flags & DND_DAMAGETICFLAG_FIRE) || (tic_flags & DND_DAMAGETICFLAG_ADDEDIGNITE))) // should be able to ign if it has addedignite flag even if damagetype isnt fire!
+		// Braced: the reflect sat outside the brace-less if, so every hit of any element mirrored a fire DoT.
+		if(can_ail && ((tic_flags & DND_DAMAGETICFLAG_FIRE) || (tic_flags & DND_DAMAGETICFLAG_ADDEDIGNITE))) { // should be able to ign if it has addedignite flag even if damagetype isnt fire!
 			HandleIgniteEffects(pnum, victim_tid, wepid, tic_flags, GetPlayerIgniteAddedDmg(pnum, wepid, GetIgniteScaleSource(pnum, victim_data, tic_flags)), !!(tic_flags & DND_DAMAGETICFLAG_SPELL));
 			ReflectUltimatumAilment(pnum, GetTicElementDamage(pnum, victim_data, DND_TICELEM_FIRE), DND_DAMAGETYPEFLAG_FIRE);
+		}
 
 		// The Halo widens this further than the incursion mod does. That one opens ice, fire and
 		// poison and pays for it with reduced effect and no chaining; this one opens EVERY type and
 		// pays elsewhere, so it deliberately does not go through PSTAT_INC_ALLOVERLOAD.
-		if(can_ail && ((tic_flags & DND_DAMAGETICFLAG_LIGHTNING) || HasPlayerFlag(pnum, PFLAG_OVERLOAD_ANYELEMENT) || (PlayerModData[pnum].vals[PSTAT_INC_ALLOVERLOAD] && (tic_flags & (DND_DAMAGETICFLAG_ICE | DND_DAMAGETICFLAG_FIRE | DND_DAMAGETICFLAG_POISON)))))
-			HandleOverloadEffects(pnum, victim_tid);
+		bool overload_route = can_ail && ((tic_flags & DND_DAMAGETICFLAG_LIGHTNING) || HasPlayerFlag(pnum, PFLAG_OVERLOAD_ANYELEMENT) || (PlayerModData[pnum].vals[PSTAT_INC_ALLOVERLOAD] && (tic_flags & (DND_DAMAGETICFLAG_ICE | DND_DAMAGETICFLAG_FIRE | DND_DAMAGETICFLAG_POISON))));
+		if(overload_route && HandleOverloadEffects(pnum, victim_tid, gem_hit ? GetSpellGemMod(pnum, wepid, GEMSTAT_OVERLOADCHANCE) : 0) && gem_hit)
+			staggered = true;
 
 		// Taste the Pain, overload half. Not a DoT, so it takes the same route the player side
 		// takes rather than ReflectUltimatumAilment.
@@ -3579,13 +3746,13 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 		}
 
 		if(can_ail && (tic_flags & DND_DAMAGETICFLAG_PHYSICAL) && !(tic_flags & DND_DAMAGETICFLAG_DOT))
-			HandleBleedEffects(pnum, victim_tid, wepid, GetTicElementDamage(pnum, victim_data, DND_TICELEM_PHYSICAL));
-			HandleMeleeSubTypeEffects(pnum, victim_tid, wepid);
-			HandleFlaskHitEffects(pnum, victim_tid, PlayerModData[pnum].vals[PSTAT_FLASK_VULNTIME]);
-			HandleAutoResistShred(pnum, victim_tid, wepid);
+			HandleBleedEffects(pnum, victim_tid, wep, GetTicElementDamage(pnum, victim_data, DND_TICELEM_PHYSICAL), gem_hit ? GetSpellGemMod(pnum, wepid, GEMSTAT_BLEEDCHANCE) : 0);
 
-		// NOTE: the three calls above are NOT inside the bleed if -- it has no braces. Left as
-		// found; this one is its own statement so the reflection is actually conditional.
+		// Every hit, as they always ran; the weapon pair gets wep, so a spell no longer passes for a melee or automatic weapon.
+		HandleMeleeSubTypeEffects(pnum, victim_tid, wep);
+		HandleFlaskHitEffects(pnum, victim_tid, PlayerModData[pnum].vals[PSTAT_FLASK_VULNTIME]);
+		HandleAutoResistShred(pnum, victim_tid, wep);
+
 		if(can_ail && (tic_flags & DND_DAMAGETICFLAG_PHYSICAL) && !(tic_flags & DND_DAMAGETICFLAG_DOT))
 			ReflectUltimatumAilment(pnum, GetTicElementDamage(pnum, victim_data, DND_TICELEM_PHYSICAL), DND_DAMAGETYPEFLAG_PHYSICAL | DND_DAMAGETYPEFLAG_ISBLEED);
 
@@ -3608,15 +3775,18 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 
 			int pstack_extra = GainPoisonStacks(pnum, victim_tid);
 
-			ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim_tid, ox, wepid, oy);
+			ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim_tid, ox, wep, oy);
 			ReflectUltimatumAilment(pnum, ox, DND_DAMAGETYPEFLAG_POISON);
 
 			// Every stack the shared pool granted on top of the usual one owes its own cache entry,
 			// or the lift would raise the counter and deal nothing. Never entered without the helm.
 			while(pstack_extra-- > 0)
-				ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim_tid, ox, wepid, 0);
+				ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim_tid, ox, wep, 0);
 			//printbold(s:"poison received by ", d:victim);
 		}
+
+		if(can_ail && gem_hit && HandleSpellGemAilments(pnum, victim_tid, victim_data, wepid, tic_flags, overload_route))
+			staggered = true;
 		
 		// frozen monsters cant retaliate	
 		if(!CheckActorInventory(victim_tid, "DnD_FreezeTimer")) {
@@ -3656,6 +3826,9 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 			ACS_NamedExecuteWithResult("DnD Doomguy Execute Translation", victim_tid);
 		}
 	}
+
+	if(staggered)
+		RollSpellGemCharge(pnum, wepid, GEMSTAT_ENDURANCECHANCE);
 
 	SendOwnerSync("DnD Damage Numbers", PlayerNumber(), victim_tid, PlayerDamageTic[pnum].total[victim_data], flags);
 
@@ -4152,20 +4325,21 @@ void SnareMonster(int victim, int tics) {
 // says it chills, chills -- but through the SAME stacks, so Permafrost, Lingering Cold, the ailment
 // and the freeze build-up all still see it. Granting a stack rather than just applying a slow is the
 // whole point.
-void ChillMonster(int pnum, int victim, int stacks = 1) {
+bool ChillMonster(int pnum, int victim, int stacks = 1) {
 	if(UltimatumMonstersUnstoppable() ||
 		!CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_FROSTBLOOD))
-		return;
+		return false;
 
 	int cur = CheckActorInventory(victim, "DnD_ChillStacks");
 	if(cur >= DND_BASE_CHILL_CAP)
-		return;
+		return false;
 
 	GiveActorInventory(victim, "DnD_ChillStacks", Min(stacks, DND_BASE_CHILL_CAP - cur));
 
 	// Only the first stack needs the loop started; after that it reads the count itself.
 	if(!cur)
 		ACS_NamedExecuteWithResult("DnD Monster Chill", victim, pnum);
+	return true;
 }
 
 // DnD_FreezeTimer is in units of 6 tics, which is what the freeze loop spends per step.
@@ -4195,8 +4369,9 @@ bool FreezeMonster(int pnum, int victim, int tics) {
 	if(CheckActorInventory(victim, "DnD_FreezeTimer") < units)
 		SetActorInventory(victim, "DnD_FreezeTimer", units);
 
+	// The map argument first: passing the victim there queued the loop for "map <tid>", so it never ran here.
 	if(!running)
-		ACS_NamedExecuteAlways("DnD Monster Freeze", victim);
+		ACS_NamedExecuteAlways("DnD Monster Freeze", 0, victim);
 
 	return true;
 }
@@ -4266,6 +4441,19 @@ void ApplyColdExposure(int victim, int pct, int tics) {
 
 	if(!ticking)
 		ACS_NamedExecuteAlways("DnD Cold Exposure Timer", 0, victim);
+}
+
+// The lightning twin, for Conductivity.
+void ApplyLightningExposure(int victim, int pct, int tics) {
+	if(CheckActorInventory(victim, "DnD_LightningExposed") < pct)
+		SetActorInventory(victim, "DnD_LightningExposed", pct);
+
+	bool ticking = !!CheckActorInventory(victim, "DnD_LightningExposedTimer");
+	if(CheckActorInventory(victim, "DnD_LightningExposedTimer") < tics)
+		SetActorInventory(victim, "DnD_LightningExposedTimer", tics);
+
+	if(!ticking)
+		ACS_NamedExecuteAlways("DnD Lightning Exposure Timer", 0, victim);
 }
 
 // Frost Bomb. CanHealMonster already reads MonsterRegenPause, so stopping regeneration is only a
@@ -6743,6 +6931,11 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			
 			SetResultValue(dmg);
 		}
+		// Players never hurt their minions, spells and explosions included. Ahead of the branch below, which takes
+		// every victim that is not a player and so used to let a player's damage through to them.
+		else if(IsPlayerAlly(victim) && IsPlayer(shooter)) {
+			SetResultValue(0);
+		}
 		else if(IsPlayer(shooter) && !IsPlayer(victim)) {
 			// PLAYER HURTING MONSTERS CODE HERE
 			// extract the encoded damage data, and proceed
@@ -6822,12 +7015,12 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					//printbold(s:"dmg = ", d:dmg, s: " flags = ", d:temp);
 				}
 				else if(dmg_data & DND_DAMAGEFLAG_ISSPELL) {
-					// first 16 bits is spell damage, next is damage type and last is spell id
+					// spell damage, then its element code (PackSpellDamage), then the spell id
 					dmg = arg1 & SPELLDMG_MASK;
 					dmg += dist_damage_bonus; // depending on distance increasing damage modifier this can be non-zero
 
 					arg1 >>= SPELL_DMG_SHIFT;
-					temp = arg1 & SPELLDTYPE_MASK;
+					temp = GetSpellElementType(arg1 & SPELLDTYPE_MASK);
 
 					arg1 >>= SPELL_DTYPE_SHIFT;
 					m_id = arg1 & SPELLID_MASK;
@@ -7230,13 +7423,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// if victim is a player, and shooter is also a player and its not us, make sure they take no damage! YOU NEVER KNOW!!
 			SetResultValue(0);
 		}
-		else if(IsPet(victim) && IsPlayer(shooter)) {
-			// players shouldnt hurt pets
-			SetResultValue(0);
-		}
 		else if(IsPet(shooter) && shooter != victim) {
-			// Nothing a pet does touches its own side. No DECORATE flag can do this -- see
-			// .claude/notes/dnd-pet-damage-routing.md.
+			// Nothing a pet does touches its own side. No DECORATE flag can do this.
 			if(IsPlayer(victim) || IsPet(victim)) {
 				SetResultValue(0);
 				Terminate;
@@ -7338,6 +7526,18 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					GiveActorInventory(victim, "DnD_Hit_CombatTimer", 1);
 				SetResultValue(dmg);
 				PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = arg1;
+				Terminate;
+			}
+
+			// A DoT the player owns on themselves (Taste the Pain's reflect, a hazard's bleed or poison). The self-damage
+			// path below unpacks arg1 as a weapon word, which zeroed every tick; it pays the hazard's defensive chain instead.
+			if(shooter == victim && IsDamageStringDOT(arg2)) {
+				dmg_data = DND_DAMAGETYPEFLAG_DOT;
+				dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data, false, inflictor_class, -1);
+				dmg = HandlePlayerArmor(pnum, dmg, arg2, dmg_data, false);
+				dmg = ApplyTrueDamageDeductions(pnum, dmg, arg2, dmg_data);
+				SetResultValue(dmg);
+				PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = dmg;
 				Terminate;
 			}
 

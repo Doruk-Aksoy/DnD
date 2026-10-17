@@ -53,7 +53,7 @@ enum {
 #define DND_STAMINA_STR_DIV 2
 // How much of the cap above base speeds recovery. Flat recovery made a bigger bar refill slower
 // in absolute time, so stacking cap was a trap; half scaling removes most of that without
-// making the refill free. See .claude/notes for the numbers.
+// making the refill free.
 #define DND_STAMINA_CAPSCALE_PCT 50
 #define DND_LOWSTAMINA_FACTOR 25
 #define DND_DEPLETEDSTAMINA_FACTOR 50
@@ -503,7 +503,11 @@ int GetRageDamageBonus(int pnum) {
 // switched on and off, which is what "rapidly decaying from 100% effect to 0%" asks for.
 int GetElusiveEffect(int pnum) {
 	int left = CheckActorInventory(pnum + P_TIDSTART, "DnD_Elusive");
-	return left <= 0 ? 0 : (left * 100) / DND_ELUSIVE_TICS;
+	// Over the span it was granted for, so a shorter Elusive (Assassin's 2.5 seconds) still starts at full strength.
+	int span = CheckActorInventory(pnum + P_TIDSTART, "DnD_ElusiveSpan");
+	if(span <= 0)
+		span = DND_ELUSIVE_TICS;
+	return left <= 0 ? 0 : Min(100, (left * 100) / span);
 }
 
 int GetBonusPlayerSpeed(int pnum) {
@@ -683,8 +687,11 @@ int FindOldestPlayerPet(int pnum) {
 // summon death check, and that is what hands the cap slot back. Removing it outright would leak
 // a point of PetCounter every time.
 void UnsummonPet(int tid) {
-	if(tid && IsActorAlive(tid))
+	if(tid && IsActorAlive(tid)) {
+		// Marked first, so the death hook can tell a pet sent home from a slain one: Necromancer revives only those.
+		GiveActorInventory(tid, "DnD_PetUnsummoned", 1);
 		Thing_Damage2(tid, GetActorProperty(tid, APROP_HEALTH) * 3, "Perish");
+	}
 }
 
 bool CanActorHaveMorePets(int tid) {
@@ -1370,9 +1377,11 @@ int GetRawEnergyShieldCap(int pnum) {
 
 int GetPlayerEnergyShieldCap(int pnum) {
 	// Sanguine Covenant. The other half of the swap in GetSpawnHealth.
-	if(HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD))
-		return GetRawSpawnHealth(true, pnum);
-	return GetRawEnergyShieldCap(pnum);
+	int cap = HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD) ? GetRawSpawnHealth(true, pnum) : GetRawEnergyShieldCap(pnum);
+
+	// Energy Blade: while it is out, its marker holds the percent less energy shield.
+	int less = CheckActorInventory(pnum + P_TIDSTART, "DnD_EnergyBladeLess");
+	return less ? cap * (100 - less) / 100 : cap;
 }
 
 #define DND_MIT_PER_DEX 0.2

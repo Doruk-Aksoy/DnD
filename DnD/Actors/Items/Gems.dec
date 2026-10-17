@@ -1,0 +1,170 @@
+// Gems: one drop actor per kind, in GetGemIndex order (acs/Inventory/DnD_Gems.h). GMDP A-P are the world
+// sprites in that same order, defined in TEXTURES.inv off the GM* art.
+Actor GemSoundPlayer : CustomInventory {
+	States {
+		Pickup:
+			TNT1 A 0 A_PlaySound("Items/GemPick")
+			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
+		Stop
+	}
+}
+
+Actor GemDrop : InventoryBase {
+	Radius 20
+	Height 24
+	+FLOATBOB
+	States {
+		SpawnLoop:
+		Idle:
+			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+
+		PickupSuccess:
+			TNT1 A 8 ACS_NamedExecuteAlways("DnD Gem Item Pickup", 0, mass - 1)
+		stop
+	}
+}
+
+// Ruby
+Actor GemDrop_0 : GemDrop {
+	States {
+		Spawn:
+			GMDP A 0
+		Goto SpawnInit
+	}
+}
+
+// Greater Ruby
+Actor GemDrop_1 : GemDrop {
+	States {
+		Spawn:
+			GMDP B 0
+		Goto SpawnInit
+	}
+}
+
+// Sapphire
+Actor GemDrop_2 : GemDrop {
+	States {
+		Spawn:
+			GMDP C 0
+		Goto SpawnInit
+	}
+}
+
+// Greater Sapphire
+Actor GemDrop_3 : GemDrop {
+	States {
+		Spawn:
+			GMDP D 0
+		Goto SpawnInit
+	}
+}
+
+// Diamond
+Actor GemDrop_4 : GemDrop {
+	States {
+		Spawn:
+			GMDP E 0
+		Goto SpawnInit
+	}
+}
+
+// Greater Diamond
+Actor GemDrop_5 : GemDrop {
+	States {
+		Spawn:
+			GMDP F 0
+		Goto SpawnInit
+	}
+}
+
+// Emerald
+Actor GemDrop_6 : GemDrop {
+	States {
+		Spawn:
+			GMDP G 0
+		Goto SpawnInit
+	}
+}
+
+// Greater Emerald
+Actor GemDrop_7 : GemDrop {
+	States {
+		Spawn:
+			GMDP H 0
+		Goto SpawnInit
+	}
+}
+
+// Topaz
+Actor GemDrop_8 : GemDrop {
+	States {
+		Spawn:
+			GMDP I 0
+		Goto SpawnInit
+	}
+}
+
+// Greater Topaz
+Actor GemDrop_9 : GemDrop {
+	States {
+		Spawn:
+			GMDP J 0
+		Goto SpawnInit
+	}
+}
+
+// Amethyst
+Actor GemDrop_10 : GemDrop {
+	States {
+		Spawn:
+			GMDP K 0
+		Goto SpawnInit
+	}
+}
+
+// Greater Amethyst
+Actor GemDrop_11 : GemDrop {
+	States {
+		Spawn:
+			GMDP L 0
+		Goto SpawnInit
+	}
+}
+
+// Obsidian
+Actor GemDrop_12 : GemDrop {
+	States {
+		Spawn:
+			GMDP M 0
+		Goto SpawnInit
+	}
+}
+
+// Greater Obsidian
+Actor GemDrop_13 : GemDrop {
+	States {
+		Spawn:
+			GMDP N 0
+		Goto SpawnInit
+	}
+}
+
+// Bismuth
+Actor GemDrop_14 : GemDrop {
+	States {
+		Spawn:
+			GMDP O 0
+		Goto SpawnInit
+	}
+}
+
+// Greater Bismuth
+Actor GemDrop_15 : GemDrop {
+	States {
+		Spawn:
+			GMDP P 0
+		Goto SpawnInit
+	}
+}

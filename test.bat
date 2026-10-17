@@ -17,7 +17,8 @@ cd ..
 echo.
 echo Packing all files into pk3's...
 
-7z u -tzip dnd.pk3 -uq0 .\dnd\* -mx=9 >nul
+REM x2 packs a disk file even when the archived copy is newer: a copied-in file keeps its old date.
+7z u -tzip dnd.pk3 -uq0x2 .\dnd\* -mx=9 >nul
 
 echo Done.
 @echo on

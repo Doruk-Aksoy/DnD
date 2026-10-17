@@ -278,6 +278,8 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				GetSpellScroll().shown_spell = -1;
 				GetSpellScroll().pinned = false;
 				GetSpellScroll().picking_slot = -1;
+				GetSpellScroll().picking_page = 0;
+				GetSpellScroll().gem_pick = 0;
 				SetScrollBarPos(DND_SPELLBAR_PANEL, 0);
 
 				// The backdrop lives in RPGMENUID, outside the band above, and nothing else restates it
@@ -425,6 +427,8 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			redraw |= HandleSpellPin(curopt - MENU_SPELLTREE_FIRST, boxid, i);
 		else if(curopt == MENU_SPELL_HOTBAR)
 			redraw |= HandleSpellHotbarPick(pnum, boxid, i);
+		else if(curopt == MENU_SPELL_GEMS)
+			redraw |= HandleSpellGemsPick(pnum, boxid, i);
 				
 		// The server discards anything arriving inside its own DND_MENU_INPUTDELAYTICS debounce --
 		// no ack, no processing, no way for us to know. Clicking faster than that just means a
@@ -761,6 +765,8 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				HandleSpellTreeDraw(pnum, curopt - MENU_SPELLTREE_FIRST, boxid, CurrentPane);
 			else if(curopt == MENU_SPELL_HOTBAR)
 				HandleSpellHotbarDraw(pnum, boxid, CurrentPane);
+			else if(curopt == MENU_SPELL_GEMS)
+				HandleSpellGemsDraw(pnum, boxid, CurrentPane);
 			else if(curopt == MENU_LOAD) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_LOADOUT", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				
@@ -1709,11 +1715,13 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 						UpdateMenuPosition(MENU_SPELLTREE_FIRST + boxid - MBOX_1);
 					else if(boxid == MBOX_1 + MAX_SKILL_TREES)
 						UpdateMenuPosition(MENU_SPELL_HOTBAR);
+					else if(boxid == MBOX_2 + MAX_SKILL_TREES)
+						UpdateMenuPosition(MENU_SPELL_GEMS);
 				}
 				else if(HasPressedLeft(pnum))
 					ReturnToMain();
 			}
-			else if(curopt == MENU_SPELL_HOTBAR) {
+			else if(curopt == MENU_SPELL_HOTBAR || curopt == MENU_SPELL_GEMS) {
 				// Only the page change is the server's business here. The picker is clientside state --
 				// see HandleSpellHotbarPick -- and the bind arrives as its own puke to "DnD Bind Hotbar".
 				if(HasPlayerClicked(pnum)) {

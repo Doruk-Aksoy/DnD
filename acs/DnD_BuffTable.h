@@ -64,6 +64,10 @@ enum {
     BTI_SPELL_HATRED_CRIT,
     BTI_SPELL_SHIVERINGARMOR,
     BTI_SPELL_SHIVERINGARMOR_ARMOR,
+    BTI_SPELL_WRATH,
+    BTI_SPELL_WRATH_OVERLOAD,
+    BTI_SPELL_WRATH_GROUNDED,
+    BTI_SPELL_GALVANICSURGE_HASTE,
 
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
@@ -699,6 +703,42 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
         // Its armor, which only the Ice Shield synergy grants. Heat Shield's shape.
         case BTI_SPELL_SHIVERINGARMOR_ARMOR:
             btype = BUFF_ARMORFLAT;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Wrath, Anger's lightning twin: whole percent more lightning damage.
+        case BTI_SPELL_WRATH:
+            btype = BUFF_LIGHTNINGDAMAGEDEALT;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect * 1.0 / 100;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Its base overload chance, flat percent.
+        case BTI_SPELL_WRATH_OVERLOAD:
+            btype = BUFF_OVERLOADCHANCE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Its rank 10: overload on the holder lasts this percent less.
+        case BTI_SPELL_WRATH_GROUNDED:
+            btype = BUFF_OVERLOADTAKENLESS;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Galvanic Surge rank 10: percent spell haste.
+        case BTI_SPELL_GALVANICSURGE_HASTE:
+            btype = BUFF_SPELLHASTE;
             bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
             bvalue = inc_effect;
             bduration = new_duration;

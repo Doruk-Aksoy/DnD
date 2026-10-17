@@ -22,7 +22,7 @@ Actor Spell_ChillingBreath : DnD_Spell {
 		Fly:
 			// A_CountDown is what makes the row's reach real: the 24 frame run alone flew 576 units
 			// whatever SPELLVAL_RADIUS said, and REACTIONTIME was written but never read.
-			CLSM ABCDEFGHIJKLMNOPQRSTUVWX 1 Bright
+			CLSM ABCDEFGHIJKLMNOPQRSTUVWX 1 Bright A_CountDown
 		Stop
 		Death:
 			"####" "#" 1 Bright A_FadeOut(0.09)

@@ -192,6 +192,7 @@ void ResetUniqueCraftingItemList() {
 #include "DnD_InventoryWeights.h"
 #include "DnD_Armor.h"
 #include "DnD_Flasks.h"
+#include "DnD_Gems.h"
 #include "DnD_SpecialtyItem.h"
 #include "DnD_InvGeneric.h"
 
@@ -1860,6 +1861,7 @@ void DrawInventoryText(
 	bool showModTiers = GetCVar("dnd_detailedmods");
 	bool showModTags = GetCVar("dnd_showmodtags");
 	bool isUnique = false;
+	bool isGem = false;
 
 	str tmp_text;
 	str unique_creator = "";
@@ -1947,6 +1949,11 @@ void DrawInventoryText(
 				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2 + ITEMID_SKIP, CR_WHITE, bx, by, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 			);
 		}
+		else if(itype == DND_ITEM_GEM) {
+			HudMessage(s:"\c[Y5]", s:GetGemFullName(isubt, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, topboxid, 0, source));
+				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2 + ITEMID_SKIP, CR_WHITE, bx, by, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+			);
+		}
 		else if(itype <= UNIQUE_BEGIN) {
 			HudMessage(s:"\c[Y5]", l:GetItemTagName(itype, isubt); 
 				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2 + ITEMID_SKIP, CR_WHITE, bx, by, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
@@ -1964,14 +1971,16 @@ void DrawInventoryText(
 			HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetItemTagName(temp, isubt); HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 3 + ITEMID_SKIP, CR_WHITE, bx, by + 8.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		}
 		
+		// A gem has no level or quality; the lines still draw, blank, so the last item's numbers cannot linger.
+		isGem = !isUnique && itype == DND_ITEM_GEM;
 		val = GetLevel() < lvl ? CR_RED : CR_WHITE;
-		HudMessage(l:"DND_LEVEL_HEADER", s:": ", d:lvl; 
+		HudMessage(s:isGem ? "" : StrParam(l:"DND_LEVEL_HEADER", s:": ", d:lvl); 
 			HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 4 + ITEMID_SKIP, val, GetIntegerBits(bx - HUD_ITEMBAK_XF / 2 - 36.0) + 0.1, by, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
 
 		// quality -- non-stacking item so
 		val = GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, topboxid, -1, source);
-		HudMessage(s:"\c[Q2]Q: ", d:val, s:"%";
+		HudMessage(s:isGem ? "" : StrParam(s:"\c[Q2]Q: ", d:val, s:"%");
 			HUDMSG_PLAIN | HUDMSG_FADEOUT, 
 			id_begin - id_mult * MAX_INVENTORY_BOXES - 18 + ITEMID_SKIP, 
 			CR_GREEN, 
@@ -1991,7 +2000,9 @@ void DrawInventoryText(
 		)
 		{
 			tmp_text = "";
-			for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+			if(isGem)
+				tmp_text = GetGemEffectText(isubt, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, topboxid, 0, source));
+			for(i = 0; i < MAX_ITEM_IMPLICITS && !isGem; ++i) {
 				temp = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, topboxid, i, source);
 				if(temp != -1) {
 					tmp_text = StrParam(s:tmp_text,
@@ -2107,6 +2118,8 @@ void DrawInventoryText(
 					s:"\n", s:GetDungeonMonsterTypeString(isubt)
 				);
 			}
+			else if(isGem)
+				tmp_text = StrParam(s:tmp_text, s:"\c[K9]", l:"DND_GEM_HINT");
 
 			item_vsync_data.isDirty = false;
 			item_vsync_data.last_text_mode = showModTiers;
@@ -2247,6 +2260,8 @@ str GetItemDropClass(int itype, int stype) {
 		droptype = GetFlaskDropClass(stype);
 	else if(itype == DND_ITEM_DUNGEONKEY)
 		droptype = GetInventoryName(GetDungeonKeyInventoryId(stype));
+	else if(itype == DND_ITEM_GEM)
+		droptype = GetGemDropClass(stype);
 	return droptype;
 }
 
@@ -2434,7 +2449,8 @@ bool IsInventoryCorrupted(int pnum, int item_id) {
 
 // will count crafting materials the player has currently in their inventory
 // this populates an array of fixed order crafting materials for use
-int CountCraftingMaterials(bool countTokens) {
+// countGems lists every gem on its own after the orbs, for Transmutia: gems of one kind still differ by role.
+int CountCraftingMaterials(bool countTokens, bool countGems = false) {
 	int pnum = PlayerNumber();
 	int res = 0;
 	for(int i = 0; i < MAX_INVENTORY_BOXES; ++i) {
@@ -2450,13 +2466,15 @@ int CountCraftingMaterials(bool countTokens) {
 			}
 		}
 	}
+	if(countGems)
+		res += GetInventoryGemCount(pnum);
 	return res;
 }
 
 // problem is this: say 8 orbs 5 elixirs, first page draws 12, next page requires next current is 12
 // but this counts per item type, and per item type count will never make it to 12...
 // soln: just count everything regardless, level order in inventory
-int GetNextUniqueCraftableMaterial(int current, bool countTokens) {
+int GetNextUniqueCraftableMaterial(int current, bool countTokens, bool countGems = false) {
 	int pnum = PlayerNumber();
 	int res = 0;
 	int lim = DND_MAX_ORB_KINDS + countTokens * DND_MAX_TOKEN_KINDS;
@@ -2468,6 +2486,10 @@ int GetNextUniqueCraftableMaterial(int current, bool countTokens) {
 				return UniqueCraftingItemList[i];
 		}
 	}
+
+	// The gems follow the grouped materials, one entry each.
+	if(countGems && current - res < GetInventoryGemCount(pnum))
+		return GetInventoryGemBox(pnum, current - res);
 	return -1;
 }
 
@@ -4289,6 +4311,7 @@ Script "DnD Load Inventory Attributes" OPEN {
 		SetupArmorDropWeights();
 		Delay(const:5);
 		SetupFlaskDropWeights();
+		SetupGemDropWeights();
 		SetupTokenDropWeights();
 		Delay(const:10);
 		SetupModTierProfiles();
@@ -4320,7 +4343,7 @@ Script "DnD Load Inventory Attributes" OPEN {
 		// A tic to itself on BOTH sides. SetupPerkTable is a table build in the same weight class as
 		// SetupInventoryAttributeTable, and the delays are written here rather than left to whatever
 		// its neighbours happen to use, so reordering this block cannot quietly pair two builds in one
-		// tic. See the bytecode sizes in .claude/notes/dnd-perk-rework.md.
+		// tic.
 		Delay(const:1);
 		SetupPerkTable();
 		Delay(const:1);
@@ -4350,6 +4373,7 @@ Script "DnD Load Inventory Attributes - CS" OPEN CLIENTSIDE {
 		SetupArmorDropWeights();
 		Delay(const:5);
 		SetupFlaskDropWeights();
+		SetupGemDropWeights();
 		SetupTokenDropWeights();
 		Delay(const:10);
 		SetupModTierProfiles();
@@ -4361,7 +4385,7 @@ Script "DnD Load Inventory Attributes - CS" OPEN CLIENTSIDE {
 		// A tic to itself on BOTH sides. SetupPerkTable is a table build in the same weight class as
 		// SetupInventoryAttributeTable, and the delays are written here rather than left to whatever
 		// its neighbours happen to use, so reordering this block cannot quietly pair two builds in one
-		// tic. See the bytecode sizes in .claude/notes/dnd-perk-rework.md.
+		// tic.
 		Delay(const:1);
 		SetupPerkTable();
 		Delay(const:1);

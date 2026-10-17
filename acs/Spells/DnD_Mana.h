@@ -56,10 +56,18 @@ int GetPlayerManaRegen(int pnum) {
 		pbuffs[pnum].buff_net_values[BUFF_MANAREGEN].additive) / 100);
 }
 
-// R = Base% / (100% + IncEfficiency%), per the design formula.
+// R = Base% / (100% + IncEfficiency%), per the design formula. A gem can make any spell reserve, and raise a reservation.
 int GetManaReservationOf(int pnum, int spell) {
-	int base = GetSpellValue(pnum, spell, SPELLVAL_COST) >> 16;
-	return base * 100 / (100 + PlayerModData[pnum].vals[PSTAT_MANARESERVE_EFF]);
+	int base = GetSpellGemMod(pnum, spell, GEMSTAT_RESERVE_ADD);
+	if(SpellDefs[spell].flags & SPLF_RESERVES)
+		base += GetSpellValue(pnum, spell, SPELLVAL_COST) >> 16;
+	base = ApplySpellGemMore(pnum, spell, GEMSTAT_MORE_RESERVE, base);
+	return base * 100 / (100 + PlayerModData[pnum].vals[PSTAT_MANARESERVE_EFF] + GetSpellGemMod(pnum, spell, GEMSTAT_RESERVE_EFF));
+}
+
+// Holding a reservation right now: a reserving spell, or one a gem makes reserve, learned and switched on.
+bool SpellReservesMana(int pnum, int spell) {
+	return ((SpellDefs[spell].flags & SPLF_RESERVES) || GetSpellGemMod(pnum, spell, GEMSTAT_RESERVE_ADD)) && IsSpellActive(pnum, spell);
 }
 
 // Auras hold a percentage of the cap rather than a flat amount, so this is recomputed rather than
@@ -67,7 +75,7 @@ int GetManaReservationOf(int pnum, int spell) {
 int GetReservedMana(int pnum) {
 	int i, pct = 0;
 	for(i = 0; i < MAX_SPELL_IDS; ++i) {
-		if(!(SpellDefs[i].flags & SPLF_RESERVES) || !IsSpellActive(pnum, i))
+		if(!SpellReservesMana(pnum, i))
 			continue;
 		pct += GetManaReservationOf(pnum, i);
 	}
@@ -123,7 +131,12 @@ void GiveMana(int pnum, int amt) {
 bool CanAffordSpell(int pnum, int spell) {
 	if(SpellDefs[spell].flags & (SPLF_PASSIVE | SPLF_RESERVES))
 		return true;
-	return GetPlayerMana(pnum) >= (GetSpellValue(pnum, spell, SPELLVAL_COST) >> 16);
+
+	// Haemocrafter: the final cost in life at its multiplier, and never with the last point of health.
+	int cost = GetSpellValue(pnum, spell, SPELLVAL_COST) >> 16, life = GetSpellGemMod(pnum, spell, GEMSTAT_LIFECOST);
+	if(life)
+		return GetActorProperty(pnum + P_TIDSTART, APROP_HEALTH) > cost * life / 100;
+	return GetPlayerMana(pnum) >= cost;
 }
 
 // Returns false without spending when the player cannot pay, so the cast site can simply bail.
@@ -134,6 +147,17 @@ bool SpendSpellMana(int pnum, int spell, int pct = 100) {
 		return true;
 
 	int cost = (GetSpellValue(pnum, spell, SPELLVAL_COST) >> 16) * pct / 100;
+
+	// Haemocrafter pays through DegenPlayer, the never lethal upkeep path Boiling Blood uses.
+	int life = GetSpellGemMod(pnum, spell, GEMSTAT_LIFECOST);
+	if(life) {
+		life = cost * life / 100;
+		if(GetActorProperty(pnum + P_TIDSTART, APROP_HEALTH) <= life)
+			return false;
+		DegenPlayer(pnum, life);
+		return true;
+	}
+
 	if(GetPlayerMana(pnum) < cost)
 		return false;
 
@@ -146,7 +170,7 @@ bool SpendSpellMana(int pnum, int spell, int pct = 100) {
 void ValidateAuraReservations(int pnum) {
 	int i, pct = 0, r;
 	for(i = 0; i < MAX_SPELL_IDS; ++i) {
-		if(!(SpellDefs[i].flags & SPLF_RESERVES) || !IsSpellActive(pnum, i))
+		if(!SpellReservesMana(pnum, i))
 			continue;
 
 		r = GetManaReservationOf(pnum, i);

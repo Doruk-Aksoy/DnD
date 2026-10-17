@@ -260,8 +260,8 @@ int ButtonFrameCounts[MAX_TIMED_BUTTONS] = { 3, 3, 3 };
 // Must reach the LAST page in the enum -- LoadRect indexes bp[] by menu page, so a bound that
 // stops short means LoadPane reads past the end of the table for every page after it.
 #ifndef ISAPRILFIRST
-	#define MENUMAXPAGES (MENU_SPELL_HOTBAR + 1)
-	#define MAX_MENU_BOXPAGES (MENU_SPELL_HOTBAR + 1)
+	#define MENUMAXPAGES (MENU_SPELL_GEMS + 1)
+	#define MAX_MENU_BOXPAGES (MENU_SPELL_GEMS + 1)
 #else
 	#define MENUMAXPAGES (MENU_SHOP_NFT + 1)
 	#define MAX_MENU_BOXPAGES (MENU_SHOP_NFT + 1)
@@ -1967,6 +1967,9 @@ res_info_T module& GetResearchInfo(int page, int resid) {
 				RES_STASHTAB, 9704, 300
 			},
 			{
+				RES_GEMSOCKET2, 5127, 200
+			},
+			{
 				-1, -1, -1
 			}
 		}
@@ -2067,7 +2070,8 @@ str GetResearchIcon(int page, int res) {
 			3,
 			4,
 			30,
-			56
+			56,
+			67
 		}
 	};
 	return StrParam(s:"RESBAK", d:ResearchIcons[page][res]);

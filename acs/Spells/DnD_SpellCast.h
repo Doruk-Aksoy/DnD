@@ -43,13 +43,17 @@ spell_cooldown_T module& GetSpellCooldowns() {
 
 int GetSpellCooldownRate(int pnum, int spell) {
 	return (GetSpellValue(pnum, spell, SPELLVAL_CDR) >> 16) + PlayerModData[pnum].vals[PSTAT_SPELL_CDR] +
-		pbuffs[pnum].buff_net_values[BUFF_SPELLCDR].additive;
+		pbuffs[pnum].buff_net_values[BUFF_SPELLCDR].additive + GetSpellGemMod(pnum, spell, GEMSTAT_CDR);
 }
+
+#define DND_FORKED_R5_COOLDOWNCUT (3 * TICRATE)
 
 // FinalCD = Cooldown / (1 + Rate/100), floored by the 75% ceiling. Rate is the only shrinking term
 // in the whole system and it is asymptotic, so the floor is a design cap rather than a safety one.
 int GetSpellCooldownTics(int pnum, int spell) {
 	int cd = (GetSpellValue(pnum, spell, SPELLVAL_COOLDOWN) * TICRATE) >> 16;
+	if(spell == SPL_FORKEDLIGHTNING && SpellThresholdMet(pnum, spell, DND_SPELL_THRESH_LOW))
+		cd -= DND_FORKED_R5_COOLDOWNCUT;
 	if(cd <= 0)
 		return 0;
 
@@ -64,11 +68,16 @@ int GetSpellCastTics(int pnum, int spell) {
 	if(ct <= 0)
 		return 0;
 
-	int haste = PlayerModData[pnum].vals[PSTAT_SPELL_HASTE];
-	if(haste <= 0)
-		return ct;
+	int haste = PlayerModData[pnum].vals[PSTAT_SPELL_HASTE] + GetSpellGemMod(pnum, spell, GEMSTAT_HASTE) + pbuffs[pnum].buff_net_values[BUFF_SPELLHASTE].additive;
+	if(haste > 0)
+		ct = ct * 100 / (100 + haste);
 
-	return Max(1, ct * 100 / (100 + haste));
+	// MORE haste multiplies casts per second after the additive pool, so it divides the interval.
+	int more = GetSpellGemMod(pnum, spell, GEMSTAT_MORE_HASTE);
+	if(more)
+		ct = FixedDiv(ct, 1.0 + more);
+
+	return Max(1, ct);
 }
 
 // How many casts a spell banks before it has to wait. Each charge runs its own cooldown, so two
@@ -77,7 +86,7 @@ int GetSpellCastTics(int pnum, int spell) {
 
 int GetSpellMaxCharges(int pnum, int spell) {
 	// "Holds two charges, each on its own cooldown."
-	if(spell == SPL_RAINOFFIRE && SpellThresholdMet(pnum, spell, DND_SPELL_THRESH_HIGH))
+	if((spell == SPL_RAINOFFIRE || spell == SPL_SURGECAST) && SpellThresholdMet(pnum, spell, DND_SPELL_THRESH_HIGH))
 		return 2;
 
 	return 1;
@@ -144,6 +153,16 @@ void ReduceSpellCooldown(int pnum, int spell, int cut) {
 		c.at[pnum][spell] -= cut;
 }
 
+// Frees the charge that would come back LAST, so a spent pair gets one back at once and the other keeps running.
+void RecoverSpellCharge(int pnum, int spell) {
+	auto c = GetSpellCooldowns();
+	if(GetSpellMaxCharges(pnum, spell) > 1 && c.atb[pnum][spell] > c.at[pnum][spell])
+		c.atb[pnum][spell] = 0;
+	else
+		c.at[pnum][spell] = 0;
+	SyncHotbarForSpell(pnum, spell);
+}
+
 // Puts the cooldown on a FREE charge rather than on the spell. The first lane is used while it is
 // free so a single charge spell never touches the second; past that the second takes it, and if
 // both are somehow busy the one returning soonest is pushed back.
@@ -159,6 +178,10 @@ void StartSpellCooldown(int pnum, int spell) {
 			c.atb[pnum][spell] = t + cd;
 		else
 			c.at[pnum][spell] = t + cd;
+
+		// What Galvanic Surge gives back, never itself.
+		if(spell != SPL_GALVANICSURGE)
+			SetActorInventory(pnum + P_TIDSTART, "DnD_LastCooldownSpell", spell + 1);
 	}
 
 	// Every bind holding this spell, since one spell may sit on several.
@@ -275,7 +298,7 @@ void SetupSpellActor(int tid, int pnum, int spell) {
 // flat ignores the caster's pitch and sends the shot level along their facing.
 void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags = 0, int angle_off = 0,
 	int side_off = 0, int rtime = 0, int origin = 0, bool flat = false,
-	int zoff = DND_SPELLPROJ_FROMVIEW, int pitch_off = 0, int parent = -1) {
+	int zoff = DND_SPELLPROJ_FROMVIEW, int pitch_off = 0, int parent = -1, int ripper = 0) {
 	int owner = pnum + P_TIDSTART;
 	int from = origin ? origin : owner;
 
@@ -316,6 +339,13 @@ void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags =
 	if(rtime > 0)
 		SetActorProperty(tid, APROP_REACTIONTIME, rtime);
 
+	// A reserved ripper id + 1, stamped at once: a cast spawning several attacks in one tic keeps them apart.
+	// Unlimited rips with it, as an unset DnD_RipLimit reads as 0 and strips the ripper on its first hit.
+	if(ripper) {
+		SetActorInventory(tid, "DnD_RipperId", ripper);
+		SetActorInventory(tid, "DnD_RipLimit", MAX_RIPCOUNT);
+	}
+
 	Thing_ChangeTID(tid, 0);
 
 	bcs::free(vProj);
@@ -344,6 +374,21 @@ int FanOffset(int index, int step) {
 
 	int pair = (index + 1) / 2;
 	return (index & 1) ? pair * step : -pair * step;
+}
+
+// "+X projectiles" for a spell, from its gems. What X means per spell shape (more shots, more per volley, more
+// spawners) is decided at each cast; see dnd-gems-plan.md.
+int GetSpellExtraProjectiles(int pnum, int spell) {
+	return GetSpellGemMod(pnum, spell, GEMSTAT_EXTRAPROJ);
+}
+
+#define DND_SPELL_FANSPREAD 0.02	// a turn fraction, about 7 degrees, between fanned extra projectiles
+
+// A direct projectile spell's cast: its one projectile, plus one per "+X projectiles", fanned around the aim.
+void SpawnSpellFan(int pnum, int spell, str actor, int speed) {
+	int n = 1 + GetSpellExtraProjectiles(pnum, spell);
+	for(int i = 0; i < n; ++i)
+		SpawnSpellProjectile(pnum, spell, actor, speed, 0, FanOffset(i, DND_SPELL_FANSPREAD));
 }
 
 // ---- summon placement ---------------------------------------------------------------------
@@ -572,7 +617,7 @@ int FindHitscanVictim(int pufftid) {
 
 	for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
 		i = UsedMonsterTIDs[mn];
-		if(!IsActorAlive(i) || !CheckFlag(i, "SHOOTABLE"))
+		if(!IsActorAlive(i) || !IsSpellEnemy(i))
 			continue;
 
 		// A cylinder, because that is the shape of a Doom hitbox -- and because a straight fdistance
@@ -763,9 +808,22 @@ int TryCastSpell(int pnum, int spell) {
 	if(!SpendSpellMana(pnum, spell))
 		return CAST_NOMANA;
 
+	// Magus: a chance to get the cost back, unreduced.
+	res = GetSpellGemMod(pnum, spell, GEMSTAT_MAGUS);
+	if(res && random(1, 100) <= res)
+		GiveMana(pnum, GetSpellUnreducedCost(pnum, spell));
+
 	StartSpellCooldown(pnum, spell);
 	ACS_NamedExecuteAlways("DnD Spell Cast", 0, spell, pnum);
 	return CAST_OK;
+}
+
+// The cost with a net "less mana cost" from gems undone; penalties stay, since they are not reductions.
+int GetSpellUnreducedCost(int pnum, int spell) {
+	int c = GetSpellValue(pnum, spell, SPELLVAL_COST), m = GetSpellGemMod(pnum, spell, GEMSTAT_MORE_COST);
+	if(m < 0)
+		c = FixedDiv(c, 1.0 + m);
+	return c >> 16;
 }
 
 int TryCastHotbarSlot(int pnum, int slot) {

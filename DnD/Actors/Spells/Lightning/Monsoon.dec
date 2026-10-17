@@ -1,0 +1,111 @@
+// Monsoon's falling bolt, one of the four MNBT frames; ACS stretches it from the clouds down to the ground.
+Actor Spell_Monsoon_Bolt {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 1.0
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_Jump(256, "B1", "B2", "B3", "B4")
+		B1:
+			MNBT A 0
+		Goto Strike
+		B2:
+			MNBT B 0
+		Goto Strike
+		B3:
+			MNBT C 0
+		Goto Strike
+		B4:
+			MNBT D 0
+		Goto Strike
+		Strike:
+			"####" "#" 2 Bright Light("MonsoonStrike1")
+			"####" "#" 1 Bright Light("MonsoonStrike2") A_SetTranslucent(0.45, 1)
+			"####" "#" 2 Bright Light("MonsoonStrike1") A_SetTranslucent(1.0, 1)
+		Fade:
+			"####" "#" 1 Bright A_FadeOut(0.14)
+		Loop
+	}
+}
+
+// The flash in the clouds where a bolt leaves them, so the storm lights itself even where the room is dark.
+Actor Spell_Monsoon_CloudFlash {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	+FORCEXYBILLBOARD
+	RenderStyle Add
+	Alpha 0.55
+	Scale 3.0
+	States {
+		Spawn:
+			CLGL A 2 Bright
+			CLGL B 1 Bright
+		Fade:
+			CLGL A 1 Bright A_FadeOut(0.09)
+		Loop
+	}
+}
+
+// A storm cloud of Monsoon's, one of six MNCL storm decks, full bright so it shows in the dark; ACS sizes it.
+// It holds its place round the anchor at its user offsets, which ACS moves to gather and wheel the clouds.
+Actor Spell_Monsoon_Cloud {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Translucent
+	Alpha 0
+	var int user_ox;
+	var int user_oy;
+	var int user_oz;
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_Jump(256, "C1", "C2", "C3", "C4", "C5", "C6")
+		C1:
+			MNCL A 0
+		Goto Gather
+		C2:
+			MNCL B 0
+		Goto Gather
+		C3:
+			MNCL C 0
+		Goto Gather
+		C4:
+			MNCL D 0
+		Goto Gather
+		C5:
+			MNCL E 0
+		Goto Gather
+		C6:
+			MNCL F 0
+		Goto Gather
+		Gather:
+			"####" "#" 1 Bright A_Warp(AAPTR_TARGET, user_ox, user_oy, user_oz, 0, WARPF_ABSOLUTEOFFSET | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_FadeIn(0.03)
+			"####" "#" 0 A_JumpIf(alpha < 0.88, "Gather")
+		Hold:
+			"####" "#" 1 Bright A_Warp(AAPTR_TARGET, user_ox, user_oy, user_oz, 0, WARPF_ABSOLUTEOFFSET | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+		Loop
+		Clear:
+			"####" "#" 1 Bright A_FadeOut(0.03)
+		Loop
+	}
+}
+
+// The point Monsoon's clouds keep their places round: on the target while it lives, where it fell after.
+Actor Spell_Monsoon_CloudAnchor {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	States {
+		Spawn:
+			TNT1 A -1
+		Stop
+	}
+}

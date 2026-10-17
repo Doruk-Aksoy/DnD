@@ -15,6 +15,7 @@ enum {
 
     DND_MONSTERLOOT_TOKEN,
     DND_MONSTERLOOT_DUNGEONKEY,
+    DND_MONSTERLOOT_GEM,
 
     DND_MONSTERLOOT_COUNT
 };
@@ -42,7 +43,8 @@ int[] module& GetLootDropWeights() {
         24,
 
         20,
-        5
+        5,
+        4       // gems, and only from monster level DND_GEM_MINLEVEL up
     };
 
     return loot_weights;

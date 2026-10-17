@@ -572,6 +572,9 @@ str GetItemTagName(int itype, int isubt) {
 
 		case DND_ITEM_DUNGEONKEY:
 		return GetDungeonKeyTagLump(isubt);
+
+		case DND_ITEM_GEM:
+		return StrParam(s:"DND_GEM", d:GetGemIndex(isubt) + 1);
 	}
 	return "NULL";
 }

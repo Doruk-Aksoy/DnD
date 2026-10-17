@@ -5,6 +5,8 @@ const int CREEPINGFROST_PPS = 5;
 Actor Spell_CreepingFrost : DnD_Spell {
 	PROJECTILE
 	+DONTBLAST
+	// "Cannot stagger enemies": the impact as well as the crawl.
+	+PAINLESS
 	+BloodlessImpact
 	Speed 28
 	Radius 8
@@ -40,6 +42,7 @@ Actor Spell_CreepingFrost_Crawl : DnD_Spell {
 	+SEEKERMISSILE
 	+THRUACTORS
 	BounceType Hexen
+	// The script sets the real speed from SPELLVAL_AMOUNT; this is only until it does.
 	// ISSPELL | ISRADIUSDMG | ISDAMAGEOVERTIME. The last stops the pulse rolling crit.
 	Stamina 65546
 	Speed 4

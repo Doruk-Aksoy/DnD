@@ -3,7 +3,7 @@
 
 #include "../DnD_SkillDef.h"
 
-// Every tree owns a fixed BLOCK of ids -- tree N holds N*32 .. N*32+31 -- rather than the trees
+// Every tree owns a fixed BLOCK of ids -- tree N holds N*40 .. N*40+39 -- rather than the trees
 // sharing one densely packed space. Most of those slots are empty, and that is the point.
 //
 // An id is a spell's permanent address. Its LANGUAGE lumps are keyed by it (DND_SPLNAME<id>), its
@@ -15,7 +15,7 @@
 // So: append inside the relevant block. The only thing that still shifts is inserting BEFORE an
 // existing spell in the same block, which there is no reason to do -- the tree's on-screen layout
 // comes from tx/ty on the def, not from id order.
-#define DND_SPELLS_PER_TREE 32
+#define DND_SPELLS_PER_TREE 40	// the tree page's ceiling: its labels run RANK_ID + 1..40, its nodes NODE_ID + 1..40
 #define MAX_SPELL_IDS (DND_SPELLS_PER_TREE * (DND_SKILLTREE_COMBAT + 1))
 
 // First id of a tree's block. A tree's spells run from here upward.
@@ -67,10 +67,32 @@ enum {
 	SPL_ICESPEAR,
 	SPL_GLACIALCASCADE,
 	SPL_SHIVERINGARMOR,
-	SPL_AVALANCHE
+	SPL_AVALANCHE,
+
+	// ---- Lightning ----
+	SPL_CHARGEDBOLT = DND_SKILLTREE_LIGHTNING * DND_SPELLS_PER_TREE,
+	SPL_SPARK,
+	SPL_LIGHTNINGSPEAR,
+	SPL_SHOCK,
+	SPL_TELEKINESIS,
+	SPL_STATICFIELD,
+	SPL_FORKEDLIGHTNING,
+	SPL_CRACKLINGLANCE,
+	SPL_BLINK,
+	SPL_OVERCHARGE,
+	SPL_ENERGYBLADE,
+	SPL_CONDUCTIVITY,
+	SPL_CHAINLIGHTNING,
+	SPL_STORMBRAND,
+	SPL_WRATH,
+	SPL_GALVANICSURGE,
+	SPL_MONSOON,
+	SPL_THUNDERCLAP,
+	SPL_STORMCALL,
+	SPL_SURGECAST
 };
 
-// Which numbers a spell carries. DAMAGE, DAMAGE2, RADIUS and AMOUNT are plain integers; COST,
+// Which numbers a spell carries. The DAMAGE, RADIUS and AMOUNT fields are plain integers; COST,
 // COOLDOWN, CASTTIME, DURATION and CDR are 16.16 -- seconds for the times, mana for the cost,
 // percent for the rate. Times convert with (v * TICRATE) >> 16 at the point of use.
 enum {
@@ -83,6 +105,9 @@ enum {
 	SPELLVAL_RADIUS,
 	SPELLVAL_AMOUNT,
 	SPELLVAL_CDR,
+	SPELLVAL_DAMAGEMIN,		// a ranged DAMAGE's low end; it takes DAMAGE's synergies
+	SPELLVAL_DAMAGE2MIN,	// and DAMAGE2's
+	SPELLVAL_AMOUNT2,
 	SPELLVAL_MAX
 };
 
@@ -97,7 +122,20 @@ enum {
 	SPLF_RESERVES		= 128,		// COST is a reservation percent, not a spend
 	SPLF_REQ_ANY		= 256,		// the requirement list is OR rather than AND
 	SPLF_ALLYTARGET		= 512,		// soft locks onto an ally while the cast runs
-	SPLF_SUPPORT		= 1024		// self or ally only; nothing hostile happens when it is cast
+	SPLF_SUPPORT		= 1024,		// self or ally only; nothing hostile happens when it is cast
+
+	// Shape tags: what a spell IS, for gems and anything else that must know which modifiers can touch it.
+	// PROJECTILE, CURSE and SUMMON above are shape tags too.
+	SPLF_AOE			= 2048,		// affects an area: a radius, a zone, a cone or an aura's reach
+	SPLF_DURATION		= 4096,		// leaves something timed behind: a zone, a buff or debuff, a burn
+	SPLF_DOT			= 8192,		// deals damage over time
+	SPLF_TOGGLE			= 16384,	// switched on and off, paying upkeep while it runs
+	SPLF_RIDER			= 32768,	// empowers the caster's next attack instead of acting itself
+	SPLF_HEAL			= 65536,	// restores life
+	SPLF_TRAP			= 131072,	// placed, and goes off when an enemy comes near
+	SPLF_MOVE			= 262144,	// moves the caster
+	SPLF_CHAIN			= 524288,	// jumps from target to target
+	SPLF_NOCOST			= 1048576	// an active spell that costs nothing to cast
 };
 
 #define DND_SPELL_RANKCAP 10
@@ -112,7 +150,7 @@ enum {
 // Ranks now ladder up to a level cap, and damage-like fields take a compounding multiplier on top
 // of the linear step. The growth rises with req_level, so a late spell climbs harder than an early
 // one -- that direction is deliberate: it widens the gap to the capstones instead of closing it,
-// which is what keeps Blaze from ever approaching Annihilus. See .claude/notes/dnd-spell-scaling.md.
+// which is what keeps Blaze from ever approaching Annihilus.
 #define DND_SPELL_RANKSPAN 40		// levels from unlock to rank 10, before the cap bites
 #define DND_SPELL_MAXREQLEVEL 83	// no rank may ever ask for more than this
 #define DND_SPELL_TOPREQLEVEL 52	// highest req_level in any tree, the growth ramp's far end
@@ -140,6 +178,8 @@ typedef struct {
 	int flags;
 	int scale_mask;						// which SPELLVAL_* fields take the rank curve, as 1 << field
 	int drain_mask;						// fields that are a SELF cost in health, on the gentler curve
+	int even_mask;						// fields that step once per two ranks: +per_rank at rank 2, 4, ...
+	int flat_mask;						// COST kept off the cost curve, so a cut per rank stays a cut
 	int tx;								// authored position in tree space
 	int ty;
 } spell_def_T;
@@ -153,7 +193,6 @@ int GetSpellMaxLevel(int spell) {
 }
 
 // Front loaded, half linear half quadratic: cheap early ranks, dear late ones. Endpoints unchanged.
-// See .claude/notes/dnd-spell-scaling.md.
 int GetSpellRankLevelReq(int spell, int rank) {
 	if(rank <= 1)
 		return SpellDefs[spell].req_level;
@@ -222,10 +261,11 @@ typedef struct {
 	int field;
 	int per_rank;
 	int flags;
+	int step;		// source ranks per payout: 2 pays once every two ranks
 } spell_syn_T;
 
 // target is stored +1, so the first zero row ends the list and no separate count is needed.
-#define MAX_SPELL_SYNERGIES 96
+#define MAX_SPELL_SYNERGIES 192
 global spell_syn_T 48: SpellSynergies[MAX_SPELL_SYNERGIES];
 
 // ---- per player, persistent ------------------------------------------------------------------
@@ -238,14 +278,165 @@ global spell_syn_T 48: SpellSynergies[MAX_SPELL_SYNERGIES];
 #define HOTBAR_EMPTY 0
 #define SPELL_AURA_INTS (MAX_SPELL_IDS / 32)
 
+// Gem sockets: the first opens at allocated rank 4, the second with it once RES_GEMSOCKET2 is done.
+#define DND_SPELL_MAXSOCKETS 2
+#define DND_SPELL_SOCKETRANK 4
+#define SPELL_SOCKET_INTS (MAX_SPELL_IDS * DND_SPELL_MAXSOCKETS)
+
 typedef struct {
 	int ranks[SPELL_RANK_INTS];
 	int hotbar[MAX_HOTBAR_SLOTS];
 	int aura_on[SPELL_AURA_INTS];
 	int unspent;
+	int sockets[SPELL_SOCKET_INTS];		// spell * DND_SPELL_MAXSOCKETS + slot; see MakeSocketValue
 } spell_player_T;
 
 global spell_player_T 45: SpellPlayerData[MAXPLAYERS];
+
+// ---- per player, per spell: gem modifiers ----------------------------------------------------
+// A cache rebuilt from a spell's sockets whenever they change; the sockets are what gets saved.
+enum {
+	// MORE terms: the product minus one, in 16.16, so an empty row means no change. A "less" is negative.
+	GEMSTAT_MORE_DAMAGE,
+	GEMSTAT_MORE_HITDAMAGE,
+	GEMSTAT_MORE_DOTDAMAGE,
+	GEMSTAT_MORE_COST,
+	GEMSTAT_MORE_HASTE,
+	GEMSTAT_MORE_DURATION,
+	GEMSTAT_MORE_AREA,
+	GEMSTAT_MORE_RESERVE,		// mana reservation
+	GEMSTAT_MORE_MINIONLIFE,
+	GEMSTAT_MORE_MINIONDAMAGE,
+	GEMSTAT_MORE_HEALING,
+	GEMSTAT_MORE_CURSE,			// curse effect
+	GEMSTAT_MORE_LOWLIFE,		// damage to targets on low life
+	// Additive terms, each in the unit its hook already uses.
+	GEMSTAT_HASTE,				// percent, beside PSTAT_SPELL_HASTE
+	GEMSTAT_CDR,				// percent cooldown recovery rate
+	GEMSTAT_CRITCHANCE,			// 16.16, 0.01 is 1%
+	GEMSTAT_CRITMULT,			// percent
+	GEMSTAT_RESERVE_EFF,		// percent reservation efficiency
+	GEMSTAT_EXTRAPROJ,
+	GEMSTAT_IGNITECHANCE,		// the four ailment chances: percent, rolled on any element
+	GEMSTAT_CHILLCHANCE,
+	GEMSTAT_POISONCHANCE,
+	GEMSTAT_OVERLOADCHANCE,
+	GEMSTAT_BLEEDCHANCE,
+	GEMSTAT_LEECH,				// tenths of a percent of damage dealt, as life
+	GEMSTAT_PENETRATION,		// percent resistance penetration
+	GEMSTAT_CANCULL,			// non zero: the spell's hits can cull
+	GEMSTAT_CULLRANGE,			// percent added to the cull range
+	GEMSTAT_MAGUS,				// percent chance to get the unreduced cost back on casting
+	GEMSTAT_ARCHMAGE,			// percent of unreserved mana added as lightning damage
+	GEMSTAT_ELUSIVE,			// percent chance on a crit to gain Elusive
+	GEMSTAT_REPEAT,				// extra casts
+	GEMSTAT_FREEPARRY,			// tics after casting in which a parry is free
+	GEMSTAT_STAMINAREGEN,		// percent faster stamina recovery after casting
+	GEMSTAT_ENDURANCECHANCE,	// percent chance to gain a charge: on stagger, on chill or freeze, on crit
+	GEMSTAT_FRENZYCHANCE,
+	GEMSTAT_POWERCHANCE,
+	GEMSTAT_ENDURANCEDAMAGE,	// percent more damage per charge of that kind
+	GEMSTAT_FRENZYDAMAGE,
+	GEMSTAT_POWERDAMAGE,
+	GEMSTAT_PASSIVE_EFFECT,		// percent increased passive effect
+	GEMSTAT_RESERVE_ADD,		// percent of mana the spell reserves while active
+	GEMSTAT_LIFECOST,			// percent of the final mana cost paid in life instead; 0 pays mana
+	GEMSTAT_NECRO,				// percent chance a slain minion returns
+	MAX_GEMSTATS
+};
+#define LAST_GEMSTAT_MORE GEMSTAT_MORE_LOWLIFE
+#define GEMSTAT_ROWMASK MAX_GEMSTATS			// two words: a bit per stat the row holds, so syncs and resets skip the rest
+#define GEMSTAT_ROWPREV (MAX_GEMSTATS + 2)		// the mask before a rebuild, so the sync also covers what it cleared
+#define GEMSTAT_ROWSIZE (MAX_GEMSTATS + 4)
+
+global int 40: SpellGemMods[MAXPLAYERS][MAX_SPELL_IDS][GEMSTAT_ROWSIZE];
+
+int GetSpellGemMod(int pnum, int spell, int stat) {
+	return SpellGemMods[pnum][spell][stat];
+}
+
+// v under one MORE term, rounded: 0.15 is 9830 in 16.16, and a truncated 100 tics x 1.15 came out 114.
+int ApplySpellGemMore(int pnum, int spell, int stat, int v) {
+	int m = SpellGemMods[pnum][spell][stat];
+	return m ? FixedMulRound(v, 1.0 + m) : v;
+}
+
+// MORE area scales AREA, so a radius takes the root of it.
+int ApplySpellGemArea(int pnum, int spell, int r) {
+	int m = SpellGemMods[pnum][spell][GEMSTAT_MORE_AREA];
+	return m ? FixedMulRound(r, fsqrt(1.0 + m)) : r;
+}
+
+bool GemRowHasBit(int pnum, int spell, int base, int stat) {
+	return !!(SpellGemMods[pnum][spell][base + (stat >> 5)] & (1 << (stat & 31)));
+}
+
+// One gem term into a spell's row: additive terms add, MORE terms multiply, so two Rubies are 1.15 x 1.15.
+void AddSpellGemMod(int pnum, int spell, int stat, int val) {
+	int cur = SpellGemMods[pnum][spell][stat];
+	if(stat <= LAST_GEMSTAT_MORE)
+		cur += val + FixedMul(cur, val);
+	else
+		cur += val;
+
+	SpellGemMods[pnum][spell][stat] = cur;
+	int w = GEMSTAT_ROWMASK + (stat >> 5);
+	if(cur)
+		SpellGemMods[pnum][spell][w] |= 1 << (stat & 31);
+	else
+		SpellGemMods[pnum][spell][w] &= ~(1 << (stat & 31));
+}
+
+// A term that does not stack, set outright: Haemocrafter's life cost keeps the cheapest multiplier socketed.
+void SetSpellGemMod(int pnum, int spell, int stat, int val) {
+	SpellGemMods[pnum][spell][stat] = val;
+	SpellGemMods[pnum][spell][GEMSTAT_ROWMASK + (stat >> 5)] |= 1 << (stat & 31);
+}
+
+// For files ahead of this one in the include order, where the macro is not yet defined.
+bool IsGemStatMore(int stat) {
+	return stat <= LAST_GEMSTAT_MORE;
+}
+
+// A whole percent in the stat's stored unit: 16.16 for the MORE terms and crit chance, as is for the rest.
+int GemStatFromPercent(int stat, int pct) {
+	if(stat <= LAST_GEMSTAT_MORE || stat == GEMSTAT_CRITCHANCE)
+		return (pct << 16) / 100;
+	return pct;
+}
+
+// Remembers the mask before an edit, so EndSpellGemRebuild can sync whatever the edit cleared.
+void SnapshotSpellGemMask(int pnum, int spell) {
+	SpellGemMods[pnum][spell][GEMSTAT_ROWPREV] = SpellGemMods[pnum][spell][GEMSTAT_ROWMASK];
+	SpellGemMods[pnum][spell][GEMSTAT_ROWPREV + 1] = SpellGemMods[pnum][spell][GEMSTAT_ROWMASK + 1];
+}
+
+// Empties a spell's row before its gems are re-added.
+void BeginSpellGemRebuild(int pnum, int spell) {
+	SnapshotSpellGemMask(pnum, spell);
+	for(int i = 0; i < MAX_GEMSTATS; ++i)
+		if(GemRowHasBit(pnum, spell, GEMSTAT_ROWPREV, i))
+			SpellGemMods[pnum][spell][i] = 0;
+	SpellGemMods[pnum][spell][GEMSTAT_ROWMASK] = 0;
+	SpellGemMods[pnum][spell][GEMSTAT_ROWMASK + 1] = 0;
+}
+
+// Sends the owner every stat the row held before or holds now: a global, so the client keeps its own copy.
+void EndSpellGemRebuild(int pnum, int spell) {
+	for(int i = 0; i < MAX_GEMSTATS; ++i)
+		if(GemRowHasBit(pnum, spell, GEMSTAT_ROWPREV, i) || GemRowHasBit(pnum, spell, GEMSTAT_ROWMASK, i))
+			SendOwnerSync("DnD Request Spell Gem Sync", pnum, pnum, spell, i, SpellGemMods[pnum][spell][i]);
+}
+
+// Every row a player holds, for a reset; the mask skips spells without gems.
+void ResetSpellGemMods(int pnum) {
+	for(int s = 0; s < MAX_SPELL_IDS; ++s) {
+		if(SpellGemMods[pnum][s][GEMSTAT_ROWMASK] || SpellGemMods[pnum][s][GEMSTAT_ROWMASK + 1]) {
+			BeginSpellGemRebuild(pnum, s);
+			EndSpellGemRebuild(pnum, s);
+		}
+	}
+}
 
 // ---- accessors -------------------------------------------------------------------------------
 
@@ -346,12 +537,33 @@ int GetForcedSourceRank(int spell, int source) {
 	return 0;
 }
 
+// Rank 5 and 10 bonuses that move a row's number, added before gear so the cast and the tooltip agree.
+int GetSpellThresholdBonus(int spell, int which, int rank) {
+	bool r5 = rank >= DND_SPELL_THRESH_LOW, r10 = rank >= DND_SPELL_THRESH_HIGH;
+	switch(spell) {
+		case SPL_STORMBRAND:
+			return (which == SPELLVAL_AMOUNT && r5) || (which == SPELLVAL_AMOUNT2 && r10) ? 1 : 0;
+		case SPL_MONSOON:
+			return which == SPELLVAL_DURATION && r5 ? 5.0 : 0;
+		case SPL_THUNDERCLAP:
+			return which == SPELLVAL_AMOUNT && r10 ? 1 : 0;
+		case SPL_STORMCALL:
+			return which == SPELLVAL_RADIUS && r5 ? 128 : which == SPELLVAL_DAMAGE2 && r10 ? 25 : 0;
+	}
+	return 0;
+}
+
 int GetSpellValue(int pnum, int spell, int which, int rank_at = 0) {
 	int rank = rank_at ? rank_at : GetSpellRank(pnum, spell, true);
 	if(!rank)
 		return 0;
 
-	int res = SpellDefs[spell].base[which] + (rank - 1) * SpellDefs[spell].per_rank[which];
+	// Blink: no cast time from rank 5, free from rank 10. Here so the cast, the bill and the tooltip agree.
+	if(spell == SPL_BLINK && ((which == SPELLVAL_CASTTIME && rank >= DND_SPELL_THRESH_LOW) || (which == SPELLVAL_COST && rank >= DND_SPELL_THRESH_HIGH)))
+		return 0;
+
+	int steps = (SpellDefs[spell].even_mask & (1 << which)) ? rank / 2 : rank - 1;
+	int res = SpellDefs[spell].base[which] + steps * SpellDefs[spell].per_rank[which];
 
 	// The compounding part of the curve. Only fields the def opted in carry it -- DAMAGE doubles
 	// as a percent or a health figure on plenty of spells, and those must stay linear.
@@ -361,12 +573,16 @@ int GetSpellValue(int pnum, int spell, int which, int rank_at = 0) {
 	// take the full damage rate.
 	else if(SpellDefs[spell].drain_mask & (1 << which))
 		res = ScaleSpellValue(res, GetSpellDrainMult(spell, rank));
-	else if(which == SPELLVAL_COST)
+	else if(which == SPELLVAL_COST && !(SpellDefs[spell].flat_mask & (1 << which)))
 		res = ScaleSpellValue(res, GetSpellCostMult(spell, rank));
 
+	res += GetSpellThresholdBonus(spell, which, rank);
+
+	// A range's low end takes the rows written for its high end, so "5% more damage" moves both.
+	int syn_field = which == SPELLVAL_DAMAGEMIN ? SPELLVAL_DAMAGE : which == SPELLVAL_DAMAGE2MIN ? SPELLVAL_DAMAGE2 : which;
 	int i, src, more = 0;
 	for(i = 0; i < MAX_SPELL_SYNERGIES && SpellSynergies[i].target; ++i) {
-		if(SpellSynergies[i].target - 1 != spell || SpellSynergies[i].field != which)
+		if(SpellSynergies[i].target - 1 != spell || SpellSynergies[i].field != syn_field)
 			continue;
 
 		src = GetSpellRank(pnum, SpellSynergies[i].source, true);
@@ -378,24 +594,35 @@ int GetSpellValue(int pnum, int spell, int which, int rank_at = 0) {
 		//
 		// EFFECTIVE rank against an ALLOCATED floor on purpose: +spell level from gear was never
 		// forced, so it still counts.
-		src -= GetForcedSourceRank(spell, SpellSynergies[i].source);
+		src = (src - GetForcedSourceRank(spell, SpellSynergies[i].source)) / SpellSynergies[i].step;
 		if(src <= 0)
 			continue;
 
 		if(SpellSynergies[i].flags & SYNF_FLAT)
 			res += SpellSynergies[i].per_rank * src;
 		else
-			more += (SpellSynergies[i].per_rank >> 16) * src;
+			more += SpellSynergies[i].per_rank * src;
 	}
 
-	if(more)
-		res = res * (100 + more) / 100;
+	// more is a 16.16 percent, so 2.5 a rank pays 2.5 and not 2. Applied in hundredths, split as ScaleSpellValue
+	// is, since COST, DURATION and the other 16.16 fields overflow a plain product.
+	if(more) {
+		more = 10000 + (more * 25 >> 14);
+		res = (res / 10000) * more + ((res % 10000) * more) / 10000;
+	}
 
-	// Gear applies last and is additive, so a synergy's "more" does not multiply it.
-	if(which == SPELLVAL_RADIUS)
-		res = res * Max(0, 100 + PlayerModData[pnum].vals[PSTAT_SPELL_AOE]) / 100;
-	else if(which == SPELLVAL_DURATION)
-		res = res * Max(0, 100 + PlayerModData[pnum].vals[PSTAT_SPELL_DURATION]) / 100;
+	// Gear applies last and is additive, so a synergy's "more" does not multiply it. Spell area gear is not here:
+	// it scales AREA, in ScaleSpellArea, where it joins the other area increases rather than multiplying them.
+	if(which == SPELLVAL_DURATION) {
+		res = ScaleSpellValue(res, Max(0, 100 + PlayerModData[pnum].vals[PSTAT_SPELL_DURATION]));
+		res = ApplySpellGemMore(pnum, spell, GEMSTAT_MORE_DURATION, res);
+	}
+	// A reservation is not a cost: gems' less cost stays off auras, which have reservation efficiency instead.
+	else if(which == SPELLVAL_COST && !(SpellDefs[spell].flags & SPLF_RESERVES))
+		res = ApplySpellGemMore(pnum, spell, GEMSTAT_MORE_COST, res);
+	// Influencer: a passive's effect is its DAMAGE row on all four (burst share, more fire or cold, cooldown cut).
+	else if(which == SPELLVAL_DAMAGE && (SpellDefs[spell].flags & SPLF_PASSIVE))
+		res = ScaleSpellValue(res, 100 + GetSpellGemMod(pnum, spell, GEMSTAT_PASSIVE_EFFECT));
 
 	return res;
 }
@@ -474,6 +701,98 @@ void SyncSpellToggleWord(int pnum, int spell) {
 		SpellPlayerData[pnum].aura_on[spell >> 5]);
 }
 
+// A slot's whole spell state, for a reset. The globals outlive the connection, so a new character in a
+// reused slot inherited the last one's ranks, toggles and binds.
+void ResetSpellPlayerData(int pnum) {
+	int i;
+	for(i = 0; i < SPELL_RANK_INTS; ++i) {
+		if(SpellPlayerData[pnum].ranks[i]) {
+			SpellPlayerData[pnum].ranks[i] = 0;
+			SendOwnerSync("DnD Request Spell Sync", pnum, pnum, i, 0);
+		}
+	}
+
+	for(i = 0; i < SPELL_AURA_INTS; ++i) {
+		if(SpellPlayerData[pnum].aura_on[i]) {
+			SpellPlayerData[pnum].aura_on[i] = 0;
+			SendOwnerSync("DnD Request Spell Toggle Sync", pnum, pnum, i, 0);
+		}
+		GetSpellRunningData().words[pnum][i] = 0;
+	}
+
+	for(i = 0; i < MAX_HOTBAR_SLOTS; ++i)
+		SetHotbarSpell(pnum, i, -1);
+	SyncHotbarAll(pnum);
+
+	for(i = 0; i < SPELL_SOCKET_INTS; ++i) {
+		if(SpellPlayerData[pnum].sockets[i]) {
+			SpellPlayerData[pnum].sockets[i] = 0;
+			SendOwnerSync("DnD Request Spell Socket Sync", pnum, pnum, i, 0);
+		}
+	}
+
+	SpellPlayerData[pnum].unspent = 0;
+	ResetAllSpellCooldownsNew(pnum);
+}
+
+// ---- gem sockets ------------------------------------------------------------------------------
+// A socket holds its gem as (subtype + 1) | (role + 1) << 9, so 0 is empty and the whole gem fits 15 bits.
+int MakeSocketValue(int subt, int role) {
+	return (subt + 1) | ((role + 1) << 9);
+}
+
+int GetSocketGemSubtype(int v) {
+	return (v & 0x1FF) - 1;
+}
+
+int GetSocketGemRole(int v) {
+	return (v >> 9) - 1;
+}
+
+int GetSpellSocket(int pnum, int spell, int slot) {
+	return SpellPlayerData[pnum].sockets[spell * DND_SPELL_MAXSOCKETS + slot];
+}
+
+void SetSpellSocket(int pnum, int spell, int slot, int v) {
+	int i = spell * DND_SPELL_MAXSOCKETS + slot;
+	SpellPlayerData[pnum].sockets[i] = v;
+	SendOwnerSync("DnD Request Spell Socket Sync", pnum, pnum, i, v);
+}
+
+// Sockets open on the ALLOCATED rank, so gear levels never open one; the second needs its research.
+int GetSpellSocketCount(int pnum, int spell) {
+	if(GetSpellAllocatedRank(pnum, spell) < DND_SPELL_SOCKETRANK)
+		return 0;
+	return 1 + (CheckActorResearchStatus(pnum + P_TIDSTART, RES_GEMSOCKET2) == RES_DONE);
+}
+
+// One spell's gem row from its sockets: the targeted rebuild every socket change and load ends in.
+void RebuildSpellGems(int pnum, int spell) {
+	BeginSpellGemRebuild(pnum, spell);
+	int v;
+	for(int i = 0; i < GetSpellSocketCount(pnum, spell); ++i)
+		if((v = GetSpellSocket(pnum, spell, i)))
+			AddGemToSpellRow(pnum, spell, GetSocketGemSubtype(v), GetSocketGemRole(v));
+	EndSpellGemRebuild(pnum, spell);
+}
+
+// After a load: the client gets every rank, toggle and socket, and each socketed spell rebuilds its gems.
+void SyncAllSpellData(int pnum) {
+	int i;
+	for(i = 0; i < SPELL_RANK_INTS; ++i)
+		SendOwnerSync("DnD Request Spell Sync", pnum, pnum, i, SpellPlayerData[pnum].ranks[i]);
+	for(i = 0; i < SPELL_AURA_INTS; ++i)
+		SendOwnerSync("DnD Request Spell Toggle Sync", pnum, pnum, i, SpellPlayerData[pnum].aura_on[i]);
+
+	for(i = 0; i < MAX_SPELL_IDS; ++i) {
+		if(!GetSpellSocket(pnum, i, 0) && !GetSpellSocket(pnum, i, 1))
+			continue;
+		SendOwnerSync("DnD Request Spell Socket Sync", pnum, pnum, i * DND_SPELL_MAXSOCKETS, GetSpellSocket(pnum, i, 0));
+		SendOwnerSync("DnD Request Spell Socket Sync", pnum, pnum, i * DND_SPELL_MAXSOCKETS + 1, GetSpellSocket(pnum, i, 1));
+		RebuildSpellGems(pnum, i);
+	}
+}
+
 // Learned AND not switched off. Every reader of a passive or an aura wants this, not the rank alone.
 bool IsSpellActive(int pnum, int spell) {
 	return GetSpellAllocatedRank(pnum, spell) > 0 && !IsSpellToggledOff(pnum, spell);
@@ -541,6 +860,21 @@ str GetSpellPerRankLump(int spell) {
 
 str GetSpellThresholdLump(int spell, int at) {
 	return StrParam(s:"DND_SPLR", d:at, s:"_", d:spell);
+}
+
+// The low end of a ranged damage field, or -1 when the field is a single number.
+int GetSpellMinField(int spell, int which) {
+	int lo = which == SPELLVAL_DAMAGE ? SPELLVAL_DAMAGEMIN : which == SPELLVAL_DAMAGE2 ? SPELLVAL_DAMAGE2MIN : -1;
+	if(lo == -1 || !(SpellDefs[spell].scale_mask & (1 << lo)))
+		return -1;
+	return lo;
+}
+
+// " per rank", or " per 2 ranks" for a row that pays once every few.
+str GetSynergyStepText(int syn) {
+	if(SpellSynergies[syn].step > 1)
+		return StrParam(s:" per ", d:SpellSynergies[syn].step, s:" ranks");
+	return " per rank";
 }
 
 str GetSpellFieldLump(int which) {

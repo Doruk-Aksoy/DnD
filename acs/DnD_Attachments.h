@@ -27,6 +27,7 @@ enum {
 	DND_ATTACHMENT_FLAMMABILITY,
 	DND_ATTACHMENT_SNARE,
 	DND_ATTACHMENT_FROSTBITE,
+	DND_ATTACHMENT_CONDUCTIVITY,
 };
 
 Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
@@ -87,6 +88,11 @@ Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 				zoff <<= 1;
 				zoff += 4.0;
 				res = CreateMonsterAttachment(tid, "FrostbiteFXMarker", 0, 0, zoff);
+			break;
+			case DND_ATTACHMENT_CONDUCTIVITY:
+				zoff <<= 1;
+				zoff += 4.0;
+				res = CreateMonsterAttachment(tid, "ConductivityFXMarker", 0, 0, zoff);
 			break;
 			// Around the feet: this one is a shackle, not an overhead icon. The actor warps itself to
 			// a fixed 16 up every tic, so this only decides where it first appears.
@@ -208,6 +214,7 @@ enum {
 	DND_PLAYERFX_RIGHTEOUSFIRE,
 	DND_PLAYERFX_HATREDAURA,
 	DND_PLAYERFX_SHIVERINGARMOR,
+	DND_PLAYERFX_WRATHAURA,
 };
 
 // How far out to either side a paired attachment sits, past a player's own 16 unit radius.
@@ -226,6 +233,7 @@ str GetPlayerAttachmentMarker(int which) {
 		case DND_PLAYERFX_RIGHTEOUSFIRE: return "DnD_RighteousFireActive";
 		case DND_PLAYERFX_HATREDAURA: return "DnD_HatredAuraActive";
 		case DND_PLAYERFX_SHIVERINGARMOR: return "DnD_ShiveringArmorChance";
+		case DND_PLAYERFX_WRATHAURA: return "DnD_WrathAuraActive";
 	}
 	return "";
 }
@@ -241,6 +249,7 @@ str GetPlayerAttachmentSpawner(int which) {
 		case DND_PLAYERFX_RIGHTEOUSFIRE: return "Spell_RighteousFire_FXSpawner";
 		case DND_PLAYERFX_HATREDAURA: return "Spell_HatredAura_FXSpawner";
 		case DND_PLAYERFX_SHIVERINGARMOR: return "Spell_ShiveringArmor_FXSpawner";
+		case DND_PLAYERFX_WRATHAURA: return "Spell_WrathAura_FXSpawner";
 	}
 	return "";
 }
@@ -255,6 +264,7 @@ str GetPlayerAttachmentFX(int which) {
 		case DND_PLAYERFX_RIGHTEOUSFIRE: return "Spell_RighteousFireFX";
 		case DND_PLAYERFX_HATREDAURA: return "Spell_HatredAuraFX";
 		case DND_PLAYERFX_SHIVERINGARMOR: return "Spell_ShiveringArmorFX";
+		case DND_PLAYERFX_WRATHAURA: return "Spell_WrathAuraFX";
 	}
 	return "";
 }
@@ -267,6 +277,16 @@ int GetPlayerAttachmentSides(int which) {
 		case DND_PLAYERFX_SHIVERINGARMOR: return 2;
 	}
 	return 1;
+}
+
+// Aura rings draw a fixed 144 units whatever their reach; only the buffs follow the scaled radius.
+bool IsFixedSizeAttachment(int which) {
+	return which == DND_PLAYERFX_ANGERAURA || which == DND_PLAYERFX_HATREDAURA || which == DND_PLAYERFX_WRATHAURA;
+}
+
+// Polled by the aura rings: dnd_hideauras hides them on this machine alone.
+Script "DnD Auras Hidden" (void) CLIENTSIDE {
+	SetResultValue(GetCVar("dnd_hideauras"));
 }
 
 // Called BY the token's Pickup state, so the activator is the player wearing it. Built exactly like
@@ -294,7 +314,7 @@ Script "DnD Spawn Player Aura" (int which) CLIENTSIDE {
 	// Grown by the caster's area modifiers, off whatever scale the actor declares in DECORATE, so the
 	// art keeps its own size and this only multiplies it. Passing 1.0 as the radius makes
 	// ScalePlayerAoERadius hand back the factor itself rather than a distance.
-	if(pnum >= 0) {
+	if(pnum >= 0 && !IsFixedSizeAttachment(which)) {
 		f = ScalePlayerAoERadius(pnum, 1.0, DND_AOESRC_NONWEAPON);
 
 		// And by how far the spell's own radius has outgrown the base the art was drawn for.

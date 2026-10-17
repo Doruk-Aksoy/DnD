@@ -3,6 +3,9 @@ $pitchshiftrange 2
 Items/DungeonKeyDrop    DUNKDROP
 Items/DungeonKeyPick    DUNKPICK
 
+Items/GemDrop  GEMDROP
+$alias Items/GemPick  Items/GemDrop
+
 DungeonPortal/Loop  PORTLOOP
 DungeonPortal/Make  PORTMAKE
 
@@ -315,6 +318,11 @@ FrostBomb/Pulse4            FROSBOM4
 FrostBomb/Pulse5            FROSBOM5
 $random FrostBomb/Pulse { FrostBomb/Pulse1 FrostBomb/Pulse2 FrostBomb/Pulse3 FrostBomb/Pulse4 FrostBomb/Pulse5 }
 
+FrostBomb/Cast1             FROSBCS1
+FrostBomb/Cast2             FROSBCS2
+FrostBomb/Cast3             FROSBCS3
+$random FrostBomb/Cast { FrostBomb/Cast1 FrostBomb/Cast2 FrostBomb/Cast3 }
+
 GustOfFrost/Cast            GUSTFROS
 
 IceSpear/Fire1              ICESPRF1
@@ -395,6 +403,16 @@ GlacialCascade/Break5       GLACASB5
 GlacialCascade/Break6       GLACASB6
 $random GlacialCascade/Break { GlacialCascade/Break1 GlacialCascade/Break2 GlacialCascade/Break3 GlacialCascade/Break4 GlacialCascade/Break5 GlacialCascade/Break6 }
 
+GlacialCascade/Cast1        GLACAST1
+GlacialCascade/Cast2        GLACAST2
+GlacialCascade/Cast3        GLACAST3
+$random GlacialCascade/Cast { GlacialCascade/Cast1 GlacialCascade/Cast2 GlacialCascade/Cast3 }
+
+ShiveringArmor/Cast1        SHIVARC1
+ShiveringArmor/Cast2        SHIVARC2
+ShiveringArmor/Cast3        SHIVARC3
+$random ShiveringArmor/Cast { ShiveringArmor/Cast1 ShiveringArmor/Cast2 ShiveringArmor/Cast3 }
+
 Blizzard/Loop1              BLIZLOO1
 Blizzard/Loop2              BLIZLOO2
 Blizzard/Loop3              BLIZLOO3
@@ -404,3 +422,178 @@ Avalanche/Loop1             AVALOO1
 Avalanche/Loop2             AVALOO2
 Avalanche/Loop3             AVALOO3
 $random Avalanche/Loop { Avalanche/Loop1 Avalanche/Loop2 Avalanche/Loop3 }
+
+/*
+******************************
+****** LIGHTNING SPELLS ******
+******************************
+*/
+
+ChargedBolt/Cast1           CHBOLTC1
+ChargedBolt/Cast2           CHBOLTC2
+ChargedBolt/Cast3           CHBOLTC3
+$random ChargedBolt/Cast { ChargedBolt/Cast1 ChargedBolt/Cast2 ChargedBolt/Cast3 }
+
+ChargedBolt/Hit1            CHBOLTH1
+ChargedBolt/Hit2            CHBOLTH2
+ChargedBolt/Hit3            CHBOLTH3
+ChargedBolt/Hit4            CHBOLTH4
+$random ChargedBolt/Hit { ChargedBolt/Hit1 ChargedBolt/Hit2 ChargedBolt/Hit3 ChargedBolt/Hit4 }
+
+ChargedBolt/Bounce1         CHBOLTB1
+ChargedBolt/Bounce2         CHBOLTB2
+ChargedBolt/Bounce3         CHBOLTB3
+$random ChargedBolt/Bounce { ChargedBolt/Bounce1 ChargedBolt/Bounce2 ChargedBolt/Bounce3 }
+$limit ChargedBolt/Bounce1 4
+$limit ChargedBolt/Bounce2 4
+$limit ChargedBolt/Bounce3 4
+$limit ChargedBolt/Bounce4 4
+
+ChargedBolt/Loop1           CHBOLTL1
+ChargedBolt/Loop2           CHBOLTL2
+ChargedBolt/Loop3           CHBOLTL3
+$random ChargedBolt/Loop { ChargedBolt/Loop1 ChargedBolt/Loop2 ChargedBolt/Loop3 }
+$limit ChargedBolt/Loop1 4
+$limit ChargedBolt/Loop2 4
+$limit ChargedBolt/Loop3 4
+
+Spark/Cast1                  SPARKC1
+Spark/Cast2                  SPARKC2
+Spark/Cast3                  SPARKC3
+$random Spark/Cast { Spark/Cast1 Spark/Cast2 Spark/Cast3 }
+
+LightningBolt/Hit1           LGBOLTH1
+LightningBolt/Hit2           LGBOLTH2
+LightningBolt/Hit3           LGBOLTH3
+LightningBolt/Hit4           LGBOLTH4
+$random LightningBolt/Hit { LightningBolt/Hit1 LightningBolt/Hit2 LightningBolt/Hit3 LightningBolt/Hit4 }
+
+$alias Spark/Zap            LightningBolt/Hit
+$limit Spark/Zap 8
+
+$alias Shock/Hit            LightningBolt/Hit
+
+Blink/Cast                  BLINKCAS
+
+Telekinesis/Cast            TELEKCAS
+$alias Telekinesis/Push     Spell/LightningSpearBounce
+
+StaticField/Zap1            STATZAP1
+StaticField/Zap2            STATZAP2
+StaticField/Zap3            STATZAP3
+StaticField/Zap4            STATZAP4
+$random StaticField/Zap { StaticField/Zap1 StaticField/Zap2 StaticField/Zap3 StaticField/Zap4 }
+$limit StaticField/Zap 3
+
+ChainLightning/Cast1        CHAINLC1
+ChainLightning/Cast2        CHAINLC2
+ChainLightning/Cast3        CHAINLC3
+ChainLightning/Cast4        CHAINLC4
+$random ChainLightning/Cast { ChainLightning/Cast1 ChainLightning/Cast2 ChainLightning/Cast3 ChainLightning/Cast4 }
+
+ChainLightning/Hit1         CHAINLH1
+ChainLightning/Hit2         CHAINLH2
+ChainLightning/Hit3         CHAINLH3
+ChainLightning/Hit4         CHAINLH4
+$random ChainLightning/Hit { ChainLightning/Hit1 ChainLightning/Hit2 ChainLightning/Hit3 ChainLightning/Hit4 }
+
+ChainLightning/Beam1        CHAINLO1
+ChainLightning/Beam2        CHAINLO2
+ChainLightning/Beam3        CHAINLO3
+ChainLightning/Beam4        CHAINLO4
+$random ChainLightning/Beam { ChainLightning/Beam1 ChainLightning/Beam2 ChainLightning/Beam3 ChainLightning/Beam4 }
+
+ChainLightning/CastLayer1   CHAINLL1
+ChainLightning/CastLayer2   CHAINLL2
+ChainLightning/CastLayer3   CHAINLL3
+ChainLightning/CastLayer4   CHAINLL4
+$random ChainLightning/CastLayer { ChainLightning/CastLayer1 ChainLightning/CastLayer2 ChainLightning/CastLayer3 ChainLightning/CastLayer4 }
+
+$alias ForkedLightning/Cast Spell/LightningSpearBounce
+$alias ForkedLightning/Hit  LightningBolt/Hit
+
+Overcharge/Cast             OVCHRGC1
+
+OverCharge/Release1         OVCHRGR1
+OverCharge/Release2         OVCHRGR2
+OverCharge/Release3         OVCHRGR3
+OverCharge/Release4         OVCHRGR4
+$random Overcharge/Release { OverCharge/Release1 OverCharge/Release2 OverCharge/Release3 OverCharge/Release4 }
+
+EnergyBlade/Cast1           ENBLADC1
+EnergyBlade/Cast2           ENBLADC2
+$random EnergyBlade/Cast { EnergyBlade/Cast1 EnergyBlade/Cast2 }
+
+Conductivity/Cast1          CONDUCC1
+Conductivity/Cast2          CONDUCC2
+Conductivity/Cast3          CONDUCC3
+$random Conductivity/Cast { Conductivity/Cast1 Conductivity/Cast2 Conductivity/Cast3 }
+
+GalvanicSurge/Cast1         GALSURC1
+GalvanicSurge/Cast2         GALSURC2
+GalvanicSurge/Cast3         GALSURC3
+GalvanicSurge/Cast4         GALSURC4
+$random GalvanicSurge/Cast { GalvanicSurge/Cast1 GalvanicSurge/Cast2 GalvanicSurge/Cast3 GalvanicSurge/Cast4 }
+
+Surgecast/Cast1             SURGECC1
+Surgecast/Cast2             SURGECC2
+Surgecast/Cast3             SURGECC3
+$random Surgecast/Cast { Surgecast/Cast1 Surgecast/Cast2 Surgecast/Cast3 }
+
+StormBrand/Cast1            STORBRC1
+StormBrand/Cast2            STORBRC2
+StormBrand/Cast3            STORBRC3
+StormBrand/Cast4            STORBRC4
+$random StormBrand/Cast { StormBrand/Cast1 StormBrand/Cast2 StormBrand/Cast3 StormBrand/Cast4 }
+
+StormBrand/Attach1          STORBRA1
+StormBrand/Attach2          STORBRA2
+StormBrand/Attach3          STORBRA3
+StormBrand/Attach4          STORBRA4
+$random StormBrand/Attach { StormBrand/Attach1 StormBrand/Attach2 StormBrand/Attach3 StormBrand/Attach4 }
+
+StormBrand/Loop1            STORBRL1
+StormBrand/Loop2            STORBRL2
+StormBrand/Loop3            STORBRL3
+$random StormBrand/Loop { StormBrand/Loop1 StormBrand/Loop2 StormBrand/Loop3 }
+
+StormBrand/Detach1          STORBRD1
+StormBrand/Detach2          STORBRD2
+StormBrand/Detach3          STORBRD3
+$random StormBrand/Detach { StormBrand/Detach1 StormBrand/Detach2 StormBrand/Detach3 }
+$alias StormBrand/Zap StaticField/Zap
+$limit StormBrand/Zap 8
+
+StormCall/Cast1             STRCALC1
+StormCall/Cast2             STRCALC2
+StormCall/Cast3             STRCALC3
+StormCall/Cast4             STRCALC4
+StormCall/Cast5             STRCALC5
+StormCall/Cast6             STRCALC6
+$random StormCall/Cast { StormCall/Cast1 StormCall/Cast2 StormCall/Cast3 StormCall/Cast4 StormCall/Cast5 StormCall/Cast6 }
+
+StormCall/Explosion1        STRCALX1
+StormCall/Explosion2        STRCALX2
+StormCall/Explosion3        STRCALX3
+StormCall/Explosion4        STRCALX4
+$random StormCall/Explosion { StormCall/Explosion1 StormCall/Explosion2 StormCall/Explosion3 StormCall/Explosion4 }
+
+StormCall/Pulse1            STRCALP1
+StormCall/Pulse2            STRCALP2
+StormCall/Pulse3            STRCALP3
+StormCall/Pulse4            STRCALP4
+$random StormCall/Pulse { StormCall/Pulse1 StormCall/Pulse2 StormCall/Pulse3 StormCall/Pulse4 }
+
+StormCall/Add1              STRCALA1
+StormCall/Add2              STRCALA2
+StormCall/Add3              STRCALA3
+StormCall/Add4              STRCALA4
+$random StormCall/Add { StormCall/Add1 StormCall/Add2 StormCall/Add3 StormCall/Add4 }
+
+$alias ThunderClap/Slam Berserker/Thunder
+
+$alias CracklingLance/Cast ChargedBolt/Cast
+
+$alias Monsoon/Gather Berserker/Thunder
+$alias Monsoon/Strike ThunderStaff/Thunder
+$limit Monsoon/Strike 3

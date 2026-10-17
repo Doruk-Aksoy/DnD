@@ -122,6 +122,9 @@ res_req_info_T ResearchFlags[MAX_RESEARCHES] = {
 	{ RESF_NODROP, -1},*/
 	
 	{ 0, -1 },
+
+	// second gem socket
+	{ 0, -1 },
 };
 
 #define MAX_RES_REQID (LAST_RES_REQID + 1)

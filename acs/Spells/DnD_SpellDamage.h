@@ -24,6 +24,10 @@
 // Every tree deals its own element. A spell that deals something else takes a case of its own above
 // the tree switch -- none do yet.
 int GetSpellDamageType(int spell) {
+	// Gust's only damage is its slam, which is physical, so cold increases must not price it.
+	if(spell == SPL_GUSTOFFROST)
+		return DND_DAMAGETYPE_PHYSICAL;
+
 	switch(SpellDefs[spell].tree) {
 		case DND_SKILLTREE_FIRE:		return DND_DAMAGETYPE_FIRE;
 		case DND_SKILLTREE_ICE:			return DND_DAMAGETYPE_ICE;
@@ -43,7 +47,32 @@ int GetSpellDamageCategory(int spell) {
 // The word the event handler unpacks: damage, then type, then the spell id in the slot a weapon hit
 // puts its weapon id. wep_neg is what keeps the weapon lookups off that slot.
 int PackSpellDamage(int dmg, int dtype, int spell) {
-	return Min(Max(dmg, 0), SPELLDMG_MASK) | (dtype << SPELL_DMG_SHIFT) | ((spell & SPELLID_MASK) << SPELL_ID_SHIFT);
+	return Min(Max(dmg, 0), SPELLDMG_MASK) | (GetSpellElementCode(dtype) << SPELL_DMG_SHIFT) | ((spell & SPELLID_MASK) << SPELL_ID_SHIFT);
+}
+
+// The word's 3 bit element. A spell element not listed here packs as physical, so a new one needs a code.
+int GetSpellElementCode(int dtype) {
+	switch(dtype) {
+		case DND_DAMAGETYPE_FIRE:		return 1;
+		case DND_DAMAGETYPE_ICE:		return 2;
+		case DND_DAMAGETYPE_LIGHTNING:	return 3;
+		case DND_DAMAGETYPE_POISON:		return 4;
+		case DND_DAMAGETYPE_OCCULT:		return 5;
+		case DND_DAMAGETYPE_ENERGY:		return 6;
+	}
+	return 0;
+}
+
+int GetSpellElementType(int code) {
+	switch(code) {
+		case 1:	return DND_DAMAGETYPE_FIRE;
+		case 2:	return DND_DAMAGETYPE_ICE;
+		case 3:	return DND_DAMAGETYPE_LIGHTNING;
+		case 4:	return DND_DAMAGETYPE_POISON;
+		case 5:	return DND_DAMAGETYPE_OCCULT;
+		case 6:	return DND_DAMAGETYPE_ENERGY;
+	}
+	return DND_DAMAGETYPE_PHYSICAL;
 }
 
 // The caster, from wherever SetupSpellActor put it. -1 when the actor has outlived its owner.
@@ -70,35 +99,15 @@ int GetSpellActorOwner() {
 // div splits the result, for a spell whose text gives a fragment of its own damage to something else
 // -- Pyroblast's rank 10 fireballs take an eighth. Applied AFTER the scale, so the fragment is an
 // eighth of what the parent would really have dealt rather than an eighth of its table row.
-// The intellect attunement, for spells that price themselves and call HandleDamageDeal straight.
-//
-// The projectile and explosion path picks this up inside "DnD Spell Damage"; without this the
-// two halves of the tree disagreed, and whether a spell scaled with INT came down to how it
-// happened to be implemented rather than to anything about the spell.
-//
-// DAMAGE OVER TIME IS INCLUDED, deliberately. HandleNonWeaponDamageScale withholds the attribute
-// bonus from anything flagged DOT, but that rule is about WEAPONS: a weapon ignite is derived from
-// a hit that already took the attunement, so counting it again would be a second helping of the
-// same stat. A spell tick is not -- Immolation and Blaze are priced straight off the spell row and
-// Righteous Fire off the health pool, so there is no earlier application to double.
-//
-// These spells reach HandleDamageDeal directly and never pass through that block at all, so this
-// is their only application. Intellect is meant to read as increased spell damage per point, and
-// a stat that silently skipped three spells would not.
+
+// The intellect attunement on its own, for a tick: the DoT path withholds the attribute bonus with the hit piles,
+// and a spell tick, priced off its row, has no earlier hit that already took INT. Called by PriceSpellDamage.
 int ApplySpellIntScaling(int pnum, int dmg) {
 	return dmg * (100 + HandleStatBonus(pnum, 0, 0, DND_SPELL_INT_SCALE, false)) / 100;
 }
 
-// MORE spell damage, from any source granting BUFF_SPELLDAMAGE -- Righteous Fire today, an item or a
-// perk tomorrow. Multiplicative, so it is applied here rather than joining the increased pile.
-//
-// A spell OPTS IN by calling this. Spells priced through a DECORATE Damage expression get it from
-// "DnD Spell Damage" below; the ones that price themselves and call HandleDamageDeal straight have to
-// ask, which is why Scorching Ray and Immolation do and Infernal Strike deliberately does not.
-//
-// Righteous Fire is refused its OWN grant here rather than at the call sites, so no future caller can
-// reintroduce the feedback: the buff is what the burn BUYS, and its damage is already a percent of
-// the health it costs, so compounding it would hit the same pool twice.
+// MORE spell damage from BUFF_SPELLDAMAGE, applied by PriceSpellDamage. Righteous Fire is refused its own grant
+// here, so no caller can reintroduce the feedback: the buff is what its burn buys.
 int ApplySpellMoreDamage(int pnum, int spell, int dmg) {
 	if(spell == SPL_RIGHTEOUSFIRE)
 		return dmg;
@@ -110,9 +119,58 @@ int ApplySpellMoreDamage(int pnum, int spell, int dmg) {
 	return FixedMul(dmg, more);
 }
 
-// Which damage FIELD of a spell is a tick, not a hit. See .claude/notes/dnd-spell-system.md.
+// Which damage FIELD of a spell is a tick, not a hit.
 bool IsSpellDoTField(int spell, int which) {
 	return spell == SPL_CREEPINGFROST && which == SPELLVAL_DAMAGE2;
+}
+
+// One spell hit or tick, priced the same whichever way it lands: "DnD Spell Damage" and the spells that call
+// HandleDamageDeal themselves both come here. isDot takes the DoT pile instead; noMore is Infernal Strike's.
+int PriceSpellDamage(int pnum, int spell, int dmg, int scale_flags = 0, bool isDot = false, int victim = -1, bool noMore = false) {
+	if(isDot) {
+		dmg = GetGenericDoTDamage(pnum, dmg, victim, -1, true);
+		scale_flags |= DND_WDMG_ISDOT;
+	}
+
+	dmg = HandleNonWeaponDamageScale(dmg, GetSpellDamageCategory(spell), DND_WDMG_ISSPELL | scale_flags, 0, 0, DND_SPELL_INT_SCALE, pnum);
+
+	// ISDOT dropped the attunement with the hit piles, so INT goes back on at the rate a hit gets.
+	if(isDot)
+		dmg = ApplySpellIntScaling(pnum, dmg);
+
+	// Heart of Fire rank 5: a spell its proc made ready hits harder for a few seconds. MORE, so after the scale.
+	int prime = GetSpellPrimes().ends[pnum][spell];
+	if(prime && Timer() <= prime)
+		dmg = dmg * (100 + GetSpellValue(pnum, SPL_HEARTOFFIRE, SPELLVAL_AMOUNT)) / 100;
+
+	// The spell's gems: MORE on every hit and tick, then on hits or on ticks alone. noMore is the buff's, not theirs.
+	dmg = ApplySpellGemMore(pnum, spell, GEMSTAT_MORE_DAMAGE, dmg);
+	dmg = ApplySpellGemMore(pnum, spell, isDot ? GEMSTAT_MORE_DOTDAMAGE : GEMSTAT_MORE_HITDAMAGE, dmg);
+
+	// Greater Resolute, Ravager and Powerful: more damage per charge held, each kind its own multiplier.
+	dmg = ApplySpellGemChargeDamage(pnum, spell, dmg);
+
+	if(!noMore)
+		dmg = ApplySpellMoreDamage(pnum, spell, dmg);
+	return dmg;
+}
+
+int ApplySpellGemChargeDamage(int pnum, int spell, int dmg) {
+	int tid = pnum + P_TIDSTART, v;
+	if((v = GetSpellGemMod(pnum, spell, GEMSTAT_ENDURANCEDAMAGE)))
+		dmg = ScaleSpellValue(dmg, 100 + v * GetPlayerEnduranceCharges(tid, pnum));
+	if((v = GetSpellGemMod(pnum, spell, GEMSTAT_FRENZYDAMAGE)))
+		dmg = ScaleSpellValue(dmg, 100 + v * GetPlayerFrenzyCharges(tid, pnum));
+	if((v = GetSpellGemMod(pnum, spell, GEMSTAT_POWERDAMAGE)))
+		dmg = ScaleSpellValue(dmg, 100 + v * GetPlayerPowerCharges(tid, pnum));
+	return dmg;
+}
+
+// A field's base value, rolled from its low end to itself when it is a range.
+int RollSpellValue(int pnum, int spell, int which, int rank_at = 0) {
+	int v = GetSpellValue(pnum, spell, which, rank_at);
+	int lo = GetSpellMinField(spell, which);
+	return lo == -1 ? v : random(GetSpellValue(pnum, spell, lo, rank_at), v);
 }
 
 // user_rankat lets an actor price itself at a rank OTHER than the caster's live allocation.
@@ -125,41 +183,25 @@ Script "DnD Spell Damage" (int which, int flags, int div) {
 		Terminate;
 	}
 
-	// All read before the scale script runs: AdjustDamageRetrievePointers moves the activator off
-	// the spell actor and onto the caster.
+	// Read off the spell actor, which stays the activator: the pricing below takes the caster as pnum.
 	int spell = GetUserVariable(0, "user_spellid");
 	int parent = GetUserVariable(0, "user_parent");
-	int dmg = GetSpellValue(pnum, spell, which, GetUserVariable(0, "user_rankat"));
+	// Winter Orb's throws price at the thrown spell's own rank, or at rank 1 when the caster never learned it.
+	int rank_at = GetUserVariable(0, "user_rankat");
+	if(!rank_at && parent == SPL_WINTERORB + 1 && !GetSpellRank(pnum, spell, true))
+		rank_at = 1;
+
+	// Rolled before any pricing, so gear scales the roll.
+	int dmg = RollSpellValue(pnum, spell, which, rank_at);
 	int dtype = GetSpellDamageType(spell);
-	int cat = GetSpellDamageCategory(spell);
 
 	if(dmg <= 0) {
 		SetResultValue(0);
 		Terminate;
 	}
 
-	// Priced through the DoT pile, as Blaze is. ISDOT then withholds the hit piles below.
-	bool isDot = IsSpellDoTField(spell, which);
-	if(isDot) {
-		dmg = GetGenericDoTDamage(pnum, dmg, -1, -1, true);
-		flags |= DND_WDMG_ISDOT;
-	}
-
-	dmg = ACS_NamedExecuteWithResult("DND Player Damage Scale", dmg, cat,
-		DND_WDMG_USETARGET | DND_WDMG_ISSPELL | flags, DND_SPELL_INT_ATTUNE << INT_ATTUNE_BITS);
-
-	// ISDOT skipped the attunement with them, so INT goes back on at the same rate a hit gets.
-	if(isDot)
-		dmg = ApplySpellIntScaling(pnum, dmg);
-
-	// Heart of Fire rank 5: a spell that its proc made ready hits harder for a few seconds. MORE, so
-	// it goes on after the scale rather than into it.
-	int prime = GetSpellPrimes().ends[pnum][spell];
-	if(prime && Timer() <= prime)
-		dmg = dmg * (100 + GetSpellValue(pnum, SPL_HEARTOFFIRE, SPELLVAL_AMOUNT)) / 100;
-
-	// Beside the prime for the same reason: both are MORE, so both multiply after the scale.
-	dmg = ApplySpellMoreDamage(pnum, spell, dmg);
+	// A tick field prices through the DoT pile, as Blaze does; see IsSpellDoTField.
+	dmg = PriceSpellDamage(pnum, spell, dmg, flags, IsSpellDoTField(spell, which));
 
 	// Winter Orb's ranks strengthen what it throws, read live like the rest. MORE, beside the others.
 	if(parent == SPL_WINTERORB + 1)
@@ -276,6 +318,13 @@ Script "DnD Flame Pillar Drop" (void) {
 // SPELLVAL_RADIUS for the same reason. Both default to 0 because DECORATE passes 0 for the
 // arguments it omits, and 0 reads as "SPELLVAL_DAMAGE at the full radius" -- which is exactly
 // what every existing caller wants.
+// A blast's full damage core, as a percent of its radius. Only Pyroblast's AMOUNT row is one; the others mean other things.
+int GetSpellBlastCore(int pnum, int spell, int rank_at) {
+	if(spell == SPL_PYROBLAST)
+		return GetSpellValue(pnum, spell, SPELLVAL_AMOUNT, rank_at);
+	return 0;
+}
+
 Script "DnD Spell Explosion Setup" (int which, int radius_pct, int div) {
 	int pnum = GetSpellActorOwner();
 	if(pnum == -1) {
@@ -316,25 +365,19 @@ Script "DnD Spell Explosion Setup" (int which, int radius_pct, int div) {
 	if(radius_pct > 0)
 		radius = radius * radius_pct / 100;
 
-	// "Radius increases to 180" is Frost Bomb's rank 10 -- absolute, so it REPLACES the row rather
-	// than scaling it, and still takes area modifiers on top.
+	// "Radius increases to 256" is Frost Bomb's rank 10: it REPLACES the row and still takes area gear. Whole units,
+	// as A_Explode reads them; a 16.16 radius here was 11.8 million units across.
 	if(spell == SPL_FROSTBOMB && SpellThresholdMet(pnum, spell, DND_SPELL_THRESH_HIGH))
-		radius = ScalePlayerAoERadius(pnum, DND_FROSTBOMB_R10_RADIUS << 16, DND_AOESRC_NONWEAPON);
+		radius = ScaleSpellArea(pnum, spell, DND_FROSTBOMB_R10_RADIUS << 16) >> 16;
 
-	// Blizzard's rank 5 grows each icicle's blast in step with the storm, so the bigger storm does not
-	// thin out. Divided first: radius is fixed point, and times 384 would overflow with area gear.
+	// Blizzard's rank 5 grows each icicle's blast in step with the storm, so the bigger storm does not thin out.
 	if(spell == SPL_BLIZZARD && SpellThresholdMet(pnum, spell, DND_SPELL_THRESH_LOW)) {
 		int storm = Max(1, GetSpellValue(pnum, spell, SPELLVAL_AMOUNT));
 		radius = radius / storm * (storm + DND_BLIZZARD_R5_RADIUS);
 	}
 
-	// The core that takes the hit at full strength, with no distance falloff. A PERCENT of the blast,
-	// not a distance -- so it is taken off the already scaled radius and tracks area modifiers for
-	// free, and a spell keeps the same shape however big its explosion grows.
-	//
-	// Zero on every spell that does not want one, and A_Explode reads a zero core as "falloff all the
-	// way in", so this costs the others nothing.
-	int full = GetSpellValue(pnum, spell, SPELLVAL_AMOUNT, GetUserVariable(0, "user_rankat"));
+	// Full strength inside the core, taken off the scaled radius so it tracks area gear; 0 is falloff all the way in.
+	int full = GetSpellBlastCore(pnum, spell, GetUserVariable(0, "user_rankat"));
 	if(full > 0)
 		full = radius * Min(full, 100) / 100;
 
@@ -353,8 +396,14 @@ Script "DnD Spell Explosion Setup" (int which, int radius_pct, int div) {
 	SetResultValue(1);
 }
 
-// Companion to the above for explosive spells. PSTAT_SPELL_AOE is already in the value GetSpellValue
-// hands back; this adds the universal area stat on top, the same as any other non weapon explosion.
+// A spell's area, as a 16.16 radius: spell area gear joins the other area increases in one additive pool, as an
+// "increased" must, and scales AREA, not radius. extra_inc is a rank's own increase; spell is for the gem term.
+int ScaleSpellArea(int pnum, int spell, int r, int extra_inc = 0) {
+	r = ScalePlayerAoERadius(pnum, r, DND_AOESRC_NONWEAPON, PlayerModData[pnum].vals[PSTAT_SPELL_AOE] + extra_inc);
+	return ApplySpellGemArea(pnum, spell, r);
+}
+
+// Companion to the above for explosive spells: the explosion retriever with spell area gear in its pool.
 Script "DnD Spell Radius" (int which) {
 	int pnum = GetSpellActorOwner();
 	if(pnum == -1) {
@@ -362,9 +411,11 @@ Script "DnD Spell Radius" (int which) {
 		Terminate;
 	}
 
-	int r = GetSpellValue(pnum, GetUserVariable(0, "user_spellid"), which,
-		GetUserVariable(0, "user_rankat"));
-	SetResultValue(ACS_NamedExecuteWithResult("DnD Explosion Radius Retrieve", r, 1, DND_AOESRC_NONWEAPON));
+	int spell = GetUserVariable(0, "user_spellid");
+	int r = GetSpellValue(pnum, spell, which, GetUserVariable(0, "user_rankat"));
+	r = ACS_NamedExecuteWithResult("DnD Explosion Radius Retrieve", r, 1, DND_AOESRC_NONWEAPON,
+		PlayerModData[pnum].vals[PSTAT_SPELL_AOE]);
+	SetResultValue(ApplySpellGemArea(pnum, spell, r));
 }
 
 #endif

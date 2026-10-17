@@ -472,6 +472,14 @@ Actor DnD_FireExposedTimer : DnD_Info { }
 // The cold half of the same idea. Frost Bomb's rank 5 today, Frostbite's curse later.
 Actor DnD_ColdExposed : DnD_Info { }
 Actor DnD_ColdExposedTimer : DnD_Info { }
+// Shock: tenths of a percent more damage taken, its clock, and whether it covers every element.
+Actor DnD_Shocked : DnD_Info { }
+Actor DnD_ShockedTimer : DnD_Info { }
+Actor DnD_ShockedAll : DnD_Info { }
+// Client side: the tics left on a shocked enemy's crackles.
+Actor DnD_ShockFXTimer : DnD_Info { }
+// Energy Blade: the percent less maximum energy shield while it is out.
+Actor DnD_EnergyBladeLess : DnD_Info { }
 // Frost Bomb. MonsterRegenPause is a boolean with no clock of its own, so this is its clock.
 Actor DnD_RegenPauseTimer : DnD_Info { }
 // Ice Nova rank 10. Percent LESS damage the monster deals, read in HandlePlayerResists.
@@ -483,6 +491,20 @@ Actor DnD_FlammableTimer : DnD_Info { }
 // Frostbite. The base chill chance the curse grants attackers against this monster.
 Actor DnD_Frostbitten : DnD_Info { }
 Actor DnD_FrostbittenTimer : DnD_Info { }
+// Conductivity: lightning resistance the monster has lost, and the base overload chance it grants attackers.
+Actor DnD_LightningExposed : DnD_Info { }
+Actor DnD_LightningExposedTimer : DnD_Info { }
+Actor DnD_Conductive : DnD_Info { }
+Actor DnD_ConductiveTimer : DnD_Info { }
+// Overcharge: charges ready for the next weapon hit.
+Actor DnD_OverchargeReady : DnD_Info { }
+// Galvanic Surge: the last spell put on cooldown, plus one.
+Actor DnD_LastCooldownSpell : DnD_Info { }
+// Surgecast: armed while held; the ticket tells a recast's window from the one it replaced.
+Actor DnD_SurgecastReady : DnD_Boolean { }
+Actor DnD_SurgecastTicket : DnD_Info { }
+// Storm Brand: brands on this monster, against the per enemy cap.
+Actor DnD_StormBrands : DnD_Info { }
 // Held while the snare's marker loop is alive, so a second snare cannot start a second one.
 Actor DnD_SnareFXRunning : DnD_Boolean { }
 
@@ -514,6 +536,8 @@ Actor DnD_RampingHits : DnD_Info { }
 Actor DnD_RageGrace : DnD_Info { }
 Actor DnD_RageDecaying : DnD_Info { }
 Actor DnD_Elusive : DnD_Info { }
+Actor DnD_ElusiveSpan : DnD_Info { }
+Actor DnD_PetUnsummoned : DnD_Info { }
 Actor DnD_WasOverkilled : DnD_Info { }
 
 // Perception, magazine group.

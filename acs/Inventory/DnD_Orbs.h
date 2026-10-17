@@ -96,6 +96,7 @@ bool IsCorruptableItem(int item_type) {
 	switch(item_type) {
 		case DND_ITEM_FLASK:
 		case DND_ITEM_DUNGEONKEY:
+		case DND_ITEM_GEM:
 		return false;
 	}
 
@@ -105,6 +106,7 @@ bool IsCorruptableItem(int item_type) {
 bool IsFracturableItem(int item_type) {
 	switch(item_type) {
 		case DND_ITEM_FLASK:
+		case DND_ITEM_GEM:
 		return false;
 	}
 	return true;
@@ -114,6 +116,7 @@ bool IsEvokableItem(int item_type) {
 	switch(item_type) {
 		case DND_ITEM_FLASK:
 		case DND_ITEM_DUNGEONKEY:
+		case DND_ITEM_GEM:
 		return false;
 	}
 

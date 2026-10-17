@@ -1,0 +1,64 @@
+// Storm Call's marked ground, on AURA O in MODELDEF.aura, shaded by StormCall.fp; ACS sizes it and its alpha is the charge.
+Actor Spell_StormCall_Field {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 0.25
+	States {
+		Spawn:
+			AURA O -1 Bright
+		Stop
+	}
+}
+
+// Storm Call's strike: Monsoon's bolt frames, taller and wider, with a bigger flash.
+Actor Spell_StormCall_Bolt {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 1.0
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_Jump(256, "B1", "B2", "B3", "B4")
+		B1:
+			MNBT A 0
+		Goto Strike
+		B2:
+			MNBT B 0
+		Goto Strike
+		B3:
+			MNBT C 0
+		Goto Strike
+		B4:
+			MNBT D 0
+		Goto Strike
+		Strike:
+			"####" "#" 3 Bright Light("StormCallStrike1")
+			"####" "#" 1 Bright Light("StormCallStrike2") A_SetTranslucent(0.45, 1)
+			"####" "#" 3 Bright Light("StormCallStrike1") A_SetTranslucent(1.0, 1)
+		Fade:
+			"####" "#" 1 Bright A_FadeOut(0.1)
+		Loop
+	}
+}
+
+// The burst where it lands: a wide flash throwing sparks.
+Actor Spell_StormCall_Burst {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 0.95
+	Scale 1.1
+	States {
+		Spawn:
+			TNT1 AAAAAAAAAAAA 0 NoDelay A_SpawnItemEx("Spell_StaticField_Spark", 0, 0, 0, frandom(-7.0, 7.0), frandom(-7.0, 7.0), frandom(2.0, 9.0), 0, SXF_NOCHECKPOSITION)
+			FAXE RSTUVWX 2 Bright
+		Stop
+	}
+}

@@ -1,0 +1,76 @@
+// The crackle on a shocked enemy's body, every few tics while it lasts.
+Actor Spell_Shock_Crackle {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+FORCEXYBILLBOARD
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 1.0
+	Scale 0.26
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_Jump(256, "FA", "FB", "FC", "FD", "FE", "FF", "FG", "FH")
+		FA:
+			LGCB A 3 Bright
+		Stop
+		FB:
+			LGCB B 3 Bright
+		Stop
+		FC:
+			LGCB C 3 Bright
+		Stop
+		FD:
+			LGCB D 3 Bright
+		Stop
+		FE:
+			LGCB E 3 Bright
+		Stop
+		FF:
+			LGCB F 3 Bright
+		Stop
+		FG:
+			LGCB G 3 Bright
+		Stop
+		FH:
+			LGCB H 3 Bright
+		Stop
+	}
+}
+
+// The beam from the caster's hands to the enemy Shock lands on: ACS aims and stretches it, the shader draws the zigzag.
+Actor Spell_Shock_Beam {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 1.0
+	States {
+		Spawn:
+			ZPBM A 4 Bright
+		Fade:
+			ZPBM A 1 Bright A_FadeOut(0.2)
+		Loop
+	}
+}
+
+// Where Shock lands: one crackling puff.
+Actor Spell_Shock_Puff {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.8
+	States {
+		Spawn:
+			FAXE R 2 Bright Light("ShockBurst1")
+			FAXE S 2 Bright Light("ShockBurst2")
+			FAXE T 2 Bright Light("ShockBurst3")
+			FAXE U 2 Bright Light("ShockBurst4")
+			FAXE VWX 2 Bright
+		Stop
+	}
+}

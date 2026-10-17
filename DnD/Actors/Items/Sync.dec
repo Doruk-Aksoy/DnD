@@ -73,6 +73,33 @@ Actor P_HotbarCdB1 : Ammo {
 	+IGNORESKILL
 }
 
+// Overcharge's charges, while charging and while held, for the hotbar to draw on its icon.
+Actor P_OverchargeCharges : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+// Crackling Lance's intensity stacks, for the hotbar to draw on its icon.
+Actor P_LanceStacks : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+// Surgecast's seconds left while armed, for the hotbar to draw on its icon.
+Actor P_SurgecastTime : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
 Actor P_HotbarChg1 : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF

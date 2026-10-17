@@ -167,6 +167,8 @@ enum {
 
 	// Not a tree: the hotbar assignment page, reached from the same index.
 	MENU_SPELL_HOTBAR,
+	// Nor this: the gem sockets.
+	MENU_SPELL_GEMS,
 	
 	#ifdef ISAPRILFIRST
 	MENU_SHOP_NFT
@@ -368,7 +370,7 @@ bool IsSpellTreePage(int page) {
 // Everything the spell pages share regardless of which one: the full screen backdrop, the suppressed
 // side bar, the widened cursor and the id cleanup. A TREE page is the subset that has a tree in it.
 bool IsSpellPage(int page) {
-	return IsSpellTreePage(page) || page == MENU_SPELL_HOTBAR;
+	return IsSpellTreePage(page) || page == MENU_SPELL_HOTBAR || page == MENU_SPELL_GEMS;
 }
 
 bool IsWeaponPage(int page) {

@@ -1,0 +1,101 @@
+// Crackles round the caster while Overcharge charges and while the charge is held.
+Actor Spell_Overcharge_Crackle {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+FORCEXYBILLBOARD
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.26
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_Jump(256, "FA", "FB", "FC", "FD", "FE", "FF", "FG", "FH")
+		FA:
+			LGCB A 3 Bright
+		Stop
+		FB:
+			LGCB B 3 Bright
+		Stop
+		FC:
+			LGCB C 3 Bright
+		Stop
+		FD:
+			LGCB D 3 Bright
+		Stop
+		FE:
+			LGCB E 3 Bright
+		Stop
+		FF:
+			LGCB F 3 Bright
+		Stop
+		FG:
+			LGCB G 3 Bright
+		Stop
+		FH:
+			LGCB H 3 Bright
+		Stop
+	}
+}
+
+// The bolt that unleashes the charge onto the struck enemy, flat and facing its viewer. One of eight shapes.
+Actor Spell_Overcharge_Strike {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 1.0
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_Jump(256, "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8")
+		S1:
+			OVCS A 0
+		Goto Strike
+		S2:
+			OVCS B 0
+		Goto Strike
+		S3:
+			OVCS C 0
+		Goto Strike
+		S4:
+			OVCS D 0
+		Goto Strike
+		S5:
+			OVCS E 0
+		Goto Strike
+		S6:
+			OVCS F 0
+		Goto Strike
+		S7:
+			OVCS G 0
+		Goto Strike
+		S8:
+			OVCS H 0
+		Goto Strike
+		Strike:
+			"####" "#" 2 Bright Light("OverchargeStrike1")
+			"####" "#" 1 Bright Light("OverchargeStrike2") A_SetTranslucent(0.5, 1)
+			"####" "#" 2 Bright Light("OverchargeStrike1") A_SetTranslucent(1.0, 1)
+		Fade:
+			"####" "#" 1 Bright A_FadeOut(0.12)
+		Loop
+	}
+}
+
+// The burst at the struck enemy's middle, throwing sparks.
+Actor Spell_Overcharge_Burst {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 0.95
+	Scale 1.1
+	States {
+		Spawn:
+			TNT1 AAAAAA 0 NoDelay A_SpawnItemEx("Spell_StaticField_Spark", 0, 0, 0, frandom(-5.0, 5.0), frandom(-5.0, 5.0), frandom(1.0, 6.0), 0, SXF_NOCHECKPOSITION)
+			FAXE RSTUVWX 2 Bright
+		Stop
+	}
+}

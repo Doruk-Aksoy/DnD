@@ -1,0 +1,49 @@
+// Storm Brand's globe, on WORB B in MODELDEF.spell, shaded by StormBrand.fp; rides its host mass units over its feet,
+// at its seat's user offsets so brands sharing a host sit apart.
+Actor Spell_StormBrand_Globe {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 0.95
+	Scale 0.6
+	var int user_ox;
+	var int user_oy;
+	States {
+		Spawn:
+			WORB B 1 Bright NoDelay A_Warp(AAPTR_TARGET, user_ox, user_oy, mass, 0, WARPF_ABSOLUTEOFFSET | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+		Loop
+	}
+}
+
+// The rune circle round the globe, on AURA N in MODELDEF.aura, shaded by StormBrandRing.fp.
+Actor Spell_StormBrand_Ring : Spell_StormBrand_Globe {
+	Alpha 0.9
+	Scale 22.0
+	States {
+		Spawn:
+			AURA N 1 Bright NoDelay A_Warp(AAPTR_TARGET, user_ox, user_oy, mass, 0, WARPF_ABSOLUTEOFFSET | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+		Loop
+	}
+}
+
+// The circle's underside, seen when it rides over eye height: its MODELDEF mirror reverses the winding back face culling keys off.
+Actor Spell_StormBrand_RingFlip : Spell_StormBrand_Ring { }
+
+// The glow at the globe's heart, flickering between the two glow frames.
+Actor Spell_StormBrand_Core : Spell_StormBrand_Globe {
+	+FORCEXYBILLBOARD
+	Alpha 0.75
+	Scale 0.36
+	States {
+		Spawn:
+			CLGL A 1 Bright NoDelay Light("StormBrandGlow") A_Warp(AAPTR_TARGET, user_ox, user_oy, mass, 0, WARPF_ABSOLUTEOFFSET | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			CLGL A 1 Bright Light("StormBrandGlow") A_Warp(AAPTR_TARGET, user_ox, user_oy, mass, 0, WARPF_ABSOLUTEOFFSET | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			CLGL B 1 Bright Light("StormBrandGlow") A_Warp(AAPTR_TARGET, user_ox, user_oy, mass, 0, WARPF_ABSOLUTEOFFSET | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			CLGL A 1 Bright Light("StormBrandGlow") A_Warp(AAPTR_TARGET, user_ox, user_oy, mass, 0, WARPF_ABSOLUTEOFFSET | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			CLGL B 1 Bright Light("StormBrandGlow") A_Warp(AAPTR_TARGET, user_ox, user_oy, mass, 0, WARPF_ABSOLUTEOFFSET | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			CLGL B 1 Bright Light("StormBrandGlow") A_Warp(AAPTR_TARGET, user_ox, user_oy, mass, 0, WARPF_ABSOLUTEOFFSET | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+		Loop
+	}
+}

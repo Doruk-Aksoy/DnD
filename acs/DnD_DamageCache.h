@@ -721,7 +721,7 @@ void ResolveDamageComponents(int pnum, int slot, int dmgid, int damage_category)
 // Non-zero when this player deals anything beyond their weapon's own type, added or converted. The
 // gate the mixed-damage bookkeeping tests before doing any per-element work.
 int GetPlayerExtraDamageMask(int pnum) {
-	return GetPlayerDamageCache(pnum).extra_mask;
+	return GetPlayerDamageCache(pnum).extra_mask | (CheckActorInventory(pnum + P_TIDSTART, "DnD_EnergyBladeLess") ? 1 << DND_DAMAGECATEGORY_LIGHTNING : 0);
 }
 
 int GetCachedConvWeaponFrac(int pnum, int slot, int dmgid, int category) {

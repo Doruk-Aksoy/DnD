@@ -3324,6 +3324,9 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("DnD_SpreeCountdownRunning", 0);
 	SetInventory("DnD_MultikillCounter", 0);
 	TakeInventory("EShieldCharging", 1);
+	// Surgecast's window is counted by a script, which the level change ended.
+	SetInventory("DnD_SurgecastReady", 0);
+	SetInventory("P_SurgecastTime", 0);
 	
 	RemoveAllBuffs(pnum);
 	ClearLingeringBuffs(pnum);
@@ -4353,6 +4356,16 @@ Script "DnD Cold Exposure Timer" (int m_tid) {
 	SetActorInventory(m_tid, "DnD_ColdExposedTimer", 0);
 }
 
+Script "DnD Lightning Exposure Timer" (int m_tid) {
+	while(CheckActorInventory(m_tid, "DnD_LightningExposedTimer") && isActorAlive(m_tid)) {
+		TakeActorInventory(m_tid, "DnD_LightningExposedTimer", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(m_tid, "DnD_LightningExposed", 0);
+	SetActorInventory(m_tid, "DnD_LightningExposedTimer", 0);
+}
+
 // The golem's own states give and take MonsterRegenPause around its attacks, so this only ever
 // clears what it set: a monster that pauses its own regen is not holding this timer.
 Script "DnD Regen Pause Timer" (int m_tid) {
@@ -4397,6 +4410,23 @@ Script "DnD Frostbite Timer" (int m_tid) {
 
 	SetActorInventory(m_tid, "DnD_Frostbitten", 0);
 	SetActorInventory(m_tid, "DnD_FrostbittenTimer", 0);
+}
+
+// Conductivity, Frostbite's lightning twin. Owns the overload chance lane and the curse marker; the lightning
+// resistance half rides its exposure lane and ticker.
+Script "DnD Conductivity Timer" (int m_tid) {
+	int sfx_id = ACS_NamedExecuteWithResult("DND Spawn Attachment", m_tid, DND_ATTACHMENT_CONDUCTIVITY);
+
+	while(CheckActorInventory(m_tid, "DnD_ConductiveTimer") && isActorAlive(m_tid)) {
+		TakeActorInventory(m_tid, "DnD_ConductiveTimer", 1);
+		Delay(const:1);
+	}
+
+	if(isActorAlive(m_tid))
+		ACS_NamedExecuteWithResult("DnD Remove Monster Attachment", m_tid, sfx_id);
+
+	SetActorInventory(m_tid, "DnD_Conductive", 0);
+	SetActorInventory(m_tid, "DnD_ConductiveTimer", 0);
 }
 
 Script "DnD Expose Weakness Timer" (int m_tid) {
@@ -4589,11 +4619,7 @@ Script "DnD Dash Crash Course" (void) {
 				continue;
 
 			// reuses the stun Cranium Bash drives, so there is one stun in the game rather than two
-			if(CanStunMonster(m_tid)) {
-				SetActorInventory(m_tid, "StunDurationCounter", stun);
-				SetActorState(m_tid, "Stunned");
-				ACS_NamedExecuteAlways("DnD Monster Stun Ticker", 0, m_tid);
-			}
+			StunMonster(m_tid, stun);
 
 			Thing_Damage2(m_tid, dmg, "Physical");
 			Terminate;
@@ -5545,6 +5571,10 @@ Script "DnD Play Local Item Drop Sound" (int who, int droptype, int extra) CLIEN
 		case DND_ITEM_FLASK:
 			PlaySound(0, "Items/FlaskDrop", 6);
 		break;
+
+		case DND_ITEM_GEM:
+			PlaySound(0, "Items/GemDrop", 6);
+		break;
 	}
 }
 
@@ -5984,7 +6014,8 @@ Script "DnD Challenge Lootbox Opened" (int for_player) {
 		SpawnChallengeChestRewards(for_player);
 }
 
-Script "DnD Explosion Radius Retrieve" (int r_base, int noSecondExp, int src) {
+// extra_inc joins the area pool: a spell's own area gear, which no weapon explosion carries.
+Script "DnD Explosion Radius Retrieve" (int r_base, int noSecondExp, int src, int extra_inc) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	if(!isPlayer(owner))
 		owner = GetActorProperty(0, APROP_SCORE);
@@ -6009,7 +6040,7 @@ Script "DnD Explosion Radius Retrieve" (int r_base, int noSecondExp, int src) {
 	// APROP_SCORE and the stat page carry, and both of those describe the player rather than one
 	// explosion, so neither can answer "is the weapon in hand artillery". It is weapon sourced by
 	// definition, so a non weapon explosion does not get it either.
-	int aoe = GetPlayerAoEIncrease(pnum, src);
+	int aoe = GetPlayerAoEIncrease(pnum, src) + extra_inc;
 	if(src == DND_AOESRC_WEAPON)
 		aoe += GetPlayerArtilleryAoEIncrease(pnum, owner);
 
@@ -6148,10 +6179,10 @@ Script "DnD Pet Monster Scale" (int petid, int trait1, int trait2) {
 		add = ApplyHPScale(base, add);
 	}
 
-	// Intellect, as a PERCENT of whatever the level curve produced. Outside the level check on
-	// purpose: it used to sit inside it, so a level 1 summoner got no intellect health at all --
-	// not a reduced amount, none.
-	add += (base + add) / 10000 * GetIntellectEffect(pnum, DND_PET_HP_PER_INT);
+	// Intellect, as a percent of the level-scaled total; outside the level check so level 1 gets it too.
+	// Split, as dividing first gave nothing under 10000 health and multiplying first overflows a big pet.
+	temp = GetIntellectEffect(pnum, DND_PET_HP_PER_INT);
+	add += (base + add) / 10000 * temp + (base + add) % 10000 * temp / 10000;
 
 	// Re-clamped: the intellect term lands after the scale and can push the total over the ceiling
 	// on its own.
@@ -6303,12 +6334,17 @@ Script "DnD On Summon Death Check" (int monsterID) {
 	if(known)
 		PetSummonTic[m_id] = 0;
 
+	bool evicted = CheckInventory("DnD_PetUnsummoned");
 	if(!SetActivator(0, AAPTR_MASTER))
 		Terminate;
 
 	// EVERY pet counts against the cap, so every pet gives the point back. Only the zombie keeps
 	// its own separate tally.
 	TakeInventory("PetCounter", 1);
+
+	// Necromancer, for a minion that was slain rather than sent home by the cap.
+	if(!evicted && PlayerNumber() != -1)
+		ACS_NamedExecuteAlways("DnD Gem Minion Revive", 0, PlayerNumber(), petid);
 
 	if(petid == MONSTER_PET_ZOMBIE)
 		TakeInventory("SummonedZombiePets", 1);
@@ -7721,6 +7757,45 @@ Script "table test" (int boost) NET {
 	if(!boost)
 		boost = 100;
 	TestMonsterDropTable(PlayerNumber(), boost);
+}
+
+// pukename "DnD Debug Gem Drop" <colour> <greater> <role>: a gem at your feet, at any level. -1 rolls that part;
+// a role past the last one gives no role.
+Script "DnD Debug Gem Drop" (int colour, int greater, int role) NET {
+	int pnum = PlayerNumber();
+	int c = CreateItemSpot();
+	if(pnum < 0 || c == -1 || colour >= DND_GEM_COLOURS)
+		Terminate;
+
+	RollGemInfo(c, colour, greater, role);
+	SpawnDrop(GetGemDropClass(GetFieldItem(c).item_subtype), 16.0, 16, pnum + 1, c);
+	SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+}
+
+// pukename "DnD Debug Spell Gem" <spell> <stat> <val>: one gem term on a spell, as a socket would add it. stat -1 empties the row, -2 only reads it.
+// val is a whole percent (the MORE terms and crit chance are converted to 16.16), or a count for extra projectiles.
+Script "DnD Debug Spell Gem" (int spell, int stat, int val) NET {
+	int pnum = PlayerNumber();
+	if(pnum < 0 || spell < 0 || spell >= MAX_SPELL_IDS || stat >= MAX_GEMSTATS)
+		Terminate;
+
+	if(stat == -1)
+		BeginSpellGemRebuild(pnum, spell);
+	else
+		SnapshotSpellGemMask(pnum, spell);
+	if(stat >= 0)
+		AddSpellGemMod(pnum, spell, stat, GemStatFromPercent(stat, val));
+	EndSpellGemRebuild(pnum, spell);
+
+	for(int i = 0; i < MAX_GEMSTATS; ++i)
+		if(SpellGemMods[pnum][spell][i])
+			Log(s:"Spell ", d:spell, s:" gem stat ", d:i, s:" = ", d:SpellGemMods[pnum][spell][i]);
+
+	// What the hooks now return. Row values (cost, cast and cooldown tics, reservation) read 0 on an unlearned spell.
+	Log(s:"Spell ", d:spell, s:" rank ", d:GetSpellRank(pnum, spell, true), s:": cost ", f:GetSpellValue(pnum, spell, SPELLVAL_COST),
+		s:", reserve ", d:GetManaReservationOf(pnum, spell), s:", cast ", d:GetSpellCastTics(pnum, spell), s:", cd ", d:GetSpellCooldownTics(pnum, spell),
+		s:", 1000 hit/tick ", d:PriceSpellDamage(pnum, spell, 1000), s:"/", d:PriceSpellDamage(pnum, spell, 1000, 0, true),
+		s:", r100 ", f:ScaleSpellArea(pnum, spell, 100.0), s:", 100 tics ", d:ScaleSpellEffectTics(pnum, spell, 100), s:", +proj ", d:GetSpellExtraProjectiles(pnum, spell));
 }
 
 #ifdef WANT_BUFF_LOG

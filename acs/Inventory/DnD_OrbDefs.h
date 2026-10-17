@@ -110,6 +110,11 @@ struct orb_recipe_T {
 
 #define DND_RANDOM_TAGGED_ORB_TRANSMUTE 420
 #define DND_ELEMENTAL_TO_PRISMATIC 421
+#define DND_GEM_TRANSMUTE 422
+
+// A chamber slot holding a gem stores this | the gem's inventory box, so the gems chosen are the ones spent.
+#define DND_TRANSMUTE_GEMSLOT 0x10000
+#define DND_TRANSMUTE_GEMBOXMASK 0xFFFF
 
 orb_recipe_T module& GetOrbRecipe(int orb_type) {
 	static orb_recipe_T recipe;

@@ -22,6 +22,8 @@ Actor Spell_FrostBomb : DnD_Spell {
 	States {
 		SpawnState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Frost Bomb Setup")
+			// ISRADIUSDMG, or the handler takes A_Explode's raw 100 and skips the cold on-hit (regen pause, exposure).
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Prep Explosion")
 			// Once, not per pulse: the blast never changes over the crystal's life.
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Spell Explosion Setup", SPELLVAL_DAMAGE)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)

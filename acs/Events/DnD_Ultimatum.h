@@ -933,6 +933,7 @@ int PickUltimatumChallengeOffer() {
 
 // ---- reward pool -------------------------------------------------------------------------------
 #define DND_ULTIMATUM_REWARD_ITEMCHANCE 0.6
+#define DND_ULTIMATUM_REWARD_GEMCHANCE 0.65     // past the items, for a roller at DND_GEM_MINLEVEL; may roll a boss role
 #define DND_ULTIMATUM_REWARD_ORBCHANCE 0.9      // the rest rolls a token
 
 // A reward is meant to beat an ordinary drop on both axes: its mods roll well far more often, and
@@ -1687,6 +1688,8 @@ void RollUltimatumReward(int slot) {
         else
             RollUltimatumRewardCharm(c, ilvl, pnum, p);
     }
+    else if(roll <= DND_ULTIMATUM_REWARD_GEMCHANCE && GetActorLevel(pnum + P_TIDSTART) >= DND_GEM_MINLEVEL)
+        RollGemInfo(c, -1, -1, -1, false, true);
     else if(roll <= DND_ULTIMATUM_REWARD_ORBCHANCE) {
         t = PickUltimatumRewardOrb(pnum);
         RollOrbInfo(c, t, ApplyUltimatumStackRarity(stack, GetUltimatumOrbStackPct(t)));

@@ -259,6 +259,24 @@ enum {
 	IIMG_FLASK_UTILITY_QUICKSILVER,
 	IIMG_FLASK_UTILITY_QUARTZ,
 
+	// gems, in GetGemIndex order: each colour, then its greater version
+	IIMG_GEM_RUBY = 3500,
+	IIMG_GEM_RUBY_G,
+	IIMG_GEM_SAPPHIRE,
+	IIMG_GEM_SAPPHIRE_G,
+	IIMG_GEM_DIAMOND,
+	IIMG_GEM_DIAMOND_G,
+	IIMG_GEM_EMERALD,
+	IIMG_GEM_EMERALD_G,
+	IIMG_GEM_TOPAZ,
+	IIMG_GEM_TOPAZ_G,
+	IIMG_GEM_AMETHYST,
+	IIMG_GEM_AMETHYST_G,
+	IIMG_GEM_OBSIDIAN,
+	IIMG_GEM_OBSIDIAN_G,
+	IIMG_GEM_BISMUTH,
+	IIMG_GEM_BISMUTH_G,
+
 	// dungeon keys -- in matching order with dnd_dungeons.h enum
 	IIMG_DUNGEONKEY_VOIDKEEP = 4000,
 
@@ -346,6 +364,9 @@ enum {
 
 #define ITEM_IMAGE_FLASK_BEGIN IIMG_FLASK_LIFE_SMALL
 #define ITEM_IMAGE_FLASK_END IIMG_FLASK_UTILITY_QUARTZ
+
+#define ITEM_IMAGE_GEM_BEGIN IIMG_GEM_RUBY
+#define ITEM_IMAGE_GEM_END IIMG_GEM_BISMUTH_G
 
 // wide returns wider version
 str GetItemImage(int id, bool wide = false) {
@@ -456,6 +477,10 @@ str GetItemImage(int id, bool wide = false) {
 		img_prefix = "FL";
 		suffix = id - ITEM_IMAGE_FLASK_BEGIN + 1;
 	}
+	else if(id <= ITEM_IMAGE_GEM_END) {
+		img_prefix = "GM";
+		suffix = id - ITEM_IMAGE_GEM_BEGIN + 1;
+	}
 	else if(id <= ITEM_IMAGE_DUNGEONKEY_END) {
 		// dungeon key
 		img_prefix = "DK";
@@ -477,6 +502,11 @@ int GetDungeonKeyImageId(int isubt) {
 	if(IsSpecialDungeon(isubt))
 		return ITEM_IMAGE_DUNGEONKEY_SPECIAL_BEGIN + isubt - DND_FIRST_SPECIALDUNGEONID;
 	return ITEM_IMAGE_DUNGEONKEY_BEGIN + isubt - DND_FIRST_DUNGEONID;
+}
+
+// Here for the same reason: the gem's image id off its subtype.
+int GetGemImageId(int isubt) {
+	return ITEM_IMAGE_GEM_BEGIN + GetGemIndex(isubt);
 }
 
 #endif

@@ -180,3 +180,6 @@ RES_DESC58				= "\c[R5]CYBERNETIC \cj- UAC found the ultimate material to create
 
 RES_LABEL59 			= "Increased Stash Tabs";
 RES_DESC59				= "UAC can afford more space to teleport your personal belongings at the expense of more budget spent. Allows purchase of additional stash tabs.";
+
+RES_LABEL60 			= "Gem Resonance";
+RES_DESC60				= "UAC finds the strange gems resonate in pairs when bound to the same spell. Opens a second gem socket on every spell from rank 4.";

@@ -1,0 +1,82 @@
+// The crackles strung from the caster to the pushed enemy.
+Actor Spell_Telekinesis_Arc {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+FORCEXYBILLBOARD
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 1.0
+	Scale 0.26
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_Jump(256, "FA", "FB", "FC", "FD", "FE", "FF", "FG", "FH")
+		FA:
+			LGCB A 3 Bright
+		Stop
+		FB:
+			LGCB B 3 Bright
+		Stop
+		FC:
+			LGCB C 3 Bright
+		Stop
+		FD:
+			LGCB D 3 Bright
+		Stop
+		FE:
+			LGCB E 3 Bright
+		Stop
+		FF:
+			LGCB F 3 Bright
+		Stop
+		FG:
+			LGCB G 3 Bright
+		Stop
+		FH:
+			LGCB H 3 Bright
+		Stop
+	}
+}
+
+// Flecks the burst throws, white and blue in turn.
+Actor Spell_Telekinesis_Spark : WhiteMagicSpark {
+	Scale 0.016
+	Gravity 0.3
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+		SpawnLoop:
+			OGLP F 1 Bright A_FadeOut(0.14)
+			OGLP D 1 Bright A_FadeOut(0.14)
+		Loop
+	}
+}
+
+// Where the arc lands on the pushed enemy: a crackle that swells and fades under a flash.
+Actor Spell_Telekinesis_Burst {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+FORCEXYBILLBOARD
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 1.0
+	Scale 0.42
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SpawnItemEx("Spell_Telekinesis_Spark", 0, 0, 0, frandom(-5.0, 5.0), frandom(-5.0, 5.0), frandom(1.0, 5.0))
+			TNT1 A 0 A_SpawnItemEx("Spell_Telekinesis_Spark", 0, 0, 0, frandom(-5.0, 5.0), frandom(-5.0, 5.0), frandom(1.0, 5.0))
+			TNT1 A 0 A_SpawnItemEx("Spell_Telekinesis_Spark", 0, 0, 0, frandom(-5.0, 5.0), frandom(-5.0, 5.0), frandom(1.0, 5.0))
+			TNT1 A 0 A_SpawnItemEx("Spell_Telekinesis_Spark", 0, 0, 0, frandom(-5.0, 5.0), frandom(-5.0, 5.0), frandom(1.0, 5.0))
+			LGCB C 2 Bright Light("TelekinesisBurst1")
+			TNT1 A 0 A_SetScale(0.52)
+			LGCB F 2 Bright Light("TelekinesisBurst2")
+			TNT1 A 0 A_SetScale(0.6)
+			TNT1 A 0 A_SetTranslucent(0.6, 1)
+			LGCB B 2 Bright Light("TelekinesisBurst3")
+			TNT1 A 0 A_SetTranslucent(0.3, 1)
+			LGCB H 2 Bright Light("TelekinesisBurst4")
+		Stop
+	}
+}

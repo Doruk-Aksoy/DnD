@@ -1,0 +1,222 @@
+Actor Spell_LightningSpearTrailFrame : Inventory {
+	Inventory.MaxAmount 10
+}
+
+Actor Spell_LightningSpearFrameSetter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_GiveInventory("Spell_LightningSpearTrailFrame", 1)
+			TNT1 A 0 A_JumpIfInventory("Spell_LightningSpearTrailFrame", 0, "Reset")
+		Stop
+		Reset:
+			TNT1 A 0 A_TakeInventory("Spell_LightningSpearTrailFrame", 0)
+		Stop
+	}
+}
+
+// Bounces off walls, floors and ceilings with a blast at each one; on an enemy it tries to pass through, striking again.
+Actor Spell_LightningSpear : DnD_Spell {
+	DamageType "Lightning"
+	Scale 0.65
+	// The cast sets the real speed. The engine hides your own missile while it is closer than this, so keep it small.
+	Speed 8
+	Height 16
+	Radius 8
+	RenderStyle Add
+	Translation "0:255=%[0,0,0]:[0.3,0.6,1.4]"
+	BounceFactor 1.0
+	WallBounceFactor 1.0
+	ReactionTime 105
+	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE))
+	+BOUNCEONWALLS
+	+BOUNCEONFLOORS
+	+BOUNCEONCEILINGS
+	+CANBOUNCEWATER
+	+USEBOUNCESTATE
+	+FORCEXYBILLBOARD
+	+FORCEPAIN
+	+DONTREFLECT
+	+SKYEXPLODE
+	States {
+		// user_extra holds the bounces left in flight, then the pass attempts once it meets an enemy.
+		SpawnState:
+			TNT1 A 0 A_SetUserVar("user_extra", ACS_NamedExecuteWithResult("DnD Lightning Spear Bounces"))
+			TNT1 A 0 A_Jump(256, "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10")
+		F1:
+			HSPL A 0
+		Goto Move
+		F2:
+			HSPL B 0 A_GiveInventory("Spell_LightningSpearTrailFrame", 1)
+		Goto Move
+		F3:
+			HSPL C 0 A_GiveInventory("Spell_LightningSpearTrailFrame", 2)
+		Goto Move
+		F4:
+			HSPL D 0 A_GiveInventory("Spell_LightningSpearTrailFrame", 3)
+		Goto Move
+		F5:
+			HSPL E 0 A_GiveInventory("Spell_LightningSpearTrailFrame", 4)
+		Goto Move
+		F6:
+			HSPL F 0 A_GiveInventory("Spell_LightningSpearTrailFrame", 5)
+		Goto Move
+		F7:
+			HSPL G 0 A_GiveInventory("Spell_LightningSpearTrailFrame", 6)
+		Goto Move
+		F8:
+			HSPL H 0 A_GiveInventory("Spell_LightningSpearTrailFrame", 7)
+		Goto Move
+		F9:
+			HSPL I 0 A_GiveInventory("Spell_LightningSpearTrailFrame", 8)
+		Goto Move
+		F10:
+			HSPL J 0 A_GiveInventory("Spell_LightningSpearTrailFrame", 9)
+		Goto Move
+		// Afterimages carry a sliver of the velocity so the model pitches with the spear; none right by the caster.
+		Move:
+			"####" "#" 0 A_JumpIfCloser(96, "NoTrail")
+			"####" "#" 0 A_SpawnItemEx("Spell_LightningSpearTrail", 0, 0, 0, velx * 0.01, vely * 0.01, velz * 0.01, 0, SXF_NOCHECKPOSITION | SXF_ABSOLUTEVELOCITY)
+		NoTrail:
+			"####" "#" 0 A_SpawnItemEx("ElectDrSpark", 0, 0, 0, frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(-2.0, 2.0), 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
+			"####" "#" 0 A_CountDown
+			"####" "#" 1 Light("LightningSpearLight") Bright A_GiveInventory("Spell_LightningSpearFrameSetter", 1)
+			"####" "#" 0 A_JumpIfInventory("Spell_LightningSpearTrailFrame", 9, "F10")
+			"####" "#" 0 A_JumpIfInventory("Spell_LightningSpearTrailFrame", 8, "F9")
+			"####" "#" 0 A_JumpIfInventory("Spell_LightningSpearTrailFrame", 7, "F8")
+			"####" "#" 0 A_JumpIfInventory("Spell_LightningSpearTrailFrame", 6, "F7")
+			"####" "#" 0 A_JumpIfInventory("Spell_LightningSpearTrailFrame", 5, "F6")
+			"####" "#" 0 A_JumpIfInventory("Spell_LightningSpearTrailFrame", 4, "F5")
+			"####" "#" 0 A_JumpIfInventory("Spell_LightningSpearTrailFrame", 3, "F4")
+			"####" "#" 0 A_JumpIfInventory("Spell_LightningSpearTrailFrame", 2, "F3")
+			"####" "#" 0 A_JumpIfInventory("Spell_LightningSpearTrailFrame", 1, "F2")
+		Goto F1
+		// A bounce on the very first tic comes before SpawnState, so the count may still be unset here.
+		Bounce.Floor:
+		Bounce.Ceiling:
+		Bounce.Wall:
+			"####" "#" 0 A_JumpIf(user_extra, "Bounced")
+			"####" "#" 0 A_SetUserVar("user_extra", ACS_NamedExecuteWithResult("DnD Lightning Spear Bounces"))
+		Bounced:
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Lightning Spear Blast")
+			"####" "############" 0 A_SpawnItemEx("ElectDrSpark", 0, 0, 0, frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(-2.0, 2.0), 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
+			"####" "#" 0 A_SpawnItemEx("PlasmaFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			"####" "#" 0 A_SetUserVar("user_extra", user_extra - 1)
+			"####" "#" 0 A_JumpIf(user_extra <= 0, "Spent")
+		Goto Move
+		Spent:
+			TNT1 A 0 A_Stop
+		Death:
+			TNT1 AAAAA 0 A_SpawnItemEx("ZapPuff", random(-16, 16), random(-16, 16), random(-16, 16), 0, 0, 0, 0, 160)
+			S003 ABCDEF 2 Light("LightningSpearLight") Bright
+		Stop
+		XDeath:
+		Crash:
+			TNT1 AAAAA 0 A_SpawnItemEx("ZapPuff", random(-16, 16), random(-16, 16), random(-16, 16), 0, 0, 0, 0, 160)
+			S003 ABCDEF 2 Light("LightningSpearLight") Bright
+			TNT1 A 0 A_SetUserVar("user_extra", ACS_NamedExecuteWithResult("DnD Lightning Spear Passes"))
+		Pass:
+			TNT1 A 0 A_JumpIf(user_extra <= 0, "End")
+			TNT1 A 0 A_SetUserVar("user_extra", user_extra - 1)
+			TNT1 A 0 A_PlaySound("Spell/LightningSpearBounce")
+			TNT1 A 1 Light("LightningSpearLight") ACS_NamedExecuteWithResult("DnD Lightning Spear Strike")
+			TNT1 A 8 Light("LightningSpearLight")
+		Goto Pass
+		End:
+			TNT1 A 0
+		Stop
+	}
+}
+
+// One pass attempt, thrown from where the spear stopped into what it hit. From rank 10 it also bursts for the bounce damage.
+Actor Spell_LightningSpear_Strike : DnD_Spell {
+	DamageType "Lightning"
+	Scale 0.65
+	Speed 28
+	Height 8
+	Radius 4
+	RenderStyle Add
+	Translation "0:255=%[0,0,0]:[0.3,0.6,1.4]"
+	ReactionTime 12
+	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE))
+	+FORCEXYBILLBOARD
+	+FORCEPAIN
+	+DONTREFLECT
+	+SKYEXPLODE
+	States {
+		SpawnState:
+			HSPL A 1 Light("LightningSpearLight") Bright A_CountDown
+		Loop
+		Death:
+			TNT1 AAAAA 0 A_SpawnItemEx("ZapPuff", random(-16, 16), random(-16, 16), random(-16, 16), 0, 0, 0, 0, 160)
+			S003 ABCDEF 2 Light("LightningSpearLight") Bright
+		Stop
+		XDeath:
+		Crash:
+			TNT1 A 0 A_JumpIf(user_spellrank < DND_SPELL_THRESH_HIGH, "Death")
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Lightning Spear Blast")
+		Goto Death
+	}
+}
+
+// The bounce blast: the spear's DAMAGE2 in its RADIUS, stamped as the spear by the script that spawns it.
+Actor Spell_LightningSpear_Blast : DnD_SpellExplosive {
+	Speed 0
+	+FORCEPAIN
+	+THRUACTORS
+	States {
+		SpawnState:
+			TNT1 A 0
+		Death:
+			TNT1 A 0 A_PlaySound("Spell/LightningSpearBounce")
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Spell Explosion Setup", SPELLVAL_DAMAGE2)
+		Goto DoExplosionDamage
+		ContinueFromExplosion:
+			TNT1 A 1
+		Stop
+	}
+}
+
+Actor Spell_LightningSpearTrail {
+	Scale 0.65
+	RenderStyle Add
+	Alpha 0.55
+	+NOGRAVITY
+	Translation "0:255=%[0,0,0]:[0.3,0.6,1.4]"
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 0 A_Jump(256, "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10")
+		F1:
+			HSPL A 1 A_FadeOut(0.07)
+		Loop
+		F2:
+			HSPL B 1 A_FadeOut(0.07)
+		Loop
+		F3:
+			HSPL C 1 A_FadeOut(0.07)
+		Loop
+		F4:
+			HSPL D 1 A_FadeOut(0.07)
+		Loop
+		F5:
+			HSPL E 1 A_FadeOut(0.07)
+		Loop
+		F6:
+			HSPL F 1 A_FadeOut(0.07)
+		Loop
+		F7:
+			HSPL G 1 A_FadeOut(0.07)
+		Loop
+		F8:
+			HSPL H 1 A_FadeOut(0.07)
+		Loop
+		F9:
+			HSPL I 1 A_FadeOut(0.07)
+		Loop
+		F10:
+			HSPL J 1 A_FadeOut(0.07)
+		Loop
+	}
+}

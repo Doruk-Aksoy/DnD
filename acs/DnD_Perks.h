@@ -1180,8 +1180,7 @@ bool RespecPerkPoint(int pnum, int perk) {
 // marked; everything else is a plain integer.
 //
 // Only the perks whose effect IS one of these stats are here. The rest are conditional or
-// behavioural and want a hook where the behaviour lives -- they read HasPerk at their own call site
-// and are listed at the bottom of .claude/notes/dnd-perk-rework.md.
+// behavioural and want a hook where the behaviour lives -- they read HasPerk at their own call site.
 void SetupPerkStats() {
     // ---------------- Acrobacy ----------------
     // Tactical Dash gives the dash on its first point and 10% off the cooldown on every point,

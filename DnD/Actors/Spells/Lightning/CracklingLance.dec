@@ -1,0 +1,86 @@
+// Crackling Lance's branches: ACS aims and stretches the model and says how far intensity has built; the shader draws them.
+Actor Spell_CracklingLance_Beam {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 1.0
+	States {
+		Spawn:
+			CLNB A 6 Bright Light("CracklingLance")
+		Fade:
+			CLNB A 1 Bright A_FadeOut(0.18)
+		Loop
+	}
+}
+
+// One soft glow round the laser, so it reads round from any side; ACS strings them along the beam, the class picked by stage.
+Actor Spell_CracklingLance_Glow1 {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 0.4
+	Scale 0.12
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_Jump(128, "Other")
+			CLGL A 5 Bright
+		Goto Fade
+		Other:
+			CLGL B 5 Bright
+		Fade:
+			"####" "#" 1 Bright A_FadeOut(0.08)
+		Loop
+	}
+}
+
+Actor Spell_CracklingLance_Glow2 : Spell_CracklingLance_Glow1 { Scale 0.38 }
+Actor Spell_CracklingLance_Glow3 : Spell_CracklingLance_Glow1 { Scale 0.55 }
+Actor Spell_CracklingLance_Glow4 : Spell_CracklingLance_Glow1 { Scale 0.7 }
+
+// The laser's first stretch out of the hands stays thin, so it does not fill the caster's view.
+Actor Spell_CracklingLance_GlowNear : Spell_CracklingLance_Glow1 { Scale 0.1 }
+
+// Energy gushing out of the hands: a glow thrown forward that swells and fades.
+Actor Spell_CracklingLance_Gush {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 0.45
+	Scale 0.12
+	States {
+		Spawn:
+			CLGL A 1 Bright
+			CLGL B 1 Bright A_SetScale(0.18)
+			CLGL A 1 Bright A_SetScale(0.24)
+			CLGL B 1 Bright A_SetScale(0.3)
+			CLGL A 1 Bright A_SetScale(0.35)
+			CLGL B 1 Bright A_SetScale(0.4)
+			CLGL A 1 Bright A_FadeOut(0.1)
+			CLGL B 1 Bright A_FadeOut(0.1)
+			CLGL A 1 Bright A_FadeOut(0.1)
+			CLGL B 1 Bright A_FadeOut(0.1)
+		Stop
+	}
+}
+
+// A crackle on each enemy the lance hits.
+Actor Spell_CracklingLance_Hit {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.45
+	States {
+		Spawn:
+			FAXE STUVWX 2 Bright
+		Stop
+	}
+}

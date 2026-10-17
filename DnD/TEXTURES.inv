@@ -429,3 +429,246 @@ Graphic "DNGTK01", 68, 69
 	YScale 2.0
 	Patch "DNGTK01", 0, 0
 }
+
+// Gems: each icon (GI*, off the GM* art) cropped to its content and scaled to 26 pixels at its longest. The drop
+// sprites GMDPA0-P0 reuse the art in GetGemIndex order, 20 units long and floating 14 above the floor.
+
+Graphic "GIRUBY", 72, 73
+{
+	XScale 2.808
+	YScale 2.808
+	Patch "GMRUBY", -14, -15
+}
+
+Graphic "GIRUBYG", 59, 79
+{
+	XScale 3.038
+	YScale 3.038
+	Patch "GMRUBYG", -20, -11
+}
+
+Graphic "GISAPH", 68, 69
+{
+	XScale 2.654
+	YScale 2.654
+	Patch "GMSAPH", -17, -17
+}
+
+Graphic "GISAPHG", 67, 80
+{
+	XScale 3.077
+	YScale 3.077
+	Patch "GMSAPHG", -17, -12
+}
+
+Graphic "GIDIAMD", 72, 73
+{
+	XScale 2.808
+	YScale 2.808
+	Patch "GMDIAMD", -14, -15
+}
+
+Graphic "GIDIAMDG", 59, 79
+{
+	XScale 3.038
+	YScale 3.038
+	Patch "GMDIAMDG", -20, -11
+}
+
+Graphic "GIEMRLD", 72, 73
+{
+	XScale 2.808
+	YScale 2.808
+	Patch "GMEMRLD", -14, -15
+}
+
+Graphic "GIEMRLDG", 59, 79
+{
+	XScale 3.038
+	YScale 3.038
+	Patch "GMEMRLDG", -20, -11
+}
+
+Graphic "GITOPAZ", 68, 69
+{
+	XScale 2.654
+	YScale 2.654
+	Patch "GMTOPAZ", -17, -17
+}
+
+Graphic "GITOPAZG", 67, 80
+{
+	XScale 3.077
+	YScale 3.077
+	Patch "GMTOPAZG", -17, -12
+}
+
+Graphic "GIAMTHY", 68, 69
+{
+	XScale 2.654
+	YScale 2.654
+	Patch "GMAMTHY", -17, -17
+}
+
+Graphic "GIAMTHYG", 67, 80
+{
+	XScale 3.077
+	YScale 3.077
+	Patch "GMAMTHYG", -17, -12
+}
+
+Graphic "GIOBSID", 68, 69
+{
+	XScale 2.654
+	YScale 2.654
+	Patch "GMOBSID", -17, -17
+}
+
+Graphic "GIOBSIDG", 67, 80
+{
+	XScale 3.077
+	YScale 3.077
+	Patch "GMOBSIDG", -17, -12
+}
+
+Graphic "GIBISMU", 99, 113
+{
+	XScale 4.346
+	YScale 4.346
+	Patch "GMBISMU", 0, 0
+}
+
+Graphic "GIBISMUG", 70, 100
+{
+	XScale 2.958
+	YScale 3.846
+	Patch "GMBISMUG", 0, 0
+}
+
+Sprite "GMDPA0", 72, 73
+{
+	XScale 3.650
+	YScale 3.650
+	Offset 36, 124
+	Patch "GMRUBY", -14, -15
+}
+
+Sprite "GMDPB0", 59, 79
+{
+	XScale 3.950
+	YScale 3.950
+	Offset 29, 134
+	Patch "GMRUBYG", -20, -11
+}
+
+Sprite "GMDPC0", 68, 69
+{
+	XScale 3.450
+	YScale 3.450
+	Offset 34, 117
+	Patch "GMSAPH", -17, -17
+}
+
+Sprite "GMDPD0", 67, 80
+{
+	XScale 4.000
+	YScale 4.000
+	Offset 33, 136
+	Patch "GMSAPHG", -17, -12
+}
+
+Sprite "GMDPE0", 72, 73
+{
+	XScale 3.650
+	YScale 3.650
+	Offset 36, 124
+	Patch "GMDIAMD", -14, -15
+}
+
+Sprite "GMDPF0", 59, 79
+{
+	XScale 3.950
+	YScale 3.950
+	Offset 29, 134
+	Patch "GMDIAMDG", -20, -11
+}
+
+Sprite "GMDPG0", 72, 73
+{
+	XScale 3.650
+	YScale 3.650
+	Offset 36, 124
+	Patch "GMEMRLD", -14, -15
+}
+
+Sprite "GMDPH0", 59, 79
+{
+	XScale 3.950
+	YScale 3.950
+	Offset 29, 134
+	Patch "GMEMRLDG", -20, -11
+}
+
+Sprite "GMDPI0", 68, 69
+{
+	XScale 3.450
+	YScale 3.450
+	Offset 34, 117
+	Patch "GMTOPAZ", -17, -17
+}
+
+Sprite "GMDPJ0", 67, 80
+{
+	XScale 4.000
+	YScale 4.000
+	Offset 33, 136
+	Patch "GMTOPAZG", -17, -12
+}
+
+Sprite "GMDPK0", 68, 69
+{
+	XScale 3.450
+	YScale 3.450
+	Offset 34, 117
+	Patch "GMAMTHY", -17, -17
+}
+
+Sprite "GMDPL0", 67, 80
+{
+	XScale 4.000
+	YScale 4.000
+	Offset 33, 136
+	Patch "GMAMTHYG", -17, -12
+}
+
+Sprite "GMDPM0", 68, 69
+{
+	XScale 3.450
+	YScale 3.450
+	Offset 34, 117
+	Patch "GMOBSID", -17, -17
+}
+
+Sprite "GMDPN0", 67, 80
+{
+	XScale 4.000
+	YScale 4.000
+	Offset 33, 136
+	Patch "GMOBSIDG", -17, -12
+}
+
+Sprite "GMDPO0", 99, 113
+{
+	XScale 5.650
+	YScale 5.650
+	Offset 49, 192
+	Patch "GMBISMU", 0, 0
+}
+
+Sprite "GMDPP0", 70, 100
+{
+	XScale 3.846
+	YScale 5.000
+	Offset 35, 170
+	Patch "GMBISMUG", 0, 0
+}

@@ -213,6 +213,16 @@ int GetHotbarSlotY() {
 		DND_HOTBAR_GAPY - DND_HOTBAR_LABELH - DND_HOTBAR_ICON;
 }
 
+// Crackling Lance's intensity, Overcharge's charges, Surgecast's seconds left.
+int GetHotbarBadge(int spell) {
+	switch(spell) {
+		case SPL_CRACKLINGLANCE: return CheckInventory("P_LanceStacks");
+		case SPL_OVERCHARGE: return CheckInventory("P_OverchargeCharges");
+		case SPL_SURGECAST: return CheckInventory("P_SurgecastTime");
+	}
+	return 0;
+}
+
 // Drawn from the shared per player HUD loop rather than a script of its own -- see
 // "DnD Player HUD". The gate (alive, not in the menu) belongs to that loop, so this just
 // draws.
@@ -234,6 +244,7 @@ void DrawSpellHotbar(int pnum) {
 			DeleteText(HOTBAR_CD2_ID + i);
 			DeleteText(HOTBAR_CHG_ID + i);
 			DeleteText(HOTBAR_GLINT_ID + i);
+			DeleteText(HOTBAR_STACK_ID + i);
 			GetHotbarGlint().spell[i] = 0;
 			continue;
 		}
@@ -305,6 +316,14 @@ void DrawSpellHotbar(int pnum) {
 				((x + DND_HOTBAR_ICON - 2) << 16) + 0.4, ((GetHotbarSlotY() + 1) << 16) + 0.1, 0.1);
 		else
 			DeleteText(HOTBAR_CHG_ID + i);
+
+		// A count bottom right of the icon while above zero.
+		int badge = GetHotbarBadge(spell);
+		if(badge)
+			HudMessage(s:"\cn", d:badge; HUDMSG_PLAIN, HOTBAR_STACK_ID + i, CR_WHITE,
+				((x + DND_HOTBAR_ICON - 2) << 16) + 0.4, ((GetHotbarSlotY() + DND_HOTBAR_ICON - 8) << 16) + 0.1, 0.1);
+		else
+			DeleteText(HOTBAR_STACK_ID + i);
 
 		// Which key casts it, under the icon.
 		HudMessage(s:"\c[Y5]", d:i + 1; HUDMSG_PLAIN, HOTBAR_SLOT_ID + i, CR_WHITE,

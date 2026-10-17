@@ -1,0 +1,254 @@
+// The burst at the centre of Spark's area on every zap, with its flash.
+Actor Spell_Spark_Flash {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 1.0
+	Scale 0.35
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetAngle(random(0, 359))
+			TNT1 A 0 A_Jump(256, "O1", "O2", "O3")
+		O1:
+			SPZB A 1 Bright Light("SparkFlash1")
+			TNT1 A 0 A_SetScale(0.7)
+			SPZB C 1 Bright Light("SparkFlash1")
+			TNT1 A 0 A_SetScale(1)
+			SPZB E 1 Bright Light("SparkFlash1")
+			TNT1 A 0 A_SetScale(0.98)
+			SPZB B 1 Bright Light("SparkFlash2") A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.96)
+			SPZB D 1 Bright Light("SparkFlash2") A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.93)
+			SPZB F 1 Bright Light("SparkFlash2") A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.9)
+			SPZB A 1 Bright Light("SparkFlash2") A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.87)
+			SPZB C 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.85)
+			SPZB E 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.83)
+			SPZB B 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.82)
+			SPZB D 1 Bright A_FadeOut(0.12)
+		Stop
+		O2:
+			SPZB B 1 Bright Light("SparkFlash1")
+			TNT1 A 0 A_SetScale(0.7)
+			SPZB D 1 Bright Light("SparkFlash1")
+			TNT1 A 0 A_SetScale(1)
+			SPZB F 1 Bright Light("SparkFlash1")
+			TNT1 A 0 A_SetScale(0.98)
+			SPZB A 1 Bright Light("SparkFlash2") A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.96)
+			SPZB C 1 Bright Light("SparkFlash2") A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.93)
+			SPZB E 1 Bright Light("SparkFlash2") A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.9)
+			SPZB B 1 Bright Light("SparkFlash2") A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.87)
+			SPZB D 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.85)
+			SPZB F 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.83)
+			SPZB A 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.82)
+			SPZB C 1 Bright A_FadeOut(0.12)
+		Stop
+		O3:
+			SPZB C 1 Bright Light("SparkFlash1")
+			TNT1 A 0 A_SetScale(0.7)
+			SPZB F 1 Bright Light("SparkFlash1")
+			TNT1 A 0 A_SetScale(1)
+			SPZB B 1 Bright Light("SparkFlash1")
+			TNT1 A 0 A_SetScale(0.98)
+			SPZB E 1 Bright Light("SparkFlash2") A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.96)
+			SPZB A 1 Bright Light("SparkFlash2") A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.93)
+			SPZB D 1 Bright Light("SparkFlash2") A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.9)
+			SPZB C 1 Bright Light("SparkFlash2") A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.87)
+			SPZB F 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.85)
+			SPZB B 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.83)
+			SPZB E 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.82)
+			SPZB A 1 Bright A_FadeOut(0.12)
+		Stop
+	}
+}
+
+// Smaller bursts scattered through the area on every zap.
+Actor Spell_Spark_Crackle {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 1.0
+	Scale 0.1925
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetAngle(random(0, 359))
+			TNT1 A 0 A_Jump(256, "O1", "O2", "O3")
+		O1:
+			SPZB A 1 Bright
+			TNT1 A 0 A_SetScale(0.385)
+			SPZB C 1 Bright
+			TNT1 A 0 A_SetScale(0.55)
+			SPZB E 1 Bright
+			TNT1 A 0 A_SetScale(0.539)
+			SPZB B 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.528)
+			SPZB D 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.512)
+			SPZB F 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.495)
+			SPZB A 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.479)
+			SPZB C 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.468)
+			SPZB E 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.457)
+			SPZB B 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.451)
+			SPZB D 1 Bright A_FadeOut(0.12)
+		Stop
+		O2:
+			SPZB B 1 Bright
+			TNT1 A 0 A_SetScale(0.385)
+			SPZB D 1 Bright
+			TNT1 A 0 A_SetScale(0.55)
+			SPZB F 1 Bright
+			TNT1 A 0 A_SetScale(0.539)
+			SPZB A 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.528)
+			SPZB C 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.512)
+			SPZB E 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.495)
+			SPZB B 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.479)
+			SPZB D 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.468)
+			SPZB F 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.457)
+			SPZB A 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.451)
+			SPZB C 1 Bright A_FadeOut(0.12)
+		Stop
+		O3:
+			SPZB C 1 Bright
+			TNT1 A 0 A_SetScale(0.385)
+			SPZB F 1 Bright
+			TNT1 A 0 A_SetScale(0.55)
+			SPZB B 1 Bright
+			TNT1 A 0 A_SetScale(0.539)
+			SPZB E 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.528)
+			SPZB A 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.512)
+			SPZB D 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.495)
+			SPZB C 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.479)
+			SPZB F 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.468)
+			SPZB B 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.457)
+			SPZB E 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.451)
+			SPZB A 1 Bright A_FadeOut(0.12)
+		Stop
+	}
+}
+
+// The burst on each enemy a zap hits.
+Actor Spell_Spark_Hit {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 1.0
+	Scale 0.2275
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetAngle(random(0, 359))
+			TNT1 A 0 A_Jump(256, "O1", "O2", "O3")
+		O1:
+			SPZB A 1 Bright
+			TNT1 A 0 A_SetScale(0.455)
+			SPZB C 1 Bright
+			TNT1 A 0 A_SetScale(0.65)
+			SPZB E 1 Bright
+			TNT1 A 0 A_SetScale(0.637)
+			SPZB B 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.624)
+			SPZB D 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.605)
+			SPZB F 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.585)
+			SPZB A 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.566)
+			SPZB C 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.552)
+			SPZB E 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.539)
+			SPZB B 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.533)
+			SPZB D 1 Bright A_FadeOut(0.12)
+		Stop
+		O2:
+			SPZB B 1 Bright
+			TNT1 A 0 A_SetScale(0.455)
+			SPZB D 1 Bright
+			TNT1 A 0 A_SetScale(0.65)
+			SPZB F 1 Bright
+			TNT1 A 0 A_SetScale(0.637)
+			SPZB A 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.624)
+			SPZB C 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.605)
+			SPZB E 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.585)
+			SPZB B 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.566)
+			SPZB D 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.552)
+			SPZB F 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.539)
+			SPZB A 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.533)
+			SPZB C 1 Bright A_FadeOut(0.12)
+		Stop
+		O3:
+			SPZB C 1 Bright
+			TNT1 A 0 A_SetScale(0.455)
+			SPZB F 1 Bright
+			TNT1 A 0 A_SetScale(0.65)
+			SPZB B 1 Bright
+			TNT1 A 0 A_SetScale(0.637)
+			SPZB E 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.624)
+			SPZB A 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.605)
+			SPZB D 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.585)
+			SPZB C 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.566)
+			SPZB F 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.552)
+			SPZB B 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.539)
+			SPZB E 1 Bright A_FadeOut(0.12)
+			TNT1 A 0 A_SetScale(0.533)
+			SPZB A 1 Bright A_FadeOut(0.12)
+		Stop
+	}
+}

@@ -123,11 +123,22 @@ int GetPetDamageFactor(int master) {
 // The summoning spell's "more minion damage", looked up by pet kind. Carried on the pet at spawn
 // so the damage scale can apply it without knowing which spell produced the thing it is scaling.
 int GetPetSpellDamageBonus(int pnum, int petid) {
-	switch(petid) {
-		case MONSTER_PET_FIREDEMON:
-		return GetSpellValue(pnum, SPL_FIREDEMON, SPELLVAL_DAMAGE2);
-	}
-	return 0;
+	int bonus = 0, spell = GetPetSummonSpell(petid);
+	if(petid == MONSTER_PET_FIREDEMON)
+		bonus = GetSpellValue(pnum, SPL_FIREDEMON, SPELLVAL_DAMAGE2);
+
+	// Commander: the summoning spell's gems, MORE on top of the row's own bonus.
+	if(spell != -1)
+		bonus = ApplySpellGemMore(pnum, spell, GEMSTAT_MORE_MINIONDAMAGE, 100 + bonus) - 100;
+	return bonus;
+}
+
+int GetPetSummonSpell(int petid) {
+	if(petid == MONSTER_PET_FIREDEMON)
+		return SPL_FIREDEMON;
+	if(petid == MONSTER_PET_ICEGOLEM)
+		return SPL_ICEGOLEM;
+	return -1;
 }
 
 // this is mainly used to reset all cooldowns of spells when map ends, to prevent bugs

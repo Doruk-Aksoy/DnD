@@ -1459,6 +1459,8 @@ void ResetPlayerInfo(int pnum, bool resetStash = true) {
 	//ResetOrbData(pnum);
 	ResetPlayerModList(pnum);
 	ResetInvestments(pnum);
+	ResetSpellPlayerData(pnum);
+	ResetSpellGemMods(pnum);
 
 	SyncAllClientsideVariables(pnum);
 	/*SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_ITEMSUSED);
@@ -1598,7 +1600,8 @@ int GetMonsterOverloadChance(int m_id, int pnum) {
 }
 
 int GetMonsterOverloadTime(int m_id, int pnum) {
-	return DND_BASE_OVERLOADTIME_NOADJ;
+	// Wrath rank 10 shortens it.
+	return DND_BASE_OVERLOADTIME_NOADJ * Max(0, 100 - pbuffs[pnum].buff_net_values[BUFF_OVERLOADTAKENLESS].additive) / 100;
 }
 
 #define DND_BLEED_CHANCE 25 // 25%
@@ -2460,7 +2463,8 @@ int GetPlayerStaminaRecoveryRate(int pnum) {
 	int scale = DND_BASE_STAMINA + (GetPlayerStaminaCap(pnum) - DND_BASE_STAMINA) * DND_STAMINA_CAPSCALE_PCT / 100;
 	int base = DND_BASE_STAMINA_RECOVERYRATE * DND_BASE_STAMINA / Max(DND_BASE_STAMINA, scale);
 
-	base = base * (100 - PlayerModData[pnum].vals[PSTAT_INC_STAMINARECOVERYRATE]) / 100;
+	// Fighter's window after a cast joins the increase.
+	base = base * (100 - PlayerModData[pnum].vals[PSTAT_INC_STAMINARECOVERYRATE] - GetGemStaminaRegenBonus(pnum)) / 100;
 
 	// Ultimatum / Rapid Exhaustion. base is a tic DELAY -- the line above already reads a
 	// recovery increase as a smaller number -- so reduced recovery makes it bigger.

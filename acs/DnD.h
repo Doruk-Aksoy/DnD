@@ -761,6 +761,9 @@ void SpawnLootboxRewards(int i, int guaranteed_orb = 0) {
 	if(random(0, 1.0) <= DND_LOOTBOX_FLASKCHANCE)
 		SpawnFlask(i, 0);
 
+	if(random(0, 1.0) <= DND_LOOTBOX_GEMCHANCE)
+		SpawnGem(i, 0, plvl);
+
 	if(guaranteed_orb >= 0)
 		SpawnSpecificOrb(i, guaranteed_orb, true, true, random(1, 3));
 }
@@ -1058,6 +1061,8 @@ void HandleChestDrops(int ctype) {
 		SpawnOrbForAll(1);
 	if(RunDefaultDropChance(pnum, 0.2))
 		SpawnItemForAll(DND_ITEM_FLASK);
+	if(RunDefaultDropChance(pnum, GetGemChestChance(ctype)))
+		SpawnGemForAll();
 }
 
 Script "DnD Chest Credit Message" (int amt) CLIENTSIDE {
@@ -1208,6 +1213,11 @@ void SpawnLootFromDropTableIndex(int pnum, int rarity_boost, int drop_id, int m_
 			// don't spawn dungeon keys within dungeons as natural loot drop from monsters
 			if(!InformationInLevel[LEVELINFO_ISDUNGEON])
 				SpawnDungeonKey(pnum);
+		break;
+
+		// The raw monster level, not the capped item level; under DND_GEM_MINLEVEL this drops nothing.
+		case DND_MONSTERLOOT_GEM:
+			SpawnGem(pnum, rarity_boost, MonsterProperties[m_id].level, false, IsGemBossSource(m_id));
 		break;
 	}
 }
@@ -1918,7 +1928,9 @@ void HandlePlayerDataSave(int pnum, bool isDisconnect = false, int game_mode = -
 
 	PlayerGameState[pnum] &= ~(DND_PSTATE_LOADED);
 
-	if(!PlayerIsLoggedIn(pnum) || !PlayerDatabaseState[pnum][PLAYER_SAVESTATE])
+	// A DISCONNECT script already reads its player as logged out, so there the account kept at load stands in.
+	bool known = isDisconnect ? !!PlayerActivities[pnum].player_account[0] : PlayerIsLoggedIn(pnum);
+	if(!known || !PlayerDatabaseState[pnum][PLAYER_SAVESTATE])
 		return;
 		
 	if(!isDisconnect) {

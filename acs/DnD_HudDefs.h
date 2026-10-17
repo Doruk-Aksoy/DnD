@@ -367,6 +367,8 @@ enum {
 	HOTBAR_CHG_ID = 3080,
 	// The glint over a slot that just came off cooldown, in front of every hotbar layer.
 	HOTBAR_GLINT_ID = 3073,
+	// Crackling Lance's intensity on its icon, in front of the glint; the gap below the cast bar fits all six slots.
+	HOTBAR_STACK_ID = 3064,
 
 	// The two bars. Descending id is back to front per the note above, so each block lists its layers
 	// in reverse: the trough is the highest id in its block and the text the lowest.
@@ -392,7 +394,7 @@ enum {
 	SPELLTREE_DESC_ID = 900,		// hover panel, one id per line
 	SPELLTREE_HEAD_ID = 980,		// page and pocket headings
 	SPELLTREE_RANK_ID = 1000,		// one per spell
-	SPELLTREE_BAR_ID = 1040,		// the pocket's own scrollbar: grip, cap, thumb, track
+	SPELLTREE_BAR_ID = 1041,		// the pocket's own scrollbar: grip, cap, thumb, track; above a 40 spell tree's last label
 	SPELLTREE_HOVER_ID = 1045,		// the hover frame, in front of the icon it sits on
 	// The CHOSEN hotbar slot, which has to stay framed while the cursor is off picking a spell. Its
 	// own id because one frame cannot be in two places, and the picker draws after the slots.

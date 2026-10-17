@@ -164,9 +164,8 @@ Model Spell_AngerAuraFX {
 	Path "Graphics/ShaderTex"
 	Skin 0 "ANGERAUR.png"
 	Scale 1.0 1.0 1.0
-	// Halved: this is multiplied by the actor scale, so it lifts the ring further the bigger it
-	// gets. At 1 the ring floated off the floor once the scale went up.
-	Zoffset 0.5
+	// Multiplied by the actor scale: 0.33 at 10.5 lifts the ring 3.5 units.
+	Zoffset 0.33
 	ROTATING
 	//DONTCULLBACKFACES
 	FrameIndex AURA J 0 3
@@ -179,9 +178,21 @@ Model Spell_HatredAuraFX {
 	Path "Graphics/ShaderTex"
 	Skin 0 "HATRED.png"
 	Scale 1.0 1.0 1.0
-	Zoffset 0.5
+	Zoffset 0.33
 	ROTATING
 	FrameIndex AURA K 0 3
+}
+
+// Wrath. Skin from Graphics/ so the lump has a name and Wrath.fp can bind to it.
+Model Spell_WrathAuraFX {
+	Path "Models/Auras"
+	Model 0 "flat.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "WRATH.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 0.33
+	ROTATING
+	FrameIndex AURA M 0 3
 }
 
 Model Spell_AnnihilusAnchorFlip {
@@ -232,4 +243,44 @@ Model Spell_RighteousFireFX {
 	//DONTCULLBACKFACES
 	
 	FrameIndex AURA K 0 3
+}
+
+// Storm Brand's rune circle round its globe: flat.md3's frame 0, so the actor scale is its radius.
+Model Spell_StormBrand_Ring {
+	Path "Models/Auras"
+	Model 0 "flat.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "STMRUNE.png"
+	Scale 1.0 1.0 1.0
+	FrameIndex AURA N 0 0
+}
+
+// Its underside: the yscale mirror of Spell_AnnihilusAnchorFlip, so culling shows it from below instead.
+Model Spell_StormBrand_RingFlip {
+	Path "Models/Auras"
+	Model 0 "flat.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "STMRUNE.png"
+	Scale 1.0 -1.0 1.0
+	FrameIndex AURA N 0 0
+}
+
+// Storm Call's marked ground; ACS sets the scale from the area.
+Model Spell_StormCall_Field {
+	Path "Models/Auras"
+	Model 0 "flat.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "STORMCAL.png"
+	Scale 1.0 1.0 1.0
+	FrameIndex AURA O 0 3
+}
+
+// Thunder Clap's shockwave ring; ACS spreads it.
+Model Spell_ThunderClap_Ring {
+	Path "Models/Auras"
+	Model 0 "flat.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "TCLAPRNG.png"
+	Scale 1.0 1.0 1.0
+	FrameIndex AURA P 0 3
 }

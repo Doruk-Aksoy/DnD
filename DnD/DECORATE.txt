@@ -9,6 +9,7 @@ const int PLAYERFX_ALLYLOCK = 4;
 const int PLAYERFX_RIGHTEOUSFIRE = 5;
 const int PLAYERFX_HATREDAURA = 6;
 const int PLAYERFX_SHIVERINGARMOR = 7;
+const int PLAYERFX_WRATHAURA = 8;
 // Mirrors DND_SPELL_THRESH_* in acs/Spells/DnD_SpellDefs.h.
 const int SPELLTHRESH_LOW = 5;
 const int SPELLTHRESH_HIGH = 10;
@@ -61,6 +62,7 @@ const int SPELLTHRESH_HIGH = 10;
 #include "Actors/Items/Chest.dec"
 #include "Actors/Items/Tokens.dec"
 #include "Actors/Items/Dungeons.dec"
+#include "Actors/Items/Gems.dec"
 
 #include "Actors/Maps/Decoration.dec"
 #include "Actors/Maps/Torches.dec"
@@ -163,6 +165,26 @@ const int SPELLTHRESH_HIGH = 10;
 #include "Actors/Spells/Cold/WinterOrb.dec"
 #include "Actors/Spells/Cold/GlacialCascade.dec"
 #include "Actors/Spells/Cold/ShiveringArmor.dec"
+// ================= LIGHTNING =================
+#include "Actors/Spells/Lightning/ChargedBolt.dec"
+#include "Actors/Spells/Lightning/LightningSpear.dec"
+#include "Actors/Spells/Lightning/Spark.dec"
+#include "Actors/Spells/Lightning/Shock.dec"
+#include "Actors/Spells/Lightning/Telekinesis.dec"
+#include "Actors/Spells/Lightning/StaticField.dec"
+#include "Actors/Spells/Lightning/ForkedLightning.dec"
+#include "Actors/Spells/Lightning/ChainLightning.dec"
+#include "Actors/Spells/Lightning/CracklingLance.dec"
+#include "Actors/Spells/Lightning/Blink.dec"
+#include "Actors/Spells/Lightning/Overcharge.dec"
+#include "Actors/Spells/Lightning/Conductivity.dec"
+#include "Actors/Spells/Lightning/Wrath.dec"
+#include "Actors/Spells/Lightning/GalvanicSurge.dec"
+#include "Actors/Spells/Lightning/Surgecast.dec"
+#include "Actors/Spells/Lightning/StormBrand.dec"
+#include "Actors/Spells/Lightning/Monsoon.dec"
+#include "Actors/Spells/Lightning/ThunderClap.dec"
+#include "Actors/Spells/Lightning/StormCall.dec"
 
 #include "Actors/Spells/AllyLock.dec"
 

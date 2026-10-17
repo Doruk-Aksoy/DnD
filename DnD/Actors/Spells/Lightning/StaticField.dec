@@ -1,0 +1,65 @@
+// The bolt that falls on the enemy a zap hits, flat and facing its viewer: a flash, a dip and a second stroke, then a fade.
+Actor Spell_StaticField_Strike {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 1.0
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_PlaySound("StaticField/Zap", CHAN_BODY)
+			TNT1 AAAAA 0 A_SpawnItemEx("Spell_StaticField_Spark", 0, 0, 2, frandom(-4.0, 4.0), frandom(-4.0, 4.0), frandom(2.0, 6.0), 0, SXF_NOCHECKPOSITION)
+			TNT1 A 0 A_Jump(256, "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8")
+		S1:
+			STFB A 0
+		Goto Strike
+		S2:
+			STFB B 0
+		Goto Strike
+		S3:
+			STFB C 0
+		Goto Strike
+		S4:
+			STFB D 0
+		Goto Strike
+		S5:
+			STFB E 0
+		Goto Strike
+		S6:
+			STFB F 0
+		Goto Strike
+		S7:
+			STFB G 0
+		Goto Strike
+		S8:
+			STFB H 0
+		Goto Strike
+		Strike:
+			"####" "#" 2 Bright Light("StaticFieldStrike1")
+			"####" "#" 1 Bright Light("StaticFieldStrike2") A_SetTranslucent(0.4, 1)
+			"####" "#" 2 Bright Light("StaticFieldStrike1") A_SetTranslucent(1.0, 1)
+			"####" "#" 1 Bright Light("StaticFieldStrike2") A_SetTranslucent(0.75, 1)
+			"####" "#" 1 Bright Light("StaticFieldStrike2") A_FadeOut(0.1)
+			"####" "#" 1 Bright Light("StaticFieldStrike3") A_FadeOut(0.1)
+			"####" "#" 1 Bright Light("StaticFieldStrike3") A_FadeOut(0.1)
+		Fade:
+			"####" "#" 1 Bright A_FadeOut(0.1)
+		Loop
+	}
+}
+
+// Flecks thrown off where the bolt lands.
+Actor Spell_StaticField_Spark : WhiteMagicSpark {
+	Scale 0.016
+	Gravity 0.3
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+		SpawnLoop:
+			OGLP F 1 Bright A_FadeOut(0.12)
+			OGLP D 1 Bright A_FadeOut(0.12)
+		Loop
+	}
+}

@@ -1,0 +1,41 @@
+// Surgecast's burst on the cast, round the caster.
+Actor Spell_Surgecast_Burst {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 0.85
+	Scale 0.8
+	States {
+		Spawn:
+			FAXE R 2 Bright Light("SurgecastFlash1")
+			FAXE S 2 Bright Light("SurgecastFlash2")
+			FAXE TUVWX 2 Bright
+		Stop
+	}
+}
+
+// The small crackles at the caster's hands while it is armed; Overcharge's, smaller.
+Actor Spell_Surgecast_Crackle : Spell_Overcharge_Crackle {
+	Alpha 0.7
+	Scale 0.1
+}
+
+// The flash at the caster's hands when a cast spends it.
+Actor Spell_Surgecast_Release {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 0.95
+	Scale 0.5
+	States {
+		Spawn:
+			FAXE R 1 Bright Light("SurgecastFlash1")
+			FAXE S 2 Bright Light("SurgecastFlash2")
+			FAXE TUVWX 1 Bright
+		Stop
+	}
+}

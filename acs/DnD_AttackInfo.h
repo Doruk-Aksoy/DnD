@@ -15,14 +15,15 @@
 #define ATK_DTYPE_MASK (0x1F) // 5
 #define ATK_DPCT_MASK (0x3FF)
 
+// Spell words: 19 bits of damage, a 3 bit element code, then the spell id; the word stays positive for ids below 512.
 #define SPELL_DMG_SHIFT 19
-#define SPELL_DTYPE_SHIFT 5
+#define SPELL_DTYPE_SHIFT 3
 
 #define SPELL_ID_SHIFT (SPELL_DMG_SHIFT + SPELL_DTYPE_SHIFT)
 
 #define SPELLDMG_MASK (0x7FFFF)
-#define SPELLDTYPE_MASK (0x1F)
-#define SPELLID_MASK (0xFF)
+#define SPELLDTYPE_MASK (0x7)
+#define SPELLID_MASK (0x3FF)
 
 #define NONWEP_DMG_SHIFT 25
 #define NONWEP_DMG_MASK (0x1FFFFFF)

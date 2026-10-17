@@ -19,9 +19,8 @@ Actor Spell_FreezingPulse_Part : DnD_Spell {
 	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE))
 	DamageType "P_Ice"
 	States {
-		// One shot, ahead of the loop. The owner is on APROP_SCORE by now.
+		// The ripper id is stamped at spawn by CastFreezingPulse, one per wave.
 		SpawnState:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Freezing Pulse Claim")
 		Wave:
 			// One tic a frame, so A_CountDown spends REACTIONTIME at one a tic.
 			TNT1 A 1 A_CountDown

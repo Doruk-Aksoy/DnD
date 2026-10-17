@@ -413,11 +413,13 @@ void HandleSpellIndexDraw(int pnum, int boxid) {
 			RPGMENUITEMID - 1 - i, 192.1, y << 16, "\c[B1]", GetTreeSpellCount(i) ? "\c-" : "\c[K5]");
 	}
 
-	HudMessage(s:"\c[Y5]-------------------------"; HUDMSG_PLAIN, RPGMENUITEMID - 2 - MAX_SKILL_TREES, CR_WHITE, 192.1, 80.0 + 16.0 * MAX_SKILL_TREES, 0.0, 0.0);
+	HudMessage(s:"\c[Y5]-------------------------"; HUDMSG_PLAIN, RPGMENUITEMID - 3 - MAX_SKILL_TREES, CR_WHITE, 192.1, 80.0 + 16.0 * MAX_SKILL_TREES, 0.0, 0.0);
 
 	// Last, so entry n stays box n however many trees get content.
 	DrawBoxText("DND_SPELLTREE_HOTBAR", DND_LANGUAGE_LOOKUP, boxid, MBOX_1 + MAX_SKILL_TREES,
 		RPGMENUITEMID - 1 - MAX_SKILL_TREES, 192.1, (88 + MAX_SKILL_TREES * 16) << 16, "\c[B1]", "\c-");
+	DrawBoxText("DND_SPELLTREE_GEMS", DND_LANGUAGE_LOOKUP, boxid, MBOX_2 + MAX_SKILL_TREES,
+		RPGMENUITEMID - 2 - MAX_SKILL_TREES, 192.1, (104 + MAX_SKILL_TREES * 16) << 16, "\c[B1]", "\c-");
 }
 
 // ---- hover panel -------------------------------------------------------------------------------
@@ -476,6 +478,12 @@ typedef struct {
 	// The page's boxes ARE the picker grid while this is set, so the click handler reads it to know
 	// what a box number means.
 	int picking_slot;
+	int picking_page;
+
+	// The gem page: the socket being filled as spell * DND_SPELL_MAXSOCKETS + slot + 1, 0 when none,
+	// and how far the last draw reached in each id band, so the next one deletes only what it left.
+	int gem_pick;
+	int gem_nodes_drawn, gem_lines_drawn;
 } spell_scroll_T;
 
 spell_scroll_T module& GetSpellScroll() {
@@ -614,17 +622,27 @@ void HandleSpellHoverPanel(int pnum, int spell) {
 	// DND_SPLPER prose, which cannot express a compounding curve -- "+60 damage per rank" stopped
 	// being true the moment ranks started multiplying. Only fields the def marked as real damage
 	// are shown, so a percent or a health figure never gets printed as "damage".
+	// A ranged field prints as low-high; its low end is skipped as a line of its own.
+	int lo_field;
 	for(i = 0; i < SPELLVAL_MAX; ++i) {
-		if(!(SpellDefs[spell].scale_mask & (1 << i)))
+		if(!(SpellDefs[spell].scale_mask & (1 << i)) || i == SPELLVAL_DAMAGEMIN || i == SPELLVAL_DAMAGE2MIN)
 			continue;
 
+		lo_field = GetSpellMinField(spell, i);
+
 		temp = GetSpellValue(pnum, spell, i, preview);
-		PanelText(StrParam(s:"\c[Y5]", l:GetSpellFieldLump(i), s:": \c-", d:temp));
+		if(lo_field != -1)
+			PanelText(StrParam(s:"\c[Y5]", l:GetSpellFieldLump(i), s:": \c-", d:GetSpellValue(pnum, spell, lo_field, preview), s:"-", d:temp));
+		else
+			PanelText(StrParam(s:"\c[Y5]", l:GetSpellFieldLump(i), s:": \c-", d:temp));
 
 		// What the next point actually buys, since the step is no longer the flat per_rank value.
 		if(alloc && alloc < DND_SPELL_RANKCAP) {
 			int nxt = GetSpellValue(pnum, spell, i, alloc + 1);
-			if(nxt > temp)
+			if(nxt > temp && lo_field != -1)
+				PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_NEXTRANK", s:" \c-", d:GetSpellValue(pnum, spell, lo_field, alloc + 1), s:"-", d:nxt,
+					s:" (+", d:nxt - temp, s:")"));
+			else if(nxt > temp)
 				PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_NEXTRANK", s:" \c-", d:nxt,
 					s:" (+", d:nxt - temp, s:")"));
 		}
@@ -704,11 +722,11 @@ void HandleSpellHoverPanel(int pnum, int spell) {
 					IsSpellFieldFixedPoint(SpellSynergies[i].field) ?
 					FixedToHundredths(SpellSynergies[i].per_rank) :
 					StrParam(d:SpellSynergies[i].per_rank),
-				s:" ", l:GetSpellFieldLumpFor(spell, SpellSynergies[i].field), s:" per rank"));
+				s:" ", l:GetSpellFieldLumpFor(spell, SpellSynergies[i].field), s:GetSynergyStepText(i)));
 		else
 			PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_SYNERGY", s:" - \c-", l:GetSpellNameLump(temp),
 				s:": ", s:FixedToTenths(SpellSynergies[i].per_rank), s:"% more ",
-				l:GetSpellFieldLump(SpellSynergies[i].field), s:" per rank"));
+				l:GetSpellFieldLump(SpellSynergies[i].field), s:GetSynergyStepText(i)));
 	}
 
 	// Measured rather than counted: blank spacers are half a line, so a line count overstated the
@@ -816,14 +834,14 @@ void DrawSpellPocket(int pnum) {
 // ---- hotbar assignment page --------------------------------------------------------------------
 #define DND_SPELLHOTBAR_PITCH 36
 #define DND_SPELLHOTBAR_Y 84
-// The grid has to hold EVERY bindable spell at once, which at worst is every learned spell bar the
-// handful of passives and auras. 8 columns by 5 rows covers 40; the rows start just under the slot
-// squares (which end at DND_SPELLHOTBAR_Y + DND_SPELLNODE = 105) and the last one ends at 283, inside
-// the board's 285. It was starting at 150, which fit only 4 rows -- a player who had learned more
-// than 32 castable skills had the rest drawn off the bottom of the page, unreachable.
+// The picker pages: 8 x 4 a page, so the slots and a full page stay inside the node ids (1050 + 6 + 32
+// ends under SPELLTREE_CROSS_ID) and on the board, with the page arrows under the last row.
 #define DND_SPELLPICK_COLS 8
-#define DND_SPELLPICK_ROWS 5
+#define DND_SPELLPICK_ROWS 4
+#define DND_SPELLPICK_PERPAGE (DND_SPELLPICK_COLS * DND_SPELLPICK_ROWS)
 #define DND_SPELLPICK_Y 118
+#define DND_SPELLPICK_PAGEY 262
+#define DND_SPELLPICK_ARROWX 44		// the page arrows sit this far either side of the board's middle
 
 // Only what can actually sit on a bar: allocated, and not a passive or an aura. Those two work from
 // allocation or a tree toggle and would be dead slots.
@@ -852,6 +870,15 @@ int GetBindableByIndex(int pnum, int index) {
 		++n;
 	}
 	return -1;
+}
+
+int GetPickerPageCount(int pnum) {
+	return Max(1, (GetBindableCount(pnum) + DND_SPELLPICK_PERPAGE - 1) / DND_SPELLPICK_PERPAGE);
+}
+
+// A page arrow's box, in the pane's mirrored coordinates, around text centred at x, y.
+void AddPickerArrowBox(menu_pane_T module& p, int x, int y) {
+	AddBoxToPane_Points(p, (HUDMAX_X - x + 8) << 16, (HUDMAX_Y - y + 7) << 16, (HUDMAX_X - x - 8) << 16, (HUDMAX_Y - y - 7) << 16);
 }
 
 // x of the nth cell in a centred row of `count`, at DND_SPELLHOTBAR_PITCH.
@@ -942,15 +969,21 @@ void HandleSpellHotbarDraw(int pnum, int boxid, menu_pane_T module& p) {
 
 	// The picker, only while a slot is being filled. Its cells are boxes too, which is why the click
 	// handler has to know whether it is open: a box number means a different thing either way.
+	int pages = GetPickerPageCount(pnum);
+	ss.picking_page = Clamp_Between(ss.picking_page, 0, pages - 1);
+	// Where the icons end. The page arrows take box numbers after them but no node ids.
+	int drawn = n;
 	if(ss.picking_slot != -1) {
-		for(i = 0; i < bindable; ++i) {
-			spell = GetBindableByIndex(pnum, i);
+		int first = ss.picking_page * DND_SPELLPICK_PERPAGE;
+		int shown = Min(bindable - first, DND_SPELLPICK_PERPAGE);
+		for(i = 0; i < shown; ++i) {
+			spell = GetBindableByIndex(pnum, first + i);
 
 			// Each row is centred on its OWN count, so a trailing part row sits in the middle instead of
 			// hanging off to the left under a full one.
 			int row = i / DND_SPELLPICK_COLS;
 			x = GetRowCellX(i % DND_SPELLPICK_COLS,
-				Min(bindable - row * DND_SPELLPICK_COLS, DND_SPELLPICK_COLS));
+				Min(shown - row * DND_SPELLPICK_COLS, DND_SPELLPICK_COLS));
 			y = DND_SPELLPICK_Y + row * DND_SPELLHOTBAR_PITCH;
 
 			if(boxid == MBOX_1 + n)
@@ -964,13 +997,30 @@ void HandleSpellHotbarDraw(int pnum, int boxid, menu_pane_T module& p) {
 			AddSpellBoxAt(p, x, y);
 			++n;
 		}
-	}
+		drawn = n;
 
-	// Whatever the last, longer layout left behind.
-	// Bounded by what ONE TREE can show, not by the whole id space. MAX_SPELL_IDS is 256 now, and
-	// these bands are 45 and 40 ids wide -- sweeping that far past them wiped the connectors, the
-	// hover frame and the nodes themselves, which is what made the tree draw and then vanish.
-	DeleteTextRange(SPELLTREE_NODE_ID + n, SPELLTREE_NODE_ID + DND_SPELLS_PER_TREE - 1);
+		// Prev and next, wrapping round, as the two boxes after this page's cells.
+		if(pages > 1) {
+			int mid = DND_SPELLTREE_LEFT + DND_SPELLTREE_BOARDW / 2;
+			SetFont("NMENUFNT");
+			DrawBoxText("<", DND_NOLOOKUP, boxid, MBOX_1 + n, SPELLTREE_HEAD_ID + 4,
+				((mid - DND_SPELLPICK_ARROWX) << 16) + 0.4, DND_SPELLPICK_PAGEY << 16, "\c[B1]", "\c[Y5]");
+			AddPickerArrowBox(p, mid - DND_SPELLPICK_ARROWX, DND_SPELLPICK_PAGEY);
+			++n;
+			DrawBoxText(">", DND_NOLOOKUP, boxid, MBOX_1 + n, SPELLTREE_HEAD_ID + 5,
+				((mid + DND_SPELLPICK_ARROWX) << 16) + 0.4, DND_SPELLPICK_PAGEY << 16, "\c[B1]", "\c[Y5]");
+			AddPickerArrowBox(p, mid + DND_SPELLPICK_ARROWX, DND_SPELLPICK_PAGEY);
+			++n;
+			HudMessage(s:"\c[Y5]", d:ss.picking_page + 1, s:" / ", d:pages;
+				HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 6, CR_WHITE, (mid << 16) + 0.4, DND_SPELLPICK_PAGEY << 16, 0.0, 0.0);
+		}
+	}
+	if(ss.picking_slot == -1 || pages == 1)
+		DeleteTextRange(SPELLTREE_HEAD_ID + 4, SPELLTREE_HEAD_ID + 6);
+
+	// Whatever the last, longer layout left behind: the rest of the node ids, which end where the
+	// crossings begin. Never past them -- sweeping the whole id space wiped the tree's connectors.
+	DeleteTextRange(SPELLTREE_NODE_ID + drawn, SPELLTREE_CROSS_ID - 1);
 	// + 1: the labels start at RANK_ID + 1, because box one is the back arrow. Sweeping from
 	// RANK_ID + slots deleted the LAST slot's number every frame.
 	DeleteTextRange(SPELLTREE_RANK_ID + slots + 1, SPELLTREE_RANK_ID + DND_SPELLS_PER_TREE - 1);
@@ -1016,6 +1066,7 @@ bool HandleSpellHotbarPick(int pnum, int boxid, int input) {
 		if(ss.picking_slot == -1)
 			return false;
 		ss.picking_slot = -1;
+		ss.picking_page = 0;
 		return true;
 	}
 
@@ -1027,6 +1078,8 @@ bool HandleSpellHotbarPick(int pnum, int boxid, int input) {
 
 	// A slot: start filling it, or move an open assignment to it.
 	if(idx < slots) {
+		if(ss.picking_slot == -1)
+			ss.picking_page = 0;
 		ss.picking_slot = idx;
 		LocalAmbientSound("RPG/MenuChoose", 127);
 		return true;
@@ -1035,12 +1088,24 @@ bool HandleSpellHotbarPick(int pnum, int boxid, int input) {
 	if(ss.picking_slot == -1)
 		return false;
 
+	// The page's cells, then its prev and next arrows when it has more than one page.
+	idx -= slots;
+	int pages = GetPickerPageCount(pnum);
+	int shown = Min(GetBindableCount(pnum) - ss.picking_page * DND_SPELLPICK_PERPAGE, DND_SPELLPICK_PERPAGE);
+	if(idx >= shown) {
+		if(pages > 1 && idx - shown < 2) {
+			ss.picking_page = (ss.picking_page + (idx - shown ? 1 : pages - 1)) % pages;
+			LocalAmbientSound("RPG/MenuChoose", 127);
+		}
+		return true;
+	}
+
 	// No sound here: "DnD Bind Hotbar" makes one when the bind lands, and two fired together read as
 	// one loud click rather than two.
-	if(idx - slots < GetBindableCount(pnum))
-		NamedRequestScriptPuke("DnD Bind Hotbar", ss.picking_slot);
+	NamedRequestScriptPuke("DnD Bind Hotbar", ss.picking_slot);
 
 	ss.picking_slot = -1;
+	ss.picking_page = 0;
 	return true;
 }
 
@@ -1061,6 +1126,7 @@ void HandleSpellTreeDraw(int pnum, int tree, int boxid, menu_pane_T module& p) {
 		ss.panel_px = 0;
 		ss.pinned = false;
 		ss.picking_slot = -1;
+		ss.gem_pick = 0;
 		SetScrollBarPos(DND_SPELLBAR_PANEL, 0);
 	}
 
@@ -1236,6 +1302,741 @@ bool HandleSpellTreeToggle(int pnum, int tree, int boxid) {
 	// that one pushes its own word.
 	ValidateAuraReservations(pnum);
 	SyncSpellToggleWord(pnum, spell);
+	return true;
+}
+
+// ---- gem sockets: the mechanics --------------------------------------------------------------
+bool SpellHasRow(int spell, int field) {
+	return SpellDefs[spell].base[field] > 0 || SpellDefs[spell].per_rank[field] > 0;
+}
+
+// Whether a term can do anything on this spell. A term that cannot is never added, so it cannot leak into
+// a row a spell borrows for something else: Annihilus's DURATION is a channel cap, not an effect.
+bool IsGemStatActiveOnSpell(int stat, int spell) {
+	int f = SpellDefs[spell].flags;
+	switch(stat) {
+		case GEMSTAT_MORE_DURATION:
+		return !!(f & SPLF_DURATION);
+		case GEMSTAT_MORE_COST:
+		return !(f & (SPLF_NOCOST | SPLF_RESERVES | SPLF_PASSIVE)) && SpellHasRow(spell, SPELLVAL_COST);
+		case GEMSTAT_MORE_HASTE:
+		case GEMSTAT_HASTE:
+		return SpellHasRow(spell, SPELLVAL_CASTTIME);
+		case GEMSTAT_CDR:
+		return SpellHasRow(spell, SPELLVAL_COOLDOWN);
+		case GEMSTAT_RESERVE_EFF:
+		return !!(f & SPLF_RESERVES);
+		case GEMSTAT_MORE_AREA:
+		return !!(f & SPLF_AOE);
+		case GEMSTAT_EXTRAPROJ:
+		return !!(f & SPLF_PROJECTILE);
+	}
+	// damage, crit and ailments: anything that is not purely a support spell
+	return !(f & SPLF_SUPPORT);
+}
+
+// A colour does something on this spell when any of its terms can.
+bool IsGemColourActive(int colour, int spell) {
+	for(int k = 0; k < GetGemColourTermCount(colour); ++k)
+		if(IsGemStatActiveOnSpell(GetGemColourTermStat(colour, k), spell))
+			return true;
+	return false;
+}
+
+// Whether a role can do anything on this spell. An inactive role adds nothing, its cost penalty included.
+bool IsGemRoleActiveOnSpell(int role, int spell) {
+	int f = SpellDefs[spell].flags;
+	switch(role) {
+		case DND_GEMROLE_CONQUEROR:
+		return !!(f & SPLF_AOE);
+		case DND_GEMROLE_CONJURER:
+		return !!(f & (SPLF_PROJECTILE | SPLF_CHAIN));
+		case DND_GEMROLE_LEADER:
+		return !!(f & SPLF_AURA);
+		case DND_GEMROLE_CONSERVATIONIST:
+		return !!(f & SPLF_RESERVES);
+		case DND_GEMROLE_INFLUENCER:
+		return !!(f & SPLF_PASSIVE);
+		case DND_GEMROLE_SUMMONER:
+		case DND_GEMROLE_COMMANDER:
+		case DND_GEMROLE_NECROMANCER:
+		return !!(f & SPLF_SUMMON);
+		case DND_GEMROLE_PRIEST:
+		return !!(f & SPLF_HEAL);
+		case DND_GEMROLE_WITCH:
+		return !!(f & SPLF_CURSE);
+		case DND_GEMROLE_SWIFTCASTER:
+		return SpellHasRow(spell, SPELLVAL_CASTTIME);
+		case DND_GEMROLE_QUICKTONGUE:
+		return SpellHasRow(spell, SPELLVAL_CASTTIME) && !(f & SPLF_TOGGLE);
+		case DND_GEMROLE_MAGUS:
+		case DND_GEMROLE_HAEMOCRAFTER:
+		return IsGemStatActiveOnSpell(GEMSTAT_MORE_COST, spell);
+		case DND_GEMROLE_BLADEDANCER:
+		case DND_GEMROLE_FIGHTER:
+		return !(f & (SPLF_PASSIVE | SPLF_AURA));
+	}
+	// The hit roles: damage, crit, ailments, leech, penetration, culling, charges.
+	return !(f & SPLF_SUPPORT);
+}
+
+// Whether a gem does anything on this spell: its colour does, or its role does.
+bool IsGemUsefulOnSpell(int subt, int role, int spell) {
+	return IsGemColourActive(GetGemColour(subt), spell) || (role != DND_GEMROLE_NONE && IsGemRoleActiveOnSpell(role, spell));
+}
+
+// A role's mana cost penalty, as more mana cost; a spell without a cost has nothing to raise.
+void AddGemCostPenalty(int pnum, int spell, int more) {
+	if(IsGemStatActiveOnSpell(GEMSTAT_MORE_COST, spell))
+		AddSpellGemMod(pnum, spell, GEMSTAT_MORE_COST, more);
+}
+
+// A role's terms, from the design's numbers; g picks the greater ones. MORE values are 16.16.
+void AddGemRoleToSpellRow(int pnum, int spell, int role, bool g) {
+	switch(role) {
+		case DND_GEMROLE_MARKSMAN:
+			AddSpellGemMod(pnum, spell, GEMSTAT_CRITMULT, g ? 80 : 40);
+			AddGemCostPenalty(pnum, spell, g ? 0.25 : 0.15);
+		break;
+		case DND_GEMROLE_WIZARD:
+			AddSpellGemMod(pnum, spell, GEMSTAT_MORE_HITDAMAGE, g ? 0.4 : 0.25);
+			AddSpellGemMod(pnum, spell, GEMSTAT_MORE_DOTDAMAGE, g ? -0.6 : -0.4);
+			AddGemCostPenalty(pnum, spell, g ? 0.25 : 0.15);
+		break;
+		case DND_GEMROLE_CONQUEROR:
+			AddSpellGemMod(pnum, spell, GEMSTAT_MORE_AREA, g ? 0.36 : 0.2);
+			AddGemCostPenalty(pnum, spell, g ? 0.3 : 0.2);
+		break;
+		case DND_GEMROLE_BLADEDANCER:
+			AddSpellGemMod(pnum, spell, GEMSTAT_FREEPARRY, g ? 4 * TICRATE : 5 * TICRATE / 2);
+			AddGemCostPenalty(pnum, spell, g ? 0.25 : 0.15);
+		break;
+		case DND_GEMROLE_FIGHTER:
+			AddSpellGemMod(pnum, spell, GEMSTAT_STAMINAREGEN, g ? 50 : 25);
+			AddGemCostPenalty(pnum, spell, g ? 0.25 : 0.15);
+		break;
+		case DND_GEMROLE_CONJURER:
+			AddSpellGemMod(pnum, spell, GEMSTAT_EXTRAPROJ, g ? 2 : 1);
+			AddSpellGemMod(pnum, spell, GEMSTAT_MORE_DAMAGE, g ? -0.25 : -0.125);
+			AddGemCostPenalty(pnum, spell, g ? 0.25 : 0.15);
+		break;
+		case DND_GEMROLE_LEADER:
+			AddSpellGemMod(pnum, spell, GEMSTAT_MORE_AREA, g ? 0.5 : 0.3);
+			AddSpellGemMod(pnum, spell, GEMSTAT_MORE_RESERVE, g ? 0.25 : 0.15);
+		break;
+		case DND_GEMROLE_CONSERVATIONIST:
+			AddSpellGemMod(pnum, spell, GEMSTAT_RESERVE_EFF, g ? 25 : 15);
+		break;
+		case DND_GEMROLE_MAGUS:
+			AddSpellGemMod(pnum, spell, GEMSTAT_MAGUS, g ? 40 : 25);
+			AddGemCostPenalty(pnum, spell, g ? 0.2 : 0.1);
+		break;
+		case DND_GEMROLE_SWIFTCASTER:
+			AddSpellGemMod(pnum, spell, GEMSTAT_HASTE, g ? 40 : 20);
+			AddGemCostPenalty(pnum, spell, g ? 0.25 : 0.15);
+		break;
+		case DND_GEMROLE_SUMMONER:
+			AddSpellGemMod(pnum, spell, GEMSTAT_MORE_MINIONLIFE, g ? 0.4 : 0.25);
+			AddGemCostPenalty(pnum, spell, g ? 0.27 : 0.18);
+		break;
+		case DND_GEMROLE_PRIEST:
+			AddSpellGemMod(pnum, spell, GEMSTAT_MORE_HEALING, g ? 0.4 : 0.2);
+			AddGemCostPenalty(pnum, spell, g ? 0.25 : 0.15);
+		break;
+		case DND_GEMROLE_WITCH:
+			AddSpellGemMod(pnum, spell, GEMSTAT_MORE_CURSE, g ? 0.4 : 0.2);
+			AddGemCostPenalty(pnum, spell, g ? 0.4 : 0.2);
+		break;
+		case DND_GEMROLE_CRUEL:
+			AddSpellGemMod(pnum, spell, GEMSTAT_MORE_HITDAMAGE, g ? -0.6 : -0.4);
+			AddSpellGemMod(pnum, spell, GEMSTAT_MORE_DOTDAMAGE, g ? 0.45 : 0.3);
+			AddGemCostPenalty(pnum, spell, g ? 0.25 : 0.15);
+		break;
+		case DND_GEMROLE_PYROMANCER:
+			AddSpellGemMod(pnum, spell, GEMSTAT_IGNITECHANCE, g ? 50 : 25);
+			AddGemCostPenalty(pnum, spell, g ? 0.25 : 0.15);
+		break;
+		case DND_GEMROLE_CRYOMANCER:
+			AddSpellGemMod(pnum, spell, GEMSTAT_CHILLCHANCE, g ? 50 : 25);
+			AddGemCostPenalty(pnum, spell, g ? 0.25 : 0.15);
+		break;
+		case DND_GEMROLE_VENOMANCER:
+			AddSpellGemMod(pnum, spell, GEMSTAT_POISONCHANCE, g ? 50 : 25);
+			AddGemCostPenalty(pnum, spell, g ? 0.25 : 0.15);
+		break;
+		case DND_GEMROLE_ELECTROMANCER:
+			AddSpellGemMod(pnum, spell, GEMSTAT_OVERLOADCHANCE, g ? 50 : 25);
+			AddGemCostPenalty(pnum, spell, g ? 0.25 : 0.15);
+		break;
+		case DND_GEMROLE_VAMPIRE:
+			AddSpellGemMod(pnum, spell, GEMSTAT_LEECH, g ? 30 : 15);
+			AddGemCostPenalty(pnum, spell, g ? 0.35 : 0.2);
+		break;
+		case DND_GEMROLE_INFLUENCER:
+			AddSpellGemMod(pnum, spell, GEMSTAT_PASSIVE_EFFECT, g ? 20 : 10);
+			AddSpellGemMod(pnum, spell, GEMSTAT_RESERVE_ADD, g ? 10 : 5);
+		break;
+		case DND_GEMROLE_COMMANDER:
+			AddSpellGemMod(pnum, spell, GEMSTAT_MORE_MINIONDAMAGE, g ? 0.4 : 0.25);
+			AddGemCostPenalty(pnum, spell, g ? 0.27 : 0.18);
+		break;
+		case DND_GEMROLE_QUICKTONGUE:
+			AddSpellGemMod(pnum, spell, GEMSTAT_REPEAT, 1);
+			AddSpellGemMod(pnum, spell, GEMSTAT_MORE_HASTE, g ? 0.3 : 0.2);
+			AddSpellGemMod(pnum, spell, GEMSTAT_MORE_DAMAGE, g ? -0.25 : -0.35);
+			AddGemCostPenalty(pnum, spell, g ? 0.35 : 0.2);
+		break;
+		case DND_GEMROLE_ARCHMAGE:
+			AddSpellGemMod(pnum, spell, GEMSTAT_ARCHMAGE, g ? 12 : 8);
+			AddGemCostPenalty(pnum, spell, g ? 0.5 : 0.3);
+		break;
+		case DND_GEMROLE_ASSASSIN:
+			AddSpellGemMod(pnum, spell, GEMSTAT_ELUSIVE, g ? 20 : 10);
+			AddGemCostPenalty(pnum, spell, g ? 0.25 : 0.15);
+		break;
+		case DND_GEMROLE_NECROMANCER:
+			AddSpellGemMod(pnum, spell, GEMSTAT_NECRO, g ? 50 : 25);
+			AddGemCostPenalty(pnum, spell, g ? 0.5 : 0.3);
+		break;
+		case DND_GEMROLE_SANGUINOMANCER:
+			AddSpellGemMod(pnum, spell, GEMSTAT_BLEEDCHANCE, g ? 50 : 25);
+			AddGemCostPenalty(pnum, spell, g ? 0.25 : 0.15);
+		break;
+		case DND_GEMROLE_DESTROYER:
+			AddSpellGemMod(pnum, spell, GEMSTAT_PENETRATION, g ? 30 : 20);
+			AddGemCostPenalty(pnum, spell, g ? 0.35 : 0.2);
+		break;
+		// The greater three keep the normal charge chance and add their damage per charge on top.
+		case DND_GEMROLE_RESOLUTE:
+			AddSpellGemMod(pnum, spell, GEMSTAT_ENDURANCECHANCE, 15);
+			if(g)
+				AddSpellGemMod(pnum, spell, GEMSTAT_ENDURANCEDAMAGE, 4);
+			AddGemCostPenalty(pnum, spell, g ? 0.25 : 0.15);
+		break;
+		case DND_GEMROLE_RAVAGER:
+			AddSpellGemMod(pnum, spell, GEMSTAT_FRENZYCHANCE, 15);
+			if(g)
+				AddSpellGemMod(pnum, spell, GEMSTAT_FRENZYDAMAGE, 4);
+			AddGemCostPenalty(pnum, spell, g ? 0.25 : 0.15);
+		break;
+		case DND_GEMROLE_POWERFUL:
+			AddSpellGemMod(pnum, spell, GEMSTAT_POWERCHANCE, 15);
+			if(g)
+				AddSpellGemMod(pnum, spell, GEMSTAT_POWERDAMAGE, 4);
+			AddGemCostPenalty(pnum, spell, g ? 0.25 : 0.15);
+		break;
+		case DND_GEMROLE_MERCILESS:
+			AddSpellGemMod(pnum, spell, GEMSTAT_MORE_LOWLIFE, g ? 0.54 : 0.33);
+			AddGemCostPenalty(pnum, spell, g ? 0.35 : 0.2);
+		break;
+		case DND_GEMROLE_EXECUTIONER:
+			AddSpellGemMod(pnum, spell, GEMSTAT_CANCULL, 1);
+			if(g)
+				AddSpellGemMod(pnum, spell, GEMSTAT_CULLRANGE, 5);
+			AddGemCostPenalty(pnum, spell, g ? 0.35 : 0.2);
+		break;
+		// The cheapest multiplier socketed wins; two of them do not add up to 350% of the cost.
+		case DND_GEMROLE_HAEMOCRAFTER:
+			if(!GetSpellGemMod(pnum, spell, GEMSTAT_LIFECOST) || GetSpellGemMod(pnum, spell, GEMSTAT_LIFECOST) > (g ? 150 : 200))
+				SetSpellGemMod(pnum, spell, GEMSTAT_LIFECOST, g ? 150 : 200);
+		break;
+	}
+}
+
+// A socketed gem's terms into the spell's row: its colour's, then its role's when the role can act on the spell.
+void AddGemToSpellRow(int pnum, int spell, int subt, int role) {
+	int c = GetGemColour(subt), st;
+	for(int k = 0; k < GetGemColourTermCount(c); ++k) {
+		st = GetGemColourTermStat(c, k);
+		if(IsGemStatActiveOnSpell(st, spell))
+			AddSpellGemMod(pnum, spell, st, GemStatFromPercent(st, GetGemColourTermValue(c, k, IsGreaterGem(subt))));
+	}
+
+	if(role != DND_GEMROLE_NONE && IsGemRoleActiveOnSpell(role, spell))
+		AddGemRoleToSpellRow(pnum, spell, role, IsGreaterGem(subt));
+}
+
+// A socket's gem back into the inventory, at box or the first free spot. False when it has nowhere to go.
+bool ReturnGemToInventory(int pnum, int v, int box = -1) {
+	int c = CreateItemSpot();
+	if(c == -1)
+		return false;
+
+	// A role past the last one is "no role" to RollGemInfo, where -1 would roll one.
+	int role = GetSocketGemRole(v);
+	RollGemInfo(c, GetGemColour(GetSocketGemSubtype(v)), IsGreaterGem(GetSocketGemSubtype(v)), role == DND_GEMROLE_NONE ? DND_GEM_ROLES : role);
+
+	if(box == -1)
+		box = GetFreeSpotForItem(c, pnum, DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+	if(box == -1) {
+		RemoveItemFromWorld(c);
+		return false;
+	}
+
+	CopyItemFromFieldToPlayer(c, pnum, box);
+	return true;
+}
+
+// The gem at inventory box into a socket. A gem already there swaps into that box, so a full inventory never blocks it.
+Script "DnD Gem Socket" (int spell, int slot, int box) NET {
+	int pnum = PlayerNumber();
+	if(pnum < 0 || spell < 0 || spell >= MAX_SPELL_IDS || slot < 0 || slot >= GetSpellSocketCount(pnum, spell) || box < 0 || box >= MAX_INVENTORY_BOXES)
+		Terminate;
+
+	auto item = GetPlayerInventoryItem(pnum, box);
+	if(item.item_type != DND_ITEM_GEM || item.topleftboxid != box + 1 || !IsGemUsefulOnSpell(item.item_subtype, item.implicit[0].attrib_id, spell))
+		Terminate;
+
+	int v = MakeSocketValue(item.item_subtype, item.implicit[0].attrib_id);
+	int old = GetSpellSocket(pnum, spell, slot);
+
+	// A swap frees the box unsynced: the refill's own sync overwrites it, and a clear sent beside a fill can land last.
+	FreeItem(pnum, box, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, !!old);
+	if(old)
+		ReturnGemToInventory(pnum, old, box);
+
+	SetSpellSocket(pnum, spell, slot, v);
+	RebuildSpellGems(pnum, spell);
+	ValidateAuraReservations(pnum);
+	UpdateManaVisualCap(pnum);
+	LocalAmbientSound("Items/GemPick", 127);
+	SendOwnerScript("DnD Refresh Request", pnum, pnum, 1);
+}
+
+// A socket's gem back to the inventory; refused, with the popup, when there is no room.
+Script "DnD Gem Unsocket" (int spell, int slot) NET {
+	int pnum = PlayerNumber();
+	if(pnum < 0 || spell < 0 || spell >= MAX_SPELL_IDS || slot < 0 || slot >= DND_SPELL_MAXSOCKETS)
+		Terminate;
+
+	int v = GetSpellSocket(pnum, spell, slot);
+	if(!v)
+		Terminate;
+
+	if(!ReturnGemToInventory(pnum, v)) {
+		ShowPopup(POPUP_NOTENOUGHSPACE, false, 0);
+		Terminate;
+	}
+
+	SetSpellSocket(pnum, spell, slot, 0);
+	RebuildSpellGems(pnum, spell);
+	ValidateAuraReservations(pnum);
+	UpdateManaVisualCap(pnum);
+	LocalAmbientSound("Items/GemDrop", 127);
+	SendOwnerScript("DnD Refresh Request", pnum, pnum, 1);
+}
+
+// ---- the socket page's lists, clientside off the synced copies ----------------------------------
+#define DND_GEMPAGE_MAXSHOWN 40		// 8 x 5, the same grid the hotbar picker uses
+
+// Spells with open sockets, in id order: what the page lists and what its boxes index.
+int GetGemEligibleSpell(int pnum, int index) {
+	int n = 0;
+	for(int i = 0; i < MAX_SPELL_IDS; ++i) {
+		if(!GetSpellSocketCount(pnum, i))
+			continue;
+		if(n == index)
+			return i;
+		++n;
+	}
+	return -1;
+}
+
+int GetGemEligibleCount(int pnum) {
+	int n = 0;
+	for(int i = 0; i < MAX_SPELL_IDS; ++i)
+		n += !!GetSpellSocketCount(pnum, i);
+	return Min(n, DND_GEMPAGE_MAXSHOWN);
+}
+
+// The index-th gem in the inventory, as its top left box, or -1; with a spell, only gems that do something on it.
+int GetInventoryGemBox(int pnum, int index, int spell = -1) {
+	int n = 0;
+	for(int b = 0; b < MAX_INVENTORY_BOXES; ++b) {
+		if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, b, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) != DND_ITEM_GEM)
+			continue;
+		if(GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, b, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) != b + 1)
+			continue;
+		if(spell != -1 && !IsGemUsefulOnSpell(GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, b, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY),
+			GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, b, 0, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY), spell))
+			continue;
+		if(n == index)
+			return b;
+		++n;
+	}
+	return -1;
+}
+
+int GetInventoryGemCount(int pnum, int spell = -1) {
+	int n = 0;
+	while(n < DND_GEMPAGE_MAXSHOWN && GetInventoryGemBox(pnum, n, spell) != -1)
+		++n;
+	return n;
+}
+
+// ---- windows a cast opens: Bladedancer's free parry, Fighter's faster stamina recovery ------------
+#define DND_GEM_FIGHTER_TICS (4 * TICRATE)
+#define DND_GEM_WINDOW_MAX (10 * TICRATE)	// no window runs longer; anything further off is left over from another map's Timer()
+
+typedef struct {
+	int parry_end[MAXPLAYERS];
+	int regen_end[MAXPLAYERS];
+	int regen_pct[MAXPLAYERS];
+} gem_windows_T;
+
+gem_windows_T module& GetGemWindows() {
+	static gem_windows_T s;
+	return s;
+}
+
+bool IsGemWindowOpen(int end) {
+	int left = end - Timer();
+	return left >= 0 && left <= DND_GEM_WINDOW_MAX;
+}
+
+void OpenGemCastWindows(int pnum, int spell) {
+	auto w = GetGemWindows();
+	int v;
+	if((v = GetSpellGemMod(pnum, spell, GEMSTAT_FREEPARRY)))
+		w.parry_end[pnum] = Timer() + v;
+	if((v = GetSpellGemMod(pnum, spell, GEMSTAT_STAMINAREGEN))) {
+		w.regen_end[pnum] = Timer() + DND_GEM_FIGHTER_TICS;
+		w.regen_pct[pnum] = v;
+	}
+}
+
+// Necromancer: a slain spell minion's chance to return after 3 seconds, summoned afresh by its own spell.
+#define DND_GEM_REVIVE_TICS (3 * TICRATE)
+Script "DnD Gem Minion Revive" (int pnum, int petid) {
+	int spell = GetPetSummonSpell(petid);
+	if(spell == -1)
+		Terminate;
+
+	int v = GetSpellGemMod(pnum, spell, GEMSTAT_NECRO);
+	if(!v || random(1, 100) > v)
+		Terminate;
+
+	Delay(const:DND_GEM_REVIVE_TICS);
+	if(!PlayerInGame(pnum) || !IsActorAlive(pnum + P_TIDSTART) || !GetSpellAllocatedRank(pnum, spell))
+		Terminate;
+
+	ACS_NamedExecuteAlways(spell == SPL_FIREDEMON ? "DnD Summon Fire Demon" : "DnD Summon Ice Golem", 0, pnum);
+}
+
+bool IsGemFreeParryOpen(int pnum) {
+	return IsGemWindowOpen(GetGemWindows().parry_end[pnum]);
+}
+
+// Bladedancer: whether this parry is free, spending the window when it is -- it expires if not parried.
+bool ConsumeGemFreeParry(int pnum) {
+	auto w = GetGemWindows();
+	if(!IsGemWindowOpen(w.parry_end[pnum]))
+		return false;
+	w.parry_end[pnum] = 0;
+	return true;
+}
+
+// Fighter: percent faster stamina recovery while the window lasts.
+int GetGemStaminaRegenBonus(int pnum) {
+	auto w = GetGemWindows();
+	return IsGemWindowOpen(w.regen_end[pnum]) ? w.regen_pct[pnum] : 0;
+}
+
+// ---- the gem socket page ----------------------------------------------------------------------
+// Spells with their sockets, or a picked socket over the inventory's gems; clicks are read clientside and puked.
+#define DND_GEMPAGE_Y 52				// the spell grid's first row
+#define DND_GEMPAGE_ROWPITCH 36
+#define DND_GEMPAGE_GEMY 100			// the gem grid's first row, under the picked spell
+#define DND_GEMPAGE_GEMPITCH 30
+#define DND_GEMPAGE_SOCKET 10			// a socket's side, two to a cell's width
+#define DND_GEMPAGE_GEMSC 2				// the gem icon in a gem cell
+
+int GetGemSocketX(int x, int slot) {
+	return x + slot * (DND_GEMPAGE_SOCKET + 1);
+}
+
+int GetGemSocketY(int y) {
+	return y + DND_SPELLNODE + 2;
+}
+
+void AddGemSocketBox(menu_pane_T module& p, int x, int y) {
+	AddBoxToPane_Points(p,
+		(HUDMAX_X - x) << 16, (HUDMAX_Y - y) << 16,
+		(HUDMAX_X - (x + DND_GEMPAGE_SOCKET)) << 16, (HUDMAX_Y - (y + DND_GEMPAGE_SOCKET)) << 16);
+}
+
+// One socket in the inventory's own cell art, socket sized at this scale: green hovered, yellow picked, blue filled.
+// A frame shrunk this far lost its border, so the socket states are the cell's colour instead.
+void DrawGemSocket(int v, int x, int y, int icon_id, bool lit, bool chosen, bool locked = false) {
+	int sc = DND_SPELLTREE_ICONSCALE;
+	SetHudSize(HUDMAX_X * sc, HUDMAX_Y * sc, 1);
+
+	// A socket its research has not opened: the empty cell, dimmed and never lit.
+	if(locked) {
+		SetFont("LDTBOX");
+		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, icon_id + 1, CR_UNTRANSLATED, ((x * sc) << 16) + 0.1, ((y * sc) << 16) + 0.1, 0.0, 0.3);
+		DeleteText(icon_id);
+		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+		return;
+	}
+
+	SetFont(lit ? "LDTBOXS" : chosen ? "LDTBOXC" : v ? "LDTBOXO" : "LDTBOX");
+	HudMessage(s:"A"; HUDMSG_PLAIN, icon_id + 1, CR_UNTRANSLATED, ((x * sc) << 16) + 0.1, ((y * sc) << 16) + 0.1, 0.0);
+
+	if(v) {
+		SetFont(GetItemImage(GetGemImageId(GetSocketGemSubtype(v))));
+		HudMessage(s:"A"; HUDMSG_PLAIN, icon_id, CR_UNTRANSLATED,
+			((x * 2 + DND_GEMPAGE_SOCKET) * sc / 2) << 16, ((y * 2 + DND_GEMPAGE_SOCKET) * sc / 2) << 16, 0.0);
+	}
+	else
+		DeleteText(icon_id);
+	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+}
+
+// A gem cell in the picker: the empty cell art, the gem centred on it.
+void DrawGemCell(int subt, int x, int y, int icon_id, int frame_id, bool lit) {
+	int sc = DND_SPELLTREE_ICONSCALE;
+	SetHudSize(HUDMAX_X * sc, HUDMAX_Y * sc, 1);
+	SetFont("SPLBACK");
+	HudMessage(s:"A"; HUDMSG_PLAIN, frame_id, CR_UNTRANSLATED, ((x * sc) << 16) + 0.1, ((y * sc) << 16) + 0.1, 0.0);
+	if(lit) {
+		SetFont("SPLSLCT");
+		HudMessage(s:"A"; HUDMSG_PLAIN, SPELLTREE_HOVER_ID, CR_UNTRANSLATED, ((x * sc) << 16) + 0.1, ((y * sc) << 16) + 0.1, 0.0);
+	}
+
+	sc = DND_GEMPAGE_GEMSC;
+	SetHudSize(HUDMAX_X * sc, HUDMAX_Y * sc, 1);
+	SetFont(GetItemImage(GetGemImageId(subt)));
+	HudMessage(s:"A"; HUDMSG_PLAIN, icon_id, CR_UNTRANSLATED,
+		((x * 2 + DND_SPELLNODE) * sc / 2) << 16, ((y * 2 + DND_SPELLNODE) * sc / 2) << 16, 0.0);
+	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+}
+
+// The pocket for a gem: its name as the heading, then its colour's terms, greyed where the spell cannot use them.
+void DrawGemPocket(int subt, int role, int spell) {
+	int c = GetGemColour(subt), k, st;
+	bool g = IsGreaterGem(subt);
+
+	SetFont("SMALLFONT");
+	HudMessage(s:"\c[Y5]", l:GetItemTagName(DND_ITEM_GEM, subt);
+		HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 2, CR_WHITE, (DND_SPELLPANEL_X << 16) + 0.1, 24.0, 0.0, 0.0);
+	if(spell != -1)
+		HudMessage(s:"\c[Y5]", l:"DND_GEM_IN", s:": \c-", l:GetSpellNameLump(spell);
+			HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 3, CR_WHITE, (DND_SPELLPANEL_X << 16) + 0.1, 36.0, 0.0, 0.0);
+	else
+		DeleteText(SPELLTREE_HEAD_ID + 3);
+
+	SetHudClipRect(DND_SPELLPANEL_X - 4, DND_SPELLPANEL_Y - 4, DND_SPELLPANEL_W, DND_SPELLPANEL_H);
+	int panel_top = DND_SPELLPANEL_Y + GetScrollBarPos(DND_SPELLBAR_PANEL) * DND_SPELLPANEL_LINEH;
+	GetSpellDraw().panel_y = panel_top;
+	GetSpellDraw().panel_id = SPELLTREE_DESC_ID;
+
+	for(k = 0; k < GetGemColourTermCount(c); ++k) {
+		st = GetGemColourTermStat(c, k);
+		PanelText(GetGemStatText(st, GetGemColourTermValue(c, k, g)), spell == -1 || IsGemStatActiveOnSpell(st, spell) ? "\c-" : "\c[K5]");
+	}
+	if(spell != -1 && !IsGemColourActive(c, spell))
+		PanelText(StrParam(l:"DND_GEM_INACTIVE"), "\c[K5]");
+
+	if(role != DND_GEMROLE_NONE) {
+		bool live = spell == -1 || IsGemRoleActiveOnSpell(role, spell);
+		PanelText("");
+		PanelText(StrParam(l:"DND_GEM_OFTHE", s:" ", l:GetGemRoleNameLump(role)), "\c[Y5]");
+		PanelText(StrParam(l:GetGemRoleTextLump(role, g)), live ? "\c-" : "\c[K5]");
+		if(!live)
+			PanelText(StrParam(l:"DND_GEM_INACTIVE"), "\c[K5]");
+	}
+
+	GetSpellScroll().panel_px = GetSpellDraw().panel_y - panel_top;
+	DeleteTextRange(GetSpellDraw().panel_id, SPELLTREE_DESC_ID + DND_SPELLPANEL_MAXLINES);
+	SetHudClipRect(0, 0, 0, 0, 0);
+	DrawSpellPocketBar();
+}
+
+void HandleSpellGemsDraw(int pnum, int boxid, menu_pane_T module& p) {
+	spell_scroll_T module& ss = GetSpellScroll();
+	int i, k, n, spell, v, x, y, row, count, base;
+	int hovered = -1, gem_subt = -1, gem_role = DND_GEMROLE_NONE, gem_spell = -1, lines = 0;
+	bool framed = false;
+
+	ResetPane(p);
+
+	SetHudSize(DND_SPELLTREE_BACKW, DND_SPELLTREE_BACKH, 1);
+	SetFont("CRFTVW2");
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, CR_CYAN, 176.0, 100.0, 0.0, 0.0);
+	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+	SetFont("NMENUFNT");
+
+	HudMessage(s:"--- ", l:"DND_SPELLTREE_GEMS", s:" ---";
+		HUDMSG_PLAIN, SPELLTREE_HEAD_ID, CR_CYAN, 178.4, 22.0, 0.0, 0.0);
+
+	// Box one is the back arrow, first for the reason the hotbar page gives: the boxes after it change with the view.
+	AddBoxToPane_Points(p, 466.0, 36.0, 454.0, 28.0);
+	DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_1, RPGMENUPAGEID - 1, 16.1, 288.0, "\c[B1]", "\c[Y5]");
+	n = 1;
+
+	// A pick on a spell that lost its sockets is dropped rather than drawn.
+	if(ss.gem_pick && !GetSpellSocketCount(pnum, (ss.gem_pick - 1) / DND_SPELL_MAXSOCKETS))
+		ss.gem_pick = 0;
+
+	if(!ss.gem_pick) {
+		count = GetGemEligibleCount(pnum);
+		HudMessage(s:"\c[Y5]", l:count ? "DND_GEMPAGE_PICKSOCKET" : "DND_GEMPAGE_NONE";
+			HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 1, CR_WHITE, 178.4, 34.0, 0.0, 0.0);
+
+		for(i = 0; i < count; ++i) {
+			spell = GetGemEligibleSpell(pnum, i);
+			row = i / DND_SPELLPICK_COLS;
+			x = GetRowCellX(i % DND_SPELLPICK_COLS, Min(count - row * DND_SPELLPICK_COLS, DND_SPELLPICK_COLS));
+			y = DND_GEMPAGE_Y + row * DND_GEMPAGE_ROWPITCH;
+
+			framed |= boxid == MBOX_1 + n;
+			if(boxid == MBOX_1 + n)
+				hovered = spell;
+			DrawSpellCell(spell, x, y, SPELLTREE_NODE_ID + 1 + i, boxid == MBOX_1 + n);
+			AddSpellBoxAt(p, x, y);
+			++n;
+
+			for(k = 0; k < DND_SPELL_MAXSOCKETS; ++k) {
+				v = GetSpellSocket(pnum, spell, k);
+				if(boxid == MBOX_1 + n) {
+					hovered = spell;
+					if(v) {
+						gem_subt = GetSocketGemSubtype(v);
+						gem_role = GetSocketGemRole(v);
+						gem_spell = spell;
+					}
+				}
+				DrawGemSocket(v, GetGemSocketX(x, k), GetGemSocketY(y), SPELLTREE_LINE_ID + 4 * i + 2 * k, boxid == MBOX_1 + n, false, k >= GetSpellSocketCount(pnum, spell));
+				AddGemSocketBox(p, GetGemSocketX(x, k), GetGemSocketY(y));
+				++n;
+			}
+		}
+		lines = 4 * count;
+		k = 1 + count;
+	}
+	else {
+		spell = (ss.gem_pick - 1) / DND_SPELL_MAXSOCKETS;
+		int pick_slot = (ss.gem_pick - 1) % DND_SPELL_MAXSOCKETS;
+		// Only the gems that can do something on this spell; the message tells none at all from none that fit.
+		count = GetInventoryGemCount(pnum, spell);
+		HudMessage(s:"\c[Y5]", l:count ? "DND_GEMPAGE_PICKGEM" : GetInventoryGemCount(pnum) ? "DND_GEMPAGE_NOFIT" : "DND_GEMPAGE_NOGEMS";
+			HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 1, CR_WHITE, 178.4, 34.0, 0.0, 0.0);
+
+		x = GetRowCellX(0, 1);
+		y = DND_GEMPAGE_Y;
+		hovered = spell;
+		DrawSpellCell(spell, x, y, SPELLTREE_NODE_ID + 1, false);
+
+		// The picked spell's sockets are boxes 2 and 3: clicking the other one moves the pick to it.
+		for(k = 0; k < DND_SPELL_MAXSOCKETS; ++k) {
+			v = GetSpellSocket(pnum, spell, k);
+			if(boxid == MBOX_1 + n) {
+				if(v) {
+					gem_subt = GetSocketGemSubtype(v);
+					gem_role = GetSocketGemRole(v);
+					gem_spell = spell;
+				}
+			}
+			DrawGemSocket(v, GetGemSocketX(x, k), GetGemSocketY(y), SPELLTREE_LINE_ID + 2 * k, boxid == MBOX_1 + n, k == pick_slot, k >= GetSpellSocketCount(pnum, spell));
+			AddGemSocketBox(p, GetGemSocketX(x, k), GetGemSocketY(y));
+			++n;
+		}
+
+		DeleteTextRange(SPELLTREE_LINE_ID + 4, SPELLTREE_LINE_ID + 7);
+		for(i = 0; i < count; ++i) {
+			base = GetInventoryGemBox(pnum, i, spell);
+			row = i / DND_SPELLPICK_COLS;
+			x = GetRowCellX(i % DND_SPELLPICK_COLS, Min(count - row * DND_SPELLPICK_COLS, DND_SPELLPICK_COLS));
+			y = DND_GEMPAGE_GEMY + row * DND_GEMPAGE_GEMPITCH;
+
+			v = GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, base, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+			if(boxid == MBOX_1 + n) {
+				framed = true;
+				gem_subt = v;
+				gem_role = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, base, 0, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+				gem_spell = spell;
+			}
+			DrawGemCell(v, x, y, SPELLTREE_NODE_ID + 2 + i, SPELLTREE_LINE_ID + 8 + i, boxid == MBOX_1 + n);
+			AddSpellBoxAt(p, x, y);
+			++n;
+		}
+		lines = 8 + count;
+		k = 2 + count;
+	}
+
+	// Only what the last draw reached past this one, so a long list shrinking costs a few deletes, not hundreds.
+	if(ss.gem_nodes_drawn > k)
+		DeleteTextRange(SPELLTREE_NODE_ID + k, SPELLTREE_NODE_ID + ss.gem_nodes_drawn);
+	if(ss.gem_lines_drawn > lines)
+		DeleteTextRange(SPELLTREE_LINE_ID + lines, SPELLTREE_LINE_ID + ss.gem_lines_drawn);
+	ss.gem_nodes_drawn = k;
+	ss.gem_lines_drawn = lines;
+
+	// The cell frame only; sockets show their state in their own colour, and nothing here uses the picked frame.
+	if(!framed)
+		DeleteText(SPELLTREE_HOVER_ID);
+	DeleteText(SPELLTREE_PICKSEL_ID);
+
+	if(gem_subt != -1) {
+		DrawGemPocket(gem_subt, gem_role, gem_spell);
+		return;
+	}
+
+	if(!ss.pinned && ss.shown_spell != hovered) {
+		ss.shown_spell = hovered;
+		SetScrollBarPos(DND_SPELLBAR_PANEL, 0);
+	}
+	DrawSpellPocket(pnum);
+}
+
+// CLIENTSIDE, from the menu loop beside HandleSpellHotbarPick, for the same reason: the view decides what a box
+// means, and the view is clientside. Left on a socket picks it, right on a filled one takes its gem out.
+bool HandleSpellGemsPick(int pnum, int boxid, int input) {
+	if(input != DND_MENUINPUT_LCLICK && input != DND_MENUINPUT_RCLICK && input != DND_MENUINPUT_JUMPCLICK)
+		return false;
+
+	spell_scroll_T module& ss = GetSpellScroll();
+
+	// Outside every box closes the gem view; box one is the back arrow, which the server handles.
+	if(boxid <= MBOX_1) {
+		if(boxid == MBOX_1 || !ss.gem_pick)
+			return false;
+		ss.gem_pick = 0;
+		return true;
+	}
+
+	int idx = boxid - MBOX_1 - 1, spell, slot;
+	if(!ss.gem_pick) {
+		spell = GetGemEligibleSpell(pnum, idx / (1 + DND_SPELL_MAXSOCKETS));
+		slot = idx % (1 + DND_SPELL_MAXSOCKETS) - 1;
+		if(spell == -1 || slot < 0)
+			return false;
+	}
+	else {
+		spell = (ss.gem_pick - 1) / DND_SPELL_MAXSOCKETS;
+		slot = idx;
+	}
+
+	// A socket, in either view. One its research has not opened does nothing.
+	if(slot < DND_SPELL_MAXSOCKETS) {
+		if(slot >= GetSpellSocketCount(pnum, spell))
+			return false;
+		if(input == DND_MENUINPUT_RCLICK) {
+			if(GetSpellSocket(pnum, spell, slot))
+				NamedRequestScriptPuke("DnD Gem Unsocket", spell, slot);
+			return false;
+		}
+		ss.gem_pick = spell * DND_SPELL_MAXSOCKETS + slot + 1;
+		LocalAmbientSound("RPG/MenuChoose", 127);
+		return true;
+	}
+
+	// A gem in the picker: socket it. The view closes either way, as the hotbar picker does.
+	int box = GetInventoryGemBox(pnum, slot - DND_SPELL_MAXSOCKETS, spell);
+	if(box != -1 && input != DND_MENUINPUT_RCLICK)
+		NamedRequestScriptPuke("DnD Gem Socket", spell, (ss.gem_pick - 1) % DND_SPELL_MAXSOCKETS, box);
+	ss.gem_pick = 0;
 	return true;
 }
 

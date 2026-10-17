@@ -39,6 +39,9 @@ enum {
 #define DND_DB_SPELLHOTBAR "DnD_PlayerSpellHotbar_"
 #define DND_DB_SPELLSFROMLEVEL "DnD_PlayerSpellsFromLevel"
 #define DND_DB_SPELLSFROMTOKEN "DnD_PlayerSpellsFromToken"
+// Gem sockets: only the filled ones, as a count and that many packed rows (see DB_SaveSpellData).
+#define DND_DB_SPELLSOCKETS "DnD_PlayerSpellSockets_"
+#define DND_DB_SPELLSOCKETCOUNT "DnD_PlayerSpellSocketCount"
 
 #define DND_DB_HEALTH "DND_PlayerHealth"
 #define DND_DB_ESHIELD "DnD_PlayerEShield"

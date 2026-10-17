@@ -1,0 +1,40 @@
+// Thunder Clap's shockwave ring, on AURA P in MODELDEF.aura, shaded by ThunderClap.fp; ACS spreads it, it fades itself.
+Actor Spell_ThunderClap_Ring {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 0.95
+	States {
+		Spawn:
+			AURA P 10 Bright
+		Fade:
+			AURA P 1 Bright A_FadeOut(0.08)
+		Loop
+	}
+}
+
+// The lightning sparks thrown off the ring's edge, and off Storm Call's marked ground.
+Actor Spell_ThunderClap_Spark : Spell_Overcharge_Crackle {
+	Alpha 0.9
+	Scale 0.3
+}
+
+// The slam where the caster stood.
+Actor Spell_ThunderClap_Burst {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 0.95
+	Scale 1.6
+	States {
+		Spawn:
+			FAXE R 2 Bright Light("ThunderClapSlam1")
+			FAXE S 2 Bright Light("ThunderClapSlam2")
+			FAXE TUVWX 2 Bright
+		Stop
+	}
+}

@@ -328,3 +328,163 @@ Graphic "SP118G", 64, 64
 		Translation Desaturate, 31
 	}
 }
+
+Graphic "SP200G", 64, 64
+{
+	Patch "SP200", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP201G", 64, 64
+{
+	Patch "SP201", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP202G", 64, 64
+{
+	Patch "SP202", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP203G", 64, 64
+{
+	Patch "SP203", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP204G", 64, 64
+{
+	Patch "SP204", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP205G", 64, 64
+{
+	Patch "SP205", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP206G", 64, 64
+{
+	Patch "SP206", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP207G", 64, 64
+{
+	Patch "SP207", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP208G", 64, 64
+{
+	Patch "SP208", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP209G", 64, 64
+{
+	Patch "SP209", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP210G", 64, 64
+{
+	Patch "SP210", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP211G", 64, 64
+{
+	Patch "SP211", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP212G", 64, 64
+{
+	Patch "SP212", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP213G", 64, 64
+{
+	Patch "SP213", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP214G", 64, 64
+{
+	Patch "SP214", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP215G", 64, 64
+{
+	Patch "SP215", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP216G", 64, 64
+{
+	Patch "SP216", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP217G", 64, 64
+{
+	Patch "SP217", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP218G", 64, 64
+{
+	Patch "SP218", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP219G", 64, 64
+{
+	Patch "SP219", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}

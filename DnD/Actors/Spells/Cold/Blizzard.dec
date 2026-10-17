@@ -9,13 +9,12 @@ Actor Spell_BlizzardIce : DnD_SpellExplosive {
 	Alpha 1.0
 	XScale 1.275
 	YScale 0.875
-	DeathSound "IceBolt/Hit"
+	DeathSound "GlacialCascade/Hit"
 	// A quarter on a direct hit, as Rain of Fire's comets: the blast is the real damage.
 	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE, 0, 4))
 	DamageType "P_Ice"
 	+FORCERADIUSDMG
 	States {
-		// No NOCLIP: a floor reached under it zeroes the fall. "DnD Blizzard" starts it under the ceiling instead.
 		SpawnState:
 			BLZI A 2 Bright A_SpawnItemEx("Spell_GlacialSpike_ParticleTrail", -8, 0, 0, 0, 0, 0, 0, 128)
 		Loop

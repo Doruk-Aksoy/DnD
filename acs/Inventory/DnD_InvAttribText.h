@@ -950,6 +950,10 @@ str GetItemAttributeText(
 	if(extra == -1 && item_type == DND_ITEM_DUNGEONKEY)
 		return DungeonAttributeString(attr, val1, tier, showDetailedMods, extra, isFractured, qual, val2, craftAffected);
 
+	// A gem's implicit is its role, whose id would otherwise read as an ordinary mod.
+	if(item_type == DND_ITEM_GEM)
+		return StrParam(l:GetGemRoleNameLump(attr), s:": ", l:GetGemRoleTextLump(attr, IsGreaterGem(item_subtype)));
+
 	if(attr <= LAST_FLASK_ATTRIBUTE)
 		return ItemAttributeString(attr, item_type, item_subtype, val1, tier, showDetailedMods, extra, isFractured, qual, val2, craftAffected);
 

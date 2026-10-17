@@ -1,0 +1,36 @@
+// Wrath's aura, Anger's lightning twin. Its marker's presence is the aura; ACS gives and takes it.
+Actor DnD_WrathAuraActive : DnD_Boolean {}
+
+// Raises the ring on every machine that receives it; WithResult keeps the player as the activator.
+Actor Spell_WrathAura_FXSpawner : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 1 ACS_NamedExecuteWithResult("DnD Spawn Player Aura", PLAYERFX_WRATHAURA)
+		Stop
+	}
+}
+
+// The ring, on AURA M in MODELDEF.aura, shaded by Wrath.fp. Follows its owner while the marker holds.
+Actor Spell_WrathAuraFX {
+	Renderstyle Add
+	Alpha 0.5
+	// Anger's fixed 144 units.
+	Scale 10.5
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOTONAUTOMAP
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_JumpIfInTargetInventory("DnD_WrathAuraActive", 1, "Active")
+		Stop
+		Active:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Auras Hidden"), "Hidden")
+			AURA M 1 Bright A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_INTERPOLATE | WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_WrathAuraActive", 1, "Active")
+		Stop
+		Hidden:
+			TNT1 A 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_WrathAuraActive", 1, "Active")
+		Stop
+	}
+}

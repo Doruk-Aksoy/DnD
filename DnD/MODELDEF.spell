@@ -511,3 +511,219 @@ Model Spell_Pyroblast_TinyFireballs {
 	FrameIndex FX14 B 0 0
 	FrameIndex FX14 C 0 0
 }
+
+// Lightning Spear: jagged blue strands with blinking branches, one model frame per HSPL letter it cycles.
+// Scale undoes the actor's 0.65, which stays for the S003 zap frames.
+Model Spell_LightningSpear {
+	Path "Models/Proj"
+	Model 0 "LSPEAR.md3"
+
+	Path "Graphics/ShaderTex"
+	Skin 0 "LSPEAR.png"
+	Scale 1.54 1.54 1.54
+
+	PITCHFROMMOMENTUM
+
+	FrameIndex HSPL A 0 0
+	FrameIndex HSPL B 0 1
+	FrameIndex HSPL C 0 2
+	FrameIndex HSPL D 0 3
+	FrameIndex HSPL E 0 4
+	FrameIndex HSPL F 0 5
+	FrameIndex HSPL G 0 6
+	FrameIndex HSPL H 0 7
+	FrameIndex HSPL I 0 8
+	FrameIndex HSPL J 0 9
+}
+
+// Its afterimages draw the same model and fade; they carry a sliver of the spear's velocity to pitch with it.
+Model Spell_LightningSpearTrail {
+	Path "Models/Proj"
+	Model 0 "LSPEAR.md3"
+
+	Path "Graphics/ShaderTex"
+	Skin 0 "LSPEAR.png"
+	Scale 1.54 1.54 1.54
+
+	PITCHFROMMOMENTUM
+
+	FrameIndex HSPL A 0 0
+	FrameIndex HSPL B 0 1
+	FrameIndex HSPL C 0 2
+	FrameIndex HSPL D 0 3
+	FrameIndex HSPL E 0 4
+	FrameIndex HSPL F 0 5
+	FrameIndex HSPL G 0 6
+	FrameIndex HSPL H 0 7
+	FrameIndex HSPL I 0 8
+	FrameIndex HSPL J 0 9
+}
+
+// Spark's bursts: radiating filaments with forks round a white core, six shapes on SPZB A-F.
+Model Spell_Spark_Flash {
+	Path "Models/Proj"
+	Model 0 "SPARKBST.md3"
+
+	Path "Graphics/ShaderTex"
+	Skin 0 "SPARKBST.png"
+	Scale 1.0 1.0 1.0
+
+	FrameIndex SPZB A 0 0
+	FrameIndex SPZB B 0 1
+	FrameIndex SPZB C 0 2
+	FrameIndex SPZB D 0 3
+	FrameIndex SPZB E 0 4
+	FrameIndex SPZB F 0 5
+}
+
+Model Spell_Spark_Crackle {
+	Path "Models/Proj"
+	Model 0 "SPARKBST.md3"
+
+	Path "Graphics/ShaderTex"
+	Skin 0 "SPARKBST.png"
+	Scale 1.0 1.0 1.0
+
+	FrameIndex SPZB A 0 0
+	FrameIndex SPZB B 0 1
+	FrameIndex SPZB C 0 2
+	FrameIndex SPZB D 0 3
+	FrameIndex SPZB E 0 4
+	FrameIndex SPZB F 0 5
+}
+
+Model Spell_Spark_Hit {
+	Path "Models/Proj"
+	Model 0 "SPARKBST.md3"
+
+	Path "Graphics/ShaderTex"
+	Skin 0 "SPARKBST.png"
+	Scale 1.0 1.0 1.0
+
+	FrameIndex SPZB A 0 0
+	FrameIndex SPZB B 0 1
+	FrameIndex SPZB C 0 2
+	FrameIndex SPZB D 0 3
+	FrameIndex SPZB E 0 4
+	FrameIndex SPZB F 0 5
+}
+
+// Static Field's falling bolt: eight shapes on STFB A-H.
+Model Spell_StaticField_Strike {
+	Path "Models/Proj"
+	Model 0 "LSTRIKE.md3"
+
+	Path "Graphics/ShaderTex"
+	Skin 0 "LSTRIKE.png"
+	Scale 1.0 1.0 1.0
+
+	FrameIndex STFB A 0 0
+	FrameIndex STFB B 0 1
+	FrameIndex STFB C 0 2
+	FrameIndex STFB D 0 3
+	FrameIndex STFB E 0 4
+	FrameIndex STFB F 0 5
+	FrameIndex STFB G 0 6
+	FrameIndex STFB H 0 7
+}
+
+// Shock's beam: two crossed quads ACS aims and stretches to the target; the shader draws the zigzag.
+Model Spell_Shock_Beam {
+	Path "Models/Proj"
+	Model 0 "ZAPBEAM.md3"
+
+	Path "Graphics/ShaderTex"
+	Skin 0 "ZAPBEAM.png"
+	Scale 1.0 1.0 1.0
+
+	PITCHFROMMOMENTUM
+
+	FrameIndex ZPBM A 0 0
+}
+
+// Forked Lightning's beam: two crossed quads ACS aims and stretches; the shader draws the bolt and its branches.
+Model Spell_ForkedLightning_Beam {
+	Path "Models/Proj"
+	Model 0 "FORKBEAM.md3"
+
+	Path "Graphics/ShaderTex"
+	Skin 0 "FORKBEAM.png"
+	Scale 1.0 1.0 1.0
+
+	PITCHFROMMOMENTUM
+
+	FrameIndex FKBM A 0 0
+}
+
+// Chain Lightning's beam: two crossed quads ACS aims and stretches; the shader draws the bolt and its branches.
+Model Spell_ChainLightning_Beam {
+	Path "Models/Proj"
+	Model 0 "FORKBEAM.md3"
+
+	Path "Graphics/ShaderTex"
+	Skin 0 "FORKBEAM.png"
+	Scale 1.0 1.0 1.0
+
+	PITCHFROMMOMENTUM
+
+	FrameIndex FKBM A 0 0
+}
+
+// Crackling Lance: three crossed planes for the fan and a hull for the laser; ACS stretches it, the shader draws both.
+Model Spell_CracklingLance_Beam {
+	Path "Models/Proj"
+	Model 0 "CLANCE.md3"
+
+	Path "Graphics/ShaderTex"
+	Skin 0 "CLANCE.png"
+	Scale 1.0 1.0 1.0
+
+	PITCHFROMMOMENTUM
+
+	FrameIndex CLNB A 0 0
+}
+
+// Blink's streak: the forking beam's quads, aimed and stretched by ACS.
+Model Spell_Blink_Beam {
+	Path "Models/Proj"
+	Model 0 "FORKBEAM.md3"
+
+	Path "Graphics/ShaderTex"
+	Skin 0 "FORKBEAM.png"
+	Scale 1.0 1.0 1.0
+
+	PITCHFROMMOMENTUM
+
+	FrameIndex BLKB A 0 0
+}
+
+// Overcharge's unleash: the falling bolt, eight shapes on OVCS A-H.
+Model Spell_Overcharge_Strike {
+	Path "Models/Proj"
+	Model 0 "LSTRIKE.md3"
+
+	Path "Graphics/ShaderTex"
+	Skin 0 "LSTRIKE.png"
+	Scale 0.6 0.6 0.6
+
+	FrameIndex OVCS A 0 0
+	FrameIndex OVCS B 0 1
+	FrameIndex OVCS C 0 2
+	FrameIndex OVCS D 0 3
+	FrameIndex OVCS E 0 4
+	FrameIndex OVCS F 0 5
+	FrameIndex OVCS G 0 6
+	FrameIndex OVCS H 0 7
+}
+
+// Storm Brand's globe: Winter Orb's sphere wearing the vein art.
+Model Spell_StormBrand_Globe {
+	Path "Models/Proj"
+	Model 0 "WINTERORB.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "STMBRND.png"
+	Scale 1.0 1.0 1.0
+	ROTATING
+	rotation-speed 0.8
+	FrameIndex WORB B 0 0
+}

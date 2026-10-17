@@ -1957,27 +1957,32 @@ bool IsBoomstick(int id) {
 	return Weapons_Data[id].properties & WPROP_SHOTGUN;
 }
 
+// For the trait tests: a hit with no weapon behind it, a spell's, arrives as -1 and must read as no trait at all.
+bool IsWeaponId(int wepid) {
+	return wepid >= 0 && wepid < MAXWEPS;
+}
+
 bool IsAutomaticWeapon(int wepid) {
-	return Weapons_Data[wepid].properties & WPROP_AUTOMATIC;
+	return IsWeaponId(wepid) && (Weapons_Data[wepid].properties & WPROP_AUTOMATIC);
 }
 
 bool IsMeleeWeapon(int wepid) {
-	return Weapons_Data[wepid].properties & WPROP_MELEE;
+	return IsWeaponId(wepid) && (Weapons_Data[wepid].properties & WPROP_MELEE);
 }
 
 // Melee sub-categories, for the perks that name one -- Deep Cuts wants slashing, Cranium Bash wants
 // blunt. Both test the bit rather than "melee and not the other", so a melee weapon that fits
 // neither is simply outside both perks instead of falling into whichever is written as the default.
 bool IsSlashingWeapon(int wepid) {
-	return Weapons_Data[wepid].properties & WPROP_SLASHING;
+	return IsWeaponId(wepid) && (Weapons_Data[wepid].properties & WPROP_SLASHING);
 }
 
 bool IsBluntWeapon(int wepid) {
-	return Weapons_Data[wepid].properties & WPROP_BLUNT;
+	return IsWeaponId(wepid) && (Weapons_Data[wepid].properties & WPROP_BLUNT);
 }
 
 bool IsPrecisionWeapon(int wepid) {
-	return Weapons_Data[wepid].properties & WPROP_PRECISION;
+	return IsWeaponId(wepid) && (Weapons_Data[wepid].properties & WPROP_PRECISION);
 }
 
 bool IsArtilleryWeapon(int wepid) {

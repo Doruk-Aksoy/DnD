@@ -895,6 +895,16 @@ bool isPet(int tid) {
 	return (tid >= DND_PETTID_BEGIN && tid < DND_PETTID_END);
 }
 
+// One of the players' minions: a pet-tid summon, or a monster-tid one made friendly, such as a raised monster.
+bool IsPlayerAlly(int tid) {
+	return isPet(tid) || (IsMonster(tid) && CheckFlag(tid, "FRIENDLY"));
+}
+
+// What a player's spell may target or hit: shootable, and not one of the players' own minions.
+bool IsSpellEnemy(int tid) {
+	return CheckFlag(tid, "SHOOTABLE") && !IsPlayerAlly(tid);
+}
+
 bool IsMonsterCategoryResurrectable(int id) {
 	return MonsterProperties[id].class != MONSTERCLASS_ARCHVILE && !IsMonsterIdBoss(id);
 }

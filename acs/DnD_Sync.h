@@ -686,6 +686,22 @@ Script "DnD Request Spell Sync" (int pnum, int word, int val) CLIENTSIDE {
 	SetResultValue(0);
 }
 
+// One gem stat of one spell, from EndSpellGemRebuild.
+Script "DnD Request Spell Gem Sync" (int pnum, int spell, int stat, int val) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+	SpellGemMods[pnum][spell][stat] = val;
+	SetResultValue(0);
+}
+
+// One gem socket, by spell * DND_SPELL_MAXSOCKETS + slot.
+Script "DnD Request Spell Socket Sync" (int pnum, int index, int val) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+	SpellPlayerData[pnum].sockets[index] = val;
+	SetResultValue(0);
+}
+
 // The aura/passive on-off word. Same shape as the rank sync above.
 Script "DnD Request Spell Toggle Sync" (int pnum, int word, int val) CLIENTSIDE {
 	if(GameType() == GAME_SINGLE_PLAYER)

@@ -2176,6 +2176,9 @@ Script "DnD Chain Lightning (Weapon)" (int dmg, int zap_count, int flags, int ju
 	dmg = RetrieveWeaponDamage(pnum, wepid, i, GetDamageCategory(dmg_type, flags), flags, 0);
 	int min_dmg = dmg / 10; // 10% of dmg
 
+	// Energy Blade rides every hop of a melee weapon's zap, losing damage as the zap does.
+	int blade_slot = ResolveWeaponCacheSlot(pnum, wepid), blade_id = i, dmg0 = Max(1, dmg), blade;
+
 	if(factor != 100)
 		dmg = dmg * factor / 100;
 
@@ -2223,6 +2226,9 @@ Script "DnD Chain Lightning (Weapon)" (int dmg, int zap_count, int flags, int ju
 		if(mn > 0) {
 			Thing_Damage2(victim, mn, "SkipHandle");
 		}
+		if((blade = GetEnergyBladeHit(pnum, blade_slot, blade_id, wepid) * dmg / dmg0) > 0 &&
+			(mn = HandleDamageDeal(owner, victim, blade, DND_DAMAGETYPE_LIGHTNING, wepid, flags, 0, 0, 0, ScanActorFlags())) > 0)
+			Thing_Damage2(victim, mn, "SkipHandle");
 
 		PlaySound(victim, "Spell/LightningSpearBounce", CHAN_WEAPON, 1.0);
 
@@ -2574,7 +2580,9 @@ Script "DnD Start Stamina Recovery" (void) {
 }
 
 Script "DnD Can Parry" (void) {
-	SetResultValue(CheckInventory("DnD_Stamina") >= DND_PARRY_STAMINA_COST - CheckInventory("Ability_ParryMaster") * DND_PARRYMASTER_STAMINAREDUCE);
+	// Bladedancer's window after a cast makes the parry free, so the stamina it would cost is not needed.
+	SetResultValue(IsGemFreeParryOpen(PlayerNumber()) ||
+		CheckInventory("DnD_Stamina") >= DND_PARRY_STAMINA_COST - CheckInventory("Ability_ParryMaster") * DND_PARRYMASTER_STAMINAREDUCE);
 }
 
 Script "DnD Parry" (void) {
@@ -2593,7 +2601,9 @@ Script "DnD Parry" (void) {
 	if(riposte)
 		cost = cost * (100 - riposte * CheckInventory("DnD_RiposteStacks")) / 100;
 
-	TakeStamina(cost);
+	// Bladedancer: the window spends itself on this parry instead of the stamina.
+	if(!ConsumeGemFreeParry(pnum))
+		TakeStamina(cost);
 
 	if(riposte) {
 		if(CheckInventory("DnD_RiposteStacks") < DND_RIPOSTE_MAXSTACK)

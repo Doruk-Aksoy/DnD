@@ -102,3 +102,224 @@ pointlight IceImpact8 {
 object Spell_IceBolt {
 	frame S012A { light IceBoltLight }
 }
+
+// Charged Bolt: a cold flicker that lights the ground under each bolt, and the flash where one ends.
+flickerlight2 ChargedBoltLight {
+	color 0.50 0.60 1.00
+	size 40
+	secondarysize 56
+	interval 0.1
+}
+
+pointlight ChargedBoltBurst1 {
+	color 0.70 0.78 1.00
+	size 72
+}
+
+pointlight ChargedBoltBurst2 {
+	color 0.50 0.60 1.00
+	size 60
+}
+
+pointlight ChargedBoltBurst3 {
+	color 0.30 0.38 0.80
+	size 44
+}
+
+pointlight ChargedBoltBurst4 {
+	color 0.14 0.18 0.45
+	size 28
+}
+
+object Spell_ChargedBolt {
+	frame LGCB { light ChargedBoltLight }
+}
+
+// Spark's zap flash, and the bursts where Shock's and Telekinesis's arcs land.
+pointlight SparkFlash1 {
+	color 0.50 0.60 1.00
+	size 60
+}
+
+pointlight SparkFlash2 {
+	color 0.14 0.18 0.45
+	size 28
+}
+
+pointlight ShockBurst1 {
+	color 0.70 0.78 1.00
+	size 72
+}
+
+pointlight ShockBurst2 {
+	color 0.50 0.60 1.00
+	size 60
+}
+
+pointlight ShockBurst3 {
+	color 0.30 0.38 0.80
+	size 44
+}
+
+pointlight ShockBurst4 {
+	color 0.14 0.18 0.45
+	size 28
+}
+
+pointlight TelekinesisBurst1 {
+	color 0.70 0.78 1.00
+	size 72
+}
+
+pointlight TelekinesisBurst2 {
+	color 0.50 0.60 1.00
+	size 60
+}
+
+pointlight TelekinesisBurst3 {
+	color 0.30 0.38 0.80
+	size 44
+}
+
+pointlight TelekinesisBurst4 {
+	color 0.14 0.18 0.45
+	size 28
+}
+
+// Static Field's bolt: the strike, its dip and second stroke, then the fade.
+pointlight StaticFieldStrike1 {
+	color 0.62 0.62 1.00
+	size 160
+	offset 0 32 0
+}
+
+pointlight StaticFieldStrike2 {
+	color 0.40 0.38 0.85
+	size 120
+	offset 0 32 0
+}
+
+pointlight StaticFieldStrike3 {
+	color 0.20 0.18 0.50
+	size 88
+	offset 0 32 0
+}
+
+// Where Forked and Chain Lightning beams land.
+pointlight ForkedLightningHit1 {
+	color 0.60 0.70 1.00
+	size 64
+}
+
+pointlight ForkedLightningHit2 {
+	color 0.30 0.38 0.80
+	size 40
+}
+
+pointlight ChainLightningHit1 {
+	color 0.60 0.70 1.00
+	size 64
+}
+
+pointlight ChainLightningHit2 {
+	color 0.30 0.38 0.80
+	size 40
+}
+
+// Crackling Lance, lighting the way ahead of the caster.
+pointlight CracklingLance {
+	color 0.55 0.60 1.00
+	size 112
+	offset 96 0 0
+}
+
+// Blink's flash at each end of the dash.
+pointlight BlinkFlash1 {
+	color 0.60 0.70 1.00
+	size 72
+}
+
+pointlight BlinkFlash2 {
+	color 0.30 0.38 0.80
+	size 44
+}
+
+// Overcharge's unleash, lit from a little above the struck enemy.
+pointlight OverchargeStrike1 {
+	color 0.62 0.62 1.00
+	size 128
+	offset 0 32 0
+}
+
+pointlight OverchargeStrike2 {
+	color 0.40 0.38 0.85
+	size 96
+	offset 0 32 0
+}
+
+// Galvanic Surge's flash round the caster.
+pointlight GalvanicSurge1 {
+	color 0.62 0.66 1.00
+	size 96
+}
+
+pointlight GalvanicSurge2 {
+	color 0.36 0.38 0.82
+	size 64
+}
+
+// Surgecast's flashes: on the cast, and when a cast spends it.
+pointlight SurgecastFlash1 {
+	color 0.55 0.62 1.00
+	size 64
+}
+
+pointlight SurgecastFlash2 {
+	color 0.30 0.34 0.78
+	size 40
+}
+
+// Storm Brand's globe, a soft blue glow that rides with it.
+pointlight StormBrandGlow {
+	color 0.30 0.45 1.00
+	size 40
+}
+
+// Monsoon's strikes, lit from a little over the ground.
+pointlight MonsoonStrike1 {
+	color 0.60 0.80 1.00
+	size 160
+	offset 0 48 0
+}
+
+pointlight MonsoonStrike2 {
+	color 0.35 0.50 0.90
+	size 112
+	offset 0 48 0
+}
+
+// Storm Call's bigger strike.
+pointlight StormCallStrike1 {
+	color 0.65 0.85 1.00
+	size 288
+	offset 0 64 0
+}
+
+pointlight StormCallStrike2 {
+	color 0.40 0.55 1.00
+	size 192
+	offset 0 64 0
+}
+
+// Thunder Clap's slam.
+pointlight ThunderClapSlam1 {
+	color 0.55 0.70 1.00
+	size 192
+	offset 0 16 0
+}
+
+pointlight ThunderClapSlam2 {
+	color 0.35 0.45 0.90
+	size 128
+	offset 0 16 0
+}

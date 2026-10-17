@@ -123,3 +123,110 @@ HardwareShader HATRED {
 	Shader "GLDefs/Shaders/Hatred.fp"
 	Speed 1.0
 }
+
+// Wrath's aura: soft arcs crawling out from the centre to a flickering rim.
+HardwareShader WRATH {
+	Shader "GLDefs/Shaders/Wrath.fp"
+	Speed 1.0
+}
+
+// Charged Bolt: arms of LIGBOLT around a hot core, re-dealt many times a second; each frame is a seed.
+HardwareShader sprite LGCBA0 {
+	Shader "GLDefs/Shaders/ChargedBolt.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite LGCBB0 {
+	Shader "GLDefs/Shaders/ChargedBolt.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite LGCBC0 {
+	Shader "GLDefs/Shaders/ChargedBolt.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite LGCBD0 {
+	Shader "GLDefs/Shaders/ChargedBolt.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite LGCBE0 {
+	Shader "GLDefs/Shaders/ChargedBolt.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite LGCBF0 {
+	Shader "GLDefs/Shaders/ChargedBolt.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite LGCBG0 {
+	Shader "GLDefs/Shaders/ChargedBolt.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite LGCBH0 {
+	Shader "GLDefs/Shaders/ChargedBolt.fp"
+	Speed 1.0
+}
+
+// Lightning Spear's model skin: strands, branches and glow from the UV packing of LSPEAR.md3.
+HardwareShader LSPEAR {
+	Shader "GLDefs/Shaders/LightningSpear.fp"
+	Speed 1.0
+}
+
+// Spark's burst model skin: filaments, forks, core and haze from the UV packing of SPARKBST.md3.
+HardwareShader SPARKBST {
+	Shader "GLDefs/Shaders/SparkBurst.fp"
+	Speed 1.0
+}
+
+// The falling bolt's skin: core, glow, branches and haze from the UV packing of LSTRIKE.md3.
+HardwareShader LSTRIKE {
+	Shader "GLDefs/Shaders/LightningStrike.fp"
+	Speed 1.0
+}
+
+// The stretched beam's skin: a thin zigzag the same thickness at any length, from the UV packing of ZAPBEAM.md3.
+HardwareShader ZAPBEAM {
+	Shader "GLDefs/Shaders/ZapBeam.fp"
+	Speed 1.0
+}
+
+// The forking beam's skin: a curving bolt with little branches, the same thickness at any length, from the UV packing of FORKBEAM.md3.
+HardwareShader FORKBEAM {
+	Shader "GLDefs/Shaders/ForkBeam.fp"
+	Speed 1.0
+}
+
+// Crackling Lance's skin: the branching fan on the planes, the laser as a volume in the hull, from the UV packing of CLANCE.md3.
+HardwareShader CLANCE {
+	Shader "GLDefs/Shaders/CracklingLance.fp"
+	Speed 1.0
+}
+
+// Storm Brand's globe: two drifting layers of vein art over a breathing core.
+HardwareShader STMBRND {
+	Shader "GLDefs/Shaders/StormBrand.fp"
+	Speed 1.0
+}
+
+// Storm Brand's rune circle, its band and inner rings turning against each other.
+HardwareShader STMRUNE {
+	Shader "GLDefs/Shaders/StormBrandRing.fp"
+	Speed 1.0
+}
+
+// Storm Call's marked ground, crackling harder as it charges.
+HardwareShader STORMCAL {
+	Shader "GLDefs/Shaders/StormCall.fp"
+	Speed 1.0
+}
+
+// Thunder Clap's shockwave ring.
+HardwareShader TCLAPRNG {
+	Shader "GLDefs/Shaders/ThunderClap.fp"
+	Speed 1.0
+}

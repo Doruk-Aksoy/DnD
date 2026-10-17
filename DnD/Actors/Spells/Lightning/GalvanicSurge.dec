@@ -1,0 +1,17 @@
+// Galvanic Surge's flash at the caster's chest.
+Actor Spell_GalvanicSurge_Flash {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 0.95
+	Scale 0.9
+	States {
+		Spawn:
+			FAXE R 2 Bright Light("GalvanicSurge1")
+			FAXE S 2 Bright Light("GalvanicSurge2")
+			FAXE TUVWX 2 Bright
+		Stop
+	}
+}

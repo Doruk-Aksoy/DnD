@@ -72,6 +72,13 @@ void DB_SaveSpellData(int pnum, int char_id, str pacc) {
 	int tid = pnum + P_TIDSTART;
 	SetDBEntry(GetCharField(DND_DB_SPELLSFROMLEVEL, char_id), pacc, CheckActorInventory(tid, "SpellPointsFromLevel"));
 	SetDBEntry(GetCharField(DND_DB_SPELLSFROMTOKEN, char_id), pacc, CheckActorInventory(tid, "SpellPointsFromToken"));
+
+	// A row per filled socket, its index above the 15 bit gem: 512 rows a save for every empty socket was waste.
+	int n = 0;
+	for(i = 0; i < SPELL_SOCKET_INTS; ++i)
+		if(SpellPlayerData[pnum].sockets[i])
+			SetDBEntry(StrParam(s:GetCharField(DND_DB_SPELLSOCKETS, char_id), d:n++), pacc, (i << 16) | SpellPlayerData[pnum].sockets[i]);
+	SetDBEntry(GetCharField(DND_DB_SPELLSOCKETCOUNT, char_id), pacc, n);
 }
 
 void DB_ClearSpellData(int char_id, str pacc) {
@@ -87,6 +94,7 @@ void DB_ClearSpellData(int char_id, str pacc) {
 
 	SetDBEntry(GetCharField(DND_DB_SPELLSFROMLEVEL, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_SPELLSFROMTOKEN, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_SPELLSOCKETCOUNT, char_id), pacc, 0);
 }
 
 void DB_LoadSpellData(int pnum, int char_id, str pacc) {
@@ -103,6 +111,15 @@ void DB_LoadSpellData(int pnum, int char_id, str pacc) {
 	int tid = pnum + P_TIDSTART;
 	SetActorInventory(tid, "SpellPointsFromLevel", GetDBEntry(GetCharField(DND_DB_SPELLSFROMLEVEL, char_id), pacc));
 	SetActorInventory(tid, "SpellPointsFromToken", GetDBEntry(GetCharField(DND_DB_SPELLSFROMTOKEN, char_id), pacc));
+
+	int v, n = GetDBEntry(GetCharField(DND_DB_SPELLSOCKETCOUNT, char_id), pacc);
+	for(i = 0; i < SPELL_SOCKET_INTS; ++i)
+		SpellPlayerData[pnum].sockets[i] = 0;
+	for(i = 0; i < n; ++i) {
+		v = GetDBEntry(StrParam(s:GetCharField(DND_DB_SPELLSOCKETS, char_id), d:i), pacc);
+		if((v >> 16) < SPELL_SOCKET_INTS)
+			SpellPlayerData[pnum].sockets[v >> 16] = v & 0xFFFF;
+	}
 }
 
 void DB_SaveItemData(inventory_T* item, int i, int char_id, str pacc) {
@@ -1009,6 +1026,7 @@ void LoadPlayerData(int pnum, int char_id) {
 	// totals do -- GetSpellValue reads the ranks live -- but the hotbar mirrors DO have to be pushed
 	// to the client, which "DnD Player Setup" does with SyncHotbarAll after the load completes.
 	DB_LoadSpellData(pnum, char_id, pacc);
+	SyncAllSpellData(pnum);
 
 	// read researches
 	for(i = 0; i < RESEARCH_BITSETS; ++i) {

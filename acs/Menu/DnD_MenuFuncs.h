@@ -663,6 +663,7 @@ bool HandlePageListening(int curopt, int boxid) {
 			redraw = HandleSpellPageScroll(curopt - MENU_SPELLTREE_FIRST, boxid);
 		break;
 		case MENU_SPELL_HOTBAR:
+		case MENU_SPELL_GEMS:
 			redraw = HandleSpellPageScroll(0, boxid);
 		break;
 		#ifdef ISAPRILFIRST
@@ -2265,6 +2266,7 @@ rect_T module& LoadRect(int menu_page, int id) {
 			{ 296.0, 150.0, 80.0, 138.0 }, // Chaos
 			{ 296.0, 134.0, 80.0, 122.0 }, // Combat
 			{ 296.0, 110.0, 80.0, 98.0 }, // Hotbar Assignments
+			{ 296.0, 94.0, 80.0, 82.0 }, // Gem Sockets
 			{ -1, -1, -1, -1 }
 		},
 		// The tree pages build their own pane in HandleSpellTreeDraw, so they own no authored rect.
@@ -2301,6 +2303,10 @@ rect_T module& LoadRect(int menu_page, int id) {
 			{ -1, -1, -1, -1 }
 		},
 		// hotbar assignments -- builds its own pane, like the trees
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// gem sockets -- the same
 		{
 			{ -1, -1, -1, -1 }
 		}
@@ -3934,6 +3940,8 @@ void PlayItemDropSound(int type, int sub_type, bool use_activator_sound) {
 		snd = "Items/FlaskDrop";
 	else if(type == DND_ITEM_DUNGEONKEY)
 		snd = "Items/DungeonKeyDrop";
+	else if(type == DND_ITEM_GEM)
+		snd = "Items/GemDrop";
 
 	if(!use_activator_sound) {
 		// this is the "unequip item" case, we should use this one as charms dont have their own "throw" sound
@@ -4893,7 +4901,7 @@ void HandleStashViewClicks(int pnum, int boxid, int choice) {
 }
 
 void HandleMaterialDraw(menu_inventory_T module& p, int boxid, int curopt, int k) {
-	int mcount = CountCraftingMaterials(IsCraftingPageForTokens(curopt));
+	int mcount = CountCraftingMaterials(IsCraftingPageForTokens(curopt), curopt == MENU_LOAD_CRAFTING_TRANSMUTING);
 	int i;
 	int tx, ty, bx, by;
 	int page = CheckInventory("DnD_Crafting_MaterialPage");
@@ -4922,7 +4930,7 @@ void HandleMaterialDraw(menu_inventory_T module& p, int boxid, int curopt, int k
 		//for(ty = 0; ty < MAX_CRAFTITEMTYPES; ++ty) {
 			// by holds currently visited unique item's order, it's unique to each item type so we reset it, we don't reset i
 			for(by = 0; i < MAX_CRAFTING_MATERIALBOXES && i < mcount - MAX_CRAFTING_MATERIALBOXES * page; ++i, ++by) {
-				tx = GetNextUniqueCraftableMaterial(by + MAX_CRAFTING_MATERIALBOXES * page, IsCraftingPageForTokens(curopt));
+				tx = GetNextUniqueCraftableMaterial(by + MAX_CRAFTING_MATERIALBOXES * page, IsCraftingPageForTokens(curopt), curopt == MENU_LOAD_CRAFTING_TRANSMUTING);
 				if(tx != -1) {
 					if(boxid - 1 == MATERIALBOX_OFFSET_BOXID + i) {
 						//Log(s:"update item boxlit material ", d:tx);
@@ -5130,11 +5138,64 @@ void ResetTransmutingData(int pnum) {
 	}
 }
 
+bool IsTransmuteGemSlot(int v) {
+	return v != -1 && (v & DND_TRANSMUTE_GEMSLOT);
+}
+
+// The box a gem slot points at, or -1 once that box no longer holds a gem (socketed, sold, sorted away).
+int GetTransmuteSlotGem(int pnum, int v) {
+	int box = v & DND_TRANSMUTE_GEMBOXMASK;
+	if(GetPlayerInventoryItem(pnum, box).item_type != DND_ITEM_GEM || GetPlayerInventoryItem(pnum, box).topleftboxid != box + 1)
+		return -1;
+	return box;
+}
+
+// -1 with no gem in the chamber, DND_GEM_TRANSMUTE for three distinct gems of one tier (any colours), -2 for anything else.
+int GetTransmuteGemRecipe(int pnum) {
+	auto d = GetTransmuteOrbData(pnum);
+	int i, k, box, tier = -1, gems = 0;
+	for(i = 0; i < MAX_TRANSMUTE_BOXES; ++i)
+		gems += IsTransmuteGemSlot(d.val[i]);
+	if(!gems)
+		return -1;
+	if(gems < MAX_TRANSMUTE_BOXES)
+		return -2;
+
+	for(i = 0; i < MAX_TRANSMUTE_BOXES; ++i) {
+		box = GetTransmuteSlotGem(pnum, d.val[i]);
+		if(box == -1)
+			return -2;
+		for(k = 0; k < i; ++k)
+			if((d.val[k] & DND_TRANSMUTE_GEMBOXMASK) == box)
+				return -2;
+
+		k = IsGreaterGem(GetPlayerInventoryItem(pnum, box).item_subtype);
+		if(tier != -1 && k != tier)
+			return -2;
+		tier = k;
+	}
+	return DND_GEM_TRANSMUTE;
+}
+
+// Spends the chamber's three gems for one of their tier, colour and role random. GetTransmuteGemRecipe vetted them.
+void TransmuteChamberGems(int pnum) {
+	auto d = GetTransmuteOrbData(pnum);
+	bool greater = IsGreaterGem(GetPlayerInventoryItem(pnum, d.val[0] & DND_TRANSMUTE_GEMBOXMASK).item_subtype);
+	for(int i = 0; i < MAX_TRANSMUTE_BOXES; ++i)
+		FreeItem(pnum, d.val[i] & DND_TRANSMUTE_GEMBOXMASK, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
+	RollGemIntoInventory(pnum, greater);
+}
+
 int IsValidTransmuteRecipe(int pnum) {
 	// check the orbs now for valid recipes
 	static int orb_counts[MAX_ORBS];
 	int res = -1, i, j;
 	int overall_count = 0;
+
+	// Gems first: their slots hold boxes, which the orb counts below would read as orb types.
+	j = GetTransmuteGemRecipe(pnum);
+	if(j != -1)
+		return j == DND_GEM_TRANSMUTE ? j : -1;
 
 	for(i = 0; i < MAX_ORBS; ++i)
 		orb_counts[i] = 0;
@@ -5221,9 +5282,20 @@ void HandleTransmutingDraw(int pnum, menu_inventory_T module& p, int boxid, int 
 		int hudx = 108.4 + i * 80.0;
 		int hudy = 128.0 + 64.0 * (1 - 2 * (i % 2));
 			
-		// if there is an orb here, draw it
+		// if there is an orb here, draw it; a gem slot draws the gem still in its box, or the empty slot once it is gone
 		int o_id = transmute_data.val[i];
-		if(o_id != -1) {
+		if(IsTransmuteGemSlot(o_id)) {
+			int g_box = GetTransmuteSlotGem(pnum, o_id);
+			if(g_box != -1) {
+				SetFont(GetItemImage(GetGemImageId(GetPlayerInventoryItem(pnum, g_box).item_subtype)));
+				if(isHovered)
+					UpdateCursorHoverData(g_box, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, DND_ITEM_GEM, pnum, 0, HUDMAX_X, HUDMAX_Y);
+			}
+			else
+				SetFont("ORBBAK");
+			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 2 * thisboxid - id_offset, CR_WHITE, hudx, hudy, 0.0, 0.0);
+		}
+		else if(o_id != -1) {
 			str i_img = GetItemImage(o_id + ITEM_IMAGE_ORB_BEGIN);
 			if(o_id >= DND_MON_DROP_ORB_BEGIN)
 				i_img = GetItemImage(o_id + ITEM_IMAGE_MONSTERORB_BEGIN - DND_MON_DROP_ORB_BEGIN);
@@ -5257,7 +5329,16 @@ void HandleTransmutingDraw(int pnum, menu_inventory_T module& p, int boxid, int 
 		SetFont("ORBMBKG");
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 6, CR_WHITE, 188.4, 140.0, 0.0, 0.0);
 
-		if(recipe_out != DND_RANDOM_TAGGED_ORB_TRANSMUTE && recipe_out != DND_ELEMENTAL_TO_PRISMATIC) {
+		if(recipe_out == DND_GEM_TRANSMUTE) {
+			// a random gem of the inputs' tier
+			SetFont("ORBBAKQ");
+			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 7, CR_WHITE, 188.4, 140.0, 0.0, 0.0);
+
+			SetFont("NMENUFNT");
+			HudMessage(s:"\c[Y5]", l:IsGreaterGem(GetPlayerInventoryItem(pnum, transmute_data.val[0] & DND_TRANSMUTE_GEMBOXMASK).item_subtype) ? "DND_RANDOM_GREATERGEM" : "DND_RANDOM_GEM";
+				HUDMSG_PLAIN, RPGMENUID - 16, CR_WHITE, 188.4, 180.0, 0.0, 0.0);
+		}
+		else if(recipe_out != DND_RANDOM_TAGGED_ORB_TRANSMUTE && recipe_out != DND_ELEMENTAL_TO_PRISMATIC) {
 			SetFont(
 				GetItemImage(
 					GetOrbItemImage(recipe_out)
@@ -5729,7 +5810,19 @@ void HandleTransmutingInputs(int pnum, int boxid) {
 					GiveInventory("DnD_CleanCraftingRequest", 1);
 					SetInventory("DnD_SelectedInventoryBox", 0);
 				}
-				else if(boxid == MBOX_4 && (recipe = IsValidTransmuteRecipe(pnum)) != -1) {
+				else if(boxid == MBOX_4 && (recipe = IsValidTransmuteRecipe(pnum)) == DND_GEM_TRANSMUTE) {
+					if(GetPlayerCredit(pnum) < DND_TRANSMUTE_COST) {
+						ShowPopup(POPUP_NOFUNDS, false, 0);
+						return;
+					}
+
+					TransmuteChamberGems(pnum);
+					TakeCredit(DND_TRANSMUTE_COST);
+					GiveInventory("DnD_CleanCraftingRequest", 1);
+					LocalAmbientSound("Items/SuccessDisassemble", 108);
+					ResetTransmutingData(pnum);
+				}
+				else if(boxid == MBOX_4 && recipe != -1) {
 					// check credit
 					if(GetPlayerCredit(pnum) < DND_TRANSMUTE_COST) {
 						ShowPopup(POPUP_NOFUNDS, false, 0);
@@ -5800,8 +5893,10 @@ void HandleTransmutingInputs(int pnum, int boxid) {
 						ShowPopup(POPUP_NOTENOUGHMATERIALS, false, 0);
 				}
 				else if(boxid >= MBOX_1 && boxid <= MBOX_3 && CheckInventory("DnD_SelectedInventoryBox")) {
-					// previtemindex holds (topboxid of item) - 1 in inventory
+					// previtemindex holds (topboxid of item) - 1 in inventory; a gem goes in by its box, an orb by its type
 					temp = GlobalItemStorage.PlayerInventoryList[pnum][previtemindex].item_subtype;
+					if(GlobalItemStorage.PlayerInventoryList[pnum][previtemindex].item_type == DND_ITEM_GEM)
+						temp = DND_TRANSMUTE_GEMSLOT | previtemindex;
 					transmute_data.val[boxid - 1] = temp;
 					SendOwnerScript("DnD Transmute Orb Sync", pnum, pnum, boxid - 1, temp);
 					LocalAmbientSound("RPG/MenuChoose", 127);
