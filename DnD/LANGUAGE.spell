@@ -82,6 +82,28 @@ DND_SPLNAME97		=	"Thunder Clap";
 DND_SPLNAME98		=	"Storm Call";
 DND_SPLNAME99		=	"Surgecast";
 
+// Earth
+DND_SPLNAME120		=	"Shrapnel";
+DND_SPLNAME121		=	"Noxious Blast";
+DND_SPLNAME122		=	"Rockslide";
+DND_SPLNAME123		=	"Blockade";
+DND_SPLNAME124		=	"Baleful Infusion";
+DND_SPLNAME125		=	"Toxic Trap";
+DND_SPLNAME126		=	"Venom Gyre";
+DND_SPLNAME127		=	"Rock Armor";
+DND_SPLNAME128		=	"Upheaval";
+DND_SPLNAME129		=	"Threaded Volley";
+DND_SPLNAME130		=	"Vines of Torment";
+DND_SPLNAME131		=	"Corrosive Breath";
+DND_SPLNAME132		=	"Agony";
+DND_SPLNAME133		=	"Summon: Rock Golem";
+DND_SPLNAME134		=	"Vulnerability";
+DND_SPLNAME135		=	"Crushing Rocks";
+DND_SPLNAME136		=	"Despair";
+DND_SPLNAME137		=	"Poison Nova";
+DND_SPLNAME138		=	"Unleash Earth";
+DND_SPLNAME139		=	"Geyser";
+
 
 // Hover text, straight from the design docs. Positional like the names above.
 //
@@ -406,7 +428,7 @@ DND_SPLR5_88    = "No cast time.";
 DND_SPLR10_88   = "Free to cast.";
 
 // Overcharge
-DND_SPLDESC89   = "Charges up for 3 seconds, building charge the faster you move. Your next weapon attack unleashes it for 15 damage per charge, up to 100 charges.";
+DND_SPLDESC89   = "Charges up for 3 seconds, building charge the faster you move. Your next weapon attack unleashes it for 15 damage per charge, up to 100 charges. Standing still for over a second slowly bleeds the charge away.";
 DND_SPLPER89    = "";
 DND_SPLR5_89    = "25% faster charge generation.";
 DND_SPLR10_89   = "Charges for 2 more seconds.";
@@ -424,7 +446,7 @@ DND_SPLR5_91    = "25% increased area of effect.";
 DND_SPLR10_91   = "+4 seconds duration.";
 
 // Chain Lightning
-DND_SPLDESC92   = "Unleashes a bolt that chains 5 times to the nearest enemy within 384 units, dealing 20-400 damage to the first and 5% less per chain, to at most 75% less. An enemy is chained to again only after two others.";
+DND_SPLDESC92   = "Unleashes a bolt that chains 5 times to the nearest enemy within 384 units, dealing 20-400 damage to the first and 5% less per chain, to at most 75% less. An enemy can be chained to again only after two other chains. Every chain also forks to one more nearby enemy at that chain's damage but it does not chain further.";
 DND_SPLPER92    = "+1 chain at every even rank.";
 DND_SPLR5_92    = "Only 4% less damage per chain.";
 DND_SPLR10_92   = "30% chance to apply Shock on each hit.";
@@ -471,6 +493,128 @@ DND_SPLPER99    = "-1 mana cost.";
 DND_SPLR5_99    = "40% chance to refund.";
 DND_SPLR10_99   = "Holds two charges. Casting it while Surgecast is up refreshes the buff.";
 
+// ================= EARTH =================
+
+// Shrapnel
+DND_SPLDESC120  = "Unearths a shard of rock and throws it, dealing 60 damage and ripping through up to 10 enemies.";
+DND_SPLPER120   = "+1 rip at every even rank.";
+DND_SPLR5_120   = "Rips through enemies with Hardened Skin.";
+DND_SPLR10_120  = "Throws three shards instead of one.";
+
+// Noxious Blast
+DND_SPLDESC121  = "Targets a spot within 512 units. After 0.4 seconds it bursts in a 96 unit radius, poisoning enemies caught for 50 damage a second for 3 seconds.";
+DND_SPLPER121   = "";
+DND_SPLR5_121   = "The poison lasts 1 second longer.";
+DND_SPLR10_121  = "The radius becomes 160.";
+
+// Rockslide
+DND_SPLDESC122  = "Raises a massive boulder and tosses it forward in an arc. Enemies within 96 units of where it lands take 250 damage, full within 48 units and less further out, and are stunned for 1.5 seconds.";
+DND_SPLPER122   = "-0.5 seconds cooldown.";
+DND_SPLR5_122   = "The boulder flies 50% faster.";
+DND_SPLR10_122  = "The radius becomes 180 and the stun lasts 2.5 seconds.";
+
+// Blockade
+DND_SPLDESC123  = "Raises a slanted wall of rock up to 384 units in front of you that blocks enemies and their attacks. The wall is 96 units long and withstands 250 damage.";
+DND_SPLPER123   = "+16 wall length, +75 wall health.";
+DND_SPLR5_123   = "You and your allies can shoot through the wall.";
+DND_SPLR10_123  = "When the wall breaks, it sends a volley of 8 Shrapnels lined up side by side.";
+
+// Baleful Infusion
+DND_SPLDESC124  = "Enchants your next melee attack within 10 seconds: 50% of its damage is converted to poison, and it always poisons.";
+DND_SPLPER124   = "+5% damage converted.";
+DND_SPLR5_124   = "The enchanted attack pierces 20 poison resistance.";
+DND_SPLR10_124  = "Enemies killed within 2 seconds of the hit spread the same poison to enemies within 192 units.";
+
+// Toxic Trap
+DND_SPLDESC125  = "Lays a trap that bursts into toxic gas when a monster touches it. The gas deals 32 damage every 0.25 seconds in a 72 unit radius for 5 seconds, and poisons each enemy it reaches once. Traps last 30 seconds, and 2 can be out at once.";
+DND_SPLPER125   = "";
+DND_SPLR5_125   = "+2 traps out at once.";
+DND_SPLR10_125  = "The gas lasts 1 second longer and traps last 15 seconds longer.";
+
+// Venom Gyre
+DND_SPLDESC126  = "Throws a bouncing toxic disc that rips through up to 5 enemies once each for 150 damage, with a 50% chance to poison for 300 damage over 3 seconds. After 5 seconds, or out of rips, it flies back to you. Catch it for 10% increased poison damage for 5 seconds; catch it during a dash to throw a fresh one at double damage that flies straight and never bounces.";
+DND_SPLPER126   = "";
+DND_SPLR5_126   = "Rips through up to 10 enemies.";
+DND_SPLR10_126  = "Throws 2 more.";
+
+// Rock Armor
+DND_SPLDESC127  = "Covers you in rock that absorbs 80 damage for 8 seconds. It absorbs everything, but magic damage only at 50% effectiveness.";
+DND_SPLPER127   = "+40 damage absorbed.";
+DND_SPLR5_127   = "Lasts 2 seconds longer.";
+DND_SPLR10_127  = "When the armor shatters, it throws 8 Shrapnels around you in a circle.";
+
+// Upheaval
+DND_SPLDESC128  = "Cracks open rifts up to 480 units ahead of you and 256 units wide. After 1.5 seconds they explode for 100 damage, throwing enemies into the air and stunning them for 2 seconds. Thrown enemies take 100 damage, plus up to 500 more by their mass. The broken ground explodes again 2 seconds later for 300 damage.";
+DND_SPLPER128   = "+16 reach and width.";
+DND_SPLR5_128   = "Thrown enemies are stunned for 3 seconds.";
+DND_SPLR10_128  = "The second explosion repeats 2 more times, a second apart.";
+
+// Threaded Volley
+DND_SPLDESC129  = "Draws 5 rocks from the ground and launches them over 3 seconds where you face, each dealing 80 damage on impact and 40 in an 80 unit radius. The ground within 256 units of you is energized for 10 seconds: casting inside it launches one rock instead, dealing 450 damage in a 160 unit radius and bursting into chunks that rip through up to 4 enemies for 16 damage. Casts inside an energized area have 75% spell haste and cost 30% less.";
+DND_SPLPER129   = "";
+DND_SPLR5_129   = "Each energized area you cast inside grants this spell 20% more damage.";
+DND_SPLR10_129  = "Energized areas cover 384 units.";
+
+// Vines of Torment
+DND_SPLDESC130  = "Whips a line of vines forward out of the ground, dealing 100 poison damage and snaring enemies caught for 3 seconds. The vines last 2.5 seconds.";
+DND_SPLPER130   = "+0.5 seconds snare at every even rank.";
+DND_SPLR5_130   = "Vines are 25% wider.";
+DND_SPLR10_130  = "Vines travel 50% farther.";
+
+// Corrosive Breath
+DND_SPLDESC131  = "Builds up a deadly stench and releases it over 1.5 seconds as toxic fumes in a 60 degree cone, poisoning for 600 damage over 5 seconds. For 3 seconds afflicted enemies are slowed by 25% and are 10% more likely to be poisoned, and fortified enemies lose up to 50% of their fortification.";
+DND_SPLPER131   = "";
+DND_SPLR5_131   = "Afflicted enemies are 25% more likely to be poisoned.";
+DND_SPLR10_131  = "The cone widens to 90 degrees and releases 33% more fumes.";
+
+// Agony
+DND_SPLDESC132  = "Aura. You and allies within 256 units deal 18% more damage over time.";
+DND_SPLPER132   = "+1% more damage over time, +16 radius.";
+DND_SPLR5_132   = "Enemies in the aura gain a base 10% chance to be poisoned and to bleed.";
+DND_SPLR10_132  = "Poison on you and allies in the aura lasts 25% less.";
+
+// Summon: Rock Golem
+DND_SPLDESC133  = "Summons a very durable rock golem with 750 health that fights for you with 100 damage melee attacks.";
+DND_SPLPER133   = "+250 health, +25 melee damage.";
+DND_SPLR5_133   = "The golem can cast Rockslide.";
+DND_SPLR10_133  = "The golem is immune to elemental damage and resists explosions.";
+
+// Vulnerability
+DND_SPLDESC134  = "Curse. Enemies in a 256 unit area take -30 to physical resistance for 8 seconds and gain 25% base chance to bleed.";
+DND_SPLPER134   = "-1 further to physical resistance.";
+DND_SPLR5_134   = "25% increased area of effect.";
+DND_SPLR10_134  = "+4 seconds duration.";
+
+// Crushing Rocks
+DND_SPLDESC135  = "Raises two huge rocks beside a target enemy that try to crush it 5 times for 270 damage each.";
+DND_SPLPER135   = "";
+DND_SPLR5_135   = "Each crush hits everything in a 96 unit radius.";
+DND_SPLR10_135  = "7 crushes.";
+
+// Despair
+DND_SPLDESC136  = "Curse. Enemies in a 256 unit area take -30 to poison resistance for 10 seconds and gain 25% base chance to be poisoned.";
+DND_SPLPER136   = "-1 further to poison resistance.";
+DND_SPLR5_136   = "25% increased area of effect.";
+DND_SPLR10_136  = "Cursed enemies cannot regenerate health.";
+
+// Poison Nova
+DND_SPLDESC137  = "Releases a nova of 6 poison projectiles that pass through enemies for 4 seconds, dealing 50 damage on contact and poisoning for 900 damage over 4 seconds.";
+DND_SPLPER137   = "";
+DND_SPLR5_137   = "+4 projectiles.";
+DND_SPLR10_137  = "Projectiles last 50% longer.";
+
+// Unleash Earth
+DND_SPLDESC138  = "Channel to raise pillars of rock under where you aim, up to 640 units away, one every 0.33 seconds. Each erupts in a 96 unit radius for 800 damage and flings enemies up and aside; they crash down for up to 1200 damage by their mass and how high they flew. An enemy flung again takes 25% more. Bosses barely fly. Each pillar costs its mana, and the cooldown starts when the channel ends.";
+DND_SPLPER138   = "";
+DND_SPLR5_138   = "Cast a pillar under yourself to launch yourself without taking damage.";
+DND_SPLR10_138  = "Flung enemies that hit walls or each other mid flight take 600 more damage.";
+
+// Geyser
+DND_SPLDESC139  = "Splits the ground ahead of you into 10 geysers of acid that spit 8-12 drops a second for 5 seconds in random directions. Each drop deals 90 damage in a 48 unit radius and always poisons.";
+DND_SPLPER139   = "";
+DND_SPLR5_139   = "Drops hit twice the radius.";
+DND_SPLR10_139  = "50% more geysers.";
+
 
 // Field names for the synergy lines the panel builds from SpellSynergies. Positional on SPELLVAL_*.
 DND_SPLFIELD0   = "damage";
@@ -487,6 +631,11 @@ DND_SPLFIELD10  = "minimum secondary damage";
 DND_SPLFIELD11  = "secondary amount";
 DND_SPLFIELD_VOLLEYRATE = "increased volley rate";
 DND_SPLFIELD_COMETS = "comet per volley";
+DND_SPLFIELD_POISONTIME = "seconds of poison";
+DND_SPLFIELD_POISONPS = "poison per second";
+DND_SPLFIELD_POISON = "poison damage";
+DND_SPLFIELD_THROW = "throw damage";
+DND_SPLFIELD_ENERGIZED = "energized rock damage";
 
 DND_SPLPANEL_PERRANK   = "Per Rank:";
 DND_SPLPANEL_RANK5     = "Rank 5:";

@@ -1,0 +1,60 @@
+// A rock shard that rips through enemies once each; RIPSONCE in Stamina makes it once each.
+Actor Spell_Shrapnel : DnD_Spell {
+	PROJECTILE
+	+RIPPER
+	+DONTBLAST
+	+BLOODLESSIMPACT
+	// 65536 | 32768 -- ISSPELL | RIPSONCE.
+	Stamina 98304
+	Speed 40
+	Radius 6
+	Height 8
+	DeathSound "Shrapnel/Hit"
+	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE))
+	States {
+		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Shrapnel Setup")
+		// ERSH carries the model.
+		Fly:
+			ERSH A 1 A_CountDown
+			ERSH A 1 A_CountDown
+			ERSH A 0 A_SpawnItemEx("Spell_Shrapnel_Dust", -16, 0, 0, frandom(-0.5, 0.5), frandom(-0.5, 0.5), frandom(0, 0.5), 0, SXF_CLIENTSIDE)
+		Loop
+		Death:
+			TNT1 AAAAA 0 A_SpawnItemEx("Spell_Shrapnel_Piece", 0, 0, 0, frandom(-3, 3), frandom(-3, 3), frandom(1, 6), frandom(0, 360), SXF_CLIENTSIDE)
+			TNT1 A 0 A_SetScale(0.5, 0.5)
+			HHPF ABCDEF 2
+		Stop
+	}
+}
+
+Actor Spell_Shrapnel_Dust : DnD_SpecialFX {
+	RenderStyle Translucent
+	Alpha 0.5
+	Scale 0.45
+	States {
+		Spawn:
+			HHPF ABCDEF 2 A_FadeOut(0.06)
+		Stop
+	}
+}
+
+Actor Spell_Shrapnel_Piece {
+	+CLIENTSIDEONLY
+	PROJECTILE
+	-NOGRAVITY
+	Height 4
+	Radius 8
+	Scale 0.7
+	States {
+		Spawn:
+			HRCK FGH 3
+		Loop
+		Death:
+			HRKE ABCDE 2
+		Stop
+	}
+}
+
+// The ground breaking where the shard was torn out.
+Actor Spell_Shrapnel_Unearth : StoneBitsSpawner { }

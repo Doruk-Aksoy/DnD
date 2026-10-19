@@ -127,7 +127,7 @@ PERK_ASSN_PLANNEDEXECUTION_DESC          = "Precision weapons have +5% to crit c
 PERK_ASSN_PLANNEDEXECUTION_REQ           = "Quick Getaway (1) OR Master of Shadows (1)";
 
 PERK_ASSN_STEADYSHOT                     = "Steady Shot";
-PERK_ASSN_STEADYSHOT_DESC                = "Standing still grants +10% to crit multiplier for each second, up to 100%.";
+PERK_ASSN_STEADYSHOT_DESC                = "Standing still grants non-melee weapons +10% to crit multiplier for each second, up to 100%.";
 PERK_ASSN_STEADYSHOT_PER                 = "5% to crit multiplier bonus.";
 PERK_ASSN_STEADYSHOT_REQ                 = "Quick Getaway (1) OR Master of Shadows (1)";
 
@@ -353,7 +353,7 @@ PERK_MART_MARTIALFINESSE_PER             = "Additional 8% reduction.";
 PERK_MART_MARTIALFINESSE_REQ             = "Expose Weakness";
 
 PERK_MART_GRATUITOUSVIOLENCE             = "Gratuitous Violence";
-PERK_MART_GRATUITOUSVIOLENCE_DESC        = "Overkilling enemies grants rage.";
+PERK_MART_GRATUITOUSVIOLENCE_DESC        = "Overkilling an enemy (a killing blow over 30% of its max health) grants 5 rage. Each rage is 1% more melee damage, up to 30. Rage drains over 3 seconds after 1 second without gaining any.";
 PERK_MART_GRATUITOUSVIOLENCE_REQ         = "Expose Weakness OR Fervent Reach OR Swift & Precise";
 
 

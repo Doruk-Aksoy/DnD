@@ -1099,16 +1099,16 @@ int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0, bool isS
 
 	// Metronome, upbeat half. Crit chance where the downbeat gave damage. Scaled to the crit unit,
 	// which is 0.01 == 1%, not the 1.0 == 1% the mitigation chance uses.
-	if(HasPlayerFlag(pnum, PFLAG_METRONOME) && ResolveMetronomeHalf(pnum) > DND_METRONOME_DOWNBEAT)
+	if(!isSpell && wepid != -1 && !IsMeleeWeapon(wepid) && HasPlayerFlag(pnum, PFLAG_METRONOME) && ResolveMetronomeHalf(pnum) > DND_METRONOME_DOWNBEAT)
 		chance += (PlayerModData[pnum].vals[PSTAT_METRONOME_MAGNITUDE] << 16) / 100;
 
 	// Perception / Lucky Bullet. Flat, not a multiplier: the notes give it as "+2.5% chance", and
 	// every other flat crit source in this function is added the same way.
 	//
-	// Weapon only. "The very last round in your magazine/reserve" names ammunition, and the flag is
+	// Non-melee weapons only. "The very last round in your magazine/reserve" names ammunition, and the flag is
 	// SetInventory("DnD_LuckyBullet", left <= 1) -- it STAYS set while the magazine is low, so a
 	// spell cast on that last round was collecting it.
-	if(wepid != -1 && CheckActorInventory(pnum + P_TIDSTART, "DnD_LuckyBullet"))
+	if(wepid != -1 && !IsMeleeWeapon(wepid) && CheckActorInventory(pnum + P_TIDSTART, "DnD_LuckyBullet"))
 		chance += PlayerModData[pnum].vals[PSTAT_LASTROUND_CRIT];
 
 	// Assassination / Preparation. A MULTIPLIER on the whole chance, like the two below -- "50%
@@ -1288,13 +1288,13 @@ int GetCritModifier(int pnum, int victim, int wepid, bool forcedReturn = false, 
 	// berserker perk50 check
 	base += (CheckInventory("Berserker_HitTracker") == DND_BERSERKER_PERK60_MAXSTACKS) * DND_BERSERKER_PERK60_CRITBONUS;
 
-	// Perception / Lucky Bullet, multiplier half. Weapon only, same reasoning as the chance half.
-	if(wepid != -1 && CheckActorInventory(pnum + P_TIDSTART, "DnD_LuckyBullet"))
+	// Perception / Lucky Bullet, multiplier half. Non-melee weapons only, same reasoning as the chance half.
+	if(wepid != -1 && !IsMeleeWeapon(wepid) && CheckActorInventory(pnum + P_TIDSTART, "DnD_LuckyBullet"))
 		base += PlayerModData[pnum].vals[PSTAT_LASTROUND_CRITDMG];
 
-	// Assassination / Steady Shot. The stationary counter is kept by "DnD Fall Impact", which already
-	// runs per tic per player -- a second loop for the same question would be waste.
-	if((temp = PlayerModData[pnum].vals[PSTAT_CRITDAMAGE_PERSTILLSEC]))
+	// Assassination / Steady Shot: a shot, so non-melee weapons only. The stationary counter is kept by
+	// "DnD Fall Impact", which already runs per tic per player -- a second loop would be waste.
+	if(wepid != -1 && !IsMeleeWeapon(wepid) && (temp = PlayerModData[pnum].vals[PSTAT_CRITDAMAGE_PERSTILLSEC]))
 		base += temp * Min(CheckActorInventory(pnum + P_TIDSTART, "DnD_StillSeconds"), DND_STEADYSHOT_MAXSECONDS);
 
 	// Assassination / Big Game Hunter and Bane of Legends. Both are integer percent added to the
@@ -1328,7 +1328,8 @@ int GetCritModifier(int pnum, int victim, int wepid, bool forcedReturn = false, 
 		base -= DND_OSMIUM_REDUCTION;
 
 	forcedReturn = PlayerModData[pnum].vals[PSTAT_INC_EXCESSCRIT];
-	if(forcedReturn && (temp = GetCritChance(pnum, victim, wepid, IsWeaponLightningType(wepid))) > 1.0)
+	// Excess crit converts on the hit's own axis: a spell's chance, never the attack one.
+	if(forcedReturn && (temp = GetCritChance(pnum, victim, wepid, wepid != -1 && IsWeaponLightningType(wepid), isSpell)) > 1.0)
 		base = FixedMul(base, temp);
 
 	// Ultimatum / Diminished Lethality. Takes it off the crit BONUS rather than off the hit --
@@ -1587,6 +1588,18 @@ int MapDamageCategoryToPercentBonus(int pnum, int talent, int flags) {
 	return base;
 }
 
+// "increased <element> damage" alone, for a spell tick: the "attack" percents are weapon mods.
+int GetPlayerElementIncrease(int pnum, int category) {
+	if(category < DND_ELECATEGORY_BEGIN || category > DND_ELECATEGORY_END)
+		return 0;
+	return PlayerModData[pnum].vals[PSTAT_PCTDMG_BASE + category];
+}
+
+// The percent pool a hit or ailment of this category takes: a spell's is its element increase alone.
+int GetPercentDamageFor(int pnum, int category, int flags, bool isSpell) {
+	return isSpell ? GetPlayerElementIncrease(pnum, category) : GetPlayerPercentDamage(pnum, -1, category, flags);
+}
+
 int GetFlatHealthDamageFactor(int factor) {
 	return GetSpawnHealth() / factor;
 }
@@ -1652,12 +1665,12 @@ int GetFireDOTDamage(int pnum, int bonus = 0, int victim = -1, int wepid = -1, b
 	// flat dmg
 	int dmg = 	DND_BASE_IGNITEDMG + 
 				bonus +
-				PlayerModData[pnum].vals[PSTAT_FLATDMG_BASE + DND_DAMAGECATEGORY_FIRE] + 
+				!isSpell * PlayerModData[pnum].vals[PSTAT_FLATDMG_BASE + DND_DAMAGECATEGORY_FIRE] +
 				PlayerModData[pnum].vals[PSTAT_IGN_DMG_FLAT] + 
 				PlayerModData[pnum].vals[PSTAT_DOT_FLAT];
 	
 	// percent increase
-	dmg = dmg * (100 + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_FIRE, 0) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1, isSpell) + PlayerModData[pnum].vals[PSTAT_IGN_DMG] + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED]) / 100;
+	dmg = dmg * (100 + GetPercentDamageFor(pnum, DND_DAMAGECATEGORY_FIRE, 0, isSpell) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1, isSpell) + PlayerModData[pnum].vals[PSTAT_IGN_DMG] + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED]) / 100;
 	
 	// dot multi;
 	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid, PSTAT_DOTMULTI_FIRE, isSpell)) / 100;
@@ -1672,6 +1685,8 @@ int GetFireDOTDamage(int pnum, int bonus = 0, int victim = -1, int wepid = -1, b
 }
 
 #define DND_BASE_POISON_STACKS 5
+// "DnD Do Poison Damage"'s wepid for a spell's own poison; the script turns it back into -1.
+#define DND_SPELL_POISON_SOURCE -2
 
 // dont include flat ele dmg and percent damage here, as they are applied to the attacks that inflicted the poison already, no double application!
 int GetPoisonDOTDamage(int pnum, int base_poison, int victim = -1, int wepid = -1, bool isSpell = false) {
@@ -1680,11 +1695,11 @@ int GetPoisonDOTDamage(int pnum, int base_poison, int victim = -1, int wepid = -
 		dmg = 1;
 		
 	// flat dmg
-	dmg += 	PlayerModData[pnum].vals[PSTAT_FLATDMG_BASE + DND_DAMAGECATEGORY_POISON] + 
+	dmg += 	!isSpell * PlayerModData[pnum].vals[PSTAT_FLATDMG_BASE + DND_DAMAGECATEGORY_POISON] +
 			PlayerModData[pnum].vals[PSTAT_DOT_FLAT];
-	
+
 	// percent increase
-	dmg = dmg * (100 + PlayerModData[pnum].vals[PSTAT_POIS_DMG_PCT] + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_POISON, 0) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1, isSpell) + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED]) / 100;
+	dmg = dmg * (100 + PlayerModData[pnum].vals[PSTAT_POIS_DMG_PCT] + GetPercentDamageFor(pnum, DND_DAMAGECATEGORY_POISON, 0, isSpell) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1, isSpell) + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED]) / 100;
 	
 	// dot multi
 	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid, PSTAT_DOTMULTI_POISON, isSpell)) / 100;
@@ -1694,11 +1709,12 @@ int GetPoisonDOTDamage(int pnum, int base_poison, int victim = -1, int wepid = -
 }
 
 // this doesn't consider INV_EX_FLATDOT here because the weapon that calls this does -- if wepid is left at -1, it should then consider it!
-int GetGenericDoTDamage(int pnum, int base, int victim = -1, int wepid = -1, bool isSpell = false) {
+// extra_inc joins the increased pool: a spell tick's element increase.
+int GetGenericDoTDamage(int pnum, int base, int victim = -1, int wepid = -1, bool isSpell = false, int extra_inc = 0) {
 	if(wepid == -1)
 		base += PlayerModData[pnum].vals[PSTAT_DOT_FLAT];
-	
-	base = base * (100 + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED]) / 100;
+
+	base = base * Max(0, 100 + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED] + extra_inc) / 100;
 	
 	// dot multi
 	base = base * (100 + GetPlayerDOTMulti(pnum, victim, wepid, -1, isSpell)) / 100;
@@ -2000,14 +2016,15 @@ bool CheckAilmentImmunity(int pnum, int m_id, int ailment_mod) {
 #define DND_BASE_BLEED_TIME_PLAYER 5
 #define DND_BLEED_TICRATE 11
 
-int CheckBleedChance(int pnum, int wepid, int victim) {
+int CheckBleedChance(int pnum, int wepid, int victim, bool isSpell = false) {
 	int base = 0;
 	if(IsMeleeWeapon(wepid))
 		base = DND_BASE_BLEEDCHANCE_MELEE;
 	else
 		base = DND_BASE_BLEEDCHANCE_PROJ;
 
-	base += PlayerModData[pnum].vals[PSTAT_BLEED_CHANCE];
+	// "chance to bleed for attacks": a spell keeps the base chance only.
+	base += !isSpell * PlayerModData[pnum].vals[PSTAT_BLEED_CHANCE];
 
 	// Martialist / Deep Cuts. The gate belongs here rather than in the perk because this is the only
 	// place that knows which weapon swung -- and the function already had wepid for the melee split.
@@ -2028,7 +2045,7 @@ str GetBleedChanceDisplay(int pnum) {
 	return StrParam(s:"\c[Q9]", d:mval, s:"% \c-", l:"DND_AND", s:"\c[Q9] ", d:pval, s:"%\c- ", l:"DND_CHANCEBLEED");
 }
 
-int GetBleedDamage(int pnum, int wepid, int dmg, int victim = -1) {
+int GetBleedDamage(int pnum, int wepid, int dmg, int victim = -1, bool isSpell = false) {
 	int mult = DND_BASE_BLEED_MULT_PROJ;
 	if(IsMeleeWeapon(wepid))
 		mult = DND_BASE_BLEED_MULT;
@@ -2043,7 +2060,7 @@ int GetBleedDamage(int pnum, int wepid, int dmg, int victim = -1) {
 	dmg = (dmg * (100 + PlayerModData[pnum].vals[PSTAT_BLEED_DMG_PCT] + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED]) / 100);
 	
 	// dot multi;
-	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid, PSTAT_DOTMULTI_BLEED) + CheckActorInventory(victim, "DnD_OpenWounds") * DND_OPENWOUNDS_BLEEDMULTIBONUS) / 100;
+	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid, PSTAT_DOTMULTI_BLEED, isSpell) + CheckActorInventory(victim, "DnD_OpenWounds") * DND_OPENWOUNDS_BLEEDMULTIBONUS) / 100;
 	dmg = ApplyAilmentMoreDamage(pnum, dmg);
 
 	return dmg;
@@ -2076,14 +2093,15 @@ str GetPlayerBleedTimeDisplay(int pnum) {
 // bucket as INV_CHANCE_FLATIGNITE so the player's % ignite chance scales it too -- a weapon that helps
 // you ignite should get better as you invest in igniting, not sit outside your build.
 // The menu readout calls this with no bonus on purpose: it is a player stat, not a per weapon one.
-int GetIgniteChance(int pnum, int flat_bonus = 0) {
+int GetIgniteChance(int pnum, int flat_bonus = 0, bool isSpell = false) {
+	// The percent is "for fire attacks", so a spell's ignite rolls without it.
 	return Clamp_Between((DND_BASE_IGNITECHANCE + flat_bonus + PlayerModData[pnum].vals[PSTAT_IGN_CHANCE_FLAT] +
 		pbuffs[pnum].buff_net_values[BUFF_IGNITECHANCE].additive) *
-		(100 + PlayerModData[pnum].vals[PSTAT_IGN_CHANCE_PCT]) / 100, 0, 100);
+		(100 + !isSpell * PlayerModData[pnum].vals[PSTAT_IGN_CHANCE_PCT]) / 100, 0, 100);
 }
 
-int CheckIgniteChance(int pnum, int flat_bonus = 0) {
-	return random(1, 100) <= GetIgniteChance(pnum, flat_bonus);
+int CheckIgniteChance(int pnum, int flat_bonus = 0, bool isSpell = false) {
+	return random(1, 100) <= GetIgniteChance(pnum, flat_bonus, isSpell);
 }
 
 // Anathema. A MORE multiplier, so it multiplies the finished number instead of joining the
@@ -2138,8 +2156,9 @@ int GetPoisonTicrate(int pnum) {
 	return ticrate;
 }
 
-int GetPoisonDuration(int pnum) {
-	return DND_BASE_POISON_TIMER * (100 + PlayerModData[pnum].vals[PSTAT_POIS_DURATION] + PlayerModData[pnum].vals[PSTAT_DOT_DURATION]) / 100;
+// base is fixed point seconds; a spell's poison passes its own, and spell duration joins the pool as extra_inc.
+int GetPoisonDuration(int pnum, int base = DND_BASE_POISON_TIMER, int extra_inc = 0) {
+	return base * Max(0, 100 + PlayerModData[pnum].vals[PSTAT_POIS_DURATION] + PlayerModData[pnum].vals[PSTAT_DOT_DURATION] + extra_inc) / 100;
 }
 
 // Ignite counts DOWN in loops of DND_IGNITE_TICKRATE tics, so its duration is a loop count and has to
@@ -2180,8 +2199,9 @@ int GetChillThreshold(int pnum, int stacks) {
 
 // PSTAT_FREEZE_CHANCE scales the per stack chance; PSTAT_FREEZE_CHANCE_FLAT is added points and so
 // does NOT multiply by stacks -- Flash Freeze promises "4% additional chance", not 4% per stack.
-int GetFreezeChance(int pnum, int stacks) {
-	return DND_BASE_FREEZECHANCE_PERSTACK * stacks * (100 + PlayerModData[pnum].vals[PSTAT_FREEZE_CHANCE]) / 100 +
+int GetFreezeChance(int pnum, int stacks, bool isSpell = false) {
+	// PSTAT_FREEZE_CHANCE is "for cold attacks", so a spell's chill skips it.
+	return DND_BASE_FREEZECHANCE_PERSTACK * stacks * (100 + !isSpell * PlayerModData[pnum].vals[PSTAT_FREEZE_CHANCE]) / 100 +
 		PlayerModData[pnum].vals[PSTAT_FREEZE_CHANCE_FLAT];
 }
 

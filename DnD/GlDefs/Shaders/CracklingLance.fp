@@ -15,12 +15,21 @@ uniform float timer;
 #define CORE   16.0    // world half width of the laser's core at full intensity
 
 float h1(float n) { return fract(sin(n) * 43758.5453); }
-float tri(float x) { return abs(fract(x) - 0.5) * 4.0 - 1.0; }
 
-// A continuous wandering curve of unit size: smooth waves with a light kink, phases dealt per reshuffle.
+// Smooth value noise in -1..1, a random height at each whole x. Both sides of a whole x hash the same exact integer,
+// so the curve stays joined there.
+float vnoise(float x, float seed) {
+	float n = floor(x), f = x - n;
+	f = f * f * (3.0 - 2.0 * f);
+	return mix(h1(n * 0.731 + seed), h1((n + 1.0) * 0.731 + seed), f) * 2.0 - 1.0;
+}
+
+// A continuous wandering curve of unit size: smooth waves crackling in two octaves at uneven spacing, phases dealt per reshuffle.
 float wave(float u, float seed, float st, float scale) {
 	float r1 = h1(st * 1.91 + seed), r2 = h1(st * 2.53 + seed + 1.7), r3 = h1(st * 3.17 + seed + 4.1);
-	return sin(u / (scale * (1.0 + r1)) + r2 * 6.28) * 0.55 + sin(u / (scale * 0.37 * (1.0 + r3)) + r1 * 6.28) * 0.3 + tri(u / (scale * 0.2 * (1.0 + r2)) + r3) * 0.15;
+	float x = u / (scale * 0.35 * (1.0 + r2)) + r3 * 37.0;
+	return sin(u / (scale * (1.0 + r1)) + r2 * 6.28) * 0.55 + sin(u / (scale * 0.37 * (1.0 + r3)) + r1 * 6.28) * 0.3
+		+ vnoise(x + vnoise(x * 0.31, seed + 5.3) * 1.5, seed) * 0.14 + vnoise(x * 2.7 + vnoise(x * 0.9, seed + 9.1) * 1.2, seed + 3.3) * 0.07;
 }
 
 vec4 Process(vec4 color) {

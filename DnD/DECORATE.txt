@@ -185,6 +185,12 @@ const int SPELLTHRESH_HIGH = 10;
 #include "Actors/Spells/Lightning/Monsoon.dec"
 #include "Actors/Spells/Lightning/ThunderClap.dec"
 #include "Actors/Spells/Lightning/StormCall.dec"
+// ================= EARTH =================
+#include "Actors/Spells/Earth/Shrapnel.dec"
+#include "Actors/Spells/Earth/NoxiousBlast.dec"
+#include "Actors/Spells/Earth/Rockslide.dec"
+#include "Actors/Spells/Earth/ToxicTrap.dec"
+#include "Actors/Spells/Earth/BalefulInfusion.dec"
 
 #include "Actors/Spells/AllyLock.dec"
 

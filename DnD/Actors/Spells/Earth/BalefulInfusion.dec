@@ -1,0 +1,12 @@
+// Poison welling round the caster's hands while the enchant waits for its hit.
+Actor Spell_Baleful_Mote : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.8
+	Scale 0.12
+	States {
+		Spawn:
+			D5FX G 0 NoDelay A_ChangeVelocity(frandom(-0.3, 0.3), frandom(-0.3, 0.3), frandom(0.3, 0.8), CVF_REPLACE)
+			D5FX GHIJ 3 Bright A_FadeOut(0.15)
+		Stop
+	}
+}

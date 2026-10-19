@@ -230,3 +230,275 @@ HardwareShader TCLAPRNG {
 	Shader "GLDefs/Shaders/ThunderClap.fp"
 	Speed 1.0
 }
+
+// The slam shockwave, Thunder Clap's in blue and Thanatos's stomp in orange: one shader, the tint read off each skin.
+HardwareShader SLAMWAVB {
+	Shader "GLDefs/Shaders/SlamWave.fp"
+	Speed 1.0
+}
+
+HardwareShader SLAMWAVR {
+	Shader "GLDefs/Shaders/SlamWave.fp"
+	Speed 1.0
+}
+
+// Spell_IceGolem's living ice, on every IGLM frame.
+HardwareShader sprite IGLMA1 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMA2A8 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMA3A7 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMA4A6 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMA5 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMB1 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMB2B8 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMB3B7 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMB4B6 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMB5 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMC1 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMC2C8 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMC3C7 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMC4C6 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMC5 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMD1 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMD2D8 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMD3D7 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMD4D6 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMD5 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLME1H1 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLME2H8 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLME3H7 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLME4H6 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLME5H5 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLME6H4 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLME7H3 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLME8H2 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMF1I1 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMF2I8 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMF3I7 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMF4I6 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMF5I5 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMF6I4 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMF7I3 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMF8I2 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMG1J1 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMG2J8 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMG3J7 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMG4J6 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMG5J5 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMG6J4 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMG7J3 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLMG8J2 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLML1 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLML2 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLML3 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLML4 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLML5 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLML6 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLML7 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite IGLML8 {
+	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}

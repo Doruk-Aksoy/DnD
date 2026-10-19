@@ -219,6 +219,7 @@ int GetHotbarBadge(int spell) {
 		case SPL_CRACKLINGLANCE: return CheckInventory("P_LanceStacks");
 		case SPL_OVERCHARGE: return CheckInventory("P_OverchargeCharges");
 		case SPL_SURGECAST: return CheckInventory("P_SurgecastTime");
+		case SPL_BALEFULINFUSION: return CheckInventory("P_BalefulTime");
 	}
 	return 0;
 }

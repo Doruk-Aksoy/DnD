@@ -185,10 +185,10 @@ RainOfFire/Whoosh1          RAINFW1
 RainOfFire/Whoosh2          RAINFW2
 RainOfFire/Whoosh3          RAINFW3
 RainOfFire/Whoosh4          RAINFW4
-$rolloff RainOfFire/Whoosh1 128 256
-$rolloff RainOfFire/Whoosh2 128 256
-$rolloff RainOfFire/Whoosh3 128 256
-$rolloff RainOfFire/Whoosh4 128 256
+$rolloff RainOfFire/Whoosh1 128 512
+$rolloff RainOfFire/Whoosh2 128 512
+$rolloff RainOfFire/Whoosh3 128 512
+$rolloff RainOfFire/Whoosh4 128 512
 $random RainOfFire/Whoosh { RainOfFire/Whoosh1 RainOfFire/Whoosh2 RainOfFire/Whoosh3 RainOfFire/Whoosh4 }
 
 FireJet/Shoot               FIREJETS
@@ -577,6 +577,10 @@ StormCall/Explosion2        STRCALX2
 StormCall/Explosion3        STRCALX3
 StormCall/Explosion4        STRCALX4
 $random StormCall/Explosion { StormCall/Explosion1 StormCall/Explosion2 StormCall/Explosion3 StormCall/Explosion4 }
+$rolloff StormCall/Explosion1 512 1576
+$rolloff StormCall/Explosion2 512 1576
+$rolloff StormCall/Explosion3 512 1576
+$rolloff StormCall/Explosion4 512 1576
 
 StormCall/Pulse1            STRCALP1
 StormCall/Pulse2            STRCALP2
@@ -588,12 +592,78 @@ StormCall/Add1              STRCALA1
 StormCall/Add2              STRCALA2
 StormCall/Add3              STRCALA3
 StormCall/Add4              STRCALA4
-$random StormCall/Add { StormCall/Add1 StormCall/Add2 StormCall/Add3 StormCall/Add4 }
+StormCall/Add5              STRCALA5
+$random StormCall/Add { StormCall/Add1 StormCall/Add2 StormCall/Add3 StormCall/Add4 StormCall/Add5 }
 
-$alias ThunderClap/Slam Berserker/Thunder
+ThunderClap/Slam1           THUNCLX1
+ThunderClap/Slam2           THUNCLX2
+ThunderClap/Slam3           THUNCLX3
+$random ThunderClap/Slam { ThunderClap/Slam1 ThunderClap/Slam2 ThunderClap/Slam3 }
 
-$alias CracklingLance/Cast ChargedBolt/Cast
+ThunderClap/Add1            THUNCLA1
+ThunderClap/Add2            THUNCLA2
+ThunderClap/Add3            THUNCLA3
+ThunderClap/Add4            THUNCLA4
+$random ThunderClap/Add { ThunderClap/Add1 ThunderClap/Add2 ThunderClap/Add3 ThunderClap/Add4 }
+
+CracklingLance/Cast1        CRALANC1
+CracklingLance/Cast2        CRALANC2
+CracklingLance/Cast3        CRALANC3
+CracklingLance/Cast4        CRALANC4
+CracklingLance/Cast5        CRALANC5
+$random CracklingLance/Cast { CracklingLance/Cast1 CracklingLance/Cast2 CracklingLance/Cast3 CracklingLance/Cast4 CracklingLance/Cast5 }
+
+CracklingLance/Laser1       CRALANL1
+CracklingLance/Laser2       CRALANL2
+CracklingLance/Laser3       CRALANL3
+$random CracklingLance/Laser { CracklingLance/Laser1 CracklingLance/Laser2 CracklingLance/Laser3 }
+
+CracklingLance/Hit1         CRALANH1
+CracklingLance/Hit2         CRALANH2
+CracklingLance/Hit3         CRALANH3
+$random CracklingLance/Hit { CracklingLance/Hit1 CracklingLance/Hit2 CracklingLance/Hit3 }
+
+Monsoon/Loop1               MONSOOL1
+Monsoon/Loop2               MONSOOL2
+Monsoon/Loop3               MONSOOL3
+$random Monsoon/Loop { Monsoon/Loop1 Monsoon/Loop2 Monsoon/Loop3 }
+$rolloff Monsoon/Loop1 512 1576
+$rolloff Monsoon/Loop2 512 1576
+$rolloff Monsoon/Loop3 512 1576
+
+Monsoon/Strike1             MONSOOX1
+Monsoon/Strike2             MONSOOX2
+Monsoon/Strike3             MONSOOX3
+Monsoon/Strike4             MONSOOX4
+$random Monsoon/Strike { Monsoon/Strike1 Monsoon/Strike2 Monsoon/Strike3 Monsoon/Strike4 }
+$rolloff Monsoon/Strike1 512 1576
+$rolloff Monsoon/Strike2 512 1576
+$rolloff Monsoon/Strike3 512 1576
+
+Monsoon/End1                MONSOOE1
+Monsoon/End2                MONSOOE2
+Monsoon/End3                MONSOOE3
+$random Monsoon/End { Monsoon/End1 Monsoon/End2 Monsoon/End3 }
+$rolloff Monsoon/End1 512 1576
+$rolloff Monsoon/End2 512 1576
+$rolloff Monsoon/End3 512 1576
 
 $alias Monsoon/Gather Berserker/Thunder
-$alias Monsoon/Strike ThunderStaff/Thunder
-$limit Monsoon/Strike 3
+$limit Monsoon/Strike 0
+
+/*
+**************************
+****** EARTH SPELLS ******
+**************************
+*/
+
+$alias Shrapnel/Cast EarthLich/Rock
+$alias Shrapnel/Hit EarthLich/RockHit
+$alias NoxiousBlast/Cast whiteballssee
+$alias NoxiousBlast/Burst whiteballsdeth
+$alias Rockslide/Cast Ambience/RockBreak
+$alias Rockslide/Hit stone/death
+$alias ToxicTrap/Lay AcidRifle/In
+$alias ToxicTrap/Burst torturedsoul/poison
+$alias BalefulInfusion/Cast MageStaffFire
+$alias BalefulInfusion/Spend AcidRifle/Hit

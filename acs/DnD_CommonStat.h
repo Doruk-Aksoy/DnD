@@ -478,23 +478,19 @@ void GiveTailwind(int pnum, int amt) {
 	ACS_NamedExecuteAlways("DnD Tailwind Cooldown", 0, ptid);
 }
 
-int GetRageDamageBonus(int pnum) {
-	int res = CheckActorInventory(pnum + P_TIDSTART, "DnD_Rage") * DND_RAGE_DAMAGEPER;
+// The live weapon perk increases. Rage is MORE melee damage, in "DnD Damage Accumulate"; the MORE perks are below.
+int GetLiveWeaponPerkBonus(int pnum, bool isSpell = false) {
+	// Unending Fury names melee weapons, so no spell takes it.
+	if(isSpell)
+		return 0;
 
-	// Perception / Fresh Clip rides the same live term rather than the cached one, for the same
-	// reason rage does: it is counted in SHOTS, so a cached factor would freeze it on the first.
-	if(CheckActorInventory(pnum + P_TIDSTART, "DnD_FreshClipShots"))
-		res += PlayerModData[pnum].vals[PSTAT_FRESHCLIP_DAMAGE];
+	int res = 0;
 
 	// Martialist / Unending Fury. Berserk otherwise only changes which hitscan the FIST uses, which
 	// no other melee weapon can borrow -- so the perk is a damage percentage while berserk is up
 	// rather than a share of the fist's variant, which is not a number that exists to take a share of.
 	if(CheckActorInventory(pnum + P_TIDSTART, "PowerStrength"))
 		res += PlayerModData[pnum].vals[PSTAT_BERSERK_ALLMELEE];
-
-	// Perception / Earthshaker. Live for the same reason -- the ramp changes shot to shot.
-	res += PlayerModData[pnum].vals[PSTAT_ARTILLERY_RAMP] *
-			CheckActorInventory(pnum + P_TIDSTART, "DnD_ArtilleryRamp");
 
 	return res;
 }
@@ -877,8 +873,7 @@ void UpdatePlayerKnockbackResist() {
 // one is every explosion the player causes -- item mods, class perks, artifacts -- and folding an
 // artillery-only bonus into it would have widened all of them.
 //
-// Quaker is the flat part. Earthshaker rides the SAME continuous-attack counter its damage half
-// reads, so one stack is worth the same percentage to both, which is what its note describes.
+// Quaker is the increased part. Earthshaker is MORE and lives in GetPlayerArtilleryAoEMore below.
 //
 // Judged on the weapon the owner is holding NOW, because the explosion knows its owner but not the
 // weapon that fired it -- the radius script is called from around a hundred DECORATE states with no
@@ -889,8 +884,20 @@ int GetPlayerArtilleryAoEIncrease(int pnum, int tid) {
 	if(!IsArtilleryWeapon(GetActorWeaponID(tid)))
 		return 0;
 
-	return PlayerModData[pnum].vals[PSTAT_ARTILLERY_RADIUS] +
-		PlayerModData[pnum].vals[PSTAT_ARTILLERY_RAMP] * CheckActorInventory(tid, "DnD_ArtilleryRamp");
+	return PlayerModData[pnum].vals[PSTAT_ARTILLERY_RADIUS];
+}
+
+// A squared radius times (100 + more)%, split so a large area cannot overflow the multiply.
+int ScaleAreaMore(int area, int more) {
+	return more ? area + area / 100 * more + area % 100 * more / 100 : area;
+}
+
+// Earthshaker's "more radius", a percent on the AREA after the increased pool. Rides the damage half's counter.
+int GetPlayerArtilleryAoEMore(int pnum, int tid) {
+	if(!IsArtilleryWeapon(GetActorWeaponID(tid)))
+		return 0;
+
+	return PlayerModData[pnum].vals[PSTAT_ARTILLERY_RAMP] * CheckActorInventory(tid, "DnD_ArtilleryRamp");
 }
 
 // Two stats, not one. The weapon term answers only for explosions a weapon caused; the universal

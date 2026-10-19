@@ -28,6 +28,18 @@ int GetSpellDamageType(int spell) {
 	if(spell == SPL_GUSTOFFROST)
 		return DND_DAMAGETYPE_PHYSICAL;
 
+	// Earth's poison half; its rock spells stay physical below.
+	switch(spell) {
+		case SPL_NOXIOUSBLAST:
+		case SPL_TOXICTRAP:
+		case SPL_VENOMGYRE:
+		case SPL_VINESOFTORMENT:
+		case SPL_CORROSIVEBREATH:
+		case SPL_POISONNOVA:
+		case SPL_GEYSER:
+		return DND_DAMAGETYPE_POISON;
+	}
+
 	switch(SpellDefs[spell].tree) {
 		case DND_SKILLTREE_FIRE:		return DND_DAMAGETYPE_FIRE;
 		case DND_SKILLTREE_ICE:			return DND_DAMAGETYPE_ICE;
@@ -128,7 +140,8 @@ bool IsSpellDoTField(int spell, int which) {
 // HandleDamageDeal themselves both come here. isDot takes the DoT pile instead; noMore is Infernal Strike's.
 int PriceSpellDamage(int pnum, int spell, int dmg, int scale_flags = 0, bool isDot = false, int victim = -1, bool noMore = false) {
 	if(isDot) {
-		dmg = GetGenericDoTDamage(pnum, dmg, victim, -1, true);
+		// A tick takes its element's increase; elemental, radius and other "attack" increases are weapon mods.
+		dmg = GetGenericDoTDamage(pnum, dmg, victim, -1, true, GetPlayerElementIncrease(pnum, GetSpellDamageCategory(spell)));
 		scale_flags |= DND_WDMG_ISDOT;
 	}
 
@@ -138,6 +151,16 @@ int PriceSpellDamage(int pnum, int spell, int dmg, int scale_flags = 0, bool isD
 	if(isDot)
 		dmg = ApplySpellIntScaling(pnum, dmg);
 
+	return FinishSpellDamage(pnum, spell, dmg, isDot, noMore);
+}
+
+// A spell's poison tick: INT and the spell's own multipliers. "DnD Do Poison Damage" adds the poison and DoT gear.
+int PriceSpellPoison(int pnum, int spell, int dmg) {
+	return FinishSpellDamage(pnum, spell, ApplySpellIntScaling(pnum, dmg), true, false);
+}
+
+// What every spell hit or tick takes after its scale.
+int FinishSpellDamage(int pnum, int spell, int dmg, bool isDot, bool noMore) {
 	// Heart of Fire rank 5: a spell its proc made ready hits harder for a few seconds. MORE, so after the scale.
 	int prime = GetSpellPrimes().ends[pnum][spell];
 	if(prime && Timer() <= prime)
@@ -318,9 +341,9 @@ Script "DnD Flame Pillar Drop" (void) {
 // SPELLVAL_RADIUS for the same reason. Both default to 0 because DECORATE passes 0 for the
 // arguments it omits, and 0 reads as "SPELLVAL_DAMAGE at the full radius" -- which is exactly
 // what every existing caller wants.
-// A blast's full damage core, as a percent of its radius. Only Pyroblast's AMOUNT row is one; the others mean other things.
+// A blast's full damage core, as a percent of its radius. Only Pyroblast's and Rockslide's AMOUNT rows are one.
 int GetSpellBlastCore(int pnum, int spell, int rank_at) {
-	if(spell == SPL_PYROBLAST)
+	if(spell == SPL_PYROBLAST || spell == SPL_ROCKSLIDE)
 		return GetSpellValue(pnum, spell, SPELLVAL_AMOUNT, rank_at);
 	return 0;
 }

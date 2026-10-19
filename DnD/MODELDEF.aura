@@ -108,51 +108,51 @@ Model DnD_EmberTrail {
 }
 
 Model DnD_Ultimatum_Stormcall_Tier1 {
-	Path "Models/Auras"   
-	Model 0 "flat.md3"   
+	Path "Models/Auras"
+	// flat2 has both faces, so the circle shows from below too; its y mirror keeps the runes as flat.md3 laid them.
+	Model 0 "flat2.md3"
 	Skin 0 "STRMCALL.png"
-	Scale 1.0 1.0 1.0
+	Scale 1.0 -1.0 1.0
 	Zoffset 1
 	ROTATING
-	//DONTCULLBACKFACES
-	
-	FrameIndex AURA I 0 3
+
+	FrameIndex AURA I 0 0
 }
 
 Model DnD_Ultimatum_Stormcall_Tier2 {
-	Path "Models/Auras"   
-	Model 0 "flat.md3"   
+	Path "Models/Auras"
+	// flat2 has both faces, so the circle shows from below too; its y mirror keeps the runes as flat.md3 laid them.
+	Model 0 "flat2.md3"
 	Skin 0 "STRMCALL.png"
-	Scale 1.0 1.0 1.0
+	Scale 1.0 -1.0 1.0
 	Zoffset 1
 	ROTATING
-	//DONTCULLBACKFACES
-	
-	FrameIndex AURA I 0 3
+
+	FrameIndex AURA I 0 0
 }
 
 Model DnD_Ultimatum_Stormcall_Tier3 {
-	Path "Models/Auras"   
-	Model 0 "flat.md3"   
+	Path "Models/Auras"
+	// flat2 has both faces, so the circle shows from below too; its y mirror keeps the runes as flat.md3 laid them.
+	Model 0 "flat2.md3"
 	Skin 0 "STRMCALL.png"
-	Scale 1.0 1.0 1.0
+	Scale 1.0 -1.0 1.0
 	Zoffset 1
 	ROTATING
-	//DONTCULLBACKFACES
-	
-	FrameIndex AURA I 0 3
+
+	FrameIndex AURA I 0 0
 }
 
 Model DnD_Ultimatum_Stormcall_Tier4 {
-	Path "Models/Auras"   
-	Model 0 "flat.md3"   
+	Path "Models/Auras"
+	// flat2 has both faces, so the circle shows from below too; its y mirror keeps the runes as flat.md3 laid them.
+	Model 0 "flat2.md3"
 	Skin 0 "STRMCALL.png"
-	Scale 1.0 1.0 1.0
+	Scale 1.0 -1.0 1.0
 	Zoffset 1
 	ROTATING
-	//DONTCULLBACKFACES
-	
-	FrameIndex AURA I 0 3
+
+	FrameIndex AURA I 0 0
 }
 
 Model Spell_AngerAuraFX {

@@ -1151,6 +1151,10 @@ enum {
 	DND_ICESPEAR_FORM_TID,
 	DND_ICESPEAR_FORM_TID_END = DND_ICESPEAR_FORM_TID + MAXPLAYERS,
 
+	// One per Toxic Trap slot: 4 a player.
+	DND_TOXICTRAP_TID,
+	DND_TOXICTRAP_TID_END = DND_TOXICTRAP_TID + MAXPLAYERS * 4,
+
 	// ScratchTID()'s window: far above every range here, just under the three fixed ones at the top.
 	DND_SCRATCH_TID = bcs::INT_MAX - 2 - 256,
 	DND_SCRATCH_TID_END = bcs::INT_MAX - 2,

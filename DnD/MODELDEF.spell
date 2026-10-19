@@ -727,3 +727,35 @@ Model Spell_StormBrand_Globe {
 	rotation-speed 0.8
 	FrameIndex WORB B 0 0
 }
+
+// Thunder Clap's slam shockwave: SLAMWAVE.md3's crown wall and floor band, blue, shaded by SlamWave.fp.
+Model Spell_ThunderClap_Shockwave {
+	Path "Models/Auras"
+	Model 0 "SLAMWAVE.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "SLAMWAVB.png"
+	Scale 1.0 1.0 1.0
+	FrameIndex SLMW A 0 0
+}
+
+// Shrapnel's rock shard. Its skin is OROCKC01's crags tinted halfway to OROCKP04's brown.
+Model Spell_Shrapnel {
+	Path "Models/Proj"
+	Model 0 "SHRAPNEL.md3"
+	Skin 0 "SHRAPNEL.png"
+	Scale 1.0 1.0 1.0
+	PITCHFROMMOMENTUM
+	FrameIndex ERSH A 0 0
+}
+
+// Rockslide's boulder: the shard's skin on a chunkier hull, tumbling as it flies.
+Model Spell_Rockslide {
+	Path "Models/Proj"
+	Model 0 "ROCKSLID.md3"
+	Skin 0 "SHRAPNEL.png"
+	Scale 1.0 1.0 1.0
+	ROTATING
+	rotation-vector 0.0 0.0 1.0
+	rotation-speed 3.0
+	FrameIndex ERSL A 0 0
+}

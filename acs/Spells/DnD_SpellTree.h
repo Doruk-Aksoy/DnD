@@ -632,9 +632,9 @@ void HandleSpellHoverPanel(int pnum, int spell) {
 
 		temp = GetSpellValue(pnum, spell, i, preview);
 		if(lo_field != -1)
-			PanelText(StrParam(s:"\c[Y5]", l:GetSpellFieldLump(i), s:": \c-", d:GetSpellValue(pnum, spell, lo_field, preview), s:"-", d:temp));
+			PanelText(StrParam(s:"\c[Y5]", l:GetSpellFieldLumpFor(spell, i), s:": \c-", d:GetSpellValue(pnum, spell, lo_field, preview), s:"-", d:temp));
 		else
-			PanelText(StrParam(s:"\c[Y5]", l:GetSpellFieldLump(i), s:": \c-", d:temp));
+			PanelText(StrParam(s:"\c[Y5]", l:GetSpellFieldLumpFor(spell, i), s:": \c-", d:temp));
 
 		// What the next point actually buys, since the step is no longer the flat per_rank value.
 		if(alloc && alloc < DND_SPELL_RANKCAP) {
@@ -719,6 +719,8 @@ void HandleSpellHoverPanel(int pnum, int spell) {
 			PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_SYNERGY", s:" - \c-", l:GetSpellNameLump(temp),
 				s:": +", s:IsSpellFieldTenthsPercent(spell, SpellSynergies[i].field) ?
 					StrParam(s:FixedToTenths((SpellSynergies[i].per_rank << 16) / 10), s:"%") :
+					IsSpellFieldPoisonTenths(spell, SpellSynergies[i].field) ?
+					FixedToTenths((SpellSynergies[i].per_rank << 16) / 10) :
 					IsSpellFieldFixedPoint(SpellSynergies[i].field) ?
 					FixedToHundredths(SpellSynergies[i].per_rank) :
 					StrParam(d:SpellSynergies[i].per_rank),
@@ -726,7 +728,7 @@ void HandleSpellHoverPanel(int pnum, int spell) {
 		else
 			PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_SYNERGY", s:" - \c-", l:GetSpellNameLump(temp),
 				s:": ", s:FixedToTenths(SpellSynergies[i].per_rank), s:"% more ",
-				l:GetSpellFieldLump(SpellSynergies[i].field), s:GetSynergyStepText(i)));
+				l:GetSpellFieldLumpFor(spell, SpellSynergies[i].field), s:GetSynergyStepText(i)));
 	}
 
 	// Measured rather than counted: blank spacers are half a line, so a line count overstated the

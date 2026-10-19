@@ -210,3 +210,13 @@ Model Ultimatum_RagingDeadFire {
 
 	FrameIndex SLSH A 0 0
 }
+
+// Thanatos's stomp shockwave: the slam wave's model in orange, shaded by SlamWave.fp.
+Model ThanatosStompShockwave {
+	Path "Models/Auras"
+	Model 0 "SLAMWAVE.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "SLAMWAVR.png"
+	Scale 1.0 1.0 1.0
+	FrameIndex SLMW A 0 0
+}

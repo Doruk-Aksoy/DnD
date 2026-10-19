@@ -89,7 +89,29 @@ enum {
 	SPL_MONSOON,
 	SPL_THUNDERCLAP,
 	SPL_STORMCALL,
-	SPL_SURGECAST
+	SPL_SURGECAST,
+
+	// ---- Earth ----
+	SPL_SHRAPNEL = DND_SKILLTREE_EARTH * DND_SPELLS_PER_TREE,
+	SPL_NOXIOUSBLAST,
+	SPL_ROCKSLIDE,
+	SPL_BLOCKADE,
+	SPL_BALEFULINFUSION,
+	SPL_TOXICTRAP,
+	SPL_VENOMGYRE,
+	SPL_ROCKARMOR,
+	SPL_UPHEAVAL,
+	SPL_THREADEDVOLLEY,
+	SPL_VINESOFTORMENT,
+	SPL_CORROSIVEBREATH,
+	SPL_AGONY,
+	SPL_ROCKGOLEM,
+	SPL_VULNERABILITY,
+	SPL_CRUSHINGROCKS,
+	SPL_DESPAIR,
+	SPL_POISONNOVA,
+	SPL_UNLEASHEARTH,
+	SPL_GEYSER
 };
 
 // Which numbers a spell carries. The DAMAGE, RADIUS and AMOUNT fields are plain integers; COST,
@@ -549,6 +571,12 @@ int GetSpellThresholdBonus(int spell, int which, int rank) {
 			return which == SPELLVAL_AMOUNT && r10 ? 1 : 0;
 		case SPL_STORMCALL:
 			return which == SPELLVAL_RADIUS && r5 ? 128 : which == SPELLVAL_DAMAGE2 && r10 ? 25 : 0;
+		case SPL_NOXIOUSBLAST:
+			return which == SPELLVAL_AMOUNT2 && r5 ? 10 : which == SPELLVAL_RADIUS && r10 ? 64 : 0;
+		case SPL_ROCKSLIDE:
+			return which == SPELLVAL_RADIUS && r10 ? 84 : 0;
+		case SPL_TOXICTRAP:
+			return which == SPELLVAL_AMOUNT && r5 ? 2 : which == SPELLVAL_DURATION && r10 ? 1.0 : 0;
 	}
 	return 0;
 }
@@ -887,11 +915,37 @@ bool IsSpellFieldTenthsPercent(int spell, int which) {
 	return spell == SPL_BLIZZARD && which == SPELLVAL_DAMAGE2;
 }
 
+// A poison duration in tenths of a second: Earth's poisoning spells keep it in AMOUNT2.
+bool IsSpellFieldPoisonTenths(int spell, int which) {
+	if(which != SPELLVAL_AMOUNT2)
+		return false;
+	switch(spell) {
+		case SPL_NOXIOUSBLAST:
+		case SPL_BALEFULINFUSION:
+		case SPL_TOXICTRAP:
+		case SPL_VENOMGYRE:
+		case SPL_CORROSIVEBREATH:
+		case SPL_POISONNOVA:
+		return true;
+	}
+	return false;
+}
+
 str GetSpellFieldLumpFor(int spell, int which) {
 	if(IsSpellFieldTenthsPercent(spell, which))
 		return "DND_SPLFIELD_VOLLEYRATE";
+	if(IsSpellFieldPoisonTenths(spell, which))
+		return "DND_SPLFIELD_POISONTIME";
 	if(spell == SPL_RAINOFFIRE && which == SPELLVAL_DAMAGE2)
 		return "DND_SPLFIELD_COMETS";
+	if(spell == SPL_NOXIOUSBLAST && which == SPELLVAL_DAMAGE)
+		return "DND_SPLFIELD_POISONPS";
+	if((spell == SPL_CORROSIVEBREATH && which == SPELLVAL_DAMAGE) || ((spell == SPL_VENOMGYRE || spell == SPL_POISONNOVA) && which == SPELLVAL_DAMAGE2))
+		return "DND_SPLFIELD_POISON";
+	if(spell == SPL_UPHEAVAL && which == SPELLVAL_AMOUNT2)
+		return "DND_SPLFIELD_THROW";
+	if(spell == SPL_THREADEDVOLLEY && which == SPELLVAL_AMOUNT2)
+		return "DND_SPLFIELD_ENERGIZED";
 	return GetSpellFieldLump(which);
 }
 

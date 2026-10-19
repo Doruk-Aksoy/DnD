@@ -4391,13 +4391,15 @@ lance_T module& GetLanceData() {
 	return s;
 }
 
-// Client side: up to six hit enemies, each a monster id + 1 in half an argument.
+// Client side: up to six hit enemies, each a monster id + 1 in half an argument: a crackle and the hit sound on each.
 Script "DnD Crackling Lance Hits" (int ab, int cd, int ef) CLIENTSIDE {
 	int ids[3] = { ab, cd, ef };
 	for(int i = 0; i < 6; ++i) {
 		int id = (ids[i / 2] >> ((i & 1) * 16)) & 0xFFFF;
-		if(id)
+		if(id) {
 			SpawnBodyCrackle(DND_MONSTERTID_BEGIN + id - 1, "Spell_CracklingLance_Hit");
+			PlaySound(DND_MONSTERTID_BEGIN + id - 1, "CracklingLance/Hit", CHAN_7);
+		}
 	}
 }
 
@@ -4419,8 +4421,16 @@ void CastCracklingLance(int pnum) {
 	int x0 = GetActorX(ptid) + FixedMul(DND_BEAM_HANDS, cos(a)), y0 = GetActorY(ptid) + FixedMul(DND_BEAM_HANDS, sin(a));
 	int z0 = GetActorZ(ptid) + GetActorViewHeight(ptid) - DND_BEAM_DROP + DND_CLANCE_LIFT;
 	int dx = FixedMul(cos(pitch), cos(a)), dy = FixedMul(cos(pitch), sin(a)), dz = -sin(pitch);
+	int most = GetSpellValue(pnum, SPL_CRACKLINGLANCE, SPELLVAL_AMOUNT);
+	if(SpellThresholdMet(pnum, SPL_CRACKLINGLANCE, DND_SPELL_THRESH_HIGH))
+		++most;
 
-	PlaySound(ptid, "CracklingLance/Cast", CHAN_7);
+	// The crackle fades into the laser as intensity builds: all crackle with none, all laser at the most it can hold.
+	int mix = FixedDiv(Min(stacks, most) << 16, Max(1, most) << 16);
+	if(mix < 1.0)
+		PlaySound(ptid, "CracklingLance/Cast", CHAN_7, 1.0 - mix);
+	if(mix > 0)
+		PlaySound(ptid, "CracklingLance/Laser", CHAN_5, mix);
 	ACS_NamedExecuteAlways("DnD Crackling Lance FX", 0, pnum | (Min(stacks, DND_CLANCE_STAGES) << 8) | ((len >> 16) << 16),
 		(a & 0xFFFF) | (pitch << 16), half >> 15);
 
@@ -4453,9 +4463,6 @@ void CastCracklingLance(int pnum) {
 	if(n)
 		ACS_NamedExecuteAlways("DnD Crackling Lance Hits", 0, hits[0], hits[1], hits[2]);
 
-	int most = GetSpellValue(pnum, SPL_CRACKLINGLANCE, SPELLVAL_AMOUNT);
-	if(SpellThresholdMet(pnum, SPL_CRACKLINGLANCE, DND_SPELL_THRESH_HIGH))
-		++most;
 	ld.stacks[pnum] = Min(stacks + 1, most);
 	SetActorInventory(ptid, "P_LanceStacks", ld.stacks[pnum]);
 	if(!ld.watching[pnum]) {
@@ -4607,32 +4614,50 @@ Script "DnD Blink FX" (int from_xy, int to_xy, int zz) CLIENTSIDE {
 
 // ============================ Overcharge ============================
 
-#define DND_OVERCHARGE_SPEEDCAP 24.0    // speed, units a tic, counted toward charge at most
-#define DND_OVERCHARGE_PERCHARGE 16.0   // units moved for one charge
-#define DND_OVERCHARGE_R5_RATE 125      // percent charge generation at rank 5
+#define DND_OVERCHARGE_SPEEDCAP 24.0    	// speed, units a tic, counted toward charge at most
+#define DND_OVERCHARGE_PERCHARGE 16.0   	// units moved for one charge
+#define DND_OVERCHARGE_R5_RATE 125      	// percent charge generation at rank 5
 #define DND_OVERCHARGE_R10_TICS (2 * TICRATE)
-#define DND_OVERCHARGE_FXEVERY 3        // tics between crackles on the caster while charging
-#define DND_OVERCHARGE_HELDFX 35        // and while the charge is held
+#define DND_OVERCHARGE_FXEVERY 3        	// tics between crackles on the caster while charging
+#define DND_OVERCHARGE_HELDFX 35        	// and while the charge is held
+#define DND_OVERCHARGE_STILL 1.0        	// speed, units a tic, at or under which the caster is standing still
+#define DND_OVERCHARGE_GRACE TICRATE / 2	// tics standing still before the charge starts to bleed
+#define DND_OVERCHARGE_DECAY 5          	// then one charge lost every this many tics
+
+// The caster's count of tics stood still, from last tic's: back to 0 once they move.
+int GetOverchargeStill(int ptid, int still) {
+	return VectorLength(GetActorVelX(ptid), GetActorVelY(ptid)) > DND_OVERCHARGE_STILL ? 0 : still + 1;
+}
+
+// Whether this tic of standing still costs a charge: past the grace, every DECAY tics.
+bool OverchargeBleeds(int still) {
+	return still > DND_OVERCHARGE_GRACE && !((still - DND_OVERCHARGE_GRACE) % DND_OVERCHARGE_DECAY);
+}
 
 void CastOvercharge(int pnum) {
 	PlaySound(pnum + P_TIDSTART, "Overcharge/Cast", CHAN_7);
 	ACS_NamedExecuteAlways("DnD Overcharge", 0, pnum);
 }
 
-// Charges for the window, faster the faster the caster moves, then holds them for the next weapon hit.
-// A recast keeps what is held and charges on top of it.
+// Charges for the window, faster the faster the caster moves, then holds them for the next weapon hit. Standing still
+// bleeds the charge, while charging or holding. A recast keeps what is held and charges on top of it.
 Script "DnD Overcharge" (int pnum) {
 	int ptid = pnum + P_TIDSTART;
 	int cap = GetSpellValue(pnum, SPL_OVERCHARGE, SPELLVAL_AMOUNT);
 	int rate = SpellThresholdMet(pnum, SPL_OVERCHARGE, DND_SPELL_THRESH_LOW) ? DND_OVERCHARGE_R5_RATE : 100;
 	int tics = GetSpellDurationTics(pnum, SPL_OVERCHARGE) +
 		ScaleSpellEffectTics(pnum, SPL_OVERCHARGE, DND_OVERCHARGE_R10_TICS) * SpellThresholdMet(pnum, SPL_OVERCHARGE, DND_SPELL_THRESH_HIGH);
-	int acc = FixedMul(CheckActorInventory(ptid, "DnD_OverchargeReady") << 16, DND_OVERCHARGE_PERCHARGE), charges, t;
+	int acc = FixedMul(CheckActorInventory(ptid, "DnD_OverchargeReady") << 16, DND_OVERCHARGE_PERCHARGE), charges, held, t, still = 0;
 	SetActorInventory(ptid, "DnD_OverchargeReady", 0);
 	ACS_NamedExecuteAlways("DnD Overcharge FX", 0, pnum, tics);
 
 	for(t = 0; t < tics && PlayerInGame(pnum) && IsActorAlive(ptid); ++t) {
 		acc += Min(VectorLength(GetActorVelX(ptid), GetActorVelY(ptid)), DND_OVERCHARGE_SPEEDCAP) * rate / 100;
+		// Kept at the cap, so a charge lost standing still shows at once rather than off a surplus.
+		acc = Min(acc, cap * DND_OVERCHARGE_PERCHARGE);
+		still = GetOverchargeStill(ptid, still);
+		if(OverchargeBleeds(still))
+			acc = Max(0, acc - DND_OVERCHARGE_PERCHARGE);
 		charges = Min(cap, FixedDiv(acc, DND_OVERCHARGE_PERCHARGE) >> 16);
 		if(charges != CheckActorInventory(ptid, "P_OverchargeCharges"))
 			SetActorInventory(ptid, "P_OverchargeCharges", charges);
@@ -4641,11 +4666,16 @@ Script "DnD Overcharge" (int pnum) {
 
 	SetActorInventory(ptid, "DnD_OverchargeReady", CheckActorInventory(ptid, "P_OverchargeCharges"));
 
-	// Held until a weapon hit spends it; death drops it.
-	for(t = 0; CheckActorInventory(ptid, "DnD_OverchargeReady") && PlayerInGame(pnum) && IsActorAlive(ptid); t += 5) {
+	// Held until a weapon hit spends it, standing still bleeds it away, and death drops it.
+	for(t = 0; (held = CheckActorInventory(ptid, "DnD_OverchargeReady")) && PlayerInGame(pnum) && IsActorAlive(ptid); ++t) {
 		if(t % DND_OVERCHARGE_HELDFX == 0)
 			ACS_NamedExecuteAlways("DnD Overcharge FX", 0, pnum, 0);
-		Delay(const:5);
+		still = GetOverchargeStill(ptid, still);
+		if(OverchargeBleeds(still)) {
+			SetActorInventory(ptid, "DnD_OverchargeReady", --held);
+			SetActorInventory(ptid, "P_OverchargeCharges", held);
+		}
+		Delay(const:1);
 	}
 	if(!IsActorAlive(ptid) || !PlayerInGame(pnum)) {
 		SetActorInventory(ptid, "DnD_OverchargeReady", 0);
@@ -4793,8 +4823,8 @@ Script "DnD Conductivity Cast" (int pnum) {
 #define DND_CHAIN_R5_LOSS 4
 #define DND_CHAIN_R10_SHOCK 30
 
-// The nearest enemy in reach of a point and in sight of it, other than the last two the chain hit.
-int FindChainTarget(int x, int y, int z, int reach, int last, int before) {
+// The nearest enemy in reach of a point and in sight of it, other than the last two the chain hit, or also.
+int FindChainTarget(int x, int y, int z, int reach, int last, int before, int also = 0) {
 	int tid = ScratchTID();
 	if(!tid || !SpawnForced("DnD_SpellAnchor", x, y, z, tid, 0))
 		return 0;
@@ -4802,7 +4832,7 @@ int FindChainTarget(int x, int y, int z, int reach, int last, int before) {
 	int i, m, d, best = 0, bestd = reach + 1;
 	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
 		m = UsedMonsterTIDs[i];
-		if(m == last || m == before || !IsActorAlive(m) || !IsSpellEnemy(m))
+		if(m == last || m == before || m == also || !IsActorAlive(m) || !IsSpellEnemy(m))
 			continue;
 		d = VectorLength(VectorLength(GetActorX(m) - x, GetActorY(m) - y), GetActorZ(m) + GetActorProperty(m, APROP_HEIGHT) / 2 - z);
 		if(d < bestd && CheckSight(tid, m, CSF_NOBLOCKALL)) {
@@ -4820,7 +4850,20 @@ void CastChainLightning(int pnum) {
 		ACS_NamedExecuteAlways("DnD Chain Lightning", 0, pnum, target);
 }
 
+// One chain hit at pct of the damage: its sounds, the damage and rank 10's Shock roll.
+void ChainLightningHit(int pnum, int victim, int pct, bool shocks) {
+	if(random(0, 1))
+		PlaySound(victim, "ChainLightning/Cast", CHAN_6);
+	else
+		PlaySound(victim, "ChainLightning/Beam", CHAN_6);
+	PlaySound(victim, "ChainLightning/Hit", CHAN_7);
+	DealSpellBeamHit(pnum, SPL_CHAINLIGHTNING, victim, pct);
+	if(shocks && IsActorAlive(victim) && random(1, 100) <= DND_CHAIN_R10_SHOCK)
+		ApplySpellShock(pnum, victim);
+}
+
 // The first hit comes from the caster's hands; each hop then leaves from the enemy just hit, losing damage as it goes.
+// Every hop also forks a bolt that cannot chain to one more enemy, at the hop's damage.
 Script "DnD Chain Lightning" (int pnum, int target) {
 	int ptid = pnum + P_TIDSTART;
 	int chains = GetSpellValue(pnum, SPL_CHAINLIGHTNING, SPELLVAL_AMOUNT) + GetSpellExtraProjectiles(pnum, SPL_CHAINLIGHTNING);
@@ -4831,7 +4874,7 @@ Script "DnD Chain Lightning" (int pnum, int target) {
 	int a = GetActorAngle(ptid);
 	int x = GetActorX(ptid) + FixedMul(DND_BEAM_HANDS, cos(a)), y = GetActorY(ptid) + FixedMul(DND_BEAM_HANDS, sin(a));
 	int z = GetActorZ(ptid) + GetActorViewHeight(ptid) - DND_BEAM_DROP;
-	int victim = target, last = 0, before = 0;
+	int victim = target, last = 0, before = 0, side = 0, pct;
 
 	PlaySound(ptid, "ChainLightning/Cast", CHAN_7);
 	PlaySound(ptid, "ChainLightning/CastLayer", CHAN_5);
@@ -4841,21 +4884,20 @@ Script "DnD Chain Lightning" (int pnum, int target) {
 			victim = FindChainTarget(x, y, z, reach, last, before);
 			if(!victim)
 				break;
+			side = FindChainTarget(x, y, z, reach, last, before, victim);
 		}
 
 		SendBeamToEnemy("DnD Chain Beam FX", x, y, z, victim);
+		if(side)
+			SendBeamToEnemy("DnD Chain Beam FX", x, y, z, side);
 		x = GetActorX(victim);
 		y = GetActorY(victim);
 		z = GetActorZ(victim) + GetActorProperty(victim, APROP_HEIGHT) / 2;
 
-		if(random(0, 1))
-			PlaySound(victim, "ChainLightning/Cast", CHAN_6);
-		else
-			PlaySound(victim, "ChainLightning/Beam", CHAN_6);
-		PlaySound(victim, "ChainLightning/Hit", CHAN_7);
-		DealSpellBeamHit(pnum, SPL_CHAINLIGHTNING, victim, 100 - Min(DND_CHAIN_MAXLOSS, c * loss));
-		if(shocks && IsActorAlive(victim) && random(1, 100) <= DND_CHAIN_R10_SHOCK)
-			ApplySpellShock(pnum, victim);
+		pct = 100 - Min(DND_CHAIN_MAXLOSS, c * loss);
+		ChainLightningHit(pnum, victim, pct, shocks);
+		if(side)
+			ChainLightningHit(pnum, side, pct, shocks);
 
 		before = last;
 		last = victim;
@@ -5516,10 +5558,10 @@ void SpawnSkyBolt(int x, int y, int z, bool big) {
 		if(big) {
 			PlaySound(tid, "StormCall/Explode", CHAN_BODY);
 			PlaySound(tid, "StormCall/Pulse", CHAN_ITEM);
-			PlaySound(tid, "StormCall/Add", CHAN_VOICE);
 		}
 		else
 			PlaySound(tid, "Monsoon/Strike", CHAN_BODY);
+		PlaySound(tid, "StormCall/Add", CHAN_VOICE);
 		SetActorProperty(tid, APROP_SCALEX, big ? 0.9 : 0.45);
 		Thing_ChangeTID(tid, 0);
 	}
@@ -5563,6 +5605,10 @@ Script "DnD Monsoon Clouds FX" (int target, int xy, int packed) CLIENTSIDE {
 		++n;
 	}
 
+	// The first cloud, one of the core over the target, is the storm's voice: its loop while it lasts, its end as it clears.
+	if(n)
+		PlaySound(tid[0], "Monsoon/Loop", CHAN_BODY, 1.0, true);
+
 	for(t = 0; t < tics; ++t) {
 		if(target && IsActorAlive(target))
 			SetActorPosition(anchor, GetActorX(target), GetActorY(target), GetActorZ(target), false);
@@ -5580,6 +5626,9 @@ Script "DnD Monsoon Clouds FX" (int target, int xy, int packed) CLIENTSIDE {
 		Delay(const:1);
 	}
 
+	// On the loop's channel, so it takes over from it; it plays on where the cloud was once it has faded out.
+	if(n)
+		PlaySound(tid[0], "Monsoon/End", CHAN_BODY);
 	for(i = 0; i < n; ++i) {
 		SetActorState(tid[i], "Clear");
 		Thing_ChangeTID(tid[i], 0);
@@ -5595,6 +5644,10 @@ Script "DnD Monsoon Clouds FX" (int target, int xy, int packed) CLIENTSIDE {
 #define DND_THUNDERCLAP_SPARKS 4        // sparks thrown round a spreading ring each tic
 #define DND_THUNDERCLAP_R5_STUN (TICRATE * 3 / 2)
 #define DND_FLATMD3_QUAD 15.625         // flat.md3's frame 3 half width, which the ring and field art fill
+#define DND_THUNDERCLAP_WAVEH 56.0      // a ring's shockwave height; the first stands a quarter taller
+#define DND_THUNDERCLAP_WAVEPOP 3       // tics the shockwave takes to rise
+#define DND_THUNDERCLAP_WAVEFADE 10     // tics it takes to sink and fade once its ring is out
+#define DND_SLAMWAVE_BASE 16.0          // SLAMWAVE.md3's base radius and height
 
 // The slam's damage: the spell's own, priced, plus its share of the held melee weapon's swing, priced as that weapon's.
 int GetThunderClapDamage(int pnum) {
@@ -5617,6 +5670,7 @@ Script "DnD Thunder Clap" (int pnum) {
 	int stun = SpellThresholdMet(pnum, SPL_THUNDERCLAP, DND_SPELL_THRESH_LOW) ? ScaleSpellEffectTics(pnum, SPL_THUNDERCLAP, DND_THUNDERCLAP_R5_STUN) : 0;
 	int i, j, m;
 
+	PlaySound(caster, "ThunderClap/Add", CHAN_5);
 	PlaySound(caster, "ThunderClap/Slam", CHAN_6);
 	for(i = 0; i < rings; ++i) {
 		ACS_NamedExecuteAlways("DnD Thunder Clap FX", 0, PackMapPair(x, y), z >> 16, ((prev >> 16) & 0xFFFF) | (r & 0xFFFF0000));
@@ -5640,26 +5694,51 @@ Script "DnD Thunder Clap" (int pnum) {
 		Thing_Remove(probe);
 }
 
-// Client side: one ring spreading from the last one's reach to its own over a few tics, throwing sparks off its edge.
+// Client side: one ring spreading from the last one's reach to its own over a few tics, throwing sparks off its edge,
+// with its shockwave popping up and riding just ahead of it, then sinking and fading.
 Script "DnD Thunder Clap FX" (int xy, int z, int radii) CLIENTSIDE {
 	int x = xy << 16, y = xy & 0xFFFF0000, from = radii << 16, to = radii & 0xFFFF0000;
 	z <<= 16;
-	int tid = ScratchTID(), t, k, a, rr;
+	int tid = ScratchTID(), t, k, a, rr, e, h, f;
 	if(!tid || !SpawnForced("Spell_ThunderClap_Ring", x, y, z + 2.0, tid))
 		Terminate;
 	if(!from)
 		Spawn("Spell_ThunderClap_Burst", x, y, z + 8.0);
 
-	for(t = 1; t <= DND_THUNDERCLAP_GROW; ++t) {
-		rr = from + (to - from) / DND_THUNDERCLAP_GROW * t;
-		SetActorProperty(tid, APROP_SCALEX, FixedDiv(rr, DND_FLATMD3_QUAD));
-		for(k = 0; k < DND_THUNDERCLAP_SPARKS; ++k) {
-			a = random(0, 1.0);
-			Spawn("Spell_ThunderClap_Spark", x + FixedMul(rr, cos(a)), y + FixedMul(rr, sin(a)), z + random(4.0, 40.0));
+	int wave = ScratchTID();
+	if(wave && !SpawnForced("Spell_ThunderClap_Shockwave", x, y, z + 1.0, wave))
+		wave = 0;
+	int hmax = from ? DND_THUNDERCLAP_WAVEH : DND_THUNDERCLAP_WAVEH * 5 / 4, start = from ? from : to / 6;
+
+	for(t = 1; t <= DND_THUNDERCLAP_GROW + DND_THUNDERCLAP_WAVEFADE; ++t) {
+		if(t <= DND_THUNDERCLAP_GROW) {
+			rr = from + (to - from) / DND_THUNDERCLAP_GROW * t;
+			SetActorProperty(tid, APROP_SCALEX, FixedDiv(rr, DND_FLATMD3_QUAD));
+			for(k = 0; k < DND_THUNDERCLAP_SPARKS; ++k) {
+				a = random(0, 1.0);
+				Spawn("Spell_ThunderClap_Spark", x + FixedMul(rr, cos(a)), y + FixedMul(rr, sin(a)), z + random(4.0, 40.0));
+			}
+		}
+		if(wave) {
+			// Eased out, so the wave's front runs a little ahead of the ring and meets it at the ring's reach.
+			e = FixedDiv(Min(t, DND_THUNDERCLAP_GROW) << 16, DND_THUNDERCLAP_GROW << 16);
+			rr = start + FixedMul(to - start, 1.0 - FixedMul(1.0 - e, 1.0 - e));
+			e = FixedDiv(Min(t, DND_THUNDERCLAP_WAVEPOP) << 16, DND_THUNDERCLAP_WAVEPOP << 16);
+			h = FixedMul(hmax, 1.0 - FixedMul(1.0 - e, 1.0 - e));
+			if(t > DND_THUNDERCLAP_GROW) {
+				f = FixedDiv((t - DND_THUNDERCLAP_GROW) << 16, DND_THUNDERCLAP_WAVEFADE << 16);
+				rr += FixedMul(to / 12, f);
+				h = FixedMul(h, 1.0 - FixedMul(0.6, f));
+				SetActorProperty(wave, APROP_ALPHA, FixedMul(0.95, 1.0 - f));
+			}
+			SetActorProperty(wave, APROP_SCALEX, FixedDiv(rr, DND_SLAMWAVE_BASE));
+			SetActorProperty(wave, APROP_SCALEY, FixedDiv(h, DND_SLAMWAVE_BASE));
 		}
 		Delay(const:1);
 	}
 	Thing_ChangeTID(tid, 0);
+	if(wave)
+		Thing_Remove(wave);
 }
 
 // ============================ Storm Call ============================
@@ -5816,6 +5895,562 @@ Script "DnD Storm Call Strike FX" (int ks, int xy, int z) CLIENTSIDE {
 	SpawnSkyBolt(xy << 16, xy & 0xFFFF0000, z << 16, true);
 }
 
+// ============================ Earth ============================
+
+// A spell's own poison on one enemy: a stack of per_sec a second for tenths of a second, before duration gear.
+void ApplySpellPoison(int pnum, int spell, int victim, int per_sec, int tenths) {
+	// Priced per tick at the base poison rate, so faster poison ticks deal more, as a weapon's do.
+	if(per_sec > 0)
+		PoisonWithSpell(pnum, spell, victim, Max(1, PriceSpellPoison(pnum, spell, (per_sec * DND_BASE_POISON_TIC) >> 16)), tenths);
+}
+
+// A spell hit's poison as a weapon hit's would be: a tick of DND_BASE_POISON_FACTOR percent of what landed.
+void PoisonFromSpellHit(int pnum, int spell, int victim, int dealt, int tenths) {
+	if(dealt > 0)
+		PoisonWithSpell(pnum, spell, victim, Max(1, dealt * DND_BASE_POISON_FACTOR / 100), tenths);
+}
+
+// One poison stack of tick a tick for tenths of a second, with the spell's duration gear; tick is the poison's base.
+void PoisonWithSpell(int pnum, int spell, int victim, int tick, int tenths) {
+	if(tenths <= 0 || !IsActorAlive(victim) || !CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_TOXICBLOOD))
+		return;
+
+	int prev = ActivatorTID();
+	if(!SetActivator(pnum + P_TIDSTART))
+		return;
+
+	// Poison, DoT and spell duration are one increased pool; the spell's duration gems multiply after.
+	int dur = GetPoisonDuration(pnum, (tenths << 16) / 10, PlayerModData[pnum].vals[PSTAT_SPELL_DURATION]);
+	dur = ApplySpellGemMore(pnum, spell, GEMSTAT_MORE_DURATION, dur) << 1;
+	bool first = !CheckActorInventory(victim, "DnD_PoisonStacks");
+	int extra = GainPoisonStacks(pnum, victim);
+
+	ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim, tick, DND_SPELL_POISON_SOURCE, dur | first);
+	while(extra-- > 0)
+		ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim, tick, DND_SPELL_POISON_SOURCE, dur);
+
+	if(prev)
+		SetActivator(prev);
+}
+
+// ---- Shrapnel ----
+
+#define DND_SHRAPNEL_SPEED 40
+#define DND_SHRAPNEL_LIFE 70           // tics in flight
+#define DND_SHRAPNEL_R10_SHARDS 3
+#define DND_SHRAPNEL_UNEARTH 40.0      // how far ahead of the caster the shard comes out of the ground
+
+void CastShrapnel(int pnum) {
+	int n = (SpellThresholdMet(pnum, SPL_SHRAPNEL, DND_SPELL_THRESH_HIGH) ? DND_SHRAPNEL_R10_SHARDS : 1) + GetSpellExtraProjectiles(pnum, SPL_SHRAPNEL);
+	PlaySound(pnum + P_TIDSTART, "Shrapnel/Cast", CHAN_6);
+	for(int i = 0; i < n; ++i)
+		SpawnSpellProjectile(pnum, SPL_SHRAPNEL, "Spell_Shrapnel", DND_SHRAPNEL_SPEED, 0, FanOffset(i, DND_SPELL_FANSPREAD));
+	ACS_NamedExecuteAlways("DnD Earth Unearth FX", 0, pnum, DND_SHRAPNEL_UNEARTH >> 16, 0);
+}
+
+Script "DnD Shrapnel Setup" (void) {
+	int pnum = GetSpellActorOwner();
+	if(pnum != -1) {
+		SetInventory("DnD_RipLimit", Max(1, GetSpellValue(pnum, SPL_SHRAPNEL, SPELLVAL_AMOUNT)));
+		if(SpellThresholdMet(pnum, SPL_SHRAPNEL, DND_SPELL_THRESH_LOW))
+			GiveInventory("DnD_RipThruHardened", 1);
+	}
+
+	SetActorProperty(0, APROP_REACTIONTIME, DND_SHRAPNEL_LIFE);
+	SetResultValue(0);
+}
+
+// Client side: the ground breaking dist units ahead of the caster where a rock was torn out; big adds a dust burst.
+Script "DnD Earth Unearth FX" (int pnum, int dist, int big) CLIENTSIDE {
+	int ptid = pnum + P_TIDSTART, a = GetActorAngle(ptid);
+	int x = GetActorX(ptid) + dist * cos(a), y = GetActorY(ptid) + dist * sin(a), z = GetFloorZAt(x, y);
+	Spawn("Spell_Shrapnel_Unearth", x, y, z);
+	for(int i = 0; i < big; ++i)
+		Spawn("Spell_Rockslide_Dust", x + random(-12.0, 12.0), y + random(-12.0, 12.0), z + 4.0);
+}
+
+// ---- Rockslide ----
+
+#define DND_ROCKSLIDE_SPEED 20.0       // across the ground, a tic
+#define DND_ROCKSLIDE_R5_SPEED 30.0    // 50% faster from rank 5
+#define DND_ROCKSLIDE_GRAVITY 0.35     // matches the actor's own Gravity
+#define DND_ROCKSLIDE_RANGE 1024.0
+#define DND_ROCKSLIDE_MINRANGE 64.0
+#define DND_ROCKSLIDE_STUN 52          // tics: 1.5 seconds, 2.5 at rank 10
+#define DND_ROCKSLIDE_R10_STUN 87
+#define DND_ROCKSLIDE_UNEARTH 80
+
+// Tossed in an arc that comes down on the enemy under the crosshair, or on the spot aimed at.
+Script "DnD Rockslide" (int pnum) {
+	int target = BeginSpellSpot(pnum, DND_ROCKSLIDE_RANGE);
+	for(int w = 0; !target && !ReadSpellAim(pnum) && w < DND_SPELLAIM_WAIT; ++w)
+		Delay(const:1);
+	if(target < 0 || (!target && !SpellAimReady(pnum)) || !PlayerInGame(pnum))
+		Terminate;
+
+	auto aim = GetSpellAim();
+	int ptid = pnum + P_TIDSTART;
+	int dx = aim.x[pnum] - GetActorX(ptid), dy = aim.y[pnum] - GetActorY(ptid);
+	int d = Max(VectorLength(dx, dy), DND_ROCKSLIDE_MINRANGE);
+	int rise = (target ? GetActorZ(target) + GetActorProperty(target, APROP_HEIGHT) / 2 : aim.z[pnum]) -
+		(GetActorZ(ptid) + GetActorViewHeight(ptid) - 15.0);
+
+	// Across at a set speed, so the flight takes d / speed tics; the climb that lands it there under gravity follows.
+	int across = SpellThresholdMet(pnum, SPL_ROCKSLIDE, DND_SPELL_THRESH_LOW) ? DND_ROCKSLIDE_R5_SPEED : DND_ROCKSLIDE_SPEED;
+	int t = FixedDiv(d, across);
+	int up = FixedDiv(rise, t) + FixedMul(DND_ROCKSLIDE_GRAVITY >> 1, t);
+	int speed = VectorLength(across, up) >> 16;
+	int yaw = VectorAngle(dx, dy) - GetActorAngle(ptid), pitch = -VectorAngle(across, up);
+
+	PlaySound(ptid, "Rockslide/Cast", CHAN_6);
+	int n = 1 + GetSpellExtraProjectiles(pnum, SPL_ROCKSLIDE);
+	for(int i = 0; i < n; ++i)
+		SpawnSpellProjectile(pnum, SPL_ROCKSLIDE, "Spell_Rockslide", speed, DND_ATF_USEGRAVITY, yaw + FanOffset(i, DND_SPELL_FANSPREAD), 0, 0, 0, true,
+			DND_SPELLPROJ_FROMVIEW, pitch);
+	ACS_NamedExecuteAlways("DnD Earth Unearth FX", 0, pnum, DND_ROCKSLIDE_UNEARTH, 2);
+}
+
+// Run from the boulder's burst: stuns every enemy its blast reached, in sight of where it landed.
+Script "DnD Rockslide Stun" (void) {
+	int pnum = GetSpellActorOwner();
+	if(pnum == -1) {
+		SetResultValue(0);
+		Terminate;
+	}
+
+	int r = GetUserVariable(0, "user_expradius") << 16;
+	int tics = ScaleSpellEffectTics(pnum, SPL_ROCKSLIDE,
+		SpellThresholdMet(pnum, SPL_ROCKSLIDE, DND_SPELL_THRESH_HIGH) ? DND_ROCKSLIDE_R10_STUN : DND_ROCKSLIDE_STUN);
+	int x = GetActorX(0), y = GetActorY(0), z = GetActorZ(0), i, m, reach;
+	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+		m = UsedMonsterTIDs[i];
+		if(!IsActorAlive(m) || !IsSpellEnemy(m))
+			continue;
+		reach = r + GetActorProperty(m, APROP_RADIUS);
+		if(abs(GetActorX(m) - x) > reach || abs(GetActorY(m) - y) > reach || VectorLength(GetActorX(m) - x, GetActorY(m) - y) > reach)
+			continue;
+		if(z < GetActorZ(m) - r || z > GetActorZ(m) + GetActorProperty(m, APROP_HEIGHT) + r || !CheckSight(0, m, 0))
+			continue;
+		StunMonster(m, tics);
+	}
+	SetResultValue(0);
+}
+
+// ---- Toxic Trap ----
+
+#define DND_TOXICTRAP_SLOTS 4          // the most a caster has out: AMOUNT is 2, 4 from rank 5
+#define DND_TOXICTRAP_AHEAD 40.0       // laid this far in front of the caster
+#define DND_TOXICTRAP_REACH 24.0       // an enemy's body this close sets it off
+#define DND_TOXICTRAP_LIFE 30          // seconds a trap waits; 15 more at rank 10
+#define DND_TOXICTRAP_R10_LIFE 15
+#define DND_TOXICTRAP_CHECK 4          // tics between looks for an enemy
+#define DND_TOXICTRAP_TICK 9           // tics between gas ticks, about 0.25 seconds
+#define DND_TOXICTRAP_CLOUDS 5         // one in the middle, four round it
+#define DND_TOXICTRAP_SPREAD 48.0      // how far the outer clouds sit from the middle
+#define DND_TOXICTRAP_GASHEIGHT 64.0   // how high the gas reaches off the floor
+#define DND_TOXICTRAP_MAXPOISONED 64  // enemies one burst can poison
+#define DND_TOXICTRAP_LIFT 6.0         // the trap sits this far off the floor, so its sprite shows whole
+
+typedef struct {
+	int order[MAXPLAYERS * DND_TOXICTRAP_SLOTS];	// 0 for a free slot, else when it was laid
+	int laid[MAXPLAYERS];
+} toxic_trap_T;
+
+toxic_trap_T module& GetToxicTraps() {
+	static toxic_trap_T s;
+	return s;
+}
+
+// Frees a trap slot and takes its trap off the floor; its watcher sees the slot change and ends.
+void ClearToxicTrap(int k) {
+	GetToxicTraps().order[k] = 0;
+	Thing_Remove(DND_TOXICTRAP_TID + k);
+}
+
+// Lays a trap ahead, or at the caster's feet when the spot is out of sight; the oldest gives way when all are out.
+void CastToxicTrap(int pnum) {
+	auto tt = GetToxicTraps();
+	int most = Clamp_Between(GetSpellValue(pnum, SPL_TOXICTRAP, SPELLVAL_AMOUNT), 1, DND_TOXICTRAP_SLOTS);
+	int i, k, n, oldest, free, base = pnum * DND_TOXICTRAP_SLOTS;
+	do {
+		n = 0;
+		oldest = -1;
+		free = -1;
+		for(i = 0; i < DND_TOXICTRAP_SLOTS; ++i) {
+			k = base + i;
+			if(!tt.order[k]) {
+				if(free == -1)
+					free = k;
+			}
+			else {
+				++n;
+				if(oldest == -1 || tt.order[k] < tt.order[oldest])
+					oldest = k;
+			}
+		}
+		if(n >= most || free == -1)
+			ClearToxicTrap(oldest);
+	} while(n >= most || free == -1);
+
+	int ptid = pnum + P_TIDSTART, a = GetActorAngle(ptid), tid = DND_TOXICTRAP_TID + free;
+	int x = GetActorX(ptid) + FixedMul(DND_TOXICTRAP_AHEAD, cos(a)), y = GetActorY(ptid) + FixedMul(DND_TOXICTRAP_AHEAD, sin(a));
+	if(!SpawnForced("Spell_ToxicTrap", x, y, GetFloorZAt(x, y) + DND_TOXICTRAP_LIFT, tid))
+		return;
+	if(!CheckSight(ptid, tid, CSF_NOBLOCKALL))
+		SetActorPosition(tid, GetActorX(ptid), GetActorY(ptid), GetActorFloorZ(ptid) + DND_TOXICTRAP_LIFT, false);
+
+	int order = ++tt.laid[pnum];
+	tt.order[free] = order;
+	PlaySound(ptid, "ToxicTrap/Lay", CHAN_6);
+	ACS_NamedExecuteAlways("DnD Toxic Trap", 0, pnum, free, order);
+}
+
+// Watches one trap until an enemy touches it, it runs out, a newer trap takes its slot or the caster leaves.
+Script "DnD Toxic Trap" (int pnum, int k, int order) {
+	auto tt = GetToxicTraps();
+	int tid = DND_TOXICTRAP_TID + k;
+	int life = DND_TOXICTRAP_LIFE + (SpellThresholdMet(pnum, SPL_TOXICTRAP, DND_SPELL_THRESH_HIGH) ? DND_TOXICTRAP_R10_LIFE : 0);
+	life = ScaleSpellEffectTics(pnum, SPL_TOXICTRAP, life * TICRATE);
+	int x = GetActorX(tid), y = GetActorY(tid), z = GetActorZ(tid), t, i, m, reach, dx, dy;
+
+	for(t = 0; t < life; t += DND_TOXICTRAP_CHECK) {
+		Delay(const:DND_TOXICTRAP_CHECK);
+		if(tt.order[k] != order)
+			Terminate;
+		if(!PlayerInGame(pnum))
+			break;
+
+		for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+			m = UsedMonsterTIDs[i];
+			if(!IsActorAlive(m) || !IsSpellEnemy(m) || GetActorZ(m) > z + 32.0 || GetActorZ(m) + GetActorProperty(m, APROP_HEIGHT) < z)
+				continue;
+			reach = (DND_TOXICTRAP_REACH + GetActorProperty(m, APROP_RADIUS)) >> 16;
+			dx = (GetActorX(m) - x) >> 16;
+			dy = (GetActorY(m) - y) >> 16;
+			if(dx * dx + dy * dy <= reach * reach) {
+				ClearToxicTrap(k);
+				ACS_NamedExecuteAlways("DnD Toxic Trap Gas", 0, pnum, PackMapPair(x, y), z >> 16);
+				Terminate;
+			}
+		}
+	}
+	ClearToxicTrap(k);
+}
+
+// The burst: a cluster of clouds that ticks every enemy inside any of them once, every DND_TOXICTRAP_TICK.
+Script "DnD Toxic Trap Gas" (int pnum, int xy, int zz) {
+	int ptid = pnum + P_TIDSTART;
+	SetActivator(ptid);
+	int x = xy << 16, y = xy & 0xFFFF0000, z = zz << 16;
+	int dur = GetSpellDurationTics(pnum, SPL_TOXICTRAP);
+	int r = ScaleSpellArea(pnum, SPL_TOXICTRAP, GetSpellValue(pnum, SPL_TOXICTRAP, SPELLVAL_RADIUS) << 16);
+	int a0 = random(0, 1.0), a, k, t, i, m, reach, dx, dy, dmg, dealt;
+	int cx[DND_TOXICTRAP_CLOUDS], cy[DND_TOXICTRAP_CLOUDS];
+	cx[0] = x;
+	cy[0] = y;
+	for(k = 1; k < DND_TOXICTRAP_CLOUDS; ++k) {
+		a = a0 + (k - 1) * 1.0 / (DND_TOXICTRAP_CLOUDS - 1);
+		cx[k] = x + FixedMul(DND_TOXICTRAP_SPREAD, cos(a));
+		cy[k] = y + FixedMul(DND_TOXICTRAP_SPREAD, sin(a));
+	}
+
+	ACS_NamedExecuteAlways("DnD Toxic Trap Gas FX", 0, xy, (zz & 0xFFFF) | (r & 0xFFFF0000), Min(dur, 0xFFFF) | ((a0 >> 8) << 16));
+	int probe = SpawnSpellProbe(x, y, z + 32.0);
+	int poisoned[DND_TOXICTRAP_MAXPOISONED], np = 0, j;
+
+	for(t = 0; t < dur && PlayerInGame(pnum); t += DND_TOXICTRAP_TICK) {
+		// A tick, so the DoT pile prices it; read live, as Blaze's burn is.
+		dmg = PriceSpellDamage(pnum, SPL_TOXICTRAP, GetSpellValue(pnum, SPL_TOXICTRAP, SPELLVAL_DAMAGE), DND_WDMG_ISRADIUSDMG, true);
+		for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+			m = UsedMonsterTIDs[i];
+			if(!IsActorAlive(m) || !IsSpellEnemy(m) || GetActorZ(m) > z + DND_TOXICTRAP_GASHEIGHT || GetActorZ(m) + GetActorProperty(m, APROP_HEIGHT) < z)
+				continue;
+			reach = (r + GetActorProperty(m, APROP_RADIUS)) >> 16;
+			for(k = 0; k < DND_TOXICTRAP_CLOUDS; ++k) {
+				dx = (GetActorX(m) - cx[k]) >> 16;
+				dy = (GetActorY(m) - cy[k]) >> 16;
+				if(dx * dx + dy * dy <= reach * reach)
+					break;
+			}
+			if(k == DND_TOXICTRAP_CLOUDS || (probe && !CheckSight(probe, m, CSF_NOBLOCKALL)))
+				continue;
+
+			dealt = HandleDamageDeal(ptid, m, dmg, DND_DAMAGETYPE_POISON, SPL_TOXICTRAP,
+				DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISRADIUSDMG | DND_DAMAGEFLAG_NOPOISONSTACK | DND_DAMAGEFLAG_NOPUSH,
+				0, 0, 0, DND_ACTORFLAG_ISDAMAGEOVERTIME | DND_ACTORFLAG_PAINLESS, true);
+			if(dealt > 0)
+				Thing_Damage2(m, dealt, "Special_NoPain");
+
+			// One poison per enemy per trap, from the first tick that reaches it.
+			j = 0;
+			while(j < np && poisoned[j] != m)
+				++j;
+			if(j == np && np < DND_TOXICTRAP_MAXPOISONED) {
+				poisoned[np++] = m;
+				PoisonFromSpellHit(pnum, SPL_TOXICTRAP, m, dealt, GetSpellValue(pnum, SPL_TOXICTRAP, SPELLVAL_AMOUNT2));
+			}
+		}
+		Delay(const:DND_TOXICTRAP_TICK);
+	}
+	if(probe)
+		Thing_Remove(probe);
+}
+
+// Client side: the burst, then gas puffs welling up across the clouds for as long as the gas lasts.
+Script "DnD Toxic Trap Gas FX" (int xy, int zr, int da) CLIENTSIDE {
+	int x = xy << 16, y = xy & 0xFFFF0000, z = ((zr << 16) >> 16) << 16, r = zr & 0xFFFF0000;
+	int dur = da & 0xFFFF, a0 = (da >> 16) << 8, t, k, cx, cy, a, d;
+	Spawn("Spell_ToxicTrap_Burst", x, y, z + 8.0);
+	for(t = 0; t < dur; t += 3) {
+		k = (t / 3) % DND_TOXICTRAP_CLOUDS;
+		cx = x;
+		cy = y;
+		if(k) {
+			a = a0 + (k - 1) * 1.0 / (DND_TOXICTRAP_CLOUDS - 1);
+			cx += FixedMul(DND_TOXICTRAP_SPREAD, cos(a));
+			cy += FixedMul(DND_TOXICTRAP_SPREAD, sin(a));
+		}
+		a = random(0, 1.0);
+		d = FixedMul(r, random(0, 0.6));
+		Spawn("Spell_ToxicTrap_Gas", cx + FixedMul(d, cos(a)), cy + FixedMul(d, sin(a)), z + random(4.0, 28.0));
+		Delay(const:3);
+	}
+}
+
+// ---- Baleful Infusion ----
+
+#define DND_BALEFUL_R5_PEN 20
+#define DND_BALEFUL_KILLWINDOW 70      // tics after the hit that a kill still spreads its poison (rank 10)
+#define DND_BALEFUL_SPREAD 192.0
+#define DND_BALEFUL_FXEVERY 3
+#define DND_BALEFUL_CLOUDS 7            // spread FX clouds at a 96 unit radius, more as it grows
+
+int[] module& GetBalefulFXTickets() {
+	static int tickets[MAXPLAYERS];
+	return tickets;
+}
+
+// Arms the next melee hit; a recast restarts the window.
+void CastBalefulInfusion(int pnum) {
+	int ptid = pnum + P_TIDSTART;
+	int tics = GetSpellDurationTics(pnum, SPL_BALEFULINFUSION);
+	GiveActorInventory(ptid, "DnD_BalefulTicket", 1);
+	SetActorInventory(ptid, "DnD_BalefulReady", 1);
+	SetActorInventory(ptid, "DnD_BalefulSpending", 0);
+	SetActorInventory(ptid, "P_BalefulTime", (tics + TICRATE - 1) / TICRATE);
+	PlaySound(ptid, "BalefulInfusion/Cast", CHAN_6);
+	ACS_NamedExecuteAlways("DnD Baleful FX", 0, pnum, tics);
+	ACS_NamedExecuteAlways("DnD Baleful Infusion", 0, pnum, CheckActorInventory(ptid, "DnD_BalefulTicket"), tics);
+}
+
+// Counts the window down; a spend or a recast takes it over.
+Script "DnD Baleful Infusion" (int pnum, int ticket, int tics) {
+	int ptid = pnum + P_TIDSTART;
+	for(int t = tics; t > 0 && ticket == CheckActorInventory(ptid, "DnD_BalefulTicket") && CheckActorInventory(ptid, "DnD_BalefulReady") &&
+		PlayerInGame(pnum) && IsActorAlive(ptid); --t) {
+		int s = (t + TICRATE - 1) / TICRATE;
+		if(s != CheckActorInventory(ptid, "P_BalefulTime"))
+			SetActorInventory(ptid, "P_BalefulTime", s);
+		Delay(const:1);
+	}
+
+	if(ticket == CheckActorInventory(ptid, "DnD_BalefulTicket") && !CheckActorInventory(ptid, "DnD_BalefulSpending")) {
+		SetActorInventory(ptid, "DnD_BalefulReady", 0);
+		SetActorInventory(ptid, "P_BalefulTime", 0);
+		ACS_NamedExecuteAlways("DnD Baleful FX", 0, pnum, 0);
+	}
+}
+
+// The share of a melee hit Baleful Infusion turns to poison while armed: never past what the weapon's own conversion left.
+int GetBalefulShare(int pnum, int wepid, int category) {
+	if(category == DND_DAMAGECATEGORY_POISON || !IsMeleeWeapon(wepid) || !CheckActorInventory(pnum + P_TIDSTART, "DnD_BalefulReady"))
+		return 0;
+	return Clamp_Between(GetSpellValue(pnum, SPL_BALEFULINFUSION, SPELLVAL_DAMAGE), 0, 100 - GetPlayerConversionRowTotal(pnum, category));
+}
+
+// That share as poison, priced as a conversion is: it keeps the increases and more of both its type and poison.
+int GetBalefulHit(int pnum, int slot, int dmgid, int wepid, int category, int base) {
+	int pct = GetBalefulShare(pnum, wepid, category);
+	if(!pct || base <= 0)
+		return 0;
+	int inc = 100 + GetCachedPlayerIncreased(pnum, slot, dmgid) + GetPlayerBuffIncreasedDamage(pnum) + GetLiveWeaponPerkBonus(pnum) +
+		GetPlayerAccuracyDamageBonus(pnum, wepid) + GetCachedPlayerIncreasedTyped(pnum, slot, dmgid, category) +
+		GetCachedPlayerIncreasedTyped(pnum, slot, dmgid, DND_DAMAGECATEGORY_POISON);
+	int more = CombinePackedMultipliers(CombinePackedMultipliers(GetCachedPlayerMorePacked(pnum, slot, dmgid), CombinePackedMultipliers(
+		GetCachedPlayerMorePackedTyped(pnum, slot, dmgid, category), GetCachedPlayerMorePackedTyped(pnum, slot, dmgid, DND_DAMAGECATEGORY_POISON))),
+		GetLiveWeaponPerkMorePacked(pnum, wepid));
+	int factor = MulPercent_Round(ApplyPackedMultiplier(inc, more) * DND_COMPFACTOR_SCALE, pct);
+	return factor > 0 ? MulPercent_Round(base, factor, 100 * DND_COMPFACTOR_SCALE) : 0;
+}
+
+// The first converted hit spends it; every hit landing on that same tic still converts.
+void SpendBaleful(int pnum) {
+	int ptid = pnum + P_TIDSTART;
+	if(CheckActorInventory(ptid, "DnD_BalefulSpending"))
+		return;
+	SetActorInventory(ptid, "DnD_BalefulSpending", 1);
+	ACS_NamedExecuteAlways("DnD Baleful Spend", 0, pnum);
+}
+
+Script "DnD Baleful Spend" (int pnum) {
+	int ptid = pnum + P_TIDSTART;
+	PlaySound(ptid, "BalefulInfusion/Spend", CHAN_7);
+	Delay(const:1);
+	SetActorInventory(ptid, "DnD_BalefulReady", 0);
+	SetActorInventory(ptid, "DnD_BalefulSpending", 0);
+	SetActorInventory(ptid, "P_BalefulTime", 0);
+	ACS_NamedExecuteAlways("DnD Baleful FX", 0, pnum, 0);
+}
+
+// Rank 5: the enchanted hit's poison pierces poison resistance.
+int GetBalefulPenetration(int pnum, int wepid) {
+	if(!IsMeleeWeapon(wepid) || !CheckActorInventory(pnum + P_TIDSTART, "DnD_BalefulSpending") || !SpellThresholdMet(pnum, SPL_BALEFULINFUSION, DND_SPELL_THRESH_LOW))
+		return 0;
+	return DND_BALEFUL_R5_PEN;
+}
+
+// An enemy the enchanted hit's poison reached: its poison runs longer, and a kill soon after spreads it (rank 10).
+// tick stands in for the poison's own tick until the poison route sets the real one.
+void MarkBalefulVictim(int pnum, int victim, int tick) {
+	SetActorInventory(victim, "DnD_BalefulOwner", pnum + 1);
+	SetActorInventory(victim, "DnD_BalefulUntil", Timer() + DND_BALEFUL_KILLWINDOW);
+	SetActorInventory(victim, "DnD_BalefulFresh", 1);
+	SetActorInventory(victim, "DnD_BalefulPoison", tick);
+}
+
+// The player's poison duration with the spell's bonus, as "DnD Do Poison Damage" takes it: fixed seconds, shifted up one.
+int GetBalefulPoisonDuration(int pnum) {
+	int base = DND_BASE_POISON_TIMER + (GetSpellValue(pnum, SPL_BALEFULINFUSION, SPELLVAL_AMOUNT2) << 16) / 10;
+	int dur = GetPoisonDuration(pnum, base, PlayerModData[pnum].vals[PSTAT_SPELL_DURATION]);
+	return ApplySpellGemMore(pnum, SPL_BALEFULINFUSION, GEMSTAT_MORE_DURATION, dur) << 1;
+}
+
+// Called where a hit's poison is applied: the enchanted hit's own poison takes the spell's duration, and its tick is kept for a spread.
+int TakeBalefulPoison(int pnum, int victim, int tick) {
+	if(!CheckActorInventory(victim, "DnD_BalefulFresh") || CheckActorInventory(victim, "DnD_BalefulOwner") != pnum + 1)
+		return 0;
+	SetActorInventory(victim, "DnD_BalefulFresh", 0);
+	SetActorInventory(victim, "DnD_BalefulPoison", tick);
+	return GetBalefulPoisonDuration(pnum);
+}
+
+// Rank 10: an enemy killed soon after the enchanted hit passes that hit's poison to every enemy around it.
+Script "DnD Baleful Spread" (int pnum, int dead) {
+	if(!PlayerInGame(pnum) || !SpellThresholdMet(pnum, SPL_BALEFULINFUSION, DND_SPELL_THRESH_HIGH))
+		Terminate;
+	SetActivator(pnum + P_TIDSTART);
+
+	int tick = CheckActorInventory(dead, "DnD_BalefulPoison"), dur = GetBalefulPoisonDuration(pnum);
+	int x = GetActorX(dead), y = GetActorY(dead), z = GetActorZ(dead);
+	int r = ScaleSpellArea(pnum, SPL_BALEFULINFUSION, DND_BALEFUL_SPREAD);
+	int probe = SpawnSpellProbe(x, y, z + 32.0), i, m, first, extra;
+	ACS_NamedExecuteAlways("DnD Baleful Spread FX", 0, PackMapPair(x, y), z >> 16, r >> 16);
+	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+		m = UsedMonsterTIDs[i];
+		if(!InSpellArea(probe, m, x, y, r) || !CheckAilmentImmunity(pnum, m - DND_MONSTERTID_BEGIN, DND_TOXICBLOOD))
+			continue;
+		first = !CheckActorInventory(m, "DnD_PoisonStacks");
+		extra = GainPoisonStacks(pnum, m);
+		ACS_NamedExecuteWithResult("DnD Do Poison Damage", m, tick, -1, first | dur);
+		while(extra-- > 0)
+			ACS_NamedExecuteWithResult("DnD Do Poison Damage", m, tick, -1, dur);
+	}
+	if(probe)
+		Thing_Remove(probe);
+}
+
+// Client side: poison welling round the caster's hands while armed; tics 0 stops it.
+Script "DnD Baleful FX" (int pnum, int tics) CLIENTSIDE {
+	int[] module& tickets = GetBalefulFXTickets();
+	int ticket = ++tickets[pnum], ptid = pnum + P_TIDSTART, t, a, h, side;
+	for(t = 0; t < tics && ticket == tickets[pnum] && IsActorAlive(ptid); t += DND_BALEFUL_FXEVERY) {
+		a = GetActorAngle(ptid);
+		side = random(-14.0, 14.0);
+		h = GetActorViewHeight(ptid) - random(18.0, 26.0);
+		Spawn("Spell_Baleful_Mote", GetActorX(ptid) + 22 * cos(a) - FixedMul(side, sin(a)), GetActorY(ptid) + 22 * sin(a) + FixedMul(side, cos(a)),
+			GetActorZ(ptid) + h);
+		Delay(const:DND_BALEFUL_FXEVERY);
+	}
+}
+
+// Client side: the poison bursting off the dead enemy, as wide as the spread.
+Script "DnD Baleful Spread FX" (int xy, int z, int r) CLIENTSIDE {
+	int x = xy << 16, y = xy & 0xFFFF0000, n = DND_BALEFUL_CLOUDS * r / 96, a, d;
+	z <<= 16;
+	r <<= 16;
+	Spawn("Spell_NoxiousBlast_Burst", x, y, z);
+	for(int i = 0; i < n; ++i) {
+		a = random(0, 1.0);
+		d = FixedMul(r, random(0.25, 0.85));
+		Spawn("Spell_NoxiousBlast_Cloud", x + FixedMul(d, cos(a)), y + FixedMul(d, sin(a)), z + random(4.0, 16.0));
+	}
+}
+
+// ---- Noxious Blast ----
+
+#define DND_NOXIOUSBLAST_RANGE 512.0
+#define DND_NOXIOUSBLAST_DELAY 14      // tics from the cast to the burst
+#define DND_NOXIOUSBLAST_CLOUDS 7      // burst clouds at the base radius, more as it grows
+
+// Marks the spot, then bursts there and poisons every enemy caught.
+Script "DnD Noxious Blast" (int pnum) {
+	int target = BeginSpellSpot(pnum, DND_NOXIOUSBLAST_RANGE);
+	for(int w = 0; !target && !ReadSpellAim(pnum) && w < DND_SPELLAIM_WAIT; ++w)
+		Delay(const:1);
+	if(target < 0 || (!target && !SpellAimReady(pnum)) || !PlayerInGame(pnum))
+		Terminate;
+
+	auto aim = GetSpellAim();
+	int x = aim.x[pnum], y = aim.y[pnum], z = GetFloorZAt(x, y);
+	int r = ScaleSpellArea(pnum, SPL_NOXIOUSBLAST, GetSpellValue(pnum, SPL_NOXIOUSBLAST, SPELLVAL_RADIUS) << 16);
+
+	PlaySound(pnum + P_TIDSTART, "NoxiousBlast/Cast", CHAN_6);
+	ACS_NamedExecuteAlways("DnD Noxious Blast FX", 0, PackMapPair(x, y), z >> 16, r >> 16);
+	Delay(const:DND_NOXIOUSBLAST_DELAY);
+	if(!PlayerInGame(pnum))
+		Terminate;
+
+	int per_sec = GetSpellValue(pnum, SPL_NOXIOUSBLAST, SPELLVAL_DAMAGE);
+	int tenths = GetSpellValue(pnum, SPL_NOXIOUSBLAST, SPELLVAL_AMOUNT2);
+	int probe = SpawnSpellProbe(x, y, z + 32.0), i, m;
+	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+		m = UsedMonsterTIDs[i];
+		if(InSpellArea(probe, m, x, y, r))
+			ApplySpellPoison(pnum, SPL_NOXIOUSBLAST, m, per_sec, tenths);
+	}
+	if(probe)
+		Thing_Remove(probe);
+}
+
+// Client side: poison gathering on the spot through the delay, then the burst filling the radius.
+Script "DnD Noxious Blast FX" (int xy, int z, int r) CLIENTSIDE {
+	int x = xy << 16, y = xy & 0xFFFF0000, t, a, d, px, py, tid;
+	z <<= 16;
+	r <<= 16;
+
+	for(t = 0; t < DND_NOXIOUSBLAST_DELAY; ++t) {
+		if(!(t % 2) && (tid = ScratchTID())) {
+			a = random(0, 1.0);
+			d = FixedMul(r, random(0.3, 1.0));
+			px = x + FixedMul(d, cos(a));
+			py = y + FixedMul(d, sin(a));
+			if(SpawnForced("Spell_NoxiousBlast_Mote", px, py, z + random(2.0, 10.0), tid)) {
+				SetActorVelocity(tid, (x - px) / 16, (y - py) / 16, random(0.4, 1.2), false, false);
+				Thing_ChangeTID(tid, 0);
+			}
+		}
+		Delay(const:1);
+	}
+
+	Spawn("Spell_NoxiousBlast_Burst", x, y, z);
+	int n = DND_NOXIOUSBLAST_CLOUDS * r / (96 << 16);
+	for(t = 0; t < n; ++t) {
+		a = random(0, 1.0);
+		d = FixedMul(r, random(0.25, 0.85));
+		Spawn("Spell_NoxiousBlast_Cloud", x + FixedMul(d, cos(a)), y + FixedMul(d, sin(a)), z + random(4.0, 16.0));
+	}
+}
+
 // depth counts Quicktongue's repeats; a cast from TryCastSpell is depth 0.
 Script "DnD Spell Cast" (int spell, int pnum, int depth) {
 	// Monsters wake to a hostile cast the way they wake to a gunshot. At the START of the cast, not
@@ -5833,8 +6468,10 @@ Script "DnD Spell Cast" (int spell, int pnum, int depth) {
 	if(ct > 0 && !depth && spell != SPL_SURGECAST && CheckActorInventory(pnum + P_TIDSTART, "DnD_SurgecastReady"))
 		wait = SpendSurgecast(pnum, spell);
 
+	// The press already holds the casting lock; Quicktongue's repeats take their own, and an instant cast lets it go now.
 	if(wait > 0) {
-		BeginSpellCasting(pnum);
+		if(depth)
+			BeginSpellCasting(pnum);
 		int casting = StartSpellCastBar(pnum, spell, wait);
 
 		if(ally) {
@@ -5857,7 +6494,10 @@ Script "DnD Spell Cast" (int spell, int pnum, int depth) {
 		if(ally)
 			DropSpellLockMarker(pnum);
 	}
-	else if(ally)
+	else if(!depth)
+		EndSpellCasting(pnum);
+
+	if(wait <= 0 && ally)
 		// No bar to lock during -- resolve it on the spot, and no marker is ever shown.
 		SetSpellLockTarget(pnum, GetSpellAllyTarget(pnum));
 
@@ -6044,6 +6684,26 @@ Script "DnD Spell Cast" (int spell, int pnum, int depth) {
 
 		case SPL_ENERGYBLADE:
 			CastEnergyBlade(pnum);
+		break;
+
+		case SPL_SHRAPNEL:
+			CastShrapnel(pnum);
+		break;
+
+		case SPL_NOXIOUSBLAST:
+			ACS_NamedExecuteAlways("DnD Noxious Blast", 0, pnum);
+		break;
+
+		case SPL_ROCKSLIDE:
+			ACS_NamedExecuteAlways("DnD Rockslide", 0, pnum);
+		break;
+
+		case SPL_TOXICTRAP:
+			CastToxicTrap(pnum);
+		break;
+
+		case SPL_BALEFULINFUSION:
+			CastBalefulInfusion(pnum);
 		break;
 
 		case SPL_LIGHTNINGSPEAR:

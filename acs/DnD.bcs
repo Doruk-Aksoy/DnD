@@ -1232,7 +1232,7 @@ Script "DND On Kill" KILL {
 	is_demon = PlayerNumber();
 
 	i = PlayerModData[is_demon].vals[PSTAT_EX_REFILLAMMOONMELEEKILL];
-	if(i && IsUsingMeleeWeapon())
+	if(i && IsUsingMeleeWeapon() && !CheckActorInventory(this, "DnD_LastHitSpell"))
 		GiveOwnedWeaponsAmmo(i);
 
 	HandleChargeAcquisitionOnKill(target, is_demon);
@@ -1255,6 +1255,11 @@ Script "DND On Kill" KILL {
 
 Script "DnD Monster Death Effects" (int this, int m_id) {
 	Delay(const:1);
+
+	// Baleful Infusion rank 10: a kill soon after the enchanted hit spreads its poison; the player's effect, so ahead of the block.
+	int baleful = CheckInventory("DnD_BalefulOwner") - 1;
+	if(baleful >= 0 && CheckInventory("DnD_BalefulPoison") && Timer() <= CheckInventory("DnD_BalefulUntil"))
+		ACS_NamedExecuteAlways("DnD Baleful Spread", 0, baleful, this);
 
 	if(CheckInventory("DnD_DeathEffectBlock"))
 		Terminate;
@@ -3327,7 +3332,10 @@ Script "DnD Player Setup" ENTER {
 	// Surgecast's window is counted by a script, which the level change ended.
 	SetInventory("DnD_SurgecastReady", 0);
 	SetInventory("P_SurgecastTime", 0);
-	
+	SetInventory("DnD_BalefulReady", 0);
+	SetInventory("DnD_BalefulSpending", 0);
+	SetInventory("P_BalefulTime", 0);
+
 	RemoveAllBuffs(pnum);
 	ClearLingeringBuffs(pnum);
 	
@@ -6040,14 +6048,17 @@ Script "DnD Explosion Radius Retrieve" (int r_base, int noSecondExp, int src, in
 	// APROP_SCORE and the stat page carry, and both of those describe the player rather than one
 	// explosion, so neither can answer "is the weapon in hand artillery". It is weapon sourced by
 	// definition, so a non weapon explosion does not get it either.
-	int aoe = GetPlayerAoEIncrease(pnum, src) + extra_inc;
-	if(src == DND_AOESRC_WEAPON)
+	int aoe = GetPlayerAoEIncrease(pnum, src) + extra_inc, more = 0;
+	if(src == DND_AOESRC_WEAPON) {
 		aoe += GetPlayerArtilleryAoEIncrease(pnum, owner);
+		more = GetPlayerArtilleryAoEMore(pnum, owner);
+	}
 
 	// Ultimatum / Feeble Reach. After artillery, so that term is reduced as well.
 	aoe = ApplyUltimatumFeebleReach(aoe);
 
-	r_base = sqrt_z(r_base * r_base * (100 + aoe) / 100);
+	r_base = ScaleAreaMore(r_base * r_base * (100 + aoe) / 100, more);
+	r_base = sqrt_z(r_base);
 
 	// less mods
 	if(!noSecondExp) {
@@ -6090,13 +6101,15 @@ Script "DnD AoE Radius Retrieve" (int r_base, int src) {
 	}
 
 	if(pnum >= 0 && pnum < MAXPLAYERS) {
-		int aoe = GetPlayerAoEIncrease(pnum, src);
-		if(src == DND_AOESRC_WEAPON)
+		int aoe = GetPlayerAoEIncrease(pnum, src), more = 0;
+		if(src == DND_AOESRC_WEAPON) {
 			aoe += GetPlayerArtilleryAoEIncrease(pnum, owner);
+			more = GetPlayerArtilleryAoEMore(pnum, owner);
+		}
 
 		// AREA, not radius -- see "DnD Explosion Radius Retrieve".
-		if(aoe)
-			r_base = sqrt_z(r_base * r_base * (100 + aoe) / 100);
+		if(aoe || more)
+			r_base = sqrt_z(ScaleAreaMore(r_base * r_base * (100 + aoe) / 100, more));
 	}
 
 	SetResultValue(r_base);
@@ -6283,11 +6296,16 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 	// apply the monster's base damage first
 	res *= base;
 	res >>= 16;
+	// A spell's minion fights as the spell: no "magic attack" flat or percent, no occult weapon bonus, spell crit.
+	bool isSpell = GetPetSummonSpell(PetMonsterProperties[this - DND_PETTID_BEGIN].id) != -1;
+
 	// now get player damage bonus stuff included
 	SetActivator(master);
 	int pnum = PlayerNumber();
-	res += MapDamageCategoryToFlatBonus(pnum, DND_DAMAGECATEGORY_OCCULT, 0);
-	res = res * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;
+	if(!isSpell) {
+		res += MapDamageCategoryToFlatBonus(pnum, DND_DAMAGECATEGORY_OCCULT, 0);
+		res = res * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;
+	}
 
 	// talent bonus
 	// to do: check if pet attack was melee or ranged... it makes no sense otherwise -- assuming melee as the only pet is a melee one now
@@ -6300,13 +6318,13 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 		res = res * (100 + temp) / 100;
 	}
 		
-	temp = MapDamageCategoryToPercentBonus(pnum, DND_DAMAGECATEGORY_OCCULT, 0);
+	temp = !isSpell * MapDamageCategoryToPercentBonus(pnum, DND_DAMAGECATEGORY_OCCULT, 0);
 	if(temp)
 		res = res * (100 + temp) / 100;
-		
+
 	// finally crit chance -- move to damagedeal for pets in damage event later
-	if(CheckCritChance(pnum, -1, -1, false, -1)) {
-		res = res * GetCritModifier(pnum, -1, -1) / 100;
+	if(CheckCritChance(pnum, -1, -1, false, -1, isSpell)) {
+		res = res * GetCritModifier(pnum, -1, -1, false, isSpell) / 100;
 		HandleHunterTalisman();
 	}
 
@@ -7796,6 +7814,21 @@ Script "DnD Debug Spell Gem" (int spell, int stat, int val) NET {
 		s:", reserve ", d:GetManaReservationOf(pnum, spell), s:", cast ", d:GetSpellCastTics(pnum, spell), s:", cd ", d:GetSpellCooldownTics(pnum, spell),
 		s:", 1000 hit/tick ", d:PriceSpellDamage(pnum, spell, 1000), s:"/", d:PriceSpellDamage(pnum, spell, 1000, 0, true),
 		s:", r100 ", f:ScaleSpellArea(pnum, spell, 100.0), s:", 100 tics ", d:ScaleSpellEffectTics(pnum, spell, 100), s:", +proj ", d:GetSpellExtraProjectiles(pnum, spell));
+}
+
+// pukename "DnD Debug Spell Rank" <spell> <rank> <slot>: sets the allocated rank, then binds it to a hotbar slot unless slot is -1.
+Script "DnD Debug Spell Rank" (int spell, int rank, int slot) NET {
+	int pnum = PlayerNumber();
+	if(pnum < 0 || spell < 0 || spell >= MAX_SPELL_IDS)
+		Terminate;
+
+	SetSpellAllocatedRank(pnum, spell, Clamp_Between(rank, 0, DND_SPELL_RANKCAP));
+	SyncSpellRankWord(pnum, spell);
+	if(slot >= 0 && slot < GetHotbarSlotCount(pnum)) {
+		SetHotbarSpell(pnum, slot, spell);
+		SyncHotbarSlot(pnum, slot);
+	}
+	Log(s:"Spell ", d:spell, s:" rank ", d:GetSpellRank(pnum, spell, true), s:" bound to slot ", d:slot);
 }
 
 #ifdef WANT_BUFF_LOG

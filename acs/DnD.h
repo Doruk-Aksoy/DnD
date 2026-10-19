@@ -265,7 +265,7 @@ int GetPerkDashCooldown(int pnum) {
 #define DND_RIPOSTE_TICS (10 * TICRATE)
 #define DND_RIPOSTE_MAXSTACK 3
 
-// Rage, per the General Notes: 1% more attack damage a point to a cap of 30, falling to nothing in
+// Rage, per the General Notes: 1% more melee damage a point to a cap of 30, falling to nothing in
 // three seconds once none is being gained. The cap lives on the DnD_Rage actor's maxamount; this is
 // the decay, which drains the whole bar over DND_RAGE_DECAYTIME however full it was -- "rapidly goes
 // down to 0 in 3 seconds" is a fixed emptying time, not a fixed rate.

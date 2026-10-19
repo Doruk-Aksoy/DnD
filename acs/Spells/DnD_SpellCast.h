@@ -805,6 +805,11 @@ int TryCastSpell(int pnum, int spell) {
 	if(res != CAST_OK)
 		return res;
 
+	// Mana over the cap (a cap that just shrank, or a give cheat) goes before it can pay; regen only trims it once a second.
+	res = GetUnreservedManaCap(pnum);
+	if(GetPlayerMana(pnum) > res)
+		SetPlayerMana(pnum, res);
+
 	if(!SpendSpellMana(pnum, spell))
 		return CAST_NOMANA;
 
@@ -814,6 +819,8 @@ int TryCastSpell(int pnum, int spell) {
 		GiveMana(pnum, GetSpellUnreducedCost(pnum, spell));
 
 	StartSpellCooldown(pnum, spell);
+	// Taken here, not in the cast script a tic later, so a second press on the same tic finds the caster busy.
+	BeginSpellCasting(pnum);
 	ACS_NamedExecuteAlways("DnD Spell Cast", 0, spell, pnum);
 	return CAST_OK;
 }

@@ -1,0 +1,40 @@
+// A laid Toxic Trap, waiting on the floor for an enemy. ACS watches it and removes it.
+Actor Spell_ToxicTrap {
+	+NOINTERACTION
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 0.85
+	Scale 0.3
+	States {
+		Spawn:
+			DB58 ABCDEFGHIJKLMNOPQRSTUVWXYZ 2 Bright
+		Loop
+	}
+}
+
+Actor Spell_ToxicTrap_Burst : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.9
+	Scale 1.1
+	States {
+		Spawn:
+			FXPG A 0 Bright NoDelay A_PlaySound("ToxicTrap/Burst", CHAN_BODY)
+			FXPG ABCDEF 2 Bright
+			FXPG F 1 Bright A_FadeOut(0.1)
+		Wait
+	}
+}
+
+// One puff of the gas, rising slowly as it thins.
+Actor Spell_ToxicTrap_Gas : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.0
+	Scale 0.75
+	States {
+		Spawn:
+			FXPG G 0 NoDelay A_ChangeVelocity(frandom(-0.3, 0.3), frandom(-0.3, 0.3), frandom(0.2, 0.5), CVF_REPLACE)
+			FXPG GGGGG 2 A_FadeIn(0.04)
+			FXPG HIJKLM 4 A_FadeOut(0.03)
+		Stop
+	}
+}

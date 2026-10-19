@@ -1,0 +1,38 @@
+// Poison drawn into the marked spot while the blast waits.
+Actor Spell_NoxiousBlast_Mote : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.1
+	Scale 0.3
+	States {
+		Spawn:
+			D5FX GGGGGG 1 Bright A_FadeIn(0.12)
+			D5FX G 1 Bright A_FadeOut(0.08)
+		Wait
+	}
+}
+
+Actor Spell_NoxiousBlast_Burst : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.9
+	Scale 1.2
+	States {
+		Spawn:
+			D5FX G 0 Bright NoDelay A_PlaySound("NoxiousBlast/Burst", CHAN_BODY)
+			D5FX GHIJKL 3 Bright
+			D5FX L 1 Bright A_FadeOut(0.1)
+		Wait
+	}
+}
+
+// Clouds thrown across the radius by the burst.
+Actor Spell_NoxiousBlast_Cloud : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.7
+	Scale 0.8
+	States {
+		Spawn:
+			D5FX HIJKL 4 Bright
+			D5FX L 1 Bright A_FadeOut(0.06)
+		Wait
+	}
+}

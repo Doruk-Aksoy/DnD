@@ -21,7 +21,7 @@ Actor Spell_ThunderClap_Spark : Spell_Overcharge_Crackle {
 	Scale 0.3
 }
 
-// The slam where the caster stood.
+// The slam where the caster stood, shaking the view of anyone near.
 Actor Spell_ThunderClap_Burst {
 	+CLIENTSIDEONLY
 	+NOINTERACTION
@@ -32,9 +32,27 @@ Actor Spell_ThunderClap_Burst {
 	Scale 1.6
 	States {
 		Spawn:
+			FAXE R 0 Bright NoDelay A_Quake(4, 14, 0, 768, "")
 			FAXE R 2 Bright Light("ThunderClapSlam1")
 			FAXE S 2 Bright Light("ThunderClapSlam2")
 			FAXE TUVWX 2 Bright
+		Stop
+	}
+}
+
+// A ring's shockwave: a crown of force kicked up off the ground, on SLMW A in MODELDEF.spell, shaded by SlamWave.fp.
+// ACS spreads it with its ring, pops it up and sinks it as it fades; each one gives the view a short jolt.
+Actor Spell_ThunderClap_Shockwave {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 0.95
+	States {
+		Spawn:
+			SLMW A 0 Bright NoDelay A_Quake(2, 8, 0, 768, "")
+			SLMW A -1 Bright
 		Stop
 	}
 }

@@ -111,3 +111,524 @@ Sprite STB4D0, 5, 5
 		Rotate 270
 	}
 }
+
+// Spell_IceGolem: GOL3 moved down 3 rows, its top-left 3x3 holds chest u, chest v and charge for IceGolem.fp.
+Sprite IGLMA1, 42, 64
+{
+	Offset 19, 60
+	Patch GOL3A1, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#665B00"
+	}
+}
+
+Sprite IGLMA2A8, 49, 63
+{
+	Offset 24, 59
+	Patch GOL3A2A8, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#6F4F00"
+	}
+}
+
+Sprite IGLMA3A7, 58, 61
+{
+	Offset 29, 58
+	Patch GOL3A3A7, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#6E4D00"
+	}
+}
+
+Sprite IGLMA4A6, 54, 60
+{
+	Offset 24, 56
+	Patch GOL3A4A6, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#6E5F00"
+	}
+}
+
+Sprite IGLMA5, 49, 62
+{
+	Offset 31, 58
+	Patch GOL3A5, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#B85900"
+	}
+}
+
+Sprite IGLMB1, 41, 66
+{
+	Offset 20, 62
+	Patch GOL3B1, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#814F00"
+	}
+}
+
+Sprite IGLMB2B8, 44, 65
+{
+	Offset 24, 61
+	Patch GOL3B2B8, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#AA5E00"
+	}
+}
+
+Sprite IGLMB3B7, 35, 66
+{
+	Offset 20, 62
+	Patch GOL3B3B7, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#835D00"
+	}
+}
+
+Sprite IGLMB4B6, 48, 65
+{
+	Offset 30, 61
+	Patch GOL3B4B6, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#B45900"
+	}
+}
+
+Sprite IGLMB5, 40, 64
+{
+	Offset 20, 60
+	Patch GOL3B5, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#824E00"
+	}
+}
+
+Sprite IGLMC1, 42, 64
+{
+	Offset 21, 60
+	Patch GOL3C1, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#9B5B00"
+	}
+}
+
+Sprite IGLMC2C8, 47, 64
+{
+	Offset 19, 60
+	Patch GOL3C2C8, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#6D5B00"
+	}
+}
+
+Sprite IGLMC3C7, 57, 64
+{
+	Offset 27, 60
+	Patch GOL3C3C7, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#644D00"
+	}
+}
+
+Sprite IGLMC4C6, 58, 62
+{
+	Offset 23, 58
+	Patch GOL3C4C6, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#5E4A00"
+	}
+}
+
+Sprite IGLMC5, 49, 62
+{
+	Offset 16, 58
+	Patch GOL3C5, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#495900"
+	}
+}
+
+Sprite IGLMD1, 41, 66
+{
+	Offset 19, 62
+	Patch GOL3D1, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#824F00"
+	}
+}
+
+Sprite IGLMD2D8, 45, 66
+{
+	Offset 23, 62
+	Patch GOL3D2D8, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#A05900"
+	}
+}
+
+Sprite IGLMD3D7, 36, 64
+{
+	Offset 20, 60
+	Patch GOL3D3D7, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#7D5100"
+	}
+}
+
+Sprite IGLMD4D6, 46, 66
+{
+	Offset 30, 62
+	Patch GOL3D4D6, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#B85800"
+	}
+}
+
+Sprite IGLMD5, 40, 64
+{
+	Offset 19, 60
+	Patch GOL3D5, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#7F4E00"
+	}
+}
+
+Sprite IGLME1H1, 57, 70
+{
+	Offset 29, 66
+	Patch GOL3E1H1, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#8A637F"
+	}
+}
+
+Sprite IGLME2H8, 50, 68
+{
+	Offset 22, 64
+	Patch GOL3E2H8, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#73667F"
+	}
+}
+
+Sprite IGLME3H7, 61, 67
+{
+	Offset 29, 63
+	Patch GOL3E3H7, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#725F7F"
+	}
+}
+
+Sprite IGLME4H6, 62, 67
+{
+	Offset 30, 63
+	Patch GOL3E4H6, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#8C627F"
+	}
+}
+
+Sprite IGLME5H5, 55, 66
+{
+	Offset 27, 62
+	Patch GOL3E5H5, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#6C647F"
+	}
+}
+
+Sprite IGLME6H4, 51, 69
+{
+	Offset 25, 65
+	Patch GOL3E6H4, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#9D667F"
+	}
+}
+
+Sprite IGLME7H3, 55, 71
+{
+	Offset 27, 67
+	Patch GOL3E7H3, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#92687F"
+	}
+}
+
+Sprite IGLME8H2, 63, 71
+{
+	Offset 31, 67
+	Patch GOL3E8H2, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#7A637F"
+	}
+}
+
+Sprite IGLMF1I1, 61, 64
+{
+	Offset 20, 60
+	Patch GOL3F1I1, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#6A51FE"
+	}
+}
+
+Sprite IGLMF2I8, 69, 63
+{
+	Offset 42, 59
+	Patch GOL3F2I8, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#9E4DFE"
+	}
+}
+
+Sprite IGLMF3I7, 58, 60
+{
+	Offset 32, 56
+	Patch GOL3F3I7, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#804EFE"
+	}
+}
+
+Sprite IGLMF4I6, 49, 59
+{
+	Offset 32, 55
+	Patch GOL3F4I6, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#A54EFE"
+	}
+}
+
+Sprite IGLMF5I5, 62, 59
+{
+	Offset 31, 55
+	Patch GOL3F5I5, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#8F4FFE"
+	}
+}
+
+Sprite IGLMF6I4, 63, 59
+{
+	Offset 31, 55
+	Patch GOL3F6I4, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#624FFE"
+	}
+}
+
+Sprite IGLMF7I3, 58, 61
+{
+	Offset 29, 57
+	Patch GOL3F7I3, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#704CFE"
+	}
+}
+
+Sprite IGLMF8I2, 44, 63
+{
+	Offset 22, 59
+	Patch GOL3F8I2, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#5552FE"
+	}
+}
+
+Sprite IGLMG1J1, 47, 62
+{
+	Offset 15, 58
+	Patch GOL3G1J1, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#7059FE"
+	}
+}
+
+Sprite IGLMG2J8, 63, 62
+{
+	Offset 20, 58
+	Patch GOL3G2J8, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#584DFE"
+	}
+}
+
+Sprite IGLMG3J7, 66, 59
+{
+	Offset 31, 55
+	Patch GOL3G3J7, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#6F51FE"
+	}
+}
+
+Sprite IGLMG4J6, 40, 57
+{
+	Offset 24, 53
+	Patch GOL3G4J6, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#884BFE"
+	}
+}
+
+Sprite IGLMG5J5, 53, 58
+{
+	Offset 26, 54
+	Patch GOL3G5J5, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#9955FE"
+	}
+}
+
+Sprite IGLMG6J4, 62, 58
+{
+	Offset 31, 54
+	Patch GOL3G6J4, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#AC4BFE"
+	}
+}
+
+Sprite IGLMG7J3, 58, 59
+{
+	Offset 29, 55
+	Patch GOL3G7J3, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#8B4AFE"
+	}
+}
+
+Sprite IGLMG8J2, 44, 61
+{
+	Offset 22, 57
+	Patch GOL3G8J2, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#6A50FE"
+	}
+}
+
+Sprite IGLML1, 61, 66
+{
+	Offset 29, 61
+	Patch GOL3L1, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#875340"
+	}
+}
+
+Sprite IGLML2, 52, 64
+{
+	Offset 26, 60
+	Patch GOL3L2, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#976240"
+	}
+}
+
+Sprite IGLML3, 61, 64
+{
+	Offset 30, 60
+	Patch GOL3L3, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#875740"
+	}
+}
+
+Sprite IGLML4, 61, 63
+{
+	Offset 33, 59
+	Patch GOL3L4, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#9A5640"
+	}
+}
+
+Sprite IGLML5, 56, 61
+{
+	Offset 28, 57
+	Patch GOL3L5, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#6F5840"
+	}
+}
+
+Sprite IGLML6, 55, 61
+{
+	Offset 28, 57
+	Patch GOL3L6, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#735D40"
+	}
+}
+
+Sprite IGLML7, 55, 63
+{
+	Offset 27, 59
+	Patch GOL3L7, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#7E5040"
+	}
+}
+
+Sprite IGLML8, 61, 65
+{
+	Offset 28, 61
+	Patch GOL3L8, 0, 3
+	Patch IGLMDAT, 0, 0
+	{
+		Blend "#645340"
+	}
+}
