@@ -220,6 +220,8 @@ str ItemAttributeString(
 )
 {
 	str text = GetInventoryAttributeText(attr);
+	if(item_type == DND_ITEM_FLASK && IsManaFlask(item_subtype) && (attr == INV_FLASK_INSTANTONLOWLIFE || attr == INV_FLASK_MORERECOVERYONLOWLIFE))
+		text = StrParam(s:text, s:"_MANA");
 	str ess_tag = "\c[Q7]";
 	str col_tag = "\c[Q9]";
 	str no_tag = "\c- ";
@@ -649,9 +651,6 @@ str ItemAttributeString(
 		case INV_CRITPERCENT_INCREASE_GLOBAL:
 		case INV_CRIT_SPELL:
 		case INV_CRITCHANCE_INCREASE_SPELL:
-		case INV_SPELL_DAMAGEINCREASE:
-		case INV_SPELL_COOLDOWN:
-		case INV_SPELL_CASTTIME:
 		case INV_BLOCKERS_MOREDMG:
 		case INV_OVERLOAD_DMGINCREASE:
 		case INV_LIFESTEAL_DAMAGE:
@@ -857,6 +856,7 @@ str ItemAttributeString(
 		case INV_FLASK_IMP_CHARGECOUNT:
 		return StrParam(s:no_tag, l:text, s: " ", s:col_tag, d:val, s:no_tag, l:"IATTR_IMP_FLASK0X", s:" ", s:col_tag, d:extra, s:no_tag, l:"IATTR_IMP_FLASK0XX");
 		case INV_FLASK_IMP_LIFE:
+		case INV_FLASK_IMP_MANA:
 		return StrParam(s:col_tag, d:val, s:no_tag, l:text, s: " ", s:col_tag, s:GetFixedRepresentation(extra * 1.0 / TICRATE, false), s:no_tag, l:"IATTR_IMP_FLASK_SECONDS");
 
 		case INV_FLASK_IMP_GRANITE:
@@ -991,7 +991,18 @@ str GetItemAttributeText(
 				);
 			}
 			return StrParam(s:col_tag, d:val2, s:"%\c- ", l:"IATTR_TX_CHANCE", l:text, s:col_tag, d:val1, s:"%\c- ", l:"IATTR_RECOVERHPHURT");
-		
+
+		// The extra is the highest level band the cast spell may come from: band 2 is spell levels 1-19.
+		case INV_EX_CHANCE_CASTELEMSPELLONATK:
+			if(showDetailedMods) {
+				return StrParam(
+					s:"+", s:col_tag, d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:text,
+					s:col_tag, d:val2, s:GetDetailedModRange_Unique(tier, 0, extra, false, true), s:"\c- ", l:"IATTR_SPELLLEVELS", d:val2 * 10 - 1, s:")",
+					s:" - ", s:GetModTierText(attr, item_type, tier, extra)
+				);
+			}
+			return StrParam(s:"+", s:col_tag, d:val1, s:"%\c- ", l:text, s:col_tag, d:val2, s:"\c- ", l:"IATTR_SPELLLEVELS", d:val2 * 10 - 1, s:")");
+
 		case INV_EX_PHYSDAMAGEPER_FLATHEALTH:
 			if(showDetailedMods) {
 				return StrParam(

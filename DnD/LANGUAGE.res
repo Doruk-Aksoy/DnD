@@ -182,4 +182,7 @@ RES_LABEL59 			= "Increased Stash Tabs";
 RES_DESC59				= "UAC can afford more space to teleport your personal belongings at the expense of more budget spent. Allows purchase of additional stash tabs.";
 
 RES_LABEL60 			= "Gem Resonance";
-RES_DESC60				= "UAC finds the strange gems resonate in pairs when bound to the same spell. Opens a second gem socket on every spell from rank 4.";
+RES_DESC60				= "UAC has discovered that these strange gems resonate in pairs when bound to the same spell. Opens a second gem socket on every spell from rank 4.";
+
+RES_LABEL61 			= "Gemcrafting";
+RES_DESC61				= "We have finally found the means to break these gems down and fuse what remains into something new, but it is unpredictable. Allows transmuting any three gems of one tier into a random gem of the same tier at the Transmutia Station.";

@@ -2584,6 +2584,12 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 			IncPlayerModExtra(pnum, atype, aextra);
 		break;
 
+		// The proc chance adds up across items; its level band is the highest one equipped.
+		case INV_EX_CHANCE_CASTELEMSPELLONATK:
+			IncPlayerModValue(pnum, atype, aval);
+			SetHighestModExtraSource(pnum, atype, DND_HIGHESTSRC_SPELLPROCTIER, item_index, remove ? 0 : aextra);
+		break;
+
 		// same highest-source-only rule, no extra field on this one
 		case INV_INC_CRITFORDOT:
 			// The value is read as both the switch (GetCritModifier zeroing crit damage, and the
@@ -3746,21 +3752,15 @@ int ScourItem(int pnum, int item_pos) {
 }
 
 // 0 means nothing exists of this sort
-int GetSpecialRollAttribute(int pnum, int item_pos) {
-	int special_roll;
-	// check if any of the implicits allow for special roll rules
+// The item's widening from every "can roll X" implicit it carries, not just the first: Occult armor has two.
+int GetItemWidening(int pnum, int item_pos) {
+	int widening = 0;
 	auto item = GetPlayerInventoryItem(pnum, item_pos);
-	for(special_roll = 0; special_roll < MAX_ITEM_IMPLICITS; ++special_roll) {
-		if(IsSpecialRollRuleAttribute(item.implicit[special_roll].attrib_id)) {
-			special_roll = item.implicit[special_roll].attrib_id;
-			break;
-		}
+	for(int i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+		if(IsSpecialRollRuleAttribute(item.implicit[i].attrib_id))
+			widening = AddItemWidening(widening, item.implicit[i].attrib_id);
 	}
-
-	if(special_roll == MAX_ITEM_IMPLICITS)
-		special_roll = 0;
-
-	return special_roll;
+	return widening;
 }
 
 // The mod pool answers "what may ROLL on this base". This asks the same question about a mod that
@@ -3778,7 +3778,7 @@ bool CanModLiveOnItem(int pnum, int item_pos, int mod) {
 	return CanRollModWidened(
 		ItemBaseToModBaseFlag(item.item_base),
 		GetItemBaseEffectiveTags(item.item_base),
-		ModPoolTagIdToMask(GetWideningTagId(GetSpecialRollAttribute(pnum, item_pos))),
+		GetWideningMask(GetItemWidening(pnum, item_pos)),
 		mod
 	);
 }
@@ -3795,7 +3795,7 @@ bool HasSeparateModIdSpace(int item_type) {
 
 // special roll rule holds PPOWER_CANROLLXXXX and it checks what is possible based on that
 // last field is checking for Orb of Order use, if it's not -2 then we must check for its use
-int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_CHARM_SMALL, int special_roll_rule = 0, int implicit_id = -1, int respect_order_orb = -2, int item_base = -1, int ilvl = -1) {
+int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_CHARM_SMALL, int widening = 0, int implicit_id = -1, int respect_order_orb = -2, int item_base = -1, int ilvl = -1) {
 	// Flasks write an item base now, but one saved before they did carries whatever was in the field --
 	// a leftover 0 is DND_ITEMBASE_CHARM and would quietly draw from the charm pool. The subtype is the
 	// authority on which of the two flask pools applies, so derive rather than trust.
@@ -3811,7 +3811,7 @@ int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_C
 		// The base names the slot and the tagset, a widening implicit adds its tag group on top,
 		// and a guarantee narrows to one tag. All of that was settled when the pool was built, so
 		// this is one weighted draw -- no tag walk, no exception checks, no retry budget.
-		mod_pool_T* pool = GetModPool(item_base, GetWideningTagId(special_roll_rule), forced_tag_id);
+		mod_pool_T* pool = GetModPool(item_base, widening, forced_tag_id);
 
 		// An empty pool means the guarantee asked for a tag this base cannot roll. Nothing to pick,
 		// so the caller drops this mod rather than substituting one -- same outcome the old code
@@ -3849,7 +3849,7 @@ int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_C
 void AssignAttributes(int pnum, int item_pos, int itype, int attr_count, int respect_order_orb = -2) {
 	auto item = GetPlayerInventoryItem(pnum, item_pos);
 	int isubt = item.item_subtype;
-	int special_roll = GetSpecialRollAttribute(pnum, item_pos);
+	int special_roll = GetItemWidening(pnum, item_pos);
 	
 	int i = 0, roll, max_attempts = 0;
 
@@ -3922,7 +3922,7 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id, int affluen
 	// The guarantee is the base's own pool narrowed to one tag, so it already respects the slot,
 	// the base's exclusions and any widening implicit. A tag the base cannot roll leaves the pool
 	// empty, and the guarantee is simply skipped -- the reforge below still runs.
-	mod_pool_T* pool = GetModPool(item.item_base, GetWideningTagId(GetSpecialRollAttribute(pnum, item_pos)), tag_id);
+	mod_pool_T* pool = GetModPool(item.item_base, GetItemWidening(pnum, item_pos), tag_id);
 
 	if(pool != null && pool.count) {
 		int rand_attr;

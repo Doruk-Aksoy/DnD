@@ -347,7 +347,7 @@ cursor_T PlayerCursorData;
 // The perk tree is the reason they had to split: its largest archetype is 35 perks plus navigation,
 // and it lays itself out from the perk table rather than from a fixed rect list.
 #define MAX_MENU_BOXES 20
-#define MAX_PANE_BOXES 48
+#define MAX_PANE_BOXES 128				// the gem page's full grid: the back arrow and 40 spells of a cell and 2 sockets
 struct menu_pane_T {
 	rect_T MenuRectangles[MAX_PANE_BOXES];
 	int cursize;
@@ -1303,7 +1303,7 @@ void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 			SetFont ("MONFONT");
 			HudMessage(s:"\c[D1]", l:"DND_EMOD_MARKOFASMODEUS_NOCOL"; HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
 		}
-		else if(MonsterProperties[m_id].flags & DND_MONFLAG_HASTRAITS) {
+		else if(MonsterHasTraits(m_id)) {
 			SetFont ("MONFONT");
 			for(i = 0; i < MAX_MONSTER_TRAITS_SHOWN; ++i) {
 				if(HasMonsterTrait(m_id, i)) {

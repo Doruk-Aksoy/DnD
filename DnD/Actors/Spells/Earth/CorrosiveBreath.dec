@@ -1,0 +1,19 @@
+// On an afflicted enemy: whole percent more poison damage taken, and its clock.
+Actor DnD_Corroded : DnD_Info { }
+Actor DnD_CorrodedTimer : DnD_Info { }
+
+// Set while the fumes eat a fortified enemy's fortification, so a second breath does not start another eater.
+Actor DnD_CorrosionDecay : DnD_Info { }
+
+// A puff of the fumes, thrown along the cone by "DnD Corrosive Breath FX" and swelling as it goes.
+Actor Spell_CorrosiveBreath_Fume : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.5
+	Scale 0.3
+	States {
+		Spawn:
+			FXPG GHIJKLM 3 A_SetScale(scalex + 0.08)
+			FXPG M 1 A_FadeOut(0.15)
+		Wait
+	}
+}

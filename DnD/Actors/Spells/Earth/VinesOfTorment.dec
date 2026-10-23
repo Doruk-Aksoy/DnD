@@ -1,0 +1,86 @@
+// Traces the lash's path: clips on walls but passes through bodies, so a wall stops the vines and a monster does not.
+Actor Spell_Vines_Probe {
+	Radius 8
+	Height 16
+	+NOGRAVITY
+	+THRUACTORS
+	+NOBLOCKMAP
+	+DONTSPLASH
+	+NOTELEPORT
+	-SOLID
+	RenderStyle None
+	States {
+		Spawn:
+			TNT1 A -1
+		Stop
+	}
+}
+
+// The FX script's own probe: tests that a coil's spot beside the lash is open floor in sight of the lash.
+Actor Spell_Vines_FXProbe : Spell_Vines_Probe {
+	+CLIENTSIDEONLY
+}
+
+// A thorny coil turning through the floor, its axis under it: spawned 20 below, it rises in 8 tics, turns while its
+// stretch of the lash stands (ReactionTime, in 2 tic steps), then sinks back. Three shapes, one class each.
+Actor Spell_Vines_Coil1 : DnD_SpecialFX {
+	ReactionTime 44
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_ChangeVelocity(0, 0, 2.5, CVF_REPLACE)
+			EVN1 ABCD 2 A_CountDown
+			EVN1 E 0 A_Stop
+			EVN1 EFGHIJKLMNOP 2 A_CountDown
+		Turn:
+			EVN1 ABCDEFGHIJKLMNOP 2 A_CountDown
+		Loop
+		Death:
+			"####" "#" 0 A_ChangeVelocity(0, 0, -1.25, CVF_REPLACE)
+			"####" "#" 16
+		Stop
+	}
+}
+
+Actor Spell_Vines_Coil2 : Spell_Vines_Coil1 {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_ChangeVelocity(0, 0, 2.5, CVF_REPLACE)
+			EVN2 ABCD 2 A_CountDown
+			EVN2 E 0 A_Stop
+			EVN2 EFGHIJKLMNOP 2 A_CountDown
+		Turn:
+			EVN2 ABCDEFGHIJKLMNOP 2 A_CountDown
+		Loop
+	}
+}
+
+Actor Spell_Vines_Coil3 : Spell_Vines_Coil1 {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_ChangeVelocity(0, 0, 2.5, CVF_REPLACE)
+			EVN3 ABCD 2 A_CountDown
+			EVN3 E 0 A_Stop
+			EVN3 EFGHIJKLMNOP 2 A_CountDown
+		Turn:
+			EVN3 ABCDEFGHIJKLMNOP 2 A_CountDown
+		Loop
+	}
+}
+
+// Vines grown up round a snared enemy, scaled to its body by "DnD Vines Snare FX", which sends it to Wither.
+Actor Spell_Vines_Wrap : DnD_SpecialFX {
+	States {
+		Spawn:
+			VWRP ABCDE 2
+		Hold:
+			VWRP F 8
+			VWRP G 8
+		Loop
+		Wither:
+			VWRP FEDCBA 2
+		Stop
+	}
+}
+
+// Client side, on a snared enemy: the snare tics its wrap has left, so a second cast extends it rather than adding one.
+Actor DnD_VinesWrapFX : DnD_Info { }

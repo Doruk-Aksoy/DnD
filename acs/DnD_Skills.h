@@ -100,18 +100,6 @@ void CleanPetStuff() {
 		TakeInventory(StrParam(s:"PetDamageReduction_", d:i + 1), 1);
 }
 
-int GetPlayerAllocatedSpell(int spell_id) {
-	return 0;
-}
-
-void CastRandomElementalSpell() {
-	int pick = 0;
-	do {
-		pick = random(0, MAX_SPELLS - 1);
-	} while(!(SpellData[pick][SPELL_FLAGS] & DND_SPELLFLAG_ELEMENTAL));
-	ACS_NamedExecuteAlways("DnD Cast Spell", 0, pick, 0);
-}
-
 // One rate for every pet. The per kind switch is gone: it keyed off the id shifted out of the
 // caller's damage argument, and every pet passes a plain number there, so every pet collected the
 // zombie's figure regardless -- a bug that was invisible while the zombie was the only pet, and
@@ -138,6 +126,8 @@ int GetPetSummonSpell(int petid) {
 		return SPL_FIREDEMON;
 	if(petid == MONSTER_PET_ICEGOLEM)
 		return SPL_ICEGOLEM;
+	if(petid == MONSTER_PET_ROCKGOLEM)
+		return SPL_ROCKGOLEM;
 	return -1;
 }
 
@@ -147,12 +137,11 @@ void ResetAllSpellCooldowns() {
 		TakeInventory(SpellInfo[i][SPELL_COOLDOWNITEM], 1);
 }
 
-// expects spell_id 1 more than what it really is --- decorate uses that style
+// Rally, from the Dead King's Banner; spell_id is a DND_SPELL_* value.
 Script "DnD Cast Spell" (int spell_id, int usesCooldown) NET {
 	int spell_level, i, temp, temp2, this = ActivatorTID();
 	int pnum = PlayerNumber();
-	//int spell = GetPlayerAllocatedSpell(spell_id);
-	str sptr1, sptr2, bufftimer = 0;
+	int bufftimer = 0;
 	switch(spell_id) {
 		case DND_SPELL_RALLY:
 			ActivatorSound("Spell/RallyCast", 127);
@@ -183,46 +172,7 @@ Script "DnD Cast Spell" (int spell_id, int usesCooldown) NET {
 			
 			Delay(bufftimer);
 		break;
-		case DND_SPELL_ICESHIELD:
-			ActivatorSound("Spell/IceShieldCast", 127);
-			temp = TEMPORARY_SPELL_TID + PlayerNumber();
-			temp2 = ICESHIELD_HEALTHBASE + GetActorLevel(this) * ICESHIELD_HEALTH_PER_LEVEL + GetIntellectEffect(pnum, ICESHIELD_HEALTH_PER_INT);
-			bufftimer = ICESHIELD_BASE_DURATION + GetIntellectEffect(pnum, ICESHIELD_DURATION_PER_INT);
-			
-			// requires a byte angle
-			for(i = 0; i < ICESHIELD_COUNT; ++i) {
-				SpawnForced("IceShield_Barrier", GetActorX(0), GetActorY(0), GetActorZ(0), temp, (i * 255) / ICESHIELD_COUNT);
-				SetActivator(temp);
-				SetPointer(AAPTR_TRACER, this);
-				SetActorProperty(temp, APROP_HEALTH, temp2);
-				Thing_ChangeTID(0, 0);
-				SetActivator(this);
-			}
-			
-			Delay(bufftimer);
-			GiveInventory("IceShieldFadeSignal", 1);
-		break;
-		case DND_SPELL_POISONNOVA:
-			ActivatorSound("Spell/PoisonNovaCast", 127);
-			GiveInventory("PoisonNovaSpawner", 1);
-		break;
-		case DND_SPELL_MOLTENBOULDER:
-			ActivatorSound("Spell/MoltenBoulderCast", 127);
-			temp = TEMPORARY_SPELL_TID + PlayerNumber();
-			SpawnForced("MoltenBoulderProjectile", GetActorX(0), GetActorY(0), GetActorCeilingZ(0) - 64.0, temp, GetActorAngle(0) >> 8);
-			SetActivator(temp);
-			SetPointer(AAPTR_TARGET, this);
-			SetActorProperty(0, APROP_TARGETTID, this);
-			SetActorVelocity(temp, MOLTENBOULDER_BASESPEED * cos(GetActorAngle(0)), MOLTENBOULDER_BASESPEED * sin(GetActorAngle(0)), 0, 0, 0);
-			Thing_ChangeTID(temp, 0);
-			SetActivator(this);
-		break;
-		case DND_SPELL_LIGHTNINGSPEAR:
-			ActivatorSound("Spell/LightningSpearCast", 127);
-			GiveInventory("LightningSpearSpawner", 1);
-		break;
 	}
-	// modify to let more spells here to use cooldown, not just rally
 	if(usesCooldown)
 		ACS_NamedExecuteAlways("DnD Spell Cooldown", 0, spell_id, RALLY_COOLDOWN);
 }
@@ -266,37 +216,6 @@ Script "DnD Spell Effects" (int spell_id, int activator) CLIENTSIDE {
 				Delay(5);
 			}
 		break;
-	}
-}
-
-Script "DnD Display Spell Cooldown" (int spell_id) CLIENTSIDE {
-	Log(s:"\cc", s:SpellInfo[spell_id][SPELL_NAME], s: " Cooldown Left: ", d:CheckInventory(SpellInfo[spell_id][SPELL_COOLDOWNCOUNTER]));
-}
-
-Script "DnD Boulder Hit Check" (void) {
-	int mx = GetActorX(0), my = GetActorY(0), mz = GetActorZ(0);
-	Delay(1);
-	if(!(mx - GetActorX(0)) && !(my - GetActorY(0)) && !(mz - GetActorZ(0)))
-		GiveInventory("MoltenBoulderStop", 1);
-}
-
-Script "DnD LightningSpear Rip Retrieve" (void) {
-	int pnum = GetActorProperty(0, APROP_TARGETTID) - P_TIDSTART;
-	int res = LIGHTNINGSPEAR_BASE_RIP + GetIntellect(pnum) / LIGHTNINGSPEAR_INT_FACTOR;
-	SetResultValue(res);
-}
-
-Script "DnD Spell Buff Ticking" (int spell_id, int time, int period) {
-	time /= period;
-	while(time && isAlive()) {
-		Delay(period);
-		--time;
-	}
-	
-	// times out, take away buffs
-	// (nothing here needs a timer at the moment -- buff-backed spells expire on the
-	//  buff ticker instead, which is what BTI_RALLY / BTI_RALLY_SPEED rely on)
-	switch(spell_id) {
 	}
 }
 

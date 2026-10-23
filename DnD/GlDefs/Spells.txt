@@ -5,7 +5,7 @@ flickerlight PoisonNovaLight {
     chance 0.4
 }
 
-object PoisonNovaProjectile {
+object Spell_PoisonNova {
 	frame S001 { light PoisonNovaLight }
 }
 
@@ -322,4 +322,17 @@ pointlight ThunderClapSlam2 {
 	color 0.35 0.45 0.90
 	size 128
 	offset 0 16 0
+}
+
+// Geyser's acid over its vent's mouth; it rises with the pile and goes out as it crumbles.
+flickerlight GeyserVentLight {
+	color 0.22 0.65 0.08
+	size 36
+	secondarysize 44
+	chance 0.3
+	offset 0 22 0
+}
+
+object Spell_Geyser_Vent {
+	frame GYSRA { light GeyserVentLight }
 }

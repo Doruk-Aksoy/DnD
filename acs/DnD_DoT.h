@@ -141,7 +141,12 @@ Script "DnD Player Receive DoT" (int pnum, int duration, int owner, int inflicto
 
 	if(HasActorClassPerk_Fast(victim, DND_PLAYER_WANDERER, DND_CLASSPERK_1))
 		duration = duration * (100 - DND_WANDERER_PERK5_DEBUFFREDUCE) / 100;
-	
+
+	// Agony rank 10: a monster's poison runs shorter on whoever its aura covers.
+	int less = (dtype_int & DND_DAMAGETYPEFLAG_POISON) ? pbuffs[pnum].buff_net_values[BUFF_POISONTAKENLESS].additive : 0;
+	if(less > 0)
+		duration = Max(1, duration * Max(0, 100 - less) / 100);
+
 	// check if player has a dot source of this script running already
 	int i;
 	dot_cache_T module& player_dot_damages = GetPlayerDotCache(pnum);

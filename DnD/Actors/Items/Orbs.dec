@@ -36,6 +36,7 @@ enum {
 	DND_ORB_VOLTAIC,
 	DND_ORB_VILE,
 	DND_ORB_EMBERS,
+	DND_ORB_ARCANA,
 
 	// unique drops from specific monsters
 	DND_ORB_HOLLOW,
@@ -657,6 +658,22 @@ Actor OrbOfEmbers : OrbDrop {
 		Idle:
 			ORB5 UVWXYZ 3 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 			ORB6 AB 3 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+	}
+}
+
+Actor OrbOfArcana : OrbDrop {
+	States {
+		Spawn:
+			ORB6 P 0 Bright
+		Goto SpawnInit
+		SpawnInit:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
+			"####" "#" 1 Bright
+			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
+		SpawnLoop:
+		Idle:
+			ORB6 PQRS 3 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 	}
 }

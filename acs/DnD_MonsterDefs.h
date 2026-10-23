@@ -126,6 +126,14 @@ void ClearMonsterTraits(int m_id) {
 		MonsterProperties[m_id].trait_bits[i] = 0;
 }
 
+// Read off the words, not DND_MONFLAG_HASTRAITS: only the client sync sets that, and it never runs in single player.
+bool MonsterHasTraits(int m_id) {
+	for(int i = 0; i < MONSTER_TRAIT_WORDS; ++i)
+		if(MonsterProperties[m_id].trait_bits[i])
+			return true;
+	return false;
+}
+
 bool HasPetMonsterTrait(int m_id, int t) {
 	return !!(PetMonsterProperties[m_id].trait_bits[t >> 5] & (1 << (t & 31)));
 }
@@ -679,9 +687,10 @@ enum {
 enum {
 	MONSTER_PET_ZOMBIE,
 	MONSTER_PET_FIREDEMON,
-	MONSTER_PET_ICEGOLEM
+	MONSTER_PET_ICEGOLEM,
+	MONSTER_PET_ROCKGOLEM
 };
-#define MAX_PET_TYPES (MONSTER_PET_ICEGOLEM + 1)
+#define MAX_PET_TYPES (MONSTER_PET_ROCKGOLEM + 1)
 
 enum {
 	DND_ZOMBIEMANID,

@@ -28,6 +28,8 @@ enum {
 	DND_ATTACHMENT_SNARE,
 	DND_ATTACHMENT_FROSTBITE,
 	DND_ATTACHMENT_CONDUCTIVITY,
+	DND_ATTACHMENT_VULNERABILITY,
+	DND_ATTACHMENT_DESPAIR,
 };
 
 Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
@@ -93,6 +95,16 @@ Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 				zoff <<= 1;
 				zoff += 4.0;
 				res = CreateMonsterAttachment(tid, "ConductivityFXMarker", 0, 0, zoff);
+			break;
+			case DND_ATTACHMENT_VULNERABILITY:
+				zoff <<= 1;
+				zoff += 4.0;
+				res = CreateMonsterAttachment(tid, "VulnerabilityFXMarker", 0, 0, zoff);
+			break;
+			case DND_ATTACHMENT_DESPAIR:
+				zoff <<= 1;
+				zoff += 4.0;
+				res = CreateMonsterAttachment(tid, "DespairFXMarker", 0, 0, zoff);
 			break;
 			// Around the feet: this one is a shackle, not an overhead icon. The actor warps itself to
 			// a fixed 16 up every tic, so this only decides where it first appears.
@@ -215,6 +227,7 @@ enum {
 	DND_PLAYERFX_HATREDAURA,
 	DND_PLAYERFX_SHIVERINGARMOR,
 	DND_PLAYERFX_WRATHAURA,
+	DND_PLAYERFX_AGONYAURA,
 };
 
 // How far out to either side a paired attachment sits, past a player's own 16 unit radius.
@@ -234,6 +247,7 @@ str GetPlayerAttachmentMarker(int which) {
 		case DND_PLAYERFX_HATREDAURA: return "DnD_HatredAuraActive";
 		case DND_PLAYERFX_SHIVERINGARMOR: return "DnD_ShiveringArmorChance";
 		case DND_PLAYERFX_WRATHAURA: return "DnD_WrathAuraActive";
+		case DND_PLAYERFX_AGONYAURA: return "DnD_AgonyAuraActive";
 	}
 	return "";
 }
@@ -250,6 +264,7 @@ str GetPlayerAttachmentSpawner(int which) {
 		case DND_PLAYERFX_HATREDAURA: return "Spell_HatredAura_FXSpawner";
 		case DND_PLAYERFX_SHIVERINGARMOR: return "Spell_ShiveringArmor_FXSpawner";
 		case DND_PLAYERFX_WRATHAURA: return "Spell_WrathAura_FXSpawner";
+		case DND_PLAYERFX_AGONYAURA: return "Spell_AgonyAura_FXSpawner";
 	}
 	return "";
 }
@@ -265,6 +280,7 @@ str GetPlayerAttachmentFX(int which) {
 		case DND_PLAYERFX_HATREDAURA: return "Spell_HatredAuraFX";
 		case DND_PLAYERFX_SHIVERINGARMOR: return "Spell_ShiveringArmorFX";
 		case DND_PLAYERFX_WRATHAURA: return "Spell_WrathAuraFX";
+		case DND_PLAYERFX_AGONYAURA: return "Spell_AgonyAuraFX";
 	}
 	return "";
 }
@@ -281,7 +297,8 @@ int GetPlayerAttachmentSides(int which) {
 
 // Aura rings draw a fixed 144 units whatever their reach; only the buffs follow the scaled radius.
 bool IsFixedSizeAttachment(int which) {
-	return which == DND_PLAYERFX_ANGERAURA || which == DND_PLAYERFX_HATREDAURA || which == DND_PLAYERFX_WRATHAURA;
+	return which == DND_PLAYERFX_ANGERAURA || which == DND_PLAYERFX_HATREDAURA || which == DND_PLAYERFX_WRATHAURA ||
+		which == DND_PLAYERFX_AGONYAURA;
 }
 
 // Polled by the aura rings: dnd_hideauras hides them on this machine alone.

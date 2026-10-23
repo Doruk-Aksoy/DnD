@@ -1,14 +1,20 @@
-// A laid Toxic Trap, waiting on the floor for an enemy. ACS watches it and removes it.
+// A laid Toxic Trap, waiting on the floor for an enemy. ACS watches it: Open when it fires, else Fade.
 Actor Spell_ToxicTrap {
 	+NOINTERACTION
 	+NOTONAUTOMAP
-	RenderStyle Add
-	Alpha 0.85
-	Scale 0.3
 	States {
 		Spawn:
-			DB58 ABCDEFGHIJKLMNOPQRSTUVWXYZ 2 Bright
-		Loop
+			TXTP A -1
+		Stop
+		Open:
+			TXTP BCD 1
+			TXTP E 2
+			TXTP F 140
+			TXTP F 1 A_FadeOut(0.05)
+		Wait
+		Fade:
+			TXTP A 1 A_FadeOut(0.1)
+		Wait
 	}
 }
 

@@ -195,6 +195,18 @@ Model Spell_WrathAuraFX {
 	FrameIndex AURA M 0 3
 }
 
+// Agony. Skin from Graphics/ so the lump has a name and Agony.fp can bind to it.
+Model Spell_AgonyAuraFX {
+	Path "Models/Auras"
+	Model 0 "flat.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "AGONY.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 0.33
+	ROTATING
+	FrameIndex AURA Q 0 3
+}
+
 Model Spell_AnnihilusAnchorFlip {
 	Path "Models/Auras"
 	Model 0 "flat.md3"

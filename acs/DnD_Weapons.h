@@ -1210,7 +1210,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 
 					// dont pick any more targets, we couldn't find the first time!
 					if(!sp_x)
-						flags &= ~(1 << DND_ATF_TRACERPICKER);
+						flags &= ~DND_ATF_TRACERPICKER;
 
 					count = 2 + GetPlayerBonusProjectiles(pnum, wepid);
 					while(count--) {
@@ -1703,7 +1703,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				sp_x = Do_Projectile_Attack(owner, pnum, DND_PROJ_HEAVYMISSILELAUNCHER_1, wepid, 1, angle_vec, offset_vec, 0, 0, flags, vPos, vUp, vDir, vRight, 250 | (250 << 16), 768.0);
 				
 				if(!sp_x)
-					flags &= ~(1 << DND_ATF_TRACERPICKER);
+					flags &= ~DND_ATF_TRACERPICKER;
 
 				count = GetPlayerBonusProjectiles(pnum, wepid) + 1; // +1 because we fired the first one up above
 				sp_y = 0;
@@ -1755,7 +1755,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			sp_x = Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags, vPos, vUp, vDir, vRight, 192 | (192 << 16), 1536.0);
 			
 			if(!sp_x)
-				flags &= ~(1 << DND_ATF_TRACERPICKER);
+				flags &= ~DND_ATF_TRACERPICKER;
 
 			count = GetPlayerBonusProjectiles(pnum, wepid);
 			while(count--) {
@@ -2012,19 +2012,19 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				// secondary uses a delayed script to match the firing anim, with delays corresponding to weapon frames in decorate
 				// the entire burst timing is located here
 				// offsets from left to right burst, so - to +
-				// 3s in 1 tic delay, 3 times on each side with 5 total bursts
+				// 2s in 1 tic delay, 3 times on each side with 5 total bursts: 60 rockets
 				count = GetPlayerBonusProjectiles(pnum, wepid);
 				for(sp_y = 0; sp_y < 5; ++sp_y) {
 					offset_vec.x = 1.5;
 					offset_vec.y = -8.0;
 					for(sp_x = 0; sp_x < 3; ++sp_x) {
-						Do_Projectile_Attack_Named(owner, pnum, "DevastatorRocket_LessRange", wepid, 3 + count, 32, angle_vec, offset_vec, 1.6, 0.825, 0, vPos, vUp, vDir, vRight, proj_id);
+						Do_Projectile_Attack_Named(owner, pnum, "DevastatorRocket_LessRange", wepid, 2 + count, 32, angle_vec, offset_vec, 1.6, 0.825, 0, vPos, vUp, vDir, vRight, proj_id);
 						Delay(const:1);
 					}
 
 					offset_vec.y = 8.0;
 					for(sp_x = 0; sp_x < 3; ++sp_x) {
-						Do_Projectile_Attack_Named(owner, pnum, "DevastatorRocket_LessRange", wepid, 1 + count, 32, angle_vec, offset_vec, 1.6, 0.825, 0, vPos, vUp, vDir, vRight, proj_id);
+						Do_Projectile_Attack_Named(owner, pnum, "DevastatorRocket_LessRange", wepid, 2 + count, 32, angle_vec, offset_vec, 1.6, 0.825, 0, vPos, vUp, vDir, vRight, proj_id);
 						Delay(const:1);
 					}
 					Delay(const:1);
@@ -2167,7 +2167,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				sp_x = Do_Projectile_Attack_Named(owner, pnum, "RazorSkull", wepid, 1, 25, angle_vec, offset_vec, 0, 0, flags, vPos, vUp, vDir, vRight, 0, 480 | (256 << 16), 768.0);
 
 				if(!sp_x)
-					flags &= ~(1 << DND_ATF_TRACERPICKER);
+					flags &= ~DND_ATF_TRACERPICKER;
 				
 				count = 2 + GetPlayerBonusProjectiles(pnum, wepid);
 				while(count--) {

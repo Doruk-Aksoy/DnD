@@ -189,6 +189,13 @@ void RefreshSpellAuras(int pnum) {
 		ApplyWrathAura(pnum, DND_SPELLAURA_REFRESH);
 	SetPlayerAttachment(pnum, DND_PLAYERFX_WRATHAURA, wrath);
 
+	bool agony = IsSpellActive(pnum, SPL_AGONY);
+	if(agony)
+		ApplyAgonyAura(pnum, DND_SPELLAURA_REFRESH);
+	SetPlayerAttachment(pnum, DND_PLAYERFX_AGONYAURA, agony);
+	SetAgonyZone(pnum, agony && SpellThresholdMet(pnum, SPL_AGONY, DND_SPELL_THRESH_LOW) ?
+		ScaleSpellArea(pnum, SPL_AGONY, GetSpellAuraRadius(pnum, SPL_AGONY) << 16) : 0);
+
 	// Energy Blade: the marker follows the toggle, and the shield is brought under its new cap whenever it changes.
 	int less = IsSpellRunning(pnum, SPL_ENERGYBLADE) ? GetEnergyBladeLess(pnum) : 0;
 	if(CheckActorInventory(pnum + P_TIDSTART, "DnD_EnergyBladeLess") != less) {
@@ -765,7 +772,7 @@ Script "DnD Immolation Tick" (int pnum) {
 			cost = Max(0, cost - DND_IMMOLATION_R5_COSTCUT);
 
 		// The press already bought the first second, the same way a channel's first tick is free.
-		if(!first) {
+		if(!first && !HasDebugFreeSpells(pnum)) {
 			if(GetPlayerMana(pnum) < cost)
 				break;
 			SetPlayerMana(pnum, GetPlayerMana(pnum) - cost);
@@ -1108,8 +1115,7 @@ Script "DnD Incinerate Burst" (int pnum, int victim) {
 // in those passes, so the duration row has to be divided by this to become a ReactionTime.
 #define DND_FLAMEPILLAR_LOOPTICS 4
 
-// Matches the old MOLTENBOULDER_BASESPEED. The boulder drops from the ceiling with this as its
-// horizontal push, then takes its velocity over from its own states.
+// The boulder drops from the ceiling with this as its horizontal push, then takes its velocity over from its own states.
 #define DND_MOLTENBOULDER_SPEED 20
 
 // How far under the ceiling it appears, as the old cast placed it.
@@ -1948,7 +1954,7 @@ Script "DnD Glacial Spike Setup" (void) {
 	if(pnum != -1) {
 		// DnD_RipLimit is the mod's own rip bookkeeping: the handler tallies DnD_RipCount per NEW
 		// victim and hands out TakeRipperAway at the limit.
-		SetInventory("DnD_RipLimit", Max(1, GetSpellValue(pnum, SPL_GLACIALSPIKE, SPELLVAL_AMOUNT)));
+		SetSpellRipLimit(pnum, 0, Max(1, GetSpellValue(pnum, SPL_GLACIALSPIKE, SPELLVAL_AMOUNT)));
 
 		// Rank 10: rips through Hardened Skin. Still only AMOUNT of them.
 		if(SpellThresholdMet(pnum, SPL_GLACIALSPIKE, DND_SPELL_THRESH_HIGH))
@@ -2079,7 +2085,7 @@ Script "DnD Chilling Breath Claim" (void) {
 
 	// MAX_RIPCOUNT is the one limit that skips the rip budget. UNSET reads as 0, which strips the
 	// ripper on contact number one -- which is why the breath was not ripping at all.
-	SetInventory("DnD_RipLimit", MAX_RIPCOUNT);
+	SetSpellRipLimit(pnum, 0, MAX_RIPCOUNT);
 
 	// Reach, as tics of flight. The row is in units and the puff covers SPEED of them a tic.
 	int reach = GetSpellValue(pnum, SPL_CHILLINGBREATH, SPELLVAL_RADIUS);
@@ -2270,7 +2276,7 @@ Script "DnD Frost Shard Setup" (void) {
 		// ACS cannot set an actor flag in Zandronum, so the pickup does it.
 		GiveInventory("DnD_MakeRipper", 1);
 		SetActorProperty(0, APROP_STAMINA, GetActorProperty(0, APROP_STAMINA) | DND_DAMAGEFLAG_RIPSONCE);
-		SetInventory("DnD_RipLimit", DND_FROSTSHARDS_RIPS);
+		SetSpellRipLimit(pnum, 0, DND_FROSTSHARDS_RIPS);
 	}
 
 	SetResultValue(0);
@@ -2472,19 +2478,39 @@ Script "DnD Ice Nova" (int pnum) {
 #define DND_PUSH_BOSS_PCT 25            // the share of a spell's shove a boss or legendary takes
 #define DND_PUSH_HEAVY_PCT 50           // and a Baron-class or heavier monster, or a unique
 
-// How much of a spell's shove a monster takes: bosses and the Baron tier up resist being thrown.
-int GetMonsterPushPercent(int victim) {
+enum {
+	DND_PUSHTIER_NORMAL,
+	DND_PUSHTIER_HEAVY,             // the Baron class up to the Cyberdemon's, and uniques
+	DND_PUSHTIER_BOSS,              // bosses and legendaries
+	DND_PUSHTIER_DUNGEONBOSS        // whatever its kind, spawned as a dungeon's boss
+};
+
+int GetMonsterPushTier(int victim) {
 	int m_id = victim - DND_MONSTERTID_BEGIN;
 	if(m_id < 0 || m_id >= DND_MAX_MONSTERS)
-		return 100;
+		return DND_PUSHTIER_NORMAL;
+	if(MonsterProperties[m_id].flags & DND_MONFLAG_ISDUNGEONBOSS)
+		return DND_PUSHTIER_DUNGEONBOSS;
 
 	int id = MonsterProperties[m_id].id;
 	if(IsMonsterIdBoss(id) || isLegendaryMonster(id))
-		return DND_PUSH_BOSS_PCT;
+		return DND_PUSHTIER_BOSS;
 
 	int c = MonsterProperties[m_id].class;
 	if((c >= MONSTERCLASS_BARON && c <= MONSTERCLASS_CYBERDEMON) || IsUniqueMonster(id))
+		return DND_PUSHTIER_HEAVY;
+	return DND_PUSHTIER_NORMAL;
+}
+
+// How much of a spell's shove a monster takes: bosses and the Baron tier up resist being thrown.
+int GetMonsterPushPercent(int victim) {
+	switch(GetMonsterPushTier(victim)) {
+		case DND_PUSHTIER_HEAVY:
 		return DND_PUSH_HEAVY_PCT;
+		case DND_PUSHTIER_BOSS:
+		case DND_PUSHTIER_DUNGEONBOSS:
+		return DND_PUSH_BOSS_PCT;
+	}
 	return 100;
 }
 
@@ -2748,6 +2774,7 @@ Script "DnD Frost Bomb" (int pnum) {
 #define DND_ICEGOLEM_BOLTCHANCE 30
 #define DND_ICEGOLEM_R5_MANAREGEN 50    // percent, rank 5
 #define DND_ICEGOLEM_AURATICS 35        // how often the rank 5 buff is pushed out again
+#define DND_ICEGOLEM_AURAPOLL 5         // and how often the golem is looked for, so a death ends it promptly
 
 // Melee off the row, with the dash a straight multiple of it -- so the dash has no field to drift
 // from and both move together when the row does.
@@ -2820,31 +2847,33 @@ Script "DnD Summon Ice Golem" (int pnum) {
 		ACS_NamedExecuteAlways("DnD Ice Golem Aura", 0, pnum);
 }
 
-// Rank 5's mana regeneration. Pushed out again while a golem stands rather than granted once for a
-// fixed time: the spell says "grants", so it has to end when the golem does.
+// Whether a player's aura ticker runs. Map scope, so it resets with the scripts on a new map.
+int[] module& GetIceGolemAuras() {
+	static int on[MAXPLAYERS];
+	return on;
+}
+
+// Rank 5's mana regeneration, pushed out again while a golem stands and removed as soon as none does.
 Script "DnD Ice Golem Aura" (int pnum) {
 	if(!SpellThresholdMet(pnum, SPL_ICEGOLEM, DND_SPELL_THRESH_LOW))
 		Terminate;
 
-	int caster = pnum + P_TIDSTART;
-
-	// One ticker per player, however many times a golem is recast.
-	if(CheckActorInventory(caster, "Spell_IceGolemAura") )
+	int[] module& on = GetIceGolemAuras();
+	if(on[pnum])
 		Terminate;
+	on[pnum] = true;
 
-	GiveActorInventory(caster, "Spell_IceGolemAura", 1);
-
-	while(PlayerInGame(pnum) && IsActorAlive(caster) &&
-		CountPlayerPetsOfKind(pnum, MONSTER_PET_ICEGOLEM) > 0) {
-
-		// Twice the refresh, so a late tick never leaves a gap in the middle.
-		HandlePlayerBuffAssignment(pnum, caster, BTI_SPELL_ICEGOLEM_MANA, 0, 0,
-			DND_ICEGOLEM_AURATICS * 2, DND_ICEGOLEM_R5_MANAREGEN);
-
-		Delay(const:DND_ICEGOLEM_AURATICS);
+	int caster = pnum + P_TIDSTART;
+	for(int t = 0; PlayerInGame(pnum) && CountPlayerPetsOfKind(pnum, MONSTER_PET_ICEGOLEM) > 0; t += DND_ICEGOLEM_AURAPOLL) {
+		// Granted for twice the refresh so a late tick leaves no gap; a dead summoner gets it back on respawn.
+		if(!(t % DND_ICEGOLEM_AURATICS) && IsActorAlive(caster))
+			HandlePlayerBuffAssignment(pnum, caster, BTI_SPELL_ICEGOLEM_MANA, 0, 0, DND_ICEGOLEM_AURATICS * 2, DND_ICEGOLEM_R5_MANAREGEN);
+		Delay(const:DND_ICEGOLEM_AURAPOLL);
 	}
 
-	TakeActorInventory(caster, "Spell_IceGolemAura", 1);
+	if(PlayerInGame(pnum))
+		RemoveBuffWithTableIndex(pnum, BTI_SPELL_ICEGOLEM_MANA);
+	on[pnum] = false;
 }
 
 // ============================ Ice Spear ============================
@@ -2929,7 +2958,7 @@ Script "DnD Ice Spear Evolve" (void) {
 	// Each enemy once, and only so many of them, which is the same bookkeeping Glacial Spike uses.
 	GiveInventory("DnD_MakeRipper", 1);
 	SetActorProperty(0, APROP_STAMINA, GetActorProperty(0, APROP_STAMINA) | DND_DAMAGEFLAG_RIPSONCE);
-	SetInventory("DnD_RipLimit", DND_ICESPEAR_RIPS);
+	SetSpellRipLimit(pnum, 0, DND_ICESPEAR_RIPS);
 
 	// Its own crit, which the damage event reads off the actor. Phase 1 has none.
 	SetUserVariable(0, "user_critchance", DND_ICESPEAR_CRIT +
@@ -3242,7 +3271,7 @@ Script "DnD Avalanche" (int pnum) {
 			if(rips && random(1, 100) <= DND_AVALANCHE_R10_RIP) {
 				GiveActorInventory(tid, "DnD_MakeRipper", 1);
 				SetActorProperty(tid, APROP_STAMINA, GetActorProperty(tid, APROP_STAMINA) | DND_DAMAGEFLAG_RIPSONCE);
-				SetActorInventory(tid, "DnD_RipLimit", MAX_RIPCOUNT);
+				SetSpellRipLimit(pnum, tid, MAX_RIPCOUNT);
 			}
 
 			// It forms in the air first and launches itself, so the velocity waits on it. It hangs already
@@ -3431,7 +3460,11 @@ Script "DnD Avalanche FX" (int xy, int zs, int aim) CLIENTSIDE {
 
 Script "DnD Winter Orb Setup" (void) {
 	// Each enemy once, and no cap on how many.
-	SetInventory("DnD_RipLimit", MAX_RIPCOUNT);
+	int pnum = GetSpellActorOwner();
+	if(pnum != -1)
+		SetSpellRipLimit(pnum, 0, MAX_RIPCOUNT);
+	else
+		SetInventory("DnD_RipLimit", MAX_RIPCOUNT);
 	SetResultValue(0);
 }
 
@@ -3971,14 +4004,19 @@ void SendBeamToEnemy(str fx, int x0, int y0, int z0, int victim) {
 		PackMapPair(z0, GetActorZ(victim) + GetActorProperty(victim, APROP_HEIGHT) / 2));
 }
 
-// One rolled hit of a beam spell at pct of its damage, priced and dealt, as area damage when area is set. Returns what landed.
-int DealSpellBeamHit(int pnum, int spell, int victim, int pct, bool area = false) {
-	int dmg = PriceSpellDamage(pnum, spell, RollSpellValue(pnum, spell, SPELLVAL_DAMAGE) * pct / 100, area ? DND_WDMG_ISRADIUSDMG : 0);
+// One hit of a spell from a base amount, priced and dealt, as area damage when area is set. Returns what landed.
+int DealSpellAmount(int pnum, int spell, int victim, int base, bool area = false, int flags = 0) {
+	int dmg = PriceSpellDamage(pnum, spell, base, area ? DND_WDMG_ISRADIUSDMG : 0);
 	int dealt = HandleDamageDeal(pnum + P_TIDSTART, victim, dmg, GetSpellDamageType(spell), spell,
-		DND_DAMAGEFLAG_ISSPELL | (area ? DND_DAMAGEFLAG_ISRADIUSDMG : 0), 0, 0, 0, 0, true);
+		DND_DAMAGEFLAG_ISSPELL | (area ? DND_DAMAGEFLAG_ISRADIUSDMG : 0) | flags, 0, 0, 0, 0, true);
 	if(dealt > 0)
 		Thing_Damage2(victim, dealt, "SkipHandle");
 	return dealt;
+}
+
+// One rolled hit of a beam spell at pct of its damage, priced and dealt, as area damage when area is set. Returns what landed.
+int DealSpellBeamHit(int pnum, int spell, int victim, int pct, bool area = false, int flags = 0) {
+	return DealSpellAmount(pnum, spell, victim, RollSpellValue(pnum, spell, SPELLVAL_DAMAGE) * pct / 100, area, flags);
 }
 
 // Client side: a crackle somewhere on an actor's body.
@@ -4575,32 +4613,98 @@ int GetEnergyBladeDamage(int pnum, int wepid) {
 
 // ============================ Blink ============================
 
-#define DND_BLINK_STEP 8.0              // how far back each try steps when the full distance is blocked
-#define DND_BLINK_MIN 16.0              // closer than this and the blink fails
-#define DND_BLINK_CHEST 32.0            // the spot is checked for sight at this height over its floor
+#define DND_BLINK_CHEST 32.0            // the streak runs at this height over the caster's feet
+#define DND_BLINK_SURGE_TICS 2          // how long Conduit's distance waits for a running Overcharge to take it
+#define DND_BLINK_SCANSTEP 8.0          // how finely the landing spot is searched, back from the full distance
+#define DND_BLINK_ONFLOOR (-2147483647 - 1)	// the engine's ONFLOORZ: a spawn at this z stands on the floor
 
-// A dash along the facing, as far as the distance allows: the farthest spot in sight that the caster fits in.
 void CastBlink(int pnum) {
-	int ptid = pnum + P_TIDSTART;
-	int a = GetActorAngle(ptid), x0 = GetActorX(ptid), y0 = GetActorY(ptid), z0 = GetActorZ(ptid);
-	int d, x, y, z, probe;
-	bool seen;
-	for(d = GetSpellValue(pnum, SPL_BLINK, SPELLVAL_RADIUS) << 16; d >= DND_BLINK_MIN; d -= DND_BLINK_STEP) {
-		x = x0 + FixedMul(d, cos(a));
-		y = y0 + FixedMul(d, sin(a));
-		probe = ScratchTID();
-		if(!probe || !SpawnForced("DnD_SpellAnchor", x, y, z0, probe, 0))
-			return;
-		z = Max(z0, GetActorFloorZ(probe));
-		SetActorPosition(probe, x, y, z + DND_BLINK_CHEST, false);
-		seen = CheckSight(ptid, probe, 0);
-		Thing_Remove(probe);
-		if(seen && SetActorPosition(ptid, x, y, z, false)) {
-			PlaySound(ptid, "Blink/Cast", CHAN_7);
-			ACS_NamedExecuteAlways("DnD Blink FX", 0, PackMapPair(x0, y0), PackMapPair(x, y), PackMapPair(z0 + DND_BLINK_CHEST, z + DND_BLINK_CHEST));
-			return;
+	ACS_NamedExecuteAlways("DnD Blink Dash", 0, pnum);
+}
+
+// The farthest distance up to d along a where the caster fits among actors, the probe standing on that spot's floor,
+// so the dash never ends inside a monster or a decoration. Walls and ledges are left to the dash itself.
+int BlinkClearDistance(int ptid, int a, int d) {
+	int probe = ScratchTID(), x0 = GetActorX(ptid), y0 = GetActorY(ptid);
+	if(!probe)
+		return d;
+	for(; d > 0; d -= DND_BLINK_SCANSTEP) {
+		if(Spawn("DnD_BlinkProbe", x0 + FixedMul(d, cos(a)), y0 + FixedMul(d, sin(a)), DND_BLINK_ONFLOOR, probe, 0)) {
+			Thing_Remove(probe);
+			return d;
 		}
 	}
+	return 0;
+}
+
+// A player-sized solid probe cannot spawn where the caster stands while anything solid still overlaps them.
+bool BlinkOverlapsActor(int ptid) {
+	int probe = ScratchTID();
+	if(!probe)
+		return false;
+	if(!Spawn("DnD_BlinkProbe", GetActorX(ptid), GetActorY(ptid), GetActorZ(ptid), probe, 0))
+		return true;
+	Thing_Remove(probe);
+	return false;
+}
+
+// Static Wake: Shock every enemy the caster's body swept through, from (x0, y0) to where they stand now.
+void ShockBlinkPath(int pnum, int x0, int y0, int z0) {
+	int ptid = pnum + P_TIDSTART;
+	int dx = GetActorX(ptid) - x0, dy = GetActorY(ptid) - y0, len = VectorLength(dx, dy);
+	if(len < 1.0)
+		return;
+	int ux = FixedDiv(dx, len), uy = FixedDiv(dy, len), body = GetActorProperty(ptid, APROP_RADIUS);
+	int zlo = Min(z0, GetActorZ(ptid)), zhi = Max(z0, GetActorZ(ptid)) + GetActorProperty(ptid, APROP_HEIGHT);
+	int i, m, rx, ry, along, reach;
+	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+		m = UsedMonsterTIDs[i];
+		if(!IsActorAlive(m) || !IsSpellEnemy(m))
+			continue;
+		reach = body + GetActorProperty(m, APROP_RADIUS);
+		rx = GetActorX(m) - x0;
+		ry = GetActorY(m) - y0;
+		along = FixedMul(rx, ux) + FixedMul(ry, uy);
+		if(along < 0 || along > len + reach || abs(FixedMul(rx, uy) - FixedMul(ry, ux)) > reach)
+			continue;
+		if(GetActorZ(m) > zhi || GetActorZ(m) + GetActorProperty(m, APROP_HEIGHT) < zlo)
+			continue;
+		ApplySpellShock(pnum, m);
+	}
+}
+
+// The whole distance as one tic of velocity: the engine moves the caster in collision-checked steps, so walls
+// and ledges taller than a step stop the dash as they stop walking. Actors do not: the caster is unsolid for it.
+Script "DnD Blink Dash" (int pnum) {
+	int ptid = pnum + P_TIDSTART;
+	int a = GetActorAngle(ptid), d = BlinkClearDistance(ptid, a, GetSpellValue(pnum, SPL_BLINK, SPELLVAL_RADIUS) << 16);
+	int x0 = GetActorX(ptid), y0 = GetActorY(ptid), z0 = GetActorZ(ptid);
+	int vx = GetActorVelX(ptid), vy = GetActorVelY(ptid);
+
+	GiveActorInventory(ptid, "AllowThruObjects", 1);
+	SetActorVelocity(ptid, FixedMul(d, cos(a)), FixedMul(d, sin(a)), GetActorVelZ(ptid), false, false);
+	PlaySound(ptid, "Blink/Cast", CHAN_7);
+	Delay(const:1);
+
+	SetActorVelocity(ptid, vx, vy, GetActorVelZ(ptid), false, false);
+	ACS_NamedExecuteAlways("DnD Blink FX", 0, PackMapPair(x0, y0), PackMapPair(GetActorX(ptid), GetActorY(ptid)),
+		PackMapPair(z0 + DND_BLINK_CHEST, GetActorZ(ptid) + DND_BLINK_CHEST));
+
+	if(SpellThresholdMet(pnum, SPL_BLINK, DND_SPELL_THRESH_LOW))
+		ShockBlinkPath(pnum, x0, y0, z0);
+
+	// Conduit: the distance covered, for a running Overcharge; cleared after so none waits for a later cast.
+	if(SpellThresholdMet(pnum, SPL_BLINK, DND_SPELL_THRESH_HIGH)) {
+		SetActorInventory(ptid, "DnD_OverchargeSurge", VectorLength(GetActorX(ptid) - x0, GetActorY(ptid) - y0) >> 16);
+		Delay(const:DND_BLINK_SURGE_TICS);
+		SetActorInventory(ptid, "DnD_OverchargeSurge", 0);
+	}
+
+	// In case a monster stepped onto the landing spot: a player turned solid inside a monster cannot move until it does.
+	while(IsActorAlive(ptid) && BlinkOverlapsActor(ptid))
+		Delay(const:1);
+	if(IsActorAlive(ptid))
+		GiveActorInventory(ptid, "TakeThruObjects", 1);
 }
 
 // Client side: a streak of lightning along the dash and a burst at each end. Each argument is a packed pair.
@@ -4634,6 +4738,14 @@ bool OverchargeBleeds(int still) {
 	return still > DND_OVERCHARGE_GRACE && !((still - DND_OVERCHARGE_GRACE) % DND_OVERCHARGE_DECAY);
 }
 
+// Blink's Conduit: whole units its dash just covered, at the charge rate, taken so they count once.
+int TakeOverchargeSurge(int ptid, int rate) {
+	int units = CheckActorInventory(ptid, "DnD_OverchargeSurge");
+	if(units)
+		SetActorInventory(ptid, "DnD_OverchargeSurge", 0);
+	return units * rate / 100;
+}
+
 void CastOvercharge(int pnum) {
 	PlaySound(pnum + P_TIDSTART, "Overcharge/Cast", CHAN_7);
 	ACS_NamedExecuteAlways("DnD Overcharge", 0, pnum);
@@ -4652,7 +4764,7 @@ Script "DnD Overcharge" (int pnum) {
 	ACS_NamedExecuteAlways("DnD Overcharge FX", 0, pnum, tics);
 
 	for(t = 0; t < tics && PlayerInGame(pnum) && IsActorAlive(ptid); ++t) {
-		acc += Min(VectorLength(GetActorVelX(ptid), GetActorVelY(ptid)), DND_OVERCHARGE_SPEEDCAP) * rate / 100;
+		acc += Min(VectorLength(GetActorVelX(ptid), GetActorVelY(ptid)), DND_OVERCHARGE_SPEEDCAP) * rate / 100 + (TakeOverchargeSurge(ptid, rate) << 16);
 		// Kept at the cap, so a charge lost standing still shows at once rather than off a surplus.
 		acc = Min(acc, cap * DND_OVERCHARGE_PERCHARGE);
 		still = GetOverchargeStill(ptid, still);
@@ -4670,10 +4782,13 @@ Script "DnD Overcharge" (int pnum) {
 	for(t = 0; (held = CheckActorInventory(ptid, "DnD_OverchargeReady")) && PlayerInGame(pnum) && IsActorAlive(ptid); ++t) {
 		if(t % DND_OVERCHARGE_HELDFX == 0)
 			ACS_NamedExecuteAlways("DnD Overcharge FX", 0, pnum, 0);
+		charges = Min(cap, held + TakeOverchargeSurge(ptid, rate) / (DND_OVERCHARGE_PERCHARGE >> 16));
 		still = GetOverchargeStill(ptid, still);
-		if(OverchargeBleeds(still)) {
-			SetActorInventory(ptid, "DnD_OverchargeReady", --held);
-			SetActorInventory(ptid, "P_OverchargeCharges", held);
+		if(OverchargeBleeds(still))
+			--charges;
+		if(charges != held) {
+			SetActorInventory(ptid, "DnD_OverchargeReady", charges);
+			SetActorInventory(ptid, "P_OverchargeCharges", charges);
 		}
 		Delay(const:1);
 	}
@@ -5044,6 +5159,10 @@ int GetFloorZAt(int x, int y) {
 	return GetSectorFloorZ(0, x >> 16, y >> 16);
 }
 
+int GetCeilingZAt(int x, int y) {
+	return GetSectorCeilingZ(0, x >> 16, y >> 16);
+}
+
 // A probe for sight checks at a point, on a scratch tid the caller removes; 0 if it would not spawn.
 int SpawnSpellProbe(int x, int y, int z) {
 	int tid = ScratchTID();
@@ -5077,6 +5196,12 @@ bool InSpellArea(int probe, int m, int x, int y, int r) {
 		return false;
 	reach = (r + GetActorProperty(m, APROP_RADIUS)) >> 16;
 	return dx * dx + dy * dy <= reach * reach && CheckSight(probe, m, CSF_NOBLOCKALL);
+}
+
+// Whether a body's height comes within r of z, for an area that is a ball rather than a column.
+bool InSpellHeight(int m, int z, int r) {
+	int mz = GetActorZ(m);
+	return mz <= z + r && mz + GetActorProperty(m, APROP_HEIGHT) >= z - r;
 }
 
 // ============================ Storm Brand ============================
@@ -5951,7 +6076,7 @@ void CastShrapnel(int pnum) {
 Script "DnD Shrapnel Setup" (void) {
 	int pnum = GetSpellActorOwner();
 	if(pnum != -1) {
-		SetInventory("DnD_RipLimit", Max(1, GetSpellValue(pnum, SPL_SHRAPNEL, SPELLVAL_AMOUNT)));
+		SetSpellRipLimit(pnum, 0, Max(1, GetSpellValue(pnum, SPL_SHRAPNEL, SPELLVAL_AMOUNT)));
 		if(SpellThresholdMet(pnum, SPL_SHRAPNEL, DND_SPELL_THRESH_LOW))
 			GiveInventory("DnD_RipThruHardened", 1);
 	}
@@ -6036,6 +6161,202 @@ Script "DnD Rockslide Stun" (void) {
 	SetResultValue(0);
 }
 
+// ---- Blockade ----
+
+#define DND_BLOCKADE_RANGE 384.0        // the farthest ahead the wall rises
+#define DND_BLOCKADE_MINDIST 48.0       // and the nearest, clear of the caster
+#define DND_BLOCKADE_BACKOFF 40.0       // pulled back this far when the aim ended on a wall or a body
+#define DND_BLOCKADE_STEP 16.0          // between its pieces; each is 20 across, so nothing fits between
+#define DND_BLOCKADE_ROCKSTEP 24.0      // between the debris bursts of a broken wall
+#define DND_BLOCKADE_SLABW 48.0         // a drawn slab's width at scale 1 (BLKWALL*.md3)
+#define DND_BLOCKADE_SLABS 4            // slab models, in the order their plates continue
+#define DND_BLOCKADE_MAXSLABS 48
+#define DND_BLOCKADE_SLABPAD 16.0       // the drawn wall runs this much past the pieces' centres, over their radius
+#define DND_BLOCKADE_RISE 8             // tics the slabs take to come up
+#define DND_BLOCKADE_SINK 12            // and to go back down when it lapses
+#define DND_BLOCKADE_DEPTH 100.0        // how far under the floor they start, the slabs' full height
+#define DND_BLOCKADE_LEAN 0.02          // the slabs lean back toward the caster by this turn fraction
+#define DND_BLOCKADE_SEEALPHA 0.5       // from rank 5 the rocks are see-through, as shots are
+#define DND_BLOCKADE_SHARDS 8           // rank 10: Shrapnels across the wall when it breaks
+#define DND_BLOCKADE_SHARDZ 32.0
+
+typedef struct {
+	int hp[MAXPLAYERS];         // the wall's health, shared by every piece
+	int len[MAXPLAYERS];
+	int serial[MAXPLAYERS];     // bumped by every cast, so the older wall's watcher ends
+} blockade_T;
+
+blockade_T module& GetBlockades() {
+	static blockade_T s;
+	return s;
+}
+
+// A monster's hit on any piece of the wall, taken off the shared pool.
+void HitBlockade(int pnum, int dmg) {
+	GetBlockades().hp[pnum] -= dmg;
+}
+
+// Takes the wall down. Broken, it bursts; rank 10 also sends Shrapnels out across its length.
+void EndBlockade(int pnum, bool broken) {
+	int anchor = DND_BLOCKADE_ANCHOR_TID + pnum, len = GetBlockades().len[pnum];
+	Thing_Remove(DND_BLOCKADE_TID + pnum);
+	if(broken) {
+		ACS_NamedExecuteAlways("DnD Blockade Break FX", 0, PackMapPair(GetActorX(anchor), GetActorY(anchor)),
+			((GetActorZ(anchor) >> 16) & 0xFFFF) | (len & 0xFFFF0000), (GetActorAngle(anchor) & 0xFFFF) | (pnum << 16));
+		if(SpellThresholdMet(pnum, SPL_BLOCKADE, DND_SPELL_THRESH_HIGH)) {
+			int n = DND_BLOCKADE_SHARDS + GetSpellExtraProjectiles(pnum, SPL_BLOCKADE);
+			for(int i = 0; i < n; ++i)
+				SpawnSpellProjectile(pnum, SPL_SHRAPNEL, "Spell_Shrapnel", DND_SHRAPNEL_SPEED, 0, 0,
+					len / (2 * n) * (2 * i + 1) - len / 2, 0, anchor, true, DND_BLOCKADE_SHARDZ);
+		}
+	}
+	Thing_Remove(anchor);
+}
+
+// Raised across the caster's facing where the aim ends; one wall a caster, a new one replacing the old.
+Script "DnD Blockade" (int pnum) {
+	TraceSpellAim(pnum, DND_BLOCKADE_RANGE);
+	for(int w = 0; !ReadSpellAim(pnum) && w < DND_SPELLAIM_WAIT; ++w)
+		Delay(const:1);
+	if(!SpellAimReady(pnum) || !PlayerInGame(pnum))
+		Terminate;
+
+	auto aim = GetSpellAim();
+	auto bl = GetBlockades();
+	int ptid = pnum + P_TIDSTART, a = GetActorAngle(ptid), ca = cos(a), sa = sin(a);
+	int d = FixedMul(aim.x[pnum] - GetActorX(ptid), ca) + FixedMul(aim.y[pnum] - GetActorY(ptid), sa);
+	if(aim.z[pnum] - GetFloorZAt(aim.x[pnum], aim.y[pnum]) > 2.0)
+		d -= DND_BLOCKADE_BACKOFF;
+	d = Clamp_Between(d, DND_BLOCKADE_MINDIST, DND_BLOCKADE_RANGE);
+	int cx = GetActorX(ptid) + FixedMul(d, ca), cy = GetActorY(ptid) + FixedMul(d, sa);
+
+	if(bl.serial[pnum])
+		EndBlockade(pnum, false);
+	int serial = ++bl.serial[pnum];
+	int tid = DND_BLOCKADE_TID + pnum, anchor = DND_BLOCKADE_ANCHOR_TID + pnum;
+	if(!SpawnForced("Spell_Blockade_Anchor", cx, cy, GetFloorZAt(cx, cy), anchor))
+		Terminate;
+	SetActorAngle(anchor, a);
+	if(!CheckSight(ptid, anchor, CSF_NOBLOCKALL)) {
+		Thing_Remove(anchor);
+		Terminate;
+	}
+
+	// Pieces pass each other by species, so only a body or a wall stops one; out of the anchor's sight is past a corner.
+	int len = ScaleSpellArea(pnum, SPL_BLOCKADE, GetSpellValue(pnum, SPL_BLOCKADE, SPELLVAL_AMOUNT) << 16);
+	int n = len / DND_BLOCKADE_STEP + 1, i, off, x, y, s;
+	for(i = 0; i < n; ++i) {
+		off = i * DND_BLOCKADE_STEP - len / 2;
+		x = cx - FixedMul(sa, off);
+		y = cy + FixedMul(ca, off);
+		s = ScratchTID();
+		if(!s || !Spawn("Spell_Blockade_Segment", x, y, GetFloorZAt(x, y), s, a >> 8))
+			continue;
+		if(CheckSight(anchor, s, CSF_NOBLOCKALL))
+			Thing_ChangeTID(s, tid);
+		else
+			Thing_Remove(s);
+	}
+	// Rank 5: friendly lets player shots through (sv_shootthroughallies), the pets' species lets theirs through.
+	bool through = SpellThresholdMet(pnum, SPL_BLOCKADE, DND_SPELL_THRESH_LOW);
+	if(through) {
+		SetActorProperty(tid, APROP_FRIENDLY, true);
+		SetActorProperty(tid, APROP_SPECIES, "Player");
+	}
+
+	bl.hp[pnum] = GetSpellValue(pnum, SPL_BLOCKADE, SPELLVAL_DAMAGE);
+	bl.len[pnum] = len;
+	PlaySound(anchor, "Blockade/Rise", CHAN_BODY);
+	ACS_NamedExecuteAlways("DnD Blockade FX", 0, pnum, len >> 16, through);
+
+	int life = GetSpellDurationTics(pnum, SPL_BLOCKADE);
+	for(int t = 0; t < life && bl.hp[pnum] > 0 && PlayerInGame(pnum); ++t) {
+		Delay(const:1);
+		if(bl.serial[pnum] != serial)
+			Terminate;
+	}
+	EndBlockade(pnum, bl.hp[pnum] <= 0 && PlayerInGame(pnum));
+}
+
+typedef struct {
+	int seq;						// bumped by each FX script, so an anchor's token names the one drawing its rocks
+	int broke[MAXPLAYERS];			// the Timer() a player's wall broke at, so its rocks vanish rather than sink
+} blockade_fx_T;
+
+blockade_fx_T module& GetBlockadeFX() {
+	static blockade_fx_T s;
+	return s;
+}
+
+// Client side: the rocks rise along the wall, stand while its anchor does, and sink when it lapses or vanish when it breaks.
+Script "DnD Blockade FX" (int pnum, int len, int through) CLIENTSIDE {
+	int anchor = DND_BLOCKADE_ANCHOR_TID + pnum;
+	int rocks = ScratchTID();
+	if(!rocks || !ThingCount(T_NONE, anchor))
+		Terminate;
+	int me = ++GetBlockadeFX().seq;
+	SetActorInventory(anchor, "DnD_BlockadeFX", me);
+
+	int a = GetActorAngle(anchor), cx = GetActorX(anchor), cy = GetActorY(anchor);
+	// Slabs laid along +y in their cyclic order, so the plates run on across every joint, stretched to fill the length.
+	len = (len << 16) + DND_BLOCKADE_SLABPAD;
+	int n = Clamp_Between((len + DND_BLOCKADE_SLABW / 2) / DND_BLOCKADE_SLABW, 2, DND_BLOCKADE_MAXSLABS);
+	int step = len / n, phase = random(0, DND_BLOCKADE_SLABS - 1), i, off, x, y, r;
+	for(i = 0; i < n; ++i) {
+		off = step * i + step / 2 - len / 2;
+		x = cx - FixedMul(sin(a), off);
+		y = cy + FixedMul(cos(a), off);
+		if(!(r = ScratchTID()) || !SpawnForced(StrParam(s:"Spell_Blockade_Slab", d:(phase + i) % DND_BLOCKADE_SLABS + 1), x, y, GetFloorZAt(x, y) - DND_BLOCKADE_DEPTH, r))
+			continue;
+		SetActorAngle(r, a);
+		SetActorPitch(r, DND_BLOCKADE_LEAN);
+		if(!i)
+			SetActorState(r, "First");
+		else if(i == n - 1)
+			SetActorState(r, "Last");
+		SetActorProperty(r, APROP_SCALEX, FixedDiv(step, DND_BLOCKADE_SLABW));
+		if(through) {
+			SetActorProperty(r, APROP_RENDERSTYLE, STYLE_TRANSLUCENT);
+			SetActorProperty(r, APROP_ALPHA, DND_BLOCKADE_SEEALPHA);
+		}
+		Thing_ChangeTID(r, rocks);
+	}
+
+	SetActorVelocity(rocks, 0, 0, DND_BLOCKADE_DEPTH / DND_BLOCKADE_RISE, false, false);
+	Delay(const:DND_BLOCKADE_RISE);
+	SetActorVelocity(rocks, 0, 0, 0, false, false);
+	while(ThingCount(T_NONE, anchor) && CheckActorInventory(anchor, "DnD_BlockadeFX") == me)
+		Delay(const:4);
+
+	// The break script runs a tic behind the anchor's removal.
+	Delay(const:1);
+	if(GetBlockadeFX().broke[pnum] >= Timer() - 4) {
+		Thing_Remove(rocks);
+		Terminate;
+	}
+	SetActorVelocity(rocks, 0, 0, -DND_BLOCKADE_DEPTH / DND_BLOCKADE_SINK, false, false);
+	Delay(const:DND_BLOCKADE_SINK);
+	Thing_Remove(rocks);
+}
+
+// Client side: chunks and dust burst along a broken wall.
+Script "DnD Blockade Break FX" (int xy, int zlen, int ap) CLIENTSIDE {
+	int cx = xy << 16, cy = xy & 0xFFFF0000, z = zlen << 16, len = zlen & 0xFFFF0000, a = ap & 0xFFFF, off, x, y, i;
+	GetBlockadeFX().broke[ap >> 16] = Timer();
+	for(off = -len / 2; off <= len / 2; off += DND_BLOCKADE_ROCKSTEP) {
+		x = cx - FixedMul(sin(a), off);
+		y = cy + FixedMul(cos(a), off);
+		for(i = 0; i < 3; ++i)
+			Spawn("Spell_RockArmor_Chunk", x + random(-8.0, 8.0), y + random(-8.0, 8.0), z + random(16.0, 64.0));
+		Spawn("Spell_Rockslide_Dust", x, y, z + random(8.0, 40.0));
+	}
+	i = ScratchTID();
+	if(i && Spawn("Spell_Rockslide_Dust", cx, cy, z + 32.0, i)) {
+		PlaySound(i, "Blockade/Break", CHAN_BODY);
+		Thing_ChangeTID(i, 0);
+	}
+}
+
 // ---- Toxic Trap ----
 
 #define DND_TOXICTRAP_SLOTS 4          // the most a caster has out: AMOUNT is 2, 4 from rank 5
@@ -6049,7 +6370,6 @@ Script "DnD Rockslide Stun" (void) {
 #define DND_TOXICTRAP_SPREAD 48.0      // how far the outer clouds sit from the middle
 #define DND_TOXICTRAP_GASHEIGHT 64.0   // how high the gas reaches off the floor
 #define DND_TOXICTRAP_MAXPOISONED 64  // enemies one burst can poison
-#define DND_TOXICTRAP_LIFT 6.0         // the trap sits this far off the floor, so its sprite shows whole
 
 typedef struct {
 	int order[MAXPLAYERS * DND_TOXICTRAP_SLOTS];	// 0 for a free slot, else when it was laid
@@ -6061,10 +6381,12 @@ toxic_trap_T module& GetToxicTraps() {
 	return s;
 }
 
-// Frees a trap slot and takes its trap off the floor; its watcher sees the slot change and ends.
-void ClearToxicTrap(int k) {
+// Frees a trap slot, its watcher sees the change and ends; the trap springs open if it fired, else fades.
+void ClearToxicTrap(int k, bool fired) {
+	int tid = DND_TOXICTRAP_TID + k;
 	GetToxicTraps().order[k] = 0;
-	Thing_Remove(DND_TOXICTRAP_TID + k);
+	SetActorState(tid, fired ? "Open" : "Fade");
+	Thing_ChangeTID(tid, 0);
 }
 
 // Lays a trap ahead, or at the caster's feet when the spot is out of sight; the oldest gives way when all are out.
@@ -6089,15 +6411,15 @@ void CastToxicTrap(int pnum) {
 			}
 		}
 		if(n >= most || free == -1)
-			ClearToxicTrap(oldest);
+			ClearToxicTrap(oldest, false);
 	} while(n >= most || free == -1);
 
 	int ptid = pnum + P_TIDSTART, a = GetActorAngle(ptid), tid = DND_TOXICTRAP_TID + free;
 	int x = GetActorX(ptid) + FixedMul(DND_TOXICTRAP_AHEAD, cos(a)), y = GetActorY(ptid) + FixedMul(DND_TOXICTRAP_AHEAD, sin(a));
-	if(!SpawnForced("Spell_ToxicTrap", x, y, GetFloorZAt(x, y) + DND_TOXICTRAP_LIFT, tid))
+	if(!SpawnForced("Spell_ToxicTrap", x, y, GetFloorZAt(x, y), tid, a >> 8))
 		return;
 	if(!CheckSight(ptid, tid, CSF_NOBLOCKALL))
-		SetActorPosition(tid, GetActorX(ptid), GetActorY(ptid), GetActorFloorZ(ptid) + DND_TOXICTRAP_LIFT, false);
+		SetActorPosition(tid, GetActorX(ptid), GetActorY(ptid), GetActorFloorZ(ptid), false);
 
 	int order = ++tt.laid[pnum];
 	tt.order[free] = order;
@@ -6128,13 +6450,13 @@ Script "DnD Toxic Trap" (int pnum, int k, int order) {
 			dx = (GetActorX(m) - x) >> 16;
 			dy = (GetActorY(m) - y) >> 16;
 			if(dx * dx + dy * dy <= reach * reach) {
-				ClearToxicTrap(k);
+				ClearToxicTrap(k, true);
 				ACS_NamedExecuteAlways("DnD Toxic Trap Gas", 0, pnum, PackMapPair(x, y), z >> 16);
 				Terminate;
 			}
 		}
 	}
-	ClearToxicTrap(k);
+	ClearToxicTrap(k, false);
 }
 
 // The burst: a cluster of clouds that ticks every enemy inside any of them once, every DND_TOXICTRAP_TICK.
@@ -6391,6 +6713,10 @@ Script "DnD Baleful Spread FX" (int xy, int z, int r) CLIENTSIDE {
 #define DND_NOXIOUSBLAST_RANGE 512.0
 #define DND_NOXIOUSBLAST_DELAY 14      // tics from the cast to the burst
 #define DND_NOXIOUSBLAST_CLOUDS 7      // burst clouds at the base radius, more as it grows
+#define DND_NOXIOUSBLAST_FLOORSNAP 32.0 // a spot this close over its floor bursts on the floor
+#define DND_NOXIOUSBLAST_HEADROOM 24.0  // one in the air stays at least this far under the ceiling
+#define DND_NOXIOUSBLAST_DISC 15.156    // map units per unit of the ring's scale: flat2's 15.625 by the skin's rim
+#define DND_NOXIOUSBLAST_SMALLEST 0.2   // the ring's size at the burst, a share of the radius it starts at
 
 // Marks the spot, then bursts there and poisons every enemy caught.
 Script "DnD Noxious Blast" (int pnum) {
@@ -6401,7 +6727,16 @@ Script "DnD Noxious Blast" (int pnum) {
 		Terminate;
 
 	auto aim = GetSpellAim();
-	int x = aim.x[pnum], y = aim.y[pnum], z = GetFloorZAt(x, y);
+	int x = aim.x[pnum], y = aim.y[pnum], z = aim.z[pnum], floor = GetFloorZAt(x, y);
+	// On the floor when the spot is near it, else in the air where aimed: an airborne target at its middle.
+	bool grounded = z - floor <= DND_NOXIOUSBLAST_FLOORSNAP;
+	if(grounded)
+		z = floor;
+	else {
+		if(target)
+			z += GetActorProperty(target, APROP_HEIGHT) / 2;
+		z = Max(floor, Min(z, GetCeilingZAt(x, y) - DND_NOXIOUSBLAST_HEADROOM));
+	}
 	int r = ScaleSpellArea(pnum, SPL_NOXIOUSBLAST, GetSpellValue(pnum, SPL_NOXIOUSBLAST, SPELLVAL_RADIUS) << 16);
 
 	PlaySound(pnum + P_TIDSTART, "NoxiousBlast/Cast", CHAN_6);
@@ -6412,26 +6747,37 @@ Script "DnD Noxious Blast" (int pnum) {
 
 	int per_sec = GetSpellValue(pnum, SPL_NOXIOUSBLAST, SPELLVAL_DAMAGE);
 	int tenths = GetSpellValue(pnum, SPL_NOXIOUSBLAST, SPELLVAL_AMOUNT2);
-	int probe = SpawnSpellProbe(x, y, z + 32.0), i, m;
+	int probe = SpawnSpellProbe(x, y, grounded ? z + 32.0 : z), i, m;
 	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
 		m = UsedMonsterTIDs[i];
-		if(InSpellArea(probe, m, x, y, r))
+		if(InSpellArea(probe, m, x, y, r) && InSpellHeight(m, z, r))
 			ApplySpellPoison(pnum, SPL_NOXIOUSBLAST, m, per_sec, tenths);
 	}
 	if(probe)
 		Thing_Remove(probe);
 }
 
-// Client side: poison gathering on the spot through the delay, then the burst filling the radius.
+// Client side: a poison ring over the blast's whole radius closing on the spot through the delay, poison drawn in off
+// its edge; at its smallest, the burst filling the radius.
 Script "DnD Noxious Blast FX" (int xy, int z, int r) CLIENTSIDE {
-	int x = xy << 16, y = xy & 0xFFFF0000, t, a, d, px, py, tid;
+	int x = xy << 16, y = xy & 0xFFFF0000, t, a, d, px, py, tid, p, size;
 	z <<= 16;
 	r <<= 16;
 
+	int ring = ScratchTID();
+	if(ring && !SpawnForced("Spell_NoxiousBlast_Ring", x, y, z, ring))
+		ring = 0;
 	for(t = 0; t < DND_NOXIOUSBLAST_DELAY; ++t) {
+		// Closing quicker and quicker; the shader reads the progress off ScaleY.
+		p = t * 1.0 / (DND_NOXIOUSBLAST_DELAY - 1);
+		size = FixedMul(r, 1.0 - FixedMul(1.0 - DND_NOXIOUSBLAST_SMALLEST, FixedMul(p, p)));
+		if(ring) {
+			SetActorProperty(ring, APROP_SCALEX, FixedDiv(size, DND_NOXIOUSBLAST_DISC));
+			SetActorProperty(ring, APROP_SCALEY, 1.0 + p);
+		}
 		if(!(t % 2) && (tid = ScratchTID())) {
 			a = random(0, 1.0);
-			d = FixedMul(r, random(0.3, 1.0));
+			d = FixedMul(size, random(0.8, 1.0));
 			px = x + FixedMul(d, cos(a));
 			py = y + FixedMul(d, sin(a));
 			if(SpawnForced("Spell_NoxiousBlast_Mote", px, py, z + random(2.0, 10.0), tid)) {
@@ -6442,6 +6788,8 @@ Script "DnD Noxious Blast FX" (int xy, int z, int r) CLIENTSIDE {
 		Delay(const:1);
 	}
 
+	if(ring)
+		Thing_Remove(ring);
 	Spawn("Spell_NoxiousBlast_Burst", x, y, z);
 	int n = DND_NOXIOUSBLAST_CLOUDS * r / (96 << 16);
 	for(t = 0; t < n; ++t) {
@@ -6451,8 +6799,2234 @@ Script "DnD Noxious Blast FX" (int xy, int z, int r) CLIENTSIDE {
 	}
 }
 
-// depth counts Quicktongue's repeats; a cast from TryCastSpell is depth 0.
+// ---- Vines of Torment ----
+
+#define DND_VINES_REACH 512             // how far the lash runs; 100% farther at rank 10
+#define DND_VINES_HALFWIDTH 48.0        // half its width before area gear; 25% more at rank 5
+#define DND_VINES_SPEED 24              // units a tic at AMOUNT 100
+#define DND_VINES_LIFE 88               // tics a stretch stands after it sprouts: 2.5 seconds
+#define DND_VINES_START 32              // how far ahead of the caster it breaks the ground
+#define DND_VINES_STEP 16               // the probes' stride while tracing the path
+#define DND_VINES_CLIMB 256.0           // the tallest single rise the vines climb
+#define DND_VINES_DROP 256.0            // and the deepest drop they follow down
+#define DND_VINES_REACHUP 64.0          // how far over its floor a body can be and still be caught
+#define DND_VINES_CHECK 3               // tics between looks for who touches it
+#define DND_VINES_MAXTOUCH 96           // enemies one lash remembers
+
+// How far the lash runs from (x, y) along a on the floor, stopped by a wall, a rise or drop past its limits or lost sight.
+// The leapfrogging probes stand at the higher floor for the sight test, so a ledge's edge never hides one from the other.
+int TraceVinesPath(int x, int y, int a, int reach) {
+	int fz = GetFloorZAt(x, y), p0 = ScratchTID();
+	if(!p0 || !SpawnForced("Spell_Vines_Probe", x, y, fz, p0))
+		return 0;
+	int p1 = ScratchTID();
+	if(!p1 || !SpawnForced("Spell_Vines_Probe", x, y, fz, p1)) {
+		Thing_Remove(p0);
+		return 0;
+	}
+
+	int d, px = x, py = y, nx, ny, nz, hz;
+	for(d = DND_VINES_STEP; d <= reach; d += DND_VINES_STEP) {
+		nx = x + d * cos(a);
+		ny = y + d * sin(a);
+		nz = GetFloorZAt(nx, ny);
+		if(nz - fz > DND_VINES_CLIMB || fz - nz > DND_VINES_DROP)
+			break;
+		hz = Max(fz, nz);
+		if(!SetActorPosition(p0, px, py, hz, false) || !SetActorPosition(p1, nx, ny, hz, false) || !CheckSight(p0, p1, CSF_NOBLOCKALL))
+			break;
+		px = nx;
+		py = ny;
+		fz = nz;
+	}
+	Thing_Remove(p0);
+	Thing_Remove(p1);
+	return d - DND_VINES_STEP;
+}
+
+// Whether a body overlaps the live stretch [lo, hi] of a lash from (x, y) along (ca, sa), half wide, low enough and in sight.
+bool VinesTouches(int m, int x, int y, int ca, int sa, int lo, int hi, int half, int probe) {
+	int dx = (GetActorX(m) - x) >> 16, dy = (GetActorY(m) - y) >> 16, pad = hi + DND_SPELLAREA_BODYPAD;
+	if(!probe || dx > pad || dx < -pad || dy > pad || dy < -pad)
+		return false;
+
+	int u = (dx * ca + dy * sa) >> 16, v = (dy * ca - dx * sa) >> 16, r = GetActorProperty(m, APROP_RADIUS) >> 16;
+	if(u < lo - r || u > hi + r || v > half + r || v < -half - r)
+		return false;
+	if(GetActorZ(m) - GetFloorZAt(GetActorX(m), GetActorY(m)) > DND_VINES_REACHUP)
+		return false;
+
+	u = Clamp_Between(u, lo, hi);
+	int px = x + u * ca, py = y + u * sa;
+	SetActorPosition(probe, px, py, GetFloorZAt(px, py) + 16.0, false);
+	return CheckSight(probe, m, CSF_NOBLOCKALL);
+}
+
+// A flat heal on another player, as a health pickup of that amount with their healing gear.
+void HealSpellAlly(int who, int amt) {
+	int prev = ActivatorTID();
+	if(!SetActivator(who + P_TIDSTART))
+		return;
+	HandleHealthPickup(amt, 0, 0, true, true);
+	if(prev)
+		SetActivator(prev);
+}
+
+// The lash grows from the caster's feet at its speed; each stretch stands DND_VINES_LIFE tics, with duration gear. Enemies it touches are
+// hit and snared once, allies healed once.
+Script "DnD Vines Of Torment" (int pnum) {
+	int ptid = pnum + P_TIDSTART, a = GetActorAngle(ptid), ca = cos(a), sa = sin(a);
+	int x = GetActorX(ptid), y = GetActorY(ptid);
+	bool far = SpellThresholdMet(pnum, SPL_VINESOFTORMENT, DND_SPELL_THRESH_HIGH);
+	int len = TraceVinesPath(x, y, a, far ? DND_VINES_REACH * 2 : DND_VINES_REACH);
+	PlaySound(ptid, "Vines/Cast", CHAN_6);
+	if(len <= DND_VINES_START)
+		Terminate;
+
+	int half = DND_VINES_HALFWIDTH;
+	if(SpellThresholdMet(pnum, SPL_VINESOFTORMENT, DND_SPELL_THRESH_LOW))
+		half = half * 5 / 4;
+	half = ScaleSpellArea(pnum, SPL_VINESOFTORMENT, half) >> 16;
+	int speed = Max(1, DND_VINES_SPEED * GetSpellValue(pnum, SPL_VINESOFTORMENT, SPELLVAL_AMOUNT) / 100);
+	int snare = GetSpellDurationTics(pnum, SPL_VINESOFTORMENT);
+	// The ally heal takes more-healing gems, as Rejuvenation does.
+	int heal = ApplySpellGemMore(pnum, SPL_VINESOFTORMENT, GEMSTAT_MORE_HEALING, GetSpellValue(pnum, SPL_VINESOFTORMENT, SPELLVAL_DAMAGE2));
+	int life = ScaleSpellEffectTics(pnum, SPL_VINESOFTORMENT, DND_VINES_LIFE);
+	ACS_NamedExecuteAlways("DnD Vines FX", 0, PackMapPair(x, y), (a & 0xFFFF) | (Min(speed, 255) << 16) | (Min(life / 4, 255) << 24),
+		len | (half << 16));
+
+	int touched[DND_VINES_MAXTOUCH], n = 0;
+	bool healed[MAXPLAYERS];
+	int probe = SpawnSpellProbe(x, y, GetFloorZAt(x, y) + 16.0), t, i, k, m, lo, hi;
+	bool seen;
+	for(t = 0; PlayerInGame(pnum); ++t) {
+		hi = Min(len, DND_VINES_START + (t + 1) * speed);
+		lo = Max(DND_VINES_START, DND_VINES_START + (t - life) * speed);
+		if(lo >= hi)
+			break;
+
+		if(!(t % DND_VINES_CHECK)) {
+			for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER] && n < DND_VINES_MAXTOUCH; ++i) {
+				m = UsedMonsterTIDs[i];
+				if(!VinesTouches(m, x, y, ca, sa, lo, hi, half, probe) || !IsActorAlive(m) || !IsSpellEnemy(m))
+					continue;
+				for(k = 0, seen = false; k < n && !seen; ++k)
+					seen = touched[k] == m;
+				if(seen)
+					continue;
+				touched[n++] = m;
+				DealSpellBeamHit(pnum, SPL_VINESOFTORMENT, m, 100);
+				if(IsActorAlive(m) && !UltimatumMonstersUnstoppable()) {
+					SnareMonster(m, snare);
+					ACS_NamedExecuteAlways("DnD Vines Snare FX", 0, m, snare);
+				}
+			}
+			for(i = 0; i < MAXPLAYERS; ++i) {
+				if(i != pnum && !healed[i] && PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) &&
+					VinesTouches(i + P_TIDSTART, x, y, ca, sa, lo, hi, half, probe)) {
+					healed[i] = true;
+					HealSpellAlly(i, heal);
+				}
+			}
+		}
+		Delay(const:1);
+	}
+	if(probe)
+		Thing_Remove(probe);
+}
+
+#define DND_VINES_COILGAP 44            // units between rows of coils along the lash
+#define DND_VINES_COILREACH 30          // a coil's half length, and half its width below: no end may hang over a drop
+#define DND_VINES_COILSIDE 14
+#define DND_VINES_COILLEVEL 24.0        // how far a spot beside the line may sit off the line's floor
+#define DND_VINES_COILSPAN 48.0         // the most floor height a coil's footprint may span, two stair steps
+#define DND_VINES_COILSINK 20.0         // how deep a coil starts, rising to the floor in 8 tics
+#define DND_VINES_NOFLOOR 0x7FFFFFFF
+
+// The floor a coil at (px, py) along (ca, sa) stands on: the lowest under its middle, ends and flanks, so none of it
+// hangs in the air and what lies over higher floor is buried in it. DND_VINES_NOFLOOR if the footprint spans too much.
+int VinesCoilFloor(int px, int py, int ca, int sa) {
+	int i, s, f, lo = GetFloorZAt(px, py), hi = lo;
+	for(i = 0; i < 4; ++i) {
+		s = (i & 1) ? 1 : -1;
+		f = GetFloorZAt(px + ((i < 2) ? s * DND_VINES_COILREACH * ca : -s * DND_VINES_COILSIDE * sa),
+			py + ((i < 2) ? s * DND_VINES_COILREACH * sa : s * DND_VINES_COILSIDE * ca));
+		lo = Min(lo, f);
+		hi = Max(hi, f);
+	}
+	return hi - lo > DND_VINES_COILSPAN ? DND_VINES_NOFLOOR : lo;
+}
+
+// One of the three coil shapes at random, its axis under the floor, standing life tics (counted in 2 tic steps).
+void SpawnVinesCoil(int px, int py, int z, int ang, int life) {
+	int tid = ScratchTID(), k = random(1, 3);
+	if(!tid)
+		return;
+	z -= DND_VINES_COILSINK;
+	if(k == 1)
+		k = SpawnForced("Spell_Vines_Coil1", px, py, z, tid);
+	else if(k == 2)
+		k = SpawnForced("Spell_Vines_Coil2", px, py, z, tid);
+	else
+		k = SpawnForced("Spell_Vines_Coil3", px, py, z, tid);
+	if(k) {
+		SetActorAngle(tid, ang);
+		SetActorProperty(tid, APROP_REACTIONTIME, life / 2);
+		Thing_ChangeTID(tid, 0);
+	}
+}
+
+// Client side: rows of thorny coils turning up through the floor as the lash runs, each standing its stretch's life
+// (carried in 4 tic steps). A spot beside the line off its floor, out of its sight or too close to a wall moves onto it.
+Script "DnD Vines FX" (int xy, int as, int lw) CLIENTSIDE {
+	int x = xy << 16, y = xy & 0xFFFF0000, a = as & 0xFFFF, speed = (as >> 16) & 0xFF, life = ((as >> 24) & 0xFF) * 4;
+	int len = lw & 0xFFFF, half = lw >> 16, ca = cos(a), sa = sin(a), n = Max(1, half / 24), next = DND_VINES_START;
+	int d, k, off, cx, cy, cz, px, py, pz, c0 = ScratchTID(), c1 = 0;
+	if(c0 && Spawn("Spell_Vines_FXProbe", x, y, GetFloorZAt(x, y), c0) && (c1 = ScratchTID()))
+		Spawn("Spell_Vines_FXProbe", x, y, GetFloorZAt(x, y), c1);
+	for(d = DND_VINES_START; d < len; d += speed) {
+		for(; next <= d && next < len; next += DND_VINES_COILGAP) {
+			cx = x + next * ca;
+			cy = y + next * sa;
+			cz = GetFloorZAt(cx, cy);
+			for(k = 0; k < n; ++k) {
+				off = (2 * k + 1 - n) * half / n + random(-8, 8);
+				px = cx - off * sa;
+				py = cy + off * ca;
+				pz = GetFloorZAt(px, py);
+				if(!c1 || abs(pz - cz) > DND_VINES_COILLEVEL || !SetActorPosition(c0, cx, cy, cz + 8.0, false) ||
+					!SetActorPosition(c1, px, py, pz + 8.0, false) || !CheckSight(c0, c1, CSF_NOBLOCKALL) ||
+					(pz = VinesCoilFloor(px, py, ca, sa)) == DND_VINES_NOFLOOR) {
+					px = cx;
+					py = cy;
+					if((pz = VinesCoilFloor(px, py, ca, sa)) == DND_VINES_NOFLOOR)
+						continue;
+				}
+				SpawnVinesCoil(px, py, pz, a + random(-0.07, 0.07), life);
+			}
+		}
+		px = x + d * ca;
+		py = y + d * sa;
+		Spawn("Spell_Shrapnel_Dust", px, py, GetFloorZAt(px, py) + 4.0);
+		Delay(const:1);
+	}
+	if(c0)
+		Thing_Remove(c0);
+	if(c1)
+		Thing_Remove(c1);
+}
+
+#define DND_VINES_WRAPR 16.0           // the wrap model's body radius and climb at scale 1
+#define DND_VINES_WRAPH 40.0
+#define DND_VINES_WRAPGIRTH 95          // percent of the enemy's radius the vines hug
+#define DND_VINES_WRAPCLIMB 70          // percent of its height they climb
+
+// Client side: vines grown up round a snared enemy until the snare ends; a snare on one already wrapped extends it.
+Script "DnD Vines Snare FX" (int m, int tics) CLIENTSIDE {
+	int left = CheckActorInventory(m, "DnD_VinesWrapFX"), w;
+	if(left) {
+		if(left < tics)
+			SetActorInventory(m, "DnD_VinesWrapFX", tics);
+		Terminate;
+	}
+	if(!(w = ScratchTID()) || !SpawnForced("Spell_Vines_Wrap", GetActorX(m), GetActorY(m), GetActorZ(m), w, random(0, 255)))
+		Terminate;
+	SetActorProperty(w, APROP_SCALEX, FixedDiv(GetActorProperty(m, APROP_RADIUS) * DND_VINES_WRAPGIRTH / 100, DND_VINES_WRAPR));
+	SetActorProperty(w, APROP_SCALEY, FixedDiv(GetActorProperty(m, APROP_HEIGHT) * DND_VINES_WRAPCLIMB / 100, DND_VINES_WRAPH));
+	SetActorInventory(m, "DnD_VinesWrapFX", tics);
+	while((left = CheckActorInventory(m, "DnD_VinesWrapFX")) > 0 && IsActorAlive(m)) {
+		SetActorInventory(m, "DnD_VinesWrapFX", left - 1);
+		SetActorPosition(w, GetActorX(m), GetActorY(m), GetActorZ(m), false);
+		Delay(const:1);
+	}
+	SetActorInventory(m, "DnD_VinesWrapFX", 0);
+	SetActorState(w, "Wither");
+	Thing_ChangeTID(w, 0);
+}
+
+// ---- Venom Gyre ----
+
+#define DND_VENOMGYRE_SPEED 20
+#define DND_VENOMGYRE_OUT 175           // tics out before it turns back: 5 seconds, before duration gear
+#define DND_VENOMGYRE_BACK 140          // tics it chases its caster before it is lost
+#define DND_VENOMGYRE_CATCH 40.0        // how close it must come back to be caught
+#define DND_VENOMGYRE_POISONCHANCE 50
+#define DND_VENOMGYRE_MORE 10           // percent more poison damage for a catch
+#define DND_VENOMGYRE_MORETICS 175      // and for how long, before duration gear
+#define DND_VENOMGYRE_FRESHDELAY 10     // tics before a dash catch throws a fresh one: 0.3 seconds
+#define DND_VENOMGYRE_R10_EXTRA 2
+
+void CastVenomGyre(int pnum) {
+	int n = 1 + DND_VENOMGYRE_R10_EXTRA * SpellThresholdMet(pnum, SPL_VENOMGYRE, DND_SPELL_THRESH_HIGH) + GetSpellExtraProjectiles(pnum, SPL_VENOMGYRE);
+	PlaySound(pnum + P_TIDSTART, "VenomGyre/Throw", CHAN_6);
+	for(int i = 0; i < n; ++i)
+		SpawnSpellProjectile(pnum, SPL_VENOMGYRE, "Spell_VenomGyre", DND_VENOMGYRE_SPEED, 0, FanOffset(i, DND_SPELL_FANSPREAD));
+}
+
+// Each gyre gets the rip count and a scratch tid its watcher follows; the watcher turns it back.
+Script "DnD Venom Gyre Setup" (void) {
+	int pnum = GetSpellActorOwner(), tid = ScratchTID();
+	SetResultValue(0);
+	if(pnum == -1 || !tid)
+		Terminate;
+	SetSpellRipLimit(pnum, 0, GetSpellValue(pnum, SPL_VENOMGYRE, SPELLVAL_AMOUNT));
+	Thing_ChangeTID(0, tid);
+	ACS_NamedExecuteAlways("DnD Venom Gyre Out", 0, pnum, tid);
+}
+
+// Out of rips or out of time, it turns for home.
+Script "DnD Venom Gyre Out" (int pnum, int tid) {
+	int out = ScaleSpellEffectTics(pnum, SPL_VENOMGYRE, DND_VENOMGYRE_OUT);
+	for(int t = 0; ThingCount(T_NONE, tid); ++t) {
+		if(t >= out || CheckActorInventory(tid, "DnD_RipCount") >= CheckActorInventory(tid, "DnD_RipLimit")) {
+			TurnVenomGyre(pnum, tid);
+			Terminate;
+		}
+		Delay(const:1);
+	}
+}
+
+// Its Death state: something stopped it before the watcher did.
+Script "DnD Venom Gyre Turn" (void) {
+	int pnum = GetSpellActorOwner();
+	if(pnum != -1)
+		TurnVenomGyre(pnum, ActivatorTID());
+	SetResultValue(0);
+}
+
+// The outgoing gyre gives way to a homing one: a fresh ripper, so each enemy can be hit once more, with no rip limit.
+void TurnVenomGyre(int pnum, int tid) {
+	if(!tid || CheckActorInventory(tid, "DnD_GyreTurned"))
+		return;
+	GiveActorInventory(tid, "DnD_GyreTurned", 1);
+
+	// Kept inside the room: one that turned at a sky or ceiling would touch it again on its first move home.
+	int rt = ScratchTID(), x = GetActorX(tid), y = GetActorY(tid);
+	int z = Clamp_Between(GetActorZ(tid), GetActorFloorZ(tid), GetActorCeilingZ(tid) - GetActorProperty(tid, APROP_HEIGHT) - 1.0);
+	Thing_Remove(tid);
+	if(!rt || !PlayerInGame(pnum) || !SpawnForced("Spell_VenomGyre_Return", x, y, z, rt))
+		return;
+	SetupSpellActor(rt, pnum, SPL_VENOMGYRE);
+	SetSpellRipLimit(pnum, rt, MAX_RIPCOUNT);
+	ACS_NamedExecuteAlways("DnD Venom Gyre Back", 0, pnum, rt);
+}
+
+// Steers it at the caster's chest each tic; close enough is a catch, too long is lost.
+Script "DnD Venom Gyre Back" (int pnum, int rt) {
+	int ptid = pnum + P_TIDSTART, t, dx, dy, dz, d;
+	for(t = 0; t < DND_VENOMGYRE_BACK && ThingCount(T_NONE, rt) && PlayerInGame(pnum) && IsActorAlive(ptid); ++t) {
+		dx = GetActorX(ptid) - GetActorX(rt);
+		dy = GetActorY(ptid) - GetActorY(rt);
+		dz = GetActorZ(ptid) + 32.0 - GetActorZ(rt);
+		d = VectorLength(VectorLength(dx, dy), dz);
+		if(d <= DND_VENOMGYRE_CATCH) {
+			CatchVenomGyre(pnum, rt);
+			Terminate;
+		}
+		SetActorVelocity(rt, DND_VENOMGYRE_SPEED * FixedDiv(dx, d), DND_VENOMGYRE_SPEED * FixedDiv(dy, d),
+			DND_VENOMGYRE_SPEED * FixedDiv(dz, d), false, false);
+		// Facing its flight, which the model's tilt reads to tell climbing from falling.
+		SetActorAngle(rt, VectorAngle(dx, dy));
+		Delay(const:1);
+	}
+	if(ThingCount(T_NONE, rt))
+		Thing_Remove(rt);
+}
+
+// A plain catch is more poison damage for a while; a catch during a dash throws a fresh gyre at double damage.
+void CatchVenomGyre(int pnum, int rt) {
+	int ptid = pnum + P_TIDSTART;
+	Thing_Remove(rt);
+	PlaySound(ptid, "VenomGyre/Catch", CHAN_7);
+	if(CheckActorInventory(ptid, "DashEffect"))
+		ACS_NamedExecuteAlways("DnD Venom Gyre Fresh", 0, pnum);
+	else
+		HandlePlayerBuffAssignment(pnum, ptid, BTI_SPELL_VENOMGYRE, 0, 0,
+			ScaleSpellEffectTics(pnum, SPL_VENOMGYRE, DND_VENOMGYRE_MORETICS), DND_VENOMGYRE_MORE);
+}
+
+Script "DnD Venom Gyre Fresh" (int pnum) {
+	Delay(const:DND_VENOMGYRE_FRESHDELAY);
+	if(!PlayerInGame(pnum) || !IsActorAlive(pnum + P_TIDSTART))
+		Terminate;
+	PlaySound(pnum + P_TIDSTART, "VenomGyre/Throw", CHAN_6);
+	SpawnSpellProjectile(pnum, SPL_VENOMGYRE, "Spell_VenomGyre_Fresh", DND_VENOMGYRE_SPEED);
+}
+
+// The fresh gyre: the rip count of a normal throw, at double damage.
+Script "DnD Venom Gyre Fresh Setup" (void) {
+	int pnum = GetSpellActorOwner();
+	if(pnum != -1)
+		SetSpellRipLimit(pnum, 0, GetSpellValue(pnum, SPL_VENOMGYRE, SPELLVAL_AMOUNT));
+	SetUserVariable(0, "user_dmgmult", 2);
+	SetResultValue(0);
+}
+
+// Venom Gyre's own poison, rolled on each enemy it hits in place of a poison hit's usual one.
+void RollVenomGyrePoison(int pnum, int victim) {
+	if(random(1, 100) > DND_VENOMGYRE_POISONCHANCE)
+		return;
+	int tenths = Max(1, GetSpellValue(pnum, SPL_VENOMGYRE, SPELLVAL_AMOUNT2));
+	ApplySpellPoison(pnum, SPL_VENOMGYRE, victim, GetSpellValue(pnum, SPL_VENOMGYRE, SPELLVAL_DAMAGE2) * 10 / tenths, tenths);
+}
+
+// ---- Rock Armor ----
+
+#define DND_ROCKARMOR_SHARDS 8          // Shrapnels thrown around the caster when rank 10's armor shatters
+#define DND_ROCKARMOR_SHARDZ 32.0       // and how high off the feet they leave
+#define DND_ROCKARMOR_OWNALPHA 0.25     // how strong the wearer sees its own plates
+#define DND_ROCKARMOR_FADE 8            // tics the plates take to come up, and to go when the armor lapses
+#define DND_ROCKARMOR_RING 30.0         // the plates' distance from the wearer, RKPLATE.md3's
+
+typedef struct {
+	int seq;		// bumped by each FX script, so the wearer's token names the one drawing its plates
+} rock_armor_fx_T;
+
+rock_armor_fx_T module& GetRockArmorFX() {
+	static rock_armor_fx_T s;
+	return s;
+}
+
+void CastRockArmor(int pnum) {
+	int ptid = pnum + P_TIDSTART, tics = GetSpellDurationTics(pnum, SPL_ROCKARMOR);
+	int pts = Max(1, GetSpellValue(pnum, SPL_ROCKARMOR, SPELLVAL_DAMAGE));
+	GiveActorInventory(ptid, "DnD_RockArmorTicket", 1);
+	SetActorInventory(ptid, "DnD_RockArmor", pts);
+	SetActorInventory(ptid, "P_RockArmor", pts);
+	PlaySound(ptid, "RockArmor/Cast", CHAN_6);
+	ACS_NamedExecuteAlways("DnD Rock Armor FX", 0, pnum, tics);
+	ACS_NamedExecuteAlways("DnD Rock Armor", 0, pnum, CheckActorInventory(ptid, "DnD_RockArmorTicket"), tics);
+}
+
+// Lapses at the end of its time unless a recast took over or a hit already broke it.
+Script "DnD Rock Armor" (int pnum, int ticket, int tics) {
+	int ptid = pnum + P_TIDSTART;
+	for(int t = tics; t > 0 && ticket == CheckActorInventory(ptid, "DnD_RockArmorTicket") && CheckActorInventory(ptid, "DnD_RockArmor") &&
+		PlayerInGame(pnum) && IsActorAlive(ptid); --t)
+		Delay(const:1);
+
+	if(ticket == CheckActorInventory(ptid, "DnD_RockArmorTicket")) {
+		SetActorInventory(ptid, "DnD_RockArmor", 0);
+		SetActorInventory(ptid, "P_RockArmor", 0);
+	}
+}
+
+// The layer outside the energy shield, on the player taking a hit: soaks it whole, a magic one only half. Returns the rest.
+int AbsorbRockArmor(int pnum, int dmg, bool magical) {
+	int pts = CheckInventory("DnD_RockArmor");
+	if(!pts || dmg <= 0)
+		return dmg;
+
+	int take = Min(magical ? dmg / 2 : dmg, pts);
+	pts -= take;
+	SetInventory("DnD_RockArmor", pts);
+	SetInventory("P_RockArmor", pts);
+	if(!pts)
+		ACS_NamedExecuteAlways("DnD Rock Armor Shatter", 0, pnum);
+	else if(take > 0)
+		LocalAmbientSound("RockArmor/Hit", 90);
+	return dmg - take;
+}
+
+// Broken: the burst, and at rank 10 a ring of Shrapnels at the caster's own Shrapnel rank.
+Script "DnD Rock Armor Shatter" (int pnum) {
+	int ptid = pnum + P_TIDSTART;
+	PlaySound(ptid, "RockArmor/Shatter", CHAN_7);
+	ACS_NamedExecuteAlways("DnD Rock Armor Shatter FX", 0, pnum);
+	if(SpellThresholdMet(pnum, SPL_ROCKARMOR, DND_SPELL_THRESH_HIGH) && IsActorAlive(ptid))
+		for(int i = 0; i < DND_ROCKARMOR_SHARDS; ++i)
+			SpawnSpellProjectile(pnum, SPL_SHRAPNEL, "Spell_Shrapnel", DND_SHRAPNEL_SPEED, 0, i * 1.0 / DND_ROCKARMOR_SHARDS,
+				0, 0, 0, true, DND_ROCKARMOR_SHARDZ);
+}
+
+// Client side: two stone plates circling the wearer while the armor holds, grit shed off them; faint to the wearer
+// itself. A recast's script takes over, a break shatters them, a lapse fades them.
+Script "DnD Rock Armor FX" (int pnum, int tics) CLIENTSIDE {
+	int ptid = pnum + P_TIDSTART, me = ++GetRockArmorFX().seq, tid = UniqueTID(), t, a;
+	int peak = ConsolePlayerNumber() == pnum ? DND_ROCKARMOR_OWNALPHA : 1.0;
+	SetActorInventory(ptid, "DnD_RockArmorFX", me);
+	Spawn("Spell_Shrapnel_Unearth", GetActorX(ptid), GetActorY(ptid), GetActorZ(ptid));
+	if(!tid || !SpawnForced("Spell_RockArmor_Plates", GetActorX(ptid), GetActorY(ptid), GetActorZ(ptid), tid, 0))
+		Terminate;
+	for(t = 0; t < tics && IsActorAlive(ptid) && CheckActorInventory(ptid, "DnD_RockArmorFX") == me; ++t) {
+		if(ConsolePlayerNumber() == pnum && !CheckActorInventory(ptid, "P_RockArmor"))
+			break;
+		// Steered onto where the wearer will be next tic, so the plates keep up smoothly.
+		SetActorVelocity(tid, GetActorX(ptid) + GetActorVelX(ptid) - GetActorX(tid), GetActorY(ptid) + GetActorVelY(ptid) - GetActorY(tid),
+			GetActorZ(ptid) + GetActorVelZ(ptid) - GetActorZ(tid), false, false);
+		SetActorProperty(tid, APROP_ALPHA, FixedMul(peak, Min(1.0, t * 1.0 / DND_ROCKARMOR_FADE)));
+		if(!(t & 7)) {
+			a = random(0, 1.0);
+			Spawn("Spell_RockArmor_Pebble", GetActorX(ptid) + FixedMul(DND_ROCKARMOR_RING, cos(a)), GetActorY(ptid) + FixedMul(DND_ROCKARMOR_RING, sin(a)),
+				GetActorZ(ptid) + random(20.0, 44.0));
+		}
+		Delay(const:1);
+	}
+
+	// Shattered: gone at once, in pieces. Lapsed or replaced: they fade where they are. A break's signal comes a few tics
+	// after the points run out, so it is waited for.
+	for(t = 0; t < 4 && CheckActorInventory(ptid, "DnD_RockArmorFX"); ++t)
+		Delay(const:1);
+	if(!CheckActorInventory(ptid, "DnD_RockArmorFX")) {
+		for(t = 0; t < 8; ++t) {
+			a = random(0, 1.0);
+			Spawn("Spell_RockArmor_Chunk", GetActorX(tid) + FixedMul(DND_ROCKARMOR_RING, cos(a)), GetActorY(tid) + FixedMul(DND_ROCKARMOR_RING, sin(a)),
+				GetActorZ(tid) + random(20.0, 44.0));
+		}
+		Thing_Remove(tid);
+		Terminate;
+	}
+	SetActorVelocity(tid, 0, 0, 0, false, false);
+	a = GetActorProperty(tid, APROP_ALPHA);
+	for(t = DND_ROCKARMOR_FADE; t > 0; --t) {
+		SetActorProperty(tid, APROP_ALPHA, a * t / DND_ROCKARMOR_FADE);
+		Delay(const:1);
+	}
+	Thing_Remove(tid);
+}
+
+Script "DnD Rock Armor Shatter FX" (int pnum) CLIENTSIDE {
+	int ptid = pnum + P_TIDSTART;
+	SetActorInventory(ptid, "DnD_RockArmorFX", 0);
+	for(int i = 0; i < 10; ++i)
+		Spawn("Spell_RockArmor_Chunk", GetActorX(ptid) + random(-16.0, 16.0), GetActorY(ptid) + random(-16.0, 16.0), GetActorZ(ptid) + random(16.0, 48.0));
+}
+
+// ---- Rejuvenation ----
+
+#define DND_REJUV_PULSE 17              // tics between heals; few and large, so the target's healing bonus survives rounding
+#define DND_REJUV_FADEIN 8              // tics the sphere takes to come up
+#define DND_REJUV_FADEOUT 12            // and to go once the heal ends
+#define DND_REJUV_OWNALPHA 0.2          // how strong the target sees its own sphere, from inside it
+#define DND_REJUV_RADIUS 34.0           // the sphere's radius in REJUVSPH.md3; bigger pets get a bigger one
+
+// A pet's health back up to the ceiling it was summoned with; pets carry no healing bonuses of their own.
+void HealSpellPet(int tid, int amt) {
+	int hp = GetActorProperty(tid, APROP_HEALTH), cap = PetMonsterProperties[tid - DND_PETTID_BEGIN].maxhp;
+	if(amt > 0 && hp < cap)
+		SetActorProperty(tid, APROP_HEALTH, Min(cap, hp + amt));
+}
+
+// Every ailment lane a pet, being a monster, can carry.
+void CurePetAilments(int tid) {
+	SetActorInventory(tid, "DnD_AilmentToken", 0);
+	SetActorInventory(tid, "DnD_PoisonStacks", 0);
+	SetActorInventory(tid, "DnD_ChillStacks", 0);
+	SetActorInventory(tid, "DnD_FreezeTimer", 0);
+	SetActorInventory(tid, "DnD_SlowPercent", 0);
+	SetActorInventory(tid, "DnD_SlowTimer", 0);
+	SetActorInventory(tid, "StunDurationCounter", 0);
+	SetActorInventory(tid, "DnD_Shocked", 0);
+}
+
+// The locked ally, a player or a pet, or the caster recovers DAMAGE over DURATION. A ticket on the target makes a new
+// cast replace the old.
+void CastRejuvenation(int pnum) {
+	int target = GetSpellLockTarget(pnum), ttid = target >= 0 ? GetSpellLockTid(target) : 0;
+	if(!ttid || !IsActorAlive(ttid) || (target < DND_SPELLLOCK_PET && !PlayerInGame(target)))
+		ttid = pnum + P_TIDSTART;
+
+	int total = ApplySpellGemMore(pnum, SPL_REJUVENATION, GEMSTAT_MORE_HEALING, GetSpellValue(pnum, SPL_REJUVENATION, SPELLVAL_DAMAGE));
+	int pulses = Max(1, GetSpellDurationTics(pnum, SPL_REJUVENATION) / DND_REJUV_PULSE);
+	if(SpellThresholdMet(pnum, SPL_REJUVENATION, DND_SPELL_THRESH_HIGH)) {
+		if(isPlayer(ttid))
+			CurePlayerAilments(ttid - P_TIDSTART);
+		else
+			CurePetAilments(ttid);
+	}
+
+	GiveActorInventory(ttid, "DnD_RejuvTicket", 1);
+	PlaySound(ttid, "Rejuvenation/Cast", CHAN_6);
+	ACS_NamedExecuteAlways("DnD Rejuvenation Spell Heal", 0, ttid, total,
+		pulses | (SpellThresholdMet(pnum, SPL_REJUVENATION, DND_SPELL_THRESH_LOW) << 16));
+	ACS_NamedExecuteAlways("DnD Rejuvenation Spell FX", 0, ttid, pulses * DND_REJUV_PULSE);
+}
+
+// Heals in equal pulses that sum to the total exactly. Any drop in the target's health, or a player's heal pool, ends it
+// until rank 5; a recast takes it over instead.
+Script "DnD Rejuvenation Spell Heal" (int ttid, int total, int pf) {
+	int pulses = pf & 0xFFFF, ticket = CheckActorInventory(ttid, "DnD_RejuvTicket"), pnum = ttid - P_TIDSTART;
+	bool steady = !!(pf >> 16), player = isPlayer(ttid);
+	int hp = GetActorProperty(ttid, APROP_HEALTH), pool = player ? GetHealPoolCur(pnum) : 0, k, t, amt;
+
+	for(k = 1; k <= pulses; ++k) {
+		for(t = 0; t < DND_REJUV_PULSE; ++t) {
+			Delay(const:1);
+			if(CheckActorInventory(ttid, "DnD_RejuvTicket") != ticket)
+				Terminate;
+			if(!IsActorAlive(ttid) || (player && !PlayerInGame(pnum)) ||
+				(!steady && (GetActorProperty(ttid, APROP_HEALTH) < hp || (player && GetHealPoolCur(pnum) < pool)))) {
+				ACS_NamedExecuteAlways("DnD Rejuvenation Spell FX", 0, ttid, 0);
+				Terminate;
+			}
+			hp = GetActorProperty(ttid, APROP_HEALTH);
+			pool = player ? GetHealPoolCur(pnum) : 0;
+		}
+		amt = total * k / pulses - total * (k - 1) / pulses;
+		if(player)
+			HealSpellAlly(pnum, amt);
+		else
+			HealSpellPet(ttid, amt);
+		hp = GetActorProperty(ttid, APROP_HEALTH);
+		pool = player ? GetHealPoolCur(pnum) : 0;
+	}
+}
+
+// ---- Poison Nova ----
+
+#define DND_POISONNOVA_SPEED 12         // slow enough that the ring's 4 seconds carry it about 1700 units
+#define DND_POISONNOVA_Z 32.0           // how high off the feet it flies
+#define DND_POISONNOVA_PITCH 0.0625     // the most the caster's aim tilts the ring up or down (22.5 degrees)
+
+// A ring round the caster on one ripper id, so each enemy in its way is hit and poisoned once a cast; it tilts with the
+// caster's aim, capped so it never flies straight up or down.
+void CastPoisonNova(int pnum) {
+	int n = Max(1, GetSpellValue(pnum, SPL_POISONNOVA, SPELLVAL_AMOUNT)) + GetSpellExtraProjectiles(pnum, SPL_POISONNOVA);
+	int life = GetSpellDurationTics(pnum, SPL_POISONNOVA), rid = ReserveRipperId() + 1;
+	int tilt = Clamp_Between(GetActorPitch(pnum + P_TIDSTART), -DND_POISONNOVA_PITCH, DND_POISONNOVA_PITCH);
+	PlaySound(pnum + P_TIDSTART, "Spell/PoisonNovaCast", CHAN_6);
+	for(int i = 0; i < n; ++i)
+		SpawnSpellProjectile(pnum, SPL_POISONNOVA, "Spell_PoisonNova", DND_POISONNOVA_SPEED, 0, i * 1.0 / n, 0, life, 0, true,
+			DND_POISONNOVA_Z, tilt, -1, rid);
+}
+
+// Its own poison on every enemy the ring meets, in place of the usual roll its NOPOISONSTACK hit skips.
+void PoisonNovaPoison(int pnum, int victim) {
+	int tenths = Max(1, GetSpellValue(pnum, SPL_POISONNOVA, SPELLVAL_AMOUNT2));
+	ApplySpellPoison(pnum, SPL_POISONNOVA, victim, GetSpellValue(pnum, SPL_POISONNOVA, SPELLVAL_DAMAGE2) * 10 / tenths, tenths);
+}
+
+// ---- Corrosive Breath ----
+
+#define DND_CORROSIVE_RELEASE (3 * TICRATE / 2) // tics the fumes pour out once the cast bar ends
+#define DND_CORROSIVE_SPEED 16                  // units a tic the fumes' front moves out
+#define DND_CORROSIVE_CHECK 3                   // tics between looks for who the fumes reach
+#define DND_CORROSIVE_SLOW 25
+#define DND_CORROSIVE_TAKEN 10                  // percent more poison damage taken; 25 from rank 5
+#define DND_CORROSIVE_R5_TAKEN 25
+#define DND_CORROSIVE_DECAY 50                  // the most of an enemy's fortification the fumes eat
+#define DND_CORROSIVE_DECAYGAP 5                // tics between bites of it
+#define DND_CORROSIVE_REACHUP 96.0              // how far above or below the caster a body can be and still be reached
+#define DND_CORROSIVE_NEAR 32.0                 // past its radius, closer than this a body is in the cone whatever the angle
+#define DND_CORROSIVE_MAXTOUCH 96
+
+// One enemy reached: the poison, the slow, more poison damage taken, and a fortified one's fortification eaten.
+void AfflictCorrosion(int pnum, int m, int per_sec, int tenths, int tics, int taken) {
+	ApplySpellPoison(pnum, SPL_CORROSIVEBREATH, m, per_sec, tenths);
+	if(!IsActorAlive(m))
+		return;
+	SlowMonster(m, DND_CORROSIVE_SLOW, tics);
+	CurseMonster(m, "DnD_Corroded", "DnD_CorrodedTimer", "DnD Corroded Timer", taken, tics);
+	if(CheckActorInventory(m, "MonsterFortifyCount") && !CheckActorInventory(m, "DnD_CorrosionDecay"))
+		ACS_NamedExecuteAlways("DnD Corrosive Decay", 0, m, tics);
+}
+
+// The cone follows the caster's aim as the fumes pour out, its front moving out at their speed; each enemy reached is afflicted once.
+Script "DnD Corrosive Breath" (int pnum) {
+	int caster = pnum + P_TIDSTART;
+	int reach = ScaleSpellArea(pnum, SPL_CORROSIVEBREATH, GetSpellValue(pnum, SPL_CORROSIVEBREATH, SPELLVAL_RADIUS) << 16);
+	int half = GetSpellValue(pnum, SPL_CORROSIVEBREATH, SPELLVAL_AMOUNT) * 1.0 / 720, halfcos = cos(half);
+	int tics = GetSpellDurationTics(pnum, SPL_CORROSIVEBREATH);
+	int tenths = Max(1, GetSpellValue(pnum, SPL_CORROSIVEBREATH, SPELLVAL_AMOUNT2));
+	int per_sec = GetSpellValue(pnum, SPL_CORROSIVEBREATH, SPELLVAL_DAMAGE) * 10 / tenths;
+	int taken = SpellThresholdMet(pnum, SPL_CORROSIVEBREATH, DND_SPELL_THRESH_LOW) ? DND_CORROSIVE_R5_TAKEN : DND_CORROSIVE_TAKEN;
+
+	PlaySound(caster, "CorrosiveBreath/Release", CHAN_6);
+	ACS_NamedExecuteAlways("DnD Corrosive Breath FX", 0, pnum, reach >> 16,
+		half | (SpellThresholdMet(pnum, SPL_CORROSIVEBREATH, DND_SPELL_THRESH_HIGH) << 16));
+
+	int touched[DND_CORROSIVE_MAXTOUCH], n = 0, t, mn, m, k, front, dx, dy, d, a, ca, sa;
+	bool seen;
+	for(t = 0; t < DND_CORROSIVE_RELEASE && PlayerInGame(pnum) && IsActorAlive(caster); t += DND_CORROSIVE_CHECK) {
+		front = Min(reach, (DND_CORROSIVE_SPEED * (t + DND_CORROSIVE_CHECK)) << 16);
+		a = GetActorAngle(caster);
+		ca = cos(a);
+		sa = sin(a);
+		for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER] && n < DND_CORROSIVE_MAXTOUCH; ++mn) {
+			m = UsedMonsterTIDs[mn];
+			if(!IsActorAlive(m) || !IsSpellEnemy(m) || abs(GetActorZ(m) - GetActorZ(caster)) > DND_CORROSIVE_REACHUP)
+				continue;
+			dx = GetActorX(m) - GetActorX(caster);
+			dy = GetActorY(m) - GetActorY(caster);
+			d = VectorLength(dx, dy);
+			if(d > front + GetActorProperty(m, APROP_RADIUS))
+				continue;
+			if(d > GetActorProperty(m, APROP_RADIUS) + DND_CORROSIVE_NEAR && FixedDiv(FixedMul(dx, ca) + FixedMul(dy, sa), d) < halfcos)
+				continue;
+			for(k = 0, seen = false; k < n && !seen; ++k)
+				seen = touched[k] == m;
+			if(seen || !CheckSight(caster, m, CSF_NOBLOCKALL))
+				continue;
+			touched[n++] = m;
+			AfflictCorrosion(pnum, m, per_sec, tenths, tics, taken);
+		}
+		Delay(const:DND_CORROSIVE_CHECK);
+	}
+}
+
+// Eats up to half of a fortified enemy's fortification over the affliction, never its last point: a hit breaks that.
+Script "DnD Corrosive Decay" (int m, int tics) {
+	int eat = CheckActorInventory(m, "MonsterFortifyCount") * DND_CORROSIVE_DECAY / 100, steps = Max(1, tics / DND_CORROSIVE_DECAYGAP);
+	if(eat <= 0)
+		Terminate;
+	SetActorInventory(m, "DnD_CorrosionDecay", 1);
+	int k, bite, cur;
+	for(k = 1; k <= steps && IsActorAlive(m); ++k) {
+		Delay(const:DND_CORROSIVE_DECAYGAP);
+		bite = eat * k / steps - eat * (k - 1) / steps;
+		cur = CheckActorInventory(m, "MonsterFortifyCount");
+		if(cur <= bite)
+			break;
+		SetActorInventory(m, "MonsterFortifyCount", cur - bite);
+	}
+	if(IsActorAlive(m))
+		SetActorInventory(m, "DnD_CorrosionDecay", 0);
+}
+
+// Owns the more-poison-damage-taken lane.
+Script "DnD Corroded Timer" (int m) {
+	while(CheckActorInventory(m, "DnD_CorrodedTimer") && IsActorAlive(m)) {
+		TakeActorInventory(m, "DnD_CorrodedTimer", 1);
+		Delay(const:1);
+	}
+	SetActorInventory(m, "DnD_Corroded", 0);
+	SetActorInventory(m, "DnD_CorrodedTimer", 0);
+}
+
+// Client side: puffs of fume thrown along the cone from below the eye while it pours; a third more from rank 10.
+Script "DnD Corrosive Breath FX" (int pnum, int reach, int hd) CLIENTSIDE {
+	int caster = pnum + P_TIDSTART, half = hd & 0xFFFF, gap = (hd >> 16) ? 3 : 4;
+	int t, k, a, p, cp, tid;
+	for(t = 0; t < DND_CORROSIVE_RELEASE && IsActorAlive(caster); t += gap) {
+		for(k = 0; k < 4; ++k) {
+			a = GetActorAngle(caster) + random(-half, half);
+			p = Clamp_Between(GetActorPitch(caster) + random(-0.02, 0.02), -0.2, 0.2);
+			cp = cos(p);
+			if(!(tid = ScratchTID()) || !SpawnForced("Spell_CorrosiveBreath_Fume", GetActorX(caster) + 20 * cos(a),
+				GetActorY(caster) + 20 * sin(a), GetActorZ(caster) + GetActorViewHeight(caster) - 20.0, tid))
+				continue;
+			SetActorVelocity(tid, DND_CORROSIVE_SPEED * FixedMul(cos(a), cp), DND_CORROSIVE_SPEED * FixedMul(sin(a), cp),
+				-DND_CORROSIVE_SPEED * sin(p), false, false);
+			Thing_ChangeTID(tid, 0);
+		}
+		Delay(gap);
+	}
+}
+
+// ---- Crushing Rocks ----
+
+#define DND_CRUSHING_RISE 10            // tics the rocks take to rise beside the target
+#define DND_CRUSHING_SLAM 6             // and to meet once risen
+#define DND_CRUSHING_GAP 28             // tics from one crush to the next
+#define DND_CRUSHING_HOLD 10            // tics the rocks grind on what they caught, before drawing apart for the next
+#define DND_CRUSHING_WIND 14.0          // how much further out they draw back before each slam
+#define DND_CRUSHING_BITE 8.0           // how far they bite into a caught body's edge
+#define DND_CRUSHING_SQUASH 0.78        // a caught body's width at the impact, a share of its own, and its height
+#define DND_CRUSHING_STRETCH 1.07
+#define DND_CRUSHING_SHEAR 4.0          // how far the rocks rub past each other along their length while grinding
+#define DND_CRUSHING_SINK 8             // tics they take to sink after the last
+#define DND_CRUSHING_DROP 64.0          // how far under the crush point the rocks rise from
+#define DND_CRUSHING_LIFT 20.0          // and how far over it they stand, so a rock rests on the floor rather than in it
+#define DND_CRUSHING_SIDE 48.0          // how far past the target's radius each rock rises
+#define DND_CRUSHING_MEET 31.0          // each rock's half width across the slam: where the two meet
+#define DND_CRUSHING_CATCH 24.0         // past its radius, how far from the crush point the target may stray and still be caught
+
+// The target under the crosshair, or the aimed spot; each crush re-forms round where the target stands, and misses one that left.
+Script "DnD Crushing Rocks" (int pnum) {
+	int caster = pnum + P_TIDSTART, cx, cy, cz;
+	int target = PickActor(caster, GetActorAngle(caster), GetActorPitch(caster),
+		DND_SPELL_HITSCANRANGE, 0, MF_SHOOTABLE, ML_BLOCKEVERYTHING, PICKAF_RETURNTID);
+	if(!target || !IsActorAlive(target) || !IsSpellEnemy(target)) {
+		target = 0;
+		if(!TraceSpellAim(pnum, DND_SPELL_HITSCANRANGE))
+			Terminate;
+		for(int w = 0; !ReadSpellAim(pnum) && w < DND_SPELLAIM_WAIT; ++w)
+			Delay(const:1);
+		if(!SpellAimReady(pnum) || !PlayerInGame(pnum) || !IsActorAlive(caster))
+			Terminate;
+		auto aim = GetSpellAim();
+		cx = aim.x[pnum];
+		cy = aim.y[pnum];
+		cz = GetFloorZAt(cx, cy);
+	}
+
+	int crushes = Max(1, GetSpellValue(pnum, SPL_CRUSHINGROCKS, SPELLVAL_AMOUNT));
+	int r = SpellThresholdMet(pnum, SPL_CRUSHINGROCKS, DND_SPELL_THRESH_LOW) ?
+		ScaleSpellArea(pnum, SPL_CRUSHINGROCKS, GetSpellValue(pnum, SPL_CRUSHINGROCKS, SPELLVAL_RADIUS) << 16) : 0;
+	int k, a, side, mn, m;
+	if(target) {
+		cx = GetActorX(target);
+		cy = GetActorY(target);
+		cz = GetActorZ(target);
+	}
+	a = VectorAngle(cx - GetActorX(caster), cy - GetActorY(caster));
+	side = (target ? GetActorProperty(target, APROP_RADIUS) : 16.0) + DND_CRUSHING_SIDE;
+	// One pair of rocks for every crush: the FX follows the target itself, or keeps to the aimed spot.
+	ACS_NamedExecuteAlways("DnD Crushing Rocks FX", 0, target ? target : PackMapPair(cx, cy), ((cz >> 16) & 0xFFFF) | (crushes << 16),
+		((side >> 16) & 0x7FFF) | ((a & 0xFFFF) << 15) | (target ? 1 << 31 : 0));
+	Delay(const:DND_CRUSHING_RISE);
+	for(k = 0; k < crushes && PlayerInGame(pnum); ++k) {
+		// Where the rocks start this slam: on the target, as the FX has drawn them.
+		if(target && IsActorAlive(target)) {
+			cx = GetActorX(target);
+			cy = GetActorY(target);
+			cz = GetActorZ(target);
+		}
+		Delay(const:DND_CRUSHING_SLAM);
+
+		// Rank 5: everything near the crush point, the target included.
+		if(r) {
+			for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
+				m = UsedMonsterTIDs[mn];
+				if(IsActorAlive(m) && IsSpellEnemy(m) && fdistance_delta(cx - GetActorX(m), cy - GetActorY(m), cz - GetActorZ(m)) <= r)
+					DealSpellBeamHit(pnum, SPL_CRUSHINGROCKS, m, 100, true);
+			}
+		}
+		else if(target && IsActorAlive(target) &&
+			VectorLength(GetActorX(target) - cx, GetActorY(target) - cy) <= GetActorProperty(target, APROP_RADIUS) + DND_CRUSHING_CATCH)
+			DealSpellBeamHit(pnum, SPL_CRUSHINGROCKS, target, 100);
+		// An aimed spot crushes whatever stands between the rocks.
+		else if(!target) {
+			for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
+				m = UsedMonsterTIDs[mn];
+				if(IsActorAlive(m) && IsSpellEnemy(m) && abs(GetActorZ(m) - cz) <= DND_CRUSHING_LIFT + DND_CRUSHING_DROP &&
+					VectorLength(GetActorX(m) - cx, GetActorY(m) - cy) <= GetActorProperty(m, APROP_RADIUS) + DND_CRUSHING_CATCH)
+					DealSpellBeamHit(pnum, SPL_CRUSHINGROCKS, m, 100);
+			}
+		}
+
+		Delay(const:DND_CRUSHING_GAP - DND_CRUSHING_SLAM);
+	}
+}
+
+// Steers an FX rock onto a spot by the next tic: by velocity, as SetActorPosition refuses a spot under the floor.
+void SteerCrushingRock(int tid, int x, int y, int z) {
+	SetActorVelocity(tid, x - GetActorX(tid), y - GetActorY(tid), z - GetActorZ(tid), false, false);
+}
+
+void SteerCrushingPair(int t1, int t2, int cx, int cy, int z, int px, int py, int off) {
+	SteerCrushingRock(t1, cx + FixedMul(px, off), cy + FixedMul(py, off), z);
+	SteerCrushingRock(t2, cx - FixedMul(px, off), cy - FixedMul(py, off), z);
+}
+
+// The grind after an impact, tic t: how far out from the bite the rocks stand, a recoil and then pressing in.
+int GetCrushingGrind(int t) {
+	switch(t) {
+		case 0:
+		return 10.0;
+		case 1:
+		return 5.0;
+		case 2:
+		return -3.0;
+		case 3:
+		return 1.0;
+		case 4:
+		return -4.0;
+		case 6:
+		return -3.0;
+		case 7:
+		return 1.0;
+		case 8:
+		return -2.0;
+	}
+	return 0;
+}
+
+// Client side: the spell's two rocks. They rise either side of the point once, across the caster's line, and for every
+// crush draw back, slam into the target's body, grind on it and pull apart over to where it now stands; then sink.
+Script "DnD Crushing Rocks FX" (int what, int zn, int sa) CLIENTSIDE {
+	int target = sa < 0 ? what : 0, n = (zn >> 16) & 0xFF, side = (sa & 0x7FFF) << 16, a = (sa >> 15) & 0xFFFF;
+	int cx = what << 16, cy = what & 0xFFFF0000, cz = ((zn << 16) >> 16) << 16;
+	if(target) {
+		if(!IsActorAlive(target))
+			Terminate;
+		cx = GetActorX(target);
+		cy = GetActorY(target);
+		cz = GetActorZ(target);
+	}
+	int px = -sin(a), py = cos(a), ux = cos(a), uy = sin(a), t1 = ScratchTID(), t2 = 0, k, t, off, e, sh, sx = 0, sy = 0;
+	int open = side + DND_CRUSHING_WIND, bite = target ? GetActorProperty(target, APROP_RADIUS) + DND_CRUSHING_MEET - DND_CRUSHING_BITE : DND_CRUSHING_MEET;
+	if(!t1 || !SpawnForced("Spell_CrushingRocks_Rock", cx + FixedMul(px, side), cy + FixedMul(py, side), cz - DND_CRUSHING_DROP, t1, a >> 8))
+		Terminate;
+	if(!(t2 = ScratchTID()) || !SpawnForced("Spell_CrushingRocks_Rock", cx - FixedMul(px, side), cy - FixedMul(py, side), cz - DND_CRUSHING_DROP, t2, a >> 8)) {
+		Thing_Remove(t1);
+		Terminate;
+	}
+	PlaySound(t1, "CrushingRocks/Rise", CHAN_BODY);
+	for(t = 1; t <= DND_CRUSHING_RISE; ++t) {
+		SteerCrushingPair(t1, t2, cx, cy, cz - DND_CRUSHING_DROP + (DND_CRUSHING_DROP + DND_CRUSHING_LIFT) * t / DND_CRUSHING_RISE, px, py, open);
+		Delay(const:1);
+	}
+
+	for(k = 0; k < n; ++k) {
+		// The slam: slow off the mark, then faster and faster into the body.
+		for(t = 1; t <= DND_CRUSHING_SLAM; ++t) {
+			off = open - FixedMul(open - bite, (t * t * t * 1.0) / (DND_CRUSHING_SLAM * DND_CRUSHING_SLAM * DND_CRUSHING_SLAM));
+			SteerCrushingPair(t1, t2, cx, cy, cz + DND_CRUSHING_LIFT, px, py, off);
+			Delay(const:1);
+		}
+		PlaySound(t1, "CrushingRocks/Crush", CHAN_BODY);
+		Radius_Quake(2, 6, 0, 3, t1);
+		e = bite - DND_CRUSHING_MEET;
+		Spawn("Spell_CrushingRocks_Impact", cx + FixedMul(px, e), cy + FixedMul(py, e), cz + random(12.0, 36.0));
+		if(e > 0)
+			Spawn("Spell_CrushingRocks_Impact", cx - FixedMul(px, e), cy - FixedMul(py, e), cz + random(12.0, 36.0));
+		// Squashed in the rocks' grip, unless another pair already has it.
+		if(target && IsActorAlive(target) && !CheckActorInventory(target, "DnD_CrushSquashFX")) {
+			GiveActorInventory(target, "DnD_CrushSquashFX", 1);
+			sx = GetActorProperty(target, APROP_SCALEX);
+			sy = GetActorProperty(target, APROP_SCALEY);
+		}
+
+		// The grind: recoil, then pressing in again and again, the rocks rubbing past each other and rocking.
+		for(t = 0; t < DND_CRUSHING_HOLD; ++t) {
+			off = bite + GetCrushingGrind(t);
+			sh = (t & 2 ? DND_CRUSHING_SHEAR : -DND_CRUSHING_SHEAR) * (DND_CRUSHING_HOLD - t) / DND_CRUSHING_HOLD;
+			SteerCrushingRock(t1, cx + FixedMul(px, off) + FixedMul(ux, sh), cy + FixedMul(py, off) + FixedMul(uy, sh), cz + DND_CRUSHING_LIFT + random(-2.0, 2.0));
+			SteerCrushingRock(t2, cx - FixedMul(px, off) - FixedMul(ux, sh), cy - FixedMul(py, off) - FixedMul(uy, sh), cz + DND_CRUSHING_LIFT + random(-2.0, 2.0));
+			SetActorAngle(t1, a + random(-0.012, 0.012));
+			SetActorAngle(t2, a + random(-0.012, 0.012));
+			if(sx) {
+				e = t * 1.0 / DND_CRUSHING_HOLD;
+				SetActorProperty(target, APROP_SCALEX, FixedMul(sx, DND_CRUSHING_SQUASH + FixedMul(1.0 - DND_CRUSHING_SQUASH, FixedMul(e, e))));
+				SetActorProperty(target, APROP_SCALEY, FixedMul(sy, DND_CRUSHING_STRETCH - FixedMul(DND_CRUSHING_STRETCH - 1.0, FixedMul(e, e))));
+			}
+			Delay(const:1);
+		}
+		SetActorAngle(t1, a);
+		SetActorAngle(t2, a);
+		if(sx) {
+			SetActorProperty(target, APROP_SCALEX, sx);
+			SetActorProperty(target, APROP_SCALEY, sy);
+			TakeActorInventory(target, "DnD_CrushSquashFX", 1);
+			sx = 0;
+		}
+		if(k == n - 1)
+			break;
+
+		// Apart again, easing out, the pair's middle closing on the target a share of the rest each tic.
+		for(t = 1; t <= DND_CRUSHING_GAP - DND_CRUSHING_SLAM - DND_CRUSHING_HOLD; ++t) {
+			e = t * 1.0 / (DND_CRUSHING_GAP - DND_CRUSHING_SLAM - DND_CRUSHING_HOLD);
+			e = 1.0 - FixedMul(1.0 - e, 1.0 - e);
+			if(target && IsActorAlive(target)) {
+				cx += (GetActorX(target) - cx) / (DND_CRUSHING_GAP - DND_CRUSHING_SLAM - DND_CRUSHING_HOLD - t + 1);
+				cy += (GetActorY(target) - cy) / (DND_CRUSHING_GAP - DND_CRUSHING_SLAM - DND_CRUSHING_HOLD - t + 1);
+				cz += (GetActorZ(target) - cz) / (DND_CRUSHING_GAP - DND_CRUSHING_SLAM - DND_CRUSHING_HOLD - t + 1);
+			}
+			SteerCrushingPair(t1, t2, cx, cy, cz + DND_CRUSHING_LIFT, px, py, bite + FixedMul(open - bite, e));
+			Delay(const:1);
+		}
+	}
+
+	for(t = 1; t <= DND_CRUSHING_SINK; ++t) {
+		SteerCrushingPair(t1, t2, cx, cy, cz + DND_CRUSHING_LIFT - (DND_CRUSHING_DROP + DND_CRUSHING_LIFT) * t / DND_CRUSHING_SINK,
+			px, py, bite);
+		Delay(const:1);
+	}
+	Thing_Remove(t1);
+	Thing_Remove(t2);
+}
+
+// ---- Summon: Rock Golem ----
+
+#define DND_ROCKGOLEM_DIST 72
+#define DND_ROCKGOLEM_SLIDECD (8 * TICRATE)  // rank 5: tics between its Rockslides
+#define DND_ROCKGOLEM_SLIDEMIN 160.0         // and the nearest a target may be for one
+#define DND_ROCKGOLEM_HAND 40.0              // how high off its feet the boulder leaves
+#define DND_ROCKGOLEM_PHYSLESS 10            // percent less physical damage its summoner takes while it stands
+#define DND_ROCKGOLEM_GUARDTICS 35           // how often that buff is pushed out again
+#define DND_ROCKGOLEM_GUARDPOLL 5            // and how often the golem is looked for, so a death ends it promptly
+
+// Whether a player's guard ticker runs. Map scope, so it resets with the scripts on a new map.
+int[] module& GetRockGolemGuards() {
+	static int on[MAXPLAYERS];
+	return on;
+}
+
+// Rank 10 summons the hardened kind: immune to elemental damage, resisting explosions.
+Script "DnD Summon Rock Golem" (int pnum) {
+	int caster = pnum + P_TIDSTART;
+	int maxkind = Max(1, GetSpellValue(pnum, SPL_ROCKGOLEM, SPELLVAL_AMOUNT));
+	if(CountPlayerPetsOfKind(pnum, MONSTER_PET_ROCKGOLEM) >= maxkind)
+		UnsummonPet(FindOldestPlayerPetOfKind(pnum, MONSTER_PET_ROCKGOLEM));
+	if(!CanActorHaveMorePets(caster))
+		UnsummonPet(FindOldestPlayerPet(pnum));
+
+	int tid = TEMPORARY_PET_TID + pnum;
+	if(!SpawnSummonNear(SpellThresholdMet(pnum, SPL_ROCKGOLEM, DND_SPELL_THRESH_HIGH) ? "Spell_RockGolem_Hardened" : "Spell_RockGolem",
+		caster, tid, DND_ROCKGOLEM_DIST))
+		Terminate;
+
+	SetActorPosition(tid, GetActorX(tid), GetActorY(tid), GetActorFloorZ(tid), false);
+	// Before its first tic: "DnD Pet Monster Scale" levels up from whatever APROP_HEALTH holds.
+	SetActorProperty(tid, APROP_HEALTH, Max(1, ApplySpellGemMore(pnum, SPL_ROCKGOLEM, GEMSTAT_MORE_MINIONLIFE, GetSpellValue(pnum, SPL_ROCKGOLEM, SPELLVAL_DAMAGE))));
+	SetActorProperty(tid, APROP_MASTERTID, caster);
+	SetActivator(tid);
+	SetPointer(AAPTR_MASTER, caster);
+	SetActorProperty(0, APROP_FRIENDLY, true);
+	Thing_ChangeTID(tid, 0);
+
+	GiveActorInventory(caster, "PetCounter", 1);
+	SetActivator(caster);
+	PlaySound(caster, "RockGolem/Cast", CHAN_6);
+	ACS_NamedExecuteAlways("DnD On Pet Summon", 0);
+	ACS_NamedExecuteAlways("DnD Rock Golem Guard", 0, pnum);
+}
+
+// Its summoner takes less physical damage while a Rock Golem stands; the buff is removed as soon as none does.
+Script "DnD Rock Golem Guard" (int pnum) {
+	int[] module& on = GetRockGolemGuards();
+	if(on[pnum])
+		Terminate;
+	on[pnum] = true;
+
+	int caster = pnum + P_TIDSTART;
+	for(int t = 0; PlayerInGame(pnum) && CountPlayerPetsOfKind(pnum, MONSTER_PET_ROCKGOLEM) > 0; t += DND_ROCKGOLEM_GUARDPOLL) {
+		// Granted for twice the refresh so a late tick leaves no gap; a dead summoner gets it back on respawn.
+		if(!(t % DND_ROCKGOLEM_GUARDTICS) && IsActorAlive(caster))
+			HandlePlayerBuffAssignment(pnum, caster, BTI_SPELL_ROCKGOLEM_PHYSLESS, 0, 0, DND_ROCKGOLEM_GUARDTICS * 2, DND_ROCKGOLEM_PHYSLESS);
+		Delay(const:DND_ROCKGOLEM_GUARDPOLL);
+	}
+
+	if(PlayerInGame(pnum))
+		RemoveBuffWithTableIndex(pnum, BTI_SPELL_ROCKGOLEM_PHYSLESS);
+	on[pnum] = false;
+}
+
+Script "DnD Rock Golem Melee" (void) {
+	int pnum = GetActorProperty(0, APROP_MASTERTID) - P_TIDSTART;
+	if(pnum < 0 || pnum >= MAXPLAYERS) {
+		SetResultValue(0);
+		Terminate;
+	}
+	SetResultValue(ACS_NamedExecuteWithResult("DND Pet Monster Damage Scale", GetSpellValue(pnum, SPL_ROCKGOLEM, SPELLVAL_DAMAGE2), 0, 0));
+}
+
+// Rank 5: its OWNER's Rockslide thrown in an arc at its target, owned by the owner, as the Ice Golem throws Ice Bolt.
+Script "DnD Rock Golem Rockslide" (void) {
+	int golem = ActivatorTID(), pnum = GetActorProperty(0, APROP_MASTERTID) - P_TIDSTART;
+	if(!golem || pnum < 0 || pnum >= MAXPLAYERS || !PlayerInGame(pnum) || Timer() < GetUserVariable(0, "user_slide") ||
+		!SpellThresholdMet(pnum, SPL_ROCKGOLEM, DND_SPELL_THRESH_LOW) || !SetActivator(0, AAPTR_TARGET)) {
+		SetResultValue(0);
+		Terminate;
+	}
+	int target = ActivatorTID();
+	SetActivator(golem);
+	int dx = GetActorX(target) - GetActorX(golem), dy = GetActorY(target) - GetActorY(golem), d = VectorLength(dx, dy);
+	if(!target || !IsActorAlive(target) || d < DND_ROCKGOLEM_SLIDEMIN) {
+		SetResultValue(0);
+		Terminate;
+	}
+
+	// The arc Rockslide's own cast solves, from the golem's hand to the target's middle.
+	int rise = GetActorZ(target) + GetActorProperty(target, APROP_HEIGHT) / 2 - (GetActorZ(golem) + DND_ROCKGOLEM_HAND);
+	int across = SpellThresholdMet(pnum, SPL_ROCKSLIDE, DND_SPELL_THRESH_LOW) ? DND_ROCKSLIDE_R5_SPEED : DND_ROCKSLIDE_SPEED;
+	int t = FixedDiv(d, across), up = FixedDiv(rise, t) + FixedMul(DND_ROCKSLIDE_GRAVITY >> 1, t);
+	SpawnSpellProjectile(pnum, SPL_ROCKSLIDE, "Spell_RockGolem_Boulder", VectorLength(across, up) >> 16, DND_ATF_USEGRAVITY,
+		VectorAngle(dx, dy) - GetActorAngle(golem), 0, 0, golem, true, DND_ROCKGOLEM_HAND, -VectorAngle(across, up));
+	SetUserVariable(golem, "user_slide", Timer() + DND_ROCKGOLEM_SLIDECD);
+	PlaySound(golem, "Rockslide/Cast", CHAN_WEAPON);
+	SetResultValue(1);
+}
+
+// The boulder prices at rank 1 when its owner never learned Rockslide.
+Script "DnD Rock Golem Boulder Setup" (void) {
+	int pnum = GetSpellActorOwner();
+	if(pnum != -1 && !GetSpellRank(pnum, SPL_ROCKSLIDE, true))
+		SetUserVariable(0, "user_rankat", 1);
+	SetResultValue(0);
+}
+
+// Client side: the sphere round the target while the heal runs; a recast pushes its end out, an early stop (tics 0) pulls
+// it in. The target's own screen sees it far fainter, from inside it.
+Script "DnD Rejuvenation Spell FX" (int ttid, int tics) CLIENTSIDE {
+	if(CheckActorInventory(ttid, "DnD_RejuvFX")) {
+		SetActorInventory(ttid, "DnD_RejuvFX", Timer() + tics);
+		Terminate;
+	}
+	int tid = ScratchTID();
+	if(!tics || !tid || !SpawnForced("Spell_Rejuvenation_Sphere", GetActorX(ttid), GetActorY(ttid), GetActorZ(ttid), tid))
+		Terminate;
+	SetActorInventory(ttid, "DnD_RejuvFX", Timer() + tics);
+
+	int peak = ConsolePlayerNumber() == ttid - P_TIDSTART ? DND_REJUV_OWNALPHA : 1.0;
+	int h = GetActorProperty(ttid, APROP_HEIGHT), sc = Max(1.0, FixedDiv(h * 3 / 5, DND_REJUV_RADIUS)), t, left, a;
+	SetActorProperty(tid, APROP_SCALEX, sc);
+	SetActorProperty(tid, APROP_SCALEY, sc);
+	for(t = 1; IsActorAlive(ttid); ++t) {
+		left = CheckActorInventory(ttid, "DnD_RejuvFX") - Timer();
+		if(left <= -DND_REJUV_FADEOUT)
+			break;
+		a = FixedMul(peak, Min(1.0, t * 1.0 / DND_REJUV_FADEIN));
+		if(left < 0)
+			a = a * (DND_REJUV_FADEOUT + left) / DND_REJUV_FADEOUT;
+		SetActorPosition(tid, GetActorX(ttid), GetActorY(ttid), GetActorZ(ttid) + h / 2, false);
+		SetActorProperty(tid, APROP_ALPHA, a);
+		Delay(const:1);
+	}
+	Thing_Remove(tid);
+	SetActorInventory(ttid, "DnD_RejuvFX", 0);
+}
+
+// ---- Agony ----
+
+#define DND_AGONY_R5_CHANCE 10          // base percent to poison and to bleed, for any hit inside the aura
+#define DND_AGONY_R10_LESS 25           // percent off a monster's poison on whoever the aura covers
+
+// Each player's Agony reach while its rank 5 is on, 0 when not; the last slot counts them, the hit path's quick out.
+int[] module& GetAgonyZones() {
+	static int z[MAXPLAYERS + 1];
+	return z;
+}
+
+void ApplyAgonyAura(int pnum, int dur) {
+	GiveSpellBuffAround(pnum, SPL_AGONY, BTI_SPELL_AGONY, GetSpellValue(pnum, SPL_AGONY, SPELLVAL_DAMAGE) >> 16, dur, true);
+	if(SpellThresholdMet(pnum, SPL_AGONY, DND_SPELL_THRESH_HIGH))
+		GiveSpellBuffAround(pnum, SPL_AGONY, BTI_SPELL_AGONY_POISONLESS, DND_AGONY_R10_LESS, dur, true);
+}
+
+// Keeps a player's rank 5 zone in step with the aura; r is the scaled reach, 0 drops it.
+void SetAgonyZone(int pnum, int r) {
+	int[] module& z = GetAgonyZones();
+	if(!z[pnum] != !r)
+		z[MAXPLAYERS] += r ? 1 : -1;
+	z[pnum] = r;
+}
+
+// Agony rank 5's base chance for an enemy: whether it stands inside any such aura.
+int GetAgonyAilmentChance(int victim) {
+	int[] module& z = GetAgonyZones();
+	if(z[MAXPLAYERS] <= 0)
+		return 0;
+	for(int i = 0; i < MAXPLAYERS; ++i)
+		if(z[i] && PlayerInGame(i) && fdistance(victim, i + P_TIDSTART) <= z[i])
+			return DND_AGONY_R5_CHANCE;
+	return 0;
+}
+
+// ---- Vulnerability and Despair ----
+
+#define DND_EARTHCURSE_R5_AOE 25        // rank 5's increased area, both curses
+
+// A curse's chance on one enemy: the strongest chance and the longest clock win, one ticker per monster.
+void CurseMonster(int m, str lane, str clock, str ticker, int chance, int tics) {
+	if(CheckActorInventory(m, lane) < chance)
+		SetActorInventory(m, lane, chance);
+
+	bool ticking = !!CheckActorInventory(m, clock);
+	if(CheckActorInventory(m, clock) < tics)
+		SetActorInventory(m, clock, tics);
+
+	if(!ticking)
+		ACS_NamedExecuteAlways(ticker, 0, m);
+}
+
+// Client side: a curse's ring of markers round where it landed.
+void SpawnCurseRing(str fx, int cx, int cy, int cz, int r) {
+	int n = Clamp_Between((FixedDiv(r, DND_FLAMMABILITY_RINGSTEP) >> 16) * 6, DND_FLAMMABILITY_RINGMIN, DND_FLAMMABILITY_RINGMAX);
+	for(int i = 0; i < n; ++i) {
+		int a = (i * 1.0) / n;
+		SpawnForced(fx, cx + FixedMul(cos(a), r), cy + FixedMul(sin(a), r), cz + DND_FLAMMABILITY_RINGLIFT, 0, 0);
+	}
+}
+
+Script "DnD Vulnerability Area FX" (int cx, int cy, int cz, int r) CLIENTSIDE {
+	if(r > 0)
+		SpawnCurseRing("VulnerabilityAreaMarkerFX", cx, cy, cz, r);
+	SetResultValue(0);
+}
+
+Script "DnD Despair Area FX" (int cx, int cy, int cz, int r) CLIENTSIDE {
+	if(r > 0)
+		SpawnCurseRing("DespairAreaMarkerFX", cx, cy, cz, r);
+	SetResultValue(0);
+}
+
+// Both Earth curses, Conductivity's way in: the enemy under the crosshair, else where the aim trace struck.
+Script "DnD Earth Curse" (int pnum, int spell) {
+	int caster = pnum + P_TIDSTART, cx, cy, cz;
+	bool vuln = spell == SPL_VULNERABILITY;
+	PlaySound(caster, vuln ? "Vulnerability/Cast" : "Despair/Cast", 6);
+
+	int target = PickActor(caster, GetActorAngle(caster), GetActorPitch(caster),
+		DND_SPELL_HITSCANRANGE, 0, MF_SHOOTABLE, ML_BLOCKEVERYTHING, PICKAF_RETURNTID);
+	if(target && IsActorAlive(target)) {
+		cx = GetActorX(target);
+		cy = GetActorY(target);
+		cz = GetActorZ(target);
+	}
+	else {
+		if(!TraceSpellAim(pnum, DND_SPELL_HITSCANRANGE))
+			Terminate;
+		for(int w = 0; !ReadSpellAim(pnum) && w < DND_SPELLAIM_WAIT; ++w)
+			Delay(const:1);
+		if(!SpellAimReady(pnum) || !PlayerInGame(pnum) || !IsActorAlive(caster))
+			Terminate;
+		auto aim = GetSpellAim();
+		cx = aim.x[pnum];
+		cy = aim.y[pnum];
+		cz = aim.z[pnum];
+	}
+
+	int r = ScaleSpellArea(pnum, spell, GetSpellValue(pnum, spell, SPELLVAL_RADIUS) << 16,
+		DND_EARTHCURSE_R5_AOE * SpellThresholdMet(pnum, spell, DND_SPELL_THRESH_LOW));
+	int tics = GetSpellDurationTics(pnum, spell);
+	if(vuln)
+		ACS_NamedExecuteWithResult("DnD Vulnerability Area FX", cx, cy, cz, r);
+	else
+		ACS_NamedExecuteWithResult("DnD Despair Area FX", cx, cy, cz, r);
+
+	// Witch: more curse effect on both halves.
+	int pct = ApplySpellGemMore(pnum, spell, GEMSTAT_MORE_CURSE, GetSpellValue(pnum, spell, SPELLVAL_DAMAGE));
+	int chance = ApplySpellGemMore(pnum, spell, GEMSTAT_MORE_CURSE, GetSpellValue(pnum, spell, SPELLVAL_DAMAGE2));
+	bool noregen = !vuln && SpellThresholdMet(pnum, spell, DND_SPELL_THRESH_HIGH);
+
+	int i, mn;
+	for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
+		i = UsedMonsterTIDs[mn];
+		if(!IsActorAlive(i) || !IsSpellEnemy(i) || fdistance_delta(cx - GetActorX(i), cy - GetActorY(i), cz - GetActorZ(i)) > r)
+			continue;
+
+		if(vuln) {
+			ApplyPhysicalExposure(i, pct, tics);
+			CurseMonster(i, "DnD_Vulnerable", "DnD_VulnerableTimer", "DnD Vulnerability Timer", chance, tics);
+		}
+		else {
+			ApplyPoisonExposure(i, pct, tics);
+			CurseMonster(i, "DnD_Despaired", "DnD_DespairedTimer", "DnD Despair Timer", chance, tics);
+			if(noregen)
+				PauseMonsterRegen(i, tics);
+		}
+	}
+}
+
+// ---- Upheaval ----
+
+#define DND_UPHEAVAL_WAIT (TICRATE * 3 / 2)  // tics from the cast to the first blast
+#define DND_UPHEAVAL_UNSTABLE (2 * TICRATE)  // and from it to the unstable ground's
+#define DND_UPHEAVAL_R10_REPEATS 2           // more unstable blasts at rank 10, a second apart
+#define DND_UPHEAVAL_STUN (2 * TICRATE)
+#define DND_UPHEAVAL_TOSS 16.0               // upward speed of a full strength toss, 136 high; the big go less high
+#define DND_UPHEAVAL_HEAVY_PCT 85            // of the toss, the Baron tier up and uniques: 99 high
+#define DND_UPHEAVAL_BOSS_PCT 75             // bosses and legendaries, 78; a dungeon boss keeps the usual 25
+#define DND_UPHEAVAL_MASSFULL 1000           // the mass at which the throw's extra is whole, a Baron's
+#define DND_UPHEAVAL_MASSDMG 500             // that extra
+#define DND_UPHEAVAL_REACH 128.0             // how far over its floor an enemy can be and still be caught
+#define DND_UPHEAVAL_LANDWAIT (3 * TICRATE)  // tics a tossed enemy has to come down before the throw lands anyway
+#define DND_UPHEAVAL_BOX 1024.0              // the rifts never reach this far, so a cheap test can skip the rest
+#define DND_UPHEAVAL_TIPS 32                 // cracks one cast can have growing: the 2 main ones, their branches and twigs
+#define DND_UPHEAVAL_MAXCRACKS 200           // segments one cast lays, all of which the blasts heat
+#define DND_UPHEAVAL_CRACKSEG 48.0           // a main crack's segment, UPCRACK.md3's at scale 1; branches' are shorter and thinner
+#define DND_UPHEAVAL_BRANCHSEG 34.0
+#define DND_UPHEAVAL_TWIGSEG 24.0
+#define DND_UPHEAVAL_BRANCHFROM 48.0         // no branch leaves a main crack nearer the caster than this
+#define DND_UPHEAVAL_BRANCH 70               // percent chance a crack sends a branch off at a joint, never two joints running
+#define DND_UPHEAVAL_TWIG 40                 // and a branch a twig
+#define DND_UPHEAVAL_OUTER 70                // percent of a main crack's branches that go its own way out, the rest inward
+#define DND_UPHEAVAL_BRANCHTURN 0.1          // how sharply a branch leaves, in turns, plus up to 0.06 more
+#define DND_UPHEAVAL_BEND 0.05               // the heading a branch bends round to as it goes: aside, but mostly forward
+#define DND_UPHEAVAL_WANDER 0.02             // how far a heading wanders at each joint
+#define DND_UPHEAVAL_LANE 0.5                // a main crack's lane: this share of the cone's half width out on its side
+#define DND_UPHEAVAL_SPREAD0 0.6             // the cone's half width at the caster, a share of the far end's
+#define DND_UPHEAVAL_MIDS 6                  // UPCRACK's looks: middles, ends (turned round, starts), and pointed both ways
+#define DND_UPHEAVAL_ENDS 4
+#define DND_UPHEAVAL_BOTHS 2
+#define DND_UPHEAVAL_START 0.25              // and where it starts, a share of the cone's half width at the caster
+#define DND_UPHEAVAL_LANE3 0.62              // the side cracks' lanes when rank 5's third runs down the middle
+#define DND_UPHEAVAL_CRACKHIT 40.0           // an enemy this near a crack, past its radius, is caught by the explosions
+#define DND_UPHEAVAL_STEPS ((DND_UPHEAVAL_WAIT + 2) / 3)   // the tear's steps of 3 tics; the first explosion follows the last
+#define DND_UPHEAVAL_SLOTS 8                 // layouts each side keeps at once, the server's and a client's apart: one machine runs both
+#define DND_UPHEAVAL_CRACKSTEP 8.0           // the most floor height a segment may span
+#define DND_UPHEAVAL_CRACKFADE 40            // tics the cracks stay after the last blast, cooling to black, then fade
+#define DND_UPHEAVAL_HEATBASE 0.1            // UpheavalCrack.fp reads ScaleY / ScaleX - 1: 0 pulses, from this up a blast's heat
+#define DND_UPHEAVAL_HEATHOLD 3              // tics a blast keeps the cracks white hot
+#define DND_UPHEAVAL_HEATCOOL 24             // and they take to cool to black
+
+// Whether a living enemy stands in the rifts: len ahead of (x0, y0) along (ux, uy), half to either side, near its floor.
+// The rifts spread as they go, as Crackling Lance's cone does: half the width at the caster, all of it at the far end.
+int GetUpheavalSpread(int along, int len, int half) {
+	return FixedMul(half, DND_UPHEAVAL_SPREAD0) + FixedMul(FixedMul(half, 1.0 - DND_UPHEAVAL_SPREAD0), FixedDiv(Clamp_Between(along, 0, len), len));
+}
+
+bool InUpheavalRifts(int probe, int m, int x0, int y0, int ux, int uy, int len, int half) {
+	int rx = GetActorX(m) - x0, ry = GetActorY(m) - y0;
+	if(abs(rx) > DND_UPHEAVAL_BOX || abs(ry) > DND_UPHEAVAL_BOX || !IsActorAlive(m) || !IsSpellEnemy(m))
+		return false;
+	int rad = GetActorProperty(m, APROP_RADIUS), along = FixedMul(rx, ux) + FixedMul(ry, uy);
+	if(along < -rad || along > len + rad || abs(FixedMul(rx, uy) - FixedMul(ry, ux)) > GetUpheavalSpread(along, len, half) + rad)
+		return false;
+	return GetActorZ(m) <= GetActorFloorZ(m) + DND_UPHEAVAL_REACH && CheckSight(probe, m, CSF_NOBLOCKALL);
+}
+
+// The rifts' layouts, grown alike on the server and every client from one seed. Slots 0-7 the server's, 8-15 a client's.
+// Joints are packed: along in quarter units over 16 bits, side in quarter units + 0x8000 under them.
+typedef struct {
+	int joint0[2 * DND_UPHEAVAL_SLOTS * DND_UPHEAVAL_MAXCRACKS];
+	int joint1[2 * DND_UPHEAVAL_SLOTS * DND_UPHEAVAL_MAXCRACKS];
+	int segs[2 * DND_UPHEAVAL_SLOTS];
+	int tips[2 * DND_UPHEAVAL_SLOTS];
+	int dice[2 * DND_UPHEAVAL_SLOTS];
+	int next[2];
+	int at[2 * DND_UPHEAVAL_SLOTS * DND_UPHEAVAL_TIPS];		// each growing crack: how far along, how far aside, its heading
+	int side[2 * DND_UPHEAVAL_SLOTS * DND_UPHEAVAL_TIPS];
+	int head[2 * DND_UPHEAVAL_SLOTS * DND_UPHEAVAL_TIPS];
+	int bend[2 * DND_UPHEAVAL_SLOTS * DND_UPHEAVAL_TIPS];	// the heading it eases round to
+	int gen[2 * DND_UPHEAVAL_SLOTS * DND_UPHEAVAL_TIPS];		// 0 main, 1 branch, 2 twig
+	int way[2 * DND_UPHEAVAL_SLOTS * DND_UPHEAVAL_TIPS];		// its side, -1 or 1; 0 for rank 5's middle crack
+	int wait[2 * DND_UPHEAVAL_SLOTS * DND_UPHEAVAL_TIPS];	// joints before it may branch again
+	int dead[2 * DND_UPHEAVAL_SLOTS * DND_UPHEAVAL_TIPS];
+	int begun[2 * DND_UPHEAVAL_SLOTS * DND_UPHEAVAL_TIPS];	// it has laid a segment
+	int segcrack[2 * DND_UPHEAVAL_SLOTS * DND_UPHEAVAL_MAXCRACKS];	// the crack a segment belongs to; 0x100 on its first
+} upheaval_rifts_T;
+
+upheaval_rifts_T module& GetUpheavalRifts() {
+	static upheaval_rifts_T s;
+	return s;
+}
+
+int NextUpheavalSlot(bool client) {
+	auto rf = GetUpheavalRifts();
+	int c = client ? 1 : 0;
+	rf.next[c] = (rf.next[c] + 1) % DND_UPHEAVAL_SLOTS;
+	return rf.next[c] + c * DND_UPHEAVAL_SLOTS;
+}
+
+// The seed both sides start from: the server's 10 bit roll mixed with where and which way the cast went.
+int GetUpheavalDice(int roll, int xy, int a) {
+	return (roll + 1) * -1640531535 ^ xy ^ ((a & 0xFFFF) << 9);
+}
+
+// The layout's own dice, the same everywhere: a fixed value from lo to hi, or a percent chance.
+int RollUpheaval(int k, int lo, int hi) {
+	auto rf = GetUpheavalRifts();
+	rf.dice[k] = rf.dice[k] * 1103515245 + 12345;
+	return lo + FixedMul(hi - lo, (rf.dice[k] >> 15) & 0xFFFF);
+}
+
+bool UpheavalChance(int k, int pct) {
+	auto rf = GetUpheavalRifts();
+	rf.dice[k] = rf.dice[k] * 1103515245 + 12345;
+	return ((rf.dice[k] >> 16) & 0x7FFF) % 100 < pct;
+}
+
+int PackUpheavalJoint(int along, int side) {
+	return ((along >> 14) << 16) | (((side >> 14) + 0x8000) & 0xFFFF);
+}
+
+int GetUpheavalJointA(int p) {
+	return (p >> 16) & 0xFFFF;
+}
+
+int GetUpheavalJointS(int p) {
+	return (p & 0xFFFF) - 0x8000;
+}
+
+// Where the segment from (a0, s0) to (a1, s1) first crosses the one from (b0, t0) to (b1, t1), as a fixed share of
+// the first, or -1. All in quarter units of the rifts: products of map fixed point would overflow.
+int CrossUpheavalCracks(int a0, int s0, int a1, int s1, int b0, int t0, int b1, int t1) {
+	int ra = a1 - a0, rs = s1 - s0, qa = b1 - b0, qs = t1 - t0;
+	int den = ra * qs - rs * qa, un = (b0 - a0) * qs - (t0 - s0) * qa, vn = (b0 - a0) * rs - (t0 - s0) * ra;
+	if(!den)
+		return -1;
+	if(den < 0) {
+		den = -den;
+		un = -un;
+		vn = -vn;
+	}
+	if(un <= 0 || un > den || vn < 0 || vn > den)
+		return -1;
+	return FixedDiv(un, den);
+}
+
+// The main cracks, from the caster: 2, or 3 at rank 5 with the third down the middle.
+void BeginUpheavalRifts(int k, int dice, int len, int half, int mains) {
+	auto rf = GetUpheavalRifts();
+	int base = k * DND_UPHEAVAL_TIPS, i, w;
+	rf.dice[k] = dice;
+	rf.segs[k] = 0;
+	rf.tips[k] = mains;
+	for(i = 0; i < mains; ++i) {
+		w = mains == 3 ? i - 1 : i * 2 - 1;
+		rf.at[base + i] = RollUpheaval(k, 24.0, 40.0);
+		rf.side[base + i] = w * FixedMul(FixedMul(DND_UPHEAVAL_START, GetUpheavalSpread(0, len, half)), RollUpheaval(k, 0.8, 1.2));
+		rf.head[base + i] = w ? w * RollUpheaval(k, 0, 0.02) : RollUpheaval(k, -0.01, 0.01);
+		rf.bend[base + i] = 0;
+		rf.gen[base + i] = 0;
+		rf.way[base + i] = w;
+		rf.wait[base + i] = 0;
+		rf.dead[base + i] = false;
+		rf.begun[base + i] = false;
+	}
+}
+
+// The tear's front at step i of DND_UPHEAVAL_STEPS.
+int GetUpheavalFront(int i, int len) {
+	return FixedMul(len, (i * 3 * 1.0) / DND_UPHEAVAL_WAIT) + 48.0;
+}
+
+// Grows slot k's cracks up to the front d: main cracks steer for their lanes, branches and twigs leave them mostly outward
+// and bend forward; a crack stops where it meets another, a branch at the cone's edge. New segments join the slot's joints.
+void GrowUpheavalRifts(int k, int d, int len, int half, int mains) {
+	auto rf = GetUpheavalRifts();
+	int base = k * DND_UPHEAVAL_TIPS, sb = k * DND_UPHEAVAL_MAXCRACKS, i, j, c, n, seg, turn, lane, step, s, a1, cone, best, u, qa, qs;
+	for(i = 0; i < rf.tips[k]; ++i) {
+		c = base + i;
+		seg = rf.gen[c] ? (rf.gen[c] == 1 ? DND_UPHEAVAL_BRANCHSEG : DND_UPHEAVAL_TWIGSEG) : DND_UPHEAVAL_CRACKSEG;
+		while(!rf.dead[c] && rf.at[c] < len && rf.at[c] + FixedMul(seg, cos(rf.head[c])) <= d) {
+			--rf.wait[c];
+			n = rf.tips[k];
+			if(n < DND_UPHEAVAL_TIPS && rf.gen[c] < 2 && rf.at[c] >= DND_UPHEAVAL_BRANCHFROM && rf.wait[c] < 0 &&
+				UpheavalChance(k, rf.gen[c] ? DND_UPHEAVAL_TWIG : DND_UPHEAVAL_BRANCH)) {
+				rf.wait[c] = 1;
+				// The middle crack's branches take either side; the others' mostly their own side, out.
+				if(!rf.way[c])
+					turn = UpheavalChance(k, 50) ? 1 : -1;
+				else
+					turn = rf.gen[c] || UpheavalChance(k, DND_UPHEAVAL_OUTER) ? rf.way[c] : -rf.way[c];
+				rf.at[base + n] = rf.at[c];
+				rf.side[base + n] = rf.side[c];
+				rf.head[base + n] = rf.head[c] + turn * (DND_UPHEAVAL_BRANCHTURN + RollUpheaval(k, 0, 0.06));
+				rf.bend[base + n] = turn * DND_UPHEAVAL_BEND;
+				rf.gen[base + n] = rf.gen[c] + 1;
+				rf.way[base + n] = turn;
+				rf.wait[base + n] = 0;
+				rf.dead[base + n] = false;
+				rf.begun[base + n] = false;
+				rf.tips[k] = n + 1;
+			}
+			// A main crack eases toward its lane.
+			if(!rf.gen[c]) {
+				lane = rf.way[c] * FixedMul(mains == 3 ? DND_UPHEAVAL_LANE3 : DND_UPHEAVAL_LANE, GetUpheavalSpread(rf.at[c] + 2 * seg, len, half));
+				rf.bend[c] = VectorAngle(2 * seg, lane - rf.side[c]);
+				if(rf.bend[c] > 0.5)
+					rf.bend[c] -= 1.0;
+			}
+			step = FixedMul(seg, cos(rf.head[c]));
+			s = rf.side[c] + FixedMul(seg, sin(rf.head[c]));
+			a1 = rf.at[c] + step;
+			cone = GetUpheavalSpread(a1, len, half);
+			if(abs(s) > cone) {
+				if(rf.gen[c]) {
+					rf.dead[c] = true;
+					break;
+				}
+				s = s > 0 ? cone : -cone;
+			}
+			// Meeting another crack: cut at the crossing and end. Segments touching this one's start do not count.
+			qa = rf.at[c] >> 14;
+			qs = rf.side[c] >> 14;
+			best = -1;
+			for(j = 0; j < rf.segs[k]; ++j) {
+				n = rf.joint0[sb + j];
+				u = rf.joint1[sb + j];
+				if((abs(GetUpheavalJointA(n) - qa) <= 4 && abs(GetUpheavalJointS(n) - qs) <= 4) ||
+					(abs(GetUpheavalJointA(u) - qa) <= 4 && abs(GetUpheavalJointS(u) - qs) <= 4))
+					continue;
+				u = CrossUpheavalCracks(qa, qs, a1 >> 14, s >> 14, GetUpheavalJointA(n), GetUpheavalJointS(n), GetUpheavalJointA(u), GetUpheavalJointS(u));
+				if(u >= 0 && (best < 0 || u < best))
+					best = u;
+			}
+			if(best >= 0) {
+				a1 = rf.at[c] + FixedMul(a1 - rf.at[c], best);
+				s = rf.side[c] + FixedMul(s - rf.side[c], best);
+				rf.dead[c] = true;
+			}
+			if(rf.segs[k] < DND_UPHEAVAL_MAXCRACKS) {
+				rf.joint0[sb + rf.segs[k]] = PackUpheavalJoint(rf.at[c], rf.side[c]);
+				rf.joint1[sb + rf.segs[k]] = PackUpheavalJoint(a1, s);
+				rf.segcrack[sb + rf.segs[k]] = i | (rf.begun[c] ? 0 : 0x100);
+				rf.begun[c] = true;
+				++rf.segs[k];
+			}
+			rf.at[c] = a1;
+			rf.side[c] = s;
+			// The heading eases round to its bend, and wanders a little.
+			rf.head[c] += (rf.bend[c] - rf.head[c]) / 3 + RollUpheaval(k, -DND_UPHEAVAL_WANDER, DND_UPHEAVAL_WANDER);
+		}
+	}
+}
+
+// Whether an enemy is caught by the explosions: in the rifts' cone, and within CRACKHIT of one of slot k's cracks.
+bool OnUpheavalCracks(int k, int probe, int m, int x0, int y0, int ux, int uy, int len, int half) {
+	auto rf = GetUpheavalRifts();
+	if(!InUpheavalRifts(probe, m, x0, y0, ux, uy, len, half))
+		return false;
+	int rx = GetActorX(m) - x0, ry = GetActorY(m) - y0, sb = k * DND_UPHEAVAL_MAXCRACKS;
+	int pa = (FixedMul(rx, ux) + FixedMul(ry, uy)) >> 14, ps = (FixedMul(ry, ux) - FixedMul(rx, uy)) >> 14;
+	int reach = (DND_UPHEAVAL_CRACKHIT + GetActorProperty(m, APROP_RADIUS)) >> 14, j, a0, s0, da, ds, dot, l2, dist;
+	for(j = 0; j < rf.segs[k]; ++j) {
+		a0 = GetUpheavalJointA(rf.joint0[sb + j]);
+		s0 = GetUpheavalJointS(rf.joint0[sb + j]);
+		da = GetUpheavalJointA(rf.joint1[sb + j]) - a0;
+		ds = GetUpheavalJointS(rf.joint1[sb + j]) - s0;
+		dot = (pa - a0) * da + (ps - s0) * ds;
+		l2 = da * da + ds * ds;
+		if(dot <= 0 || !l2)
+			dist = sqrt((pa - a0) * (pa - a0) + (ps - s0) * (ps - s0));
+		else if(dot >= l2)
+			dist = sqrt((pa - a0 - da) * (pa - a0 - da) + (ps - s0 - ds) * (ps - s0 - ds));
+		else
+			dist = abs((pa - a0) * ds - (ps - s0) * da) / sqrt(l2);
+		if(dist <= reach)
+			return true;
+	}
+	return false;
+}
+
+int GetUpheavalTossPercent(int m) {
+	switch(GetMonsterPushTier(m)) {
+		case DND_PUSHTIER_HEAVY:
+		return DND_UPHEAVAL_HEAVY_PCT;
+		case DND_PUSHTIER_BOSS:
+		return DND_UPHEAVAL_BOSS_PCT;
+		case DND_PUSHTIER_DUNGEONBOSS:
+		return DND_PUSH_BOSS_PCT;
+	}
+	return 100;
+}
+
+// Rumbles, then throws and stuns what stands in the rifts; the unstable ground then blows, three times at rank 10.
+Script "DnD Upheaval" (int pnum) {
+	int ptid = pnum + P_TIDSTART;
+	int a = GetActorAngle(ptid), ux = cos(a), uy = sin(a), x0 = GetActorX(ptid), y0 = GetActorY(ptid);
+	int len = ScaleSpellArea(pnum, SPL_UPHEAVAL, GetSpellValue(pnum, SPL_UPHEAVAL, SPELLVAL_RADIUS) << 16);
+	int half = ScaleSpellArea(pnum, SPL_UPHEAVAL, GetSpellValue(pnum, SPL_UPHEAVAL, SPELLVAL_AMOUNT) << 16) / 2;
+	int probe = SpawnSpellProbe(x0, y0, GetActorZ(ptid) + 32.0);
+	if(!probe)
+		Terminate;
+
+	// The cracks: the clients draw them, the server grows the same ones from the same seed and hits along them.
+	int blasts = 1 + DND_UPHEAVAL_R10_REPEATS * SpellThresholdMet(pnum, SPL_UPHEAVAL, DND_SPELL_THRESH_HIGH);
+	int cracks = DND_UPHEAVAL_STEPS * 3 + DND_UPHEAVAL_UNSTABLE + (blasts - 1) * TICRATE + DND_UPHEAVAL_CRACKFADE;
+	int mains = 2 + SpellThresholdMet(pnum, SPL_UPHEAVAL, DND_SPELL_THRESH_LOW), roll = random(0, 0x3FF), rk = NextUpheavalSlot(false);
+	int i, m, k;
+	BeginUpheavalRifts(rk, GetUpheavalDice(roll, PackMapPair(x0, y0), a), len, half, mains);
+	PlaySound(probe, "Upheaval/Rumble", CHAN_6);
+	Radius_Quake(2, DND_UPHEAVAL_STEPS * 3, 0, (len >> 16) / 64 + 4, probe);
+	ACS_NamedExecuteAlways("DnD Upheaval Rift FX", 0, PackMapPair(x0, y0), (a & 0xFFFF) | (cracks << 16) | (mains << 26),
+		((len >> 16) & 0x7FF) | (((half >> 16) & 0x7FF) << 11) | (roll << 22));
+	for(i = 0; i < DND_UPHEAVAL_STEPS; ++i) {
+		GrowUpheavalRifts(rk, GetUpheavalFront(i, len), len, half, mains);
+		Delay(const:3);
+	}
+
+	int stun = ScaleSpellEffectTics(pnum, SPL_UPHEAVAL, DND_UPHEAVAL_STUN);
+	PlaySound(probe, "Upheaval/Blast", CHAN_7);
+	Radius_Quake(4, 12, 0, (len >> 16) / 64 + 4, probe);
+	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+		m = UsedMonsterTIDs[i];
+		if(!OnUpheavalCracks(rk, probe, m, x0, y0, ux, uy, len, half))
+			continue;
+		DealSpellAmount(pnum, SPL_UPHEAVAL, m, RollSpellValue(pnum, SPL_UPHEAVAL, SPELLVAL_DAMAGE), true, DND_DAMAGEFLAG_NOPUSH);
+		if(!IsActorAlive(m))
+			continue;
+		StunMonster(m, stun);
+		// A floater thrown up would never come down: it is stunned where it is instead.
+		if(!CheckFlag(m, "NOGRAVITY"))
+			SetActorVelocity(m, GetActorVelX(m), GetActorVelY(m), DND_UPHEAVAL_TOSS * GetUpheavalTossPercent(m) / 100, false, false);
+		ACS_NamedExecuteAlways("DnD Upheaval Landing", 0, pnum, m);
+	}
+
+	for(k = 0; k < blasts; ++k) {
+		Delay(k ? TICRATE : DND_UPHEAVAL_UNSTABLE);
+		if(!PlayerInGame(pnum))
+			break;
+		PlaySound(probe, "Upheaval/Blast", CHAN_7);
+		Radius_Quake(3, 10, 0, (len >> 16) / 64 + 4, probe);
+		for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+			m = UsedMonsterTIDs[i];
+			if(OnUpheavalCracks(rk, probe, m, x0, y0, ux, uy, len, half))
+				DealSpellAmount(pnum, SPL_UPHEAVAL, m, RollSpellValue(pnum, SPL_UPHEAVAL, SPELLVAL_DAMAGE2), true);
+		}
+	}
+	Thing_Remove(probe);
+}
+
+// A thrown enemy coming down: the throw lands then, its base plus up to MASSDMG more the heavier it is.
+Script "DnD Upheaval Landing" (int pnum, int m) {
+	Delay(const:2);
+	for(int t = 2; t < DND_UPHEAVAL_LANDWAIT && IsActorAlive(m); ++t) {
+		if(GetActorZ(m) <= GetActorFloorZ(m) && GetActorVelZ(m) <= 0)
+			break;
+		Delay(const:1);
+	}
+	if(!IsActorAlive(m) || !PlayerInGame(pnum))
+		Terminate;
+
+	int mass = Clamp_Between(GetActorProperty(m, APROP_MASS), 0, DND_UPHEAVAL_MASSFULL);
+	DealSpellAmount(pnum, SPL_UPHEAVAL, m, RollSpellValue(pnum, SPL_UPHEAVAL, SPELLVAL_AMOUNT2) + DND_UPHEAVAL_MASSDMG * mass / DND_UPHEAVAL_MASSFULL);
+	PlaySound(m, "Upheaval/Slam", CHAN_7);
+	ACS_NamedExecuteAlways("DnD Upheaval Slam FX", 0, m);
+}
+
+// A point of the rifts, client side: along of the length ahead, side of the half width across (both 0..1 fixed).
+int UpheavalPointX(int x0, int a, int along, int side) {
+	return x0 + FixedMul(along, cos(a)) - FixedMul(side, sin(a));
+}
+
+int UpheavalPointY(int y0, int a, int along, int side) {
+	return y0 + FixedMul(along, sin(a)) + FixedMul(side, cos(a));
+}
+
+enum {
+	DND_UPCRACK_MID,
+	DND_UPCRACK_END,                     // converging on the segment's far joint
+	DND_UPCRACK_START,                   // converging on its near joint: an end turned round
+	DND_UPCRACK_BOTH
+};
+
+// A crack segment's look; dir runs from its near joint to its far one. Middles and both-ways ones lie either way round.
+void SetUpheavalCrackLook(int tid, int kind, int dir) {
+	str st;
+	switch(kind) {
+		case DND_UPCRACK_MID:
+			st = StrParam(s:"M", d:random(1, DND_UPHEAVAL_MIDS));
+			dir += random(0, 1) * 0.5;
+		break;
+		case DND_UPCRACK_END:
+			st = StrParam(s:"T", d:random(1, DND_UPHEAVAL_ENDS));
+		break;
+		case DND_UPCRACK_START:
+			st = StrParam(s:"T", d:random(1, DND_UPHEAVAL_ENDS));
+			dir += 0.5;
+		break;
+		default:
+			st = StrParam(s:"B", d:random(1, DND_UPHEAVAL_BOTHS));
+			dir += random(0, 1) * 0.5;
+	}
+	SetActorAngle(tid, dir);
+	SetActorState(tid, st);
+}
+
+// One crack segment from joint (d0, s0) to (d1, s1) of the rifts, left to stand for life tics; skipped across a step.
+// Its scale is its length over the model's, so a short branch is a thin one too. Returns its tid, or 0.
+int LayUpheavalCrack(int x0, int y0, int a, int d0, int s0, int d1, int s1, int life, int kind) {
+	int ax = UpheavalPointX(x0, a, d0, s0), ay = UpheavalPointY(y0, a, d0, s0);
+	int bx = UpheavalPointX(x0, a, d1, s1), by = UpheavalPointY(y0, a, d1, s1);
+	int mx = (ax + bx) / 2, my = (ay + by) / 2, z = GetFloorZAt(mx, my), tid = UniqueTID();
+	if(!tid || abs(GetFloorZAt(ax, ay) - GetFloorZAt(bx, by)) > DND_UPHEAVAL_CRACKSTEP || abs(GetFloorZAt(ax, ay) - z) > DND_UPHEAVAL_CRACKSTEP)
+		return 0;
+	int dir = VectorAngle(bx - ax, by - ay), sc = FixedDiv(VectorLength(bx - ax, by - ay), DND_UPHEAVAL_CRACKSEG);
+	if(!SpawnForced("Spell_Upheaval_Crack", mx, my, z, tid, dir >> 8))
+		return 0;
+	SetUpheavalCrackLook(tid, kind, dir);
+	SetActorProperty(tid, APROP_SCALEX, sc);
+	SetActorProperty(tid, APROP_SCALEY, sc);
+	SetUserVariable(tid, "user_life", life);
+	return tid;
+}
+
+// A blast's heat on the cracks, 0 to 1: white hot for HOLD tics, then cooling to black. t counts from the blast.
+int GetUpheavalHeat(int t) {
+	if(t < 0)
+		return -1;
+	if(t < DND_UPHEAVAL_HEATHOLD)
+		return 1.0;
+	int c = Max(0, 1.0 - (t - DND_UPHEAVAL_HEATHOLD) * 1.0 / DND_UPHEAVAL_HEATCOOL);
+	return FixedMul(c, c);
+}
+
+// Client side: the rifts tear forward from the server's seed, a crack laid per new segment; each explosion then bursts
+// along them and leaves them white hot, cooling to black, and black they fade.
+Script "DnD Upheaval Rift FX" (int xy, int al, int shape) CLIENTSIDE {
+	auto rf = GetUpheavalRifts();
+	int x0 = xy << 16, y0 = xy & 0xFFFF0000, a = al & 0xFFFF, life = (al >> 16) & 0x3FF, mains = (al >> 26) & 3;
+	int len = (shape & 0x7FF) << 16, half = ((shape >> 11) & 0x7FF) << 16, k = NextUpheavalSlot(true);
+	int blasts = 1 + (life - DND_UPHEAVAL_STEPS * 3 - DND_UPHEAVAL_UNSTABLE - DND_UPHEAVAL_CRACKFADE) / TICRATE + 1;
+	int crack[DND_UPHEAVAL_MAXCRACKS], scale[DND_UPHEAVAL_MAXCRACKS], nc = 0;
+	int lastTid[DND_UPHEAVAL_TIPS], lastDir[DND_UPHEAVAL_TIPS], c, first, tid;
+	bool lastFirst[DND_UPHEAVAL_TIPS];
+	int i, j, t, s, x, y, p0, p1, next, heat, sb = k * DND_UPHEAVAL_MAXCRACKS;
+	BeginUpheavalRifts(k, GetUpheavalDice((shape >> 22) & 0x3FF, xy, a), len, half, mains);
+	for(i = 0; i < DND_UPHEAVAL_STEPS; ++i) {
+		j = rf.segs[k];
+		GrowUpheavalRifts(k, GetUpheavalFront(i, len), len, half, mains);
+		// Each new segment is laid pointed, so a growing crack's front closes off; the one it follows, pointed till now, turns
+		// into a middle (or into a start, if it was the crack's first).
+		for(; j < rf.segs[k]; ++j) {
+			p0 = rf.joint0[sb + j];
+			p1 = rf.joint1[sb + j];
+			c = rf.segcrack[sb + j] & 0xFF;
+			first = rf.segcrack[sb + j] & 0x100;
+			if(!first && lastTid[c])
+				SetUpheavalCrackLook(lastTid[c], lastFirst[c] ? DND_UPCRACK_START : DND_UPCRACK_MID, lastDir[c]);
+			tid = 0;
+			if(nc < DND_UPHEAVAL_MAXCRACKS && (tid = LayUpheavalCrack(x0, y0, a, GetUpheavalJointA(p0) << 14, GetUpheavalJointS(p0) << 14,
+				GetUpheavalJointA(p1) << 14, GetUpheavalJointS(p1) << 14, life - i * 3, first ? DND_UPCRACK_BOTH : DND_UPCRACK_END))) {
+				crack[nc] = tid;
+				scale[nc++] = FixedDiv(VectorLength((GetUpheavalJointA(p1) - GetUpheavalJointA(p0)) << 14, (GetUpheavalJointS(p1) - GetUpheavalJointS(p0)) << 14),
+					DND_UPHEAVAL_CRACKSEG);
+			}
+			lastTid[c] = tid;
+			lastFirst[c] = !!first;
+			lastDir[c] = VectorAngle(UpheavalPointX(x0, a, GetUpheavalJointA(p1) << 14, GetUpheavalJointS(p1) << 14) - UpheavalPointX(x0, a, GetUpheavalJointA(p0) << 14, GetUpheavalJointS(p0) << 14),
+				UpheavalPointY(y0, a, GetUpheavalJointA(p1) << 14, GetUpheavalJointS(p1) << 14) - UpheavalPointY(y0, a, GetUpheavalJointA(p0) << 14, GetUpheavalJointS(p0) << 14));
+		}
+		for(j = k * DND_UPHEAVAL_TIPS; j < k * DND_UPHEAVAL_TIPS + rf.tips[k]; ++j) {
+			if(rf.dead[j] || rf.at[j] >= len || random(0, 1))
+				continue;
+			x = UpheavalPointX(x0, a, rf.at[j], rf.side[j]);
+			y = UpheavalPointY(y0, a, rf.at[j], rf.side[j]);
+			Spawn("Spell_Rockslide_Dust", x, y, GetFloorZAt(x, y) + 4.0);
+			if(!random(0, 2))
+				Spawn("Spell_Shrapnel_Piece", x, y, GetFloorZAt(x, y) + 4.0);
+		}
+		Delay(const:3);
+	}
+
+	// The explosions, on the server's beat: the first as the tear ends, the unstable ground's UNSTABLE later, a second apart after.
+	for(i = 0; i < blasts; ++i) {
+		for(j = Clamp_Between(nc / 4, 6, 30); j > 0 && nc; --j) {
+			s = crack[random(0, nc - 1)];
+			Spawn("Spell_Upheaval_Burst", GetActorX(s) + random(-12.0, 12.0), GetActorY(s) + random(-12.0, 12.0), GetActorZ(s));
+		}
+		next = i + 1 < blasts ? (i ? TICRATE : DND_UPHEAVAL_UNSTABLE) : DND_UPHEAVAL_CRACKFADE;
+		for(t = 0; t < next; ++t) {
+			heat = GetUpheavalHeat(t);
+			if(t <= DND_UPHEAVAL_HEATHOLD + DND_UPHEAVAL_HEATCOOL)
+				for(j = 0; j < nc; ++j)
+					SetActorProperty(crack[j], APROP_SCALEY, FixedMul(scale[j], 1.0 + DND_UPHEAVAL_HEATBASE + heat));
+			Delay(const:1);
+		}
+	}
+}
+
+// Client side: dust where a thrown enemy lands.
+Script "DnD Upheaval Slam FX" (int m) CLIENTSIDE {
+	for(int i = 0; i < 6; ++i)
+		Spawn("Spell_Rockslide_Dust", GetActorX(m) + random(-24.0, 24.0), GetActorY(m) + random(-24.0, 24.0), GetActorZ(m) + 4.0);
+}
+
+// ---- Threaded Volley ----
+
+#define DND_TVOLLEY_SPEED 36            // the small rocks
+#define DND_TVOLLEY_BIGSPEED 26         // the energized rock
+#define DND_TVOLLEY_GAP1 16            // tics before the 2nd rock and the 3rd: the throws quicken, then every GAPMAX
+#define DND_TVOLLEY_GAP2 11
+#define DND_TVOLLEY_GAPMAX 7
+#define DND_TVOLLEY_AREA 256            // energized area radius, 384 at rank 10
+#define DND_TVOLLEY_R10_AREA 384
+#define DND_TVOLLEY_R5_MORE 20          // more damage per overlapping area past the first, from rank 5
+#define DND_TVOLLEY_BIGBLAST 200        // the energized rock's blast, percent of the RADIUS row: 80 -> 160
+#define DND_TVOLLEY_CHUNKS 8            // chunks the energized rock bursts into
+#define DND_TVOLLEY_CHUNKDMG 16
+#define DND_TVOLLEY_CHUNKRIPS 4
+#define DND_TVOLLEY_CHUNKSPEED 24
+#define DND_TVOLLEY_CHUNKLIFE 16        // tics a chunk flies
+#define DND_TVOLLEY_DISC 15.156         // map units per unit of the ground disc's scale: flat2's 15.625 by the skin's rim
+#define DND_TVOLLEY_DISCFADE 42         // tics the ground spends fading in (8) and out (34)
+
+// Outside any of its own energized areas: lays one where it is cast, then throws the rocks one by one along the
+// caster's facing. Inside: the one big rock instead, more for each overlapping area from rank 5.
+Script "DnD Threaded Volley" (int pnum) {
+	auto v = GetVolleyData();
+	int ptid = pnum + P_TIDSTART, areas = v.press[pnum], i, k;
+	int extra = GetSpellExtraProjectiles(pnum, SPL_THREADEDVOLLEY);
+
+	if(areas) {
+		v.pct[pnum] = 100 + DND_TVOLLEY_R5_MORE * (areas - 1) * SpellThresholdMet(pnum, SPL_THREADEDVOLLEY, DND_SPELL_THRESH_LOW);
+		PlaySound(ptid, "ThreadedVolley/Energized", CHAN_6);
+		for(i = 0; i <= extra; ++i)
+			SpawnSpellProjectile(pnum, SPL_THREADEDVOLLEY, "Spell_ThreadedVolley_Boulder", DND_TVOLLEY_BIGSPEED, 0, FanOffset(i, DND_SPELL_FANSPREAD));
+		ACS_NamedExecuteAlways("DnD Earth Unearth FX", 0, pnum, 48, 2);
+		Terminate;
+	}
+
+	int r = ScaleSpellArea(pnum, SPL_THREADEDVOLLEY,
+		(SpellThresholdMet(pnum, SPL_THREADEDVOLLEY, DND_SPELL_THRESH_HIGH) ? DND_TVOLLEY_R10_AREA : DND_TVOLLEY_AREA) << 16);
+	// Laid on the floor under the caster, even from the air of a jump.
+	int tics = GetSpellDurationTics(pnum, SPL_THREADEDVOLLEY), fz = GetActorFloorZ(ptid);
+	AddVolleyArea(pnum, GetActorX(ptid), GetActorY(ptid), fz, r, tics);
+	ACS_NamedExecuteAlways("DnD Threaded Volley Area FX", 0, PackMapPair(GetActorX(ptid), GetActorY(ptid)), fz >> 16,
+		(r >> 16) | (tics << 16));
+
+	int n = Max(1, GetSpellValue(pnum, SPL_THREADEDVOLLEY, SPELLVAL_AMOUNT));
+	for(k = 0; k < n && PlayerInGame(pnum) && IsActorAlive(ptid); ++k) {
+		if(k)
+			Delay(k == 1 ? DND_TVOLLEY_GAP1 : k == 2 ? DND_TVOLLEY_GAP2 : DND_TVOLLEY_GAPMAX);
+		PlaySound(ptid, "ThreadedVolley/Throw", CHAN_6);
+		for(i = 0; i <= extra; ++i)
+			SpawnSpellProjectile(pnum, SPL_THREADEDVOLLEY, "Spell_ThreadedVolley_Rock", DND_TVOLLEY_SPEED, 0, FanOffset(i, DND_SPELL_FANSPREAD));
+		ACS_NamedExecuteAlways("DnD Earth Unearth FX", 0, pnum, 40, 0);
+	}
+}
+
+// The energized rock and its chunks deal the percent the cast set.
+Script "DnD Volley Setup" (void) {
+	int pnum = GetSpellActorOwner();
+	if(pnum != -1)
+		SetUserVariable(0, "user_dmgpct", GetVolleyData().pct[pnum]);
+	SetResultValue(0);
+}
+
+// A chunk's damage: a set amount, priced as the spell's and at the cast's percent. That is read off the caster, as a
+// chunk born inside an enemy hits it before any setup of its own could run.
+Script "DnD Volley Chunk Damage" (void) {
+	int pnum = GetSpellActorOwner();
+	if(pnum == -1) {
+		SetResultValue(0);
+		Terminate;
+	}
+	int dmg = PriceSpellDamage(pnum, SPL_THREADEDVOLLEY, DND_TVOLLEY_CHUNKDMG);
+	int pct = GetVolleyData().pct[pnum];
+	if(pct > 0)
+		dmg = dmg * pct / 100;
+	SetResultValue(PackSpellDamage(Max(1, dmg), GetSpellDamageType(SPL_THREADEDVOLLEY), SPL_THREADEDVOLLEY));
+}
+
+// From the energized rock's burst: chunks flung out level in a ring, owned by the caster. Each is its own ripper, its
+// rips and life stamped at spawn: one born inside an enemy has already hit it by its first frame.
+Script "DnD Volley Chunks" (void) {
+	int pnum = GetSpellActorOwner();
+	if(pnum == -1) {
+		SetResultValue(0);
+		Terminate;
+	}
+	int me = ActivatorTID(), had = me;
+	if(!me) {
+		me = ScratchTID();
+		Thing_ChangeTID(0, me);
+	}
+	for(int i = 0; i < DND_TVOLLEY_CHUNKS; ++i)
+		SpawnSpellProjectile(pnum, SPL_THREADEDVOLLEY, "Spell_ThreadedVolley_Chunk", DND_TVOLLEY_CHUNKSPEED, 0, i * 1.0 / DND_TVOLLEY_CHUNKS,
+			0, DND_TVOLLEY_CHUNKLIFE, me, true, 8.0, 0, -1, ReserveRipperId() + 1, DND_TVOLLEY_CHUNKRIPS);
+	if(!had)
+		Thing_ChangeTID(me, 0);
+	SetResultValue(0);
+}
+
+// Client side: an energized area's ground, a soil disc and its glowing rim, fading out as the area lapses.
+// Packed is radius | tics << 16. The tid lives only this tic; a small random lift keeps overlapping discs off each other.
+Script "DnD Threaded Volley Area FX" (int xy, int z, int packed) CLIENTSIDE {
+	int x = xy << 16, y = xy & 0xFFFF0000, r = (packed & 0xFFFF) << 16, tics = packed >> 16, tid = UniqueTID();
+	if(!tid)
+		Terminate;
+	z = (z << 16) + random(0.0, 0.75);
+	Spawn("Spell_ThreadedVolley_Ground", x, y, z, tid);
+	Spawn("Spell_ThreadedVolley_GroundGlow", x, y, z, tid);
+	SetActorProperty(tid, APROP_ScaleX, FixedDiv(r, DND_TVOLLEY_DISC));
+	SetActorAngle(tid, random(0, 1.0));
+	SetUserVariable(tid, "user_life", Max(0, tics - DND_TVOLLEY_DISCFADE));
+	Thing_ChangeTID(tid, 0);
+}
+
+// ---- Geyser ----
+
+#define DND_GEYSER_AHEAD 224.0         // the middle of the field, ahead of the caster
+#define DND_GEYSER_SPREAD 160.0        // vents open within this of it
+#define DND_GEYSER_TRIES 6             // spots tried for a vent before it is skipped
+#define DND_GEYSER_MAX 32
+#define DND_GEYSER_RATEMIN 8           // drops a second from one vent, rolled per vent
+#define DND_GEYSER_RATEMAX 12
+#define DND_GEYSER_REACHMIN 24         // how far a drop lands from its vent
+#define DND_GEYSER_REACHMAX 144
+#define DND_GEYSER_FLIGHT 14           // a drop's tics in the air, plus one for every FLIGHTDIV units it travels
+#define DND_GEYSER_FLIGHTDIV 12
+#define DND_GEYSER_GRAVITY 0.6         // Spell_Geyser_Drop's Gravity
+#define DND_GEYSER_LIFT 18.0           // drops leave the vent this far up, the middle of its pool
+#define DND_GEYSER_PENDING 32          // drops one vent can have in the air
+#define DND_GEYSER_RISE 10             // tics the rock pile takes to come up, before the first spit
+#define DND_GEYSER_CRUMBLE 30          // and to crumble into the ground once it is spent (Crumble's frames, and a little)
+#define DND_GEYSER_DEPTH 32.0          // how far under the floor it starts, all of it hidden
+
+// The vents' shared dice: the server and every client step it from the same seed, so their drops agree.
+int GeyserStep(int s) {
+	return s * 1103515245 + 12345;
+}
+
+// A step read as 0..1.0.
+int GeyserFrac(int s) {
+	return (s >> 15) & 0xFFFF;
+}
+
+// A vent's drops a second, the first thing its dice decide.
+int GeyserRate(int s, int extra) {
+	return DND_GEYSER_RATEMIN + ((s >> 16) & 0x7FFF) % (DND_GEYSER_RATEMAX - DND_GEYSER_RATEMIN + 1) + extra;
+}
+
+// How far a drop goes, off its second step.
+int GeyserReach(int s) {
+	return (DND_GEYSER_REACHMIN << 16) + FixedMul((DND_GEYSER_REACHMAX - DND_GEYSER_REACHMIN) << 16, GeyserFrac(s));
+}
+
+// The ground ahead splits into AMOUNT vents (50% more at rank 10), each spitting acid for DURATION.
+Script "DnD Geyser" (int pnum) {
+	int ptid = pnum + P_TIDSTART, a = GetActorAngle(ptid);
+	int cx = GetActorX(ptid) + FixedMul(DND_GEYSER_AHEAD, cos(a)), cy = GetActorY(ptid) + FixedMul(DND_GEYSER_AHEAD, sin(a));
+	int n = GetSpellValue(pnum, SPL_GEYSER, SPELLVAL_AMOUNT);
+	if(SpellThresholdMet(pnum, SPL_GEYSER, DND_SPELL_THRESH_HIGH))
+		n += n / 2;
+	n = Min(n, DND_GEYSER_MAX);
+	int life = Min(GetSpellDurationTics(pnum, SPL_GEYSER), 0xFFFF), extra = Min(GetSpellExtraProjectiles(pnum, SPL_GEYSER), 0x7FFF);
+
+	// One probe walked over the candidates: each vent must be in the caster's sight.
+	int probe = SpawnSpellProbe(cx, cy, GetFloorZAt(cx, cy) + 32.0);
+	if(!probe)
+		Terminate;
+	PlaySound(ptid, "Geyser/Quake", CHAN_6);
+	Radius_Quake(4, TICRATE, 0, 8, ptid);
+
+	int i, k, gx, gy, gz, d, ga, zseed;
+	for(i = 0; i < n; ++i) {
+		for(k = 0; k < DND_GEYSER_TRIES; ++k) {
+			ga = random(0, 1.0);
+			d = FixedMul(DND_GEYSER_SPREAD, fsqrt(random(0, 1.0)));
+			gx = cx + FixedMul(d, cos(ga));
+			gy = cy + FixedMul(d, sin(ga));
+			gz = GetFloorZAt(gx, gy);
+			SetActorPosition(probe, gx, gy, gz + 32.0, false);
+			if(CheckSight(ptid, probe, CSF_NOBLOCKALL))
+				break;
+		}
+		if(k == DND_GEYSER_TRIES)
+			continue;
+		zseed = ((gz >> 16) & 0xFFFF) | (random(1, 0x7FFF) << 16);
+		ACS_NamedExecuteAlways("DnD Geyser Vent", 0, pnum, PackMapPair(gx, gy), zseed);
+		ACS_NamedExecuteAlways("DnD Geyser FX", 0, PackMapPair(gx, gy), zseed, life | (extra << 16));
+	}
+	Thing_Remove(probe);
+}
+
+// Where a drop lands: every enemy within the splash takes the hit, which always poisons.
+void GeyserSplash(int pnum, int probe, int x, int y, int r) {
+	int z = GetFloorZAt(x, y), i, m;
+	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+		m = UsedMonsterTIDs[i];
+		if(InSpellArea(probe, m, x, y, r) && InSpellHeight(m, z, r))
+			DealSpellBeamHit(pnum, SPL_GEYSER, m, 100, true);
+	}
+}
+
+// One vent, server side: it throws on its seed's schedule and each drop lands its damage when its flight ends.
+Script "DnD Geyser Vent" (int pnum, int xy, int zseed) {
+	int x = xy << 16, y = xy & 0xFFFF0000, z = zseed << 16, s = GeyserStep((zseed >> 16) & 0x7FFF);
+	int life = GetSpellDurationTics(pnum, SPL_GEYSER), rate = GeyserRate(s, GetSpellExtraProjectiles(pnum, SPL_GEYSER));
+	int r = GetSpellValue(pnum, SPL_GEYSER, SPELLVAL_RADIUS) << 16;
+	if(SpellThresholdMet(pnum, SPL_GEYSER, DND_SPELL_THRESH_LOW))
+		r *= 2;
+	r = ScaleSpellArea(pnum, SPL_GEYSER, r);
+	int probe = SpawnSpellProbe(x, y, z + 32.0);
+	if(!probe)
+		Terminate;
+	// The clients' pile comes up first; their drops start after it, and so do these.
+	Delay(const:DND_GEYSER_RISE);
+
+	int land_t[DND_GEYSER_PENDING], land_x[DND_GEYSER_PENDING], land_y[DND_GEYSER_PENDING], i, k, t, a, d, acc = 0;
+	for(k = 0; k < DND_GEYSER_PENDING; ++k)
+		land_t[k] = -1;
+	int last = life + DND_GEYSER_FLIGHT + DND_GEYSER_REACHMAX / DND_GEYSER_FLIGHTDIV + 1;
+	for(t = 0; t <= last && PlayerInGame(pnum); ++t) {
+		if(t < life) {
+			for(acc += rate; acc >= TICRATE; acc -= TICRATE) {
+				s = GeyserStep(s);
+				a = GeyserFrac(s);
+				s = GeyserStep(s);
+				d = GeyserReach(s);
+				for(k = 0; k < DND_GEYSER_PENDING && land_t[k] != -1; ++k);
+				if(k == DND_GEYSER_PENDING)
+					continue;
+				land_t[k] = t + DND_GEYSER_FLIGHT + (d >> 16) / DND_GEYSER_FLIGHTDIV;
+				land_x[k] = x + FixedMul(d, cos(a));
+				land_y[k] = y + FixedMul(d, sin(a));
+			}
+		}
+		for(k = 0; k < DND_GEYSER_PENDING; ++k) {
+			if(land_t[k] == t) {
+				GeyserSplash(pnum, probe, land_x[k], land_y[k], r);
+				land_t[k] = -1;
+			}
+		}
+		Delay(const:1);
+	}
+	Thing_Remove(probe);
+}
+
+// Client side: the rock pile comes up, then its drops fly on the same dice the server lands them by, then it crumbles.
+Script "DnD Geyser FX" (int xy, int zseed, int lifeextra) CLIENTSIDE {
+	int x = xy << 16, y = xy & 0xFFFF0000, z = zseed << 16, s = GeyserStep((zseed >> 16) & 0x7FFF);
+	int life = lifeextra & 0xFFFF, rate = GeyserRate(s, lifeextra >> 16);
+	int vent = UniqueTID(), t, a, d, ft, tid, q, acc = 0;
+	if(vent && !SpawnForced("Spell_Geyser_Vent", x, y, z - DND_GEYSER_DEPTH, vent, random(0, 255)))
+		vent = 0;
+	for(t = 0; t < 2; ++t)
+		Spawn("Spell_Rockslide_Dust", x + random(-20.0, 20.0), y + random(-20.0, 20.0), z + 2.0);
+	for(t = 0; t < 3; ++t)
+		Spawn("Spell_RockArmor_Chunk", x + random(-16.0, 16.0), y + random(-16.0, 16.0), z + random(4.0, 20.0));
+	// Steered by velocity, each tic onto its mark, quick out of the ground and easing in: SetActorPosition refuses under the floor.
+	for(t = 1; t <= DND_GEYSER_RISE; ++t) {
+		q = 1.0 - t * 1.0 / DND_GEYSER_RISE;
+		if(vent)
+			SetActorVelocity(vent, 0, 0, z - FixedMul(DND_GEYSER_DEPTH, FixedMul(FixedMul(q, q), q)) - GetActorZ(vent), false, false);
+		Delay(const:1);
+	}
+	if(vent)
+		SetActorVelocity(vent, 0, 0, 0, false, false);
+	PlaySound(vent, "Geyser/Spit", CHAN_BODY);
+	for(t = 0; t < life; ++t) {
+		for(acc += rate; acc >= TICRATE; acc -= TICRATE) {
+			s = GeyserStep(s);
+			a = GeyserFrac(s);
+			s = GeyserStep(s);
+			d = GeyserReach(s);
+			ft = DND_GEYSER_FLIGHT + (d >> 16) / DND_GEYSER_FLIGHTDIV;
+			if(!(tid = UniqueTID()) || !Spawn("Spell_Geyser_Drop", x, y, z + DND_GEYSER_LIFT, tid))
+				continue;
+			// Up enough to come down LIFT lower than it left, on the floor, when the server lands it; pointed the way it flies.
+			SetActorVelocity(tid, FixedMul(cos(a), d / ft), FixedMul(sin(a), d / ft),
+				FixedMul(DND_GEYSER_GRAVITY, ft << 16) / 2 - DND_GEYSER_LIFT / ft, false, false);
+			SetActorAngle(tid, a);
+			Thing_ChangeTID(tid, 0);
+		}
+		Delay(const:1);
+	}
+	StopSound(vent, CHAN_BODY);
+	if(!vent)
+		Terminate;
+	SetActorState(vent, "Crumble");
+	for(t = 0; t < 4; ++t)
+		Spawn("Spell_RockArmor_Chunk", x + random(-14.0, 14.0), y + random(-14.0, 14.0), z + random(10.0, 22.0));
+	Spawn("Spell_Rockslide_Dust", x + random(-12.0, 12.0), y + random(-12.0, 12.0), z + 2.0);
+	Delay(const:DND_GEYSER_CRUMBLE);
+	Thing_Remove(vent);
+}
+
+// ---- Unleash Earth ----
+
+#define DND_UNLEASH_RANGE 640.0
+#define DND_UNLEASH_GAP 12             // tics between pillars: 0.33 seconds, whatever the haste
+#define DND_UNLEASH_IDLE (5 * TICRATE)  // the channel ends after this long without a pillar
+#define DND_UNLEASH_WARN 7             // tics the ground cracks before a pillar erupts: 0.2 seconds
+#define DND_UNLEASH_MINH 128           // a pillar's height, kept short of the ceiling
+#define DND_UNLEASH_MAXH 240
+#define DND_UNLEASH_BOSSLOW 108.0      // how high a boss or legendary is thrown, from the shortest pillar to the tallest; never past it
+#define DND_UNLEASH_BOSSHIGH 128.0
+#define DND_UNLEASH_MAXPILLARS 5       // a channel's pillars, the first included
+#define DND_UNLEASH_HEADROOM 16.0
+#define DND_UNLEASH_REACHUP 48.0       // how far off the pillar's floor an enemy's feet may be and still be caught
+#define DND_UNLEASH_LEAN 0.04          // most a pillar leans, as a turn fraction; its toss goes the way it leans
+#define DND_UNLEASH_MORE 25            // percent more an enemy takes for each earlier time the same channel flung it
+#define DND_UNLEASH_MASSFULL 1000      // the mass at which the landing is whole; the lightest take half
+#define DND_UNLEASH_LANDWAIT (5 * TICRATE)
+#define DND_UNLEASH_BUMP 2.0           // rank 10: a flying enemy that stops from this speed hit a wall
+#define DND_UNLEASH_BUMPCHECK 3        // tics between looks for a collision
+#define DND_UNLEASH_PILLARSTEP 48.0    // the pillar model's frames stand 48, 96 ... 288 tall; the nearest is scaled to fit
+#define DND_UNLEASH_PILLARFRAMES 6
+#define DND_UNLEASH_PILLARRISE 4       // tics it takes to burst up
+#define DND_UNLEASH_PILLARHOLD 30      // to stand
+#define DND_UNLEASH_PILLARSINK 24      // and to sink back
+
+typedef struct {
+	int channels;		// bumped by each channel, so an enemy's DnD_UnleashChannel tells this one from an older
+} unleash_T;
+
+unleash_T module& GetUnleash() {
+	static unleash_T s;
+	return s;
+}
+
+// How much of its height a pillar stands out of the ground, tic t of its rise: out sharply, a little past, settling.
+int GetUnleashRise(int t) {
+	switch(t) {
+		case 0:
+		return 0.5;
+		case 1:
+		return 0.85;
+		case 2:
+		return 1.03;
+	}
+	return 1.0;
+}
+
+// The cast raises the first pillar; then each attack press raises one more, at most one every GAP tics, a press in the
+// gap kept for when it ends. Casting it again ends the channel, as do IDLE tics without a pillar and running out of mana.
+Script "DnD Unleash Earth" (int pnum) {
+	// One channel at a time: Quicktongue's repeat lands while the first is running.
+	if(IsSpellRunning(pnum, SPL_UNLEASHEARTH))
+		Terminate;
+	int caster = pnum + P_TIDSTART, wait = DND_UNLEASH_GAP, idle = 0, n = 1, channel = ++GetUnleash().channels;
+	bool was = IsChannelHeld(), held, want = false;
+	BeginSpellBusy(pnum);
+	SetSpellRunning(pnum, SPL_UNLEASHEARTH, true);
+	ACS_NamedExecuteAlways("DnD Unleash Pillar", 0, pnum, channel);
+	// The cast bar counts the window down, full again with every pillar.
+	int bar = StartSpellCastBar(pnum, SPL_UNLEASHEARTH, DND_UNLEASH_IDLE, true);
+	while(n < DND_UNLEASH_MAXPILLARS && PlayerInGame(pnum) && IsActorAlive(caster) && IsSpellRunning(pnum, SPL_UNLEASHEARTH) &&
+		idle < DND_UNLEASH_IDLE && CanAffordSpell(pnum, SPL_UNLEASHEARTH)) {
+		// Back up once a Quicktongue repeat's own bar has come and gone.
+		if(!CheckActorInventory(caster, "P_CastProgress")) {
+			SetActorInventory(caster, "P_CastSpell", (SPL_UNLEASHEARTH + 1) | DND_CASTBAR_DRAIN);
+			SetActorInventory(caster, "P_CastProgress", bar);
+		}
+		held = IsChannelHeld();
+		want |= held && !was;
+		was = held;
+		if(wait)
+			--wait;
+		else if(want) {
+			if(!PayChannelTick(pnum, SPL_UNLEASHEARTH, false))
+				break;
+			ACS_NamedExecuteAlways("DnD Unleash Pillar", 0, pnum, channel);
+			bar = StartSpellCastBar(pnum, SPL_UNLEASHEARTH, DND_UNLEASH_IDLE, true);
+			++n;
+			want = false;
+			wait = DND_UNLEASH_GAP;
+			idle = -1;
+		}
+		++idle;
+		Delay(const:1);
+	}
+	SetSpellRunning(pnum, SPL_UNLEASHEARTH, false);
+	EndSpellCastBar(pnum, bar);
+	EndSpellBusy(pnum);
+	StartSpellCooldown(pnum, SPL_UNLEASHEARTH);
+}
+
+// One pillar: under the enemy in the crosshair or where the aim ends, it cracks, then erupts, hitting and flinging what stands there.
+Script "DnD Unleash Pillar" (int pnum, int channel) {
+	int caster = pnum + P_TIDSTART, x, y;
+	int target = PickActor(caster, GetActorAngle(caster), GetActorPitch(caster), DND_UNLEASH_RANGE, 0, MF_SHOOTABLE, ML_BLOCKEVERYTHING, PICKAF_RETURNTID);
+	if(target && IsActorAlive(target) && IsSpellEnemy(target)) {
+		x = GetActorX(target);
+		y = GetActorY(target);
+	}
+	else {
+		if(!TraceSpellAim(pnum, DND_UNLEASH_RANGE))
+			Terminate;
+		for(int w = 0; !ReadSpellAim(pnum) && w < DND_SPELLAIM_WAIT; ++w)
+			Delay(const:1);
+		if(!SpellAimReady(pnum) || !PlayerInGame(pnum))
+			Terminate;
+		x = GetSpellAim().x[pnum];
+		y = GetSpellAim().y[pnum];
+	}
+
+	int z = GetFloorZAt(x, y);
+	int h = Max(32.0, Min(random(DND_UNLEASH_MINH, DND_UNLEASH_MAXH) << 16, GetCeilingZAt(x, y) - z - DND_UNLEASH_HEADROOM));
+	int la = random(0, 1.0), lean = random(0, DND_UNLEASH_LEAN);
+	int r = ScaleSpellArea(pnum, SPL_UNLEASHEARTH, GetSpellValue(pnum, SPL_UNLEASHEARTH, SPELLVAL_RADIUS) << 16);
+	ACS_NamedExecuteAlways("DnD Unleash Pillar FX", 0, PackMapPair(x, y), ((z >> 16) & 0xFFFF) | ((h >> 16) << 16), (la & 0xFFFF) | (lean << 16));
+	Delay(const:DND_UNLEASH_WARN);
+	int probe = SpawnSpellProbe(x, y, z + 32.0);
+	if(!probe || !PlayerInGame(pnum))
+		Terminate;
+
+	// Thrown about as high as the pillar stands, and aside the way it leans.
+	int up = fsqrt(2 * h), side = FixedMul(up, sin(lean)), i, m, v, vz, peak, pct, count;
+	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+		m = UsedMonsterTIDs[i];
+		if(!InSpellArea(probe, m, x, y, r) || abs(GetActorZ(m) - z) > DND_UNLEASH_REACHUP)
+			continue;
+		count = CheckActorInventory(m, "DnD_UnleashChannel") == channel ? CheckActorInventory(m, "DnD_UnleashCaught") + 1 : 1;
+		SetActorInventory(m, "DnD_UnleashChannel", channel);
+		SetActorInventory(m, "DnD_UnleashCaught", count);
+		pct = 100 + DND_UNLEASH_MORE * (count - 1);
+		// No push of its own: the fling is the push, and a hit's would throw it past its height.
+		DealSpellBeamHit(pnum, SPL_UNLEASHEARTH, m, pct, true, DND_DAMAGEFLAG_NOPUSH);
+		if(!IsActorAlive(m) || CheckFlag(m, "NOGRAVITY"))
+			continue;
+		v = GetMonsterPushPercent(m);
+		vz = up * v / 100;
+		// A boss is thrown to a set height instead. Gravity takes 1 a tic, so a toss of vz peaks at vz (vz + 1) / 2.
+		if(GetMonsterPushTier(m) == DND_PUSHTIER_BOSS) {
+			peak = Min(h, DND_UNLEASH_BOSSLOW + (DND_UNLEASH_BOSSHIGH - DND_UNLEASH_BOSSLOW) *
+				Clamp_Between((h >> 16) - DND_UNLEASH_MINH, 0, DND_UNLEASH_MAXH - DND_UNLEASH_MINH) / (DND_UNLEASH_MAXH - DND_UNLEASH_MINH));
+			vz = (fsqrt(8 * peak + 1.0) - 1.0) / 2;
+			v = (FixedDiv(vz, up) * 100) >> 16;
+		}
+		SetActorVelocity(m, FixedMul(side, cos(la)) * v / 100, FixedMul(side, sin(la)) * v / 100, vz, false, false);
+		GiveActorInventory(m, "DnD_UnleashFlight", 1);
+		ACS_NamedExecuteAlways("DnD Unleash Landing", 0, pnum, m, pct | (CheckActorInventory(m, "DnD_UnleashFlight") << 16));
+	}
+
+	// Rank 5: a pillar under the caster launches them, unharmed.
+	if(SpellThresholdMet(pnum, SPL_UNLEASHEARTH, DND_SPELL_THRESH_LOW) && IsActorAlive(caster) && abs(GetActorZ(caster) - z) <= DND_UNLEASH_REACHUP &&
+		VectorLength(GetActorX(caster) - x, GetActorY(caster) - y) <= r + GetActorProperty(caster, APROP_RADIUS))
+		SetActorVelocity(caster, FixedMul(side, cos(la)), FixedMul(side, sin(la)), up, false, false);
+	Thing_Remove(probe);
+}
+
+// A flung enemy coming down: the crash deals up to DAMAGE2, by how high it went and how heavy it is. Rank 10: a wall or another body hit on the way costs half that.
+Script "DnD Unleash Landing" (int pnum, int m, int packed) {
+	int pct = packed & 0xFFFF, flight = packed >> 16, z0 = GetActorZ(m), top = z0, t, sp, prev = 0, o, i, reach;
+	bool r10 = SpellThresholdMet(pnum, SPL_UNLEASHEARTH, DND_SPELL_THRESH_HIGH), bumped = false;
+	Delay(const:2);
+	for(t = 2; t < DND_UNLEASH_LANDWAIT && IsActorAlive(m); ++t) {
+		if(CheckActorInventory(m, "DnD_UnleashFlight") != flight)
+			Terminate;
+		top = Max(top, GetActorZ(m));
+		if(GetActorZ(m) <= GetActorFloorZ(m) && GetActorVelZ(m) <= 0)
+			break;
+		// Stopped short mid flight: it hit a wall or a body, and a body it hit takes the same.
+		if(r10 && !bumped && !(t % DND_UNLEASH_BUMPCHECK)) {
+			sp = VectorLength(GetActorVelX(m), GetActorVelY(m));
+			if(prev >= DND_UNLEASH_BUMP && sp < prev / 4) {
+				bumped = true;
+				DealSpellAmount(pnum, SPL_UNLEASHEARTH, m, RollSpellValue(pnum, SPL_UNLEASHEARTH, SPELLVAL_DAMAGE2) / 2);
+				for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+					o = UsedMonsterTIDs[i];
+					if(o == m || !IsActorAlive(o) || !IsSpellEnemy(o))
+						continue;
+					reach = GetActorProperty(m, APROP_RADIUS) + GetActorProperty(o, APROP_RADIUS) + 2.0;
+					if(abs(GetActorX(o) - GetActorX(m)) <= reach && abs(GetActorY(o) - GetActorY(m)) <= reach &&
+						GetActorZ(o) <= GetActorZ(m) + GetActorProperty(m, APROP_HEIGHT) && GetActorZ(m) <= GetActorZ(o) + GetActorProperty(o, APROP_HEIGHT)) {
+						DealSpellAmount(pnum, SPL_UNLEASHEARTH, o, RollSpellValue(pnum, SPL_UNLEASHEARTH, SPELLVAL_DAMAGE2) / 2);
+						break;
+					}
+				}
+			}
+			prev = sp;
+		}
+		Delay(const:1);
+	}
+	if(!IsActorAlive(m) || !PlayerInGame(pnum))
+		Terminate;
+
+	int mass = Clamp_Between(GetActorProperty(m, APROP_MASS), 0, DND_UNLEASH_MASSFULL);
+	int dmg = RollSpellValue(pnum, SPL_UNLEASHEARTH, SPELLVAL_DAMAGE2) * (50 + 50 * mass / DND_UNLEASH_MASSFULL) / 100 * pct / 100;
+	dmg = FixedMul(dmg, Min(1.0, FixedDiv(top - z0, DND_UNLEASH_MAXH << 16)));
+	if(dmg > 0)
+		DealSpellAmount(pnum, SPL_UNLEASHEARTH, m, dmg);
+	PlaySound(m, "UnleashEarth/Land", CHAN_7);
+	ACS_NamedExecuteAlways("DnD Upheaval Slam FX", 0, m);
+}
+
+// Client side: the ground cracks for WARN tics, then a pillar bursts up leaning its way, stands, and sinks back.
+Script "DnD Unleash Pillar FX" (int xy, int zh, int lean) CLIENTSIDE {
+	int x = xy << 16, y = xy & 0xFFFF0000, z = zh << 16, h = (zh >> 16) << 16, la = lean & 0xFFFF, i, t;
+	for(t = 0; t < DND_UNLEASH_WARN; ++t) {
+		Spawn("Spell_Rockslide_Dust", x + random(-48.0, 48.0), y + random(-48.0, 48.0), z + 4.0);
+		Delay(const:1);
+	}
+	int p = UniqueTID(), k = Clamp_Between((h + DND_UNLEASH_PILLARSTEP / 2) / DND_UNLEASH_PILLARSTEP, 1, DND_UNLEASH_PILLARFRAMES), q;
+	if(!p || !SpawnForced("Spell_UnleashEarth_Pillar", x, y, z - h, p, la >> 8))
+		Terminate;
+	SetActorState(p, StrParam(s:"H", d:k));
+	SetActorPitch(p, -(lean >> 16));
+	SetActorProperty(p, APROP_SCALEY, FixedDiv(h, k * DND_UNLEASH_PILLARSTEP));
+	PlaySound(p, "UnleashEarth/Erupt", CHAN_BODY);
+	for(i = 0; i < 8; ++i)
+		Spawn("Spell_RockArmor_Chunk", x + random(-32.0, 32.0), y + random(-32.0, 32.0), z + random(8.0, 48.0));
+	// Steered by velocity, each tic exactly onto its mark: SetActorPosition refuses a spot under the floor.
+	for(t = 0; t < DND_UNLEASH_PILLARRISE; ++t) {
+		SetActorVelocity(p, 0, 0, z - FixedMul(h, 1.0 - GetUnleashRise(t)) - GetActorZ(p), false, false);
+		Delay(const:1);
+	}
+	SetActorVelocity(p, 0, 0, 0, false, false);
+	Delay(const:DND_UNLEASH_PILLARHOLD);
+	// Back under, quick at first and easing out: 1 - (1 - t)^3 of its height.
+	for(t = 1; t <= DND_UNLEASH_PILLARSINK; ++t) {
+		q = 1.0 - t * 1.0 / DND_UNLEASH_PILLARSINK;
+		SetActorVelocity(p, 0, 0, z - FixedMul(h, 1.0 - FixedMul(FixedMul(q, q), q)) - GetActorZ(p), false, false);
+		Delay(const:1);
+	}
+	Thing_Remove(p);
+}
+
+// depth counts Quicktongue's repeats; a cast from TryCastSpell is depth 0. A proc (DND_SPELLCAST_PROC) has no bar and leaves the lock alone.
 Script "DnD Spell Cast" (int spell, int pnum, int depth) {
+	bool proc = !!(depth & DND_SPELLCAST_PROC);
+	depth &= ~DND_SPELLCAST_PROC;
+
 	// Monsters wake to a hostile cast the way they wake to a gunshot. At the START of the cast, not
 	// when the effect lands, so a long cast bar cannot be used to open on a sleeping room for free
 	if(IsHostileSpell(spell))
@@ -6464,8 +9038,8 @@ Script "DnD Spell Cast" (int spell, int pnum, int depth) {
 	bool ally = !!(SpellDefs[spell].flags & SPLF_ALLYTARGET);
 
 	// Surgecast skips the first cast time in its window; ct stays, so Quicktongue still repeats.
-	int wait = ct;
-	if(ct > 0 && !depth && spell != SPL_SURGECAST && CheckActorInventory(pnum + P_TIDSTART, "DnD_SurgecastReady"))
+	int wait = proc ? 0 : ct;
+	if(wait > 0 && !depth && spell != SPL_SURGECAST && CheckActorInventory(pnum + P_TIDSTART, "DnD_SurgecastReady"))
 		wait = SpendSurgecast(pnum, spell);
 
 	// The press already holds the casting lock; Quicktongue's repeats take their own, and an instant cast lets it go now.
@@ -6480,7 +9054,7 @@ Script "DnD Spell Cast" (int spell, int pnum, int depth) {
 			int track = wait * DND_SPELLLOCK_TRACKPCT / 100;
 			for(int e = 0; e < wait; ++e) {
 				if(e < track)
-					SetSpellLockTarget(pnum, GetSpellAllyTarget(pnum));
+					SetSpellLockTarget(pnum, GetSpellAllyTarget(pnum, spell == SPL_REJUVENATION));
 				Delay(const:1);
 			}
 		}
@@ -6494,12 +9068,12 @@ Script "DnD Spell Cast" (int spell, int pnum, int depth) {
 		if(ally)
 			DropSpellLockMarker(pnum);
 	}
-	else if(!depth)
+	else if(!depth && !proc)
 		EndSpellCasting(pnum);
 
 	if(wait <= 0 && ally)
 		// No bar to lock during -- resolve it on the spot, and no marker is ever shown.
-		SetSpellLockTarget(pnum, GetSpellAllyTarget(pnum));
+		SetSpellLockTarget(pnum, GetSpellAllyTarget(pnum, spell == SPL_REJUVENATION));
 
 	int i, count, victim, temp, pillar_life;
 
@@ -6698,12 +9272,69 @@ Script "DnD Spell Cast" (int spell, int pnum, int depth) {
 			ACS_NamedExecuteAlways("DnD Rockslide", 0, pnum);
 		break;
 
+		case SPL_BLOCKADE:
+			ACS_NamedExecuteAlways("DnD Blockade", 0, pnum);
+		break;
+
 		case SPL_TOXICTRAP:
 			CastToxicTrap(pnum);
 		break;
 
 		case SPL_BALEFULINFUSION:
 			CastBalefulInfusion(pnum);
+		break;
+
+		case SPL_VINESOFTORMENT:
+			ACS_NamedExecuteAlways("DnD Vines Of Torment", 0, pnum);
+		break;
+
+		case SPL_VENOMGYRE:
+			CastVenomGyre(pnum);
+		break;
+
+		case SPL_ROCKARMOR:
+			CastRockArmor(pnum);
+		break;
+
+		case SPL_REJUVENATION:
+			CastRejuvenation(pnum);
+		break;
+
+		case SPL_POISONNOVA:
+			CastPoisonNova(pnum);
+		break;
+
+		case SPL_CORROSIVEBREATH:
+			ACS_NamedExecuteAlways("DnD Corrosive Breath", 0, pnum);
+		break;
+
+		case SPL_CRUSHINGROCKS:
+			ACS_NamedExecuteAlways("DnD Crushing Rocks", 0, pnum);
+		break;
+
+		case SPL_ROCKGOLEM:
+			ACS_NamedExecuteAlways("DnD Summon Rock Golem", 0, pnum);
+		break;
+
+		case SPL_GEYSER:
+			ACS_NamedExecuteAlways("DnD Geyser", 0, pnum);
+		break;
+
+		case SPL_UNLEASHEARTH:
+			ACS_NamedExecuteAlways("DnD Unleash Earth", 0, pnum);
+		break;
+
+		case SPL_VULNERABILITY:
+		case SPL_DESPAIR:
+			ACS_NamedExecuteAlways("DnD Earth Curse", 0, pnum, spell);
+		break;
+
+		case SPL_UPHEAVAL:
+			ACS_NamedExecuteAlways("DnD Upheaval", 0, pnum);
+		break;
+
+		case SPL_THREADEDVOLLEY:
+			ACS_NamedExecuteAlways("DnD Threaded Volley", 0, pnum);
 		break;
 
 		case SPL_LIGHTNINGSPEAR:
@@ -6801,7 +9432,7 @@ Script "DnD Spell Cast" (int spell, int pnum, int depth) {
 	OpenGemCastWindows(pnum, spell);
 
 	// Quicktongue: once more, cast bar and its rules included, free -- TryCastSpell billed the first one.
-	if(ct > 0 && depth < GetSpellGemMod(pnum, spell, GEMSTAT_REPEAT) && !(SpellDefs[spell].flags & SPLF_TOGGLE))
+	if(!proc && ct > 0 && depth < GetSpellGemMod(pnum, spell, GEMSTAT_REPEAT) && !(SpellDefs[spell].flags & SPLF_TOGGLE))
 		ACS_NamedExecuteAlways("DnD Spell Cast", 0, spell, pnum, depth + 1);
 }
 
@@ -6830,8 +9461,7 @@ Script "DnD Molten Boulder Damage" (int isBump) {
 	SetResultValue(0);
 }
 
-// "It shatters on a wall": one tic with no movement at all means it is wedged. The legacy
-// "DnD Boulder Hit Check" does the same job for the old boulder and gives the old token.
+// "It shatters on a wall": one tic with no movement at all means it is wedged.
 Script "DnD Spell Boulder Stall" (void) {
 	int x = GetActorX(0), y = GetActorY(0), z = GetActorZ(0);
 	Delay(1);

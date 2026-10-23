@@ -2,6 +2,7 @@ enum {
 	DND_PET_ZOMBIEID,
 	DND_PET_FIREDEMONID,
 	DND_PET_ICEGOLEMID,
+	DND_PET_ROCKGOLEMID,
 };
 
 // Ids for "DnD Minion Cooldown". MUST match the DND_MINIONCD_* enum in acs/DnD_Skills.h, in

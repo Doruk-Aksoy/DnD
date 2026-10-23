@@ -62,6 +62,8 @@ DND_ORB30			=	"Vile Orb";
 DND_ORBTEXT30		=	"Reforges the item, adding at least one \cvpoison\c- modifier. \c[Y5]Orb of Affluence\c- can be used once to add at least two modifiers instead.";
 DND_ORB31			=	"Orb of Embers";
 DND_ORBTEXT31		=	"Reforges the item, adding at least one \cvfire\c- modifier. \c[Y5]Orb of Affluence\c- can be used once to add at least two modifiers instead.";
+DND_ORB32			=	"Orb of Arcana";
+DND_ORBTEXT32		=	"Reforges the item, adding at least one \cvspell\c- or \cvmana\c- modifier. \c[Y5]Orb of Affluence\c- can be used once to add at least two modifiers instead.";
 
 DND_ORB_MON1		=	"Hollow Orb";
 DND_ORB_MONTEXT1	=	"Adds an extra random attribute to a non-unique charm even if it's at its limit, adding at most one additional over limit. The attribute is well-rolled.";
@@ -198,3 +200,5 @@ DND_ORBUSETEXT34_ORD=	"Orb of Embers will \cvinfuse\c- the effect of the next or
 DND_ORBUSETEXT35	=	"Orb of Order will allow you to \cvinfuse\c- the effects of the next orb";
 DND_ORBUSETEXT36	=	"Orb of Destiny will protect you from the harmful outcome of the next orb";
 DND_ORBUSETEXT37	=	"Orb of Reverence will amplify the next orb to its highest potential";
+DND_ORBUSETEXT38	=	"Orb of Arcana reforges the item, guaranteeing a \cvspell\c- or \cvmana\c- modifier";
+DND_ORBUSETEXT38_ORD=	"Orb of Arcana will \cvinfuse\c- the effect of the next orb";

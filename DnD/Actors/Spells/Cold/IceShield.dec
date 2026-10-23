@@ -51,3 +51,88 @@ Actor Spell_IceShieldHarden : DnD_Activator {
 
 // Carried by the CASTER; the barriers watch it through AAPTR_TRACER.
 Actor Spell_IceShieldFade : DnD_Boolean { }
+
+// Shatter shards: the white set, and the blue set the Cold spells spawn.
+Actor IceShield_ShatterFX {
+	PROJECTILE
+	Height 6
+	Radius 3
+	Renderstyle Add
+	Alpha 0.85
+	BounceType Doom
+	BounceCount 4
+	const float spd = 16.0;
+	Scale 0.825
+	+ALLOWBOUNCEONACTORS
+	+CLIENTSIDEONLY
+	-NOGRAVITY
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_ChangeVelocity(spd * cos(angle), spd * sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_Jump(256, "Pick")
+		// One of eight shards at random; Spell_IceShatterFX overrides this label for its blue set.
+		Pick:
+			TNT1 A 0 A_Jump(256, "1", "2", "3", "4", "5", "6", "7", "8")
+		1:
+			S000 B 0
+		Goto SpawnLoop
+		2:
+			S000 C 0 A_Jump(256, "SpawnLoop")
+		Goto SpawnLoop
+		3:
+			S000 D 0 A_Jump(256, "SpawnLoop")
+		Goto SpawnLoop
+		4:
+			S000 E 0 A_Jump(256, "SpawnLoop")
+		Goto SpawnLoop
+		5:
+			S000 F 0 A_Jump(256, "SpawnLoop")
+		Goto SpawnLoop
+		6:
+			S000 G 0 A_Jump(256, "SpawnLoop")
+		Goto SpawnLoop
+		7:
+			S000 H 0 A_Jump(256, "SpawnLoop")
+		Goto SpawnLoop
+		8:
+			S000 I 0 A_Jump(256, "SpawnLoop")
+		Goto SpawnLoop
+		SpawnLoop:
+			"####" "#" 1
+		Loop
+		Death:
+			"####" "#" 1
+		Stop
+	}
+}
+
+Actor Spell_IceShatterFX : IceShield_ShatterFX {
+	States {
+		Pick:
+			TNT1 A 0 A_Jump(256, "1", "2", "3", "4", "5", "6", "7", "8")
+		1:
+			S016 A 0
+		Goto SpawnLoop
+		2:
+			S016 B 0
+		Goto SpawnLoop
+		3:
+			S016 C 0
+		Goto SpawnLoop
+		4:
+			S016 D 0
+		Goto SpawnLoop
+		5:
+			S016 E 0
+		Goto SpawnLoop
+		6:
+			S016 F 0
+		Goto SpawnLoop
+		7:
+			S016 G 0
+		Goto SpawnLoop
+		8:
+			S016 H 0
+		Goto SpawnLoop
+	}
+}

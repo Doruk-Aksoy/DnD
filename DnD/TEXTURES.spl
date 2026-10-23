@@ -648,3 +648,11 @@ Graphic "SP319G", 64, 64
 		Translation Desaturate, 31
 	}
 }
+
+Graphic "SP320G", 64, 64
+{
+	Patch "SP320", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}

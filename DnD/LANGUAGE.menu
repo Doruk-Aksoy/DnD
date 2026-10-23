@@ -90,6 +90,10 @@ DND_MENU_HEAD_DUNGEONS	=	"Dungeons Available";
 DND_MENU_SLOT			=	"Slot";
 DND_MENU_MATERIALS		=	"Materials";
 DND_MENU_MAX			=	"(MAX)";
+DND_MENU_WEPHIT			=	"per shot";
+DND_MENU_WEPDPS			=	"DPS";
+DND_MENU_WEPALT			=	"Alt fire";
+DND_MENU_WEPALTMODE		=	"Alt mode";
 
 DND_MENU_NA				=	"N/A";
 DND_MENU_PERKSAVAIL		=	"Perks Available";

@@ -32,14 +32,14 @@
  
 * Furious Charge
  
-	Charge towards where you were looking, completely berserk. Charge for 2 seconds.
+	Charge towards where you are looking, completely berserk. Charge for 2 seconds.
 	You take 50% more damage during the charge. Charge deals 175 (+10/STR) damage to enemies that you come into contact.
 	Cost: 18 mana.
 	Cooldown: 16 seconds.
 	Cast Time: 1 second.
 	Per Rank: +125 damage.
 	Rank 5: During the charge, gain ability to deflect projectiles.
-	Rank 10: Charge damage debuff is reduced to 10%.
+	Rank 10: Charge damage debuff is reduced to 10% and you gain 2 rage per enemy hit.
 	Unlocks: Frenzy, Instability.
  
 * Blades of Fury
@@ -133,7 +133,7 @@
  
 * Vortex
  
-	Launch two swirling balls of energy that travel in random directions but towards where you pointed at. Balls last 5 seconds.
+	Launch two swirling balls of energy that swerve in random directions but towards where you pointed at. Balls last 5 seconds.
 	Balls periodically deal 1 - 180 (+15/INT) damage. Once they expire, they violently explode to deal twice the periodic damage in 192 unit radius.
 	Cost: 75 mnaa.
 	Cooldown: 16 seconds.
@@ -149,7 +149,7 @@
 * Turn of Tides
  
 	Launch a slow moving but homing projectile. It will randomly pick a target to home in on.
-	Once hit, enemy's health will be swapped with yours. This works on a percentage scale.
+	Once hit, enemy's health will be swapped with yours. This works on a percentage scale. Doesn't work on Dungeon Bosses.
 	Cost: 90 mana.
 	Cooldown: 72 seconds.
 	Cast Time: 3 seconds.
@@ -182,7 +182,7 @@
 	Mark you or an ally for 5 seconds. The mark can do one of three things:
 		- Once the mark ends, 25% chance to deal damage around you in a 256 unit radius for the same amount of damage you took during the mark.
 		- Once the mark ends, 65% chance to push all enemies around you.
-		- During the mark, 10% chance to be prevented from dying.
+		- Once the mark ends, recover 50% of damage taken during the mark as life over the next 4 seconds.
 	Cost: 150 mana.
 	Cooldown: 90 seconds.
 	Cast Time: 4 seconds.
@@ -222,8 +222,8 @@
 	Cooldown: 20 seconds.
 	Cast Time: NA.
 	Per Rank: +10 maximum damage.
-	Rank 5: While Violent Blows is active, take 20% reduced damage.
-	Rank 10: Bonus damage at last blow also adds 20% of your current armor regardless of which stat is dominant.
+	Rank 5: While Violent Blows is on its final melee hit, take 20% reduced damage.
+	Rank 10: Bonus damage at last blow also adds 20% of your current energy shield regardless of which stat is dominant.
 	Requires: Frenzy (Rank 1).
 	NOTE: Damage bonuses only affect maximum damage value.
  
@@ -235,14 +235,14 @@
 	Cooldown: 75 seconds.
 	Cast Time: 3 seconds.
 	Per Rank: +50 damage to explosions, +4 unit radius to explosions.
-	Rank 5: Cross area grows by 30%.
+	Rank 5: Cross area grows by 30% and there are 10 more explosions.
 	Rank 10: Explosions appear 25% faster.
 	Unlocks: Entropy.
 	Requires: Vortex (Rank 1).
 	Synergy - Chaos Bolt: 5% more damage per rank of Chaos Bolt.
 	Synergy - Vortex: +4 unit radius to explosion radius.
  
-* Mysticism
+* Mysticism??
  
 	PASSIVE SKILL
 	Channeling inner fire, you learn to calm the chaos. Aura skills reserve less mana.

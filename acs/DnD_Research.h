@@ -125,6 +125,9 @@ res_req_info_T ResearchFlags[MAX_RESEARCHES] = {
 
 	// second gem socket
 	{ 0, -1 },
+
+	// gemcrafting
+	{ 0, -1 },
 };
 
 #define MAX_RES_REQID (LAST_RES_REQID + 1)

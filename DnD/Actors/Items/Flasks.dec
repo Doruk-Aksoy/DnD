@@ -202,6 +202,71 @@ Actor FlaskDrop_Life_4 : FlaskDrop {
     }
 }
 
+Actor FlaskDrop_Mana_0 : FlaskDrop {
+    States {
+        Spawn:
+            FL17 A 0
+        Goto SpawnInit
+
+        SpawnLoop:
+        Idle:
+			FL17 AAAAABBBBBCCCCC 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+    }
+}
+
+Actor FlaskDrop_Mana_1 : FlaskDrop {
+    States {
+        Spawn:
+            FL18 A 0
+        Goto SpawnInit
+
+        SpawnLoop:
+        Idle:
+			FL18 AAAAABBBBBCCCCC 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+    }
+}
+
+Actor FlaskDrop_Mana_2 : FlaskDrop {
+    States {
+        Spawn:
+            FL19 A 0
+        Goto SpawnInit
+
+        SpawnLoop:
+        Idle:
+			FL19 AAAAABBBBBCCCCC 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+    }
+}
+
+Actor FlaskDrop_Mana_3 : FlaskDrop {
+    States {
+        Spawn:
+            FL20 A 0
+        Goto SpawnInit
+
+        SpawnLoop:
+        Idle:
+			FL20 AAAAABBBBBCCCCC 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+    }
+}
+
+Actor FlaskDrop_Mana_4 : FlaskDrop {
+    States {
+        Spawn:
+            FL21 A 0
+        Goto SpawnInit
+
+        SpawnLoop:
+        Idle:
+			FL21 AAAAABBBBBCCCCC 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+    }
+}
+
 Actor FlaskDrop_Utility_1 : FlaskDrop {
     Scale 0.9
     States {

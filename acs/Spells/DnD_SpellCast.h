@@ -50,14 +50,15 @@ int GetSpellCooldownRate(int pnum, int spell) {
 
 // FinalCD = Cooldown / (1 + Rate/100), floored by the 75% ceiling. Rate is the only shrinking term
 // in the whole system and it is asymptotic, so the floor is a design cap rather than a safety one.
-int GetSpellCooldownTics(int pnum, int spell) {
+// extra_rate is a press's own recovery rate on top of the rest, as Threaded Volley's inside an energized area.
+int GetSpellCooldownTics(int pnum, int spell, int extra_rate = 0) {
 	int cd = (GetSpellValue(pnum, spell, SPELLVAL_COOLDOWN) * TICRATE) >> 16;
 	if(spell == SPL_FORKEDLIGHTNING && SpellThresholdMet(pnum, spell, DND_SPELL_THRESH_LOW))
 		cd -= DND_FORKED_R5_COOLDOWNCUT;
 	if(cd <= 0)
 		return 0;
 
-	int rate = Max(0, GetSpellCooldownRate(pnum, spell));
+	int rate = Max(0, GetSpellCooldownRate(pnum, spell) + extra_rate);
 	return Max(cd * 100 / (100 + rate), cd * (100 - DND_SPELL_MAXCDR) / 100);
 }
 
@@ -67,6 +68,10 @@ int GetSpellCastTics(int pnum, int spell) {
 	int ct = (GetSpellValue(pnum, spell, SPELLVAL_CASTTIME) * TICRATE) >> 16;
 	if(ct <= 0)
 		return 0;
+
+	// Unleash Earth's 0.33 seconds before it starts concentrating take no haste.
+	if(spell == SPL_UNLEASHEARTH)
+		return ct;
 
 	int haste = PlayerModData[pnum].vals[PSTAT_SPELL_HASTE] + GetSpellGemMod(pnum, spell, GEMSTAT_HASTE) + pbuffs[pnum].buff_net_values[BUFF_SPELLHASTE].additive;
 	if(haste > 0)
@@ -166,8 +171,8 @@ void RecoverSpellCharge(int pnum, int spell) {
 // Puts the cooldown on a FREE charge rather than on the spell. The first lane is used while it is
 // free so a single charge spell never touches the second; past that the second takes it, and if
 // both are somehow busy the one returning soonest is pushed back.
-void StartSpellCooldown(int pnum, int spell) {
-	int cd = GetSpellCooldownTics(pnum, spell);
+void StartSpellCooldown(int pnum, int spell, int extra_rate = 0) {
+	int cd = GetSpellCooldownTics(pnum, spell, extra_rate);
 	if(cd > 0) {
 		auto c = GetSpellCooldowns();
 		int t = Timer();
@@ -298,7 +303,7 @@ void SetupSpellActor(int tid, int pnum, int spell) {
 // flat ignores the caster's pitch and sends the shot level along their facing.
 void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags = 0, int angle_off = 0,
 	int side_off = 0, int rtime = 0, int origin = 0, bool flat = false,
-	int zoff = DND_SPELLPROJ_FROMVIEW, int pitch_off = 0, int parent = -1, int ripper = 0) {
+	int zoff = DND_SPELLPROJ_FROMVIEW, int pitch_off = 0, int parent = -1, int ripper = 0, int rips = MAX_RIPCOUNT) {
 	int owner = pnum + P_TIDSTART;
 	int from = origin ? origin : owner;
 
@@ -340,10 +345,10 @@ void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags =
 		SetActorProperty(tid, APROP_REACTIONTIME, rtime);
 
 	// A reserved ripper id + 1, stamped at once: a cast spawning several attacks in one tic keeps them apart.
-	// Unlimited rips with it, as an unset DnD_RipLimit reads as 0 and strips the ripper on its first hit.
+	// rips with it, unlimited unless given, as an unset DnD_RipLimit reads as 0 and strips the ripper on its first hit.
 	if(ripper) {
 		SetActorInventory(tid, "DnD_RipperId", ripper);
-		SetActorInventory(tid, "DnD_RipLimit", MAX_RIPCOUNT);
+		SetSpellRipLimit(pnum, tid, rips);
 	}
 
 	Thing_ChangeTID(tid, 0);
@@ -441,7 +446,10 @@ bool SpawnSummonNear(str actor, int owner, int tid, int dist) {
 // where the bar said it would rather than wherever the crosshair drifted at the final tic.
 #define DND_SPELLLOCK_TRACKPCT 75
 
-// Stored +1, because a zeroed static has to read as NONE rather than as player 0.
+// Stored +1, because a zeroed static has to read as NONE rather than as player 0. A player number, or for spells
+// that take pets, DND_SPELLLOCK_PET plus the pet's slot past DND_PETTID_BEGIN.
+#define DND_SPELLLOCK_PET MAXPLAYERS
+
 typedef struct {
 	int target[MAXPLAYERS];
 } spell_lock_T;
@@ -455,53 +463,80 @@ int GetSpellLockTarget(int pnum) {
 	return GetSpellLock().target[pnum] - 1;
 }
 
-// The ally under -- or merely near -- the crosshair. Returns the caster when nothing qualifies, so
-// a support spell always has somewhere to land.
-int GetSpellAllyTarget(int pnum) {
+// The actor a lock names, player or pet.
+int GetSpellLockTid(int target) {
+	return target < DND_SPELLLOCK_PET ? target + P_TIDSTART : DND_PETTID_BEGIN + target - DND_SPELLLOCK_PET;
+}
+
+// How squarely the crosshair sits on an ally, as the cos of the angle off it, or -1.0 when it cannot be locked at all.
+int GetAllyLockDot(int caster, int t, int cx, int cy) {
+	if(!IsActorAlive(t) || fdistance(caster, t) > DND_SPELLLOCK_RANGE)
+		return -1.0;
+
+	// No locking through walls, however forgiving the cone is.
+	if(!CheckSight(caster, t, CSF_NOBLOCKALL))
+		return -1.0;
+
+	int dx = GetActorX(t) - GetActorX(caster);
+	int dy = GetActorY(t) - GetActorY(caster);
+	int len = VectorLength(dx, dy);
+	if(len <= 0)
+		return -1.0;
+
+	// Eye to chest, so the elevation is what the player is actually looking along. Compared
+	// through cos rather than by subtracting angles, which wraps correctly for free.
+	int dz = GetActorZ(t) + (GetActorProperty(t, APROP_HEIGHT) >> 1)
+		- (GetActorZ(caster) + GetActorViewHeight(caster));
+
+	if(cos(-GetActorPitch(caster) - VectorAngle(len, dz)) < cos(DND_SPELLLOCK_PITCHCONE))
+		return -1.0;
+
+	return FixedMul(FixedDiv(dx, len), cx) + FixedMul(FixedDiv(dy, len), cy);
+}
+
+// The ally under -- or merely near -- the crosshair, a pet too when pets is set. Returns the caster when nothing
+// qualifies, so a support spell always has somewhere to land.
+int GetSpellAllyTarget(int pnum, bool pets = false) {
 	int caster = pnum + P_TIDSTART;
 	int a = GetActorAngle(caster);
 	int cx = cos(a), cy = sin(a);
 
-	// Seeded at the edge of the cone, so only something genuinely inside it can win.
+	// Seeded at the edge of the cone, so only something genuinely inside it can win. Nearest to the CROSSHAIR,
+	// not nearest in distance: with two allies stood together, anything else picks the wrong one.
 	int best = pnum, bestdot = cos(DND_SPELLLOCK_CONE);
-	int i, t, dx, dy, dz, len, dot;
+	int i, k, t, dot;
 
 	for(i = 0; i < MAXPLAYERS; ++i) {
-		if(i == pnum || !PlayerInGame(i))
+		if(!PlayerInGame(i))
 			continue;
 
-		t = i + P_TIDSTART;
-		if(!IsActorAlive(t) || fdistance(caster, t) > DND_SPELLLOCK_RANGE)
-			continue;
-
-		// No locking through walls, however forgiving the cone is.
-		if(!CheckSight(caster, t, CSF_NOBLOCKALL))
-			continue;
-
-		dx = GetActorX(t) - GetActorX(caster);
-		dy = GetActorY(t) - GetActorY(caster);
-		len = VectorLength(dx, dy);
-		if(len <= 0)
-			continue;
-
-		// Eye to chest, so the elevation is what the player is actually looking along. Compared
-		// through cos rather than by subtracting angles, which wraps correctly for free.
-		dz = GetActorZ(t) + (GetActorProperty(t, APROP_HEIGHT) >> 1)
-			- (GetActorZ(caster) + GetActorViewHeight(caster));
-
-		if(cos(-GetActorPitch(caster) - VectorAngle(len, dz)) < cos(DND_SPELLLOCK_PITCHCONE))
-			continue;
-
-		// Nearest to the CROSSHAIR, not nearest in distance and not the first found -- with two
-		// players stood together, anything else picks the wrong one and looks broken.
-		dot = FixedMul(FixedDiv(dx, len), cx) + FixedMul(FixedDiv(dy, len), cy);
-		if(dot > bestdot) {
+		if(i != pnum && (dot = GetAllyLockDot(caster, i + P_TIDSTART, cx, cy)) > bestdot) {
 			bestdot = dot;
 			best = i;
+		}
+
+		// Pets live in a block of tids per player, so only the blocks of players in the game are looked at.
+		for(k = 0; pets && k < DND_MAX_PETS_PER_PLAYER; ++k) {
+			t = DND_PETTID_BEGIN + i * DND_MAX_PETS_PER_PLAYER + k;
+			if((dot = GetAllyLockDot(caster, t, cx, cy)) > bestdot) {
+				bestdot = dot;
+				best = DND_SPELLLOCK_PET + t - DND_PETTID_BEGIN;
+			}
 		}
 	}
 
 	return best;
+}
+
+// The caster's box on whoever the lock names: a player's rides the attachment system, a pet's is drawn on the caster's
+// own screen, as monster inventory never reaches the clients.
+void ShowSpellLockMarker(int pnum, int target, bool on) {
+	if(target < 0 || target == pnum)
+		return;
+	if(target < DND_SPELLLOCK_PET)
+		SetPlayerAttachment(target, DND_PLAYERFX_ALLYLOCK, on);
+	else
+		ACS_NamedExecuteAlways("DnD Spell Lock Pet FX", 0, pnum, on ? GetSpellLockTid(target) : 0);
 }
 
 // Moves the marker with the lock: off whoever had it, onto whoever has it now. The caster never
@@ -513,20 +548,38 @@ void SetSpellLockTarget(int pnum, int target) {
 	if(prev == target)
 		return;
 
-	if(prev >= 0 && prev != pnum)
-		SetPlayerAttachment(prev, DND_PLAYERFX_ALLYLOCK, false);
-
+	ShowSpellLockMarker(pnum, prev, false);
 	lk.target[pnum] = target + 1;
-
-	if(target >= 0 && target != pnum)
-		SetPlayerAttachment(target, DND_PLAYERFX_ALLYLOCK, true);
+	ShowSpellLockMarker(pnum, target, true);
 }
 
 // Takes the box off without forgetting WHO was locked -- the cast still has to land on them.
 void DropSpellLockMarker(int pnum) {
-	int cur = GetSpellLock().target[pnum] - 1;
-	if(cur >= 0 && cur != pnum)
-		SetPlayerAttachment(cur, DND_PLAYERFX_ALLYLOCK, false);
+	ShowSpellLockMarker(pnum, GetSpellLock().target[pnum] - 1, false);
+}
+
+typedef struct {
+	int seq;		// bumped by each call, so an older marker's loop sees it lost its place
+} spell_lock_pet_T;
+
+spell_lock_pet_T module& GetSpellLockPetFX() {
+	static spell_lock_pet_T s;
+	return s;
+}
+
+// Client side, the caster's only: the lock's box over a pet, held until a newer call moves or drops it (pet 0).
+Script "DnD Spell Lock Pet FX" (int pnum, int pet) CLIENTSIDE {
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+	auto fx = GetSpellLockPetFX();
+	int seq = ++fx.seq, tid = ScratchTID();
+	if(!pet || !tid || !SpawnForced("Spell_AllyLockPetFX", GetActorX(pet), GetActorY(pet), GetActorZ(pet), tid))
+		Terminate;
+	while(seq == fx.seq && IsActorAlive(pet)) {
+		SetActorPosition(tid, GetActorX(pet), GetActorY(pet), GetActorZ(pet) + GetActorProperty(pet, APROP_HEIGHT) + 8.0, false);
+		Delay(const:1);
+	}
+	Thing_Remove(tid);
 }
 
 // ---- aiming ----------------------------------------------------------------------------------
@@ -761,7 +814,7 @@ bool IsWeaponIdleForCast(int pnum) {
 	return !!CheckActorInventory(pnum + P_TIDSTART, "DnD_WeaponIdle");
 }
 
-int CanCastSpell(int pnum, int spell) {
+int CanCastSpell(int pnum, int spell, int cost_pct = 100) {
 	if(spell < 0 || spell >= MAX_SPELL_IDS)
 		return CAST_NOSPELL;
 
@@ -780,13 +833,66 @@ int CanCastSpell(int pnum, int spell) {
 	if(IsSpellOnCooldown(pnum, spell))
 		return CAST_COOLDOWN;
 
-	if(!CanAffordSpell(pnum, spell))
+	if(!CanAffordSpell(pnum, spell, cost_pct))
 		return CAST_NOMANA;
 
 	if((SpellDefs[spell].flags & SPLF_CHANNELED) && !IsWeaponIdleForCast(pnum))
 		return CAST_BUSY;
 
 	return CAST_OK;
+}
+
+// ---- Threaded Volley's energized areas ----
+// Here, ahead of the entry point below, because the press reads them: one inside an area is billed and cooled differently.
+
+#define DND_TVOLLEY_SLOTS 4             // a caster's live areas at most; a new one replaces the one lapsing first
+#define DND_TVOLLEY_CDR 75              // cooldown recovery rate of a press inside an area
+#define DND_TVOLLEY_COSTPCT 70          // and the share of the cost it pays
+#define DND_TVOLLEY_ZSLACK 8.0          // how far the caster's feet may sit off an area's floor and still stand on it
+
+typedef struct {
+	int x[MAXPLAYERS * DND_TVOLLEY_SLOTS];
+	int y[MAXPLAYERS * DND_TVOLLEY_SLOTS];
+	int z[MAXPLAYERS * DND_TVOLLEY_SLOTS];		// the floor it was laid on
+	int r[MAXPLAYERS * DND_TVOLLEY_SLOTS];
+	int lapse[MAXPLAYERS * DND_TVOLLEY_SLOTS];	// the Timer() it lapses at; a slot past it is free
+	int press[MAXPLAYERS];						// areas that held the caster at the last press
+	int pct[MAXPLAYERS];						// the energized rock's damage percent, for it and its chunks
+} tvolley_T;
+
+tvolley_T module& GetVolleyData() {
+	static tvolley_T v;
+	return v;
+}
+
+// How many of the caster's live areas hold them now: within the radius and standing on the area's floor, not above
+// or below it (a ledge, a pit, the air of a jump).
+int CountVolleyAreas(int pnum) {
+	auto v = GetVolleyData();
+	int ptid = pnum + P_TIDSTART, t = Timer(), z = GetActorZ(ptid), n = 0, i, s;
+	for(i = 0; i < DND_TVOLLEY_SLOTS; ++i) {
+		s = pnum * DND_TVOLLEY_SLOTS + i;
+		if(v.lapse[s] > t && abs(z - v.z[s]) <= DND_TVOLLEY_ZSLACK &&
+			VectorLength(GetActorX(ptid) - v.x[s], GetActorY(ptid) - v.y[s]) <= v.r[s])
+			++n;
+	}
+	return n;
+}
+
+// Lays an area of radius r on the floor at z for tics, in a free slot or over the one lapsing first.
+void AddVolleyArea(int pnum, int x, int y, int z, int r, int tics) {
+	auto v = GetVolleyData();
+	int best = pnum * DND_TVOLLEY_SLOTS, i, s;
+	for(i = 0; i < DND_TVOLLEY_SLOTS; ++i) {
+		s = pnum * DND_TVOLLEY_SLOTS + i;
+		if(v.lapse[s] < v.lapse[best])
+			best = s;
+	}
+	v.x[best] = x;
+	v.y[best] = y;
+	v.z[best] = z;
+	v.r[best] = r;
+	v.lapse[best] = Timer() + tics;
 }
 
 // The one entry point. Mana is spent and the cooldown started here rather than inside each spell,
@@ -801,7 +907,10 @@ int TryCastSpell(int pnum, int spell) {
 		return CAST_OK;
 	}
 
-	int res = CanCastSpell(pnum, spell);
+	// Threaded Volley inside its own energized areas: read once here for the bill, the cooldown and the cast that follows.
+	int areas = spell == SPL_THREADEDVOLLEY ? CountVolleyAreas(pnum) : 0, pct = areas ? DND_TVOLLEY_COSTPCT : 100;
+
+	int res = CanCastSpell(pnum, spell, pct);
 	if(res != CAST_OK)
 		return res;
 
@@ -810,15 +919,17 @@ int TryCastSpell(int pnum, int spell) {
 	if(GetPlayerMana(pnum) > res)
 		SetPlayerMana(pnum, res);
 
-	if(!SpendSpellMana(pnum, spell))
+	if(!SpendSpellMana(pnum, spell, pct))
 		return CAST_NOMANA;
+	if(spell == SPL_THREADEDVOLLEY)
+		GetVolleyData().press[pnum] = areas;
 
 	// Magus: a chance to get the cost back, unreduced.
 	res = GetSpellGemMod(pnum, spell, GEMSTAT_MAGUS);
 	if(res && random(1, 100) <= res)
 		GiveMana(pnum, GetSpellUnreducedCost(pnum, spell));
 
-	StartSpellCooldown(pnum, spell);
+	StartSpellCooldown(pnum, spell, areas ? DND_TVOLLEY_CDR : 0);
 	// Taken here, not in the cast script a tic later, so a second press on the same tic finds the caster busy.
 	BeginSpellCasting(pnum);
 	ACS_NamedExecuteAlways("DnD Spell Cast", 0, spell, pnum);
@@ -837,6 +948,75 @@ int TryCastHotbarSlot(int pnum, int slot) {
 	if(slot < 0 || slot >= GetHotbarSlotCount(pnum))
 		return CAST_NOSPELL;
 	return TryCastSpell(pnum, GetHotbarSpell(pnum, slot));
+}
+
+// ---- spell procs: Elemental Bulwark's free cast of a random learned spell ----------------------
+
+#define DND_SPELLCAST_PROC 0x100		// "DnD Spell Cast" depth flag: no cast bar, no casting lock, no repeats
+#define DND_SPELLPROC_BANDS 4			// level bands a proc can reach: 1 is spell levels 1-9, 4 is 30-39
+
+// The level band a spell sits in: 1 for levels 1-9, 2 for 10-19, and so on.
+int GetSpellLevelBand(int spell) {
+	return Clamp_Between(SpellDefs[spell].req_level / 10 + 1, 1, 5);
+}
+
+// A band's share of the pick, the higher bands rarer: band 4 is 5 of 100 when every band qualifies.
+int GetSpellProcBandWeight(int band) {
+	switch(band) {
+		case 1:
+		return 65;
+		case 2:
+		return 20;
+		case 3:
+		return 10;
+	}
+	return 5;
+}
+
+bool IsElementalSpellTree(int tree) {
+	return tree == DND_SKILLTREE_FIRE || tree == DND_SKILLTREE_ICE || tree == DND_SKILLTREE_LIGHTNING || tree == DND_SKILLTREE_EARTH;
+}
+
+// A learned elemental spell that can go off on the spot: no passive, aura, toggle or channel.
+bool CanSpellProc(int pnum, int spell) {
+	return GetSpellAllocatedRank(pnum, spell) && IsElementalSpellTree(SpellDefs[spell].tree) &&
+		!(SpellDefs[spell].flags & (SPLF_PASSIVE | SPLF_AURA | SPLF_RESERVES | SPLF_TOGGLE | SPLF_CHANNELED));
+}
+
+// A weighted band up to max_band among those with a learned spell, then one of its spells at random; -1 when none.
+int PickProcSpell(int pnum, int max_band) {
+	int count[DND_SPELLPROC_BANDS + 1], band, s, total = 0, roll;
+	for(band = 1; band <= DND_SPELLPROC_BANDS; ++band)
+		count[band] = 0;
+	for(s = 0; s < MAX_SPELL_IDS; ++s)
+		if(CanSpellProc(pnum, s) && (band = GetSpellLevelBand(s)) <= max_band)
+			++count[band];
+	for(band = 1; band <= max_band; ++band)
+		if(count[band])
+			total += GetSpellProcBandWeight(band);
+	if(!total)
+		return -1;
+
+	roll = random(1, total);
+	for(band = 1; band < max_band; ++band) {
+		if(count[band] && (roll -= GetSpellProcBandWeight(band)) <= 0)
+			break;
+	}
+	while(!count[band])
+		--band;
+
+	roll = random(1, count[band]);
+	for(s = 0; s < MAX_SPELL_IDS; ++s)
+		if(CanSpellProc(pnum, s) && GetSpellLevelBand(s) == band && !--roll)
+			return s;
+	return -1;
+}
+
+// Free and at once, at the player's rank; a spell with a charge ready spends it, one already cooling down keeps its timer.
+void CastProcSpell(int pnum, int spell) {
+	if(!IsSpellOnCooldown(pnum, spell))
+		StartSpellCooldown(pnum, spell);
+	ACS_NamedExecuteAlways("DnD Spell Cast", 0, spell, pnum, DND_SPELLCAST_PROC);
 }
 
 #endif

@@ -120,6 +120,11 @@ void UpdateManaVisualCap(int pnum) {
 		SetActorInventory(tid, "Mana", cap);
 }
 
+// the mana side of IsLowLife: half the unreserved pool or less
+bool IsLowMana(int pnum) {
+	return GetPlayerMana(pnum) <= GetUnreservedManaCap(pnum) / 2;
+}
+
 // Clamped on the way in so a shrinking cap -- a swapped charm, a newly enabled aura -- cannot leave
 // the player holding more than they can hold.
 void GiveMana(int pnum, int amt) {
@@ -128,12 +133,31 @@ void GiveMana(int pnum, int amt) {
 	SetPlayerMana(pnum, Min(GetPlayerMana(pnum) + amt, GetUnreservedManaCap(pnum)));
 }
 
-bool CanAffordSpell(int pnum, int spell) {
-	if(SpellDefs[spell].flags & (SPLF_PASSIVE | SPLF_RESERVES))
+#ifdef ISDEBUGBUILD
+// Players whose spells cost nothing, set by "DnD Debug Free Spells". Map scope, so a new map clears it.
+int[] module& GetDebugFreeSpells() {
+	static int on[MAXPLAYERS];
+	return on;
+}
+#endif
+
+// Debug builds only: this player's spells cost nothing to cast, mana or life. Always false in a release build.
+bool HasDebugFreeSpells(int pnum) {
+#ifdef ISDEBUGBUILD
+	int[] module& on = GetDebugFreeSpells();
+	return pnum >= 0 && pnum < MAXPLAYERS && on[pnum];
+#else
+	return false;
+#endif
+}
+
+// pct scales the cost as SpendSpellMana's does, so a press that will pay less is judged on what it pays.
+bool CanAffordSpell(int pnum, int spell, int pct = 100) {
+	if((SpellDefs[spell].flags & (SPLF_PASSIVE | SPLF_RESERVES)) || HasDebugFreeSpells(pnum))
 		return true;
 
 	// Haemocrafter: the final cost in life at its multiplier, and never with the last point of health.
-	int cost = GetSpellValue(pnum, spell, SPELLVAL_COST) >> 16, life = GetSpellGemMod(pnum, spell, GEMSTAT_LIFECOST);
+	int cost = (GetSpellValue(pnum, spell, SPELLVAL_COST) >> 16) * pct / 100, life = GetSpellGemMod(pnum, spell, GEMSTAT_LIFECOST);
 	if(life)
 		return GetActorProperty(pnum + P_TIDSTART, APROP_HEALTH) > cost * life / 100;
 	return GetPlayerMana(pnum) >= cost;
@@ -143,7 +167,7 @@ bool CanAffordSpell(int pnum, int spell) {
 // pct scales the row cost for callers whose instances are not all worth the same -- Annihilus bills
 // a rising charge on a rising price. It defaults to the plain row cost, so nothing else changes.
 bool SpendSpellMana(int pnum, int spell, int pct = 100) {
-	if(SpellDefs[spell].flags & (SPLF_PASSIVE | SPLF_RESERVES))
+	if((SpellDefs[spell].flags & (SPLF_PASSIVE | SPLF_RESERVES)) || HasDebugFreeSpells(pnum))
 		return true;
 
 	int cost = (GetSpellValue(pnum, spell, SPELLVAL_COST) >> 16) * pct / 100;

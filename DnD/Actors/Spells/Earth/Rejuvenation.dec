@@ -1,0 +1,16 @@
+// On the healed player or pet: bumped by every cast, so an older heal over time sees it changed and stops.
+Actor DnD_RejuvTicket : DnD_Info { }
+
+// Client side, on the target: the Timer() its sphere ends at, while one is up.
+Actor DnD_RejuvFX : DnD_Info { }
+
+// The sphere round the target; RJSP carries REJUVSPH.md3 and Rejuvenation.fp. "DnD Rejuvenation Spell FX" moves and fades it.
+Actor Spell_Rejuvenation_Sphere : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0
+	States {
+		Spawn:
+			RJSP A -1 Bright
+		Stop
+	}
+}

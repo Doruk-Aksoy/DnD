@@ -20,6 +20,12 @@ DND_FLASK14         = "Sulphur Flask";
 DND_FLASK15         = "Quicksilver Flask";
 DND_FLASK16         = "Quartz Flask";
 
+DND_FLASK17         = "Small Mana Flask";
+DND_FLASK18         = "Medium Mana Flask";
+DND_FLASK19         = "Large Mana Flask";
+DND_FLASK20         = "Grand Mana Flask";
+DND_FLASK21         = "Exquisite Mana Flask";
+
 // Inventory images
 
 DND_FLIMG1          = "FLS1D0";
@@ -40,6 +46,12 @@ DND_FLIMG14         = "FL14E0";
 DND_FLIMG15         = "FL15B0";
 DND_FLIMG16         = "FL16B0";
 
+DND_FLIMG17         = "FL17D0";
+DND_FLIMG18         = "FL18D0";
+DND_FLIMG19         = "FL19D0";
+DND_FLIMG20         = "FL20D0";
+DND_FLIMG21         = "FL21D0";
+
 // Flask mod names
 IATTR_IMP_FLASK0    = "Max";                            IATTR_IMP_FLASK0X = "charges, uses";    IATTR_IMP_FLASK0XX = "charges";
 IATTR_IMP_FLASK1    = "life recovered over";            IATTR_IMP_FLASK_SECONDS = "seconds";
@@ -54,6 +66,7 @@ IATTR_IMP_FLASK9    = "Physical attacks are imbued with silver for";
 IATTR_IMP_FLASK10   = "increased damage and slain enemies rest in peace for";
 IATTR_IMP_FLASK11   = "increased movement speed and slow immunity for";
 IATTR_IMP_FLASK12   = "to mitigation chance and gain phasing for";
+IATTR_IMP_FLASK13   = "mana recovered over";
 
 IATTR_FLASK0        = "increased total charges";
 IATTR_FLASK1        = "reduced charges per use";
@@ -73,3 +86,7 @@ IATTR_FLASK14       = "increased recovery rate";
 IATTR_FLASK15       = "Instant recovery when used on low life";
 IATTR_FLASK16       = "more recovery if used while on low life";
 IATTR_FLASK17       = "increased duration";
+
+// mana flask wording of the low life mods
+IATTR_FLASK15_MANA  = "Instant recovery when used on low mana";
+IATTR_FLASK16_MANA  = "more recovery if used while on low mana";

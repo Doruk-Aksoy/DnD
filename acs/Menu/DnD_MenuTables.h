@@ -1967,6 +1967,9 @@ res_info_T module& GetResearchInfo(int page, int resid) {
 				RES_STASHTAB, 9704, 300
 			},
 			{
+				RES_GEMCRAFTING, 5126, 40
+			},
+			{
 				RES_GEMSOCKET2, 5127, 200
 			},
 			{
@@ -2071,7 +2074,8 @@ str GetResearchIcon(int page, int res) {
 			4,
 			30,
 			56,
-			67
+			67,
+			63
 		}
 	};
 	return StrParam(s:"RESBAK", d:ResearchIcons[page][res]);

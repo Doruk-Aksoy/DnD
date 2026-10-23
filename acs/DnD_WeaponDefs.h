@@ -1814,10 +1814,15 @@ bool IsTemporaryWeapon(int id) {
 	return id >= DND_WEAPON_SAWEDOFF;
 }
 
+// An owned weapon the crafting page lists; the Wanderer's Ethereal Form is a transformation, not a weapon.
+bool IsCraftingWeapon(int wepid) {
+	return wepid != DND_WEAPON_ASCENSION && CheckInventory(Weapons_Data[wepid].name);
+}
+
 int GetWeaponCount() {
 	int res = 0;
 	for(int i = 0; i < MAXWEPS; ++i)
-		if(CheckInventory(Weapons_Data[i].name))
+		if(IsCraftingWeapon(i))
 			++res;
 	return res;
 }

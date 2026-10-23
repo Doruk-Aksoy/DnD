@@ -372,7 +372,8 @@ enum {
 
 	// The two bars. Descending id is back to front per the note above, so each block lists its layers
 	// in reverse: the trough is the highest id in its block and the text the lowest.
-	MANABAR_TEXT_ID = 3060,
+	MANABAR_TEXT_ID = 3059,
+	MANABAR_EDGE_ID,
 	MANABAR_FILL_ID,
 	MANABAR_RESERVED_ID,
 	MANABAR_BACK_ID,

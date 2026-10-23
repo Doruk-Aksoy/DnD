@@ -3335,6 +3335,8 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("DnD_BalefulReady", 0);
 	SetInventory("DnD_BalefulSpending", 0);
 	SetInventory("P_BalefulTime", 0);
+	SetInventory("DnD_RockArmor", 0);
+	SetInventory("P_RockArmor", 0);
 
 	RemoveAllBuffs(pnum);
 	ClearLingeringBuffs(pnum);
@@ -4374,6 +4376,26 @@ Script "DnD Lightning Exposure Timer" (int m_tid) {
 	SetActorInventory(m_tid, "DnD_LightningExposedTimer", 0);
 }
 
+Script "DnD Physical Exposure Timer" (int m_tid) {
+	while(CheckActorInventory(m_tid, "DnD_PhysicalExposedTimer") && isActorAlive(m_tid)) {
+		TakeActorInventory(m_tid, "DnD_PhysicalExposedTimer", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(m_tid, "DnD_PhysicalExposed", 0);
+	SetActorInventory(m_tid, "DnD_PhysicalExposedTimer", 0);
+}
+
+Script "DnD Poison Exposure Timer" (int m_tid) {
+	while(CheckActorInventory(m_tid, "DnD_PoisonExposedTimer") && isActorAlive(m_tid)) {
+		TakeActorInventory(m_tid, "DnD_PoisonExposedTimer", 1);
+		Delay(const:1);
+	}
+
+	SetActorInventory(m_tid, "DnD_PoisonExposed", 0);
+	SetActorInventory(m_tid, "DnD_PoisonExposedTimer", 0);
+}
+
 // The golem's own states give and take MonsterRegenPause around its attacks, so this only ever
 // clears what it set: a monster that pauses its own regen is not holding this timer.
 Script "DnD Regen Pause Timer" (int m_tid) {
@@ -4435,6 +4457,39 @@ Script "DnD Conductivity Timer" (int m_tid) {
 
 	SetActorInventory(m_tid, "DnD_Conductive", 0);
 	SetActorInventory(m_tid, "DnD_ConductiveTimer", 0);
+}
+
+// Vulnerability, the physical twin. Owns the bleed chance lane and the curse marker; the physical resistance half
+// rides its exposure lane and ticker.
+Script "DnD Vulnerability Timer" (int m_tid) {
+	int sfx_id = ACS_NamedExecuteWithResult("DND Spawn Attachment", m_tid, DND_ATTACHMENT_VULNERABILITY);
+
+	while(CheckActorInventory(m_tid, "DnD_VulnerableTimer") && isActorAlive(m_tid)) {
+		TakeActorInventory(m_tid, "DnD_VulnerableTimer", 1);
+		Delay(const:1);
+	}
+
+	if(isActorAlive(m_tid))
+		ACS_NamedExecuteWithResult("DnD Remove Monster Attachment", m_tid, sfx_id);
+
+	SetActorInventory(m_tid, "DnD_Vulnerable", 0);
+	SetActorInventory(m_tid, "DnD_VulnerableTimer", 0);
+}
+
+// Despair, the poison twin. Owns the poison chance lane and the curse marker; rank 10's regeneration stop has its own clock.
+Script "DnD Despair Timer" (int m_tid) {
+	int sfx_id = ACS_NamedExecuteWithResult("DND Spawn Attachment", m_tid, DND_ATTACHMENT_DESPAIR);
+
+	while(CheckActorInventory(m_tid, "DnD_DespairedTimer") && isActorAlive(m_tid)) {
+		TakeActorInventory(m_tid, "DnD_DespairedTimer", 1);
+		Delay(const:1);
+	}
+
+	if(isActorAlive(m_tid))
+		ACS_NamedExecuteWithResult("DnD Remove Monster Attachment", m_tid, sfx_id);
+
+	SetActorInventory(m_tid, "DnD_Despaired", 0);
+	SetActorInventory(m_tid, "DnD_DespairedTimer", 0);
 }
 
 Script "DnD Expose Weakness Timer" (int m_tid) {
@@ -7790,6 +7845,44 @@ Script "DnD Debug Gem Drop" (int colour, int greater, int role) NET {
 	SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 }
 
+#define DND_DEBUG_GEMS_MAX 30
+
+// pukename "DnD Debug Gems" <count> <colour> <role> <greater>: gems thrown in front of you; 0 rolls that part as a drop would.
+// colour 1-8 (see "DnD Debug Gem List"), role 1-33 or -1 for none, greater 1 normal or 2 greater. count 0 is one, at most 30.
+Script "DnD Debug Gems" (int count, int colour, int role, int greater) NET {
+	int pnum = PlayerNumber();
+	if(pnum < 0)
+		Terminate;
+	if(colour < 0 || colour > DND_GEM_COLOURS || role < -1 || role > DND_GEM_ROLES || greater < 0 || greater > 2) {
+		Log(s:"\cgDnD Debug Gems <count> <colour 0-", d:DND_GEM_COLOURS, s:"> <role -1-", d:DND_GEM_ROLES, s:"> <greater 0-2>");
+		Terminate;
+	}
+
+	int i, c, n = Clamp_Between(count, 1, DND_DEBUG_GEMS_MAX);
+	for(i = 0; i < n; ++i) {
+		c = CreateItemSpot();
+		if(c == -1)
+			break;
+
+		// RollGemInfo rolls a part given -1, and a role past the last means none.
+		RollGemInfo(c, colour - 1, greater - 1, role == -1 ? DND_GEM_ROLES : role - 1);
+		SpawnDropFacing(GetGemDropClass(GetFieldItem(c).item_subtype), 16.0, 16, pnum + 1, c);
+		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+
+		auto item = GetFieldItem(c);
+		Log(s:"Gem: ", s:GetGemFullName(item.item_subtype, item.implicit[0].attrib_id));
+	}
+}
+
+// pukename "DnD Debug Gem List": the colour and role numbers "DnD Debug Gems" takes.
+Script "DnD Debug Gem List" (void) NET {
+	int i;
+	for(i = 0; i < DND_GEM_COLOURS; ++i)
+		Log(s:"colour ", d:i + 1, s:": ", l:GetItemTagName(DND_ITEM_GEM, i));
+	for(i = 0; i < DND_GEM_ROLES; ++i)
+		Log(s:"role ", d:i + 1, s:": ", l:GetGemRoleNameLump(i));
+}
+
 // pukename "DnD Debug Spell Gem" <spell> <stat> <val>: one gem term on a spell, as a socket would add it. stat -1 empties the row, -2 only reads it.
 // val is a whole percent (the MORE terms and crit chance are converted to 16.16), or a count for extra projectiles.
 Script "DnD Debug Spell Gem" (int spell, int stat, int val) NET {
@@ -7829,6 +7922,20 @@ Script "DnD Debug Spell Rank" (int spell, int rank, int slot) NET {
 		SyncHotbarSlot(pnum, slot);
 	}
 	Log(s:"Spell ", d:spell, s:" rank ", d:GetSpellRank(pnum, spell, true), s:" bound to slot ", d:slot);
+}
+
+// pukename "DnD Debug Free Spells" <on>: 1 makes your spells cost no mana (or life) to cast, 0 restores costs. A new map clears it.
+Script "DnD Debug Free Spells" (int on) NET {
+	int pnum = PlayerNumber();
+	if(pnum < 0)
+		Terminate;
+
+	int[] module& free = GetDebugFreeSpells();
+	free[pnum] = !!on;
+	if(on)
+		Log(s:"Free spells on: casting costs nothing");
+	else
+		Log(s:"Free spells off");
 }
 
 #ifdef WANT_BUFF_LOG

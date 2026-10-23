@@ -230,6 +230,16 @@ Script "DnD Spell Damage" (int which, int flags, int div) {
 	if(parent == SPL_WINTERORB + 1)
 		dmg = dmg * (100 + GetSpellValue(pnum, SPL_WINTERORB, SPELLVAL_AMOUNT)) / 100;
 
+	// A copy that hits for a multiple of the spell, as Venom Gyre's dash catch; 0 on every class without the var.
+	int mult = GetUserVariable(0, "user_dmgmult");
+	if(mult > 1)
+		dmg *= mult;
+
+	// A percent of the spell instead, as Threaded Volley's energized rock over overlapping areas; 0 when absent too.
+	int pct = GetUserVariable(0, "user_dmgpct");
+	if(pct > 0)
+		dmg = dmg * pct / 100;
+
 	// Never below 1: a fragment of a small hit should still be a hit, not nothing.
 	if(div > 1)
 		dmg = Max(1, dmg / div);
@@ -417,6 +427,23 @@ Script "DnD Spell Explosion Setup" (int which, int radius_pct, int div) {
 
 	// Non zero: the caller may be gating its burst on this.
 	SetResultValue(1);
+}
+
+// A ripping spell's rip budget with the ripper gear a weapon's takes: increased ripcount, "rippers can penetrate all
+// targets", "rippers only rip a target once". MAX_RIPCOUNT stays unlimited; tid 0 is the activator.
+void SetSpellRipLimit(int pnum, int tid, int rips) {
+	if(PlayerModData[pnum].vals[PSTAT_EX_RIPPERSRIPALL])
+		rips = MAX_RIPCOUNT;
+	else if(rips < MAX_RIPCOUNT)
+		rips = Max(1, rips * (100 + PlayerModData[pnum].vals[PSTAT_RIPCOUNT]) / 100);
+
+	if(PlayerModData[pnum].vals[PSTAT_EX_RIPPERSONETIMEONLY])
+		SetActorProperty(tid, APROP_STAMINA, GetActorProperty(tid, APROP_STAMINA) | DND_DAMAGEFLAG_RIPSONCE);
+	// The actor-inventory calls give tid 0 to the players, not the activator.
+	if(tid)
+		SetActorInventory(tid, "DnD_RipLimit", rips);
+	else
+		SetInventory("DnD_RipLimit", rips);
 }
 
 // A spell's area, as a 16.16 radius: spell area gear joins the other area increases in one additive pool, as an

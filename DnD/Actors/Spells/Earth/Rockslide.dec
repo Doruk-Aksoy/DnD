@@ -4,6 +4,7 @@ Actor Spell_Rockslide : DnD_SpellExplosive {
 	Gravity 0.35
 	Radius 14
 	Height 24
+	SeeSound "EarthLich/Rock"
 	DeathSound "Rockslide/Hit"
 	States {
 		// ERSL carries ROCKSLID.md3.

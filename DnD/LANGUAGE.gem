@@ -17,6 +17,11 @@ DND_GEMPAGE_NONE	= "A skill opens two sockets at rank 4.";
 DND_GEMPAGE_PICKGEM	= "Click a gem to socket it.";
 DND_GEMPAGE_NOGEMS	= "You carry no gems.";
 DND_GEMPAGE_NOFIT	= "None of your gems can do anything on this skill.";
+DND_GEMPAGE_HELPTITLE	= "Gems";
+DND_GEMPAGE_HELP	=   "Skills gain a gem slot when they reach rank 4 through leveling them up. A second slot can be acquired through research.\n\n"
+                        "Not all gems can be used on every spell, or some gems can't achieve their full benefits on all spells. This depends on what a spell does."
+                        "If a gem you have doesn't appear at all for a selected spell, it's not a fit. If certain sections are grayed out, they don't apply.\n\n"
+                        "A research allows you to transmute gems of same size into a different of the same size, with a small chance of giving them a role.";
 
 DND_GEM1		= "Ruby";
 DND_GEM2		= "Greater Ruby";

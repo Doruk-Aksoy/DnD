@@ -579,8 +579,10 @@ str GetItemTagName(int itype, int isubt) {
 	return "NULL";
 }
 
+// Gives the item its implicits and returns its widening (AddItemWidening), which the mod rolls take.
 int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool isForMerchant = false) {
 	int special_roll = 0;
+	int corr;
 	void function(int, int, int, int, int, int, int)& imp_func = GiveImplicitToField;
 	if(isForMerchant)
 		imp_func = GiveImplicitToMerchant;
@@ -604,28 +606,29 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 				break;
 
 				case BODYARMOR_GUNSLINGER:
-					special_roll = INV_IMP_CANROLL_PHYS;
+					special_roll = AddItemWidening(special_roll, INV_IMP_CANROLL_PHYS);
 					imp_func(item_pos, INV_IMP_INCMIT, 20.0, 0, item_tier, 1.75, DND_ITEMBASE_BODY_MITIGATION);
 					imp_func(item_pos, INV_IMP_CANROLL_PHYS, 1, -1, 0, 0, 0);
 				break;
 				case BODYARMOR_OCCULT:
-					special_roll = INV_IMP_CANROLL_MAGIC;
+					special_roll = AddItemWidening(special_roll, INV_IMP_CANROLL_MAGIC);
 					imp_func(item_pos, INV_IMP_INCMITSHIELD, 85, 0, item_tier, 30, DND_ITEMBASE_BODY_ESHIELD);
 					imp_func(item_pos, INV_IMP_CANROLL_MAGIC, 1, -1, 0, 0, 0);
 					imp_func(item_pos, INV_IMP_CANROLL_SPELL, 1, -1, 0, 0, 0);
+					special_roll = AddItemWidening(special_roll, INV_IMP_CANROLL_SPELL);
 				break;
 				case BODYARMOR_DEMO:
-					special_roll = INV_IMP_CANROLL_EXPLOSIVE;
+					special_roll = AddItemWidening(special_roll, INV_IMP_CANROLL_EXPLOSIVE);
 					imp_func(item_pos, INV_IMP_INCARMOR, 175, 0, item_tier, 100, DND_ITEMBASE_BODY_ARMOR);
 					imp_func(item_pos, INV_IMP_CANROLL_EXPLOSIVE, 1, -1, 0, 0, 0);
 				break;
 				case BODYARMOR_ENERGY:
-					special_roll = INV_IMP_CANROLL_ENERGY;
+					special_roll = AddItemWidening(special_roll, INV_IMP_CANROLL_ENERGY);
 					imp_func(item_pos, INV_IMP_INCSHIELD, 85, 0, item_tier, 30, DND_ITEMBASE_BODY_ESHIELD);
 					imp_func(item_pos, INV_IMP_CANROLL_ENERGY, 1, -1, 0, 0, 0);
 				break;
 				case BODYARMOR_ELEMENTAL:
-					special_roll = INV_IMP_CANROLL_ELEMENTAL;
+					special_roll = AddItemWidening(special_roll, INV_IMP_CANROLL_ELEMENTAL);
 					imp_func(item_pos, INV_IMP_INCARMOR, 125, 0, item_tier, 60, DND_ITEMBASE_BODY_ARMOR);
 					imp_func(item_pos, INV_IMP_CANROLL_ELEMENTAL, 1, -1, 0, 0, 0);
 				break;
@@ -646,6 +649,7 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 					imp_func(item_pos, INV_IMP_INCMITARMOR, 150, 0, item_tier, 60, DND_ITEMBASE_BODY_ARMOR_MITIGATION);
 					imp_func(item_pos, INV_IMP_NECROARMOR, 15, 0, item_tier, 3, 0);
 					imp_func(item_pos, INV_IMP_CANROLL_SPELL, 1, -1, 0, 0, 0);
+					special_roll = AddItemWidening(special_roll, INV_IMP_CANROLL_SPELL);
 				break;
 				case BODYARMOR_KNIGHT:
 					imp_func(item_pos, INV_IMP_INCARMOR, 250, 0, item_tier, 100, DND_ITEMBASE_BODY_ARMOR);
@@ -714,6 +718,7 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 					imp_func(item_pos, INV_IMP_INCARMOR, 35, 0, item_tier, 10, DND_ITEMBASE_BOOT_ARMOR);
 					imp_func(item_pos, INV_IMP_LESSFIRETAKEN, 0.1, -1, 0, 0, 0);
 					imp_func(item_pos, INV_IMP_CANROLL_SPELL, 1, -1, 0, 0, 0);
+					special_roll = AddItemWidening(special_roll, INV_IMP_CANROLL_SPELL);
 				break;
 				case BOOTS_WARRIORSABATON:
 					imp_func(item_pos, INV_IMP_INCARMOR, 25, 0, item_tier, 15, DND_ITEMBASE_BOOT_ARMOR);
@@ -728,6 +733,7 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 					imp_func(item_pos, INV_IMP_INCARMORSHIELD, 45, 0, item_tier, 18, DND_ITEMBASE_HELM_ARMOR_ESHIELD);
 					imp_func(item_pos, INV_IMP_BONUSPETCAP, 1, -1, 0, 0, 0);
 					imp_func(item_pos, INV_IMP_CANROLL_SPELL, 1, -1, 0, 0, 0);
+					special_roll = AddItemWidening(special_roll, INV_IMP_CANROLL_SPELL);
 				break;
 				case HELMS_WARRIOR:
 					imp_func(item_pos, INV_IMP_INCARMOR, 80, 0, item_tier, 40, DND_ITEMBASE_HELM_ARMOR);
@@ -758,19 +764,20 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 					imp_func(item_pos, INV_IMP_INCMITSHIELD, 36, 0, item_tier, 16, DND_ITEMBASE_HELM_ESHIELD_MITIGATION);
 					imp_func(item_pos, INV_MAGIC_NEGATION, 5, 0, item_tier, 2, 0);
 					imp_func(item_pos, INV_IMP_CANROLL_SPELL, 1, -1, 0, 0, 0);
+					special_roll = AddItemWidening(special_roll, INV_IMP_CANROLL_SPELL);
 				break;
 				case HELMS_ELDER:
-					special_roll = random(INV_CORR_MAXFRENZY, INV_CORR_MAXPOWER);
+					corr = random(INV_CORR_MAXFRENZY, INV_CORR_MAXPOWER);
 
 					// add these first so they can be corruption replaced
-					if(special_roll == INV_CORR_MAXFRENZY)
+					if(corr == INV_CORR_MAXFRENZY)
 						imp_func(item_pos, INV_IMP_INCMIT, 5.0, 0, item_tier, 1.25, DND_ITEMBASE_HELM_MITIGATION);
-					else if(special_roll == INV_CORR_MAXENDURANCE)
+					else if(corr == INV_CORR_MAXENDURANCE)
 						imp_func(item_pos, INV_IMP_INCARMOR, 50, 0, item_tier, 25, DND_ITEMBASE_HELM_ARMOR);
 					else
 						imp_func(item_pos, INV_IMP_INCSHIELD, 25, 0, item_tier, 8, DND_ITEMBASE_HELM_ESHIELD);
 
-					imp_func(item_pos, special_roll, 1, 0, 0, 0, 0);
+					imp_func(item_pos, corr, 1, 0, 0, 0, 0);
 				break;
 			}
 		break;
@@ -931,6 +938,28 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 				break;
 				case DND_FLASK_LIFE_EXQUISITE:
 					imp_func(item_pos, INV_FLASK_IMP_LIFE, 2000, 6 * TICRATE, 0, 0, DND_ITEMBASE_FLASK_LIFE);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 50, 15, 0, 0, 0);
+				break;
+
+				// mana flasks share the life flask mod pool
+				case DND_FLASK_MANA_SMALL:
+					imp_func(item_pos, INV_FLASK_IMP_MANA, 60, 3 * TICRATE, 0, 0, DND_ITEMBASE_FLASK_LIFE);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 25, 7, 0, 0, 0);
+				break;
+				case DND_FLASK_MANA_MEDIUM:
+					imp_func(item_pos, INV_FLASK_IMP_MANA, 145, 4 * TICRATE, 0, 0, DND_ITEMBASE_FLASK_LIFE);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 35, 8, 0, 0, 0);
+				break;
+				case DND_FLASK_MANA_LARGE:
+					imp_func(item_pos, INV_FLASK_IMP_MANA, 225, 5 * TICRATE, 0, 0, DND_ITEMBASE_FLASK_LIFE);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 40, 10, 0, 0, 0);
+				break;
+				case DND_FLASK_MANA_GRAND:
+					imp_func(item_pos, INV_FLASK_IMP_MANA, 600, 5 * TICRATE, 0, 0, DND_ITEMBASE_FLASK_LIFE);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 45, 12, 0, 0, 0);
+				break;
+				case DND_FLASK_MANA_EXQUISITE:
+					imp_func(item_pos, INV_FLASK_IMP_MANA, 1100, 6 * TICRATE, 0, 0, DND_ITEMBASE_FLASK_LIFE);
 					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 50, 15, 0, 0, 0);
 				break;
 

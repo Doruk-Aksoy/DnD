@@ -53,6 +53,7 @@ enum {
 	DND_ORB_VOLTAIC,
 	DND_ORB_VILE,
 	DND_ORB_EMBERS,
+	DND_ORB_ARCANA,
 
 	// unique drops from specific monsters
 	DND_ORB_HOLLOW,
@@ -245,7 +246,7 @@ int PickLowTierOrb() {
 }
 
 int PickMidTierOrb() {
-	int o = random(0, 16);
+	int o = random(0, 17);
 	switch(o) {
 		case 0:
 			o = DND_ORB_WINTER;
@@ -298,6 +299,9 @@ int PickMidTierOrb() {
 		case 16:
 			o = DND_ORB_EMBERS;
 		break;
+		case 17:
+			o = DND_ORB_ARCANA;
+		break;
 	}
 	return o;
 }
@@ -336,7 +340,7 @@ int PickHighTierOrb() {
 }
 
 int PickRandomTaggedOrb() {
-	int o = random(0, 16);
+	int o = random(0, 17);
 	switch(o) {
 		case 0:
 			o = DND_ORB_PRISMATIC;
@@ -388,6 +392,9 @@ int PickRandomTaggedOrb() {
 		break;
 		case 16:
 			o = DND_ORB_EMBERS;
+		break;
+		case 17:
+			o = DND_ORB_ARCANA;
 		break;
 	}
 	return o;

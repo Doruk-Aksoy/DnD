@@ -1,0 +1,31 @@
+// On a flung enemy: which channel last caught it, and how many times that channel has.
+Actor DnD_UnleashChannel : DnD_Info { }
+Actor DnD_UnleashCaught : DnD_Info { }
+
+// On a flung enemy: bumped by every fling, so an older landing watcher stands down.
+Actor DnD_UnleashFlight : DnD_Info { }
+
+// A pillar, client side; "DnD Unleash Pillar FX" picks its height frame (H1-H6: 48 to 288 tall), raises and sinks it.
+Actor Spell_UnleashEarth_Pillar : DnD_SpecialFX {
+	States {
+		Spawn:
+		H1:
+			UEPL A -1
+		Stop
+		H2:
+			UEPL B -1
+		Stop
+		H3:
+			UEPL C -1
+		Stop
+		H4:
+			UEPL D -1
+		Stop
+		H5:
+			UEPL E -1
+		Stop
+		H6:
+			UEPL F -1
+		Stop
+	}
+}

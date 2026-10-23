@@ -548,6 +548,17 @@ void PanelText(str text, str col = "") {
 	}
 }
 
+// A string split on its line breaks, each line wrapped by PanelText; an empty line is a half-line spacer.
+void PanelTextLines(str text, str col = "") {
+	int len = StrLen(text), start = 0;
+	for(int k = 0; k <= len; ++k) {
+		if(k == len || GetChar(text, k) == 10) {	// \n
+			PanelText(StrMid(text, start, k - start), col);
+			start = k + 1;
+		}
+	}
+}
+
 // Tics as seconds to one decimal. f: on a tic count reads as noise.
 str TicsToSeconds(int tics) {
 	return StrParam(d:tics / TICRATE, s:".", d:(tics * 10 / TICRATE) % 10);
@@ -756,10 +767,8 @@ void DrawSpellPocketBar() {
 bool HandleSpellPageScroll(int tree, int boxid) {
 	spell_scroll_T module& ss = GetSpellScroll();
 
-	// One line of slack, or the final row sits half under the clip's bottom edge.
-	int over = 0;
-	if(ss.shown_spell != -1)
-		over = ss.panel_px + DND_SPELLPANEL_LINEH - DND_SPELLPANEL_H;
+	// One line of slack, or the final row sits half under the clip's bottom edge. An empty pocket measures 0.
+	int over = ss.panel_px + DND_SPELLPANEL_LINEH - DND_SPELLPANEL_H;
 	if(over < 0)
 		over = 0;
 
@@ -807,6 +816,7 @@ void DrawSpellPocket(int pnum) {
 		DeleteText(SPELLTREE_HEAD_ID + 2);
 		DeleteText(SPELLTREE_HEAD_ID + 3);
 		DeleteTextRange(SPELLTREE_DESC_ID, SPELLTREE_DESC_ID + DND_SPELLPANEL_MAXLINES);
+		ss.panel_px = 0;
 		DrawSpellPocketBar();
 		return;
 	}
@@ -1855,6 +1865,26 @@ void DrawGemPocket(int subt, int role, int spell) {
 	DrawSpellPocketBar();
 }
 
+// The gem page's pocket while nothing is hovered: DND_GEMPAGE_HELPTITLE, then DND_GEMPAGE_HELP split on its line breaks.
+void DrawGemHelp() {
+	SetFont("SMALLFONT");
+	HudMessage(s:"\c[Y5]", l:"DND_GEMPAGE_HELPTITLE";
+		HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 2, CR_WHITE, (DND_SPELLPANEL_X << 16) + 0.1, 24.0, 0.0, 0.0);
+	DeleteText(SPELLTREE_HEAD_ID + 3);
+
+	SetHudClipRect(DND_SPELLPANEL_X - 4, DND_SPELLPANEL_Y - 4, DND_SPELLPANEL_W, DND_SPELLPANEL_H);
+	int panel_top = DND_SPELLPANEL_Y + GetScrollBarPos(DND_SPELLBAR_PANEL) * DND_SPELLPANEL_LINEH;
+	GetSpellDraw().panel_y = panel_top;
+	GetSpellDraw().panel_id = SPELLTREE_DESC_ID;
+
+	PanelTextLines(StrParam(l:"DND_GEMPAGE_HELP"), "\c-");
+
+	GetSpellScroll().panel_px = GetSpellDraw().panel_y - panel_top;
+	DeleteTextRange(GetSpellDraw().panel_id, SPELLTREE_DESC_ID + DND_SPELLPANEL_MAXLINES);
+	SetHudClipRect(0, 0, 0, 0, 0);
+	DrawSpellPocketBar();
+}
+
 void HandleSpellGemsDraw(int pnum, int boxid, menu_pane_T module& p) {
 	spell_scroll_T module& ss = GetSpellScroll();
 	int i, k, n, spell, v, x, y, row, count, base;
@@ -1989,7 +2019,10 @@ void HandleSpellGemsDraw(int pnum, int boxid, menu_pane_T module& p) {
 		ss.shown_spell = hovered;
 		SetScrollBarPos(DND_SPELLBAR_PANEL, 0);
 	}
-	DrawSpellPocket(pnum);
+	if(ss.shown_spell == -1)
+		DrawGemHelp();
+	else
+		DrawSpellPocket(pnum);
 }
 
 // CLIENTSIDE, from the menu loop beside HandleSpellHotbarPick, for the same reason: the view decides what a box

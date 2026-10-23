@@ -1,0 +1,96 @@
+// Spell_, not EarthGolem: that is the monster whose GOL1 art it wears, as RGLM shaded by RockGolem.fp. Built on the Ice Golem's pet shape.
+ACTOR Spell_RockGolem : PetMonsterBase {
+	Health 750
+	GibHealth -100
+	Radius 22
+	Height 56
+	Speed 7
+	Mass 4096
+	PainChance 16
+	Stamina 1
+	SeeSound "EarthGolem/See"
+	PainSound "EarthGolem/Pain"
+	DeathSound "EarthGolem/Death"
+	ActiveSound "EarthGolem/Act"
+	Obituary "%o was crushed by a Rock Golem."
+	Tag "Rock Golem"
+	MeleeRange 72
+	MaxTargetRange 768
+	// The Timer() its next Rockslide is ready at.
+	var int user_slide;
+	+NOBLOOD
+	+NODROPOFF
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pet Monster Scale", 0, DND_PET_ROCKGOLEMID, DND_STONECREATURE, -1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pet Distance Move", 0)
+			TNT1 AAAA 0 A_SpawnItemEx("Spell_Rockslide_Dust", frandom(-16, 16), frandom(-16, 16), 4, 0, 0, frandom(0.3, 1), 0, SXF_CLIENTSIDE)
+			RGLM ONMLKJI 3
+			TNT1 A 0 A_PlaySound("EarthGolem/See", CHAN_VOICE)
+		Idle:
+			RGLM AB 10 A_Look
+		Goto See
+		See:
+			RGLM AABBCCDD 2 A_Chase
+		Loop
+		Melee:
+			TNT1 A 0 A_AlertMonsters(0, AMF_TARGETNONPLAYER)
+			TNT1 A 0 A_PlaySound("Golem/Swing")
+			RGLM E 8 A_FaceTarget
+			RGLM F 2 A_FaceTarget
+			RGLM G 2 A_CustomMeleeAttack(ACS_NamedExecuteWithResult("DnD Rock Golem Melee"), "Golem/Hit")
+			RGLM G 6
+		Goto See
+		// Rank 5. The script checks AND throws, so a true return means the boulder is already away.
+		Missile:
+			TNT1 A 0 A_AlertMonsters(0, AMF_TARGETNONPLAYER)
+			TNT1 A 0 A_FaceTarget
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Rock Golem Rockslide"), "Throw")
+		Goto See
+		Throw:
+			RGLM Y 6 Bright A_FaceTarget
+			RGLM X 8 A_FaceTarget
+		Goto See
+		Pain:
+			RGLM H 4
+			RGLM H 4 A_Pain
+		Goto See
+		// Spelled out here, as the Ice Golem's is: a client no-ops PetMonsterBase's 0 tic A_Jump.
+		Death:
+		XDeath:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Summon Death Check", 0, DND_PET_ROCKGOLEMID)
+			RGLM I 5
+			RGLM J 4 A_Scream
+			TNT1 AAAAAAAA 0 A_SpawnItemEx("Spell_Shrapnel_Piece", 0, 0, frandom(16, 48), frandom(-4, 4), frandom(-4, 4), frandom(2, 7), frandom(0, 360), SXF_CLIENTSIDE)
+			TNT1 A 0 A_NoBlocking
+			RGLM KLMNO 3
+			RGLM P 35
+			RGLM P 1 A_FadeOut(0.05)
+		Wait
+	}
+}
+
+// Rank 10: immune to elemental damage and resisting explosions, through damage factors as monster hits on a pet heed no trait.
+ACTOR Spell_RockGolem_Hardened : Spell_RockGolem {
+	DamageFactor "Fire", 0
+	DamageFactor "FireGreen", 0
+	DamageFactor "ExplosiveFire", 0
+	DamageFactor "Ice", 0
+	DamageFactor "IceEryxia", 0
+	DamageFactor "Lightning", 0
+	DamageFactor "LightningRed", 0
+	DamageFactor "Poison", 0
+	DamageFactor "PoisonPod", 0
+	DamageFactor "Explosive", 0.5
+	DamageFactor "ExplosiveGreen", 0.5
+}
+
+// The boulder rank 5 throws: the owner's Rockslide, priced at rank 1 when they never learned it.
+Actor Spell_RockGolem_Boulder : Spell_Rockslide {
+	var int user_rankat;
+	States {
+		SpawnState:
+			ERSL A 0 ACS_NamedExecuteWithResult("DnD Rock Golem Boulder Setup")
+		Goto Super::SpawnState
+	}
+}

@@ -597,7 +597,7 @@ bool HandlePageListening(int curopt, int boxid) {
 			redraw = ListenScroll(-344, 0, DND_SCROLL_MMODSTEP, DND_SCROLL_MMODVIEW);
 		break;
 		case MENU_HELP_ORBS:
-			redraw = ListenScroll(-320, 0, 8, 220);
+			redraw = ListenScroll(-385, 0, 8, 220);
 		break;
 		case MENU_HELP_MMODS_DEFENSIVE:
 			redraw = ListenScroll(-304, 0, DND_SCROLL_MMODSTEP, DND_SCROLL_MMODVIEW);
@@ -4901,7 +4901,9 @@ void HandleStashViewClicks(int pnum, int boxid, int choice) {
 }
 
 void HandleMaterialDraw(menu_inventory_T module& p, int boxid, int curopt, int k) {
-	int mcount = CountCraftingMaterials(IsCraftingPageForTokens(curopt), curopt == MENU_LOAD_CRAFTING_TRANSMUTING);
+	// Transmutia lists gems once the Gemcrafting research is done
+	bool gems = curopt == MENU_LOAD_CRAFTING_TRANSMUTING && CheckResearchStatus(RES_GEMCRAFTING) == RES_DONE;
+	int mcount = CountCraftingMaterials(IsCraftingPageForTokens(curopt), gems);
 	int i;
 	int tx, ty, bx, by;
 	int page = CheckInventory("DnD_Crafting_MaterialPage");
@@ -4930,7 +4932,7 @@ void HandleMaterialDraw(menu_inventory_T module& p, int boxid, int curopt, int k
 		//for(ty = 0; ty < MAX_CRAFTITEMTYPES; ++ty) {
 			// by holds currently visited unique item's order, it's unique to each item type so we reset it, we don't reset i
 			for(by = 0; i < MAX_CRAFTING_MATERIALBOXES && i < mcount - MAX_CRAFTING_MATERIALBOXES * page; ++i, ++by) {
-				tx = GetNextUniqueCraftableMaterial(by + MAX_CRAFTING_MATERIALBOXES * page, IsCraftingPageForTokens(curopt), curopt == MENU_LOAD_CRAFTING_TRANSMUTING);
+				tx = GetNextUniqueCraftableMaterial(by + MAX_CRAFTING_MATERIALBOXES * page, IsCraftingPageForTokens(curopt), gems);
 				if(tx != -1) {
 					if(boxid - 1 == MATERIALBOX_OFFSET_BOXID + i) {
 						//Log(s:"update item boxlit material ", d:tx);
@@ -5004,14 +5006,14 @@ void HandleCraftingWeaponDraw(int pnum, menu_inventory_T module& p, int boxid, i
 		}
 		// first count over the weapons we must skip
 		for(i = 0; i < MAXWEPS && j < MAX_CRAFTING_ITEMBOXES * page; ++i)
-			if(CheckInventory(Weapons_Data[i].name))
+			if(IsCraftingWeapon(i))
 				++j;
 		//if(j)
 		//	++i;
 		j = 0;
 		// i will count onwards from here
 		for(; i < MAXWEPS && j < MAX_CRAFTING_ITEMBOXES && j < mcount - MAX_CRAFTING_ITEMBOXES * page; ++i) {
-			if(CheckInventory(Weapons_Data[i].name)) {
+			if(IsCraftingWeapon(i)) {
 				if(boxid - 1 == j) {
 					//Log(s:"update item boxlit ", d:i);
 					UpdateCursorHoverData(i, 0, DND_ITEM_WEAPON, 0, pnum, 0);
@@ -5150,7 +5152,8 @@ int GetTransmuteSlotGem(int pnum, int v) {
 	return box;
 }
 
-// -1 with no gem in the chamber, DND_GEM_TRANSMUTE for three distinct gems of one tier (any colours), -2 for anything else.
+// -1 with no gem in the chamber, DND_GEM_TRANSMUTE for three distinct gems of one tier (any colours), -2 for anything else,
+// gems without the Gemcrafting research included.
 int GetTransmuteGemRecipe(int pnum) {
 	auto d = GetTransmuteOrbData(pnum);
 	int i, k, box, tier = -1, gems = 0;
@@ -5158,7 +5161,7 @@ int GetTransmuteGemRecipe(int pnum) {
 		gems += IsTransmuteGemSlot(d.val[i]);
 	if(!gems)
 		return -1;
-	if(gems < MAX_TRANSMUTE_BOXES)
+	if(gems < MAX_TRANSMUTE_BOXES || CheckResearchStatus(RES_GEMCRAFTING) != RES_DONE)
 		return -2;
 
 	for(i = 0; i < MAX_TRANSMUTE_BOXES; ++i) {
@@ -5241,7 +5244,8 @@ int IsValidTransmuteRecipe(int pnum) {
 				orb_counts[DND_ORB_PRISMATIC] || orb_counts[DND_ORB_DESTRUCTION] || orb_counts[DND_ORB_VIOLENCE] ||
 				orb_counts[DND_ORB_FORTITUDE] || orb_counts[DND_ORB_TREMORS] || orb_counts[DND_ORB_TINKERER] ||
 				orb_counts[DND_ORB_HEXES] || orb_counts[DND_ORB_GROWTH] || orb_counts[DND_ORB_CRACKLING] ||
-				orb_counts[DND_ORB_BRUTE] || orb_counts[DND_ORB_JAGGED] || orb_counts[DND_ORB_SAVAGERY] || orb_counts[DND_ORB_PROSPERITY]
+				orb_counts[DND_ORB_BRUTE] || orb_counts[DND_ORB_JAGGED] || orb_counts[DND_ORB_SAVAGERY] || orb_counts[DND_ORB_PROSPERITY] ||
+				orb_counts[DND_ORB_ARCANA]
 			)
 		) 
 		{
@@ -5436,13 +5440,18 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int 
 		HudMessage(s:"\c[R5]", l:GetWeaponTag(extra1), s:":\c- \c[Y5]", l:"DND_MENU_SLOT", s:" - ", d:GetGameSlotOfWeapon(extra1); HUDMSG_PLAIN, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 - ITEMINFOBG_MAXMIDS, CR_WHITE, mx, my - 24.0, 0.0, 0.0);
 		
 		str modText = "";
+		wep_dps_view_T module& dps = GetWeaponDPSView(j, extra1);
+		if(dps.dps[0])
+			modText = StrParam(s:"\c[Y5]* \c[Q9]", d:dps.hit[0], s:"\c- ", l:"DND_MENU_WEPHIT", s:", \c[Q9]", d:dps.dps[0], s:"\c- ", l:"DND_MENU_WEPDPS", s:"\n");
+		if(dps.dps[1])
+			modText = StrParam(s:modText, s:"\c[Y5]* ", l:dps.alt_mode ? "DND_MENU_WEPALTMODE" : "DND_MENU_WEPALT", s:": \c[Q9]", d:dps.hit[1], s:"\c- ", l:"DND_MENU_WEPHIT", s:", \c[Q9]", d:dps.dps[1], s:"\c- ", l:"DND_MENU_WEPDPS", s:"\n");
 		temp = GetPlayerWeaponQuality(j, extra1);
 		// make sure quality text isn't on the weapon name
 		if(temp) {
 			if (temp == MAXWEPQUALITY) // Add the "MAX" indicator.
-				modText = StrParam(s:"\c[Y5]* ", l:"WEPMOD_TEXT1", s:": \c[Q9]+", d:temp, s:"% ", l:"DND_MENU_MAX", s:"\n");
+				modText = StrParam(s:modText, s:"\c[Y5]* ", l:"WEPMOD_TEXT1", s:": \c[Q9]+", d:temp, s:"% ", l:"DND_MENU_MAX", s:"\n");
 			else
-				modText = StrParam(s:"\c[Y5]* ", l:"WEPMOD_TEXT1", s:": \c[Q9]+", d:temp, s:"% \n");
+				modText = StrParam(s:modText, s:"\c[Y5]* ", l:"WEPMOD_TEXT1", s:": \c[Q9]+", d:temp, s:"% \n");
 		}
 		temp = GetCritChance(j, -1, extra1);
 		if(temp)
@@ -5895,8 +5904,12 @@ void HandleTransmutingInputs(int pnum, int boxid) {
 				else if(boxid >= MBOX_1 && boxid <= MBOX_3 && CheckInventory("DnD_SelectedInventoryBox")) {
 					// previtemindex holds (topboxid of item) - 1 in inventory; a gem goes in by its box, an orb by its type
 					temp = GlobalItemStorage.PlayerInventoryList[pnum][previtemindex].item_subtype;
-					if(GlobalItemStorage.PlayerInventoryList[pnum][previtemindex].item_type == DND_ITEM_GEM)
+					if(GlobalItemStorage.PlayerInventoryList[pnum][previtemindex].item_type == DND_ITEM_GEM) {
+						// gems take the Gemcrafting research; the material pane does not list them without it either
+						if(CheckResearchStatus(RES_GEMCRAFTING) != RES_DONE)
+							return;
 						temp = DND_TRANSMUTE_GEMSLOT | previtemindex;
+					}
 					transmute_data.val[boxid - 1] = temp;
 					SendOwnerScript("DnD Transmute Orb Sync", pnum, pnum, boxid - 1, temp);
 					LocalAmbientSound("RPG/MenuChoose", 127);

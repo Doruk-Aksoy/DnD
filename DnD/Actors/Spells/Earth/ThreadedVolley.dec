@@ -1,0 +1,114 @@
+// A rock of the volley: it hits what it strikes, then bursts for the DAMAGE2 row over the RADIUS row.
+Actor Spell_ThreadedVolley_Rock : DnD_SpellExplosive {
+	PROJECTILE
+	+BLOODLESSIMPACT
+	Speed 36
+	Radius 6
+	Height 10
+	DeathSound "ThreadedVolley/Hit"
+	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE))
+	States {
+		// ERSH carries Shrapnel's shard model.
+		SpawnState:
+			ERSH A 2 A_SpawnItemEx("Spell_Shrapnel_Dust", -12, 0, 0, frandom(-0.5, 0.5), frandom(-0.5, 0.5), frandom(0, 0.5), 0, SXF_CLIENTSIDE)
+		Loop
+		Death:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Spell Explosion Setup", SPELLVAL_DAMAGE2), "DoExplosionDamage")
+		Goto ContinueFromExplosion
+		ContinueFromExplosion:
+			TNT1 AAAA 0 A_SpawnItemEx("Spell_Shrapnel_Piece", 0, 0, 0, frandom(-3, 3), frandom(-3, 3), frandom(1, 6), frandom(0, 360), SXF_CLIENTSIDE)
+			TNT1 A 0 A_SetScale(0.6, 0.6)
+			HHPF ABCDEF 2
+		Goto FinishExplosion
+	}
+}
+
+// The energized rock: no hit of its own, a blast of the AMOUNT2 row at twice the RADIUS row, then ripping chunks.
+Actor Spell_ThreadedVolley_Boulder : DnD_SpellExplosive {
+	PROJECTILE
+	+BLOODLESSIMPACT
+	Speed 26
+	Radius 12
+	Height 20
+	DeathSound "ThreadedVolley/Burst"
+	var int user_dmgpct;
+	States {
+		// ERSL carries Rockslide's boulder model.
+		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Volley Setup")
+		Fly:
+			ERSL A 3
+			ERSL A 0 A_JumpIfCloser(128, "Fly")
+			ERSL A 0 A_SpawnItemEx("Spell_Rockslide_Dust", 0, 0, 0, frandom(-0.5, 0.5), frandom(-0.5, 0.5), frandom(0, 0.5), 0, SXF_CLIENTSIDE)
+		Loop
+		Death:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Spell Explosion Setup", SPELLVAL_AMOUNT2, 200), "DoExplosionDamage")
+		Goto ContinueFromExplosion
+		ContinueFromExplosion:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Volley Chunks")
+			TNT1 A 0 A_Quake(2, 10, 0, 384, "")
+			TNT1 AA 0 A_SpawnItemEx("StoneBitsSpawner", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE)
+			TNT1 AAAAAAAA 0 A_SpawnItemEx("Spell_Shrapnel_Piece", 0, 0, 4, frandom(-5, 5), frandom(-5, 5), frandom(3, 9), frandom(0, 360), SXF_CLIENTSIDE)
+			TNT1 AAAAA 0 A_SpawnItemEx("Spell_Rockslide_Dust", frandom(-20, 20), frandom(-20, 20), 4, frandom(-1, 1), frandom(-1, 1), frandom(0.3, 1), 0, SXF_CLIENTSIDE)
+			TNT1 A 12
+		Goto FinishExplosion
+	}
+}
+
+// A chunk of the energized rock, ripping through up to four enemies once each. 65536 | 32768 is ISSPELL | RIPSONCE.
+Actor Spell_ThreadedVolley_Chunk : DnD_Spell {
+	PROJECTILE
+	+RIPPER
+	+DONTBLAST
+	+BLOODLESSIMPACT
+	Stamina 98304
+	Speed 24
+	Radius 5
+	Height 6
+	Scale 0.6
+	DeathSound "Shrapnel/Hit"
+	Damage(ACS_NamedExecuteWithResult("DnD Volley Chunk Damage"))
+	States {
+		SpawnState:
+			HRCK FGH 2 A_CountDown
+		Loop
+		Death:
+			HRKE ABCDE 2
+		Stop
+	}
+}
+
+// An energized area's ground, a soil disc on flat2; "DnD Threaded Volley Area FX" sizes it and sets its life in tics.
+// At full alpha a Translucent model draws solid, so the rim's Add pass always lands on top until the fade.
+Actor Spell_ThreadedVolley_Ground : DnD_SpecialFX {
+	RenderStyle Translucent
+	Alpha 0
+	var int user_life;
+	States {
+		Spawn:
+			ETVA AAAAAAAA 1 A_FadeIn(0.125)
+		Live:
+			ETVA A 5 A_SetUserVar("user_life", user_life - 5)
+			ETVA A 0 A_JumpIf(user_life <= 0, "Fade")
+		Loop
+		Fade:
+			ETVA A 1 A_FadeOut(0.03)
+		Wait
+	}
+}
+
+// Its thin glowing rim, on a second flat2; the cracks' pulse is TVSoil.fp's, on the soil itself.
+Actor Spell_ThreadedVolley_GroundGlow : Spell_ThreadedVolley_Ground {
+	RenderStyle Add
+	States {
+		Spawn:
+			ETVA BBBBBBBB 1 Bright NoDelay A_FadeIn(0.125)
+		Live:
+			ETVA B 5 Bright A_SetUserVar("user_life", user_life - 5)
+			ETVA B 0 Bright A_JumpIf(user_life <= 0, "Fade")
+		Loop
+		Fade:
+			ETVA B 1 Bright A_FadeOut(0.03)
+		Wait
+	}
+}

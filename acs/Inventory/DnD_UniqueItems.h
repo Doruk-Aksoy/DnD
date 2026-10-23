@@ -112,7 +112,7 @@ void SetupUniqueItems() {
 	UNIQUE_DATA_ENTRY(100, 1, 2, DND_ITEM_CHARM, DND_CHARM_MEDIUM, 21, 3);
 	UNIQUE_ATTR_ENTRY(INV_ARMORPERCENT_INCREASE, 25, 50, 0, 0);
 	UNIQUE_ATTR_ENTRY(INV_DMGREDUCE_ELEM, 10.0, 25.0, 0, 0);
-	UNIQUE_ATTR_ENTRY(INV_EX_CHANCE_CASTELEMSPELLONATK, 2, 5, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_CHANCE_CASTELEMSPELLONATK, 2, 5, 1, 4);
 
 	START_UNIQUE_DATA(UITEM_IRONBARK);
 	UNIQUE_DATA_ENTRY(95, 1, 3, DND_ITEM_CHARM, DND_CHARM_LARGE, 15, 5);
@@ -277,6 +277,8 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[1].attrib_high = 1;
 	UniqueItemList[id].rolls[2].attrib_low = 2;
 	UniqueItemList[id].rolls[2].attrib_high = 5;
+	UniqueItemList[id].rolls[2].attrib_extra_low = 1;
+	UniqueItemList[id].rolls[2].attrib_extra_high = 4;
 	id = UITEM_STEELBARK;
 	UniqueItemList[id].weight = -1;
 	UniqueItemList[id].width = 1;

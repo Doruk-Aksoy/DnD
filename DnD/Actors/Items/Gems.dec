@@ -12,6 +12,7 @@ Actor GemSoundPlayer : CustomInventory {
 Actor GemDrop : InventoryBase {
 	Radius 20
 	Height 24
+	Scale 0.666
 	+FLOATBOB
 	States {
 		SpawnLoop:

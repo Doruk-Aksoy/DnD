@@ -68,6 +68,10 @@ enum {
     BTI_SPELL_WRATH_OVERLOAD,
     BTI_SPELL_WRATH_GROUNDED,
     BTI_SPELL_GALVANICSURGE_HASTE,
+    BTI_SPELL_AGONY,
+    BTI_SPELL_AGONY_POISONLESS,
+    BTI_SPELL_VENOMGYRE,
+    BTI_SPELL_ROCKGOLEM_PHYSLESS,
 
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
@@ -741,6 +745,41 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             btype = BUFF_SPELLHASTE;
             bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
             bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Agony: whole percent more damage over time, and at rank 10 a percent off a monster's poison on the holder.
+        case BTI_SPELL_AGONY:
+            btype = BUFF_DOTMORE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect * 1.0 / 100;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_AGONY_POISONLESS:
+            btype = BUFF_POISONTAKENLESS;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Venom Gyre caught: whole percent more poison damage.
+        case BTI_SPELL_VENOMGYRE:
+            btype = BUFF_POISONDAMAGEDEALT;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect * 1.0 / 100;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Summon: Rock Golem: whole percent less physical damage taken while one stands, refreshed on a loop like Ice Golem's.
+        case BTI_SPELL_ROCKGOLEM_PHYSLESS:
+            btype = BUFF_PHYSDAMAGETAKEN;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = -inc_effect * 1.0 / 100;
             bduration = new_duration;
             tic_duration = bduration;
         break;

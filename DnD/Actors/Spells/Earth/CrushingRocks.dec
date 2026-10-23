@@ -1,0 +1,23 @@
+// One of the two rocks of a crush, raised, slammed and sunk by "DnD Crushing Rocks FX" on each client. ERSL carries the boulder model.
+Actor Spell_CrushingRocks_Rock : DnD_SpecialFX {
+	States {
+		Spawn:
+			ERSL A -1
+		Stop
+	}
+}
+
+// Rock chips and dust thrown out where a slam lands.
+Actor Spell_CrushingRocks_Impact : DnD_SpecialFX {
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 AAAAA 0 A_SpawnItemEx("Spell_Shrapnel_Piece", 0, 0, 0, frandom(-4, 4), frandom(-4, 4), frandom(3, 8), frandom(0, 360), SXF_CLIENTSIDE)
+			TNT1 AA 0 A_SpawnItemEx("Spell_Rockslide_Dust", frandom(-8, 8), frandom(-8, 8), frandom(0, 16), frandom(-1, 1), frandom(-1, 1), frandom(0.5, 1.5), 0, SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("StoneBitsSpawner", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE)
+		Stop
+	}
+}
+
+// Client side, on a body the rocks hold squashed, so a second pair does not read the squashed size as its own.
+Actor DnD_CrushSquashFX : DnD_Info { }

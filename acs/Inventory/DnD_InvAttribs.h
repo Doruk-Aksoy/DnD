@@ -111,6 +111,7 @@ bool IsSpecialRollRuleAttribute(int id) {
 		case INV_IMP_CANROLL_EXPLOSIVE:
 		case INV_IMP_CANROLL_ENERGY:
 		case INV_IMP_CANROLL_ELEMENTAL:
+		case INV_IMP_CANROLL_SPELL:
 		return true;
 	}
 	return false;
@@ -203,6 +204,17 @@ enum {
 	INV_ATTR_TAG_MANA_ID,
 	INV_ATTR_TAG_SPELL_ID,
 };
+
+// Not any mod's tag: the id Orb of Arcana forces, meaning SPELL or MANA. Must stay below 31 to fit the pool key.
+#define INV_ATTR_TAG_ARCANA_ID (INV_ATTR_TAG_SPELL_ID + 1)
+
+// The mask a forced (or Order-banked) tag id stands for; 0 for no tag.
+int GetForcedTagMask(int id) {
+	if(id == INV_ATTR_TAG_ARCANA_ID)
+		return INV_ATTR_TAG_SPELL | INV_ATTR_TAG_MANA;
+	return id >= 0 ? 1 << id : 0;
+}
+
 // Which tag group a "can roll X" implicit opens, or -1 when the implicit is not a widening at all.
 // Returning the tag ID rather than the implicit means a new widening is one line here plus the
 // implicit itself -- nothing in the pool key or the pool builder has to know it exists.
@@ -225,10 +237,11 @@ int GetWideningTagId(int implicit_id) {
 
 // Mods whose attribute value is the STRONGEST single source rather than the sum of all of them.
 // Indexed densely rather than by attribute id: the storage below is a row of equipment slots per
-// entry, and a MAX_TOTAL_ATTRIBUTES tall table of those would be a lot of global for two mods.
+// entry, and a MAX_TOTAL_ATTRIBUTES tall table of those would be a lot of global for a few mods.
 enum {
 	DND_HIGHESTSRC_MOREHPBONUS,
 	DND_HIGHESTSRC_CRITFORDOT,
+	DND_HIGHESTSRC_SPELLPROCTIER,		// an extra, not a value: Elemental Bulwark's level band
 
 	DND_HIGHESTSRC_COUNT
 };
@@ -751,6 +764,7 @@ int MapAttributeToPExtra(int mod) {
 		case INV_EX_CHANCE_HEALMISSINGONPAIN:       return PEXTRA_EX_CHANCE_HEALMISSINGONPAIN;
 		case INV_EX_COUNTASHAVINGMAXCHARGEOF:       return PEXTRA_EX_COUNTASHAVINGMAXCHARGEOF;
 		case INV_EX_SECONDEXPBONUS:                 return PEXTRA_EX_SECONDEXPBONUS;
+		case INV_EX_CHANCE_CASTELEMSPELLONATK:      return PEXTRA_EX_CHANCE_CASTELEMSPELLONATK;
 	}
 	return DND_PEXTRA_UNMAPPED;
 }
@@ -766,6 +780,15 @@ void WritePlayerModExtra(int pnum, int mod, int val) {
 	int slot = MapAttributeToPExtra(mod);
 	if(slot != DND_PEXTRA_UNMAPPED)
 		PlayerModData[pnum].extras[slot] = val;
+}
+
+// An extra that takes its strongest source, as SetHighestModSource does for a value; val of 0 clears the slot.
+void SetHighestModExtraSource(int pnum, int mod, int row, int slot, int val) {
+	if(slot < 0 || slot >= DND_MAX_HIGHESTSRC_SLOTS)
+		return;
+	PlayerModData[pnum].highest_sources[row][slot] = val;
+	WritePlayerModExtra(pnum, mod, GetHighestModSource(pnum, row));
+	PushToPlayerAttributeExtraSync(pnum, mod);
 }
 
 // Id-keyed accessors. These exist for the paths that genuinely only have an id in hand -- item
@@ -1235,6 +1258,7 @@ bool IsAttributeExtraException(int attr) {
 
 		// flask implicits -- utility flask extra contains the duration, which increases with quality
 		case INV_FLASK_IMP_LIFE:
+		case INV_FLASK_IMP_MANA:
 		case INV_FLASK_IMP_CHARGECOUNT:
 
 		// these store the weapon in extra field!

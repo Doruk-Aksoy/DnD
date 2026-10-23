@@ -53,6 +53,7 @@ int GetOrbDropWeight(int id) {
 		300,		// DND_ORB_VOLTAIC
 		300,		// DND_ORB_VILE
 		300,		// DND_ORB_EMBERS
+		300,		// DND_ORB_ARCANA
 
 		// drops only from specific monster
 		0xFFFFFF,
@@ -197,6 +198,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 		case DND_ORB_VOLTAIC:
 		case DND_ORB_VILE:
 		case DND_ORB_EMBERS:
+		case DND_ORB_ARCANA:
 			if(IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra) && extratype != DND_ITEM_FLASK) {
 				// don't let this be used on a unique
 				res = GlobalItemStorage.PlayerInventoryList[pnum][extra].item_type < UNIQUE_BEGIN;
@@ -294,7 +296,7 @@ void HandleAddRandomMod(int pnum, int item_index, int add_lim, bool isWellRolled
 	// save
 	SaveUsedItemAttribs(pnum, item_index);
 
-	int special_roll = GetSpecialRollAttribute(pnum, item_index);
+	int special_roll = GetItemWidening(pnum, item_index);
 
 	for(int s = 0; s < aff && !finish; ++s) {
 		i = item.attrib_count;
@@ -458,7 +460,7 @@ int CheckOrderOrb(int attribute_id) {
 	// we store tag value +1
 	--stored_tag;
 	//printbold(s:"stored tag: ", d:stored_tag, s: " return: ", d:ItemModTable[attribute_id].tags & (1 << stored_tag));
-	return ItemModTable[attribute_id].tags & (1 << stored_tag);
+	return ItemModTable[attribute_id].tags & GetForcedTagMask(stored_tag);
 }
 
 // Is there anything on this item the banked order tag can actually land on? CheckOrderOrb returns
@@ -979,6 +981,8 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_BRUTE, affluence);
 			if(s & INV_ATTR_TAG_DAMAGE)
 				ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_SAVAGERY, affluence);
+			if(s & (INV_ATTR_TAG_SPELL | INV_ATTR_TAG_MANA))
+				ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_ARCANA, affluence);
 
 			FreeItem(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
 			GiveInventory("DnD_CleanCraftingRequest", 1);
@@ -1000,6 +1004,9 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 		break;
 		case DND_ORB_EMBERS:
 			HandleTaggedModGive(pnum, extra, INV_ATTR_TAG_FIRE_ID, affluence);
+		break;
+		case DND_ORB_ARCANA:
+			HandleTaggedModGive(pnum, extra, INV_ATTR_TAG_ARCANA_ID, affluence);
 		break;
 
 
@@ -1406,6 +1413,7 @@ void RevertLastOrbEffect() {
 		case DND_ORB_VOLTAIC:
 		case DND_ORB_VILE:
 		case DND_ORB_EMBERS:
+		case DND_ORB_ARCANA:
 		case DND_ORB_ELEVATION:
 		case DND_ORB_HOLLOW:
 			RestoreItemAttribsFromUsedOrb(pnum);
@@ -1669,6 +1677,12 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence, int overrideValue)
 			else
 				Log(s:"\cj", l:"DND_ORBUSETEXT34_ORD", s:"\cj!");
 		break;
+		case DND_ORB_ARCANA:
+			if(!CheckInventory("OrderStored"))
+				Log(s:"\cj", l:"DND_ORBUSETEXT38", s:"\cj!");
+			else
+				Log(s:"\cj", l:"DND_ORBUSETEXT38_ORD", s:"\cj!");
+		break;
 
 		case DND_ORB_HOLLOW:
 			if(val != 0x7FFFFFFF) {
@@ -1854,6 +1868,7 @@ void GetOrbAffectedIds(int orb_type, int pnum, int item_pos, int source) {
 		case DND_ORB_VOLTAIC:
 		case DND_ORB_VILE:
 		case DND_ORB_EMBERS:
+		case DND_ORB_ARCANA:
 			// if order isn't used, then we mark everything as its a direct reforge
 			if(!CheckInventory("OrderUsed")) {
 				hovered_orb_craft_result.count = GlobalItemStorage.PlayerInventoryList[pnum][item_pos].attrib_count;

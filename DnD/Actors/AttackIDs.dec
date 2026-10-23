@@ -24,6 +24,7 @@ const int SPELLVAL_DAMAGE = 0;
 const int SPELLVAL_DAMAGE2 = 1;
 const int SPELLVAL_RADIUS = 6;
 const int SPELLVAL_AMOUNT = 7;
+const int SPELLVAL_AMOUNT2 = 11;
 
 const int NONWEP_DMG_SHIFT = 25;
 

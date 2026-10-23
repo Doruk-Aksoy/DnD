@@ -2109,10 +2109,14 @@ int CheckIgniteChance(int pnum, int flat_bonus = 0, bool isSpell = false) {
 // damage-over-time formulas; chill and freeze deal none, so a cold roll buys reach, not damage.
 int ApplyAilmentMoreDamage(int pnum, int dmg) {
 	int more = PlayerModData[pnum].vals[PSTAT_EX_AILMENT_MORE_DOTDAMAGE];
-	if(!more)
-		return dmg;
+	if(more)
+		dmg = dmg * (100 + more) / 100;
 
-	return dmg * (100 + more) / 100;
+	// Agony's aura, a MORE of its own; 0 is an unwritten slot, not a x0.
+	more = pbuffs[pnum].buff_net_values[BUFF_DOTMORE].multiplicative;
+	if(more > 0 && more != 1.0)
+		dmg = FixedMul(dmg, more);
+	return dmg;
 }
 
 int GetIgniteProlifChance(int pnum) {

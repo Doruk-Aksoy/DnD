@@ -4,7 +4,7 @@
 // Hardcore Info
 #define DND_HARDCORE_INVALID 0
 #define DND_HARDCORE_VALID 1
-#define MAXFLAGS 31
+#define MAXFLAGS 32
 
 str GetDefaultSettingString(int id) {
 	static str FlagCheckList[MAXFLAGS] = {
@@ -38,7 +38,9 @@ str GetDefaultSettingString(int id) {
 		"sv_deadplayerscankeepinventory",
 		"Compat_ClientsSendFullButtonInfo",
 		"Survival",
-		"sv_smartaim"
+		"sv_smartaim",
+		// Blockade's rank 5 wall lets player shots through as a friendly actor; pets come along with it.
+		"sv_shootthroughallies"
 	};
 
 	return FlagCheckList[id];
@@ -94,7 +96,8 @@ int GetDefaultSettingAcceptedValue(int id) {
 		0,
 		1,
 		1,
-		2
+		2,
+		1
 	};
 
 	return FlagAcceptedValues[id];

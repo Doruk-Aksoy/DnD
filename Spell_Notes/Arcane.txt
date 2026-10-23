@@ -9,8 +9,8 @@ ARCANE MAGIC
 	Cooldown: 3 seconds.
 	Cast Time: 1.5 second.
 	Per Rank: +25 damage.
-	Rank 5: Arcane spell damage debuff becomes 30%.
-	Rank 10: Debuff applies to enemies in a 84 unit radius of the target.
+	Rank 5: Debuff applies to enemies in a 128 unit radius of the target.
+	Rank 10: Arcane spell damage debuff becomes 30%.
 	Unlocks: Power Globe, Spectral Blades.
 	Synergy - Arcane Barrage: +1 projectiles fired per rank of Arcane Barrage.
  

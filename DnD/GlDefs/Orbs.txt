@@ -385,6 +385,19 @@ object OrbofEmbers
 	frame ORB6 { light OrbOfEmberLight }
 }
 
+pulselight OrbOfArcanaLight
+{
+	color 0.35 0.45 1.0
+	size 40
+	secondarySize 42
+	interval 2.0
+}
+
+object OrbofArcana
+{
+	frame ORB4 { light OrbOfArcanaLight }
+}
+
 pulselight OrbOfVileLight
 {
 	color 0.0 1.0 0.0

@@ -496,8 +496,20 @@ Actor DnD_LightningExposed : DnD_Info { }
 Actor DnD_LightningExposedTimer : DnD_Info { }
 Actor DnD_Conductive : DnD_Info { }
 Actor DnD_ConductiveTimer : DnD_Info { }
+// Vulnerability: physical resistance the monster has lost, and the base bleed chance it grants attackers.
+Actor DnD_PhysicalExposed : DnD_Info { }
+Actor DnD_PhysicalExposedTimer : DnD_Info { }
+Actor DnD_Vulnerable : DnD_Info { }
+Actor DnD_VulnerableTimer : DnD_Info { }
+// Despair: poison resistance the monster has lost, and the base poison chance it grants attackers.
+Actor DnD_PoisonExposed : DnD_Info { }
+Actor DnD_PoisonExposedTimer : DnD_Info { }
+Actor DnD_Despaired : DnD_Info { }
+Actor DnD_DespairedTimer : DnD_Info { }
 // Overcharge: charges ready for the next weapon hit.
 Actor DnD_OverchargeReady : DnD_Info { }
+// Blink's Conduit: units its dash just covered, for a running Overcharge to take as charge.
+Actor DnD_OverchargeSurge : DnD_Info { }
 // Galvanic Surge: the last spell put on cooldown, plus one.
 Actor DnD_LastCooldownSpell : DnD_Info { }
 // Surgecast: armed while held; the ticket tells a recast's window from the one it replaced.

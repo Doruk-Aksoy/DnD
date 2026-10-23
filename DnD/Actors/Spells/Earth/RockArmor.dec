@@ -1,0 +1,40 @@
+// Points of damage the armor still absorbs, and a ticket that tells a recast's window from the one it replaced.
+Actor DnD_RockArmor : DnD_Info { }
+Actor DnD_RockArmorTicket : DnD_Info { }
+
+// A pebble shed off the wearer while the armor holds.
+Actor Spell_RockArmor_Pebble : Spell_Shrapnel_Piece {
+	Scale 0.35
+	States {
+		Spawn:
+			HRCK FGH 3
+		Loop
+		Death:
+			TNT1 A 0
+		Stop
+	}
+}
+
+// A chunk thrown off when the armor shatters.
+Actor Spell_RockArmor_Chunk : Spell_Shrapnel_Piece {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_ChangeVelocity(frandom(-4, 4), frandom(-4, 4), frandom(2, 6), CVF_REPLACE)
+			HRCK FGH 3
+		Goto Spawn + 1
+	}
+}
+
+// The two stone plates circling the wearer; RKAP carries RKPLATE.md3, which MODELDEF spins. "DnD Rock Armor FX" moves it.
+Actor Spell_RockArmor_Plates : DnD_SpecialFX {
+	RenderStyle Translucent
+	Alpha 0
+	States {
+		Spawn:
+			RKAP A -1
+		Stop
+	}
+}
+
+// Client side, on the wearer: which "DnD Rock Armor FX" draws its plates, 0 once they shattered.
+Actor DnD_RockArmorFX : DnD_Info { }

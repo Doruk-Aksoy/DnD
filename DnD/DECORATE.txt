@@ -10,6 +10,7 @@ const int PLAYERFX_RIGHTEOUSFIRE = 5;
 const int PLAYERFX_HATREDAURA = 6;
 const int PLAYERFX_SHIVERINGARMOR = 7;
 const int PLAYERFX_WRATHAURA = 8;
+const int PLAYERFX_AGONYAURA = 9;
 // Mirrors DND_SPELL_THRESH_* in acs/Spells/DnD_SpellDefs.h.
 const int SPELLTHRESH_LOW = 5;
 const int SPELLTHRESH_HIGH = 10;
@@ -116,10 +117,6 @@ const int SPELLTHRESH_HIGH = 10;
 // Spells
 #include "Actors/Spells/SpellBase.dec"
 #include "Actors/Spells/Rally.dec"
-#include "Actors/Spells/LightningSpear.dec"
-#include "Actors/Spells/MoltenBoulder.dec"
-#include "Actors/Spells/PoisonNova.dec"
-#include "Actors/Spells/IceShield.dec"
 #include "Actors/Spells/RaiseZombie.dec"
 
 // Fire Spells
@@ -189,8 +186,24 @@ const int SPELLTHRESH_HIGH = 10;
 #include "Actors/Spells/Earth/Shrapnel.dec"
 #include "Actors/Spells/Earth/NoxiousBlast.dec"
 #include "Actors/Spells/Earth/Rockslide.dec"
+#include "Actors/Spells/Earth/Blockade.dec"
 #include "Actors/Spells/Earth/ToxicTrap.dec"
 #include "Actors/Spells/Earth/BalefulInfusion.dec"
+#include "Actors/Spells/Earth/VinesOfTorment.dec"
+#include "Actors/Spells/Earth/VenomGyre.dec"
+#include "Actors/Spells/Earth/RockArmor.dec"
+#include "Actors/Spells/Earth/Agony.dec"
+#include "Actors/Spells/Earth/Upheaval.dec"
+#include "Actors/Spells/Earth/ThreadedVolley.dec"
+#include "Actors/Spells/Earth/Vulnerability.dec"
+#include "Actors/Spells/Earth/Despair.dec"
+#include "Actors/Spells/Earth/Rejuvenation.dec"
+#include "Actors/Spells/Earth/PoisonNova.dec"
+#include "Actors/Spells/Earth/CorrosiveBreath.dec"
+#include "Actors/Spells/Earth/CrushingRocks.dec"
+#include "Actors/Spells/Earth/RockGolem.dec"
+#include "Actors/Spells/Earth/Geyser.dec"
+#include "Actors/Spells/Earth/UnleashEarth.dec"
 
 #include "Actors/Spells/AllyLock.dec"
 

@@ -27,7 +27,13 @@ enum {
 	DND_FLASK_SILVER,
 	DND_FLASK_SULPHUR,
 	DND_FLASK_QUICKSILVER,
-	DND_FLASK_QUARTZ
+	DND_FLASK_QUARTZ,
+
+	DND_FLASK_MANA_SMALL,
+	DND_FLASK_MANA_MEDIUM,
+	DND_FLASK_MANA_LARGE,
+	DND_FLASK_MANA_GRAND,
+	DND_FLASK_MANA_EXQUISITE
 };
 
 #define FLASK_LIFE_BEGIN DND_FLASK_LIFE_SMALL
@@ -36,8 +42,11 @@ enum {
 #define FLASK_UTILITY_BEGIN DND_FLASK_GRANITE
 #define FLASK_UTILITY_END DND_FLASK_QUARTZ
 
+#define FLASK_MANA_BEGIN DND_FLASK_MANA_SMALL
+#define FLASK_MANA_END DND_FLASK_MANA_EXQUISITE
+
 #define FLASKS_BEGIN DND_FLASK_LIFE_SMALL
-#define FLASKS_END DND_FLASK_QUARTZ
+#define FLASKS_END DND_FLASK_MANA_EXQUISITE
 
 struct flaskData_T {
 	int flask_type;
@@ -96,10 +105,46 @@ bool IsUtilityFlask(int subtype) {
 	return subtype >= FLASK_UTILITY_BEGIN && subtype <= FLASK_UTILITY_END;
 }
 
+bool IsManaFlask(int subtype) {
+	return subtype >= FLASK_MANA_BEGIN && subtype <= FLASK_MANA_END;
+}
+
+// life and mana flasks: recovered over time, and they share the recovery mod pool
+bool IsRecoveryFlask(int subtype) {
+	return IsLifeFlask(subtype) || IsManaFlask(subtype);
+}
+
 // Which of the two flask mod pools this subtype draws from. Derive it wherever mods are picked
 // rather than trusting the stored field -- flasks saved before flasks had a base carry a stale one.
 int GetFlaskItemBase(int subtype) {
-	return IsLifeFlask(subtype) ? DND_ITEMBASE_FLASK_LIFE : DND_ITEMBASE_FLASK_UTILITY;
+	return IsRecoveryFlask(subtype) ? DND_ITEMBASE_FLASK_LIFE : DND_ITEMBASE_FLASK_UTILITY;
+}
+
+// life flasks fill the heal pool, mana flasks the unreserved mana pool
+int GetFlaskPoolCur(int pnum, int subtype) {
+	if(IsManaFlask(subtype))
+		return GetPlayerMana(pnum);
+	return GetHealPoolCur(pnum);
+}
+
+int GetFlaskPoolCap(int pnum, int subtype) {
+	if(IsManaFlask(subtype))
+		return GetUnreservedManaCap(pnum);
+	return GetHealPoolCap(pnum);
+}
+
+void GiveFlaskPool(int pnum, int subtype, int amt) {
+	if(IsManaFlask(subtype))
+		GiveMana(pnum, amt);
+	else
+		GiveHealPool(pnum, amt);
+}
+
+// the "on low life" flask mods read low mana on a mana flask
+bool IsFlaskPoolLow(int pnum, int subtype) {
+	if(IsManaFlask(subtype))
+		return IsLowMana(pnum);
+	return IsLowLife();
 }
 
 int GetFlaskChargeUseEffects(int pnum, inventory_T? flask) {
@@ -156,7 +201,7 @@ int GetFlaskData(int pnum, inventory_T? flask, int flask_type, int data_type) {
 			res = flask.implicit[0].attrib_extra;
 		break;
 		case FLASK_DATA_GIVEAMOUNT:
-			if(IsLifeFlask(flask_type)) {
+			if(IsRecoveryFlask(flask_type)) {
 				res = flask.implicit[0].attrib_val;
 			
 				if((temp = GetFlaskRecoveryEffects(pnum, flask)))
@@ -296,19 +341,30 @@ void SetupFlaskDropWeights() {
 	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_SULPHUR, 12);
 	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_QUICKSILVER, 16);
 	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_QUARTZ, 20);
+
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_MANA_SMALL, 100);
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_MANA_MEDIUM, 70);
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_MANA_LARGE, 40);
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_MANA_GRAND, 32);
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_MANA_EXQUISITE, 12);
 }
 
 int GetFlaskLevelThreshold(int type) {
 	switch(type) {
 		case DND_FLASK_LIFE_SMALL:
+		case DND_FLASK_MANA_SMALL:
 		return 0;
 		case DND_FLASK_LIFE_MEDIUM:
+		case DND_FLASK_MANA_MEDIUM:
 		return 15;
 		case DND_FLASK_LIFE_LARGE:
+		case DND_FLASK_MANA_LARGE:
 		return 28;
 		case DND_FLASK_LIFE_GRAND:
+		case DND_FLASK_MANA_GRAND:
 		return 41;
 		case DND_FLASK_LIFE_EXQUISITE:
+		case DND_FLASK_MANA_EXQUISITE:
 		return 55;
 
 		case DND_FLASK_GRANITE:
@@ -384,7 +440,7 @@ int ConstructFlaskDataOnField(int item_pos, int item_tier, int pnum, int flask =
 }
 
 bool IsAttributeFlaskException(int flask_type, int id) {
-	if(IsLifeFlask(flask_type)) {
+	if(IsRecoveryFlask(flask_type)) {
 		switch(id) {
 			case INV_FLASK_INCEFFECT:
 			case INV_FLASK_INCDURATION:
@@ -455,6 +511,8 @@ void RollFlaskInfoWithMods(int item_pos, int item_tier, int pnum, int flask_type
 str GetFlaskDropClass(int type) {
     if(IsLifeFlask(type))
 	    return StrParam(s:"FlaskDrop_Life_", d:type);
+    if(IsManaFlask(type))
+	    return StrParam(s:"FlaskDrop_Mana_", d:type - FLASK_MANA_BEGIN);
     return StrParam(s:"FlaskDrop_Utility_", d:type - FLASK_UTILITY_BEGIN + 1);
 }
 
@@ -584,11 +642,12 @@ Script "DnD Flask Use" (int flask_id) NET {
 	}
 
 	auto flask = GetPlayerFlask(pnum, flask_id);
+	int flask_type = FlaskData[pnum][flask_id].flask_type;
 
 	int cap, total_time;
-	// if its life flask only allow use when not max health already
+	// recovery flasks only allow use when their pool isn't full already
 	str flask_tics_item = StrParam(s:"Flask", d:flask_id + 1, s:"_TicCounter");
-    if(IsLifeFlask(FlaskData[pnum][flask_id].flask_type) && GetHealPoolCur(pnum) < (cap = GetHealPoolCap(pnum))) {
+    if(IsRecoveryFlask(flask_type) && GetFlaskPoolCur(pnum, flask_type) < (cap = GetFlaskPoolCap(pnum, flask_type))) {
 		// play the drink sound
 		PlaySound(0, "Items/FlaskUse", CHAN_ITEM);
 
@@ -608,13 +667,13 @@ Script "DnD Flask Use" (int flask_id) NET {
 		if(FlaskData[pnum][flask_id].quality)
 			toGive_total = toGive_total * (100 + FlaskData[pnum][flask_id].quality - rem) / 100;
 
-		if((rem = GetFlaskAttributeVal(pnum, flask, INV_FLASK_MORERECOVERYONLOWLIFE)) && IsLowLife())
+		if((rem = GetFlaskAttributeVal(pnum, flask, INV_FLASK_MORERECOVERYONLOWLIFE)) && IsFlaskPoolLow(pnum, flask_type))
 			toGive_total = toGive_total * (100 + rem) / 100;
 
 		// instant recovery check
-		if((GetFlaskAttributeVal(pnum, flask, INV_FLASK_INSTANTONLOWLIFE) && IsLowLife()) || GetFlaskAttributeVal(pnum, flask, INV_FLASK_INSTANTRECOVERY))
+		if((GetFlaskAttributeVal(pnum, flask, INV_FLASK_INSTANTONLOWLIFE) && IsFlaskPoolLow(pnum, flask_type)) || GetFlaskAttributeVal(pnum, flask, INV_FLASK_INSTANTRECOVERY))
 			total_time = 1;
-		else if((rem = GetFlaskAttributeVal(pnum, flask, INV_FLASK_INCRECOVERYRATE) + PlayerModData[pnum].vals[PSTAT_FLASKLIFERECOVERYRATE]))
+		else if((rem = GetFlaskAttributeVal(pnum, flask, INV_FLASK_INCRECOVERYRATE) + (IsLifeFlask(flask_type) ? PlayerModData[pnum].vals[PSTAT_FLASKLIFERECOVERYRATE] : 0)))
 			total_time = total_time * 100 / (100 + rem);
 
 		// quality increases amount recovered
@@ -623,7 +682,8 @@ Script "DnD Flask Use" (int flask_id) NET {
 
 		// on the total rather than the per step amount: the loop divides and carries a remainder,
 		// so cutting the total keeps the drip even instead of rounding the cut away each step.
-		toGive_total = ApplyDungeonReduction(DUN_ATTR_REDUCEDHEALING, toGive_total);
+		if(IsLifeFlask(flask_type))
+			toGive_total = ApplyDungeonReduction(DUN_ATTR_REDUCEDHEALING, toGive_total);
 
 		int toGive = toGive_total / total_time;
 		int currGiven = 0;
@@ -638,7 +698,7 @@ Script "DnD Flask Use" (int flask_id) NET {
 
 		int error = 0;
 
-		while(!CheckFlaskScriptConditions(pnum) && GetHealPoolCur(pnum) < (cap = GetHealPoolCap(pnum)) && FlaskData[pnum][flask_id].curr_tics < total_time) {
+		while(!CheckFlaskScriptConditions(pnum) && GetFlaskPoolCur(pnum, flask_type) < (cap = GetFlaskPoolCap(pnum, flask_type)) && FlaskData[pnum][flask_id].curr_tics < total_time) {
 			int tmp_give = toGive;
 
 			// balance out if we should give toGive or toGive + 1 per step
@@ -651,13 +711,13 @@ Script "DnD Flask Use" (int flask_id) NET {
 			// max amount to give has been depleted
 			currGiven += tmp_give;
 
-			if(GetHealPoolCur(pnum) + tmp_give > cap) {
+			if(GetFlaskPoolCur(pnum, flask_type) + tmp_give > cap) {
 				// limit reached, stop
-				GiveHealPool(pnum, cap - GetHealPoolCur(pnum));
+				GiveFlaskPool(pnum, flask_type, cap - GetFlaskPoolCur(pnum, flask_type));
 				break;
 			}
 			else
-				GiveHealPool(pnum, tmp_give);
+				GiveFlaskPool(pnum, flask_type, tmp_give);
 
 			if(currGiven >= toGive_total)
 				break;
@@ -676,7 +736,7 @@ Script "DnD Flask Use" (int flask_id) NET {
 
 		//printbold(s:"Given ", d:currGiven, s: " out of ", d:toGive_total);
 	}
-	else if(IsUtilityFlask(FlaskData[pnum][flask_id].flask_type) && !CheckInventory(flask_tics_item)) {
+	else if(IsUtilityFlask(flask_type) && !CheckInventory(flask_tics_item)) {
 		// utility flask isn't active, it can be used
 		// play the drink sound
 		PlaySound(0, "Items/FlaskUse", CHAN_ITEM);

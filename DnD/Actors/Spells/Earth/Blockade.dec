@@ -1,0 +1,59 @@
+// One piece of a player's wall. Pieces pass each other by species; "DnD Event Handler" moves monster hits to the shared pool.
+Actor Spell_Blockade_Segment {
+	Radius 10
+	Height 80
+	Health 1000000
+	Mass 0x7FFFFFFF
+	Species "Blockade"
+	+SOLID
+	+SHOOTABLE
+	+THRUSPECIES
+	+USEDAMAGEEVENTSCRIPT
+	+NOBLOOD
+	+NORADIUSDMG
+	+NODAMAGETHRUST
+	+NOTAUTOAIMED
+	+NOTARGET
+	+DONTMORPH
+	+NOICEDEATH
+	+DONTSPLASH
+	+NOTONAUTOMAP
+	States {
+		Spawn:
+			TNT1 A -1
+		Stop
+	}
+}
+
+// The middle of a wall, facing the caster's way. While it stands the wall does, which is what clients watch.
+Actor Spell_Blockade_Anchor {
+	Height 48
+	+NOINTERACTION
+	+NOTONAUTOMAP
+	States {
+		Spawn:
+			TNT1 A -1
+		Stop
+	}
+}
+
+// Client side, on the anchor: which "DnD Blockade FX" drew its rocks.
+Actor DnD_BlockadeFX : DnD_Info { }
+
+// The wall's slabs; BKRK carries BLKWALL1-4.md3, four cuts of one plate strip. "DnD Blockade FX" lays them in order.
+Actor Spell_Blockade_Slab1 : DnD_SpecialFX {
+	States {
+		Spawn:
+			BKRK A -1
+		Stop
+		First:
+			BKRK B -1
+		Stop
+		Last:
+			BKRK C -1
+		Stop
+	}
+}
+Actor Spell_Blockade_Slab2 : Spell_Blockade_Slab1 { }
+Actor Spell_Blockade_Slab3 : Spell_Blockade_Slab1 { }
+Actor Spell_Blockade_Slab4 : Spell_Blockade_Slab1 { }

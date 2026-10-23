@@ -50,3 +50,19 @@ Actor Spell_AllyLockFX {
         Stop
     }
 }
+
+// The same box over a locked pet, on the caster's screen alone; "DnD Spell Lock Pet FX" moves it and takes it away.
+Actor Spell_AllyLockPetFX {
+    Renderstyle Add
+    Alpha 0.9
+    Scale 0.8
+    +CLIENTSIDEONLY
+    +NOINTERACTION
+    +NOTONAUTOMAP
+    +FORCEXYBILLBOARD
+    States {
+        Spawn:
+            CMRK D -1 Bright
+        Stop
+    }
+}

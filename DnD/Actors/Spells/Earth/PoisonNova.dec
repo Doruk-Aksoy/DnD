@@ -1,0 +1,48 @@
+// Poison Nova: a lumpy ball of burning sludge (MODELDEF Spell_PoisonNova, PoisonNova.fp) shedding embers as it flies.
+// The ring shares one ripper id, so each enemy takes one hit and one poison a cast. 98336 = ISSPELL | RIPSONCE | NOPOISONSTACK.
+Actor Spell_PoisonNova : DnD_Spell {
+	PROJECTILE
+	+RIPPER
+	+DONTBLAST
+	+DONTREFLECT
+	+BLOODLESSIMPACT
+	Stamina 98336
+	Speed 12
+	Radius 6
+	Height 12
+	// PoisonNova.fp writes its own alpha, so the actor's Alpha only lowers the alpha test for the flames' soft edges.
+	RenderStyle Translucent
+	Alpha 0.1
+	DeathSound "imp/shotx"
+	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE))
+	States {
+		SpawnState:
+			// One of the shader's eight shapes, which it reads back from the scale; no embers until it is clear of the caster.
+			S001 A 0 Bright A_SetScale(1.0 + random(0, 7) * 0.004)
+			S001 AABBAA 1 Bright A_CountDown
+		Fly:
+			S001 B 1 Bright A_SpawnItemEx("Spell_PoisonNova_Ember", frandom(-10, -4), frandom(-5, 5), frandom(1, 11), frandom(-1.0, 0.0), frandom(-0.4, 0.4), frandom(-0.3, 0.4), 0, SXF_CLIENTSIDE)
+			S001 B 0 Bright A_CountDown
+			S001 A 1 Bright A_CountDown
+		Loop
+		Death:
+			// Back to additive and opaque for the S001 burst sprites, or they would draw at the model's 0.1.
+			S001 C 0 Bright A_SetTranslucent(1.0, 1)
+			S001 CDE 3 Bright
+		Stop
+	}
+}
+
+// An ember shed behind the ball, left behind as it flies on: the acid spark burning out (Venom's ACFX), recoloured by
+// brightness onto the bolt's flame ramp, acid green in the middle and sulfur at the core.
+Actor Spell_PoisonNova_Ember : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 1.0
+	Translation "0:255=%[0.05,0.2,0.0]:[1.0,2.0,0.4]"
+	States {
+		Spawn:
+			ACFX A 0 Bright NoDelay A_SetScale(frandom(0.6, 1.0))
+			ACFX ABCDE 3 Bright
+		Stop
+	}
+}

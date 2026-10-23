@@ -18,7 +18,8 @@ Actor Spell_NoxiousBlast_Burst : DnD_SpecialFX {
 	States {
 		Spawn:
 			D5FX G 0 Bright NoDelay A_PlaySound("NoxiousBlast/Burst", CHAN_BODY)
-			D5FX GHIJKL 3 Bright
+			TNT1 A 0 A_PlaySound("MagicExplosion", CHAN_VOICE)
+			D5FX GGGHHHIIIJJJKKKLLL 1 Bright A_FadeOut(0.033)
 			D5FX L 1 Bright A_FadeOut(0.1)
 		Wait
 	}
@@ -31,8 +32,18 @@ Actor Spell_NoxiousBlast_Cloud : DnD_SpecialFX {
 	Scale 0.8
 	States {
 		Spawn:
-			D5FX HIJKL 4 Bright
+			D5FX HHHHIIIIJJJJKKKKLLLL 1 Bright A_FadeOut(0.015)
 			D5FX L 1 Bright A_FadeOut(0.06)
 		Wait
+	}
+}
+
+// The poison ring closing on the spot until the burst; NXRG carries flat2 with NoxiousRing.fp. "DnD Noxious Blast FX" shrinks it.
+Actor Spell_NoxiousBlast_Ring : DnD_SpecialFX {
+	RenderStyle Add
+	States {
+		Spawn:
+			NXRG A -1 Bright
+		Stop
 	}
 }

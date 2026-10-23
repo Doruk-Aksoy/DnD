@@ -3,7 +3,6 @@
 
 #define DND_SKILL_MINLEVEL 1
 #define DND_SKILL_MAXLEVEL 10
-#define MAX_SKILL_LEVELS 10
 
 #define DND_PET_MOVEDIST 512.0
 
@@ -23,18 +22,6 @@
 #define RALLY_BASEDAMAGE 35
 #define RALLY_DAMAGEPERLVL 4
 
-#define ICESHIELD_COUNT 8
-#define ICESHIELD_BASE_DURATION 5 * TICRATE
-#define ICESHIELD_DURATION_PER_INT 5
-#define ICESHIELD_HEALTHBASE 75
-#define ICESHIELD_HEALTH_PER_LEVEL 10
-#define ICESHIELD_HEALTH_PER_INT 5
-
-#define MOLTENBOULDER_BASESPEED 20
-
-#define LIGHTNINGSPEAR_BASE_RIP 3
-#define LIGHTNINGSPEAR_INT_FACTOR 20
-
 enum {
 	SKILLINFO_ZOMBIEPETTIMER
 };
@@ -51,81 +38,24 @@ enum {
 	DND_SKILLTREE_COMBAT
 };
 
+// Rally, cast by the Dead King's Banner through "DnD Cast Spell"; must match the enum in Actors/Spells/Common.dec.
 enum {
-	DND_SPELL_RALLY,
-	DND_SPELL_POISONNOVA,
-	DND_SPELL_ICESHIELD,
-	DND_SPELL_MOLTENBOULDER,
-	DND_SPELL_LIGHTNINGSPEAR,
+	DND_SPELL_RALLY
 };
-#define MAX_SPELLS (DND_SPELL_LIGHTNINGSPEAR + 1)
+#define MAX_SPELLS (DND_SPELL_RALLY + 1)
 
-enum {
-	DND_SPELLDAMAGE_POISONNOVA,
-	DND_SPELLDAMAGE_POISONNOVADOT,
-	
-	DND_SPELLDAMAGE_MOLTENBOULDER,
-	DND_SPELLDAMAGE_MOLTENBOULDERBUMP,
-	
-	DND_SPELLDAMAGE_LIGHTNINGSPEAR,
-	DND_SPELLDAMAGE_LIGHTNINGSPEARBOUNCE,
-};
-#define MAX_DAMAGING_SPELLS DND_SPELLDAMAGE_LIGHTNINGSPEARBOUNCE + 1
-
-enum {
-	DND_SPELLFLAG_ELEMENTAL = 1
-};
-
+// A spell tree node's prerequisites.
 #define DND_MAX_SKILL_REQ 3
-
-typedef struct {
-	int cost;
-	int cooldown; // fixed_t
-	int cast_time; // fixed_t
-	int requirement_id[DND_MAX_SKILL_REQ];
-	int data_ref; // reference to base values of spell info
-	int flags;
-} skill_def_T;
-
-#define MAX_SKILLS_IN_TREE 30
-typedef struct {
-	skill_def_T skills[MAX_SKILLS_IN_TREE];
-	int name_index;
-} skill_tree_T;
-
-// definition of the skill trees
-// define your skills in the brackets
-/*skill_tree_T SkillTrees[MAX_SKILL_TREES] = {
-};*/
-
-#define SPELL_COOLDOWN 0
-#define SPELL_FLAGS 1
-#define SPELL_DAMAGE_INDEX 2
-// form this into a function later
-int SpellData[MAX_SPELLS][4] = {
-	{ RALLY_COOLDOWN, 		0 },
-	{ 0, 					DND_SPELLFLAG_ELEMENTAL },
-	{ 0, 					DND_SPELLFLAG_ELEMENTAL },
-	{ 0, 					DND_SPELLFLAG_ELEMENTAL },
-	{ 0, 					DND_SPELLFLAG_ELEMENTAL }
-};
 
 #define SPELL_NAME 0
 #define SPELL_COOLDOWNITEM 1
 #define SPELL_COOLDOWNCOUNTER 2
-// put these in a global array later
 str SpellInfo[MAX_SPELLS][3] = {
-	{ "Rally", 					"RallyCooldown", 					"RallyCooldownCounter" },
-	{ "PoisonNova", 			"PoisonNovaCooldown", 				"PoisonNovaCooldownCounter" },
-	{ "IceShield",				"IceShieldCooldown",				"IceShieldCooldownCounter" },
-	{ "MoltenBoulder",			"MoltenBoulderCooldown",			"MoltenBoulderCooldownCounter" },
-	{ "LightningSpear",			"LightningSpearCooldown",			"LightningSpearCooldownCounter" }
+	{ "Rally", "RallyCooldown", "RallyCooldownCounter" }
 };
 
 #define MAX_SUMMON_ZOMBIECOUNT 5
 #define SKILL_ZOMBIE_DURATION 8
-// Replaced by DND_PET_HP_PER_INT below -- kept only so nothing referring to it breaks.
-#define SKILL_ZOMBIE_HP_PER_INT 2
 
 // Minion health per point of intellect, in HUNDREDTHS OF A PERCENT of the level scaled total --
 // so 40 is 0.4% a point, the same figure DND_SPELL_INT_ATTUNE gives spell damage. One rate reads
@@ -141,8 +71,6 @@ str SpellInfo[MAX_SPELLS][3] = {
 // spell's 200 base would have buried the row.
 #define DND_SPELL_BARRIERHP_PER_INT 40
 #define ZOMBIE_INT_TIMER_FACTOR 10
-// Replaced by DND_PET_DMG_PER_INT below -- kept only so nothing referring to it breaks.
-#define ZOMBIE_INT_DAMAGE_FACTOR 0.125
 
 // Minion damage per point of intellect, shared by every pet. This is ADDED to a multiplier that
 // starts at 1.0, so 0.04 is 4% of base damage a point -- x5 at 100 intellect, x9 at 200.
@@ -154,11 +82,5 @@ str SpellInfo[MAX_SPELLS][3] = {
 // the ONLY meaningful input, with level contributing almost nothing beside it.
 #define DND_PET_DMG_PER_INT 0.04
 #define DND_MAX_PETPAINSHARE 9
-
-int GetSpellPoisonFactor(int spell_id) {
-	if(spell_id == DND_SPELL_POISONNOVA)
-		return 20 * random(5, 8);
-	return 0;
-}
 
 #endif

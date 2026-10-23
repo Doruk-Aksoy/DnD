@@ -1268,7 +1268,6 @@ ACTOR "Hellforge Cannon" : DnDWeapon {
 			HFCA DE 2 Bright
 			HFCA F 1 Bright
 			HFCA D 0 A_GunFlash
-			TNT1 A 0 A_TakeInventory("IronBalls", 1)
 			TNT1 A 0 Radius_Quake(4, 3, 0, 1, 0)
 			HFCA G 2 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_HELLFORGECANNON, DND_ATK_PRIMARY, DND_AMMOSLOT_TEMPORARY | (DND_TEMPAMMO_IRONBALLS << 16), 0)
 			HFCA HI 1 BRIGHT
@@ -1285,9 +1284,8 @@ ACTOR "Hellforge Cannon" : DnDWeapon {
 			HFCA DE 2 Bright
 			HFCA F 1 Bright
 			HFCA D 0 A_GunFlash
-			TNT1 A 0 A_TakeInventory("IronBalls", 3)
 			TNT1 A 0 Radius_Quake(4, 12, 0, 1, 0)
-			HFCA G 1 Bright Offset(1, 33) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_HELLFORGECANNON, DND_ATK_PRIMARY, DND_AMMOSLOT_TEMPORARY | (DND_TEMPAMMO_IRONBALLS << 16), 0)
+			HFCA G 1 Bright Offset(1, 33) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_HELLFORGECANNON, DND_ATK_SECONDARY, DND_AMMOSLOT_TEMPORARY | (DND_TEMPAMMO_IRONBALLS << 16), 0)
 			HFCA G 1 Bright Offset(2, 32)
 			HFCA G 1 Bright Offset(0, 33)
 			HFCA G 1 Bright Offset(-1, 33)

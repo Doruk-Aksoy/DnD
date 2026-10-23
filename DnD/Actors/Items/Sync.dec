@@ -43,7 +43,7 @@ Actor P_CastProgress : Ammo {
 	+IGNORESKILL
 }
 
-// Which spell it is, for the label over the bar. Spell id + 1, zero for none.
+// Which spell it is, for the label over the bar. Spell id + 1, zero for none; 0x8000 when it counts a channel's window down.
 Actor P_CastSpell : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF
@@ -102,6 +102,15 @@ Actor P_SurgecastTime : Ammo {
 
 // Baleful Infusion's seconds left while armed, for the hotbar.
 Actor P_BalefulTime : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+// Rock Armor's points left, for the hotbar.
+Actor P_RockArmor : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF
 	ammo.backpackamount 0

@@ -95,6 +95,3 @@ ACTOR Spell_IceGolem : PetMonsterBase {
 		Stop
 	}
 }
-
-// Held by the CASTER while the rank 5 aura ticker runs, so a recast cannot start a second one.
-Actor Spell_IceGolemAura : DnD_Boolean { }

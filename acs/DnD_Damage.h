@@ -1112,14 +1112,14 @@ int FactorDOT(int pnum, int dmg, int percent_increase = 0) {
 
 // set pointers appropriately beforehand!
 // uses DND_DAMAGEFLAG for flags
-int RetrieveWeaponDamage(int pnum, int wepid, int dmgid, int damage_category, int flags, int isSpecial, bool allow_components = false) {
+int RetrieveWeaponDamage(int pnum, int wepid, int dmgid, int damage_category, int flags, int isSpecial, bool allow_components = false, int roll = DND_WDMG_ROLL_RANDOM) {
 	// do not lose the weaponid on special ammo -- normally its DMG_ID & (wepid << 16) but special ammo just have the id of the special ammo instead of dmg_id
 	// add +1 because flechette is id 0
 	// correction code moved within main code block
 	
 	//printbold(s:"retrieved acc ", d:GetActorProperty(0, APROP_ACCURACY));
 
-	int res = ScaleCachedDamage(wepid, pnum, dmgid, damage_category, flags, isSpecial, allow_components);
+	int res = ScaleCachedDamage(wepid, pnum, dmgid, damage_category, flags, isSpecial, allow_components, roll);
 	
 	// special weapons checks -- these are added on top of everything else as the last thing, before crits
 	// they are also dynamic and cant be cached...
@@ -1220,14 +1220,15 @@ int GetEnergyBladeHit(int pnum, int slot, int dmgid, int wepid) {
 	return factor > 0 ? MulPercent_Round(blade, factor, 100 * DND_COMPFACTOR_SCALE) : 0;
 }
 
-int StageDamageComponents(int pnum, int slot, int dmgid, int wepid, int damage_category, int base) {
+int StageDamageComponents(int pnum, int slot, int dmgid, int wepid, int damage_category, int base, bool preview = false) {
 	ResetComponentStage(pnum);
 
 	int mask = GetCachedComponentMask(pnum, slot, dmgid);
 	int blade = GetEnergyBladeHit(pnum, slot, dmgid, wepid);
 	if(blade)
 		mask |= 1 << DND_DAMAGECATEGORY_LIGHTNING;
-	int baleful = GetBalefulHit(pnum, slot, dmgid, wepid, damage_category, base);
+	// A preview prices the weapon's own hits, so Baleful's one enchanted hit is neither shown nor spent.
+	int baleful = preview ? 0 : GetBalefulHit(pnum, slot, dmgid, wepid, damage_category, base);
 	if(baleful) {
 		mask |= 1 << DND_DAMAGECATEGORY_POISON;
 		SpendBaleful(pnum);
@@ -1299,7 +1300,7 @@ int StageDamageComponents(int pnum, int slot, int dmgid, int wepid, int damage_c
 // allow_components is opt-in because only a caller that goes on to call DealDamageComponents may take
 // it: the return value then covers the converted and added portions too, and a caller that never
 // emits them would deal the lot as the weapon's own type, on the wrong resists.
-int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int flags, int isSpecial, bool allow_components = false) {
+int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int flags, int isSpecial, bool allow_components = false, int roll = DND_WDMG_ROLL_RANDOM) {
 	// we don't cache special ammo damage
 	int dmg = 0;
 	// One lookup per shot. The cache is keyed by a per-player slot rather than by weapon id, so
@@ -1335,8 +1336,14 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 		
 	// check if we have a random range cached -- special ammo types dont use this
 	int range = GetCachedPlayerRandomRange(pnum, slot, dmgid);
-	if(range > 1 && !isSpecial)
-		dmg += temp * random(range & 0xFFFF, range >> 16);
+	if(range > 1 && !isSpecial) {
+		if(roll == DND_WDMG_ROLL_MIN)
+			dmg += temp * (range & 0xFFFF);
+		else if(roll == DND_WDMG_ROLL_MAX)
+			dmg += temp * (range >> 16);
+		else
+			dmg += temp * random(range & 0xFFFF, range >> 16);
+	}
 	else // no rng, so just set it to temp
 		dmg = temp;
 
@@ -1543,7 +1550,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 		if(flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME)
 			ResetComponentStage(pnum);
 		else {
-			extra = StageDamageComponents(pnum, slot, dmgid, wepid, damage_category, dmg);
+			extra = StageDamageComponents(pnum, slot, dmgid, wepid, damage_category, dmg, roll != DND_WDMG_ROLL_RANDOM);
 
 			// whatever conversion moved out is no longer the weapon's own type to deal. Taken off the
 			// base rather than the result so each half meets its own category's percent layers.
@@ -1593,7 +1600,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 	// The emit point splits the FINAL number back into these shares, so the primary has to be part of
 	// the total it divides by -- and it has to be the primary as computed HERE, tracer bonus and all,
 	// or the ratio would quietly drift from what each piece actually earned.
-	if(allow_components)
+	if(allow_components && roll == DND_WDMG_ROLL_RANDOM)
 		CommitComponentStage(pnum, slot, dmgid, damage_category, dmg);
 
 	return dmg + extra;
@@ -2243,6 +2250,10 @@ int FactorResists(int source, int victim, int wepid, int dmg, int damage_type, i
 		resist -= CheckActorInventory(victim, "DnD_ColdExposed");
 	else if(damage_category == DND_DAMAGECATEGORY_LIGHTNING)
 		resist -= CheckActorInventory(victim, "DnD_LightningExposed");
+	else if(damage_category == DND_DAMAGECATEGORY_MELEE || damage_category == DND_DAMAGECATEGORY_BULLET)
+		resist -= CheckActorInventory(victim, "DnD_PhysicalExposed");
+	else if(damage_category == DND_DAMAGECATEGORY_POISON)
+		resist -= CheckActorInventory(victim, "DnD_PoisonExposed");
 
 	// Every reduction above has landed on the TRUE resist, so this is where the cap finally goes on.
 	// Capping here rather than at spawn is what makes an overcapped monster genuinely resistant to
@@ -2350,6 +2361,11 @@ int HandlePlayerBuffs(int p_tid, int enemy_tid, int damage_type, int wepid, int 
 	int shock = CheckActorInventory(enemy_tid, "DnD_Shocked");
 	if(shock && (IsLightningDamage(damage_type) || (CheckActorInventory(enemy_tid, "DnD_ShockedAll") && IsElementalDamageType(damage_type))))
 		more_bonus = more_bonus * (1000 + shock) / 1000;
+
+	// Corrosive Breath, in whole percent: more poison damage taken while it lasts, its own ticks included.
+	int corrode = CheckActorInventory(enemy_tid, "DnD_Corroded");
+	if(corrode && IsPoisonDamage(damage_type))
+		more_bonus = more_bonus * (100 + corrode) / 100;
 	
 	return more_bonus;
 }
@@ -2546,13 +2562,13 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		// Archmage: a share of unreserved mana as its own lightning hit, dealt the way an added component is.
 		if
 		(
-			!GemArchmageGuard && !(flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME) && !(actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME) &&
+			!GetGemArchmage().active && !(flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME) && !(actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME) &&
 			(temp = GetSpellGemMod(pnum, wepid, GEMSTAT_ARCHMAGE)) && (temp = GetUnreservedManaCap(pnum) * temp / 100) > 0
 		)
 		{
-			GemArchmageGuard = true;
+			GetGemArchmage().active = true;
 			temp = HandleDamageDeal(source, victim, temp, DND_DAMAGETYPE_LIGHTNING, wepid, flags | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, actor_flags, true);
-			GemArchmageGuard = false;
+			GetGemArchmage().active = false;
 			if(temp > 0) {
 				HandleMonsterDeathConfirm(victim, temp);
 				Thing_Damage2(victim, temp, "Special_NoPain");
@@ -3421,8 +3437,33 @@ bool HandleSpellGemAilments(int pnum, int victim_tid, int m_id, int spell, int t
 	return stunned;
 }
 
+// Agony rank 5 on one hit: a poison when the hit did not poison already, and a bleed roll when it was not physical.
+// Despair's base poison chance joins the poison roll only.
+void HandleAgonyAilments(int pnum, int victim_tid, int m_id, int wep, int tic_flags, int chance, bool isSpell, int poison_extra = 0) {
+	int total = PlayerDamageTic[pnum].total[m_id];
+	bool poisoned = (tic_flags & (DND_DAMAGETICFLAG_POISON | DND_DAMAGETICFLAG_INFLICTPOISON)) && !(tic_flags & DND_DAMAGETICFLAG_NOPOISONSTACK);
+	if(!poisoned && random(1, 100) <= chance + poison_extra && CheckAilmentImmunity(pnum, m_id, DND_TOXICBLOOD)) {
+		int v = Max(total * DND_BASE_POISON_FACTOR / 100, 1), src = isSpell ? DND_SPELL_POISON_SOURCE : wep;
+		bool first = !CheckActorInventory(victim_tid, "DnD_PoisonStacks");
+		int extra = GainPoisonStacks(pnum, victim_tid);
+		ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim_tid, v, src, first);
+		while(extra-- > 0)
+			ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim_tid, v, src, 0);
+	}
+
+	if(chance && !(tic_flags & DND_DAMAGETICFLAG_PHYSICAL))
+		HandleBleedEffects(pnum, victim_tid, wep, total, chance, true, isSpell);
+}
+
 // Archmage's extra lightning is a second hit dealt from inside the first; this keeps it from feeding itself.
-int GemArchmageGuard;
+typedef struct {
+	bool active;
+} gem_archmage_T;
+
+gem_archmage_T module& GetGemArchmage() {
+	static gem_archmage_T s;
+	return s;
+}
 
 // A hit delivered straight to the engine with no damage tic behind it -- a parry burst, the
 // Thumper, melee splash. Those used to flinch through the engine's own roll; with DECORATE at 0
@@ -3754,6 +3795,8 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 		// physical weapon with added cold would chill or bleed depending on which component landed
 		// first and never both.
 		bool gem_hit = !!(tic_flags & DND_DAMAGETICFLAG_SPELL);
+		// Agony rank 5: a base chance to poison and to bleed for any hit on an enemy inside such an aura.
+		int agony = (tic_flags & DND_DAMAGETICFLAG_DOT) ? 0 : GetAgonyAilmentChance(victim_tid);
 		if(can_ail && (tic_flags & DND_DAMAGETICFLAG_ICE)) {
 			// Cryomancer joins the flat chill roll; Ravager rolls on whatever chill lands.
 			if(HandleChillEffects(pnum, victim_tid, gem_hit ? GetSpellGemMod(pnum, wepid, GEMSTAT_CHILLCHANCE) : 0, gem_hit) && gem_hit)
@@ -3791,8 +3834,10 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 			ACS_NamedExecuteWithResult("DnD Give Buff", DND_DEBUFF_OVERLOAD, DEBUFF_F_PLAYERISACTIVATOR | DEBUFF_F_OWNERISTARGET);
 		}
 
+		// Vulnerability adds its base bleed chance to a physical hit's roll, as Flammability does to a fire hit's ignite.
 		if(can_ail && (tic_flags & DND_DAMAGETICFLAG_PHYSICAL) && !(tic_flags & DND_DAMAGETICFLAG_DOT))
-			HandleBleedEffects(pnum, victim_tid, wep, GetTicElementDamage(pnum, victim_data, DND_TICELEM_PHYSICAL), gem_hit ? GetSpellGemMod(pnum, wepid, GEMSTAT_BLEEDCHANCE) : 0, false, gem_hit);
+			HandleBleedEffects(pnum, victim_tid, wep, GetTicElementDamage(pnum, victim_data, DND_TICELEM_PHYSICAL),
+				(gem_hit ? GetSpellGemMod(pnum, wepid, GEMSTAT_BLEEDCHANCE) : 0) + agony + CheckActorInventory(victim_tid, "DnD_Vulnerable"), false, gem_hit);
 
 		// Every hit, as they always ran; the weapon pair gets wep, so a spell no longer passes for a melee or automatic weapon.
 		HandleMeleeSubTypeEffects(pnum, victim_tid, wep);
@@ -3805,13 +3850,11 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 		if(can_ail && (tic_flags & (DND_DAMAGETICFLAG_POISON | DND_DAMAGETICFLAG_INFLICTPOISON)) && !(tic_flags & DND_DAMAGETICFLAG_NOPOISONSTACK) && CheckAilmentImmunity(pnum, victim_data, DND_TOXICBLOOD)) {
 			// poison damage deals 10% of its damage per stack over 3 seconds
 			// 5% of damage or by the factor -- if factor is with a weapon that already has inflictpoison, it empowers poison of the weapon by +2%
+			// A spell's poison takes the base factor.
+			oy = 0;
 			if(!(tic_flags & DND_DAMAGETICFLAG_SPELL)) {
 				ox = GetPlayerWeaponModVal(pnum, wepid, WEP_MOD_POISONFORPERCENTDAMAGE);
 				oy = ox + GetWeaponPoisonBaseFactor(wepid);
-			}
-			else {
-				ox = GetSpellPoisonFactor(wepid);
-				oy = ox;
 			}
 
 			oy = Max(DND_BASE_POISON_FACTOR, oy);
@@ -3835,6 +3878,15 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 				ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim_tid, ox, psrc, pdur);
 			//printbold(s:"poison received by ", d:victim);
 		}
+
+		// Venom Gyre's own poison roll, in place of the usual one its NOPOISONSTACK hit skips.
+		if(can_ail && gem_hit && wepid == SPL_VENOMGYRE && !(tic_flags & DND_DAMAGETICFLAG_DOT))
+			RollVenomGyrePoison(pnum, victim_tid);
+		else if(can_ail && gem_hit && wepid == SPL_POISONNOVA && !(tic_flags & DND_DAMAGETICFLAG_DOT))
+			PoisonNovaPoison(pnum, victim_tid);
+		int despair = (tic_flags & DND_DAMAGETICFLAG_DOT) ? 0 : CheckActorInventory(victim_tid, "DnD_Despaired");
+		if(can_ail && (agony || despair))
+			HandleAgonyAilments(pnum, victim_tid, victim_data, wep, tic_flags, agony, gem_hit, despair);
 
 		if(can_ail && gem_hit && HandleSpellGemAilments(pnum, victim_tid, victim_data, wepid, tic_flags, overload_route))
 			staggered = true;
@@ -4511,6 +4563,32 @@ void ApplyLightningExposure(int victim, int pct, int tics) {
 
 	if(!ticking)
 		ACS_NamedExecuteAlways("DnD Lightning Exposure Timer", 0, victim);
+}
+
+// The physical twin, for Vulnerability: melee and bullet share the physical resist.
+void ApplyPhysicalExposure(int victim, int pct, int tics) {
+	if(CheckActorInventory(victim, "DnD_PhysicalExposed") < pct)
+		SetActorInventory(victim, "DnD_PhysicalExposed", pct);
+
+	bool ticking = !!CheckActorInventory(victim, "DnD_PhysicalExposedTimer");
+	if(CheckActorInventory(victim, "DnD_PhysicalExposedTimer") < tics)
+		SetActorInventory(victim, "DnD_PhysicalExposedTimer", tics);
+
+	if(!ticking)
+		ACS_NamedExecuteAlways("DnD Physical Exposure Timer", 0, victim);
+}
+
+// The poison twin, for Despair.
+void ApplyPoisonExposure(int victim, int pct, int tics) {
+	if(CheckActorInventory(victim, "DnD_PoisonExposed") < pct)
+		SetActorInventory(victim, "DnD_PoisonExposed", pct);
+
+	bool ticking = !!CheckActorInventory(victim, "DnD_PoisonExposedTimer");
+	if(CheckActorInventory(victim, "DnD_PoisonExposedTimer") < tics)
+		SetActorInventory(victim, "DnD_PoisonExposedTimer", tics);
+
+	if(!ticking)
+		ACS_NamedExecuteAlways("DnD Poison Exposure Timer", 0, victim);
 }
 
 // Frost Bomb. CanHealMonster already reads MonsterRegenPause, so stopping regeneration is only a
@@ -5568,8 +5646,12 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		int p_mult = mult;
 		res_to_apply = DND_PRESIST_NONE;
 
-		if(p_type & DND_DAMAGETYPEFLAG_PHYSICAL)
+		if(p_type & DND_DAMAGETYPEFLAG_PHYSICAL) {
 			res_to_apply = DND_PRESIST_PHYS;
+
+			// Rock Golem's summoner, while it stands.
+			p_mult = FixedMul(p_mult, pbuffs[pnum].buff_net_values[BUFF_PHYSDAMAGETAKEN].multiplicative);
+		}
 		else if(p_type & DND_DAMAGETYPEFLAG_MAGICAL)
 			res_to_apply = DND_PRESIST_MAGIC;
 		else if(p_type & DND_DAMAGETYPEFLAG_FIRE) {
@@ -5960,9 +6042,13 @@ int GetCovenantLeakPercent() {
 
 // energy shield reduction and other true flat damage lowering things, these are the final defense
 int ApplyTrueDamageDeductions(int pnum, int dmg, str dmg_string, int dmg_data) {
+	bool is_dot = IsDamageStringDOT(dmg_string);
+	// Rock Armor sits outside the shield and soaks hits, magic only half.
+	if(!is_dot)
+		dmg = AbsorbRockArmor(pnum, dmg, !!(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL));
+
 	int temp = CheckInventory("EShieldAmount");
 	int factor = GetEShieldMagicAbsorbValue(pnum);
-	bool is_dot = IsDamageStringDOT(dmg_string);
 	int armor_id = GetArmorID();
 	int to_take = 0;
 	bool covenant = HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD);
@@ -6760,6 +6846,16 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		dmg = arg1;
 
 		//printbold(s:"Dmg Data ", d:dmg_data, s:" ", d:dmg, s:" ", d:shooter, s: " ", d:IsPlayer(shooter));
+
+		// Blockade's wall: only monster hits count, with their level bonus, off the pool its pieces share.
+		if(victim >= DND_BLOCKADE_TID && victim < DND_BLOCKADE_TID_END) {
+			if(IsMonster(shooter) && !IsDamageStringDOT(arg2)) {
+				m_id = shooter - DND_MONSTERTID_BEGIN;
+				HitBlockade(victim - DND_BLOCKADE_TID, dmg * (100 + (MonsterProperties[m_id].level > 1) * MonsterProperties[m_id].dmg_bonus) / 100);
+			}
+			SetResultValue(0);
+			Terminate;
+		}
 
 		// FROM HERE ON WHOEVER TOOK DAMAGE IS THE ACTIVATOR, PLAYER OR MONSTER!
 		bool isDot = false;

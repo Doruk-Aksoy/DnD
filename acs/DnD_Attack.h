@@ -804,7 +804,10 @@ void Do_Scan_Attack(int dmg, int damage_type, int tracer_count, int flags) {
 				mn = HandleDamageDeal(owner, tlist[pnum][i].tid, temp, damage_type, wepid, flags, GetActorX(owner), GetActorY(owner), GetActorZ(owner), actor_flags);
 				if(mn > 0)
 					Thing_Damage2(tlist[pnum][i].tid, mn, "SkipHandle");
-				SpawnForced(ScannerAttackParticles[scan_id], GetActorX(tlist[pnum][i].tid), GetActorY(tlist[pnum][i].tid), GetActorZ(tlist[pnum][i].tid) + scan_data.spawn_offZ, 0);
+				// Owned by the shooter, so a particle that explodes (Demonheart's pulses) deals that player's weapon damage.
+				SpawnForced(ScannerAttackParticles[scan_id], GetActorX(tlist[pnum][i].tid), GetActorY(tlist[pnum][i].tid), GetActorZ(tlist[pnum][i].tid) + scan_data.spawn_offZ, TEMPORARY_ATTACK_TID);
+				ACS_NamedExecuteWithResult("DnD Update Target", TEMPORARY_ATTACK_TID, owner);
+				Thing_ChangeTID(TEMPORARY_ATTACK_TID, 0);
 				
 				//printbold(s:"do scan damage of ", d:temp, s: " dist: ", d:tlist[pnum][i].dist, s: " to ", s:GetActorClass(tlist[pnum][i].tid), s:" ", d:tlist[pnum][i].tid, s:" -- j = ", d:j, s: " / ", d:tcount, s: " index: ", d:i);
 				// abort if we reached our tracer cap
@@ -874,10 +877,13 @@ void Do_DarkLance_Shots(int owner, int pnum, int amt, int dist, int spd, int lvl
 
 void HandleAttackEvent(int wepid, int isSpecial, int extra) {
 	int pnum = PlayerNumber();
-	// elemental bulwark check
+	// Elemental Bulwark: a learned spell from a band up to the charm's tier, cast free; the charm's 5 second lockout after.
 	if(PlayerModData[pnum].vals[PSTAT_EX_CHANCE_CASTELEMSPELLONATK] >= random(1, 100) && !CheckInventory("RandomElementalSpellCooldown")) {
-		GiveInventory("RandomElementalSpellCooldown", 1);
-		CastRandomElementalSpell();
+		int spell = PickProcSpell(pnum, Clamp_Between(ReadPlayerModExtra(pnum, INV_EX_CHANCE_CASTELEMSPELLONATK), 1, DND_SPELLPROC_BANDS));
+		if(spell != -1) {
+			GiveInventory("RandomElementalSpellCooldown", 1);
+			CastProcSpell(pnum, spell);
+		}
 	}
 	
 	// reset crit roll before we check for crit on this attack again

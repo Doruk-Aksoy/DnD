@@ -13,19 +13,34 @@ typedef struct {
 #define SIZEOF_MODPOOL (SIZEOF_INT * 4)
 
 // The item base already names the slot and the tagset together, so it IS the pool identity -- no
-// interning needed. 35 bases fit in 6 bits, and the two tag fields hold a tag ID rather than an
+// interning needed. 35 bases fit in 6 bits, and the three tag fields (two widening, one forced) hold a tag ID rather than an
 // index into the CANROLL implicits, so any tag can become widenable or forceable without the key
 // layout moving. Tag IDs line up with the bits (INV_ATTR_TAG_DAMAGE_ID 0 <-> INV_ATTR_TAG_DAMAGE
 // 1), so a mask is just 1 << id.
 #define DND_MODPOOL_ITEMBASE_BITS 6
 #define DND_MODPOOL_TAGID_BITS 5
+#define DND_MODPOOL_TAGID_MASK ((1 << DND_MODPOOL_TAGID_BITS) - 1)
 #define DND_MODPOOL_WIDEN_SHIFT DND_MODPOOL_ITEMBASE_BITS
-#define DND_MODPOOL_FORCEDTAG_SHIFT (DND_MODPOOL_WIDEN_SHIFT + DND_MODPOOL_TAGID_BITS)
+#define DND_MODPOOL_FORCEDTAG_SHIFT (DND_MODPOOL_WIDEN_SHIFT + 2 * DND_MODPOOL_TAGID_BITS)
 #define DND_MODPOOL_NO_TAG (-1)
 
 #define ModPoolTagIdToMask(id) ((id) >= 0 ? (1 << (id)) : 0)
 
-// maps: item base | widening tag + 1 | forced tag + 1 -> mod_pool_T*
+// An item's widening: up to two "can roll X" tag ids, each stored + 1 in its own 5 bits, low id first. 0 is none.
+int AddItemWidening(int widening, int implicit_id) {
+    int id = GetWideningTagId(implicit_id) + 1, a = widening & DND_MODPOOL_TAGID_MASK, b = widening >> DND_MODPOOL_TAGID_BITS;
+    if(!id || id == a || id == b || b)
+        return widening;
+    if(!a)
+        return id;
+    return a < id ? a | (id << DND_MODPOOL_TAGID_BITS) : id | (a << DND_MODPOOL_TAGID_BITS);
+}
+
+int GetWideningMask(int widening) {
+    return ModPoolTagIdToMask((widening & DND_MODPOOL_TAGID_MASK) - 1) | ModPoolTagIdToMask((widening >> DND_MODPOOL_TAGID_BITS) - 1);
+}
+
+// maps: item base | widening (two tags + 1) | forced tag + 1 -> mod_pool_T*
 LIBBCS_T_MAP_DEFN(CachedModPoolIdMap, int, int, LIBBCS_SIMPLE_CMP);
 
 typedef struct {
@@ -35,11 +50,10 @@ typedef struct {
 
 global mod_info_data_T 35: ModPoolTables;
 
-// forced_tag_id is reserved for the crafting-orb guarantee pools, which do not exist yet -- every
-// caller passes the default. Keyed now so adding them later does not re-key the cache.
-int MakeModPoolKey(int item_base, int widen_tag_id = DND_MODPOOL_NO_TAG, int forced_tag_id = DND_MODPOOL_NO_TAG) {
+// forced_tag_id is a crafting orb's guarantee (GetForcedTagMask reads it), or DND_MODPOOL_NO_TAG.
+int MakeModPoolKey(int item_base, int widening = 0, int forced_tag_id = DND_MODPOOL_NO_TAG) {
     return  item_base |
-            ((widen_tag_id + 1) << DND_MODPOOL_WIDEN_SHIFT) |
+            (widening << DND_MODPOOL_WIDEN_SHIFT) |
             ((forced_tag_id + 1) << DND_MODPOOL_FORCEDTAG_SHIFT);
 }
 
@@ -76,14 +90,14 @@ bool CanRollModWidened(int slot_mask, int allowed_tags, int widen_mask, int mod)
 }
 
 // sets up mod pool for a given item base, with given mod tags that can be applied to it for eligibility (this is used as a cached pool for monster drops)
-mod_pool_T* BuildModPool(int item_base, int widen_tag_id = DND_MODPOOL_NO_TAG, int forced_tag_id = DND_MODPOOL_NO_TAG) {
+mod_pool_T* BuildModPool(int item_base, int widening = 0, int forced_tag_id = DND_MODPOOL_NO_TAG) {
     int buf[NORMAL_ATTRIBUTE_COUNT];
     int count = 0;
 
     int slot_mask = ItemBaseToModBaseFlag(item_base);
     int allowed = GetItemBaseEffectiveTags(item_base);
-    int widen_mask = ModPoolTagIdToMask(widen_tag_id);
-    int forced_mask = ModPoolTagIdToMask(forced_tag_id);
+    int widen_mask = GetWideningMask(widening);
+    int forced_mask = GetForcedTagMask(forced_tag_id);
 
     // Flask mod ids are their own contiguous block past LAST_INV_ATTRIBUTE, so the scan range comes
     // from the base's slot rather than being fixed. buf is sized for the regular set, which is far
@@ -137,12 +151,12 @@ int PickModFromPool(mod_pool_T* m) {
 // misses left are widened ones, which come from a handful of item subtypes -- that costs one build
 // per (base, widening) pair for the whole session rather than one per drop. Warming all of those
 // up front would mean bases * tags pools, nearly all of which no item can ever ask for.
-mod_pool_T* GetModPool(int item_base, int widen_tag_id = DND_MODPOOL_NO_TAG, int forced_tag_id = DND_MODPOOL_NO_TAG) {
-    int id = MakeModPoolKey(item_base, widen_tag_id, forced_tag_id);
+mod_pool_T* GetModPool(int item_base, int widening = 0, int forced_tag_id = DND_MODPOOL_NO_TAG) {
+    int id = MakeModPoolKey(item_base, widening, forced_tag_id);
     mod_pool_T* m = CachedModPoolIdMap_Get(ModPoolTables.CachedModPools, id);
 
     if(m == null) {
-        m = BuildModPool(item_base, widen_tag_id, forced_tag_id);
+        m = BuildModPool(item_base, widening, forced_tag_id);
         CachedModPoolIdMap_Put(ModPoolTables.CachedModPools, id, (int)m);
         ++ModPoolTables.curr_size;
     }

@@ -36,6 +36,7 @@ DND_ORBN28			=	"OrbofWinter";
 DND_ORBN29			=	"OrbofVoltaic";
 DND_ORBN30			=	"OrbofVile";
 DND_ORBN31			=	"OrbofEmbers";
+DND_ORBN32			=	"OrbofArcana";
 
 // monster specific orb drops
 DND_ORBNM1			=	"OrbofHollow";
@@ -153,6 +154,7 @@ DND_OIMG28			=	"ORB5P0";
 DND_OIMG29			=	"ORB6E0";
 DND_OIMG30			=	"ORB6F0";
 DND_OIMG31			=	"ORB6C0";
+DND_OIMG32			=	"ORB6T0";
 
 DND_MOIMG1			=	"ORB3Q0";
 DND_MOIMG2			=	"ORB3Z0";
@@ -671,7 +673,8 @@ IATTR_TINC21		= "% less crit chance"; IATTR_TINC21S = "Excess crit chance acts a
 
 // exotic ones
 IATTR_TX_CHANCE 	= "chance to ";
-IATTR_TX1 			= "chance to cast random elemental spell on attack";
+IATTR_TX1 			= "chance on attack to cast a random elemental spell you learned, up to Tier ";
+IATTR_SPELLLEVELS	= "(spell levels 1-";
 IATTR_TX2 			= "Knockback Immunity";
 IATTR_TX3 			= "Effects of small charms multiplied by ";
 IATTR_TX4 			= "to all attributes";

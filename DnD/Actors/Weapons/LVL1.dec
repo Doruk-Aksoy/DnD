@@ -1962,8 +1962,11 @@ Actor "Dusk Blade" : DnDWeapon {
 			TNT1 A 0 A_PlaySound("Sword/Swing")
 			VORP O 1 Bright A_TakeInventory("DnD_Weapon_FrameChecker", 0)
 			VORP P 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_DUSKBLADE, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE)
+			TNT1 A 0 A_GiveInventory("DnD_Weapon_FrameChecker", 1)
 			VORP Q 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_DUSKBLADE, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
+			TNT1 A 0 A_GiveInventory("DnD_Weapon_FrameChecker", 1)
 			VORP R 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_DUSKBLADE, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
+			TNT1 A 0 A_GiveInventory("DnD_Weapon_FrameChecker", 1)
 			VORP S 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_DUSKBLADE, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
 			VORP T 1 Bright
 			TNT1 A 6
@@ -2038,8 +2041,11 @@ Actor "Dusk Blade" : DnDWeapon {
 			TNT1 A 0 A_PlaySound("Sword/Swing")
 			VORP O 1 Bright A_TakeInventory("DnD_Weapon_FrameChecker", 0)
 			VORP P 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_DUSKBLADE, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE)
+			TNT1 A 0 A_GiveInventory("DnD_Weapon_FrameChecker", 1)
 			VORP Q 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_DUSKBLADE, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
+			TNT1 A 0 A_GiveInventory("DnD_Weapon_FrameChecker", 1)
 			VORP R 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_DUSKBLADE, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
+			TNT1 A 0 A_GiveInventory("DnD_Weapon_FrameChecker", 1)
 			VORP S 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_DUSKBLADE, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
 			VORP T 1 Bright
 			TNT1 A 2
@@ -2049,8 +2055,11 @@ Actor "Dusk Blade" : DnDWeapon {
 			TNT1 A 0 A_PlaySound("Sword/Swing")
 			VORP O 1 Bright A_TakeInventory("DnD_Weapon_FrameChecker", 0)
 			VORP P 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_DUSKBLADE, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE)
+			TNT1 A 0 A_GiveInventory("DnD_Weapon_FrameChecker", 1)
 			VORP Q 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_DUSKBLADE, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
+			TNT1 A 0 A_GiveInventory("DnD_Weapon_FrameChecker", 1)
 			VORP R 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_DUSKBLADE, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
+			TNT1 A 0 A_GiveInventory("DnD_Weapon_FrameChecker", 1)
 			VORP S 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_DUSKBLADE, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
 			VORP T 1 Bright
 			TNT1 A 2
@@ -2218,11 +2227,12 @@ Actor DuskSlash_Damager : DnD_BaseProjectile {
 	Height 10
 	Speed 0
 	
+	// a Dusk Mode swing fires a single slash, so it carries 4 slashes of damage
 	Damage (
 		DND_WEAPON_DUSKBLADE |
 		(DND_DMGID_1 << CACHE_SHIFT) |
 		(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
-		(100 << DPCT_SHIFT)
+		(400 << DPCT_SHIFT)
 	)
 	
 	Stamina 403701760

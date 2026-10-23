@@ -61,6 +61,9 @@ enum {
 	BUFF_OVERLOADCHANCE,	// flat percent base overload chance, read by HandleOverloadEffects
 	BUFF_OVERLOADTAKENLESS,	// percent less time a monster's overload lasts on this player, read by GetMonsterOverloadTime
 	BUFF_SPELLHASTE,		// percent, joins spell haste in GetSpellCastTics
+	BUFF_DOTMORE,			// MORE damage over time, read by ApplyAilmentMoreDamage
+	BUFF_POISONTAKENLESS,	// percent less time a monster's poison lasts on this player, read by "DnD Player Receive DoT"
+	BUFF_PHYSDAMAGETAKEN,	// MORE/LESS physical damage taken, read per physical portion by HandlePlayerResists. Use BUFF_F_MORETYPE
 
 	BUFF_TYPES_MAX
 };

@@ -127,6 +127,13 @@ enum {
 	DND_WDMG_ISDOT = 268435456
 };
 
+// How ScaleCachedDamage takes a weapon's base roll; MIN and MAX are previews (the DPS readout), which skip one-hit effects.
+enum {
+	DND_WDMG_ROLL_RANDOM,
+	DND_WDMG_ROLL_MIN,
+	DND_WDMG_ROLL_MAX
+};
+
 enum {
 	DND_AILMENT_IGNITE = 1,
 	DND_AILMENT_CHILL = 2,

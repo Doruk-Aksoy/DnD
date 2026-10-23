@@ -124,6 +124,12 @@ HardwareShader HATRED {
 	Speed 1.0
 }
 
+// Agony's aura: a crown of thorns, veins thumping with a heartbeat over bruised flesh.
+HardwareShader AGONY {
+	Shader "GLDefs/Shaders/Agony.fp"
+	Speed 1.0
+}
+
 // Wrath's aura: soft arcs crawling out from the centre to a flickering rim.
 HardwareShader WRATH {
 	Shader "GLDefs/Shaders/Wrath.fp"
@@ -500,5 +506,414 @@ HardwareShader sprite IGLML7 {
 
 HardwareShader sprite IGLML8 {
 	Shader "GLDefs/Shaders/IceGolem.fp"
+	Speed 1.0
+}
+
+// Threaded Volley's energized soil: faint orange pulses through the cracks, then a few seconds dark.
+HardwareShader TVSOIL {
+	Shader "GLDefs/Shaders/TVSoil.fp"
+	Speed 1.0
+}
+
+// Upheaval's cracks: the soil's orange pulse, quicker, over a faint ember that never goes out.
+HardwareShader UPCRACK {
+	Shader "GLDefs/Shaders/UpheavalCrack.fp"
+	Speed 1.0
+}
+
+// Rockslide's boulder: Shrapnel's skin under its own name, cracked over a dim molten core.
+HardwareShader ROCKSLGW {
+	Shader "GLDefs/Shaders/RockslideGlow.fp"
+	Speed 1.0
+}
+
+// Noxious Blast's poison ring: slime swirling in, thickening and brightening as the ring closes.
+HardwareShader NXRING {
+	Shader "GLDefs/Shaders/NoxiousRing.fp"
+	Speed 1.0
+}
+
+// Rejuvenation's sphere: two soft helices winding up it, green and gold.
+HardwareShader REJUVSPH {
+	Shader "GLDefs/Shaders/Rejuvenation.fp"
+	Speed 1.0
+}
+
+// Spell_RockGolem's molten basalt, on every RGLM frame.
+HardwareShader sprite RGLMA1 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMA2A8 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMA3A7 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMA4A6 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMA5 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMB1 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMB2B8 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMB3B7 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMB4B6 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMB5 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMC1 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMC2C8 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMC3C7 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMC4C6 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMC5 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMD1 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMD2D8 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMD3D7 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMD4D6 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMD5 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLME1 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLME2 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLME3 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLME4 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLME5 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLME6 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLME7 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLME8 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMF1 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMF2 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMF3 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMF4 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMF5 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMF6 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMF7 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMF8 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMG1 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMG2 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMG3 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMG4 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMG5 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMG6 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMG7 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMG8 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMH1 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMH2 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMH3 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMH4 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMH5 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMH6 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMH7 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMH8 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMI0 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMJ0 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMK0 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLML0 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMM0 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMN0 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMO0 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMP0 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMX1 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMX2X8 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMX3X7 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMX4X6 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMX5 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMY1 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMY2Y8 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMY3Y7 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMY4Y6 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite RGLMY5 {
+	Shader "GLDefs/Shaders/RockGolem.fp"
+	Speed 1.0
+}
+
+// Geyser's vent: the rock pile lit in model space and glowing off its acid, and the acid churning in its mouth.
+HardwareShader GYROCK {
+	Shader "GLDefs/Shaders/GeyserRock.fp"
+	Speed 1.0
+}
+
+HardwareShader GYPOOL {
+	Shader "GLDefs/Shaders/GeyserPool.fp"
+	Speed 1.0
+}
+
+// Poison Nova's bolt: a lumpy ball of burning sludge and its fanning flame tail, ray-marched inside PNOVA.md3's hull.
+HardwareShader PNOVA {
+	Shader "GLDefs/Shaders/PoisonNova.fp"
+	Speed 1.0
+}
+
+// Mana bar: the fill flows and the edge glows; DrawManaBar packs the surge and low-mana looks into the HudMessage alpha.
+HardwareShader SPLMANAF {
+	Shader "GLDefs/Shaders/ManaFlow.fp"
+	Speed 1.0
+}
+
+HardwareShader SPLMANAE {
+	Shader "GLDefs/Shaders/ManaEdge.fp"
 	Speed 1.0
 }

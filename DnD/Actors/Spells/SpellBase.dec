@@ -116,6 +116,8 @@ Actor DnD_SpellExplosive : DnD_ExplosiveBase {
 	// one -- the two are independent. 65536 | 4194304. "DnD Prep Explosion" adds ISRADIUSDMG itself at
 	// explode time, so it does not belong here.
 	Stamina 4259840
+	// A spell's blast reaches the radius immune too, as the spells that deal their area in ACS do.
+	+FORCERADIUSDMG
 
 	var int user_spellid;
 	var int user_spellrank;

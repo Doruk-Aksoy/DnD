@@ -1,3 +1,22 @@
+// The caster's size and solid like them: it fails to spawn where an actor would overlap them. Players pass through it.
+Actor DnD_BlinkProbe {
+	Radius 16
+	Height 56
+	Species "Player"
+	+THRUSPECIES
+	+SOLID
+	+CANPASS
+	+NOGRAVITY
+	+DONTSPLASH
+	+NOTONAUTOMAP
+	+SERVERSIDEONLY
+	States {
+		Spawn:
+			TNT1 A 1
+		Stop
+	}
+}
+
 // Blink's streak along the dash: ACS aims and stretches it, the shader draws the curving bolt.
 Actor Spell_Blink_Beam {
 	+CLIENTSIDEONLY

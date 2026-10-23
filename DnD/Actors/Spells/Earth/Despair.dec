@@ -1,0 +1,25 @@
+// Despair's curse marker over a cursed enemy, on Flammability's warp loop.
+Actor DespairFXMarker : FlammabilityFXMarker {
+	States {
+		SpawnLoop:
+			S301 A 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+		Loop
+	}
+}
+
+// The ring drawn where the curse lands, in poison puffs.
+Actor DespairAreaMarkerFX : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.8
+	Scale 0.5
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	+NOGRAVITY
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+			D5FX GGHHIIJJKKLL 1 Bright A_FadeOut(0.06)
+		Stop
+	}
+}

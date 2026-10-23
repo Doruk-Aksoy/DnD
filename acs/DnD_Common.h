@@ -890,6 +890,7 @@ enum {
 	PEXTRA_EX_CHANCE_HEALMISSINGONPAIN,
 	PEXTRA_EX_COUNTASHAVINGMAXCHARGEOF,
 	PEXTRA_EX_SECONDEXPBONUS,
+	PEXTRA_EX_CHANCE_CASTELEMSPELLONATK,
 
 	DND_PEXTRA_COUNT
 };
@@ -1154,6 +1155,12 @@ enum {
 	// One per Toxic Trap slot: 4 a player.
 	DND_TOXICTRAP_TID,
 	DND_TOXICTRAP_TID_END = DND_TOXICTRAP_TID + MAXPLAYERS * 4,
+
+	// Blockade: every piece of a player's wall shares one tid, its anchor has the other.
+	DND_BLOCKADE_TID,
+	DND_BLOCKADE_TID_END = DND_BLOCKADE_TID + MAXPLAYERS,
+	DND_BLOCKADE_ANCHOR_TID = DND_BLOCKADE_TID_END,
+	DND_BLOCKADE_ANCHOR_TID_END = DND_BLOCKADE_ANCHOR_TID + MAXPLAYERS,
 
 	// ScratchTID()'s window: far above every range here, just under the three fixed ones at the top.
 	DND_SCRATCH_TID = bcs::INT_MAX - 2 - 256,

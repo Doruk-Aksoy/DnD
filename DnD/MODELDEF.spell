@@ -125,7 +125,11 @@ Model Spell_IceSpear {
 	rotation-vector 1.0 0.0 0.0
 	rotation-speed 4.0
 
+	// Every model of a block is drawn on every frame, each at the frame its slot was last given, so the
+	// unused slot is parked on frame 31 (empty). The Z lines only park a slot; ISPR has no Z frame.
+	FrameIndex ISPR Z 1 31
 	FrameIndex ISPR A 0 14
+	FrameIndex ISPR Z 0 31
 	FrameIndex ISPP A 1 15
 	FrameIndex ISPP B 1 16
 	FrameIndex ISPP C 1 17
@@ -748,8 +752,30 @@ Model Spell_Shrapnel {
 	FrameIndex ERSH A 0 0
 }
 
-// Rockslide's boulder: the shard's skin on a chunkier hull, tumbling as it flies.
+// Rockslide's boulder, tumbling as it flies. ROCKSLGW is the shard's skin under its own name, for RockslideGlow.fp.
 Model Spell_Rockslide {
+	Path "Models/Proj"
+	Model 0 "ROCKSLID.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "ROCKSLGW.png"
+	Scale 1.0 1.0 1.0
+	ROTATING
+	rotation-vector 0.0 0.0 1.0
+	rotation-speed 3.0
+	FrameIndex ERSL A 0 0
+}
+
+// Threaded Volley's rock and boulder: models match the class exactly, so Shrapnel's and Rockslide's don't carry over.
+Model Spell_ThreadedVolley_Rock {
+	Path "Models/Proj"
+	Model 0 "SHRAPNEL.md3"
+	Skin 0 "SHRAPNEL.png"
+	Scale 1.0 1.0 1.0
+	PITCHFROMMOMENTUM
+	FrameIndex ERSH A 0 0
+}
+
+Model Spell_ThreadedVolley_Boulder {
 	Path "Models/Proj"
 	Model 0 "ROCKSLID.md3"
 	Skin 0 "SHRAPNEL.png"
@@ -758,4 +784,337 @@ Model Spell_Rockslide {
 	rotation-vector 0.0 0.0 1.0
 	rotation-speed 3.0
 	FrameIndex ERSL A 0 0
+}
+
+// Threaded Volley's energized ground: the soil disc, and its glowing rim a little above it on a second actor drawn Add.
+// The skin comes from Graphics/ so the lump has a name TVSoil.fp can bind to.
+Model Spell_ThreadedVolley_Ground {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "TVSOIL.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 1
+	FrameIndex ETVA A 0 0
+}
+
+Model Spell_ThreadedVolley_GroundGlow {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Skin 0 "TVGLOW.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 1.5
+	FrameIndex ETVA B 0 0
+}
+
+// Noxious Blast's poison ring, drawn by NoxiousRing.fp; the skin comes from Graphics/ so the shader can bind to it.
+Model Spell_NoxiousBlast_Ring {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "NXRING.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 1
+	FrameIndex NXRG A 0 0
+}
+
+// Venom Gyre's crescent, spun flat like a thrown boomerang and tilted to its flight; the spin axis is GL space, y up.
+Model Spell_VenomGyre {
+	Path "Models/Proj"
+	Model 0 "VENOMGYR.md3"
+	Skin 0 "VENOMGYR.png"
+	Scale 1.0 1.0 1.0
+	ROTATING
+	PITCHFROMMOMENTUM
+	rotation-vector 0.0 1.0 0.0
+	rotation-speed 12.0
+	FrameIndex EVGY A 0 0
+}
+
+Model Spell_VenomGyre_Return {
+	Path "Models/Proj"
+	Model 0 "VENOMGYR.md3"
+	Skin 0 "VENOMGYR.png"
+	Scale 1.0 1.0 1.0
+	ROTATING
+	PITCHFROMMOMENTUM
+	rotation-vector 0.0 1.0 0.0
+	rotation-speed 12.0
+	FrameIndex EVGY A 0 0
+}
+
+Model Spell_VenomGyre_Fresh {
+	Path "Models/Proj"
+	Model 0 "VENOMGYR.md3"
+	Skin 0 "VENOMGYR.png"
+	Scale 1.0 1.0 1.0
+	ROTATING
+	PITCHFROMMOMENTUM
+	rotation-vector 0.0 1.0 0.0
+	rotation-speed 12.0
+	FrameIndex EVGY A 0 0
+}
+
+// Vines of Torment's thorny coils: one turn in 16 frames, the axis baked under the floor so it hides what is buried.
+Model Spell_Vines_Coil1 {
+	Path "Models/Proj"
+	Model 0 "VINES1.md3"
+	Skin 0 "VINES.png"
+	Scale 1.0 1.0 1.0
+	FrameIndex EVN1 A 0 0
+	FrameIndex EVN1 B 0 1
+	FrameIndex EVN1 C 0 2
+	FrameIndex EVN1 D 0 3
+	FrameIndex EVN1 E 0 4
+	FrameIndex EVN1 F 0 5
+	FrameIndex EVN1 G 0 6
+	FrameIndex EVN1 H 0 7
+	FrameIndex EVN1 I 0 8
+	FrameIndex EVN1 J 0 9
+	FrameIndex EVN1 K 0 10
+	FrameIndex EVN1 L 0 11
+	FrameIndex EVN1 M 0 12
+	FrameIndex EVN1 N 0 13
+	FrameIndex EVN1 O 0 14
+	FrameIndex EVN1 P 0 15
+}
+
+Model Spell_Vines_Coil2 {
+	Path "Models/Proj"
+	Model 0 "VINES2.md3"
+	Skin 0 "VINES.png"
+	Scale 1.0 1.0 1.0
+	FrameIndex EVN2 A 0 0
+	FrameIndex EVN2 B 0 1
+	FrameIndex EVN2 C 0 2
+	FrameIndex EVN2 D 0 3
+	FrameIndex EVN2 E 0 4
+	FrameIndex EVN2 F 0 5
+	FrameIndex EVN2 G 0 6
+	FrameIndex EVN2 H 0 7
+	FrameIndex EVN2 I 0 8
+	FrameIndex EVN2 J 0 9
+	FrameIndex EVN2 K 0 10
+	FrameIndex EVN2 L 0 11
+	FrameIndex EVN2 M 0 12
+	FrameIndex EVN2 N 0 13
+	FrameIndex EVN2 O 0 14
+	FrameIndex EVN2 P 0 15
+}
+
+Model Spell_Vines_Coil3 {
+	Path "Models/Proj"
+	Model 0 "VINES3.md3"
+	Skin 0 "VINES.png"
+	Scale 1.0 1.0 1.0
+	FrameIndex EVN3 A 0 0
+	FrameIndex EVN3 B 0 1
+	FrameIndex EVN3 C 0 2
+	FrameIndex EVN3 D 0 3
+	FrameIndex EVN3 E 0 4
+	FrameIndex EVN3 F 0 5
+	FrameIndex EVN3 G 0 6
+	FrameIndex EVN3 H 0 7
+	FrameIndex EVN3 I 0 8
+	FrameIndex EVN3 J 0 9
+	FrameIndex EVN3 K 0 10
+	FrameIndex EVN3 L 0 11
+	FrameIndex EVN3 M 0 12
+	FrameIndex EVN3 N 0 13
+	FrameIndex EVN3 O 0 14
+	FrameIndex EVN3 P 0 15
+}
+
+// Vines of Torment's wrap round a snared enemy: A-F grow it, G squeezes; the FX scales it to the body.
+Model Spell_Vines_Wrap {
+	Path "Models/Proj"
+	Model 0 "VINEWRAP.md3"
+	Skin 0 "VINES.png"
+	FrameIndex VWRP A 0 0
+	FrameIndex VWRP B 0 1
+	FrameIndex VWRP C 0 2
+	FrameIndex VWRP D 0 3
+	FrameIndex VWRP E 0 4
+	FrameIndex VWRP F 0 5
+	FrameIndex VWRP G 0 6
+}
+
+// Upheaval's crack segments, a flat strip each: A-F middles, G-J ends, K-L pointed both ways (the others fold away).
+Model Spell_Upheaval_Crack {
+	Path "Models/Proj"
+	Model 0 "UPCRACK.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "UPCRACK.png"
+	FrameIndex UPCR A 0 0
+	FrameIndex UPCR B 0 1
+	FrameIndex UPCR C 0 2
+	FrameIndex UPCR D 0 3
+	FrameIndex UPCR E 0 4
+	FrameIndex UPCR F 0 5
+	FrameIndex UPCR G 0 6
+	FrameIndex UPCR H 0 7
+	FrameIndex UPCR I 0 8
+	FrameIndex UPCR J 0 9
+	FrameIndex UPCR K 0 10
+	FrameIndex UPCR L 0 11
+}
+
+// Rock Armor's two stone plates, facing out either side of the wearer, spun round it.
+Model Spell_RockArmor_Plates {
+	Path "Models/Proj"
+	Model 0 "RKPLATE.md3"
+	Skin 0 "RKPLATE.png"
+	ROTATING
+	rotation-speed 2.5
+	FrameIndex RKAP A 0 0
+}
+
+// Crushing Rocks: Rockslide's boulder, two and a half times its size, for the pair that slams a target.
+Model Spell_CrushingRocks_Rock {
+	Path "Models/Proj"
+	Model 0 "ROCKSLID.md3"
+	Skin 0 "SHRAPNEL.png"
+	Scale 2.5 2.5 2.5
+	FrameIndex ERSL A 0 0
+}
+
+// Blockade: four slabs cut from one plate strip, leaning by the actor's pitch; B and C close the ends.
+Model Spell_Blockade_Slab1 {
+	Path "Models/Proj"
+	Model 0 "BLKWALL1.md3"
+	Skin 0 "BLKWALL.png"
+	INHERITACTORPITCH
+	FrameIndex BKRK A 0 0
+	FrameIndex BKRK B 0 1
+	FrameIndex BKRK C 0 2
+}
+
+Model Spell_Blockade_Slab2 {
+	Path "Models/Proj"
+	Model 0 "BLKWALL2.md3"
+	Skin 0 "BLKWALL.png"
+	INHERITACTORPITCH
+	FrameIndex BKRK A 0 0
+	FrameIndex BKRK B 0 1
+	FrameIndex BKRK C 0 2
+}
+
+Model Spell_Blockade_Slab3 {
+	Path "Models/Proj"
+	Model 0 "BLKWALL3.md3"
+	Skin 0 "BLKWALL.png"
+	INHERITACTORPITCH
+	FrameIndex BKRK A 0 0
+	FrameIndex BKRK B 0 1
+	FrameIndex BKRK C 0 2
+}
+
+Model Spell_Blockade_Slab4 {
+	Path "Models/Proj"
+	Model 0 "BLKWALL4.md3"
+	Skin 0 "BLKWALL.png"
+	INHERITACTORPITCH
+	FrameIndex BKRK A 0 0
+	FrameIndex BKRK B 0 1
+	FrameIndex BKRK C 0 2
+}
+
+// Toxic Trap: a hexagonal canister; B-F swing its six lid plates open.
+Model Spell_ToxicTrap {
+	Path "Models/Proj"
+	Model 0 "TOXTRAP.md3"
+	Skin 0 "TOXTRAP.png"
+	FrameIndex TXTP A 0 0
+	FrameIndex TXTP B 0 1
+	FrameIndex TXTP C 0 2
+	FrameIndex TXTP D 0 3
+	FrameIndex TXTP E 0 4
+	FrameIndex TXTP F 0 5
+}
+
+// Unleash Earth: a rock column, frames A-F 48 to 288 tall over the floor; the rest of its height is ScaleY, its lean the pitch.
+Model Spell_UnleashEarth_Pillar {
+	Path "Models/Proj"
+	Model 0 "UEPILLAR.md3"
+	Skin 0 "UEPILLAR.png"
+	INHERITACTORPITCH
+	FrameIndex UEPL A 0 0
+	FrameIndex UEPL B 0 1
+	FrameIndex UEPL C 0 2
+	FrameIndex UEPL D 0 3
+	FrameIndex UEPL E 0 4
+	FrameIndex UEPL F 0 5
+}
+
+// The Rock Golem's rank 5 boulder: Rockslide's own, matched by class.
+Model Spell_RockGolem_Boulder {
+	Path "Models/Proj"
+	Model 0 "ROCKSLID.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "ROCKSLGW.png"
+	Scale 1.0 1.0 1.0
+	ROTATING
+	rotation-vector 0.0 0.0 1.0
+	rotation-speed 3.0
+	FrameIndex ERSL A 0 0
+}
+
+// Rejuvenation's sphere round its target; the skin comes from Graphics/ so Rejuvenation.fp can bind to it.
+Model Spell_Rejuvenation_Sphere {
+	Path "Models/Proj"
+	Model 0 "REJUVSPH.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "REJUVSPH.png"
+	Scale 1.0 1.0 1.0
+	FrameIndex RJSP A 0 0
+}
+
+// Geyser's vent: a rock pile round a pool of acid. Skins from Graphics/ so GeyserRock.fp and GeyserPool.fp bind to them.
+Model Spell_Geyser_Vent {
+	Path "Models/Proj"
+	Model 0 "GEYSER.md3"
+	Path "Graphics/ShaderTex"
+	SurfaceSkin 0 0 "GYROCK.png"
+	SurfaceSkin 0 1 "GYPOOL.png"
+	Scale 1.0 1.0 1.0
+	FrameIndex GYSR A 0 0
+	FrameIndex GYSR B 0 1
+	FrameIndex GYSR C 0 2
+	FrameIndex GYSR D 0 3
+	FrameIndex GYSR E 0 4
+	FrameIndex GYSR F 0 5
+	FrameIndex GYSR G 0 6
+	FrameIndex GYSR H 0 7
+	FrameIndex GYSR I 0 8
+	FrameIndex GYSR J 0 9
+	FrameIndex GYSR K 0 10
+	FrameIndex GYSR L 0 11
+	FrameIndex GYSR M 0 12
+	FrameIndex GYSR N 0 13
+	FrameIndex GYSR O 0 14
+}
+
+// A drop of Geyser's acid, pointed along its flight.
+Model Spell_Geyser_Drop {
+	Path "Models/Proj"
+	Model 0 "GYDROP.md3"
+	Skin 0 "GYDROP.png"
+	Scale 1.0 1.0 1.0
+	PITCHFROMMOMENTUM
+	FrameIndex GYDR A 0 0
+}
+
+// Poison Nova's bolt: the mesh is only a hull; PoisonNova.fp draws the ball and its flames in it, the tail along the flight.
+Model Spell_PoisonNova {
+	Path "Models/Proj"
+	Model 0 "PNOVA.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "PNOVA.png"
+	Scale 1.0 1.0 1.0
+	ZOffset 6
+	PITCHFROMMOMENTUM
+
+	// Flight only: the death burst, S001 C to E, stays a sprite.
+	FrameIndex S001 A 0 0
+	FrameIndex S001 B 0 0
 }

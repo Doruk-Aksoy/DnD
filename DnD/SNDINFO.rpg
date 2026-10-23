@@ -657,13 +657,51 @@ $limit Monsoon/Strike 0
 **************************
 */
 
-$alias Shrapnel/Cast EarthLich/Rock
-$alias Shrapnel/Hit EarthLich/RockHit
+$alias Shrapnel/Cast Armors/NecroShard
+$alias Shrapnel/Hit Armors/NecroShardHit
+
 $alias NoxiousBlast/Cast whiteballssee
 $alias NoxiousBlast/Burst whiteballsdeth
-$alias Rockslide/Cast Ambience/RockBreak
-$alias Rockslide/Hit stone/death
+
+$alias Rockslide/Cast BOULDCAS
+$alias Rockslide/Hit BOULDHIT
+
 $alias ToxicTrap/Lay AcidRifle/In
 $alias ToxicTrap/Burst torturedsoul/poison
+
 $alias BalefulInfusion/Cast MageStaffFire
 $alias BalefulInfusion/Spend AcidRifle/Hit
+
+$alias Vines/Cast Abaxoth/HammerSwing1
+
+$alias VenomGyre/Throw Axe/Throw1
+$alias VenomGyre/Bounce Hammer/BounceSurf1
+$alias VenomGyre/Catch AcidRifle/In
+
+$alias RockArmor/Cast EarthLich/Rock
+$alias RockArmor/Hit EarthLich/RockHit
+$alias RockArmor/Shatter stone/death
+
+$alias Upheaval/Rumble QuakeBase/Move1
+$alias Upheaval/Blast BOULDHIT
+$alias Upheaval/Slam EarthLich/RockHit
+
+$alias ThreadedVolley/Throw Armors/NecroShard
+$alias ThreadedVolley/Hit Armors/NecroShardHit
+$alias ThreadedVolley/Energized BOULDCAS
+$alias ThreadedVolley/Burst BOULDHIT
+
+$alias Vulnerability/Cast EarthLich/RockHit
+$alias Despair/Cast torturedsoul/poison
+
+$alias Rejuvenation/Cast WoT/Heal
+$alias CorrosiveBreath/Release ChillingBreath/Start
+$alias CrushingRocks/Rise QuakeBase/Move1
+$alias CrushingRocks/Crush BOULDHIT
+$alias RockGolem/Cast EarthLich/Rock
+$alias Blockade/Rise QuakeBase/Move1
+$alias Blockade/Break stone/death
+$alias Geyser/Quake QuakeBase/Move1
+$alias Geyser/Spit whiteballssee
+$alias UnleashEarth/Erupt BOULDHIT
+$alias UnleashEarth/Land EarthLich/RockHit

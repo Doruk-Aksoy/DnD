@@ -111,7 +111,8 @@ enum {
 	SPL_DESPAIR,
 	SPL_POISONNOVA,
 	SPL_UNLEASHEARTH,
-	SPL_GEYSER
+	SPL_GEYSER,
+	SPL_REJUVENATION
 };
 
 // Which numbers a spell carries. The DAMAGE, RADIUS and AMOUNT fields are plain integers; COST,
@@ -577,6 +578,18 @@ int GetSpellThresholdBonus(int spell, int which, int rank) {
 			return which == SPELLVAL_RADIUS && r10 ? 84 : 0;
 		case SPL_TOXICTRAP:
 			return which == SPELLVAL_AMOUNT && r5 ? 2 : which == SPELLVAL_DURATION && r10 ? 1.0 : 0;
+		case SPL_VENOMGYRE:
+			return which == SPELLVAL_AMOUNT && r5 ? 5 : 0;
+		case SPL_ROCKARMOR:
+			return which == SPELLVAL_DURATION && r5 ? 2.0 : 0;
+		case SPL_VULNERABILITY:
+			return which == SPELLVAL_DURATION && r10 ? 4.0 : 0;
+		case SPL_POISONNOVA:
+			return which == SPELLVAL_AMOUNT && r5 ? 4 : which == SPELLVAL_DURATION && r10 ? 2.0 : 0;
+		case SPL_CORROSIVEBREATH:
+			return which == SPELLVAL_AMOUNT && r10 ? 30 : which == SPELLVAL_RADIUS && r10 ? 106 : 0;
+		case SPL_CRUSHINGROCKS:
+			return which == SPELLVAL_AMOUNT && r10 ? 2 : 0;
 	}
 	return 0;
 }
@@ -584,10 +597,6 @@ int GetSpellThresholdBonus(int spell, int which, int rank) {
 int GetSpellValue(int pnum, int spell, int which, int rank_at = 0) {
 	int rank = rank_at ? rank_at : GetSpellRank(pnum, spell, true);
 	if(!rank)
-		return 0;
-
-	// Blink: no cast time from rank 5, free from rank 10. Here so the cast, the bill and the tooltip agree.
-	if(spell == SPL_BLINK && ((which == SPELLVAL_CASTTIME && rank >= DND_SPELL_THRESH_LOW) || (which == SPELLVAL_COST && rank >= DND_SPELL_THRESH_HIGH)))
 		return 0;
 
 	int steps = (SpellDefs[spell].even_mask & (1 << which)) ? rank / 2 : rank - 1;
@@ -946,6 +955,12 @@ str GetSpellFieldLumpFor(int spell, int which) {
 		return "DND_SPLFIELD_THROW";
 	if(spell == SPL_THREADEDVOLLEY && which == SPELLVAL_AMOUNT2)
 		return "DND_SPLFIELD_ENERGIZED";
+	if(spell == SPL_VINESOFTORMENT && which == SPELLVAL_DAMAGE2)
+		return "DND_SPLFIELD_HEAL";
+	if(spell == SPL_UNLEASHEARTH && which == SPELLVAL_DAMAGE2)
+		return "DND_SPLFIELD_CRASH";
+	if(spell == SPL_BLOCKADE)
+		return which == SPELLVAL_DAMAGE ? "DND_SPLFIELD_WALLHP" : which == SPELLVAL_AMOUNT ? "DND_SPLFIELD_WALLLEN" : GetSpellFieldLump(which);
 	return GetSpellFieldLump(which);
 }
 

@@ -1,0 +1,47 @@
+// A geyser's vent, client side: GEYSER.md3, a rock pile round a pool of acid, raised and sunk by "DnD Geyser FX".
+Actor Spell_Geyser_Vent : DnD_SpecialFX {
+	States {
+		Spawn:
+			GYSR A -1
+		Stop
+		// GEYSER.md3 frames 1-14: the rim rocks tumble off, the pile slumps and drains, the rubble settles under the floor.
+		Crumble:
+			GYSR BCDEFGHIJKLMNO 2
+			TNT1 A -1
+		Stop
+	}
+}
+
+// One drop of acid, client side, thrown on the server's dice; the server lands its damage. GYDROP.md3 in flight.
+Actor Spell_Geyser_Drop {
+	+CLIENTSIDEONLY
+	PROJECTILE
+	-NOGRAVITY
+	+THRUACTORS
+	+DONTSPLASH
+	Gravity 0.6
+	Radius 2
+	Height 2
+	RenderStyle Add
+	Alpha 0.95
+	States {
+		Spawn:
+			GYDR A -1 Bright
+		Stop
+		Death:
+			TNT1 A 0 A_SpawnItemEx("Spell_Geyser_Splash", 0, 0, 7, 0, 0, 0, 0, SXF_CLIENTSIDE)
+		Stop
+	}
+}
+
+// Where a drop lands, raised so the floor does not cut the puff in half.
+Actor Spell_Geyser_Splash : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.35
+	States {
+		Spawn:
+			FXPG ABCD 2 Bright
+		Stop
+	}
+}
