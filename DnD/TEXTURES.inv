@@ -430,6 +430,13 @@ Graphic "DNGTK01", 68, 69
 	Patch "DNGTK01", 0, 0
 }
 
+Graphic "DNGTK02", 64, 108
+{
+	XScale 3.0
+	YScale 3.0
+	Patch "DNGTK02", 0, 0
+}
+
 // Gems: each icon (GI*, off the GM* art) cropped to its content and scaled to 26 pixels at its longest. The drop
 // sprites GMDPA0-P0 reuse the art in GetGemIndex order, 20 units long and floating 14 above the floor.
 

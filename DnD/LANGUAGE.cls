@@ -111,7 +111,7 @@ CLASS4_PERK5			= "Astral Form";
 
 CLASS4_PERK1_DESC		= "Debuffs on you expire 25% faster.";
 CLASS4_PERK2_DESC		= "Applying ailments to enemies reduce their resists by 10 per different ailment on them.";
-CLASS4_PERK3_DESC		= "While you have energy shield, you can't be affected by ailments. Energy shield recovery has 20% chance to start immediately when you inflict an ailment on an enemy.";
+CLASS4_PERK3_DESC		= "While you have energy shield, you can't be affected by ailments. Energy shield recovery has 20% chance to start immediately when you inflict an ailment on an enemy. Gain an additional hotbar slot.";
 CLASS4_PERK4_DESC		= "Enemies killed by you have 25% chance to explode for 15% of their maximum health in a 160 unit radius with a random element. You can't be hurt by this damage.";
 CLASS4_PERK5_DESC		= "Once per map, use the '+zoom' key to leave your body behind, becoming ethereal. Gain access to \ctPsionic Wave\c-, which charges up a massive nova to deal incredible damage with 5 second cooldown. "
 						  "\ctRay of Disintegration\c-, which can deal constant damage in a line to all enemies in front of you. And \ctEthereal Walk\c-, which lets you travel freely with 4 second cooldown, dealing damage at start and the end. "

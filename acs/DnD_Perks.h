@@ -18,6 +18,7 @@ enum {
     PERK_ARCH_MART,
     PERK_ARCH_PERC,
     PERK_ARCH_TORM,
+    PERK_ARCH_MAGI,
 
     PERK_ARCH_COUNT
 };
@@ -119,13 +120,14 @@ enum {
     PERK_CUN_MASTEROFFEROCITY,
     PERK_CUN_MASTEROFTHEARCANE,
 
-    // ---- Endurance: 16 perks, 38 points ----
+    // ---- Endurance: 17 perks, 39 points ----
     PERK_END_PHYSICIAN,
     PERK_END_UNWAVERINGSTANCE,
     PERK_END_MEDIC,
     PERK_END_VIGOUR,
     PERK_END_RESTLESSVITALITY,
     PERK_END_INDOMITABLERESOLVE,
+    PERK_END_NANOMACHINERY,
 
     PERK_END_CAMOUFLAGE,
     PERK_END_DENSEEXOSKELETON,
@@ -230,6 +232,39 @@ enum {
     PERK_TORM_SAVAGEWOUNDS,
     PERK_TORM_CORNEREDPREY,
     PERK_TORM_MASTEROFWOUNDS,
+
+    // ---- Magi: 26 perks, 59 points ----
+    // mana and skill cost
+    PERK_MAGI_APPRENTICE,
+    PERK_MAGI_MANAFLOW,
+    PERK_MAGI_TAPINTOTHEARCANE,
+    PERK_MAGI_ARCANEWILL,
+    PERK_MAGI_TEMPORALSURGE,
+    PERK_MAGI_WARLOCKSFEAST,
+    PERK_MAGI_SUBLIMECAPACITY,
+    PERK_MAGI_ARCANECONSERVATION,
+    PERK_MAGI_BLOODMAGIC,
+
+    // spells
+    PERK_MAGI_WIZARDRY,
+    PERK_MAGI_POTENTMAGICS,
+    PERK_MAGI_MENTALRAPIDITY,
+    PERK_MAGI_MYSTICRECOVERY,
+    PERK_MAGI_DEVASTATION,
+    PERK_MAGI_ARCANEEXPANSION,
+    PERK_MAGI_PRODIGALPERFECTION,
+    PERK_MAGI_PAINATTUNEMENT,
+    PERK_MAGI_SUPREMEKNOWLEDGE,
+
+    // minions
+    PERK_MAGI_INSPIRATIONAL,
+    PERK_MAGI_DEVOTEDLEADER,
+    PERK_MAGI_ENDURINGBOND,
+    PERK_MAGI_INDOMITABLEARMY,
+    PERK_MAGI_PACTLEADER,
+    PERK_MAGI_SPIRITUALAID,
+    PERK_MAGI_FRENZIEDFOLLOWERS,
+    PERK_MAGI_RIGHTEOUSARMY,
 
     PERK_COUNT
 };
@@ -573,6 +608,10 @@ void AddPerkStatValue(int pnum, int pstat, int delta) {
 
     PlayerModData[pnum].vals[pstat] += delta;
     ACS_NamedExecuteWithResult("DnD Request Stat Sync", pnum, pstat, PlayerModData[pnum].vals[pstat]);
+
+    // A slot taken away takes its spell with it.
+    if(pstat == PSTAT_EX_SPELLSLOTS && delta < 0)
+        TrimHotbarSlots(pnum);
 }
 
 int GetPerkStatValueAt(int perk, int slot, int points) {
@@ -619,6 +658,13 @@ bool PerkAffectsDamage(int perk) {
     return !!(PerkTable[perk].flags & PERKF_AFFECTSDAMAGE);
 }
 
+// A Magi mana perk moves the mana cap, the auras' fit or Blood Magic's pools, none of them read live, so a spend or
+// refund refreshes them now rather than on the next once a second tick.
+void RefreshPerkPools(int pnum, int perk) {
+    if(PerkTable[perk].archetype == PERK_ARCH_MAGI && !PerkTable[perk].category)
+        ValidateAuraReservations(pnum);
+}
+
 // ---------------------------------------------------------------- spend and refund
 // Both go through the gate rather than trusting the caller, because the menu is clientside and a
 // spend that arrives from there has to be re-checked on the server anyway.
@@ -632,6 +678,7 @@ bool SpendPerkPoint(int pnum, int perk) {
     TakePerkPoints(pnum, 1);
     SyncPerkWord(pnum, perk);
     ApplyPerkPoints(pnum, perk, before, before + 1);
+    RefreshPerkPools(pnum, perk);
 
     // The stat is already folded in above; this is only the cached damage that was computed from the
     // old value. Perks that feed nothing on the damage path do not pay for it.
@@ -652,6 +699,7 @@ bool RefundPerkPoint(int pnum, int perk) {
     GivePerkPoints(pnum, 1);
     SyncPerkWord(pnum, perk);
     ApplyPerkPoints(pnum, perk, before, before - 1);
+    RefreshPerkPools(pnum, perk);
 
     if(PerkAffectsDamage(perk))
         ForcePlayerDamageCaching(pnum);
@@ -771,6 +819,7 @@ str GetPerkLangKey(int id) {
         "PERK_END_VIGOUR",
         "PERK_END_RESTLESSVITALITY",
         "PERK_END_INDOMITABLERESOLVE",
+        "PERK_END_NANOMACHINERY",
         "PERK_END_CAMOUFLAGE",
         "PERK_END_DENSEEXOSKELETON",
         "PERK_END_STONESKIN",
@@ -856,6 +905,33 @@ str GetPerkLangKey(int id) {
         "PERK_TORM_SAVAGEWOUNDS",
         "PERK_TORM_CORNEREDPREY",
         "PERK_TORM_MASTEROFWOUNDS",
+        // Magi
+        "PERK_MAGI_APPRENTICE",
+        "PERK_MAGI_MANAFLOW",
+        "PERK_MAGI_TAPINTOTHEARCANE",
+        "PERK_MAGI_ARCANEWILL",
+        "PERK_MAGI_TEMPORALSURGE",
+        "PERK_MAGI_WARLOCKSFEAST",
+        "PERK_MAGI_SUBLIMECAPACITY",
+        "PERK_MAGI_ARCANECONSERVATION",
+        "PERK_MAGI_BLOODMAGIC",
+        "PERK_MAGI_WIZARDRY",
+        "PERK_MAGI_POTENTMAGICS",
+        "PERK_MAGI_MENTALRAPIDITY",
+        "PERK_MAGI_MYSTICRECOVERY",
+        "PERK_MAGI_DEVASTATION",
+        "PERK_MAGI_ARCANEEXPANSION",
+        "PERK_MAGI_PRODIGALPERFECTION",
+        "PERK_MAGI_PAINATTUNEMENT",
+        "PERK_MAGI_SUPREMEKNOWLEDGE",
+        "PERK_MAGI_INSPIRATIONAL",
+        "PERK_MAGI_DEVOTEDLEADER",
+        "PERK_MAGI_ENDURINGBOND",
+        "PERK_MAGI_INDOMITABLEARMY",
+        "PERK_MAGI_PACTLEADER",
+        "PERK_MAGI_SPIRITUALAID",
+        "PERK_MAGI_FRENZIEDFOLLOWERS",
+        "PERK_MAGI_RIGHTEOUSARMY",
     };
 
     if(id < 0 || id >= PERK_COUNT)
@@ -871,7 +947,8 @@ str GetPerkArchLangKey(int arch) {
         "PERK_ARCH_END",
         "PERK_ARCH_MART",
         "PERK_ARCH_PERC",
-        "PERK_ARCH_TORM"
+        "PERK_ARCH_TORM",
+        "PERK_ARCH_MAGI"
     };
 
     if(arch < 0 || arch >= PERK_ARCH_COUNT)
@@ -1219,7 +1296,7 @@ void SetupPerkStats() {
     SetPerkStat(PERK_ACRO_NIMBLENESS, PSTAT_MIT_PERRUNSEC, 1.0, 0.5);
 
     // the + line is cooldown only, so the speed itself does not scale
-    SetPerkStat(PERK_ACRO_TAILWIND, PSTAT_TAILWIND_SPEED, 10, 0);
+    SetPerkStat(PERK_ACRO_TAILWIND, PSTAT_TAILWIND_SPEED, 15, 0);
     SetPerkStat(PERK_ACRO_TAILWIND, PSTAT_TAILWIND_CDREDUCE, 0, 1);
 
     // ---------------- Assassination ----------------
@@ -1301,8 +1378,9 @@ void SetupPerkStats() {
     SetPerkStat(PERK_END_HIDDENRESERVE, PSTAT_SHIELD_RECOVERYRATE, -40, 15);
     SetPerkStat(PERK_END_MEDIC, PSTAT_HEALING_EFFECT, 20);
     SetPerkStat(PERK_END_STONESKIN, PSTAT_DOT_DMGTAKEN_REDUCE, 15, 10);
-    SetPerkStat(PERK_END_VIGOUR, PSTAT_REGENRATE, 2);
-    SetPerkStat(PERK_END_RESTLESSVITALITY, PSTAT_CORR_DMGDOESNTSTOPREGEN, 1);
+    SetPerkStat(PERK_END_VIGOUR, PSTAT_REGEN_FLAT, 2);
+    SetPerkStat(PERK_END_RESTLESSVITALITY, PSTAT_REGEN_DOTNOPAUSE, 1);
+    SetPerkStat(PERK_END_NANOMACHINERY, PSTAT_REGEN_PCT, 2.0);                // fixed point
     SetPerkStat(PERK_END_CRYSTALSKIN, PSTAT_MAXRESIST_ADDED, 1.5);          // fixed point
     SetPerkStat(PERK_END_ENHANCEDIRON, PSTAT_ARMOR_PCT, 10);
     SetPerkStat(PERK_END_FINESSE, PSTAT_MIT_CHANCE, 5.0);                   // fixed point
@@ -1372,7 +1450,7 @@ void SetupPerkStats() {
     SetPerkStat(PERK_PERC_EMERGENCYPROTOCOL, PSTAT_OVERHEAT_GRACE, 105);
 
     // 45 second recharge, 10 seconds off per further point
-    SetPerkStat(PERK_PERC_HEATSINKS, PSTAT_HEATSINK_CDREDUCE, 3, 5);
+    SetPerkStat(PERK_PERC_HEATSINKS, PSTAT_HEATSINK_CDREDUCE, 0, 5);
 
     // "empowers the next 5 shots", "+1 round" per further point -- the DAMAGE does not scale
     SetPerkStat(PERK_PERC_FRESHCLIP, PSTAT_FRESHCLIP_SHOTS, 5, 1);
@@ -1450,6 +1528,40 @@ void SetupPerkStats() {
 
     SetPerkStat(PERK_TORM_MASTEROFWOUNDS, PSTAT_BLEED_AGGRAVATECHANCE, 10, -0x7FFFFFFF, PERKF_AFFECTSDAMAGE);
 
+    // ================= Magi =================
+    // Spells: integer slots, so 2.5% steps round to 3; spell crit is fixed point (INV_CRIT_SPELL authors 0.004).
+    SetPerkStat(PERK_MAGI_WIZARDRY, PSTAT_SPELL_DAMAGE, 10, 5);
+    SetPerkStat(PERK_MAGI_POTENTMAGICS, PSTAT_SPELL_DURATION, 10, 3);
+    SetPerkStat(PERK_MAGI_MENTALRAPIDITY, PSTAT_SPELL_HASTE, 10, 3);
+    SetPerkStat(PERK_MAGI_MYSTICRECOVERY, PSTAT_SPELL_CDR, 10, 3);
+    SetPerkStat(PERK_MAGI_DEVASTATION, PSTAT_SPELL_CRIT, 0.02, 0.015);
+    SetPerkStat(PERK_MAGI_ARCANEEXPANSION, PSTAT_SPELL_AOE, 10, 3);
+    SetPerkStat(PERK_MAGI_PRODIGALPERFECTION, PSTAT_SPELLDMG_PERMANA, 2);
+    SetPerkStat(PERK_MAGI_PRODIGALPERFECTION, PSTAT_SPELLDMG_PERMANACAP, 40);
+    SetPerkStat(PERK_MAGI_PAINATTUNEMENT, PSTAT_SPELL_MORE_LOWLIFE, 30);
+    SetPerkStat(PERK_MAGI_SUPREMEKNOWLEDGE, PSTAT_EX_SPELLSLOTS, 1);
+
+    // Mana and cost. Arcane Will's slot is HUNDREDTHS of mana a second, as every flat regen term is; Warlock's Feast's
+    // is tenths of a percent, so 1.5% then +0.5% is 15 then 5.
+    SetPerkStat(PERK_MAGI_APPRENTICE, PSTAT_MANA_PCT, 5);
+    SetPerkStat(PERK_MAGI_MANAFLOW, PSTAT_MANAREGEN_PCT, 10, 5);
+    SetPerkStat(PERK_MAGI_ARCANEWILL, PSTAT_MANAREGEN_FLAT, 300, 250);
+    SetPerkStat(PERK_MAGI_TAPINTOTHEARCANE, PSTAT_MANACOST_TOSHIELD, 5);
+    SetPerkStat(PERK_MAGI_TEMPORALSURGE, PSTAT_COSTRECOVER_CHANCE, 15, 5);
+    SetPerkStat(PERK_MAGI_WARLOCKSFEAST, PSTAT_KILL_MANARECOVER, 15, 5);
+    SetPerkStat(PERK_MAGI_SUBLIMECAPACITY, PSTAT_MANARESERVE_EFF, 10);
+    SetPerkStat(PERK_MAGI_ARCANECONSERVATION, PSTAT_SPELL_COST_LESS, 10);
+    SetPerkFlag(PERK_MAGI_BLOODMAGIC, PFLAG_BLOODMAGIC);
+
+    // Minions. Enduring Bond's 7.5% rounds to 8; Pact Leader rides the pet cap slot the Lich helm's implicit uses.
+    SetPerkStat(PERK_MAGI_INSPIRATIONAL, PSTAT_MINION_DAMAGE, 10, 5);
+    SetPerkStat(PERK_MAGI_DEVOTEDLEADER, PSTAT_MINION_HEALTH, 5);
+    SetPerkStat(PERK_MAGI_ENDURINGBOND, PSTAT_MINION_DURATION, 15, 8);
+    SetPerkStat(PERK_MAGI_INDOMITABLEARMY, PSTAT_MINION_RESIST, 8, 4);
+    SetPerkStat(PERK_MAGI_PACTLEADER, PSTAT_IMP_BONUSPETCAP, 1);
+    SetPerkStat(PERK_MAGI_SPIRITUALAID, PSTAT_MINION_BUFFEFFECT, 20, 10);
+    SetPerkStat(PERK_MAGI_FRENZIEDFOLLOWERS, PSTAT_MINION_CDR, 15);
+    SetPerkStat(PERK_MAGI_RIGHTEOUSARMY, PSTAT_MINION_REGEN, 1);
 }
 
 // Generated from Perk_Notes/. Structural fields only -- archetype, category, point cap, threshold
@@ -1560,6 +1672,8 @@ void SetupPerkTable() {
     SetPerkReq(PERK_END_RESTLESSVITALITY, PERK_REQ_ANY, PERK_END_PHYSICIAN, 1, PERK_END_VIGOUR, 1);
     DefinePerk(PERK_END_INDOMITABLERESOLVE, PERK_ARCH_END, 0, 1, 12);
     SetPerkReq(PERK_END_INDOMITABLERESOLVE, PERK_REQ_ANY, PERK_END_PHYSICIAN, 1, PERK_END_VIGOUR, 1);
+    DefinePerk(PERK_END_NANOMACHINERY, PERK_ARCH_END, 0, 1, 12);
+    SetPerkReq(PERK_END_NANOMACHINERY, PERK_REQ_ANY, PERK_END_PHYSICIAN, 1, PERK_END_VIGOUR, 1);
 
     // -- category 1 --
     DefinePerk(PERK_END_CAMOUFLAGE, PERK_ARCH_END, 1, 3, 3);
@@ -1713,6 +1827,52 @@ void SetupPerkTable() {
     DefinePerk(PERK_TORM_CORNEREDPREY, PERK_ARCH_TORM, 4, 2, 9);
     SetPerkReq(PERK_TORM_CORNEREDPREY, PERK_REQ_ANY, PERK_TORM_SWIFTDRAIN, 1, PERK_TORM_SAVAGEWOUNDS, 1);
     DefinePerk(PERK_TORM_MASTEROFWOUNDS, PERK_ARCH_TORM, 4, 1, 12);
+
+    // ================= Magi =================
+
+    // -- category 0: mana and skill cost --
+    DefinePerk(PERK_MAGI_APPRENTICE, PERK_ARCH_MAGI, 0, 3);
+    DefinePerk(PERK_MAGI_MANAFLOW, PERK_ARCH_MAGI, 0, 3);
+    DefinePerk(PERK_MAGI_TAPINTOTHEARCANE, PERK_ARCH_MAGI, 0, 2, 6);
+    DefinePerk(PERK_MAGI_ARCANEWILL, PERK_ARCH_MAGI, 0, 3, 6);
+    DefinePerk(PERK_MAGI_TEMPORALSURGE, PERK_ARCH_MAGI, 0, 3, 9);
+    SetPerkReq(PERK_MAGI_TEMPORALSURGE, PERK_REQ_ANY, PERK_MAGI_ARCANEWILL, 1, PERK_MAGI_TAPINTOTHEARCANE, 1);
+    DefinePerk(PERK_MAGI_WARLOCKSFEAST, PERK_ARCH_MAGI, 0, 3, 9);
+    SetPerkReq(PERK_MAGI_WARLOCKSFEAST, PERK_REQ_ANY, PERK_MAGI_ARCANEWILL, 1, PERK_MAGI_TAPINTOTHEARCANE, 1);
+    DefinePerk(PERK_MAGI_SUBLIMECAPACITY, PERK_ARCH_MAGI, 0, 1, 12);
+    SetPerkReq(PERK_MAGI_SUBLIMECAPACITY, PERK_REQ_ANY, PERK_MAGI_ARCANEWILL, 1, PERK_MAGI_TAPINTOTHEARCANE, 1);
+    DefinePerk(PERK_MAGI_ARCANECONSERVATION, PERK_ARCH_MAGI, 0, 1, 12);
+    DefinePerk(PERK_MAGI_BLOODMAGIC, PERK_ARCH_MAGI, 0, 1, 15);
+
+    // -- category 1: spells --
+    DefinePerk(PERK_MAGI_WIZARDRY, PERK_ARCH_MAGI, 1, 3);
+    DefinePerk(PERK_MAGI_POTENTMAGICS, PERK_ARCH_MAGI, 1, 3);
+    DefinePerk(PERK_MAGI_MENTALRAPIDITY, PERK_ARCH_MAGI, 1, 3, 6);
+    SetPerkReq(PERK_MAGI_MENTALRAPIDITY, PERK_REQ_ANY, PERK_MAGI_WIZARDRY, 1, PERK_MAGI_POTENTMAGICS, 1);
+    DefinePerk(PERK_MAGI_MYSTICRECOVERY, PERK_ARCH_MAGI, 1, 3, 6);
+    SetPerkReq(PERK_MAGI_MYSTICRECOVERY, PERK_REQ_ANY, PERK_MAGI_WIZARDRY, 1, PERK_MAGI_POTENTMAGICS, 1);
+    DefinePerk(PERK_MAGI_DEVASTATION, PERK_ARCH_MAGI, 1, 3, 9);
+    DefinePerk(PERK_MAGI_ARCANEEXPANSION, PERK_ARCH_MAGI, 1, 3, 9);
+    DefinePerk(PERK_MAGI_PRODIGALPERFECTION, PERK_ARCH_MAGI, 1, 1, 12);
+    SetPerkReq(PERK_MAGI_PRODIGALPERFECTION, PERK_REQ_ANY, PERK_MAGI_MYSTICRECOVERY, 1, PERK_MAGI_MENTALRAPIDITY, 1);
+    DefinePerk(PERK_MAGI_PAINATTUNEMENT, PERK_ARCH_MAGI, 1, 1, 12);
+    DefinePerk(PERK_MAGI_SUPREMEKNOWLEDGE, PERK_ARCH_MAGI, 1, 1, 15);
+
+    // -- category 2: minions --
+    DefinePerk(PERK_MAGI_INSPIRATIONAL, PERK_ARCH_MAGI, 2, 3);
+    DefinePerk(PERK_MAGI_DEVOTEDLEADER, PERK_ARCH_MAGI, 2, 3);
+    DefinePerk(PERK_MAGI_ENDURINGBOND, PERK_ARCH_MAGI, 2, 3, 6);
+    SetPerkReq(PERK_MAGI_ENDURINGBOND, PERK_REQ_ANY, PERK_MAGI_DEVOTEDLEADER, 1, PERK_MAGI_INSPIRATIONAL, 1);
+    DefinePerk(PERK_MAGI_INDOMITABLEARMY, PERK_ARCH_MAGI, 2, 3, 6);
+    SetPerkReq(PERK_MAGI_INDOMITABLEARMY, PERK_REQ_ANY, PERK_MAGI_DEVOTEDLEADER, 1, PERK_MAGI_INSPIRATIONAL, 1);
+    DefinePerk(PERK_MAGI_PACTLEADER, PERK_ARCH_MAGI, 2, 2, 9);
+    SetPerkReq(PERK_MAGI_PACTLEADER, PERK_REQ_ANY, PERK_MAGI_DEVOTEDLEADER, 1, PERK_MAGI_INSPIRATIONAL, 1);
+    DefinePerk(PERK_MAGI_SPIRITUALAID, PERK_ARCH_MAGI, 2, 2, 9);
+    SetPerkReq(PERK_MAGI_SPIRITUALAID, PERK_REQ_ANY, PERK_MAGI_DEVOTEDLEADER, 1, PERK_MAGI_INSPIRATIONAL, 1);
+    DefinePerk(PERK_MAGI_FRENZIEDFOLLOWERS, PERK_ARCH_MAGI, 2, 1, 12);
+    SetPerkReq(PERK_MAGI_FRENZIEDFOLLOWERS, PERK_REQ_ANY, PERK_MAGI_PACTLEADER, 1, PERK_MAGI_SPIRITUALAID, 1);
+    DefinePerk(PERK_MAGI_RIGHTEOUSARMY, PERK_ARCH_MAGI, 2, 1, 12);
+    SetPerkReq(PERK_MAGI_RIGHTEOUSARMY, PERK_REQ_ANY, PERK_MAGI_PACTLEADER, 1, PERK_MAGI_SPIRITUALAID, 1);
 
     // Both last, and in this order: SetPerkStat refuses to touch a perk DefinePerk has not reached
     // yet, and the menu lists are a read of the finished table.

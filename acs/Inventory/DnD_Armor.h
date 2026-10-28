@@ -443,6 +443,10 @@ Script "DnD Drop Random Basic Armor" (int higher_tier, int dont_remove) {
 
 	Delay(const:HALF_TICRATE);
 
+	// the item was picked up or removed during the wait
+	if(ClassifyActor(0) & ACTOR_WORLD)
+		Terminate;
+
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(IsActivePlayer(i) && IsActorAlive(i + P_TIDSTART))
 			SpawnArmor(i, 0, higher_tier, true);

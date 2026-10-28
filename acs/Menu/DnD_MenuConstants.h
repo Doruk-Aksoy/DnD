@@ -61,7 +61,7 @@ enum {
 	MENU_PERK,
 	
 	// One page per archetype, in PERK_ARCH_* order so the page IS the archetype:
-	// curopt - MENU_PERKTREE_FIRST. Seven pages rather than one page with a variable, because the
+	// curopt - MENU_PERKTREE_FIRST. One page each rather than one page with a variable, because the
 	// pane is rebuilt on page CHANGE and a variable would swap archetypes without it ever noticing.
 	MENU_PERK_ACRO,
 	MENU_PERK_ASSN,
@@ -70,6 +70,7 @@ enum {
 	MENU_PERK_MART,
 	MENU_PERK_PERC,
 	MENU_PERK_TORM,
+	MENU_PERK_MAGI,
 	
 	MENU_LOAD,
 	MENU_LOAD1,
@@ -335,10 +336,9 @@ enum {
 #define DND_PERKBAR_LIST     0
 #define DND_PERKBAR_PANEL    1
 
-// The archetype index runs out of rows at y 208 and the panel goes to 280, so the dash toggle lives
-// in that gap behind a rule. It is not a perk, which is exactly why it is fenced off rather than
-// dropped in as an eighth row -- and the box after the last archetype is the same "extras go last"
-// convention the tree page uses for its back arrow.
+// Eight archetype rows ROWGAP apart from y 88 (the last at 214, the layout table's rects follow), then the
+// dash toggle behind a rule: not a perk, so fenced off, its box after the last archetype as extras go last.
+#define DND_PERKINDEX_ROWGAP    18
 #define DND_PERKINDEX_DIVIDER_Y 226.2
 #define DND_PERKINDEX_TOGGLE_Y  240.2
 #define DND_PERKINDEX_HINT_Y    280.2
@@ -354,7 +354,7 @@ enum {
 #define DND_PERKPANEL_CPL    31
 
 #define MENU_PERKTREE_FIRST MENU_PERK_ACRO
-#define MENU_PERKTREE_LAST  MENU_PERK_TORM
+#define MENU_PERKTREE_LAST  MENU_PERK_MAGI
 
 bool IsPerkTreePage(int page) {
 	return page >= MENU_PERKTREE_FIRST && page <= MENU_PERKTREE_LAST;

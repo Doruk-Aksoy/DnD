@@ -5,6 +5,8 @@
 
 DND_MENU_HEAD_SPELLS	=	"SKILLS";
 DND_MENU_SPELLPOINTS	=	"Skill Points";
+DND_PICKUP_SPELLPOINT	=	"Skill Point pickup";
+DND_PICKUP_SPELLPOINTGAIN	=	"+1 Skill Point";
 
 DND_SPELLTREE0		=	"Fire";
 DND_SPELLTREE1		=	"Cold";
@@ -465,9 +467,9 @@ DND_SPLR5_94    = "+5% overload chance.";
 DND_SPLR10_94   = "Overload on you and affected allies lasts 50% less.";
 
 // Galvanic Surge
-DND_SPLDESC95   = "Grant yourself a jolt of energy, instantly recovering the cooldown of the most recently used spell.";
+DND_SPLDESC95   = "Grant yourself a jolt of energy, instantly recovering the cooldown of the last spell you put on cooldown.";
 DND_SPLPER95    = "-1 mana cost.";
-DND_SPLR5_95    = "Usable under any ailment, removing them all.";
+DND_SPLR5_95    = "Also removes all ailments on you.";
 DND_SPLR10_95   = "Grants 25% spell haste for 5 seconds.";
 
 // Monsoon
@@ -560,7 +562,7 @@ DND_SPLR10_129  = "Energized areas cover 384 units.";
 DND_SPLDESC130  = "Whip a line of vines forward out of the ground, dealing 100 poison damage and snaring enemies caught for 3 seconds. Allies they touch are healed for 100 instead. The vines last 2.5 seconds.";
 DND_SPLPER130   = "+0.5 seconds snare at every even rank, +25 ally heal.";
 DND_SPLR5_130   = "Vines are 25% wider.";
-DND_SPLR10_130  = "Vines travel 50% farther.";
+DND_SPLR10_130  = "Vines travel 100% farther.";
 
 // Corrosive Breath
 DND_SPLDESC131  = "Build up a deadly stench and releases it over 1.5 seconds as toxic fumes in a 60 degree cone, poisoning for 600 damage over 5 seconds. For 3 seconds afflicted enemies are slowed by 25% and take 10% more poison damage, and fortified enemies lose up to 50% of their fortification.";
@@ -608,7 +610,7 @@ DND_SPLR10_137  = "Projectiles last 50% longer.";
 DND_SPLDESC138  = "Raise a pillar of rock under where you aim, up to 640 units away, then channel: each attack raises another, at most one every 0.33 seconds and 5 pillars in all. Each erupts in a 96 unit radius for 800 damage and flings enemies up and aside; they crash down for up to 1200 damage by their mass and how high they flew. An enemy flung again takes 25% more. Bosses barely fly. Each pillar costs its mana. The channel ends after the fifth pillar, when you cast this again, after 5 seconds without a pillar, or when you cannot pay for one; the cooldown starts then.";
 DND_SPLPER138   = "+400 pillar damage, +400 crash landing cap.";
 DND_SPLR5_138   = "Cast a pillar under yourself to launch yourself without taking damage.";
-DND_SPLR10_138  = "Flung enemies that hit walls or each other mid flight take 600 more damage.";
+DND_SPLR10_138  = "Flung enemies that hit a wall or another enemy mid flight take extra damage, half the most a crash landing deals.";
 
 // Geyser
 DND_SPLDESC139  = "Split the ground ahead of you into 10 geysers of acid that spit 8-12 drops a second for 5 seconds in random directions. Each drop deals 90 damage in a 48 unit radius and always poisons.";
@@ -664,6 +666,14 @@ DND_SPLPANEL_STATE     = "State:";
 DND_SPLPANEL_ON        = "ON";
 DND_SPLPANEL_OFF       = "OFF";
 DND_SPLPANEL_TOGGLEHINT = "Right click the icon to switch it.";
+DND_SPLPANEL_REFUND1 = "Hold"; DND_SPLPANEL_REFUND2 = "and right click to refund a rank for";
+DND_SPLPANEL_REFUNDPOOR = "Cannot afford to refund a rank";
+DND_SPLPANEL_REFUNDLOCKS = "Cannot refund, it would lock";
+DND_SPLPANEL_REFUNDGEMS = "Take its gems out before refunding below rank 4.";
+DND_SPLPANEL_REFUNDRUNNING = "Cannot refund while it is active.";
+DND_SPELLINDEX_HELP1 = "Click a skill in its tree to spend a point.";
+DND_SPELLINDEX_HELP2 = "Right click a learned aura or passive to switch it.";
+DND_SPELLINDEX_REFUND1 = "Hold"; DND_SPELLINDEX_REFUND2 = "and right click to refund a point for credits.";
 DND_SPLPANEL_NONE      = "None";
 
 // Board headings, positional on DND_SKILLTREE_*.
@@ -681,5 +691,5 @@ DND_SPLPANEL_DETAILS = "DETAILS";
 
 DND_SPELLTREE_HOTBAR   = "Hotbar Assignments";
 DND_SPELLTREE_GEMS     = "Gem Sockets";
-DND_SPLPANEL_PICKSLOT  = "Click a slot to assign a skill to it.";
+DND_SPLPANEL_PICKSLOT  = "Click a slot to assign a skill to it.\nRight click a slot to empty it.";
 DND_SPLPANEL_PICKSPELL = "Pick a skill, or click away to cancel.";

@@ -53,14 +53,19 @@ int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1, ASPECT_4_3 };
 #define DND_RESEARCHNOTIFY_ID 899
 #define DND_RESEARCHNOTIFY_HOLD 3.0
 #define DND_RESEARCHNOTIFY_FADE 1.0
+#define DND_SPELLPOINTNOTIFY_ID 898		// a skill point found, a line under the research one so both fit on one kill
 
 #define TIPBOX_TOPLEN 70.0
 #define TIPBOX_MIDLEN 39.0
 
 #define ITEMINFOBG_TOPLEN 17.0
 #define ITEMINFOBG_MIDLEN 9.0
-#define ITEMINFOBG_MAXMIDS 10
+#define ITEMINFOBG_BOTLEN 21.0
+// 20 holds about 30 wrapped attribute lines; a dungeon key with its mod tags shown already needs 13
+#define ITEMINFOBG_MAXMIDS 20
 #define ITEMINFO_CLIPWIDTH 360
+// text clip height: the tallest panel in HUDTEXTMAX pixels, less the 15 the clip starts below its top
+#define ITEMINFO_CLIPHEIGHT (3 * ((ITEMINFOBG_TOPLEN + ITEMINFOBG_MAXMIDS * ITEMINFOBG_MIDLEN + ITEMINFOBG_BOTLEN) >> 16) / 2 - 15)
 
 // Item info panel text layout. These are HUDTEXTMAX pixels -- the panel art is drawn in HUDMAX, so
 // the two never mix without the 3/2 between them.

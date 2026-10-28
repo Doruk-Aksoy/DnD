@@ -40,6 +40,8 @@ spell_cooldown_T module& GetSpellCooldowns() {
 #define DND_SPELLPOINT_PERLEVELS 2
 #define DND_SPELLPOINT_MAXFROMLEVEL 50
 #define DND_SPELLPOINT_MAXFROMTOKEN 50
+#define DND_SPELLPOINT_KILLCHANCE 0.004		// a kill's, times the monster's drop rate and each player's own drop chance
+#define DND_SPELLPOINT_CHESTCHANCE 0.05		// a chest's per tier, times each player's own drop chance: 5%, 10%, 15%
 
 int GetSpellCooldownRate(int pnum, int spell) {
 	return (GetSpellValue(pnum, spell, SPELLVAL_CDR) >> 16) + PlayerModData[pnum].vals[PSTAT_SPELL_CDR] +
@@ -211,9 +213,10 @@ int GetSpellPoints(int pnum) {
 // Mirrors GivePerkPoints: the pool is an inventory item, and the activity lane is the DELTA the
 // level-end save writes. Both have to move together or a save between full writes loses the change.
 void GiveSpellPoints(int pnum, int amt) {
-	if(amt > 0)
+	if(amt > 0) {
 		GiveActorInventory(pnum + P_TIDSTART, "SpellPoint", amt);
 		UpdateActivity(pnum, DND_ACTIVITY_SPELLPOINT, amt, 0);
+	}
 }
 
 // Both sources run through here. The counter is what the cap is read off, not the unspent pool, so
@@ -236,9 +239,16 @@ int GiveSpellPointsFromLevel(int pnum, int amt) {
 	return GiveSpellPointsFrom(pnum, amt, "SpellPointsFromLevel", DND_SPELLPOINT_MAXFROMLEVEL);
 }
 
-// For the monster and chest drops that are not in yet.
+// The monster and chest drops, held to what levelling has given by now so luck never runs ahead of the level.
 int GiveSpellPointsFromToken(int pnum, int amt) {
-	return GiveSpellPointsFrom(pnum, amt, "SpellPointsFromToken", DND_SPELLPOINT_MAXFROMTOKEN);
+	int cap = Min(DND_SPELLPOINT_MAXFROMTOKEN, GetActorLevel(pnum + P_TIDSTART) / DND_SPELLPOINT_PERLEVELS);
+	return GiveSpellPointsFrom(pnum, amt, "SpellPointsFromToken", cap);
+}
+
+// One player's roll from inside a loot loop over players; chance already carries their drop chance. Handed over as a research is.
+void RollSpellPointDrop(int pnum, int chance) {
+	if(random(1, 1.0) <= chance && GiveSpellPointsFromToken(pnum, 1))
+		SendOwnerScript("DnD Spell Point Found", pnum, CheckActorInventory(pnum + P_TIDSTART, "SpellPointsFromToken"));
 }
 
 bool CanAllocateSpellPoint(int pnum, int spell) {
@@ -258,6 +268,93 @@ bool AllocateSpellPoint(int pnum, int spell) {
 
 	// A rank can move an aura's reservation, so the two are reconciled on the same tick.
 	ValidateAuraReservations(pnum);
+	return true;
+}
+
+#define DND_SPELLRESPEC_BASECOST 125		// a quarter of a perk refund's DND_RESPEC_BASECOST
+#define DND_SPELLRESPEC_LEVELSCALE 9		// as DND_RESPEC_LEVELSCALE: 1x at level 0 to 10x at 100
+#define DND_SPELLRESPEC_LEVELDIV 3		// a spell's level requirement over this is its depth, beside the rank taken back
+
+// Why a rank cannot be refunded right now, or SPELLREFUND_NONE.
+enum {
+	SPELLREFUND_NONE,
+	SPELLREFUND_NORANK,
+	SPELLREFUND_RUNNING,
+	SPELLREFUND_GEMS,		// the rank holds a socket with a gem in it
+	SPELLREFUND_LOCKS,		// a learned spell still needs this rank
+	SPELLREFUND_POOR
+};
+
+// A perk respec's curve at half the price: deeper spells, higher ranks and higher levels cost more.
+int GetSpellRespecCost(int pnum, int spell) {
+	int depth = SpellDefs[spell].req_level / DND_SPELLRESPEC_LEVELDIV + GetSpellAllocatedRank(pnum, spell);
+	return DND_SPELLRESPEC_BASECOST * (1 + depth) * (100 + DND_SPELLRESPEC_LEVELSCALE * GetActorLevel(pnum + P_TIDSTART)) / 100;
+}
+
+// The learned spell that needs this one's top rank, or -1. Drops the rank, looks and puts it back, as perks do.
+int GetSpellRefundBlocker(int pnum, int spell) {
+	int r = GetSpellAllocatedRank(pnum, spell), blocker = -1, i, j;
+	SetSpellAllocatedRank(pnum, spell, r - 1);
+	for(i = 0; i < MAX_SPELL_IDS && blocker == -1; ++i) {
+		if(i == spell || !GetSpellAllocatedRank(pnum, i))
+			continue;
+		for(j = 0; j < DND_MAX_SKILL_REQ; ++j)
+			if(SpellDefs[i].req_spell[j] == spell + 1)
+				break;
+		if(j < DND_MAX_SKILL_REQ && !IsSpellUnlockable(pnum, i, GetSpellAllocatedRank(pnum, i)))
+			blocker = i;
+	}
+	SetSpellAllocatedRank(pnum, spell, r);
+	return blocker;
+}
+
+// Dropping below the socket rank would close sockets that still hold gems.
+bool SpellRefundClosesGem(int pnum, int spell) {
+	if(GetSpellAllocatedRank(pnum, spell) != DND_SPELL_SOCKETRANK)
+		return false;
+	for(int s = 0; s < DND_SPELL_MAXSOCKETS; ++s)
+		if(GetSpellSocket(pnum, spell, s))
+			return true;
+	return false;
+}
+
+int GetSpellRefundStatus(int pnum, int spell) {
+	if(spell < 0 || spell >= MAX_SPELL_IDS || !GetSpellAllocatedRank(pnum, spell))
+		return SPELLREFUND_NORANK;
+	if(IsSpellRunning(pnum, spell))
+		return SPELLREFUND_RUNNING;
+	if(SpellRefundClosesGem(pnum, spell))
+		return SPELLREFUND_GEMS;
+	if(GetSpellRefundBlocker(pnum, spell) != -1)
+		return SPELLREFUND_LOCKS;
+	if(GetPlayerCredit(pnum) < GetSpellRespecCost(pnum, spell))
+		return SPELLREFUND_POOR;
+	return SPELLREFUND_NONE;
+}
+
+// The paid refund, one rank back into the pool. Priced before the rank drops, charged only once it has, as RespecPerkPoint does.
+bool RespecSpellPoint(int pnum, int spell) {
+	if(GetSpellRefundStatus(pnum, spell) != SPELLREFUND_NONE)
+		return false;
+
+	int cost = GetSpellRespecCost(pnum, spell);
+	int r = GetSpellAllocatedRank(pnum, spell) - 1;
+	SetSpellAllocatedRank(pnum, spell, r);
+	SyncSpellRankWord(pnum, spell);
+	GiveSpellPoints(pnum, 1);
+
+	// An unlearned spell leaves the hotbar.
+	if(!r) {
+		for(int s = 0; s < GetHotbarSlotCount(pnum); ++s) {
+			if(GetHotbarSpell(pnum, s) == spell) {
+				SetHotbarSpell(pnum, s, -1);
+				SyncHotbarSlot(pnum, s);
+			}
+		}
+	}
+
+	ValidateAuraReservations(pnum);
+	TakeCredit(cost);
 	return true;
 }
 
@@ -300,6 +397,12 @@ void SetupSpellActor(int tid, int pnum, int spell) {
 // Launch height: the eyeline unless a caller asks for a height above the caster's feet instead.
 #define DND_SPELLPROJ_FROMVIEW -1
 
+// A pet's aim from z above its feet to its target's middle: a monster's own pitch never follows its target.
+int PetThrowPitch(int from, int target, int z) {
+	int dx = GetActorX(target) - GetActorX(from), dy = GetActorY(target) - GetActorY(from);
+	return -VectorAngle(VectorLength(dx, dy), GetActorZ(target) + GetActorProperty(target, APROP_HEIGHT) / 2 - GetActorZ(from) - z);
+}
+
 // flat ignores the caster's pitch and sends the shot level along their facing.
 void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags = 0, int angle_off = 0,
 	int side_off = 0, int rtime = 0, int origin = 0, bool flat = false,
@@ -336,6 +439,7 @@ void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags =
 	int tid = TEMPORARY_SPELL_TID + pnum;
 	CreateProjectile(from, PROJECTILE_HELPER_TID + pnum, actor, a, pt, speed, vProj, vPos, flags, 0, 0, 0, tid);
 	SetupSpellActor(tid, pnum, spell);
+	SetSpellRipperAtSpawn(pnum, spell, actor, tid);
 
 	// The spell that threw it, plus one, for a thrower whose ranks strengthen its throws (Winter Orb).
 	if(parent >= 0)
@@ -654,44 +758,13 @@ bool ReadSpellAim(int pnum) {
 
 #define DND_SPELL_HITSCANRANGE 2048.0
 
-// How far past its own radius a monster may sit from the puff and still count as what was hit. The
-// puff lands ON the victim's surface, so the true figure is the victim's radius; the slack only
-// covers the puff being placed a little inside or outside that.
-#define DND_SPELL_HITSCANSLACK 12.0
-
-// What a hitscan landed on, or 0. LineAttack hands back no victim and a puff carries no dependable
-// pointer to what it struck, so this works backwards from where the puff ended up: a puff sits on the
-// victim's surface, so the victim is the monster whose own radius reaches it. A trace that hit
-// geometry instead leaves the puff flat against a wall, where that test fails for everything standing
-// near it -- which is what keeps a wall shot from igniting a bystander.
+// What a hitscan struck, or 0: the puff's tracer, which +HITTRACER on the spell puffs sets to the actor hit. A
+// distance test from the puff missed the edges of big monsters, whose hitbox is square, not round.
 int FindHitscanVictim(int pufftid) {
-	int i, mn, d, best = 0, bestd = 0;
-	int px = GetActorX(pufftid), py = GetActorY(pufftid), pz = GetActorZ(pufftid);
-
-	for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
-		i = UsedMonsterTIDs[mn];
-		if(!IsActorAlive(i) || !IsSpellEnemy(i))
-			continue;
-
-		// A cylinder, because that is the shape of a Doom hitbox -- and because a straight fdistance
-		// is 3D while an actor's origin is at its FEET. A chest height hit on an imp is ~35 units up,
-		// which swamps the 20 unit radius and put every victim out of range: the test never matched
-		// and nothing was ever handed the hit effect.
-		if(pz < GetActorZ(i) - DND_SPELL_HITSCANSLACK ||
-			pz > GetActorZ(i) + GetActorProperty(i, APROP_HEIGHT) + DND_SPELL_HITSCANSLACK)
-			continue;
-
-		d = fdistance_delta(px - GetActorX(i), py - GetActorY(i), 0);
-		if(d > GetActorProperty(i, APROP_RADIUS) + DND_SPELL_HITSCANSLACK)
-			continue;
-
-		if(!best || d < bestd) {
-			best = i;
-			bestd = d;
-		}
-	}
-
-	return best;
+	int t = GetActorProperty(pufftid, APROP_TRACERTID);
+	if(t && IsActorAlive(t) && IsSpellEnemy(t))
+		return t;
+	return 0;
 }
 
 // A damaging trace along where the caster is looking. Returns what it hit, or 0.
@@ -924,10 +997,10 @@ int TryCastSpell(int pnum, int spell) {
 	if(spell == SPL_THREADEDVOLLEY)
 		GetVolleyData().press[pnum] = areas;
 
-	// Magus: a chance to get the cost back, unreduced.
+	// Magus: a chance to get the cost back, unreduced, in whatever paid it.
 	res = GetSpellGemMod(pnum, spell, GEMSTAT_MAGUS);
 	if(res && random(1, 100) <= res)
-		GiveMana(pnum, GetSpellUnreducedCost(pnum, spell));
+		RefundSpellCost(pnum, spell, GetSpellUnreducedCost(pnum, spell));
 
 	StartSpellCooldown(pnum, spell, areas ? DND_TVOLLEY_CDR : 0);
 	// Taken here, not in the cast script a tic later, so a second press on the same tic finds the caster busy.
@@ -936,11 +1009,14 @@ int TryCastSpell(int pnum, int spell) {
 	return CAST_OK;
 }
 
-// The cost with a net "less mana cost" from gems undone; penalties stay, since they are not reductions.
+// The cost with every reduction undone, a net "less mana cost" from gems and Arcane Conservation; penalties stay.
 int GetSpellUnreducedCost(int pnum, int spell) {
 	int c = GetSpellValue(pnum, spell, SPELLVAL_COST), m = GetSpellGemMod(pnum, spell, GEMSTAT_MORE_COST);
 	if(m < 0)
 		c = FixedDiv(c, 1.0 + m);
+	m = PlayerModData[pnum].vals[PSTAT_SPELL_COST_LESS];
+	if(m > 0 && m < 100)
+		c = FixedDiv(c, (100 - m) * 1.0 / 100);
 	return c >> 16;
 }
 

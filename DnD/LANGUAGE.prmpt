@@ -52,7 +52,7 @@ DND_ULTIMATUM12     =   "Monsters ignore your armor rating.";
 DND_ULTIMATUM13     =   "Monster damage cannot be mitigated.";
 DND_ULTIMATUM14     =   "60% less area of effect and projectile speed.";
 DND_ULTIMATUM15     =   "Monsters steal 10% of your ammo and energy shield on hits.";
-DND_ULTIMATUM16     =   "Your critical strike chance is unlucky and monsters take 50% less damage from critical strikes.";
+DND_ULTIMATUM16     =   "Your critical strike chance is unlucky and your critical strikes deal 50% less bonus damage.";
 DND_ULTIMATUM17     =   "Monsters cannot be slowed or stunned.";
 DND_ULTIMATUM18     =   "You have 60% reduced recovery rate of life and energy shield.";
 DND_ULTIMATUM19     =   "Elite and tough enemies have an additional modifier.";
@@ -93,7 +93,7 @@ DND_ULTIMATUM2_T4    =   "The saw blades have 100% chance to inflict bleeding.";
 DND_ULTIMATUM3_T1    =   "A slow moving cloud of miasma starts chasing after you, dealing constant poison damage while in it.";
 DND_ULTIMATUM3_T2    =   "The cloud moves 25% faster.";
 DND_ULTIMATUM3_T3    =   "The cloud gets 25% bigger and faster.";
-DND_ULTIMATUM3_T4    =   "The cloud gets 33% bigger and slows you if it deals damage for 20%.";
+DND_ULTIMATUM3_T4    =   "The cloud gets 33% bigger, and its hits slow you by 20%.";
 
 DND_ULTIMATUM5_T1    =   "Random places in the ground get marked, waiting for lightning to strike if stayed in for too long.";
 DND_ULTIMATUM5_T2    =   "The lightning takes 25% less time to strike.";

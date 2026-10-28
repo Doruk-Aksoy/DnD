@@ -800,6 +800,11 @@ int GetSpawnHealth(bool bypassEShieldCheck = false, int pnum = -1) {
 	else
 		res = GetRawSpawnHealth(bypassEShieldCheck, pnum);
 
+	// Blood Magic: the share of life the auras hold is not there to have. UpdateManaVisualCap keeps the marker.
+	int held = CheckActorInventory(pnum + P_TIDSTART, "DnD_LifeReserved");
+	if(held)
+		res = Max(1, res * (100 - held) / 100);
+
 	// last bit here is necessary to fix a mugshot related bug that may still call this function properly and end up seeing our health is 1
 	SetActorInventory(pnum + P_TIDSTART, "PlayerHealthCap", !PlayerModData[pnum].vals[PSTAT_EX_HEALTHATONE] ? res : 1);
 	return res;
@@ -1261,11 +1266,21 @@ void SetChargePool(int pnum, int val) {
 }
 
 // Each pool's recovery answers only to the damage that reached IT, so under the swap the two
-// systems watch different timers. Off the swap both still mean "was hit at all".
+// systems watch different timers. Off the swap life regeneration has its own copy of the hit timer.
 bool HealPoolInterrupted(int pnum) {
 	if(HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD))
 		return CheckActorInventory(pnum + P_TIDSTART, "DnD_Hit_ShieldTimer") != 0;
-	return CheckActorInventory(pnum + P_TIDSTART, "DnD_Hit_CombatTimer") != 0;
+	return CheckActorInventory(pnum + P_TIDSTART, "DnD_Hit_RegenTimer") != 0;
+}
+
+// Restless Vitality: a damage over time tick, or the hit that landed one, leaves life regeneration running.
+bool RegenIgnoresDamage(int pnum, bool from_dot) {
+	return from_dot && PlayerModData[pnum].vals[PSTAT_REGEN_DOTNOPAUSE];
+}
+
+void PausePlayerRegen(int pnum, bool from_dot = false) {
+	if(!RegenIgnoresDamage(pnum, from_dot))
+		GiveActorInventory(pnum + P_TIDSTART, "DnD_Hit_RegenTimer", 1);
 }
 
 bool ChargePoolInterrupted(int pnum) {
@@ -1277,7 +1292,7 @@ bool ChargePoolInterrupted(int pnum) {
 	//
 	// Skipped when the charge pool IS health -- Sanguine Covenant swaps the two, and the spell has
 	// to leave health recovery alone. That is also why its self burn uses SkipHandle: off the swap
-	// both pools watch DnD_Hit_CombatTimer, so no hit timer can stop one without the other.
+	// every hit stamps both pools' timers, so no hit could stop one without the other.
 	//
 	// Here rather than at the damage site so the cannot-be-interrupted modifiers exempt it for
 	// free: CanRegenEShield and the in-progress abort in "DnD Energy Shield Regen" both bypass

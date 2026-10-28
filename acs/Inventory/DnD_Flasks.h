@@ -147,14 +147,17 @@ bool IsFlaskPoolLow(int pnum, int subtype) {
 	return IsLowLife();
 }
 
+// "Increased charges used" is the downside of "increased amount recovered".
 int GetFlaskChargeUseEffects(int pnum, inventory_T? flask) {
 	int base = -GetFlaskAttributeVal(pnum, flask, INV_FLASK_REDUCEDCHARGEUSE);
-	base += GetFlaskAttributeExtra(pnum, flask, INV_FLASK_INCCHARGERECOVERY);
+	base += GetFlaskAttributeExtra(pnum, flask, INV_FLASK_INCAMOUNTRECOVER);
 	return base;
 }
 
+// "Increased amount recovered", less the "reduced amount recovered" both instant recovery mods carry.
 int GetFlaskRecoveryEffects(int pnum, inventory_T? flask) {
-	int base = GetFlaskAttributeVal(pnum, flask, INV_FLASK_INCCHARGERECOVERY);
+	int base = GetFlaskAttributeVal(pnum, flask, INV_FLASK_INCAMOUNTRECOVER);
+	base -= GetFlaskAttributeExtra(pnum, flask, INV_FLASK_INSTANTRECOVERY);
 	base -= GetFlaskAttributeExtra(pnum, flask, INV_FLASK_INSTANTONLOWLIFE);
 	return base;
 }
@@ -660,12 +663,12 @@ Script "DnD Flask Use" (int flask_id) NET {
 		// the duration contains xTICRATE in it
 		total_time = FlaskData[pnum][flask_id].effect_duration / FLASK_RECOVERY_TICRATE;
 
-		// this is the amount that would be given over this duration -- also consider quality effect here
+		// this is the amount that would be given over this duration. Quality raises it and charge recovery's "reduced effect" lowers it, once.
 		int toGive_total = GetFlaskData(pnum, flask, FlaskData[pnum][flask_id].flask_type, FLASK_DATA_GIVEAMOUNT);
-		int rem = GetReducedFlaskEffectAmount(pnum, flask);
+		int rem = FlaskData[pnum][flask_id].quality - GetReducedFlaskEffectAmount(pnum, flask);
 
-		if(FlaskData[pnum][flask_id].quality)
-			toGive_total = toGive_total * (100 + FlaskData[pnum][flask_id].quality - rem) / 100;
+		if(rem)
+			toGive_total = toGive_total * Max(0, 100 + rem) / 100;
 
 		if((rem = GetFlaskAttributeVal(pnum, flask, INV_FLASK_MORERECOVERYONLOWLIFE)) && IsFlaskPoolLow(pnum, flask_type))
 			toGive_total = toGive_total * (100 + rem) / 100;
@@ -675,10 +678,6 @@ Script "DnD Flask Use" (int flask_id) NET {
 			total_time = 1;
 		else if((rem = GetFlaskAttributeVal(pnum, flask, INV_FLASK_INCRECOVERYRATE) + (IsLifeFlask(flask_type) ? PlayerModData[pnum].vals[PSTAT_FLASKLIFERECOVERYRATE] : 0)))
 			total_time = total_time * 100 / (100 + rem);
-
-		// quality increases amount recovered
-		if(FlaskData[pnum][flask_id].quality)
-			toGive_total = toGive_total * (100 + FlaskData[pnum][flask_id].quality) / 100;
 
 		// on the total rather than the per step amount: the loop divides and carries a remainder,
 		// so cutting the total keeps the drip even instead of rounding the cut away each step.

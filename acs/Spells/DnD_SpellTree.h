@@ -399,6 +399,12 @@ int GetTreeSpellCount(int tree) {
 	return n;
 }
 
+// The binds strip under Gem Sockets, a window down to the panel's floor that the wrapped text scrolls in.
+#define DND_SPELLINDEX_HELP_Y (116 + MAX_SKILL_TREES * 16)
+#define DND_SPELLINDEX_HELP_H (280 - DND_SPELLINDEX_HELP_Y)
+#define DND_SPELLINDEX_HELP_STEP 9		// one line of the menu font, so the window never shows half a line
+#define DND_SPELLINDEX_HELP_SPAN 6		// nine wrapped lines past the window's four, plus one for a longer bind name
+
 // The eight trees as rows. Only the two with content are selectable; the rest are drawn dim
 // rather than hidden, so the shape of what is coming is visible.
 void HandleSpellIndexDraw(int pnum, int boxid) {
@@ -420,6 +426,23 @@ void HandleSpellIndexDraw(int pnum, int boxid) {
 		RPGMENUITEMID - 1 - MAX_SKILL_TREES, 192.1, (88 + MAX_SKILL_TREES * 16) << 16, "\c[B1]", "\c-");
 	DrawBoxText("DND_SPELLTREE_GEMS", DND_LANGUAGE_LOOKUP, boxid, MBOX_2 + MAX_SKILL_TREES,
 		RPGMENUITEMID - 2 - MAX_SKILL_TREES, 192.1, (104 + MAX_SKILL_TREES * 16) << 16, "\c[B1]", "\c-");
+
+	// The trees' binds, told before entering one, as the perk index does.
+	SetHudClipRect(192, DND_SPELLINDEX_HELP_Y, 256, DND_SPELLINDEX_HELP_H, 256);
+	HudMessage(
+		s:"\cv*\cu ", l:"DND_SPELLINDEX_HELP1", s:"\n\cv*\cu ", l:"DND_SPELLINDEX_HELP2", s:"\n\cv*\cu ",
+		l:"DND_MENU_PERK_PINHELP1", s:" \ci", k:"+jump", s:"\cu ", l:"DND_MENU_PERK_PINHELP2", s:"\n\cv*\cu ",
+		l:"DND_SPELLINDEX_REFUND1", s:" \ci", k:"+jump", s:"\cu ", l:"DND_SPELLINDEX_REFUND2";
+		HUDMSG_PLAIN, RPGMENUITEMID - 4 - MAX_SKILL_TREES, CR_WHITE,
+		192.1, ((DND_SPELLINDEX_HELP_Y + DND_SPELLINDEX_HELP_STEP * ScrollPos.x) << 16) + 0.1, 0.0, 0.0
+	);
+	SetHudClipRect(0, 0, 0, 0, 0);
+}
+
+// The binds strip's bar, on a short track beside the strip rather than down the whole page.
+bool HandleSpellIndexScroll() {
+	return ListenScroll(-DND_SPELLINDEX_HELP_SPAN, 0, DND_SPELLINDEX_HELP_STEP, DND_SPELLINDEX_HELP_H,
+		0, DND_SPELLINDEX_HELP_Y, DND_SPELLINDEX_HELP_H);
 }
 
 // ---- hover panel -------------------------------------------------------------------------------
@@ -659,16 +682,25 @@ void HandleSpellHoverPanel(int pnum, int spell) {
 		}
 	}
 
+	// Paid in life at the rate PaySpellCost takes it.
+	bool blood = HasPlayerFlag(pnum, PFLAG_BLOODMAGIC);
+	int lifecost = GetSpellLifeCostRate(pnum, spell);
+	str payres = lifecost ? " life" : " mana";
+
 	temp = GetSpellValue(pnum, spell, SPELLVAL_COST, preview) >> 16;
 	if(SpellDefs[spell].flags & SPLF_RESERVES)
-		PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_RESERVE", s:" \c-", d:temp, s:"% mana"));
+		PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_RESERVE", s:" \c-", d:temp, s:blood ? "% life" : "% mana"));
 	else if(temp) {
-		PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_COST", s:" \c-", d:temp, s:" mana"));
+		if(lifecost)
+			temp = temp * lifecost / 100;
+		PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_COST", s:" \c-", d:temp, s:payres));
 		if(alloc && alloc < DND_SPELL_RANKCAP) {
 			int nc = GetSpellValue(pnum, spell, SPELLVAL_COST, alloc + 1) >> 16;
+			if(lifecost)
+				nc = nc * lifecost / 100;
 			if(nc > temp)
 				PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_NEXTRANK", s:" \c-", d:nc,
-					s:" mana (+", d:nc - temp, s:")"));
+					s:payres, s:" (+", d:nc - temp, s:")"));
 		}
 	}
 
@@ -690,6 +722,23 @@ void HandleSpellHoverPanel(int pnum, int spell) {
 	temp = alloc ? GetSpellCastTics(pnum, spell) : (GetSpellValue(pnum, spell, SPELLVAL_CASTTIME, 1) * TICRATE) >> 16;
 	PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_CASTTIME", s:" \c-",
 		s:temp ? StrParam(s:TicsToSeconds(temp), s:"s") : StrParam(l:"DND_SPLPANEL_INSTANT")));
+
+	// On a tree, the only page that takes refunds: what Jump + right click would charge for a rank, or why it cannot.
+	if(alloc && IsSpellTreePage(CheckInventory("MenuOption"))) {
+		PanelText("");
+		temp = GetSpellRefundStatus(pnum, spell);
+		if(temp == SPELLREFUND_NONE)
+			PanelText(StrParam(s:"\c-", l:"DND_SPLPANEL_REFUND1", s:" \ci", k:"+jump", s:"\c- ", l:"DND_SPLPANEL_REFUND2",
+				s:" \cd$", d:GetSpellRespecCost(pnum, spell), s:" \c-", l:"DND_MENU_CREDITS"), "\c-");
+		else if(temp == SPELLREFUND_POOR)
+			PanelText(StrParam(s:"\c[D4]", l:"DND_SPLPANEL_REFUNDPOOR", s:" (\cg$", d:GetSpellRespecCost(pnum, spell), s:"\c[D4])"), "\c[D4]");
+		else if(temp == SPELLREFUND_LOCKS)
+			PanelText(StrParam(s:"\c[D4]", l:"DND_SPLPANEL_REFUNDLOCKS", s:" \c-", l:StrParam(s:"DND_SPLNAME", d:GetSpellRefundBlocker(pnum, spell))), "\c[D4]");
+		else if(temp == SPELLREFUND_GEMS)
+			PanelText(StrParam(s:"\c[D4]", l:"DND_SPLPANEL_REFUNDGEMS"), "\c[D4]");
+		else if(temp == SPELLREFUND_RUNNING)
+			PanelText(StrParam(s:"\c[D4]", l:"DND_SPLPANEL_REFUNDRUNNING"), "\c[D4]");
+	}
 
 	PanelText("");
 	// Empty for any spell whose per rank gain is now entirely in the live lines above. Skipped
@@ -939,8 +988,10 @@ void HandleSpellHotbarDraw(int pnum, int boxid, menu_pane_T module& p) {
 
 	HudMessage(s:"--- ", l:"DND_SPELLTREE_HOTBAR", s:" ---";
 		HUDMSG_PLAIN, SPELLTREE_HEAD_ID, CR_CYAN, 178.4, 22.0, 0.0, 0.0);
+	// Top aligned where the one line hint centred, so the slot hint's second line runs down rather than up into the title.
 	HudMessage(s:"\c[Y5]", l:ss.picking_slot == -1 ? "DND_SPLPANEL_PICKSLOT" : "DND_SPLPANEL_PICKSPELL";
-		HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 1, CR_WHITE, 178.4, 34.0, 0.0, 0.0);
+		HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 1, CR_WHITE, 178.4, 30.1, 0.0, 0.0);
+	DeleteText(SPELLTREE_HEAD_ID + 7);
 
 	// The back arrow is box ONE, added before anything else, because opening the picker changes how
 	// many boxes follow it -- and the server, which cannot see the clientside picking_slot, would
@@ -1067,11 +1118,22 @@ void HandleSpellHotbarDraw(int pnum, int boxid, menu_pane_T module& p) {
 //
 // Returns whether the page owes a redraw.
 bool HandleSpellHotbarPick(int pnum, int boxid, int input) {
-	if(input != DND_MENUINPUT_LCLICK && input != DND_MENUINPUT_JUMPCLICK)
-		return false;
-
 	spell_scroll_T module& ss = GetSpellScroll();
 	int slots = GetHotbarSlotCount(pnum);
+
+	// Right click on a filled slot empties it: the bind takes a negative slot as "clear".
+	if(input == DND_MENUINPUT_RCLICK) {
+		int s = boxid - MBOX_1 - 1;
+		if(boxid < MBOX_1 || s < 0 || s >= slots || GetHotbarSpell(pnum, s) == -1)
+			return false;
+		NamedRequestScriptPuke("DnD Bind Hotbar", -s - 1);
+		ss.picking_slot = -1;
+		ss.picking_page = 0;
+		return true;
+	}
+
+	if(input != DND_MENUINPUT_LCLICK && input != DND_MENUINPUT_JUMPCLICK)
+		return false;
 
 	// Outside every box: closes the picker, nothing else.
 	if(boxid < MBOX_1) {
@@ -1164,11 +1226,13 @@ void HandleSpellTreeDraw(int pnum, int tree, int boxid, menu_pane_T module& p) {
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 	SetFont("NMENUFNT");
 
-	// The board's heading over the middle of the tree, and the points count under it.
+	// The board's heading over the middle of the tree; points and credits in the corners under it, each growing away from the other.
 	HudMessage(s:"--- ", l:StrParam(s:"DND_SPELLTREETITLE", d:tree), s:" ---";
 		HUDMSG_PLAIN, SPELLTREE_HEAD_ID, CR_CYAN, 178.4, 22.0, 0.0, 0.0);
 	HudMessage(s:"\c[Y5]", l:"DND_MENU_SPELLPOINTS", s:": \c-", d:GetSpellPoints(pnum);
-		HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 1, CR_WHITE, 178.4, 34.0, 0.0, 0.0);
+		HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 1, CR_WHITE, 16.1, 34.0, 0.0, 0.0);
+	HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \cd$", d:GetPlayerCredit(pnum);
+		HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 7, CR_WHITE, 354.2, 34.0, 0.0, 0.0);
 
 	ResetTreeSegments();
 
@@ -1315,6 +1379,15 @@ bool HandleSpellTreeToggle(int pnum, int tree, int boxid) {
 	ValidateAuraReservations(pnum);
 	SyncSpellToggleWord(pnum, spell);
 	return true;
+}
+
+// JUMP + right click: one rank back for credits, through the same gate the panel shows.
+bool HandleSpellTreeRefund(int pnum, int tree, int boxid) {
+	if(boxid < MBOX_1)
+		return false;
+
+	int spell = GetTreeSpellByIndex(tree, boxid - MBOX_1);
+	return spell != -1 && RespecSpellPoint(pnum, spell);
 }
 
 // ---- gem sockets: the mechanics --------------------------------------------------------------
@@ -1732,7 +1805,7 @@ Script "DnD Gem Minion Revive" (int pnum, int petid) {
 	if(!PlayerInGame(pnum) || !IsActorAlive(pnum + P_TIDSTART) || !GetSpellAllocatedRank(pnum, spell))
 		Terminate;
 
-	ACS_NamedExecuteAlways(spell == SPL_FIREDEMON ? "DnD Summon Fire Demon" : "DnD Summon Ice Golem", 0, pnum);
+	ACS_NamedExecuteAlways(GetSpellSummonScript(spell), 0, pnum);
 }
 
 bool IsGemFreeParryOpen(int pnum) {
@@ -1901,6 +1974,7 @@ void HandleSpellGemsDraw(int pnum, int boxid, menu_pane_T module& p) {
 
 	HudMessage(s:"--- ", l:"DND_SPELLTREE_GEMS", s:" ---";
 		HUDMSG_PLAIN, SPELLTREE_HEAD_ID, CR_CYAN, 178.4, 22.0, 0.0, 0.0);
+	DeleteText(SPELLTREE_HEAD_ID + 7);
 
 	// Box one is the back arrow, first for the reason the hotbar page gives: the boxes after it change with the view.
 	AddBoxToPane_Points(p, 466.0, 36.0, 454.0, 28.0);

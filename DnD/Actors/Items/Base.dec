@@ -534,6 +534,12 @@ Actor DnD_Hit_CombatTimer : PowerProtection {
 	powerup.duration -3
 }
 
+// Life regeneration's own pause off the swap, so Restless Vitality can spare it alone.
+Actor DnD_Hit_RegenTimer : PowerProtection {
+	damagefactor "normal", 1
+	powerup.duration -3
+}
+
 // Sanguine Covenant. Per-pool versions of the timer above: a pool's recovery is interrupted only
 // by the damage that actually reached it.
 Actor DnD_Hit_HealthTimer : PowerProtection {

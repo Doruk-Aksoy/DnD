@@ -201,7 +201,11 @@ int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int
 
 	// this is needed so that reflecting works
 	SetActorProperty(0, APROP_SPEED, spd << 16);
-	
+
+	// a ripper's limit before its first move: one fired point-blank touches an enemy before its SpawnState runs
+	if(isPlayer(owner))
+		SetActorState(0, "RipSetup", true);
+
 	Thing_ChangeTID(TEMPORARY_ATTACK_TID, out_tid);
 	
 	// return script ownership back to owner
@@ -828,6 +832,7 @@ void SpawnDarkLanceProjectile(int this, int a, int proj_tid, int x, int y, int z
 	SetPointer(AAPTR_TARGET, this);
 	SetActorProperty(0, APROP_TARGETTID, this);
 	SetActorProperty(0, APROP_SPEED, spd << 16);
+	SetActorState(0, "RipSetup", true);
 	Thing_ChangeTID(proj_tid, 0);
 	SetActivator(this);
 }
@@ -840,6 +845,7 @@ void SpawnDarkLanceProjectile_Side(int this, int a, int proj_tid, int x, int y, 
 	SetPointer(AAPTR_TARGET, this);
 	SetActorProperty(0, APROP_TARGETTID, this);
 	SetActorProperty(0, APROP_SPEED, spd << 16);
+	SetActorState(0, "RipSetup", true);
 	Thing_ChangeTID(proj_tid, 0);
 	SetActivator(this);
 }

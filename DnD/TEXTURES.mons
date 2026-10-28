@@ -435,7 +435,7 @@ Sprite IGLMF4I6, 49, 59
 
 Sprite IGLMF5I5, 62, 59
 {
-	Offset 31, 55
+	Offset 36, 55
 	Patch GOL3F5I5, 0, 3
 	Patch IGLMDAT, 0, 0
 	{
@@ -445,7 +445,7 @@ Sprite IGLMF5I5, 62, 59
 
 Sprite IGLMF6I4, 63, 59
 {
-	Offset 31, 55
+	Offset 24, 55
 	Patch GOL3F6I4, 0, 3
 	Patch IGLMDAT, 0, 0
 	{
@@ -455,7 +455,7 @@ Sprite IGLMF6I4, 63, 59
 
 Sprite IGLMF7I3, 58, 61
 {
-	Offset 29, 57
+	Offset 25, 57
 	Patch GOL3F7I3, 0, 3
 	Patch IGLMDAT, 0, 0
 	{
@@ -465,7 +465,7 @@ Sprite IGLMF7I3, 58, 61
 
 Sprite IGLMF8I2, 44, 63
 {
-	Offset 22, 59
+	Offset 17, 59
 	Patch GOL3F8I2, 0, 3
 	Patch IGLMDAT, 0, 0
 	{
@@ -515,7 +515,7 @@ Sprite IGLMG4J6, 40, 57
 
 Sprite IGLMG5J5, 53, 58
 {
-	Offset 26, 54
+	Offset 33, 54
 	Patch GOL3G5J5, 0, 3
 	Patch IGLMDAT, 0, 0
 	{
@@ -525,7 +525,7 @@ Sprite IGLMG5J5, 53, 58
 
 Sprite IGLMG6J4, 62, 58
 {
-	Offset 31, 54
+	Offset 39, 54
 	Patch GOL3G6J4, 0, 3
 	Patch IGLMDAT, 0, 0
 	{
@@ -545,7 +545,7 @@ Sprite IGLMG7J3, 58, 59
 
 Sprite IGLMG8J2, 44, 61
 {
-	Offset 22, 57
+	Offset 19, 57
 	Patch GOL3G8J2, 0, 3
 	Patch IGLMDAT, 0, 0
 	{

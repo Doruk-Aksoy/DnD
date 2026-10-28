@@ -136,16 +136,29 @@ bool IsSpellDoTField(int spell, int which) {
 	return spell == SPL_CREEPINGFROST && which == SPELLVAL_DAMAGE2;
 }
 
+// A spell's own rank bonus worded "increased damage". Additive, so it joins the gear pile in the scale.
+int GetSpellRankDamageIncrease(int pnum, int spell) {
+	if(spell == SPL_VOLCANO)
+		return DND_VOLCANO_R5_INC * SpellThresholdMet(pnum, SPL_VOLCANO, DND_SPELL_THRESH_LOW);
+	return 0;
+}
+
 // One spell hit or tick, priced the same whichever way it lands: "DnD Spell Damage" and the spells that call
 // HandleDamageDeal themselves both come here. isDot takes the DoT pile instead; noMore is Infernal Strike's.
 int PriceSpellDamage(int pnum, int spell, int dmg, int scale_flags = 0, bool isDot = false, int victim = -1, bool noMore = false) {
+	// A hit takes its flat damage (spell worded and generic) before every increase; a tick none, as a weapon's DoT takes no attack flat.
+	if(!isDot)
+		dmg += GetSpellFlatDamage(pnum, GetSpellDamageCategory(spell), (scale_flags & DND_WDMG_ISRADIUSDMG) ? DND_DAMAGEFLAG_ISRADIUSDMG : 0);
+
+	int own = GetSpellRankDamageIncrease(pnum, spell);
+
 	if(isDot) {
-		// A tick takes its element's increase; elemental, radius and other "attack" increases are weapon mods.
-		dmg = GetGenericDoTDamage(pnum, dmg, victim, -1, true, GetPlayerElementIncrease(pnum, GetSpellDamageCategory(spell)));
+		// No hit fed a tick, so it takes the hit side increases (element, buffs, accuracy, spell damage) beside the DoT ones.
+		dmg = GetGenericDoTDamage(pnum, dmg, victim, -1, true, GetHitSideDoTIncrease(pnum, GetSpellDamageCategory(spell), true) + own);
 		scale_flags |= DND_WDMG_ISDOT;
 	}
 
-	dmg = HandleNonWeaponDamageScale(dmg, GetSpellDamageCategory(spell), DND_WDMG_ISSPELL | scale_flags, 0, 0, DND_SPELL_INT_SCALE, pnum);
+	dmg = HandleNonWeaponDamageScale(dmg, GetSpellDamageCategory(spell), DND_WDMG_ISSPELL | scale_flags, 0, 0, DND_SPELL_INT_SCALE, pnum, own);
 
 	// ISDOT dropped the attunement with the hit piles, so INT goes back on at the rate a hit gets.
 	if(isDot)
@@ -154,7 +167,13 @@ int PriceSpellDamage(int pnum, int spell, int dmg, int scale_flags = 0, bool isD
 	return FinishSpellDamage(pnum, spell, dmg, isDot, noMore);
 }
 
-// A spell's poison tick: INT and the spell's own multipliers. "DnD Do Poison Damage" adds the poison and DoT gear.
+// A flat a spell hit adds in another type (Sightless Vigil's physical): priced as the spell's hit, in that category.
+int PriceSpellAddedDamage(int pnum, int spell, int dmg, int category, int scale_flags) {
+	dmg = HandleNonWeaponDamageScale(dmg, category, DND_WDMG_ISSPELL | scale_flags, 0, 0, DND_SPELL_INT_SCALE, pnum, GetSpellRankDamageIncrease(pnum, spell));
+	return FinishSpellDamage(pnum, spell, dmg, false, false);
+}
+
+// A spell's poison tick: INT and the spell's own multipliers. "DnD Do Poison Damage" adds the poison, DoT and spell damage gear.
 int PriceSpellPoison(int pnum, int spell, int dmg) {
 	return FinishSpellDamage(pnum, spell, ApplySpellIntScaling(pnum, dmg), true, false);
 }
@@ -175,7 +194,33 @@ int FinishSpellDamage(int pnum, int spell, int dmg, bool isDot, bool noMore) {
 
 	if(!noMore)
 		dmg = ApplySpellMoreDamage(pnum, spell, dmg);
+
+	// Pain Attunement: MORE on low life, read off the pool that kills (the activator here is the spell actor).
+	int v = PlayerModData[pnum].vals[PSTAT_SPELL_MORE_LOWLIFE];
+	if(v && IsLethalPoolBelow(pnum, 50))
+		dmg = dmg * (100 + v) / 100;
 	return dmg;
+}
+
+// Prodigal Perfection: increased spell damage per 100 maximum mana, up to its cap. Read live, so mana gear counts at once.
+int GetSpellDamageFromMana(int pnum) {
+	int per = PlayerModData[pnum].vals[PSTAT_SPELLDMG_PERMANA];
+	if(!per)
+		return 0;
+	return Min(PlayerModData[pnum].vals[PSTAT_SPELLDMG_PERMANACAP], per * (GetPlayerManaCap(pnum) / 100));
+}
+
+// An ailment seeded from a spell HIT is damage over time: the hit's own gem multiplier traded for the DoT one.
+int GetSpellAilmentSeed(int pnum, int spell, int dmg) {
+	int h = GetSpellGemMod(pnum, spell, GEMSTAT_MORE_HITDAMAGE);
+	if(h && h > -1.0)
+		dmg = FixedDiv(dmg, 1.0 + h);
+	return ApplySpellGemMore(pnum, spell, GEMSTAT_MORE_DOTDAMAGE, dmg);
+}
+
+// All increased spell damage: gear, Wizardry and Prodigal Perfection. A spell's hits and its damage over time both take it.
+int GetSpellDamageIncrease(int pnum) {
+	return PlayerModData[pnum].vals[PSTAT_SPELL_DAMAGE] + GetSpellDamageFromMana(pnum);
 }
 
 int ApplySpellGemChargeDamage(int pnum, int spell, int dmg) {

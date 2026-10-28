@@ -29,3 +29,52 @@ Actor Spell_UnleashEarth_Pillar : DnD_SpecialFX {
 		Stop
 	}
 }
+
+// A cloud of earth thrown off a pillar's foot: the gray smoke tinted to dirt, sent out along its own angle and slowing.
+Actor Spell_UnleashEarth_Dust : VeryGraySmoke {
+	Scale 0.35
+	Alpha 0.7
+	Translation "0:255=%[0.0,0.0,0.0]:[1.25,1.0,0.72]"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_ChangeVelocity(frandom(1.5, 3.5), frandom(-0.6, 0.6), frandom(0.2, 1.0), CVF_REPLACE | CVF_RELATIVE)
+		// Tagged as the smoke tags itself, so dnd_nofx clears it.
+		Pick:
+			TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 0 A_Jump(256, "s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11", "s12", "s13", "s14", "s15", "s16", "s17", "s18", "s19", "s20", "s21", "s22", "s23", "s24")
+		Stop
+	}
+}
+
+// A bigger, slower cloud billowing round the column.
+Actor Spell_UnleashEarth_Cloud : Spell_UnleashEarth_Dust {
+	Scale 0.6
+	Alpha 0.6
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_ChangeVelocity(frandom(0.5, 1.5), frandom(-0.4, 0.4), frandom(0.4, 1.2), CVF_REPLACE | CVF_RELATIVE)
+		Goto Pick
+	}
+}
+
+// A rock flung out and up off the eruption along its own angle, breaking up where it lands.
+Actor Spell_UnleashEarth_Rock : Spell_Shrapnel_Piece {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_ChangeVelocity(frandom(1.5, 4.5), frandom(-1.0, 1.0), frandom(5.0, 11.0), CVF_REPLACE | CVF_RELATIVE)
+			TNT1 A 0 A_SetScale(frandom(0.5, 1.0))
+			HRCK FGH 3
+		Goto Spawn + 2
+	}
+}
+
+// A crumb breaking off the column's top as it rises or sinks, falling rather than thrown.
+Actor Spell_UnleashEarth_Crumb : Spell_Shrapnel_Piece {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_ChangeVelocity(frandom(0.5, 2.0), frandom(-0.5, 0.5), frandom(-1.0, 2.5), CVF_REPLACE | CVF_RELATIVE)
+			TNT1 A 0 A_SetScale(frandom(0.4, 0.8))
+			HRCK FGH 3
+		Goto Spawn + 2
+	}
+}

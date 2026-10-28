@@ -1649,9 +1649,13 @@ void HandleNPCChallenges() {
 			// The option is armed for the wave that is ABOUT to run, but the wave that just ended is
 			// still flagged complete. Every spawner polls this and shuts itself down on a 1 -- the saw
 			// loop breaks before spawning any blade, and the miasma's own
-			// A_JumpIf(CallACS("DnD Is Ultimatum Complete")) sends it to Vanish on its first tic. So it
+			// A_JumpIf(CallACS("DnD Is Ultimatum Wave Complete")) sends it to Vanish on its first tic. So it
 			// is cleared here, up front, and stays clear across the hold both scripts are about to take.
 			curr_tally.is_wave_complete = 0;
+
+			// The entrance shuts on the first pick itself, not after the voice line holds the wave back.
+			if(curr_tally.curr_wave == -1)
+				Floor_RaiseAndCrush(3, 128, 500);
 
 			int tier = AddUltimatumOptionTier(chosen);
 			ACS_NamedExecuteAlways("DnD Ultimatum Apply Option", 0, chosen, tier);

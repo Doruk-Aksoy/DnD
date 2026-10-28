@@ -228,6 +228,7 @@ enum {
 	DND_PLAYERFX_SHIVERINGARMOR,
 	DND_PLAYERFX_WRATHAURA,
 	DND_PLAYERFX_AGONYAURA,
+	DND_PLAYERFX_COUNT
 };
 
 // How far out to either side a paired attachment sits, past a player's own 16 unit radius.
@@ -394,6 +395,14 @@ void SetPlayerAttachment(int pnum, int which, bool on) {
 
 	GiveActorInventory(ptid, marker, 1);
 	GiveActorInventory(ptid, GetPlayerAttachmentSpawner(which), 1);
+}
+
+// A marker is inventory, so it outlives the map or body its effect died with, and "already up" would then block a new
+// one: drop the markers this system owns. Heat Shield's and Shivering Armor's are their spells' own state.
+void ClearPlayerAttachmentMarkers(int pnum) {
+	for(int i = 0; i < DND_PLAYERFX_COUNT; ++i)
+		if(i != DND_PLAYERFX_HEATSHIELD && i != DND_PLAYERFX_SHIVERINGARMOR)
+			SetPlayerAttachment(pnum, i, false);
 }
 
 // When a monster is killed this is called to do cleanup

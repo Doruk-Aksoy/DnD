@@ -259,7 +259,8 @@ enum {
 enum {
 	DND_JUMPMOD_NONE,
 	DND_JUMPMOD_PIN,
-	DND_JUMPMOD_REFUND
+	DND_JUMPMOD_REFUND,
+	DND_JUMPMOD_PINREFUND	// the spell trees: jump + click pins, jump + right click refunds a rank
 };
 
 #define DND_MENU_INPUTDELAYTICS 4
@@ -1117,7 +1118,7 @@ void HandleCurseOverlays(int mon_tid) {
 }
 
 void DrawInventoryInfo(int pnum) {
-	int pn, mx, my, offset, stack = 0;
+	int mx, my, pass, over, stack = 0;
 
 	int itype = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
 	int isubt = -1;
@@ -1151,30 +1152,40 @@ void DrawInventoryInfo(int pnum) {
 		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 		int attr_count = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
 
+		// A tall panel hovered low would run off the screen: the first pass measures it, and a second, lifted by
+		// the overflow, overwrites it on the same ids before anything is shown.
+		for(pass = 0; pass < 2; ++pass) {
+			SetHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2, 1);
+
+			int prev_x = 3 * bg_x / 2;
+			int prev_y = 3 * bg_y / 2;
+
+			mx = GetIntegerBits(3 * (bg_x + HUD_ITEMBAK_XF / 2) / 2) + 0.4;
+			my = GetIntegerBits(3 * bg_y / 2 + ITEMINFO_TEXTTOP) + 0.1;
+
+			SetHudClipRect(ITEMINFO_CLIPX + (prev_x >> 16), 15 + (prev_y >> 16), HUD_ITEMBAK_WIDTH, ITEMINFO_CLIPHEIGHT, HUD_ITEMBAK_WIDTH);
+			over = DrawInventoryText(
+				PlayerCursorData.itemHovered,
+				PlayerCursorData.itemHoveredSource,
+				pnum, mx, my, itype, isubt, RPGMENUINVENTORYID, HUD_DII_MULT,
+				HUDMAX_X, HUDMAX_Y,
+				bg_x, bg_y,
+				attr_count
+			);
+			SetHudClipRect(0, 0, 0, 0, 0);
+
+			over = (bg_y >> 16) + ItemInfoPanelHeight(over) - HUDMAX_Y;
+			if(over <= 0)
+				break;
+			bg_y -= over << 16;
+		}
+
+		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 		stack = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
 		if(stack) {
 			SetFont("NMENUFNT");
-			HudMessage(d:stack; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, CR_GREEN, GetIntegerBits(mx + HUD_ITEMBAK_XF - 9.0) + 0.2, my + 15.0, 0);
+			HudMessage(d:stack; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 5 - ITEMINFOBG_MAXMIDS, CR_GREEN, GetIntegerBits(bg_x + HUD_ITEMBAK_XF - 9.0) + 0.2, bg_y + 15.0, 0);
 		}
-		
-		SetHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2, 1);
-		
-		int prev_x = 3 * mx / 2;
-		int prev_y = 3 * my / 2;
-		
-		mx = GetIntegerBits(3 * (mx + HUD_ITEMBAK_XF / 2) / 2) + 0.4;
-		my = GetIntegerBits(3 * my / 2 + ITEMINFO_TEXTTOP) + 0.1;
-		
-		SetHudClipRect(ITEMINFO_CLIPX + (prev_x >> 16), 15 + (prev_y >> 16), HUD_ITEMBAK_WIDTH, 288, HUD_ITEMBAK_WIDTH);
-		DrawInventoryText(
-			PlayerCursorData.itemHovered,
-			PlayerCursorData.itemHoveredSource, 
-			pnum, mx, my, itype, isubt, RPGMENUINVENTORYID, HUD_DII_MULT, 
-			HUDMAX_X, HUDMAX_Y, 
-			bg_x, bg_y,
-			attr_count
-		);
-		SetHudClipRect(0, 0, 0, 0, 0);
 		SetHudSize(PlayerCursorData.itemHoveredDim.x, PlayerCursorData.itemHoveredDim.y, 1);
 	}
 

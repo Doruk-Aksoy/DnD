@@ -1,0 +1,759 @@
+ACTOR Moonvile  : DnD_BaseRangedBoss 32725
+{
+  OBITUARY "%o was banished by Lunace"
+  Tag "Lunace, Lunar Descriptor"
+  Health 19870
+  Radius 48
+  Height 128
+  Mass 0x7FFFFFFF
+  Speed 20
+  RENDERSTYLE Translucent
+  Alpha 0.9
+  PainChance 10
+  damagefactor "unique_moon", 0.0
+  scale 2.4
+  SEESOUND "tornado/see"
+  PAINSOUND "tornado/pain"
+  DEATHSOUND "tornado/death"
+  ACTIVESOUND "tornado/active"
+  Bloodcolor "85 85 85"
+  MONSTER
+  +NODAMAGETHRUST
+  +BOSS
+  +FloorClip
+  +NoTarget
+  +NOPAIN
+  +QUICKTORETALIATE
+  +LOOKALLAROUND
+  +MISSILEMORE
+  +DROPOFF
+  +NOINFIGHTING
+
+  var int user_flinch;
+  var int user_act;
+  var int user_state;
+  var int user_count;
+  var int user_delay;
+  var int user_hpold;
+  states
+  {
+SetInfo:
+			TNT1 A 0 A_SpawnItemEx("Orbiter_moon",0 ,random(1,2),45,		0,0,0,0,0,0,tid*10)
+		Goto SpawnSetup
+SpawnSetup:
+			SILE A 35 ACS_NamedExecuteWithResult( 
+			"DnD Custom Monster Scale",
+			DND_CUSTOM_UNIQUEBOSS  ,
+			DND_RUINATION ,
+			DND_BLOODLESS,
+			DND_SCORCHED
+			)
+			SILE A 35 ACS_NamedExecuteWithResult("DnD Monster Trait Give",
+			DND_FRIGID,
+			DND_VENOMANCER,
+			DND_INSULATED,
+			-1)	
+			
+			SILE A 0 A_ChangeFlag("NODAMAGE",1)
+			SILE A 0 A_Jump(256, "Initial")
+			SILE A 35
+		Wait
+  Initial:
+		TNT1 A 0  A_SetUserVar("user_state", 0 )
+		TNT1 A 0  A_SetUserVar("user_hpold", health )
+	SILE A 0 A_giveinventory("runteleorb",1)
+	SILE A 0 A_giveinventory("GravdisImmunity",1)
+	SILE GHI 8 bright A_jumpif(health < user_hpold,"Idle")
+	loop
+Idle:
+	SILE A 8  A_SetUserVar("user_state", 5 )
+IdleLoop:	
+	SILE GHI 7 bright A_look
+	loop
+
+	Initial.Next:
+	TNT1 A 0  A_SetUserVar("user_state", 0 )
+	SILE A 0 A_lookEx(LOF_DONTCHASEGOAL|LOF_NOJUMP )
+	SILE A 32
+	SILE A 32 A_facetarget
+	Initial.Nextloop:
+	SILE A 1 A_facetarget
+	SILE GHI 0 bright A_jumpif(health < user_hpold,"Idlew")
+	loop
+Idlew:
+	SILM A 1  A_SetUserVar("user_state", 5 )
+	SILM A 8 bright A_look
+	loop
+See:
+SeeState:
+	SILM A 0 A_SetUserVar("user_state", 6 )
+	SILM A 0 A_jumpif(user_act == 0,"Curse")
+	SILM A 10
+	Goto Chase
+Chase:
+	SILE A 0  A_SetUserVar("user_state", 9 )
+	
+	SILE A 0 A_jumpif(alpha<1.0,"chase.newmoon")
+	
+	SILE AABBCCDDEEFF 2 bright A_CHASE
+	loop
+ChaseTwo:
+	SILE A 0  A_SetUserVar("user_state", 9 )
+	
+
+	
+	SILE AAA 2 bright A_CHASE
+	
+	SILE BBB 2 bright A_CHASE
+	
+	SILE CCC 2 bright A_CHASE
+	
+	SILE DCD 2 bright A_CHASE
+	loop
+Chase.newmoon:
+	SILE A 0  A_SetUserVar("user_state", 9 )
+	
+	SILE A 0 A_jumpif(alpha==1.0,"Chase")
+	
+	SILE ABCDEF 3 A_CHASE
+	loop 
+Curse:
+	SILE A 0  A_SetUserVar("user_state", 1 )
+	
+	SILE A 1 A_FaceTarget
+	SILE A 0  A_SetUserVar("user_act", 1 )
+	SILE A 0 A_givetotarget("moonbound",1)
+	SILE GHIJKLMNO 1 
+	SILE A 0 A_giveinventory("runteleorb",1)
+	SILE A 0 ACS_NAMedexecutealways("init.Encounter.A",0)
+	SILE A 0 A_changeflag("NOPAIN",0)
+	SILE P 1 
+	goto ActBegin
+
+ActBegin:
+	SILE A 0  A_SetUserVar("user_state", 2 )
+	
+	//SILE A 0 A_changeflag("NOGRAVITY",1)
+	//SILE A 0 A_changeflag("NOPAIN",1)
+	//SILE A 0 A_changeflag("NODAMAGE",1)
+	SILE A 0 teleport(30)
+	goto Actloop
+
+Actloop:
+	SILE A 0  A_SetUserVar("user_state", 3 )
+	SILM A 0  
+	SILM A 35
+	SILM A 1 //A_JumpIfinventory("ActEnd",0,0)
+	goto chase
+ActEnd:
+	SILE A 0  A_SetUserVar("user_state", 4 )
+	SILE GHIJKLMN 4 A_facetarget
+	SILE O 4 A_facetarget
+	SILE P 5 A_facetarget
+	goto ActLoop
+
+
+p1dps:
+SILM A 1  A_SetUserVar("user_state", 7 )
+
+	//SILE A 0 A_changeflag("NOGRAVITY",0)
+	SILE A 0 A_changeflag("NOPAIN",1)
+	SILE A 0 A_changeflag("NODAMAGE",0)
+	SILE A 0
+p1dpsLoop:
+	SILE A 1 A_playsound("tornado/pain",0,0.5,0,0)
+	SILE A 1 fast A_CustomBulletAttack(0, 0, 1, 0, "MoonTrapxSpawner")
+	SILE A 1 fast A_jumpifcloser(300,"DPSmelee")
+	SILE AABBCCDDEEFF 2 A_Wander
+	loop
+DPSmelee:
+	SILE G 3 bright A_facetarget
+	SILE G 3 bright fast A_SpawnItemEx("MVSHIELD2",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION,0 )
+	SILE H 1 Bright ACS_NamedExecuteWithResult("AX Monster Push All Players", 350, 48)
+	SILE HIG 6 Bright A_facetarget
+	goto See
+	
+p1dps.End:
+	SILE A 8
+	goto recoup
+
+Missile:
+	SILM A 0 //A_SetUserVar("user_state", 7 )
+	SILE G 1 
+	SILE A 1 fast A_jumpifcloser(300,"DPSmelee")
+	SILE G 5 A_FaceTarget
+	SILE HIJKLMN 4 A_FaceTarget
+	SILE A 0 A_GiveInventory("kf_reactItem",1)
+	SILE O 8 Bright A_CustomMissile("startracer",  64, 0, 0, CMF_TRACKOWNER)
+	SILM A 0 A_CustomBulletAttack(0, 0, 1, 0, "MoonTrapxSpawner")
+	SILE G 1 A_MonsterRefire(130, "Chase")
+	goto Missile2
+Missile2:
+	SILM A 0 //A_SetUserVar("user_state", 7 )
+	SILE A 1 fast A_jumpifcloser(300,"DPSmelee")
+	SILE GHGHGHGHGH 1 BRIGHT A_SpawnItemEx("RuneFx",random(-30,30),random(-30,30),random(10,100),0,0,0)
+	SILE IJKLMN 4 BRIGHT A_FaceTarget
+		//SILE A 0 A_GiveInventory("kf_reactItem",1)
+		//SILE O 8 Bright A_CustomMissile("startracer",  64, 0, 0, CMF_TRACKOWNER)
+		SILE O 8 BRIGHT A_CustomBulletAttack(0, 0, 1, 0, "MoonTrapxSpawner")
+		SILE P 10 BRIGHT  A_GiveInventory("AX_lineItem",1)
+		SILE G 1 A_MonsterRefire(130, "Chase")
+		goto Missile3
+Missile3:
+	SILM A 0 //A_SetUserVar("user_state", 7 )
+	SILE A 1 fast A_jumpifcloser(300,"DPSmelee")
+	SILE GHGHGHGHGH 1 BRIGHT A_SpawnItemEx("RuneFx",random(-30,30),random(-30,30),random(10,100),0,0,0)
+	SILE IJKLMN 2 BRIGHT A_FaceTarget
+		//SILE A 0 A_GiveInventory("kf_reactItem",1)
+		//SILE O 8 Bright A_CustomMissile("startracer",  64, 0, 0, CMF_TRACKOWNER)
+		SILE O 8 BRIGHT  A_GiveInventory("kf_reactItem2",1)//A_CustomBulletAttack(0, 0, 1, 0, "MoonTrapxSpawner")
+		SILE P 10 BRIGHT  //A_GiveInventory("AX_lineItem",1)
+		SILE G 1 A_MonsterRefire(130, "Chase")
+		goto Chase
+PainState:
+    SILE Q 5 A_SetUserVar("user_flinch", user_flinch + 1 )
+    SILE Q 5 A_Pain
+	SILE Q 0 A_jumpif(user_act==3,"ChaseTwo")
+	SILE Q 0 A_jumpif(user_state==7,"p1dpsloop")
+    Goto Chase
+  XDeathState:
+  DeathState:
+	SILE Q 1 ACS_NamedExecuteAlways("DnD Generic Boss Loot", 0, 1, 0, 0)
+    SILE Q 7 ACS_NamedExecuteAlways("DnD Generic Boss Loot", 0, 1, 0, 0)
+    SILE R 7 A_Scream
+    SILE S 7 A_NoBlocking
+    SILE TUVW 7
+    SILE XY 5 
+    SILE Z -1 ACS_NamedExecuteAlways("DnD Generic Boss Loot", 0, 1, 0, 15)
+    Stop
+  }
+}
+
+Actor AX_LineItem : DnD_Activator {
+	States {
+		Pickup:
+			//PYRO Q  0 Bright A_Custommissile("BruiserFirexSpawner",16,0,0,0)
+			PYRO Q  0 Bright A_Custommissile("minixSpawner",16,0,96,0)
+			PYRO Q  0 Bright A_Custommissile("minixSpawner",16,0,-96,0)
+			//PYRO Q  2 Bright A_Custommissile("BruiserFirexSpawner",16,0,192,0)
+		Stop
+	}
+}
+Actor minixSpawner
+{
+  Radius 8
+  Height 32
+  Speed 12
+  Damage 0
+  +Ripper
+  +FloorHugger
+  +BloodlessImpact
+  Projectile
+  MissileType minimoonFirex
+  Missileheight 8
+  var int user_count;
+  States
+  {
+  Spawn: 
+    TNT1 A 3 Bright A_MissileAttack
+    TNT1 A 13 A_SetUserVar("user_count", user_count+1 )
+    TNT1 A 3 A_jumpif(user_count>=5,"Death")
+    Loop
+  Death:  
+    TNT1 A 6
+    Stop
+  }
+}
+
+Actor minimoonFirex
+{
+  Radius 16
+  Height 8
+  Speed 0
+  Damage 20
+  Projectile
+  RenderStyle Add
+  stamina 32
+  Alpha 1
+  scale 0.25
+  //+NoClip
+  //+FloorHugger
+  SeeSound "weapons/rocklx"
+  States
+  {
+  Spawn:
+    MOON Z 3 Bright A_fadeout(0.1)
+	loop     
+   }
+}
+Actor MVShield2 {
+	Height 128
+	Radius 300
+	MONSTER
+	scale 3.0
+	Species "AV"
+	+FLOORHUGGER +FORCERADIUSDMG +ISMONSTER -COUNTKILL 
+	+THRUSPECIES
+	
+	+BLOODLESSIMPACT  +NODAMAGETHRUST +REFLECTIVE -SOLID +INVULNERABLE +DONTRIP +NOTAUTOAIMED +CANTSEEK
++FORCEXYBILLBOARD
+	reactiontime 2
+	Renderstyle Add
+	Alpha 1.0
+	States {
+		Spawn:
+			AXP3 A 0 A_countdown
+			AXP3 ABCBAC 1 Bright A_FadeOut(0.0825)
+			AXP3 CDADCA 1 Bright A_FadeIn(0.0825)
+		Loop
+		Death:
+			AXP3 "#######" 1 A_SetScale(scalex - 0.075, scaley - 0.075)
+			AXP3 "#######" 1 A_SetScale(scalex - 0.175, scaley - 0.175)
+			AXP3 "#######" 1 A_SetScale(scalex - 0.275, scaley - 0.275)
+		Stop
+	}
+}
+Actor MoontrapxSpawner : BulletPuff { //looks fine
+	Renderstyle None
+	VSpeed 0
+	Speed 0
+	+DONTBLAST
+	+ALWAYSPUFF
+	+PUFFONACTORS
+	+PUFFGETSOWNER
+	+BLOODLESSIMPACT
+	+MISSILE
+	States {
+		Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_NamedExecuteAlways("DnD Gravdis Hit Fx", 0, 64)
+
+		TNT1 A 105
+		
+		TNT1 A 1 A_CustomMissile("MoonTrapx",  ceilingz - z - 32, 0, 0, CMF_TRACKOWNER)
+		Stop
+		
+	}
+}
+
+
+ACTOR StarTracer
+{
+	Projectile
+	Radius 11
+	Height 8
+	Speed 8
+	Damage (20 * random(1, 8))
+	DamageType "Magical"
+	stamina 8
+	+SEEKERMISSILE
+	+DONTBLAST
+	+RANDOMIZE
+	+DEHEXPLOSION
+	+DONTREFLECT
+ 
+	var int user_count;
+	RenderStyle Add
+  States
+  {
+  Spawn:
+	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+	KWBR A 35
+	TNT1 A 0 A_ChangeVelocity(velx * 2.75, vely * 2.75, velz , CVF_REPLACE)
+	SpawnMid:
+	KWBR A 0
+	KWBR A 0 A_setuservar("user_count",user_count+1)
+	KWBR A 0 A_SpawnItemEx("StarTracerBlur", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION)
+    KWBR ABCD 1 Bright A_Tracer2
+    KWBR A 0 A_SpawnItemEx("StarTracerBlur", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION)
+	KWBR A 0 A_jumpif(user_count> 18,"Spawnloop")
+	Loop
+	SpawnLoop:
+	TNT1 A 0 A_ChangeVelocity(velx * 1.5, vely * 1.5, velz , CVF_REPLACE)
+	SpawnLoopEnd:
+	KWBR A 0 A_SpawnItemEx("StarTracerBlur", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION)
+    KWBR ABCD 1 Bright 
+    KWBR A 0 A_SpawnItemEx("StarTracerBlur", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION)
+	loop
+PreDeath:
+	KWBB A 0 A_Die
+	KWBB A 0 A_ChangeVelocity(0, 0, 0, CVF_REPLACE)
+Death:
+	KWBD ABCDEF 4 bright
+    Stop
+  }
+}
+
+Actor Startracer2 : Startracer
+{
+states{
+Spawn:
+	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+	KWBR A 15
+	TNT1 A 0 A_ChangeVelocity(velx * 2.75, vely * 2.75, velz , CVF_REPLACE)
+	SpawnMid:
+	KWBR A 0
+	KWBR A 0 A_setuservar("user_count",user_count+1)
+	KWBR A 0 A_SpawnItemEx("StarTracerBlur", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION)
+    KWBR ABCD 1 Bright //A_Tracer2
+	TNT1 A 0 A_CustomMissile("startracer", 0, 0, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+	TNT1 A 0 A_CustomMissile("startracer", 0, 0, -90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+    KWBR A 0 A_SpawnItemEx("StarTracerBlur", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION)
+	KWBR A 0 A_jumpif(user_count> 18,"Spawnloop")
+	Loop
+}}
+
+Actor StarTracerBlur
+{
+Height 0
+Radius 0
+Speed 0.2
+RenderStyle Add
+Alpha 0.8
+Scale 0.85
++CLIENTSIDEONLY +NOINTERACTION
+   	States{
+Spawn:
+	KWBR A 1  BRIGHT A_setscale(scalex - 0.1,scaley - 0.1)
+	KWBR B 1 BRIGHT A_FadeOut(0.1)
+	Loop
+   	}}
+
+Actor kf_ReactItem : dnd_activator {
+	States {
+		Pickup:
+			TNT1 A  1 Bright A_Custommissile("StarTracer",48,0,32,0)
+			TNT1 A  1 Bright A_Custommissile("StarTracer",48,0,-32,0)
+			TNT1 A  1 Bright A_Custommissile("StarTracer",80,0,64,0)
+			TNT1 A  1 Bright A_Custommissile("StarTracer",80,0,-64,0) 
+
+			TNT1 A  1 Bright A_Custommissile("StarTracer",32,0,16,0)
+			TNT1 A  1 Bright A_Custommissile("StarTracer",32,0,-16,0)
+
+			
+		Stop
+	}
+}
+Actor kf_ReactItem2 : dnd_activator {
+	States {
+		Pickup:
+
+			TNT1 A  1 Bright A_Custommissile("StarTracer2",60,0,84,0)
+			TNT1 A  1 Bright A_Custommissile("StarTracer2",60,0,-84,0) 
+
+
+			
+		Stop
+	}
+}
+Actor MVSoul : Moonvile 32726
+{
+OBITUARY "%o was slained by Vile Soul."
+  Tag "Vile Soul"
+  Health 4000
+  radius 60
+  height 192
+  Mass 0x7FFFFFFF
+  Species "AV"
+  Speed 5
+  MinMissileChance 160
+  RENDERSTYLE "subtract"
+  Alpha 1.0
+  PainChance 10
+  damagefactor "turmoon", 0.0
+  damagefactor "Normal", 0.14
+  damagefactor "Sludge", 0.1
+  damagefactor "Disintegrate", 0.17
+  scale 1.9
+  SEESOUND ""
+  PAINSOUND "tornado/pain"
+  DEATHSOUND "tornado/death"
+  ACTIVESOUND "tornado/active"
+  Bloodcolor "00 00 00"
+  MONSTER
+  MaxStepHeight 500
+  MaxDropOffHeight 500
+  -COUNTKILL
+  -NOBLOCKMONST
+  +DONTMORPH
+  +DONTRIP
+  +NODAMAGETHRUST
+  +BOSS
+  +FloorClip
+  +NoTarget
+  +QUICKTORETALIATE
+  +NOINFIGHTING
+  +MISSILEMORE
+  +MISSILEEVENMORE
+  //-USEKILLSCRIPTS
+
+
+
+  states{
+		
+SetInfo:
+			TNT1 A 0
+		Goto SpawnSetup
+SpawnSetup:
+			SILE A 35 ACS_NamedExecuteWithResult( 
+			"DnD Custom Monster Scale",
+			(MONSTERCLASS_ARCHVILE << 9) ,
+			DND_RUINATION ,
+			DND_BLOODLESS,
+			DND_SCORCHED
+			)
+			SILE A 35 ACS_NamedExecuteWithResult("DnD Monster Trait Give",
+			DND_FRIGID,
+			DND_VENOMANCER,
+			DND_INSULATED,
+			DND_SUMMONED)	
+			
+			SILE A 0 A_ChangeFlag("NODAMAGE",1)
+			SILE A 0 A_Jump(256, "Initial")
+			SILE A 35
+		Wait
+
+Initial:
+	SILE A 0  A_SetUserVar("user_state", 5 )
+	SILE GGGGGGGGGGGGGGG 1 bright A_Fadein(0.2)
+InitialLoop:
+	TNT1 A 0 A_Spawnitem("mvUPG")
+	SILE G 4 bright A_look
+	TNT1 A 0 A_Spawnitem("mvUPH")
+	SILE H 4 bright A_look
+	TNT1 A 0 A_Spawnitem("mvUPI")
+	SILE I 4 bright A_look
+	loop
+Idle:
+	TNT1 A 0 A_changeflag("NODAMAGE",0)
+	goto IdleLoop
+IdleLoop:
+	TNT1 A 0 A_Spawnitem("mvUPG")
+	SILE G 4 bright A_look
+	TNT1 A 0 A_Spawnitem("mvUPH")
+	SILE H 4 bright A_look
+	TNT1 A 0 A_Spawnitem("mvUPI")
+	SILE I 4 bright A_look
+	loop
+See:
+SeeState:
+	SILM A 0 A_SetUserVar("user_state", 6 )
+
+	SILE A 0 A_Spawnitem("mvUPA")
+	SILE A 4
+	Goto Chase
+Chase:
+	SILE A 0  A_SetUserVar("user_state", 9 )
+	TNT1 A 0 A_Spawnitem("mvUPA")
+	SILE AA 1 bright A_CHASE
+	TNT1 A 0 A_Spawnitem("mvUPB")
+	SILE BB 1 bright A_CHASE
+	TNT1 A 0 A_Spawnitem("mvUPC")
+	SILE CC 1 bright A_CHASE
+	TNT1 A 0 A_Spawnitem("mvUPD")
+	SILE DD 1 bright A_CHASE
+	loop
+
+Missile:
+	SILM A 0 //A_SetUserVar("user_state", 7 )
+	
+	
+	SILE G 0 A_Spawnitem("mvUPG")
+	SILE G 4 A_FaceTarget
+	SILE G 0 A_Spawnitem("mvUPG")
+	SILE N 4 A_FaceTarget
+	SILE O 0 A_Spawnitem("mvUPO")
+	SILE O 0 Bright A_CustomMissile("ShadowTrailAx",  66, 0, random(-10,10),2)
+	SILE OOOOOO 0 Bright A_CustomMissile("ShadowBallMV",  66, 0, random(-10,10),2)
+	SILE OOO 0 Bright A_CustomMissile("ShadowTrailAxNH",  66, 0, random(-100,100),2)
+	SILE O 4 A_FaceTarget
+	SILE O 0 A_Spawnitem("mvUPO")
+	SILE OOOOOO 0 Bright A_CustomMissile("ShadowBallMV",  138, 0, random(-10,10),0)
+	SILE O 4 A_FaceTarget
+	SILE O 0 A_Spawnitem("mvUPO")
+	SILE OOOOOO 0 Bright A_CustomMissile("ShadowBallMV",  30, 0, random(-10,10),0)
+	SILE O 4 A_FaceTarget
+	SILE O 0 A_Spawnitem("mvUPO")
+	SILE OOOOOO 0 Bright A_CustomMissile("ShadowBallMV",  102, 0, random(-10,10),2)
+	SILE G 1 
+	goto chase
+Pain:
+PainState:
+    SILE Q 5 A_SetUserVar("user_flinch", user_flinch + 1 )
+    SILE Q 5 A_Pain
+    Goto See
+XDeathState:
+Death.Ice:
+DeathState:
+    SILE Q 7 
+    SILE R 7 A_Scream
+    SILE S 7 A_NoBlocking
+    SILE TUVW 7 
+    SILE X 0 
+	SILE XY 2 
+	SILE Y 5 
+Death.Idle:
+    SILE Z 1
+	SILE Z -1
+    Stop
+		}
+  }
+
+actor ShadowTrailAx 
+{
+Decal RocketScorch
+radius 10
+height 14
+renderstyle "Subtract"
+speed 20
+FastSpeed 40
+damagetype "Physical"
+SeeSound "DSSHNGAT"
+ActiveSound "DSSHNGAT"
+DeathSound "caco/shotx"
+Damage 1
+stamina 1
+  Alpha 1.0
+  PROJECTILE
++DROPOFF +FLOORHUGGER +EXTREMEDEATH +STRIFEDAMAGE
+states{
+Spawn:
+	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+	POSS A 0 A_loopActivesound
+Spawnloop:
+	POSS ABCD 8 bright 
+	Loop
+Death:
+	HBFR D 0 
+	HBFR DEFGH 5 bright
+	stop
+}
+}
+actor ShadowTrailAxNH : ShadowTrailAx
+{
+speed 5
+FastSpeed 10
+states{
+Spawn:
+	POSS A 0 A_loopActivesound
+Spawnloop:
+	FATT ABCDEF 4 bright 
+	Loop
+	Death:
+	HBFR DEFGH 5 bright
+	stop}}
+ACTOR ShadowBallMV
+{
+	Radius 6
+  Height 8
+  Speed 10
+  FastSpeed 20
+  Damage 1
+  SeeSound "DSSHNGAT"
+  DeathSound "caco/shotx"
+  Projectile
+  +RANDOMIZE
+  RENDERSTYLE "subtract"
+  damagetype "Physical"
+  Alpha 1.0
+  Decal Scorch
+	stamina 1
+	
+	States
+	{
+	Spawn:
+	TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+	SpawnLoop:
+		SKUL CD 4 bright
+		Loop
+	Death:
+    SKUL F 6 Bright 
+    SKUL G 6 Bright 
+    SKUL H 6 Bright
+    SKUL I 6 Bright
+    SKUL J 6
+    SKUL K 6
+    Stop
+	}
+}
+ ACTOR mvUpA
+{
++NOCLIP
++NOINTERACTION
++NOGRAVITY
+RENDERSTYLE "subtract"
+Alpha 1
+VSpeed 1
+scale 2.0
+States
+	{
+	Spawn:
+		SILE A 2 A_Fadeout
+		Loop
+	}
+}
+Actor mvUpB : mvUpA
+{
+States
+	{
+	Spawn:
+		SILE B 2 A_Fadeout
+		Loop
+	}
+}
+Actor mvUpC : mvUpA
+{
+States
+	{
+	Spawn:
+		SILE C 2 A_Fadeout
+		Loop
+	}
+}
+Actor mvUpD : mvUpA
+{
+States
+	{
+	Spawn:
+		SILE D 2 A_Fadeout
+		Loop
+	}
+}
+Actor mvUpG : mvUpA
+{
+States
+	{
+	Spawn:
+		
+		SILE G 2 A_Fadeout
+		Loop
+	}
+}
+
+Actor mvUpH : mvUpA
+{
+States
+	{
+	Spawn:
+		SILE H 2 A_Fadeout
+		Loop
+	}
+}
+Actor mvUpI : mvUpA
+{
+States
+	{
+	Spawn:
+		SILE I 2 A_Fadeout
+		Loop
+	}
+}
+Actor mvUpO : mvUpA
+{
+States
+	{
+	Spawn:
+		SILE O 2 A_Fadeout
+		Loop
+	}
+}

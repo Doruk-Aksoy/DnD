@@ -239,7 +239,6 @@ Actor Ability_Arcanery : DnD_Boolean { }
 Actor Ability_AntiPoison : DnD_Boolean { }
 Actor Ability_ExplosionMastery : DnD_Boolean { }
 Actor Ability_HeartSeeker : DnD_Boolean { }
-Actor Ability_Regeneration : DnD_Boolean { }
 Actor Ability_Temporal : DnD_Boolean { }
 Actor Ability_SoulStealer : DnD_Boolean { }
 Actor Ability_MonsterInfo : DnD_Boolean { }
@@ -468,6 +467,7 @@ Actor DnD_ExposedTimer : DnD_Info { }
 Actor DnD_SpellBusy : DnD_Info { }
 
 Actor DnD_FireExposed : DnD_Info { }
+Actor DnD_ExplosiveResist : DnD_Info { }
 Actor DnD_FireExposedTimer : DnD_Info { }
 // The cold half of the same idea. Frost Bomb's rank 5 today, Frostbite's curse later.
 Actor DnD_ColdExposed : DnD_Info { }
@@ -480,6 +480,8 @@ Actor DnD_ShockedAll : DnD_Info { }
 Actor DnD_ShockFXTimer : DnD_Info { }
 // Energy Blade: the percent less maximum energy shield while it is out.
 Actor DnD_EnergyBladeLess : DnD_Info { }
+// Blood Magic: the percent of maximum life the auras hold, kept by UpdateManaVisualCap.
+Actor DnD_LifeReserved : DnD_Info { }
 // Frost Bomb. MonsterRegenPause is a boolean with no clock of its own, so this is its clock.
 Actor DnD_RegenPauseTimer : DnD_Info { }
 // Ice Nova rank 10. Percent LESS damage the monster deals, read in HandlePlayerResists.

@@ -324,3 +324,14 @@ const int SPELLTHRESH_HIGH = 10;
 
 #include "Actors/NPC/DarkWanderer.dec"
 #include "Actors/NPC/Merchant.dec"
+
+// MAP SPECIFIC
+
+// GROTTO
+#include "Actors/Maps/Grotto/Items/info.txt"
+#include "Actors/Maps/Grotto/StateChanger.txt"
+#include "Actors/Maps/Grotto/Orbiter.txt"
+#include "Actors/Maps/Grotto/Podium.txt"
+#include "Actors/Maps/Grotto/Mooncore.txt"
+#include "Actors/Maps/Grotto/Moonvile.txt"
+#include "Actors/Maps/Grotto/DataEntity.txt"

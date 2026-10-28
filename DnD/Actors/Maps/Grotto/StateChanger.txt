@@ -1,0 +1,51 @@
+Actor Ax_Activator : CustomInventory {
+	inventory.maxamount 1
+	+INVENTORY.ALWAYSPICKUP
+	+INVENTORY.AUTOACTIVATE
+	+INVENTORY.IGNORESKILL
+	+INVENTORY.UNDROPPABLE
+}
+Actor TakeDamage : Ax_Activator {
+	States {
+Pickup:
+		TNT1 A 1 A_changeflag("NODAMAGE",0)
+		Stop
+}}
+Actor TakeNoDamage : Ax_Activator {
+	States {
+Pickup:
+		TNT1 A 1 A_changeflag("NODAMAGE",1)
+		Stop
+}}
+Actor RunTeleOrb : Ax_Activator {
+	States {
+Pickup:
+		TNT1 A 1 
+		TNT1 AAAA 0 A_SpawnItemEx ("TeleOrbFx", frandom(-48.0, 48.0), frandom(-48.0, 48.0), 0, frandom(-1.0, 1.0), frandom(-1.0, 1.0), frandom(0.5, 7.5), 0, SXF_NOCHECKPOSITION | SXF_CLIENTSIDE)
+		Stop
+}}
+
+Actor MoonSphere : AX_Activator
+{
+  //+CountItem
+  +NoGravity
+  +Inventory.AutoActivate
+  +Inventory.AlwaysPickup
+  Inventory.MaxAmount 0
+  //Powerup.Type TimeFreezer
+  //Powerup.Color GoldMap
+  Inventory.PickupMessage "!"
+  renderstyle "add"
+  Alpha 0.9
+  scale 1.5
+  States
+  {
+  Spawn:
+    MNSP AAAABBBBCCCCDDDD 1 Bright 
+    Loop
+	Pickup:
+	MNSP A 0 ACS_NAMEDEXECUTEALWAYS("moonreturn",0)
+	MNSP A 0 a_takeinventory("moonbound",1)
+	stop
+  }
+}

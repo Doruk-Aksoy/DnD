@@ -2414,6 +2414,11 @@ Actor EbonyPellets : DnD_RipperBase {
 	+CANBOUNCEWATER
 	-NOGRAVITY
 	States {
+		RipSetup:
+			// the rip limit at spawn, before a first move can touch an enemy
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 8)
+			TNT1 A 1
+		Goto Spawn+1
 		SpawnState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 8)
 			TNT1 A 0 ThrustThingZ(0, 8 * random(2, 4), 0, 0)
@@ -2699,6 +2704,11 @@ Actor MPPB_Projectile2 : DnD_RipperBase {
 	Stamina 32768
 
 	States {
+		RipSetup:
+			// the rip limit at spawn, before a first move can touch an enemy
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 10)
+			TNT1 A 1
+		Goto Spawn+1
 		SpawnState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 10)
 		SpawnLoop:

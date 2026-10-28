@@ -1,0 +1,41 @@
+Actor PODIUM1FX 481{
+	Renderstyle Add
+	Alpha 1.0
+	Scale 1.0
+	+NOGRAVITY+FORCEYBILLBOARD
+	States {
+		Spawn:
+			TNT1 A 1 
+		RealLoop:
+			PDMP AAAA 1 Bright 
+			TNT1 A 0 
+		Loop
+	}
+}
+Actor PODIUM2FX : PODIUM1FX 482{
+	States {
+	Spawn:
+			TNT1 A 1 
+		RealLoop:
+			PDMP BBBB 1 Bright
+		Loop
+	}
+}
+Actor PODIUM3FX : PODIUM1FX 483{
+	States {
+	Spawn:
+			TNT1 A 1 
+		RealLoop:
+			PDMP CCCC 1 Bright
+		Loop
+	}
+}
+Actor PODIUM4FX : PODIUM1FX 484{
+	States {
+	Spawn:
+			TNT1 A 1 
+		RealLoop:
+			PDMP DDDD 1 Bright
+		Loop
+	}
+}

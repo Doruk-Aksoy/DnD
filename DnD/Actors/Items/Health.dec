@@ -4,13 +4,10 @@ Actor PlayerHealthCap : Inventory {
 
 Actor Stimpack_MP : DnD_SharedItem replaces Stimpack { 
 	States {
-		// acs_Executealways is 226
 		Spawn:
-			// the delay is needed for the tid to initialize
-			STIM A 1 NoDelay ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_STIMPACK)
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Chest Dropping Item", 0, 40)
-			STIM A 34 ACS_NamedExecuteAlways("DnD Init Shared Translation", 0)
-			TNT1 A 0 Thing_SetSpecial(0, 226, DND_SHARED_ITEM_SCRIPT, 0, tid)
+			// a plain first state instead of NoDelay, whose first tic differs between engines
+			STIM A 0
+			STIM A 0 ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_STIMPACK, 40)
 		Idle:
 		IdlePicked:
 			STIM A -1
@@ -52,13 +49,10 @@ Actor StimpackMsg : CustomInventory {
 
 Actor Medikit_MP : DnD_SharedItem replaces Medikit { 
 	States {
-		// acs_Executealways is 226
 		Spawn:
-			// the delay is needed for the tid to initialize
-			MEDI A 1 NoDelay ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_MEDKIT)
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Chest Dropping Item", 0, 20)
-			MEDI A 34 ACS_NamedExecuteAlways("DnD Init Shared Translation", 0)
-			TNT1 A 0 Thing_SetSpecial(0, 226, DND_SHARED_ITEM_SCRIPT, 0, tid)
+			// a plain first state instead of NoDelay, whose first tic differs between engines
+			MEDI A 0
+			MEDI A 0 ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_MEDKIT, 20)
 		Idle:
 		IdlePicked:
 			MEDI A -1

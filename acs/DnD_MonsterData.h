@@ -564,18 +564,22 @@ int ApplyResistWeakness(int resist, int weakness_pct) {
 	return 100 - (100 - resist) * (100 + weakness_pct) / 100;
 }
 
-// The creature type block in InitMonsterResists is an if / else if chain, so a monster carrying two of
-// these traits only ever gets the first one. Resolving it the same way here is what keeps the weakness
-// matching the resist that was actually stored for it -- testing the traits independently would hand a
-// fire-and-earth creature a lightning weakness InitMonsterResists never gave it.
-int GetMonsterCreatureType(int m_id) {
-	if(HasMonsterTrait(m_id, DND_ICECREATURE))
+// Monsters and pets keep the same trait bits in separate tables; the resist rules below read either.
+bool HasUnitTrait(int id, int t, bool pet) {
+	if(pet)
+		return HasPetMonsterTrait(id, t);
+	return HasMonsterTrait(id, t);
+}
+
+// One creature type per unit, resolved in this order for both the stored resist and the weakness.
+int GetMonsterCreatureType(int m_id, bool pet = false) {
+	if(HasUnitTrait(m_id, DND_ICECREATURE, pet))
 		return DND_ICECREATURE;
-	if(HasMonsterTrait(m_id, DND_FIRECREATURE))
+	if(HasUnitTrait(m_id, DND_FIRECREATURE, pet))
 		return DND_FIRECREATURE;
-	if(HasMonsterTrait(m_id, DND_STONECREATURE))
+	if(HasUnitTrait(m_id, DND_STONECREATURE, pet))
 		return DND_STONECREATURE;
-	if(HasMonsterTrait(m_id, DND_EARTHCREATURE))
+	if(HasUnitTrait(m_id, DND_EARTHCREATURE, pet))
 		return DND_EARTHCREATURE;
 	return -1;
 }
@@ -592,20 +596,20 @@ int GetMonsterCreatureType(int m_id) {
 // have meant a second MAX_DAMAGE_CATEGORIES array on both MonsterProperties and PetMonsterProperties,
 // 129 600 ints, to save work that is dwarfed by the CheckActorInventory calls FactorResists already
 // makes on the same line.
-int GetMonsterResistWeakness(int m_id, int damage_category) {
+int GetMonsterResistWeakness(int m_id, int damage_category, bool pet = false) {
 	// applies to every elemental category
-	int generic = HasMonsterTrait(m_id, DND_ELEMENTAL_WEAKNESS) * DND_WEAKNESS_FACTOR;
-	int ctype = GetMonsterCreatureType(m_id);
+	int generic = HasUnitTrait(m_id, DND_ELEMENTAL_WEAKNESS, pet) * DND_WEAKNESS_FACTOR;
+	int ctype = GetMonsterCreatureType(m_id, pet);
 
 	switch(damage_category) {
 		case DND_DAMAGECATEGORY_FIRE:
 		return	generic +
-				HasMonsterTrait(m_id, DND_FIRE_WEAKNESS) * DND_SPECIFICELEWEAKNESS_FACTOR +
+				HasUnitTrait(m_id, DND_FIRE_WEAKNESS, pet) * DND_SPECIFICELEWEAKNESS_FACTOR +
 				(ctype == DND_ICECREATURE) * DND_SPECIFICELEWEAKNESS_FACTOR;
 
 		case DND_DAMAGECATEGORY_ICE:
 		return	generic +
-				HasMonsterTrait(m_id, DND_ICE_WEAKNESS) * DND_SPECIFICELEWEAKNESS_FACTOR +
+				HasUnitTrait(m_id, DND_ICE_WEAKNESS, pet) * DND_SPECIFICELEWEAKNESS_FACTOR +
 				(ctype == DND_FIRECREATURE || ctype == DND_STONECREATURE) * DND_SPECIFICELEWEAKNESS_FACTOR;
 
 		case DND_DAMAGECATEGORY_LIGHTNING:
@@ -616,12 +620,12 @@ int GetMonsterResistWeakness(int m_id, int damage_category) {
 		return generic;
 
 		case DND_DAMAGECATEGORY_ENERGY:
-		return HasMonsterTrait(m_id, DND_ENERGY_WEAKNESS) * DND_WEAKNESS_FACTOR;
+		return HasUnitTrait(m_id, DND_ENERGY_WEAKNESS, pet) * DND_WEAKNESS_FACTOR;
 
 		// soul reads the same resist as occult, so it takes the same weakness
 		case DND_DAMAGECATEGORY_OCCULT:
 		case DND_DAMAGECATEGORY_SOUL:
-		return HasMonsterTrait(m_id, DND_MAGIC_WEAKNESS) * DND_WEAKNESS_FACTOR;
+		return HasUnitTrait(m_id, DND_MAGIC_WEAKNESS, pet) * DND_WEAKNESS_FACTOR;
 	}
 
 	// bullet and melee have no weakness trait
@@ -636,50 +640,50 @@ void InitMonsterResists(int m_id) {
 
 	if((temp = HasDungeonAttributeVal(DUN_ATTR_INCREASEDRESISTS)) != -1)
 		bonus += temp;
-	
-	int etherealBonus = HasMonsterTrait(m_id, DND_ETHEREAL) * ETHEREAL_RESIST;
 
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_BULLET] = 	HasMonsterTrait(m_id, DND_BULLET_RESIST) * DND_RESIST_FACTOR + bonus +
-																	etherealBonus +
-																	HasMonsterTrait(m_id, DND_BULLET_IMMUNE) * DND_IMMUNITY_FACTOR;
+	FillUnitResists(m_id, bonus, false);
+}
+
+void SetUnitResist(int id, int category, int v, bool pet) {
+	if(pet)
+		PetMonsterProperties[id].resists[category] = v;
+	else
+		MonsterProperties[id].resists[category] = v;
+}
+
+// A monster's or a pet's stored resists, built from its traits; bonus lands on every category.
+void FillUnitResists(int id, int bonus, bool pet) {
+	int ethereal = HasUnitTrait(id, DND_ETHEREAL, pet) * ETHEREAL_RESIST;
 
 	// can be changed later, bullet and melee is just "phys" atm
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_MELEE] = MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_BULLET];
+	int phys =		HasUnitTrait(id, DND_BULLET_RESIST, pet) * DND_RESIST_FACTOR + bonus + ethereal +
+					HasUnitTrait(id, DND_BULLET_IMMUNE, pet) * DND_IMMUNITY_FACTOR;
+	int energy =	bonus + HasUnitTrait(id, DND_ENERGY_RESIST, pet) * DND_RESIST_FACTOR + ethereal +
+					HasUnitTrait(id, DND_ENERGY_IMMUNE, pet) * DND_IMMUNITY_FACTOR;
+	int occult =	bonus + HasUnitTrait(id, DND_MAGIC_RESIST, pet) * DND_RESIST_FACTOR +
+					HasUnitTrait(id, DND_MAGIC_IMMUNE, pet) * DND_IMMUNITY_FACTOR;
 
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ENERGY] =	bonus +
-																	HasMonsterTrait(m_id, DND_ENERGY_RESIST) * DND_RESIST_FACTOR +
-																	etherealBonus +
-																	HasMonsterTrait(m_id, DND_ENERGY_IMMUNE) * DND_IMMUNITY_FACTOR;
+	// this is common to elemental stuff; poison and lightning dont have their own weakness category yet
+	int ele =		bonus + HasUnitTrait(id, DND_ELEMENTAL_RESIST, pet) * DND_RESIST_FACTOR + ethereal +
+					HasUnitTrait(id, DND_ELEMENTAL_IMMUNE, pet) * DND_IMMUNITY_FACTOR;
+	int fire = ele, ice = ele, poison = ele, lightning = ele;
 
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_OCCULT] =	bonus +
-																	HasMonsterTrait(m_id, DND_MAGIC_RESIST) * DND_RESIST_FACTOR +
-																	HasMonsterTrait(m_id, DND_MAGIC_IMMUNE) * DND_IMMUNITY_FACTOR;
-	// this is common to elemental stuff
-	temp =	bonus +
-			HasMonsterTrait(m_id, DND_ELEMENTAL_RESIST) * DND_RESIST_FACTOR +
-			etherealBonus +
-			HasMonsterTrait(m_id, DND_ELEMENTAL_IMMUNE) * DND_IMMUNITY_FACTOR;
-
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_FIRE] = temp;
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ICE] = temp;
-
-	// these two dont have their own weakness category yet...
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_POISON] = temp;
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_LIGHTNING] = temp;
-
-	// creature type bonuses -- only one type allowed per creature
-	// only the resist half is stored; the paired weakness is rebuilt from these same traits at damage
-	// time by GetMonsterResistWeakness, which resolves this chain the same way
-	if(HasMonsterTrait(m_id, DND_ICECREATURE))
-		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ICE] = DND_IMMUNITY_FACTOR + bonus;
-	else if(HasMonsterTrait(m_id, DND_FIRECREATURE))
-		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_FIRE] = DND_IMMUNITY_FACTOR + bonus;
-	else if(HasMonsterTrait(m_id, DND_STONECREATURE)) {
-		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_FIRE] += DND_RESIST_FACTOR;
-		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_LIGHTNING] = DND_IMMUNITY_FACTOR + bonus;
+	// creature type bonuses: only the resist half is stored, GetMonsterResistWeakness rebuilds the weakness
+	switch(GetMonsterCreatureType(id, pet)) {
+		case DND_ICECREATURE:
+			ice = DND_IMMUNITY_FACTOR + bonus;
+		break;
+		case DND_FIRECREATURE:
+			fire = DND_IMMUNITY_FACTOR + bonus;
+		break;
+		case DND_STONECREATURE:
+			fire += DND_RESIST_FACTOR;
+			lightning = DND_IMMUNITY_FACTOR + bonus;
+		break;
+		case DND_EARTHCREATURE:
+			poison = DND_IMMUNITY_FACTOR + bonus;
+		break;
 	}
-	else if(HasMonsterTrait(m_id, DND_EARTHCREATURE))
-		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_POISON] = DND_IMMUNITY_FACTOR + bonus;
 
 	// What is stored is the monster's TRUE resist, and it is deliberately NOT clamped -- it is allowed
 	// to sit above DND_IMMUNITY_FACTOR, and above 100. FactorResists caps it at the point of use
@@ -695,8 +699,16 @@ void InitMonsterResists(int m_id) {
 	// weakness into MORE resist. It now runs in FactorResists immediately after the cap. That also
 	// fixes a real bug in passing -- see the note there on negative resists.
 
+	SetUnitResist(id, DND_DAMAGECATEGORY_BULLET, phys, pet);
+	SetUnitResist(id, DND_DAMAGECATEGORY_MELEE, phys, pet);
+	SetUnitResist(id, DND_DAMAGECATEGORY_ENERGY, energy, pet);
+	SetUnitResist(id, DND_DAMAGECATEGORY_OCCULT, occult, pet);
 	// soul is same as magic for now
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_SOUL] = MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_OCCULT];
+	SetUnitResist(id, DND_DAMAGECATEGORY_SOUL, occult, pet);
+	SetUnitResist(id, DND_DAMAGECATEGORY_FIRE, fire, pet);
+	SetUnitResist(id, DND_DAMAGECATEGORY_ICE, ice, pet);
+	SetUnitResist(id, DND_DAMAGECATEGORY_POISON, poison, pet);
+	SetUnitResist(id, DND_DAMAGECATEGORY_LIGHTNING, lightning, pet);
 }
 
 // this is only used in revive of monsters by itself

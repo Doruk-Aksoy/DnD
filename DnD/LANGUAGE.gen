@@ -112,9 +112,12 @@ DND_TALENT6								= "Lightning";
 DND_TALENT7								= "Fire";
 
 DND_TALENT8								= "Magic";
+// not a category: radius flats add on top of one, so their stat line names it alone
+DND_RADIUSTAG							= "Radius";
 
 DND_DAMAGEBONUS							= "damage bonus";
 DND_DAMAGE								= "damage";
+DND_SPELLDAMAGE							= "spell damage";
 DND_FROM								= "from";
 DND_CLASS								= "Class";
 

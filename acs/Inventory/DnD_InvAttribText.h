@@ -396,6 +396,8 @@ str ItemAttributeString(
 		case INV_HP_INCREASE:
 		case INV_ARMOR_INCREASE:
 		case INV_SHIELD_INCREASE:
+		case INV_FLAT_MANA:
+		case INV_FLAT_LIFEREGEN:
 
 		case INV_FLATPHYS_DAMAGE:
 		case INV_FLATENERGY_DAMAGE:
@@ -440,6 +442,23 @@ str ItemAttributeString(
 		case INV_ADDED_LIGHTNINGDMG:
 		case INV_ADDED_POISONDMG:
 
+		case INV_GENFLAT_PHYSDMG:
+		case INV_GENFLAT_ENERGYDMG:
+		case INV_GENFLAT_MAGICDMG:
+		case INV_GENFLAT_RADIUSDMG:
+		case INV_GENFLAT_ELEMDMG:
+		case INV_GENFLAT_FIREDMG:
+		case INV_GENFLAT_COLDDMG:
+		case INV_GENFLAT_LIGHTNINGDMG:
+		case INV_GENFLAT_POISONDMG:
+		case INV_SPELLFLAT_PHYSDMG:
+		case INV_SPELLFLAT_ELEMDMG:
+		case INV_SPELLFLAT_FIREDMG:
+		case INV_SPELLFLAT_COLDDMG:
+		case INV_SPELLFLAT_LIGHTNINGDMG:
+		case INV_SPELLFLAT_POISONDMG:
+		case INV_SPELLFLAT_MAGICDMG:
+
 		case INV_INC_MAXPOISONSTACK:
 			if(val > 0) {
 				if(showDetailedMods) {
@@ -451,7 +470,7 @@ str ItemAttributeString(
 				return StrParam(s:"+", s:col_tag, d:val, s:no_tag, l:text);
 			}
 			else if(val < 0)
-				return StrParam(s:col_tag, s:"-\cg", d:val, s:no_tag, l:text);
+				return StrParam(s:"\cg", d:val, s:no_tag, l:text);
 				
 		// corrupted implicits of certain kinds have +X% text TO (extra)
 		case INV_CORR_WEAPONCRITDMG:
@@ -507,14 +526,18 @@ str ItemAttributeString(
 		case INV_IMP_CANROLL_EXPLOSIVE:
 		case INV_IMP_CANROLL_ENERGY:
 		case INV_IMP_CANROLL_ELEMENTAL:
+		case INV_IMP_CANROLL_SPELL:				// lich skull
 		case INV_IMP_HIGHREFLECTREDUCE:			// synth metal
 		case INV_IMP_ESHIELDBLOCKSALL:
-		case INV_IMP_BONUSPETCAP:
 		case INV_IMP_MELEEIGNORESSHIELDS:
 		case INV_IMP_RECOVERESONUNDEADKILL:
 		case INV_IMP_QUALITYCAPFIFTY:
 		case INV_CORR_DMGDOESNTSTOPREGEN:
 		return StrParam(l:text);
+
+		// the stat page sums the implicit and Pact Leader, so the count is printed
+		case INV_IMP_BONUSPETCAP:
+		return StrParam(s:"+", s:col_tag, d:val, s:no_tag, l:text);
 
 		case INV_IMP_ABSORBLIGHTNING:			// lightning coil
 			text = StrParam(s:col_tag, d:val, s:"%\c-", l:text, s:col_tag, d:extra, s:"%\c- ", l:"IATTR_TI12S");
@@ -693,6 +716,7 @@ str ItemAttributeString(
 		case INV_LIFESTEAL:
 		case INV_MIT_INCREASE:
 		case INV_MITEFFECT_INCREASE:
+		case INV_PCT_LIFEREGEN:
 			if(showDetailedMods) {
 				return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val, false), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, false), s:"%", s:no_tag, l:text,
 					s:" - ", s:GetModTierText(attr, item_type, tier, extra)
@@ -713,7 +737,7 @@ str ItemAttributeString(
 
 		case INV_INC_CRITFORDOT:
 			if(showDetailedMods)
-				StrParam(
+				return StrParam(
 					s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC4S", 
 					s:"\cd ", d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra),
 					s:"% ", l:"IATTR_TINC4SS",
@@ -927,11 +951,11 @@ str ItemAttributeString(
 			else if(val < 0) {
 				if(showDetailedMods) {
 					return StrParam(
-						s:"-", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:text,
+						s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:text,
 						s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 					);
 				}
-				return StrParam(s:"-\cg", d:val, s:"%", s:no_tag, l:text);
+				return StrParam(s:"\cg", d:val, s:"%", s:no_tag, l:text);
 			}
 	}
 	return "";

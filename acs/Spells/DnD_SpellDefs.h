@@ -655,8 +655,13 @@ int GetSpellValue(int pnum, int spell, int which, int rank_at = 0) {
 		res = ApplySpellGemMore(pnum, spell, GEMSTAT_MORE_DURATION, res);
 	}
 	// A reservation is not a cost: gems' less cost stays off auras, which have reservation efficiency instead.
-	else if(which == SPELLVAL_COST && !(SpellDefs[spell].flags & SPLF_RESERVES))
+	else if(which == SPELLVAL_COST && !(SpellDefs[spell].flags & SPLF_RESERVES)) {
 		res = ApplySpellGemMore(pnum, spell, GEMSTAT_MORE_COST, res);
+
+		// Arcane Conservation: a LESS of its own, so it multiplies the gems' rather than adding to it.
+		if(PlayerModData[pnum].vals[PSTAT_SPELL_COST_LESS])
+			res = ScaleSpellValue(res, 100 - PlayerModData[pnum].vals[PSTAT_SPELL_COST_LESS]);
+	}
 	// Influencer: a passive's effect is its DAMAGE row on all four (burst share, more fire or cold, cooldown cut).
 	else if(which == SPELLVAL_DAMAGE && (SpellDefs[spell].flags & SPLF_PASSIVE))
 		res = ScaleSpellValue(res, 100 + GetSpellGemMod(pnum, spell, GEMSTAT_PASSIVE_EFFECT));
@@ -844,12 +849,23 @@ void SetHotbarSpell(int pnum, int slot, int spell) {
 	SpellPlayerData[pnum].hotbar[slot] = spell + 1;
 }
 
-// Three to start, Wanderer one more, items up to two -- six in total.
+// Three to start, Wanderer's level 40 perk one more, and PSTAT_EX_SPELLSLOTS (Supreme Knowledge, items). The perk is asked
+// of the activator when it is that player: the hotbar is drawn client side, where player tids do not exist.
 int GetHotbarSlotCount(int pnum) {
 	int n = DND_HOTBAR_BASESLOTS + PlayerModData[pnum].vals[PSTAT_EX_SPELLSLOTS];
-	if(isActorPlayerClass(pnum + P_TIDSTART, DND_PLAYER_WANDERER))
+	if(PlayerNumber() == pnum ? HasClassPerk(DND_PLAYER_WANDERER, DND_CLASSPERK_3) : HasPlayerClassPerk(pnum, DND_PLAYER_WANDERER, DND_CLASSPERK_3))
 		++n;
 	return Min(n, MAX_HOTBAR_SLOTS);
+}
+
+// Empties every slot past the count, so a slot that is taken away has nothing left on it if it comes back.
+void TrimHotbarSlots(int pnum) {
+	for(int i = GetHotbarSlotCount(pnum); i < MAX_HOTBAR_SLOTS; ++i) {
+		if(GetHotbarSpell(pnum, i) == -1)
+			continue;
+		SetHotbarSpell(pnum, i, -1);
+		SyncHotbarSlot(pnum, i);
+	}
 }
 
 // Where a spell sits among its OWN tree, counted in enum order. Stable for everything already in

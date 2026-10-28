@@ -7,9 +7,9 @@
 
 #define SIZEOF_INT 4
 
-#define ISDEBUGBUILD
+//#define ISDEBUGBUILD
 //#define WANTCURSORPOS
-#define VERBOSE_TID_SETUP
+//#define VERBOSE_TID_SETUP
 //#define WANT_BUFF_LOG
 
 // The per-base mod pool coverage report: which bases are thin at a given item level, and the summary
@@ -757,6 +757,34 @@ enum {
 	PSTAT_METRONOME_WINDOW,
 	PSTAT_OFFBEAT_LESSDAMAGE,
 
+	// Magi perks. Conditional ones gate at the read site; all integer percent unless noted.
+	PSTAT_SPELLDMG_PERMANA,		// increased spell damage per 100 maximum mana
+	PSTAT_SPELLDMG_PERMANACAP,
+	PSTAT_SPELL_MORE_LOWLIFE,	// MORE spell damage while on low life
+	PSTAT_SPELL_COST_LESS,		// LESS spell cost, after the gems' more and less
+	PSTAT_MANACOST_TOSHIELD,	// share of a spell's cost paid from energy shield instead
+	PSTAT_COSTRECOVER_CHANCE,	// chance a paid cost comes back as life over time
+	PSTAT_KILL_MANARECOVER,		// maximum mana recovered on a lucky kill, TENTHS of a percent
+	PSTAT_MINION_DAMAGE,
+	PSTAT_MINION_HEALTH,
+	PSTAT_MINION_DURATION,
+	PSTAT_MINION_RESIST,		// less physical and elemental damage taken
+	PSTAT_MINION_BUFFEFFECT,	// increased effect of the buffs minions give their master
+	PSTAT_MINION_CDR,			// minion cooldown recovery rate
+	PSTAT_MINION_REGEN,			// percent of maximum life a minion heals each second
+
+	// Flat damage worded for no attack or spell, which weapons and spells both add, then flat damage worded for spells.
+	// Runs keyed by damage category like PSTAT_FLATDMG_BASE, each with its broadcast slots after.
+	PSTAT_GENFLATDMG_BASE,
+	PSTAT_GENFLATDMG_ELEM = PSTAT_GENFLATDMG_BASE + MAX_DAMAGE_CATEGORIES,
+	PSTAT_GENFLATDMG_RADIUS,
+	PSTAT_SPELLFLATDMG_BASE,
+	PSTAT_SPELLFLATDMG_ELEM = PSTAT_SPELLFLATDMG_BASE + MAX_DAMAGE_CATEGORIES,
+
+	PSTAT_REGEN_FLAT,			// health a second, a regeneration source of its own (Vigour)
+	PSTAT_REGEN_PCT,			// percent of the pool a second, fixed point: 2.0 is 2% (Nano-machinery)
+	PSTAT_REGEN_DOTNOPAUSE,		// damage over time, and a hit that lands it, leaves life regeneration running (Restless Vitality)
+
 	PSTAT_COUNT
 };
 
@@ -773,9 +801,9 @@ enum {
 //
 // _NEW is a leftover from the migration -- the old DND_MAX_PERKS is gone, so this can lose the
 // suffix whenever someone wants to do the rename.
-#define DND_MAX_PERKS_NEW       160     // 135 authored, room to grow
+#define DND_MAX_PERKS_NEW       192     // 160 authored, room to grow
 #define DND_PERK_MAXPOINTS      3
-#define DND_MAX_PERK_ARCHETYPES 8       // 6 authored + Tormentor + spare
+#define DND_MAX_PERK_ARCHETYPES 8       // all 8 authored: a ninth needs this raised
 #define DND_MAX_PERK_REQS       3       // Blademaster and Gratuitous Violence each name three
 #define DND_PERK_BITS           2       // one lane holds 0..3, exactly DND_PERK_MAXPOINTS
 #define DND_PERK_WORDS          ((DND_MAX_PERKS_NEW * DND_PERK_BITS + 31) / 32)
@@ -869,6 +897,9 @@ enum {
 
 	// Metronome.
 	PFLAG_METRONOME,
+
+	// Blood Magic: no mana, spells cost life, auras reserve life.
+	PFLAG_BLOODMAGIC,
 
 	PFLAG_COUNT
 };
@@ -1317,8 +1348,12 @@ enum {
 	DND_CVAR_RESEARCHDROPRATE,
 	DND_CVAR_ACCESSORYDROPRATE,
 	DND_CVAR_ACCESSORYLEVEL,
+	// Read on every kill; a CVar lookup walks the engine's whole list by name. They take a map reset anyway.
+	DND_CVAR_KILLSPREE,
+	DND_CVAR_ALLRESEARCHESFOUND,
+	DND_CVAR_MODE
 };
-#define MAX_CVARS_TRACKED (DND_CVAR_ACCESSORYLEVEL + 1)
+#define MAX_CVARS_TRACKED (DND_CVAR_MODE + 1)
 
 global int 29: CVarValues[MAX_CVARS_TRACKED];
 
@@ -1864,6 +1899,11 @@ void SpawnDropFacing(str actor, int zoffset, int thrust, int setspecial, int set
 Script "DnD Try Spawn Area" (int stid, int actortype, int newtid, int r) {
 	// tries to spawn an object in a circle around stid
 	// tries halving radius if a full circular attempt failed until radius becomes 1
+	if(!stid && (ClassifyActor(0) & ACTOR_WORLD)) {
+		SetResultValue(0);
+		Terminate;
+	}
+
 	int degree_inc = (r >> 16) & 0xFF;
 	int ang_begin = (((r >> 24) & 0xFF) << 16) / 360;
 	r &= 0xFFFF;

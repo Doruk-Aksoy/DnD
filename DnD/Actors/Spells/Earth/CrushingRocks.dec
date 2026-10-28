@@ -1,4 +1,4 @@
-// One of the two rocks of a crush, raised, slammed and sunk by "DnD Crushing Rocks FX" on each client. ERSL carries the boulder model.
+// One of the two rocks of a crush, raised, slammed and broken up by "DnD Crushing Rocks FX" on each client. ERSL carries the boulder model.
 Actor Spell_CrushingRocks_Rock : DnD_SpecialFX {
 	States {
 		Spawn:
@@ -7,14 +7,96 @@ Actor Spell_CrushingRocks_Rock : DnD_SpecialFX {
 	}
 }
 
-// Rock chips and dust thrown out where a slam lands.
+// Rock chips, dust and sparks thrown out where a slam lands; the sparks spray along the rocks' faces, its angle.
 Actor Spell_CrushingRocks_Impact : DnD_SpecialFX {
 	States {
 		Spawn:
 			TNT1 A 0
 			TNT1 AAAAA 0 A_SpawnItemEx("Spell_Shrapnel_Piece", 0, 0, 0, frandom(-4, 4), frandom(-4, 4), frandom(3, 8), frandom(0, 360), SXF_CLIENTSIDE)
 			TNT1 AA 0 A_SpawnItemEx("Spell_Rockslide_Dust", frandom(-8, 8), frandom(-8, 8), frandom(0, 16), frandom(-1, 1), frandom(-1, 1), frandom(0.5, 1.5), 0, SXF_CLIENTSIDE)
-			TNT1 A 0 A_SpawnItemEx("StoneBitsSpawner", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("StoneBitsSpawner_Soundless", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("Spell_CrushingRocks_Flash", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE)
+			TNT1 AAAAA 0 A_SpawnItemEx("Spell_CrushingRocks_Spark", 0, 0, 0, frandom(-7, 7), frandom(-2, 2), frandom(2, 7), 0, SXF_CLIENTSIDE)
+		Stop
+	}
+}
+
+// The flash where rock strikes: the ricochet art at rock size.
+Actor Spell_CrushingRocks_Flash : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.9
+	+FORCEXYBILLBOARD
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 0 A_SetScale(frandom(1.4, 2.0))
+			TNT1 A 0 A_Jump(128, "Other")
+			RCH1 ABCD 2 Bright
+		Stop
+		Other:
+			RCH2 ABCD 2 Bright
+		Stop
+	}
+}
+
+// A spark struck off the rock: a hot ember that falls, skips off the floor and dies out.
+Actor Spell_CrushingRocks_Spark {
+	+CLIENTSIDEONLY
+	PROJECTILE
+	-NOGRAVITY
+	+THRUACTORS
+	+DONTSPLASH
+	+NOTELEPORT
+	+NOTONAUTOMAP
+	+FORCEXYBILLBOARD
+	Gravity 0.6
+	BounceType "Doom"
+	BounceFactor 0.35
+	BounceCount 3
+	Radius 2
+	Height 2
+	RenderStyle Add
+	Scale 0.9
+	States {
+		Spawn:
+			BPFF A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+			BPFF ABABAB 1 Bright
+		Cool:
+			BPFF AB 1 Bright A_FadeOut(0.08)
+		Loop
+		Death:
+			BPFF A 1 Bright A_FadeOut(0.15)
+		Wait
+	}
+}
+
+// Where a rock breaks up after the last crush, at its middle: chunks, crumbs and stone bits burst out of its body and
+// dirt clouds roll off. The boulder is about 86 long, 62 across and 57 tall at its model scale.
+Actor Spell_CrushingRocks_Crumble : DnD_SpecialFX {
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_PlaySound("RockArmor/Shatter")
+			TNT1 AAAAAAAA 0 A_SpawnItemEx("Spell_CrushingRocks_Chunk", frandom(4, 26), 0, frandom(-20, 18), frandom(1.5, 4.0), 0, frandom(2, 7), frandom(0, 360), SXF_CLIENTSIDE)
+			TNT1 AAAAAA 0 A_SpawnItemEx("Spell_UnleashEarth_Crumb", frandom(0, 26), 0, frandom(-16, 20), 0, 0, 0, frandom(0, 360), SXF_CLIENTSIDE)
+			TNT1 AAA 0 A_SpawnItemEx("StoneBitsSpawner_Soundless", frandom(-20, 20), frandom(-14, 14), frandom(-20, 0), 0, 0, 0, 0, SXF_CLIENTSIDE)
+			TNT1 AAAA 0 A_SpawnItemEx("Spell_UnleashEarth_Dust", frandom(6, 24), 0, frandom(-22, 10), 0, 0, 0, frandom(0, 360), SXF_CLIENTSIDE)
+			TNT1 AAA 0 A_SpawnItemEx("Spell_UnleashEarth_Cloud", frandom(0, 20), 0, frandom(-18, 12), 0, 0, 0, frandom(0, 360), SXF_CLIENTSIDE)
+		Stop
+	}
+}
+
+// A chunk of a broken rock: tumbles out, falls and shatters where it lands.
+Actor Spell_CrushingRocks_Chunk : Spell_Shrapnel_Piece {
+	+THRUACTORS
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetScale(frandom(1.4, 2.4))
+			HRCK FGH 3
+		Goto Spawn + 1
+		Death:
+			TNT1 A 0 A_SetScale(ScaleX * 0.4)
+			HRKE ABCDE 2
 		Stop
 	}
 }

@@ -54,6 +54,20 @@ AddKeySection "DnD Keys" DNDKEYS
 	AddMenuKey "DnD Taunt" dnd_taunt
 	Alias dnd_taunt "pukename \"DnD Taunt\" always"
 
+AddKeySection "DnD Spells" DNDKEYS5
+	AddMenuKey "DnD Spell 1" dnd_spell1
+	Alias dnd_spell1 "pukename \"DnD Cast Hotbar\" always 0"
+	AddMenuKey "DnD Spell 2" dnd_spell2
+	Alias dnd_spell2 "pukename \"DnD Cast Hotbar\" always 1"
+	AddMenuKey "DnD Spell 3" dnd_spell3
+	Alias dnd_spell3 "pukename \"DnD Cast Hotbar\" always 2"
+	AddMenuKey "DnD Spell 4" dnd_spell4
+	Alias dnd_spell4 "pukename \"DnD Cast Hotbar\" always 3"
+	AddMenuKey "DnD Spell 5" dnd_spell5
+	Alias dnd_spell5 "pukename \"DnD Cast Hotbar\" always 4"
+	AddMenuKey "DnD Spell 6" dnd_spell6
+	Alias dnd_spell6 "pukename \"DnD Cast Hotbar\" always 5"
+
 AddKeySection "DnD Items" DNDKEYS4
 	AddMenuKey "DnD Use Flask #1" dnd_flask1
 	Alias dnd_flask1 "pukename \"DnD Flask Use\" always 0"
@@ -81,16 +95,3 @@ AddKeySection "DnD Hard/Softcore Keys (Login Required)" DNDKEYS3
 	AddMenuKey "Transfer character to #2" "tc 2"
 	AddMenuKey "Transfer character to #3" "tc 3"
 	AddMenuKey "Transfer character to #4" "tc 4"
-
-	AddMenuKey "DnD Spell 1" dnd_spell1
-	Alias dnd_spell1 "pukename \"DnD Cast Hotbar\" always 0"
-	AddMenuKey "DnD Spell 2" dnd_spell2
-	Alias dnd_spell2 "pukename \"DnD Cast Hotbar\" always 1"
-	AddMenuKey "DnD Spell 3" dnd_spell3
-	Alias dnd_spell3 "pukename \"DnD Cast Hotbar\" always 2"
-	AddMenuKey "DnD Spell 4" dnd_spell4
-	Alias dnd_spell4 "pukename \"DnD Cast Hotbar\" always 3"
-	AddMenuKey "DnD Spell 5" dnd_spell5
-	Alias dnd_spell5 "pukename \"DnD Cast Hotbar\" always 4"
-	AddMenuKey "DnD Spell 6" dnd_spell6
-	Alias dnd_spell6 "pukename \"DnD Cast Hotbar\" always 5"

@@ -3245,6 +3245,12 @@ Script "DnD Chain Lightning (Weapon)" (int dmg, int zap_count, int flags, int ju
 }
 
 Script "DnD Set Projectile RipCount" (int amt, int makeOneTimeRipper) {
+	// already set at spawn through the projectile's RipSetup state
+	if(CheckInventory("DnD_RipLimit")) {
+		SetResultValue(0);
+		Terminate;
+	}
+
 	int owner = !isPet ? GetActorProperty(0, APROP_TARGETTID) : ACS_NamedExecuteWithResult("DnD Get Master of Target");
 	if(!IsPlayer(owner)) {
 		SetResultValue(0);

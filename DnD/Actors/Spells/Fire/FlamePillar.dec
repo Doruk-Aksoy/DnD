@@ -49,6 +49,8 @@ Actor Spell_FlamePillarDamage : DnD_Spell {
         SpawnState:
             TNT1 A 0 ACS_NamedExecuteWithResult("DnD Spell Explosion Setup")
             TNT1 A 0 ACS_NamedExecuteWithResult("DnD Prep Explosion")
+            // Rank 5 "Ignores shields": the engine checks FOILINVUL on the inflictor before any ACS runs.
+            TNT1 A 0 A_ChangeFlag("FOILINVUL", ACS_NamedExecuteWithResult("DnD Spell Threshold", SPELLTHRESH_LOW))
             TNT1 A 0 A_PlaySound("FlamePillar/Fire")
             DGFL A 2 Bright A_Explode(100, user_expradius, 1, 0, user_fullexpradius)
             TNT1 A 0 A_ChangeFlag("PAINLESS", 1) // make it painless after first attempt, no more tries

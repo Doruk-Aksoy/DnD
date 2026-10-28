@@ -365,7 +365,8 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 					// running the cursor down the list would rewind the list out from under it and
 					// the bar would be useless. That page keeps its own two offsets and restores them
 					// itself. The move sound is not part of that and stays for every page.
-					if(!IsPerkTreePage(curopt))
+					// The spell index's binds strip reads the same whatever is hovered, so it keeps its place too.
+					if(!IsPerkTreePage(curopt) && curopt != MENU_SPELL)
 						ScrollPos.x = 0;
 
 					if(!CheckInventory("DnD_InventoryView") && !CheckInventory("InTradeView") && !CheckInventory("DnD_StashView"))
@@ -1745,12 +1746,24 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						GiveInventory("DnD_RefreshPane", 1);
 					}
+					// A spell the click could not rank up (locked, maxed or no points) says so.
+					else if(boxid >= MBOX_1 && GetTreeSpellByIndex(curopt - MENU_SPELLTREE_FIRST, boxid - MBOX_1) != -1)
+						LocalAmbientSound("RPG/MenuError", 127);
 				}
 				else if(HasRightClicked(pnum)) {
 					if(HandleSpellTreeToggle(pnum, curopt - MENU_SPELLTREE_FIRST, boxid)) {
 						LocalAmbientSound("RPG/MenuChoose", 127);
 						GiveInventory("DnD_RefreshPane", 1);
 					}
+				}
+				else if(HasJumpRightClicked(pnum)) {
+					// Jump + right click takes a rank back for credits; the panel says what it costs or why not.
+					if(HandleSpellTreeRefund(pnum, curopt - MENU_SPELLTREE_FIRST, boxid)) {
+						LocalAmbientSound("RPG/MenuChoose", 127);
+						GiveInventory("DnD_RefreshPane", 1);
+					}
+					else if(boxid >= MBOX_1 && GetTreeSpellByIndex(curopt - MENU_SPELLTREE_FIRST, boxid - MBOX_1) != -1)
+						LocalAmbientSound("RPG/MenuError", 127);
 				}
 				else if(HasPressedLeft(pnum))
 					UpdateMenuPosition(MENU_SPELL);

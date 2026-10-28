@@ -120,6 +120,7 @@ typedef struct {
     int req_kills_wave;
     int curr_wave;
     int is_wave_complete;
+    int is_run_over;            // declined, timed out or the last wave cleared
 } ultimatum_curr_tally_T;
 
 void AddFormationToWave(ultimatum_wave_T module& w, int variant, str actor, int amt, int del, int type, int wave_id) {    
@@ -486,6 +487,7 @@ Script "DnD Init Ultimatum" (void) {
     // run has to leave this at -1 -- from 0 the opening wave is skipped and the run is 9 long.
     auto curr_tally = GetCurrentUltimatumTally();
     curr_tally.curr_wave = -1;
+    curr_tally.is_run_over = 0;
 
     // After ClearUltimatumRewards, so the pending reward is rolled into a cleared bank rather
     // than one last run left behind.
@@ -563,10 +565,8 @@ Script "DnD Start Ultimatum Wave" (int wave, int del) {
     curr_tally.kills = 0;
     curr_tally.req_kills_wave = w.total_monsters[var];
 
-    // close the arena and do other setup things
+    // the entrance already shut on the first pick (HandleNPCChallenges)
     if(!wave) {
-        Floor_RaiseAndCrush(3, 128, 500);
-
         Floor_RaiseByValue(23, 8, 8);
         ChangeFloor(23, "HTX_561");
     }
@@ -721,12 +721,14 @@ Script "DnD Ultimatum Wave Completed" (int npc_placed) {
         ACS_NamedExecuteWithResult("DnD Try Spawn Area", TP_TID_MIDSECTION, "DarkWanderer", DND_NPC_TID, 96 | (4 << 16) | (22 << 24));
 }
 
+// The whole run is over. The arena map's lock-in teleport asks this, so a wave ending must not answer it.
 Script "DnD Is Ultimatum Complete" (void) {
     auto curr_tally = GetCurrentUltimatumTally();
-    SetResultValue(curr_tally.is_wave_complete);
+    SetResultValue(curr_tally.is_run_over);
 }
 
-Script "DnD Is Ultimatum Complete CS" (void) CLIENTSIDE {
+// The current wave is over, which is also true before the first wave and between waves.
+Script "DnD Is Ultimatum Wave Complete" (void) {
     auto curr_tally = GetCurrentUltimatumTally();
     SetResultValue(curr_tally.is_wave_complete);
 }
@@ -737,6 +739,7 @@ Script "DnD Handle Ultimatum Finish" (int fullyCompleted) {
 
     auto curr_tally = GetCurrentUltimatumTally();
     curr_tally.is_wave_complete = 1;
+    curr_tally.is_run_over = 1;
 
     ACS_NamedExecuteAlways("DnD Mark Ultimatum Completion CS", 0, 1);
 
@@ -1247,9 +1250,9 @@ int GetUltimatumFragilityPercent() {
     if(!UltimatumHasOption(ULTIMATUM_OPTION_ESCALATINGFRAGILITY))
         return 0;
 
-    // curr_wave is 1 based and is the wave being fought, so the first wave under it adds nothing
+    // curr_wave is 0 based, so it counts the waves already cleared: the first wave adds nothing
     auto tally = GetCurrentUltimatumTally();
-    return Min(DND_ULTIMATUM_FRAGILITY_MAX, DND_ULTIMATUM_FRAGILITY_PCT * Max(0, tally.curr_wave - 1));
+    return Min(DND_ULTIMATUM_FRAGILITY_MAX, DND_ULTIMATUM_FRAGILITY_PCT * Max(0, tally.curr_wave));
 }
 
 // ULTIMATUM_OPTION_OCCASIONALIMPOTENCE -- see DND_ULTIMATUM11. A dead window on a fixed cycle, read
@@ -1346,7 +1349,7 @@ bool UltimatumIgnoresArmor() {
     return UltimatumHasOption(ULTIMATUM_OPTION_OVERWHELMINGMONSTERS);
 }
 
-bool UltimatumIgnoresResists() {
+bool UltimatumBlocksMitigation() {
     using ultimatum;
     return UltimatumHasOption(ULTIMATUM_OPTION_PRECISEMONSTERS);
 }
@@ -1359,6 +1362,12 @@ bool UltimatumBlocksFlaskCharges() {
 bool UltimatumHindersFlasks() {
     using ultimatum;
     return UltimatumHasOption(ULTIMATUM_OPTION_HINDERINGFLASKS);
+}
+
+// Miasma tier 4 -- see DND_ULTIMATUM3_T4. The cloud's hits slow.
+bool UltimatumMiasmaSlows() {
+    using ultimatum;
+    return GetUltimatumOptionTier(ULTIMATUM_OPTION_MIASMA) >= 4;
 }
 
 bool UltimatumMonstersUnstoppable() {
@@ -1803,12 +1812,15 @@ Script "DnD Ultimatum Apply Option" (int option, int tier) {
     SetResultValue(0);
 }
 
+#define DND_ULTIMATUM_SAWS 8
+#define DND_ULTIMATUM_SAWS_T3 5     // "5 additional blades spawn each time"
+
 Script "DnD Ultimatum Saw Spawn" (int tier) {
     using ultimatum;
 
     auto curr_tally = GetCurrentUltimatumTally();
 
-    int total_saws = 8;
+    int total_saws = DND_ULTIMATUM_SAWS + DND_ULTIMATUM_SAWS_T3 * (tier >= 3);
     // the tier is already 1 based -- see the note on the miasma actor name
     str saw_actor = StrParam(s:"DnD_Ultimatum_Saw_Tier", d:tier);
     do {

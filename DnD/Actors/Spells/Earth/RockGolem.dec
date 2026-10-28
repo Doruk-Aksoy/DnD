@@ -70,21 +70,6 @@ ACTOR Spell_RockGolem : PetMonsterBase {
 	}
 }
 
-// Rank 10: immune to elemental damage and resisting explosions, through damage factors as monster hits on a pet heed no trait.
-ACTOR Spell_RockGolem_Hardened : Spell_RockGolem {
-	DamageFactor "Fire", 0
-	DamageFactor "FireGreen", 0
-	DamageFactor "ExplosiveFire", 0
-	DamageFactor "Ice", 0
-	DamageFactor "IceEryxia", 0
-	DamageFactor "Lightning", 0
-	DamageFactor "LightningRed", 0
-	DamageFactor "Poison", 0
-	DamageFactor "PoisonPod", 0
-	DamageFactor "Explosive", 0.5
-	DamageFactor "ExplosiveGreen", 0.5
-}
-
 // The boulder rank 5 throws: the owner's Rockslide, priced at rank 1 when they never learned it.
 Actor Spell_RockGolem_Boulder : Spell_Rockslide {
 	var int user_rankat;

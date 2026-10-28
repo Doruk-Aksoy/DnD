@@ -109,6 +109,22 @@ str GetDoTTypeString(int dtype_int) {
 	return "";
 }
 
+// Raised when a damage over time effect reaches the player, so the hit that registered it can tell.
+int[] module& GetDoTLandedTable() {
+	static int landed[MAXPLAYERS];
+	return landed;
+}
+
+void ResetDoTLanded(int pnum) {
+	int[] module& landed = GetDoTLandedTable();
+	landed[pnum] = false;
+}
+
+bool DoTLanded(int pnum) {
+	int[] module& landed = GetDoTLandedTable();
+	return landed[pnum];
+}
+
 void RegisterDoTDamage (int damage, int duration, int dmg_type, int owner, str inflictor) {
 	int this = PlayerNumber();
 	ACS_NamedExecuteWithResult("DnD Player Receive DoT", damage | (this << 16), duration | (dmg_type << 16), owner, inflictor);
@@ -139,11 +155,18 @@ Script "DnD Player Receive DoT" (int pnum, int duration, int owner, int inflicto
 		ACS_NamedExecuteAlways("DnD Ailment Immunity", 0, victim);
 	}
 
+	int[] module& landed = GetDoTLandedTable();
+	landed[pnum] = true;
+
 	if(HasActorClassPerk_Fast(victim, DND_PLAYER_WANDERER, DND_CLASSPERK_1))
 		duration = duration * (100 - DND_WANDERER_PERK5_DEBUFFREDUCE) / 100;
 
-	// Agony rank 10: a monster's poison runs shorter on whoever its aura covers.
-	int less = (dtype_int & DND_DAMAGETYPEFLAG_POISON) ? pbuffs[pnum].buff_net_values[BUFF_POISONTAKENLESS].additive : 0;
+	// Agony and Anger rank 10: a monster's poison or ignite runs shorter on whoever the aura covers.
+	int less = 0;
+	if(dtype_int & DND_DAMAGETYPEFLAG_POISON)
+		less = pbuffs[pnum].buff_net_values[BUFF_POISONTAKENLESS].additive;
+	else if(dtype_int & DND_DAMAGETYPEFLAG_FIRE)
+		less = pbuffs[pnum].buff_net_values[BUFF_IGNITETAKENLESS].additive;
 	if(less > 0)
 		duration = Max(1, duration * Max(0, 100 - less) / 100);
 

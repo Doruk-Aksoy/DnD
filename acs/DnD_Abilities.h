@@ -9,7 +9,6 @@ enum {
 	ABILITY_ANTIPOISON,
 	ABILITY_EXPLOSIONMASTERY,
 	ABILITY_HEARTSEEKER,
-	ABILITY_REGEN,
 	ABILITY_TEMPORAL,
 	ABILITY_SOULSTEALER,
 };
@@ -32,8 +31,6 @@ str GetAbilityInfo(int id) {
 		return "Ability_ExplosionMastery";
 		case ABILITY_HEARTSEEKER:
 		return "Ability_HeartSeeker";
-		case ABILITY_REGEN:
-		return"Ability_Regeneration";
 		case ABILITY_TEMPORAL:
 		return "Ability_Temporal";
 		case ABILITY_SOULSTEALER:

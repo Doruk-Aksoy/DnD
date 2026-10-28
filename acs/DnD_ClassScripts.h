@@ -60,6 +60,9 @@ Script "DnD Doomguy Execute Translation" (int mon_tid, int mode, int m_id) CLIEN
 		Terminate;
 
 	if(!mode) {
+		// Online, a mark and a kill landing in one tic run here newest first: never mark a corpse.
+		if(GetActorProperty(mon_tid, APROP_HEALTH) <= 0)
+			Terminate;
 		Thing_SetTranslation(mon_tid, DND_EXECUTE_TRANSLATION);
 		GiveActorInventory(mon_tid, "Doomguy_CanExecute", 1);
 	}
@@ -430,6 +433,7 @@ Script "DnD Cyborg Instability Timer" (void) {
 	// 50% chance to insta start es regen
 	if(RunLuckBasedChance(PlayerNumber(), 0.5)) {
 		SetInventory("DnD_Hit_CombatTimer", 0);
+		SetInventory("DnD_Hit_RegenTimer", 0);
 		GiveInventory("EShieldChargeNow", 1);
 	}
 }

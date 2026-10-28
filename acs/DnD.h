@@ -31,6 +31,9 @@ void SetupCVarTracking() {
 	CVarValues[DND_CVAR_RESEARCHDROPRATE] = Clamp_Between(GetCVar("dnd_researchdroprate"), 0.0, DND_RESEARCH_MAX_CHANCE);
 	CVarValues[DND_CVAR_ACCESSORYDROPRATE] = (Clamp_Between(GetCVar("dnd_accessory_droprate"), 0, 100) * 1.0) / 100;
 	CVarValues[DND_CVAR_ACCESSORYLEVEL] = Clamp_Between(GetCVar("dnd_accessorylevel"), 1, 100);
+	CVarValues[DND_CVAR_KILLSPREE] = GetCVar("dnd_killspree");
+	CVarValues[DND_CVAR_ALLRESEARCHESFOUND] = GetCVar("dnd_allresearchesfound");
+	CVarValues[DND_CVAR_MODE] = GetCVar("dnd_mode");
 }
 
 void HandlePlayerPainSound(int pclass) {
@@ -344,7 +347,6 @@ int GetPerkDashCooldown(int pnum) {
 #define DND_HEALTHCREDITAFTER75SCALE 10
 #define DND_HEALTHCREDITUPSCALE 1
 #define DND_MIN_CREDIT 3
-#define DND_REGEN_PERCENT 2
 
 #define DND_ARTIFACT_GAIN 50
 
@@ -1043,10 +1045,11 @@ void HandleChestDrops(int ctype) {
 	}
 
 	// tid used as value here for credit
-	tid = random(500, 750) * (2 * GetCVar("dnd_mode") + 1) * (ctype + 1);
+	tid = random(500, 750) * (2 * CVarValues[DND_CVAR_MODE] + 1) * (ctype + 1);
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
 			GiveActorCredit(i, tid);
+			RollSpellPointDrop(i, FixedMul(GetDropChance(i), DND_SPELLPOINT_CHESTCHANCE * (ctype + 1)));
 		}
 	}
 
@@ -1077,22 +1080,21 @@ void HandleItemDropsForLoot(int m_id, int drop_boost, int rarity_boost) {
 	// kill would bury the floor in loot and undercut the bank the whole run is played for.
 	//
 	// This is the single door for monster loot -- the drop table, the loot chest roll and the
-	// legendary drop all sit below it -- so one return covers every one of them.
+	// legendary drop all sit below it -- so the one test in the loop covers every one of them.
 	//
 	// Deliberately still ALLOWED here, because they sit beside this call in HandleLootDrops rather
 	// than under it: soul ammo, Doomguy's demon souls, the Book of Dead souls and research modules.
 	// Those are ammo, class mechanics and progression rather than loot, and killing them would
-	// quietly break a build being played inside the arena.
+	// quietly break a build being played inside the arena. Skill points are progression too: they
+	// roll in the loop ahead of the test, sharing its pass over the players.
 	//
 	// The boss accessory roll is the one neighbour that IS shut off, and it carries its own copy of
 	// this test at its own site further down -- it never routes through here.
 	//
 	// HandleUniqueDeath needs no gate: none of the seventeen named monsters it answers to is spawned
 	// by any ultimatum wave, so its orb and essence drops are already out of reach here.
-	if(InformationInLevel[LEVELINFO_ISULTIMATUM])
-		return;
-
-	int tmp;
+	bool ultimatum = InformationInLevel[LEVELINFO_ISULTIMATUM];
+	int tmp, point_chance = DND_SPELLPOINT_KILLCHANCE * drop_boost / 100;
 
 	// chest droprate check
 	int chest_dropchance = DND_LOOTCHEST_DROPRATE;
@@ -1107,14 +1109,17 @@ void HandleItemDropsForLoot(int m_id, int drop_boost, int rarity_boost) {
 	drop_boost += 100;
 	chest_dropchance = chest_dropchance * drop_boost / 100;
 
-	bool dropped_chest = false;
+	// The monster's own facts, once rather than per player; the chest one also stands down once a chest has dropped.
+	bool chest = IsLootChestDroppingMonster(m_id), legendary = isLegendaryMonster(MonsterProperties[m_id].id);
 
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
 		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
 			// GetDropChance returns fixed value
 			int p_chance = GetDropChance(i);
-			int quant = GetPlayerDropQuantity(i) * drop_boost / 100;
+			RollSpellPointDrop(i, FixedMul(p_chance, point_chance));
+			if(ultimatum)
+				continue;
 
 			// this is the effective weight of nothing dropping -- if we pass this roll that means a loot drop can occur and we can check successive rolls after
 			int count = GetAdjustedNothingWeight(p_chance, drop_boost);
@@ -1123,7 +1128,8 @@ void HandleItemDropsForLoot(int m_id, int drop_boost, int rarity_boost) {
 //#else
 			if(random(1, count + LootTables.monster_loot_weight_sum) <= LootTables.monster_loot_weight_sum) {
 //#endif
-				// count how many items to spawn with player's item quant
+				// count how many items to spawn with player's item quant; only a passed roll needs it
+				int quant = GetPlayerDropQuantity(i) * drop_boost / 100;
 				count = 0;
 				while(quant > 0 && MonsterProperties[m_id].rng_vals[count] <= quant) {
 					// for subsequent chance rolls that pass the quant, guaranteed drop them
@@ -1137,15 +1143,14 @@ void HandleItemDropsForLoot(int m_id, int drop_boost, int rarity_boost) {
 				}
 			}
 
-			if(!dropped_chest && IsLootChestDroppingMonster(m_id) && RunPrecalcDropChance(p_chance, chest_dropchance, m_id, DND_MON_RNG_8)) {
+			if(chest && RunPrecalcDropChance(p_chance, chest_dropchance, m_id, DND_MON_RNG_8)) {
 				SpawnDrop("LootChest", 0, 0, 0, 0);
-				dropped_chest = true;
+				chest = false;
 			}
 
 			// made this not tied to player's droprate
-			tmp = MonsterProperties[m_id].id;
-			if(isLegendaryMonster(tmp) && random(0, 1.0) <= DND_LEGENDARY_ITEMDROPRATE)
-				HandleLegendaryMonsterDrop(tmp, i);
+			if(legendary && random(0, 1.0) <= DND_LEGENDARY_ITEMDROPRATE)
+				HandleLegendaryMonsterDrop(MonsterProperties[m_id].id, i);
 		}
 	}
 }
@@ -1212,7 +1217,7 @@ void SpawnLootFromDropTableIndex(int pnum, int rarity_boost, int drop_id, int m_
 		case DND_MONSTERLOOT_DUNGEONKEY:
 			// don't spawn dungeon keys within dungeons as natural loot drop from monsters
 			if(!InformationInLevel[LEVELINFO_ISDUNGEON])
-				SpawnDungeonKey(pnum);
+				SpawnDungeonKey(pnum, max_level);
 		break;
 
 		// The raw monster level, not the capped item level; under DND_GEM_MINLEVEL this drops nothing.
@@ -1349,7 +1354,7 @@ void HandleLootDrops(int tid, int target, int loc_tid = -1) {
 		SpawnPlayerDrop(pnum, "DnD_AmmoToken", 24.0, 16, 0, 0);
 	
 	// research drop
-	if(!GetCVar("dnd_allresearchesfound")) {
+	if(!CVarValues[DND_CVAR_ALLRESEARCHESFOUND]) {
 		// make it less likely to drop
 		// addone is the chance here (reusing old variables)
 		// note: this doesnt seem to be contributing towards anything...
@@ -1362,7 +1367,7 @@ void HandleLootDrops(int tid, int target, int loc_tid = -1) {
 //#endif
 		SpawnResearch(pnum);
 	}
-	
+
 	HandleItemDropsForLoot(m_id, MonsterProperties[m_id].droprate, MonsterProperties[m_id].rarity_boost);
 	
 	// accessory drops (accept only from cyber and spider masterminds)
@@ -1753,6 +1758,9 @@ void ClearLingeringBuffs(int pnum) {
 	// casting -- so a stale one is a player who can never cast again.
 	TakeInventory("DnD_SpellCasting", 1);
 	TakeInventory("DnD_SpellBusy", 1);
+
+	// aura rings and spell effects went with the old map or body; the next aura refresh raises fresh ones
+	ClearPlayerAttachmentMarkers(pnum);
 
 	SetInventory("DnD_FrenzyChargeCount", 0);
 	SetInventory("DnD_EnduranceChargeCount", 0);

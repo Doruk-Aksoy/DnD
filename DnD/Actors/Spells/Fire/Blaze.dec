@@ -5,8 +5,8 @@
 // monster instead of carrying through to the wall behind.
 Actor Spell_BlazePuff {
     // The inflictor of a hitscan is its puff, so both of these have to be here -- see DnD_Spell.
-    // 65536 is DND_DAMAGEFLAG_ISSPELL.
-    Stamina 65536
+    // 69632 is DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISHITSCAN, as every weapon puff carries its 4096.
+    Stamina 69632
 
     // The element. LineAttack is called with a damage type of "None", which means "use the puff's
     // own", so this is what a fire resistance or immunity on the target actually meets.
@@ -17,6 +17,8 @@ Actor Spell_BlazePuff {
     +DONTSPLASH
     +ALWAYSPUFF
     +PUFFONACTORS
+    // The engine points the tracer at what the trace struck; FindHitscanVictim reads it.
+    +HITTRACER
     RenderStyle None
     Radius 1
     Height 1

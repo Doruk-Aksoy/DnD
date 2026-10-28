@@ -32,6 +32,10 @@
 #define DND_MANAREGEN_PER_2INT 5
 
 int GetPlayerManaCap(int pnum) {
+	// Blood Magic: no mana at all, so nothing that fills or scales the pool has anything to work with.
+	if(HasPlayerFlag(pnum, PFLAG_BLOODMAGIC))
+		return 0;
+
 	// Inside the base, so PSTAT_MANA_PCT scales the levelled part too -- GetRawSpawnHealth puts its
 	// per level term in the same place for the same reason.
 	int base = DND_MANA_BASE + GetIntellectEffect(pnum, DND_MANA_PER_INT, DND_MANA_INT_DIV) +
@@ -47,6 +51,9 @@ int GetPlayerManaCap(int pnum) {
 // nothing between that and nothing. It also disagreed with the buff lane beside it, which was already
 // in hundredths, so the same quantity meant different things depending on where it came from.
 int GetPlayerManaRegen(int pnum) {
+	if(HasPlayerFlag(pnum, PFLAG_BLOODMAGIC))
+		return 0;
+
 	int base = DND_MANAREGEN_BASE + GetIntellectEffect(pnum, DND_MANAREGEN_PER_2INT, 2) +
 		PlayerModData[pnum].vals[PSTAT_MANAREGEN_FLAT];
 
@@ -72,18 +79,21 @@ bool SpellReservesMana(int pnum, int spell) {
 
 // Auras hold a percentage of the cap rather than a flat amount, so this is recomputed rather than
 // tracked -- a mana roll on a new charm must not leave a stale reservation behind.
-int GetReservedMana(int pnum) {
+int GetReservedPercent(int pnum) {
 	int i, pct = 0;
 	for(i = 0; i < MAX_SPELL_IDS; ++i) {
 		if(!SpellReservesMana(pnum, i))
 			continue;
 		pct += GetManaReservationOf(pnum, i);
 	}
+	return Min(pct, 100);
+}
 
-	if(pct > 100)
-		pct = 100;
-
-	return GetPlayerManaCap(pnum) * pct / 100;
+// Under Blood Magic the auras hold life instead -- DnD_LifeReserved, read by GetSpawnHealth -- and there is no mana to hold.
+int GetReservedMana(int pnum) {
+	if(HasPlayerFlag(pnum, PFLAG_BLOODMAGIC))
+		return 0;
+	return GetPlayerManaCap(pnum) * GetReservedPercent(pnum) / 100;
 }
 
 int GetUnreservedManaCap(int pnum) {
@@ -118,6 +128,17 @@ void UpdateManaVisualCap(int pnum) {
 	// once-a-second regeneration tick calls it too, so gear applied by any route is caught.
 	if(CheckActorInventory(tid, "Mana") > cap)
 		SetActorInventory(tid, "Mana", cap);
+
+	// Blood Magic: the auras' hold on life, kept on a marker so GetSpawnHealth does not sum every aura per call. A
+	// changed hold moves the health cap, so it is pushed at once and the player's health clamped under it.
+	int life = HasPlayerFlag(pnum, PFLAG_BLOODMAGIC) ? GetReservedPercent(pnum) : 0;
+	if(CheckActorInventory(tid, "DnD_LifeReserved") != life) {
+		SetActorInventory(tid, "DnD_LifeReserved", life);
+		cap = GetSpawnHealth(false, pnum);
+		SetActorProperty(tid, APROP_SPAWNHEALTH, cap);
+		if(GetActorProperty(tid, APROP_HEALTH) > cap)
+			SetActorProperty(tid, APROP_HEALTH, cap);
+	}
 }
 
 // the mana side of IsLowLife: half the unreserved pool or less
@@ -151,16 +172,81 @@ bool HasDebugFreeSpells(int pnum) {
 #endif
 }
 
+// Temporal Surge returns this share of a paid cost as life, in even pulses over this long.
+#define DND_TEMPORALSURGE_PCT 40
+#define DND_TEMPORALSURGE_TICS (4 * TICRATE)
+#define DND_TEMPORALSURGE_PULSES 8
+
+// Temporal Surge: a paid cost may come back, part of it, as life over a few seconds.
+void RollCostRecovery(int pnum, int paid) {
+	int chance = PlayerModData[pnum].vals[PSTAT_COSTRECOVER_CHANCE];
+	if(chance && paid > 0 && random(1, 100) <= chance)
+		ACS_NamedExecuteAlways("DnD Temporal Surge", 0, pnum, paid * DND_TEMPORALSURGE_PCT / 100);
+}
+
+// Percent of a spell's cost paid in life, 0 for mana: all of it under Blood Magic, which leaves Haemocrafter nothing to convert.
+int GetSpellLifeCostRate(int pnum, int spell) {
+	if(HasPlayerFlag(pnum, PFLAG_BLOODMAGIC))
+		return 100;
+	return GetSpellGemMod(pnum, spell, GEMSTAT_LIFECOST);
+}
+
+// One spell cost, paid by every rule at once: Blood Magic and Haemocrafter in life, Tap into the Arcane's share in
+// energy shield, the rest in mana. dry only asks, so the afford check and the spend can never disagree.
+bool PaySpellCost(int pnum, int spell, int cost, bool dry = false) {
+	int ptid = pnum + P_TIDSTART;
+
+	// Life is paid through DegenPlayer, the never lethal upkeep path Boiling Blood uses, and never with the last point.
+	int life = GetSpellLifeCostRate(pnum, spell);
+	if(life) {
+		life = cost * life / 100;
+		if(GetActorProperty(ptid, APROP_HEALTH) <= life)
+			return false;
+		if(!dry) {
+			DegenPlayer(pnum, life);
+			RollCostRecovery(pnum, life);
+		}
+		return true;
+	}
+
+	// Tap into the Arcane: its share from energy shield, as much as the shield holds. Under Sanguine Covenant the shield
+	// is the pool that kills, so its last point stays.
+	int shield = 0, pct = PlayerModData[pnum].vals[PSTAT_MANACOST_TOSHIELD];
+	if(pct) {
+		shield = CheckActorInventory(ptid, "EShieldAmount");
+		if(HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD))
+			--shield;
+		shield = Clamp_Between(cost * pct / 100, 0, Max(0, shield));
+	}
+
+	if(GetPlayerMana(pnum) < cost - shield)
+		return false;
+	if(!dry) {
+		if(shield)
+			TakeActorEnergyShield(ptid, shield);
+		SetPlayerMana(pnum, GetPlayerMana(pnum) - (cost - shield));
+		RollCostRecovery(pnum, cost);
+	}
+	return true;
+}
+
+// A cost handed back in what paid it (Magus): life at the rate it was taken, up to the cap, or mana.
+void RefundSpellCost(int pnum, int spell, int amt) {
+	int life = GetSpellLifeCostRate(pnum, spell);
+	if(!life) {
+		GiveMana(pnum, amt);
+		return;
+	}
+	amt = Min(amt * life / 100, GetHealPoolCap(pnum) - GetHealPoolCur(pnum));
+	if(amt > 0)
+		GiveHealPool(pnum, amt);
+}
+
 // pct scales the cost as SpendSpellMana's does, so a press that will pay less is judged on what it pays.
 bool CanAffordSpell(int pnum, int spell, int pct = 100) {
 	if((SpellDefs[spell].flags & (SPLF_PASSIVE | SPLF_RESERVES)) || HasDebugFreeSpells(pnum))
 		return true;
-
-	// Haemocrafter: the final cost in life at its multiplier, and never with the last point of health.
-	int cost = (GetSpellValue(pnum, spell, SPELLVAL_COST) >> 16) * pct / 100, life = GetSpellGemMod(pnum, spell, GEMSTAT_LIFECOST);
-	if(life)
-		return GetActorProperty(pnum + P_TIDSTART, APROP_HEALTH) > cost * life / 100;
-	return GetPlayerMana(pnum) >= cost;
+	return PaySpellCost(pnum, spell, (GetSpellValue(pnum, spell, SPELLVAL_COST) >> 16) * pct / 100, true);
 }
 
 // Returns false without spending when the player cannot pay, so the cast site can simply bail.
@@ -169,24 +255,20 @@ bool CanAffordSpell(int pnum, int spell, int pct = 100) {
 bool SpendSpellMana(int pnum, int spell, int pct = 100) {
 	if((SpellDefs[spell].flags & (SPLF_PASSIVE | SPLF_RESERVES)) || HasDebugFreeSpells(pnum))
 		return true;
+	return PaySpellCost(pnum, spell, (GetSpellValue(pnum, spell, SPELLVAL_COST) >> 16) * pct / 100);
+}
 
-	int cost = (GetSpellValue(pnum, spell, SPELLVAL_COST) >> 16) * pct / 100;
-
-	// Haemocrafter pays through DegenPlayer, the never lethal upkeep path Boiling Blood uses.
-	int life = GetSpellGemMod(pnum, spell, GEMSTAT_LIFECOST);
-	if(life) {
-		life = cost * life / 100;
-		if(GetActorProperty(pnum + P_TIDSTART, APROP_HEALTH) <= life)
-			return false;
-		DegenPlayer(pnum, life);
-		return true;
+// Temporal Surge's heal: the total in even pulses over a few seconds, summing to it exactly.
+Script "DnD Temporal Surge" (int pnum, int total) {
+	int amt;
+	for(int k = 1; k <= DND_TEMPORALSURGE_PULSES; ++k) {
+		Delay(const:DND_TEMPORALSURGE_TICS / DND_TEMPORALSURGE_PULSES);
+		if(!PlayerInGame(pnum) || !IsActorAlive(pnum + P_TIDSTART))
+			Terminate;
+		amt = total * k / DND_TEMPORALSURGE_PULSES - total * (k - 1) / DND_TEMPORALSURGE_PULSES;
+		if(amt > 0)
+			HealSpellAlly(pnum, amt);
 	}
-
-	if(GetPlayerMana(pnum) < cost)
-		return false;
-
-	SetPlayerMana(pnum, GetPlayerMana(pnum) - cost);
-	return true;
 }
 
 // An aura whose reservation no longer fits switches itself off. Called when the cap or the set of

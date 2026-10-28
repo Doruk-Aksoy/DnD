@@ -3,11 +3,13 @@
 
 enum {
 	DND_DUNGEON_VOIDKEEP,
+	DND_DUNGEON_BOREASGROTTO,			// by Deltroy/ZombieDOOMGUY
 
 	// special, specific drop only dungeons here
 	DND_DUNGEON_ULTIMATUM = 500 // keep difference to 500 here, same as ISUBT_ULTIMATUM
 };
 #define DND_FIRST_DUNGEONID DND_DUNGEON_VOIDKEEP
+#define DND_LAST_DUNGEONID DND_DUNGEON_BOREASGROTTO
 #define DND_FIRST_SPECIALDUNGEONID DND_DUNGEON_ULTIMATUM
 #define DND_LAST_SPECIALDUNGEONID DND_DUNGEON_ULTIMATUM
 
@@ -750,9 +752,20 @@ int GetDungeonMonsterTypes(int id) {
 	switch(id) {
 		case DND_DUNGEON_VOIDKEEP:
 		return DUNGEON_MONTYPE_DEMON | DUNGEON_MONTYPE_ELDRITCH | DUNGEON_MONTYPE_UNDEAD;
+		case DND_DUNGEON_BOREASGROTTO:
+		return DUNGEON_MONTYPE_DEMON;
 
 		case DND_DUNGEON_ULTIMATUM:
 		return DUNGEON_MONTYPE_DEMON | DUNGEON_MONTYPE_MAGICAL | DUNGEON_MONTYPE_UNDEAD;
+	}
+	return 0;
+}
+
+// The item level a dungeon's key starts dropping at, compared with the level of the drop that rolls it.
+int GetDungeonKeyMinLevel(int id) {
+	switch(id) {
+		case DND_DUNGEON_BOREASGROTTO:
+		return 25;
 	}
 	return 0;
 }

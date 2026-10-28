@@ -481,14 +481,11 @@ DND_MENU_ABLHELPTEXT6	=	"\c[R5]CYBERNETIC \cj- Your explosives hurt you \cd50%\c
 DND_MENU_ABLTAG7		=	"Heart Seeking";
 DND_MENU_ABLHELPTEXT7	=	"Demons drop their hearts on death \cd5%\c- of the time. Can use as a temporary weapon.";
 
-DND_MENU_ABLTAG8		=	"Regeneration";
-DND_MENU_ABLHELPTEXT8	=	"\c[R5]CYBERNETIC \cj- Heal over time until \cd25%\c- of your health cap. Getting hurt pauses this.";
+DND_MENU_ABLTAG8		=	"Temporal Mastery";
+DND_MENU_ABLHELPTEXT8	=	"Temporary weapons give \cd50%\c- more ammo, and at the beginning of each map gain a fully loaded random temporary weapon.";
 
-DND_MENU_ABLTAG9		=	"Temporal Mastery";
-DND_MENU_ABLHELPTEXT9	=	"Temporary weapons give \cd50%\c- more ammo, and at the beginning of each map gain a fully loaded random temporary weapon.";
-
-DND_MENU_ABLTAG10		=	"Soul Stealing";
-DND_MENU_ABLHELPTEXT10	=	"Demons have an extra \cd2%\c- chance to drop their souls on death.";
+DND_MENU_ABLTAG9		=	"Soul Stealing";
+DND_MENU_ABLHELPTEXT9	=	"Demons have an extra \cd2%\c- chance to drop their souls on death.";
 
 DND_MENU_ABLHELPTEXT11	=	"Toggles dashing.";
 
@@ -559,6 +556,8 @@ DND_MENU_STAMINAGAINEDPER	=	"stamina gained per";
 DND_MENU_TICS				=	"tics";
 DND_MENU_MANACAP			=	"mana cap";
 DND_MENU_MANAREGEN			=	"mana regenerated per second";
+DND_MENU_FLATREGEN			=	"health regenerated per second";
+DND_MENU_PCTREGEN			=	"of life regenerated per second";
 
 DND_MENU_STATUS				=	"Status";
 DND_MENU_RESEARCH_NA		=	"\cgBlueprint Required";

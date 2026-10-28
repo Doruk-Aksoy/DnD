@@ -59,6 +59,14 @@ map DND01 "Void Keep" {
 	AirControl = 0.25
 }
 
+map DND02 "Boreas Grotto" {
+	music = "D_GROTTO"
+   sky1 = "GR_0001", 0
+	SmoothLighting
+	lightmode = 3 // dark
+	AirControl = 0.25
+}
+
 map DNDULTIM "Trials of Chaos" {
 	music = ""
    sky1 = "HNX_533"

@@ -1,0 +1,12 @@
+Actor inMoon : Inventory
+{
+	inventory.maxamount 1
+}
+Actor MoonBound : Inventory
+{
+	inventory.maxamount 1
+}
+Actor MoonBreak : PowerProtection {
+	damagefactor "normal", 1.0
+	Powerup.Duration -5
+}

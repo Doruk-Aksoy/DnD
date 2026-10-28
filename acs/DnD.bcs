@@ -32,7 +32,7 @@ Script "DnD SBAR" (void) CLIENTSIDE {
 	
 	while(IsAlive()) {
 		if(!CheckInventory("ShowingMenu")) {
-			if(GetCVar("dnd_killspree"))
+			if(CVarValues[DND_CVAR_KILLSPREE])
 				GiveInventory("KillSpreeOn", 1);
 			// Sanguine Covenant. The slots keep their place on screen; the pools feeding them cross over,
 			// so the health slot is always the one that kills you.
@@ -46,7 +46,8 @@ Script "DnD SBAR" (void) CLIENTSIDE {
 				item = GetActorProperty(0, APROP_HEALTH);
 			}
 			SetInventory("P_HealthCap", itemcomp);
-			SetAmmoCapacity("P_HealthShown", itemcomp);
+			// An item cannot hold more than its capacity, so overhealth raises it or the number sticks at the cap.
+			SetAmmoCapacity("P_HealthShown", Max(itemcomp, item));
 			SetInventory("P_HealthShown", item);
 			if(item > itemcomp) {
 				SetInventory("HPOverAmount", item - itemcomp);
@@ -264,7 +265,10 @@ Script "DnD Player HUD" ENTER CLIENTSIDE {
 Script "DnD Clientside Open" OPEN CLIENTSIDE {
 	bool buttons = false;
 	bool wepdrop = false;
-	
+
+	// The client's own copy: the HUD and the stat menu read it here.
+	SetupCVarTracking();
+
 	SetUserCVar(ConsolePlayerNumber(), "dnd_onclassmenu", false);
 	
 	while(true) {
@@ -292,6 +296,9 @@ Script "DnD On Map Load" OPEN {
 	// when it increments in createitem func, it'll be forced to be 0
 	//SetupUndo(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS);
 	GlobalItemStorage.PointerIndexTable[PTR_FREEITEMWORLD] = MAX_INVENTORIES_ON_FIELD;
+
+	// First, so the map's first kills read this map's values.
+	SetupCVarTracking();
 
 	// allow for incursion checks
 	MapData[DND_MAPDATA_INCURSIONSTATE] = DND_INCURSION_NA;
@@ -369,8 +376,6 @@ Script "DnD On Map Load" OPEN {
 		Delay(const:TICRATE);
 
 	Delay(const:TICRATE);
-
-	SetupCVarTracking();
 
 	// this is needed as a one time thing on server launch
 	if(!IsSetupComplete(SETUP_STATE1, SETUP_DUNGEONDATAFIRSTTIMECLEAR)) {
@@ -882,6 +887,12 @@ Script "DND On Revive" (void) {
 		int pnum = temp - P_TIDSTART;
 		// set player related stuff here
 		GiveActorInventory(temp, "PetCounter", 1);
+
+		// Devoted Leader: increased minion health. Not written back into maxhp, which the next revive reads again.
+		int more = PlayerModData[pnum].vals[PSTAT_MINION_HEALTH], full = MonsterProperties[id].maxhp;
+		if(more && full)
+			SetActorProperty(0, APROP_HEALTH, full / 100 * (100 + more) + full % 100 * (100 + more) / 100);
+		ACS_NamedExecuteAlways("DnD Minion Regen", 0, false);
 		//printbold(s:"give pet counter total: ", d:CheckActorInventory(temp, "PetCounter"));
 
 		SpawnForced("EnemyResSoul", GetActorX(0), GetActorY(0), GetActorZ(0) + GetActorProperty(0, APROP_HEIGHT) / 4);
@@ -1220,7 +1231,7 @@ Script "DND On Kill" KILL {
 	}
 	
 	// Kill spree
-	if(GetCVar("dnd_killspree"))
+	if(CVarValues[DND_CVAR_KILLSPREE])
 		ActivateKillingSpree();
 		
 	// Hunter Talisman Heal
@@ -4948,25 +4959,29 @@ Script "DnD Periodic Regeneration" ENTER {
 	int mana_acc = 0;
 	while(PlayerInGame(pnum)) {
 		if(isAlive()) {
-			int regen_amt = pbuffs[pnum].buff_net_values[BUFF_HEALTHREGEN].additive;
+			// Percent of the pool a second, fixed point (Nano-machinery, "+% life regeneration"). A buff shifts it, the
+			// Lich's degeneration among them, but only for a player who regenerates by percent at all.
+			bool percent_regen = PlayerModData[pnum].vals[PSTAT_REGEN_PCT] > 0;
+			int regen_amt = 0;
+			if(percent_regen)
+				regen_amt = PlayerModData[pnum].vals[PSTAT_REGEN_PCT] + pbuffs[pnum].buff_net_values[BUFF_HEALTHREGEN].additive * 100;
 
-			// Sanguine Covenant. Passive regen is the only thing feeding the life pool now, and a single
-			// lump every ten seconds reads as nothing happening. Every tick at a tenth instead.
-			bool spread = false;
+			// The incursion's "X% of your life every 10 seconds", a fraction: the lump on the tenth second, or under
+			// Sanguine Covenant, where it is all that feeds the life pool, a tenth of it every second.
+			int lump = 0;
 			if((amt = PlayerModData[pnum].vals[PSTAT_INC_PASSIVEREGEN])) {
-				if(HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD)) {
-					regen_amt += amt;
-					spread = true;
-				}
+				if(HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD))
+					lump = amt / 10;
 				else if(!(ticker % 10)) {
-					regen_amt += amt;
+					lump = amt;
 					ticker = 0;
 				}
 			}
 
-			if((regen_amt > 0 || CheckInventory("Ability_Regeneration")) && !IsAccessoryEquipped(this, DND_ACCESSORY_GRYPHONBOOTS)) {
+			// Flat regeneration is a source by itself: Vigour heals with or without the percent regen.
+			int flat_regen = PlayerModData[pnum].vals[PSTAT_REGEN_FLAT];
+			if((percent_regen || lump > 0 || flat_regen > 0) && !IsAccessoryEquipped(this, DND_ACCESSORY_GRYPHONBOOTS)) {
 				cur = GetHealPoolCur(pnum);
-				regen_amt = (regen_amt * 100) >> 16;
 				lim = GetRegenCap(pnum);
 
 				// cap the regen to our health cap
@@ -4974,7 +4989,8 @@ Script "DnD Periodic Regeneration" ENTER {
 				if(amt < lim)
 					lim = amt;
 
-				amt = amt * (DND_REGEN_PERCENT + regen_amt) / 100;
+				// percents of the pool, rounded since a rolled 0.03 is stored a hair under 3%, then the flat amount on top
+				amt = (FixedMul(amt, regen_amt + lump * 100) + 50) / 100 + Max(0, flat_regen);
 				amt = amt * (100 + PlayerModData[pnum].vals[PSTAT_REGENRATE]) / 100;
 
 				// Ultimatum / Fleeting Life, the life half of it
@@ -4993,14 +5009,10 @@ Script "DnD Periodic Regeneration" ENTER {
 				
 				// cyborg perk
 				if(HasClassPerk_Fast(DND_PLAYER_CYBORG, 1))
-					amt += amt * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV;
+					amt = amt * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV;
 
 				amt = ApplyDungeonReduction(DUN_ATTR_REDUCEDHEALING, amt);
 
-				// a tenth per tick rather than the whole lump once every ten
-				if(spread)
-					amt = Max(1, amt / 10);
-				
 				if((!HealPoolInterrupted(pnum) || PlayerModData[pnum].vals[PSTAT_CORR_DMGDOESNTSTOPREGEN] || PlayerModData[pnum].vals[PSTAT_INC_HPREGENINTERRUPT]) && cur < lim) {
 					if(cur + amt < lim)
 						GiveHealPool(pnum, amt);
@@ -5100,6 +5112,7 @@ Script "DnD Energy Shield Regen" (int cap, int pnum) {
 				SetActorProperty(0, APROP_HEALTH, GetActorProperty(0, APROP_HEALTH) - count);
 			else {
 				GiveInventory("DnD_Hit_CombatTimer", 1);
+				PausePlayerRegen(pnum);
 				TakeInventory("EShieldChargeNow", 1);
 				TakeInventory("EShieldCharging", 1);
 				LocalAmbientSound("EShield/Finish", 127);
@@ -5537,7 +5550,12 @@ Script "DnD Timed Monster" (int time, int isPet, int noTimerOnUltimatum) {
 		Terminate;
 	}
 
-	int cnt = 0;
+	// Enduring Bond: a player's minion stays its master's increased minion duration longer.
+	int cnt = GetActorProperty(0, APROP_MASTERTID);
+	if(isPet && IsPlayer(cnt))
+		time = time * (100 + PlayerModData[cnt - P_TIDSTART].vals[PSTAT_MINION_DURATION]) / 100;
+
+	cnt = 0;
 	while(cnt++ != time) {
 		if(CheckInventory("DnD_HaltMonsterTimer"))
 			--cnt;
@@ -5675,6 +5693,11 @@ Script "DnD Chest Dropping Item" (int chance_penalty) {
 
 	// additional delay for the map difficulty calculator
 	Delay(const:TICRATE);
+
+	// the item was picked up or removed during the wait
+	if(ClassifyActor(0) & ACTOR_WORLD)
+		Terminate;
+
 	HandleChestSpawn(chance_penalty);
 }
 
@@ -5849,6 +5872,18 @@ Script "DnD Research Fancy Message" (int res_id) CLIENTSIDE {
 
 	LocalAmbientSound("items/research", 127);
 	ACS_NamedExecuteAlways("DND Announcer", 0, DND_ANNOUNCER_RESEARCHDISCOVER, res_id);
+}
+
+// The research notice for a skill point found as loot; found counts those from loot so far.
+Script "DnD Spell Point Found" (int found) CLIENTSIDE {
+	// No activator: the HudMessage and the local sound are dropped unless it is nobody or this player, and a kill's is the monster.
+	SetActivator(0, AAPTR_NULL);
+	Log(s:"\cc", l:"DND_PICKUP_SPELLPOINT", s:":\c[Y5] ", l:"DND_PICKUP_SPELLPOINTGAIN", s:" (", d:found, s:"/", d:DND_SPELLPOINT_MAXFROMTOKEN, s:")");
+	SetFont("SMALLFONT");
+	HudMessage(s:"\cc", l:"DND_PICKUP_SPELLPOINT", s:":\c[Y5] ", l:"DND_PICKUP_SPELLPOINTGAIN", s:"!";
+		HUDMSG_FADEOUT, DND_SPELLPOINTNOTIFY_ID, CR_UNTRANSLATED,
+		0.5, 0.78, DND_RESEARCHNOTIFY_HOLD, DND_RESEARCHNOTIFY_FADE);
+	LocalAmbientSound("items/talentcapsule", 127);
 }
 
 Script "DnD Is Demon" (void) {
@@ -6247,9 +6282,9 @@ Script "DnD Pet Monster Scale" (int petid, int trait1, int trait2) {
 		add = ApplyHPScale(base, add);
 	}
 
-	// Intellect, as a percent of the level-scaled total; outside the level check so level 1 gets it too.
-	// Split, as dividing first gave nothing under 10000 health and multiplying first overflows a big pet.
-	temp = GetIntellectEffect(pnum, DND_PET_HP_PER_INT);
+	// Intellect and Devoted Leader, both increases in hundredths of a percent of the level-scaled total; outside the level
+	// check so level 1 gets them too. Split, as dividing first gave nothing under 10000 health and multiplying first overflows.
+	temp = GetIntellectEffect(pnum, DND_PET_HP_PER_INT) + PlayerModData[pnum].vals[PSTAT_MINION_HEALTH] * 100;
 	add += (base + add) / 10000 * temp + (base + add) % 10000 * temp / 10000;
 
 	// Re-clamped: the intellect term lands after the scale and can push the total over the ceiling
@@ -6269,6 +6304,8 @@ Script "DnD Pet Monster Scale" (int petid, int trait1, int trait2) {
 	PetMonsterProperties[m_id].basehp = base;
 	PetMonsterProperties[m_id].maxhp = base + add;
 	PetMonsterProperties[m_id].level = level;
+	// Pet slots are reused, so the last occupant's traits go first.
+	ClearPetMonsterTraits(m_id);
 	SetPetMonsterTrait(m_id, DND_PET, true);
 	
 	// find a better way to transfer these
@@ -6276,6 +6313,9 @@ Script "DnD Pet Monster Scale" (int petid, int trait1, int trait2) {
 		SetPetMonsterTrait(m_id, trait1, true);
 	if(trait2 != -1)
 		SetPetMonsterTrait(m_id, trait2, true);
+
+	// Ahead of the sync: a rank bonus can add a trait.
+	InitPetResists(this, pnum, petid);
 	
 	ACS_NamedExecuteWithResult(
 		"DnD Sync Pet Monster Trait CS",
@@ -6295,6 +6335,31 @@ Script "DnD Pet Monster Scale" (int petid, int trait1, int trait2) {
 	// Started here rather than from each pet's DECORATE: every pet already routes through this
 	// script, so a new one gets it without remembering to ask.
 	ACS_NamedExecuteAlways("DnD Pet Reactivity", 0);
+	ACS_NamedExecuteAlways("DnD Minion Regen", 0, true);
+}
+
+// Righteous Army: a minion heals a share of its maximum life each second while its master holds the perk. Polled, so a
+// perk bought after the summon reaches minions already out. A revived monster is capped by its own record and Devoted Leader.
+Script "DnD Minion Regen" (int pet) {
+	int this = ActivatorTID(), master, pct, cap, hp;
+	while(IsAlive()) {
+		Delay(const:TICRATE);
+		master = GetActorProperty(0, APROP_MASTERTID);
+		if(!IsPlayer(master) || !(pct = PlayerModData[master - P_TIDSTART].vals[PSTAT_MINION_REGEN]))
+			continue;
+
+		if(pet)
+			cap = PetMonsterProperties[this - DND_PETTID_BEGIN].maxhp;
+		else {
+			cap = MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp;
+			cap = cap / 100 * (100 + PlayerModData[master - P_TIDSTART].vals[PSTAT_MINION_HEALTH]) +
+				cap % 100 * (100 + PlayerModData[master - P_TIDSTART].vals[PSTAT_MINION_HEALTH]) / 100;
+		}
+
+		hp = GetActorProperty(0, APROP_HEALTH);
+		if(hp > 0 && hp < cap)
+			SetActorProperty(0, APROP_HEALTH, Min(cap, hp + Max(1, cap / 100 * pct)));
+	}
 }
 
 // Keeps a pet from ping-ponging. +QUICKTORETALIATE lets it answer whatever hurt it, which is the
@@ -6362,10 +6427,10 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 		res = res * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;
 	}
 
-	// talent bonus
+	// talent bonus, with Inspirational's increased minion damage summed into it
 	// to do: check if pet attack was melee or ranged... it makes no sense otherwise -- assuming melee as the only pet is a melee one now
-	res = res * (100 + HandleStatBonus(pnum, 0, 0, DND_STAT_ATTUNEMENT_GAIN, true)) / 100;
-	
+	res = res * (100 + HandleStatBonus(pnum, 0, 0, DND_STAT_ATTUNEMENT_GAIN, true) + PlayerModData[pnum].vals[PSTAT_MINION_DAMAGE]) / 100;
+
 	// TODO: later check if damage is physical, improve this script
 	int temp = PlayerModData[pnum].vals[PSTAT_EX_PHYSDAMAGEPER_FLATHEALTH];
 	if(temp) {

@@ -42,20 +42,26 @@ float pn_hash(vec3 p) {
 	return fract((p.x + p.y) * p.z);
 }
 
-// Smooth value noise, 0 to 1.
+// Smooth value noise, 0 to 1: the eight corners weighted in one loop, so the hash is inlined once, not eight times.
 float pn_noise(vec3 x) {
 	vec3 i = floor(x);
 	vec3 f = x - i;
 	f = f * f * (3.0 - 2.0 * f);
-	float a = mix(pn_hash(i), pn_hash(i + vec3(1.0, 0.0, 0.0)), f.x);
-	float b = mix(pn_hash(i + vec3(0.0, 1.0, 0.0)), pn_hash(i + vec3(1.0, 1.0, 0.0)), f.x);
-	float c = mix(pn_hash(i + vec3(0.0, 0.0, 1.0)), pn_hash(i + vec3(1.0, 0.0, 1.0)), f.x);
-	float d = mix(pn_hash(i + vec3(0.0, 1.0, 1.0)), pn_hash(i + vec3(1.0, 1.0, 1.0)), f.x);
-	return mix(mix(a, b, f.y), mix(c, d, f.y), f.z);
+	float v = 0.0;
+	for(int c = 0; c < 8; c++) {
+		vec3 o = vec3(mod(float(c), 2.0), mod(floor(float(c) * 0.5), 2.0), floor(float(c) * 0.25));
+		vec3 w = mix(1.0 - f, f, o);
+		v += w.x * w.y * w.z * pn_hash(i + o);
+	}
+	return v;
 }
 
+// Three octaves, one noise call site.
 float pn_fbm(vec3 x) {
-	return 0.55 * pn_noise(x) + 0.3 * pn_noise(x * 2.03 + vec3(1.7, 9.2, 3.1)) + 0.15 * pn_noise(x * 4.07 + vec3(8.3, 2.8, 5.5));
+	float v = 0.0;
+	for(int o = 0; o < 3; o++)
+		v += (o == 0 ? 0.55 : o == 1 ? 0.3 : 0.15) * pn_noise(o == 0 ? x : o == 1 ? x * 2.03 + vec3(1.7, 9.2, 3.1) : x * 4.07 + vec3(8.3, 2.8, 5.5));
+	return v;
 }
 
 // Toxic fire by heat: deep green, acid green, sulfur yellow-green, and pale only at the very hottest.
@@ -77,7 +83,9 @@ float pn_sdf(vec3 q, vec3 seed, vec2 roll) {
 	vec3 b = vec3(q.x < 0.0 ? q.x / STRETCH : q.x, q.y, q.z);
 	float r = length(b);
 	vec3 rd = pn_rolled(b / max(r, 0.001), roll);
-	float dent = 2.0 * pn_noise(rd * 1.7 + seed) - 1.0 + 0.35 * (2.0 * pn_noise(rd * 4.1 + seed.zxy) - 1.0);
+	float dent = 0.0;
+	for(int o = 0; o < 2; o++)
+		dent += (o == 0 ? 1.0 : 0.35) * (2.0 * pn_noise(o == 0 ? rd * 1.7 + seed : rd * 4.1 + seed.zxy) - 1.0);
 	return r - BALL - DENT * dent;
 }
 
@@ -139,8 +147,10 @@ vec2 pn_bubbles(vec3 s) {
 vec3 pn_ball(vec3 sb, vec3 n, vec3 d) {
 	float face = clamp(-dot(n, d), 0.0, 1.0);
 	vec2 bb = pn_bubbles(sb);
-	float w = pn_fbm(sb * 0.4 + vec3(0.0, -timer * 0.3, 0.0));
-	float m = pn_fbm(sb * 0.8 + 2.0 * w + vec3(timer * 0.2, -timer * 0.5, timer * 0.1));
+	// The streaks are noise warped by noise: the warp first, then the streaks through it, from one call site.
+	float m = 0.0;
+	for(int o = 0; o < 2; o++)
+		m = pn_fbm(o == 0 ? sb * 0.4 + vec3(0.0, -timer * 0.3, 0.0) : sb * 0.8 + 2.0 * m + vec3(timer * 0.2, -timer * 0.5, timer * 0.1));
 	vec3 hv = normalize(normalize(vec3(-0.3, 1.0, 0.0)) - d);
 	float sheen = pow(max(dot(n, hv), 0.0), 24.0);
 	float top = 0.55 + 0.45 * max(n.y, 0.0);
@@ -191,32 +201,28 @@ vec4 Process(vec4 color) {
 	float t0 = max((-hb - hd) / qa, 0.0);
 	float t1 = (-hb + hd) / qa;
 
-	// The ball's skin: stepped through the sphere it fits in until the ray crosses it, then pinned down by halving.
+	// The ball's skin: stepped through the sphere it fits in until the ray crosses it, then pinned down by halving, in
+	// one loop with one distance call (at least PIN halvings follow the crossing, as many more as the steps left over).
 	float rb = BALL * STRETCH + DENT * 1.35 + 0.2;
 	float b = dot(e, d);
 	float disc = b * b - dot(e, e) + rb * rb;
 	float ts = 1e6;
 	if(disc > 0.0) {
 		float sa = max(-b - sqrt(disc), t0);
-		float sz = min(-b + sqrt(disc), t1);
-		float st = (sz - sa) / float(SEEK);
-		float prev = sa;
-		for(int i = 1; i <= SEEK; i++) {
-			float t = sa + float(i) * st;
-			if(ts > 1e5 && pn_sdf(e + d * t, seed, roll) < 0.0) {
-				float lo = prev;
-				float hi = t;
-				for(int j = 0; j < PIN; j++) {
-					float mid = 0.5 * (lo + hi);
-					if(pn_sdf(e + d * mid, seed, roll) < 0.0)
-						hi = mid;
-					else
-						lo = mid;
-				}
-				ts = hi;
-			}
-			prev = t;
+		float st = (min(-b + sqrt(disc), t1) - sa) / float(SEEK);
+		float lo = sa;
+		float hi = -1.0;
+		for(int i = 1; i <= SEEK + PIN; i++) {
+			if(hi < 0.0 && i > SEEK)
+				break;
+			float t = hi < 0.0 ? sa + float(i) * st : 0.5 * (lo + hi);
+			if(pn_sdf(e + d * t, seed, roll) < 0.0)
+				hi = t;
+			else
+				lo = t;
 		}
+		if(hi >= 0.0)
+			ts = hi;
 	}
 	bool hit = ts < 1e5;
 	float tend = hit ? ts : t1;
@@ -238,11 +244,14 @@ vec4 Process(vec4 color) {
 	}
 
 	if(hit) {
-		// The normal from the distance field's slope, four samples round the hit.
+		// The normal from the distance field's slope, four samples round the hit (a tetrahedron), one call site.
 		vec3 s = e + d * ts;
-		vec2 h = vec2(0.12, -0.12);
-		vec3 n = normalize(h.xyy * pn_sdf(s + h.xyy, seed, roll) + h.yyx * pn_sdf(s + h.yyx, seed, roll)
-			+ h.yxy * pn_sdf(s + h.yxy, seed, roll) + h.xxx * pn_sdf(s + h.xxx, seed, roll));
+		vec3 n = vec3(0.0, 0.0, 0.0);
+		for(int j = 0; j < 4; j++) {
+			vec3 kv = j == 0 ? vec3(1.0, -1.0, -1.0) : j == 1 ? vec3(-1.0, -1.0, 1.0) : j == 2 ? vec3(-1.0, 1.0, -1.0) : vec3(1.0, 1.0, 1.0);
+			n += kv * pn_sdf(s + kv * 0.12, seed, roll);
+		}
+		n = normalize(n);
 		acc += (1.0 - A) * fade * pn_ball(pn_rolled(s, roll) + seed, n, d);
 		A += (1.0 - A) * fade;
 	}

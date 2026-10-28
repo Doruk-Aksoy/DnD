@@ -732,10 +732,10 @@ int GetDropChance(int pnum) {
 		
 	// more chance to find loot
 	base = FixedMul(base, 1.0 + GetPlayerLuck(pnum));
-	if(GetCVar("dnd_mode") == DND_MODE_HARDCORE)
+	if(CVarValues[DND_CVAR_MODE] == DND_MODE_HARDCORE)
 		base = FixedMul(base, 1.0 + DND_HARDCORE_DROPRATEBONUS);
 
-	base += Clamp_Between(DND_STARTER_LUCK - (GetLevel() - 1) * DND_LUCK_DIMINISHPERLVL, 0, 1.0) + MapData[DND_MAPDATA_LOOTBONUS];
+	base += Clamp_Between(DND_STARTER_LUCK - (GetActorLevel(pnum + P_TIDSTART) - 1) * DND_LUCK_DIMINISHPERLVL, 0, 1.0) + MapData[DND_MAPDATA_LOOTBONUS];
 
 	// chances reduced to 25%
 	if(PlayerActivities[pnum].loot_penalty)
@@ -1154,11 +1154,9 @@ int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0, bool isS
 	// does not get it.
 	pct_bonus = 1.0 + GetPercentCritChanceIncrease(pnum, wepid, isSpell) +
 		(wepid != -1 && !!isLightning) * PlayerModData[pnum].vals[PSTAT_EX_MORECRIT_LIGHTNING];
-	// Deadeye is an ATTACK mod in all three of its halves, so a spell gets none of them. Keyed off
-	// isSpell rather than wepid: the sheet asks with wepid -1 and no weapon in hand, and Deadeye
-	// still belongs in the attack figure it draws.
-	if(!isSpell && PlayerModData[pnum].vals[PSTAT_EX_DEADEYEBONUS])
-		pct_bonus += DND_DEADEYE_BONUSF * (GetActorProperty(0, APROP_ACCURACY) / DND_DEADEYE_PLUSPER);
+	// Deadeye is worded for any damage, so spells take all three of its halves. The player's accuracy, as a spell's activator is its actor.
+	if(PlayerModData[pnum].vals[PSTAT_EX_DEADEYEBONUS])
+		pct_bonus += DND_DEADEYE_BONUSF * (GetActorProperty(pnum + P_TIDSTART, APROP_ACCURACY) / DND_DEADEYE_PLUSPER);
 
 	// Tormentor / Cornered Prey. INCREASED, so it belongs in this pool rather than among the
 	// multipliers above: every increase sums here and scales the chance exactly once.
@@ -1251,10 +1249,9 @@ int GetIndependentCritModifier(int pnum, bool applyExcess = true, bool isSpell =
 	// was + DND_SAVAGERY_BONUS per Savagery point
 	int base = DND_BASE_CRITMODIFIER + PlayerModData[pnum].vals[PSTAT_CRITDAMAGE_GLOBAL] +
 		PlayerModData[pnum].vals[isSpell ? PSTAT_SPELL_CRITDAMAGE : PSTAT_CRITDAMAGE_ATTACK];
-	// Attack only, like the rest of Deadeye. This half is a PENALTY, so leaving it on spells would
-	// have handed them the drawback of a mod they get no benefit from.
-	if(!isSpell && PlayerModData[pnum].vals[PSTAT_EX_DEADEYEBONUS])
-		base -= DND_DEADEYE_BONUS * (GetActorProperty(0, APROP_ACCURACY) / DND_DEADEYE_MINUSPER);
+	// Deadeye's penalty half, on spells too as its gains are.
+	if(PlayerModData[pnum].vals[PSTAT_EX_DEADEYEBONUS])
+		base -= DND_DEADEYE_BONUS * (GetActorProperty(pnum + P_TIDSTART, APROP_ACCURACY) / DND_DEADEYE_MINUSPER);
 
 	int temp;
 	// Same axis it is converting for: scaling a spell multiplier by ATTACK crit chance would report
@@ -1366,11 +1363,11 @@ int GetPlayerAccuracyDamageBonus(int pnum, int wepid, bool isSpell = false) {
 	int res = 0;
 	int acc = GetActorProperty(pnum + P_TIDSTART, APROP_ACCURACY);
 
-	// Attack only. Keyed off isSpell rather than wepid, because a WEAPON applied DoT reaches here
-	// with wepid -1 and must keep the bonus -- only a spell loses it.
-	if(!isSpell && PlayerModData[pnum].vals[PSTAT_EX_DEADEYEBONUS])
+	// Deadeye's "increased damage per accuracy" is the one generic accuracy payout, so spells take it.
+	if(PlayerModData[pnum].vals[PSTAT_EX_DEADEYEBONUS])
 		res += DND_DEADEYE_BONUS * (acc / DND_DEADEYE_PLUSPER);
 
+	// Precision weapons only: a spell never has the wepid.
 	if(wepid >= 0 && IsPrecisionWeapon(wepid) && PlayerModData[pnum].vals[PSTAT_INC_ACCURACYFORPRECISION])
 		res += acc / DND_INC_ACCURACYFORPRECRATIO;
 
@@ -1485,8 +1482,35 @@ void ResetHardcoreStuff(int pnum, bool resetStash = false) {
 // Replaces a 30 line switch of "case X: base += the mod for X". PSTAT_FLATDMG_BASE is a run keyed BY
 // damage category, so the category IS the storage index and the dispatch becomes arithmetic. The
 // switch existed only to bridge two enums that no longer need bridging.
+// Flat damage worded for no attack or spell: the radius, category and elemental slots of the generic run.
+int GetGenericFlatDamage(int pnum, int category, int flags) {
+	int base = (flags & DND_DAMAGEFLAG_ISRADIUSDMG) ? PlayerModData[pnum].vals[PSTAT_GENFLATDMG_RADIUS] : 0;
+	if(category < 0 || category >= MAX_DAMAGE_CATEGORIES)
+		return base;
+	if(category == DND_DAMAGECATEGORY_MELEE)
+		category = DND_DAMAGECATEGORY_BULLET;
+	base += PlayerModData[pnum].vals[PSTAT_GENFLATDMG_BASE + category];
+	if(category >= DND_ELECATEGORY_BEGIN && category <= DND_ELECATEGORY_END)
+		base += PlayerModData[pnum].vals[PSTAT_GENFLATDMG_ELEM];
+	return base;
+}
+
+// A spell hit's flat damage: the spell worded mods of its category, and the generic ones.
+int GetSpellFlatDamage(int pnum, int category, int flags) {
+	int base = GetGenericFlatDamage(pnum, category, flags);
+	if(category < 0 || category >= MAX_DAMAGE_CATEGORIES)
+		return base;
+	if(category == DND_DAMAGECATEGORY_MELEE)
+		category = DND_DAMAGECATEGORY_BULLET;
+	base += PlayerModData[pnum].vals[PSTAT_SPELLFLATDMG_BASE + category];
+	if(category >= DND_ELECATEGORY_BEGIN && category <= DND_ELECATEGORY_END)
+		base += PlayerModData[pnum].vals[PSTAT_SPELLFLATDMG_ELEM];
+	return base;
+}
+
+// A weapon's (or any non spell source's) flat damage: the attack worded mods, and the generic ones.
 int MapDamageCategoryToFlatBonus(int pnum, int talent, int flags) {
-	int base = 0;
+	int base = GetGenericFlatDamage(pnum, talent, flags);
 
 	if(flags & DND_DAMAGEFLAG_ISRADIUSDMG)
 		base += PlayerModData[pnum].vals[PSTAT_FLATDMG_RADIUS];
@@ -1663,14 +1687,14 @@ int GetPlayerDOTMulti(int pnum, int victim = -1, int wepid = -1, int ailment_mul
 #define DND_BASE_IGNITEDMG 20
 int GetFireDOTDamage(int pnum, int bonus = 0, int victim = -1, int wepid = -1, bool isSpell = false) {
 	// flat dmg
-	int dmg = 	DND_BASE_IGNITEDMG + 
-				bonus +
+	int dmg = 	DND_BASE_IGNITEDMG +
 				!isSpell * PlayerModData[pnum].vals[PSTAT_FLATDMG_BASE + DND_DAMAGECATEGORY_FIRE] +
-				PlayerModData[pnum].vals[PSTAT_IGN_DMG_FLAT] + 
+				PlayerModData[pnum].vals[PSTAT_IGN_DMG_FLAT] +
 				PlayerModData[pnum].vals[PSTAT_DOT_FLAT];
-	
-	// percent increase
-	dmg = dmg * (100 + GetPercentDamageFor(pnum, DND_DAMAGECATEGORY_FIRE, 0, isSpell) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1, isSpell) + PlayerModData[pnum].vals[PSTAT_IGN_DMG] + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED]) / 100;
+
+	// The DoT increases reach all of it; bonus is a hit's own fire, which already took the hit side increases the base takes here.
+	int inc = PlayerModData[pnum].vals[PSTAT_IGN_DMG] + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED];
+	dmg = dmg * (100 + inc + GetHitSideDoTIncrease(pnum, DND_DAMAGECATEGORY_FIRE, isSpell)) / 100 + bonus * (100 + inc) / 100;
 	
 	// dot multi;
 	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid, PSTAT_DOTMULTI_FIRE, isSpell)) / 100;
@@ -1687,20 +1711,35 @@ int GetFireDOTDamage(int pnum, int bonus = 0, int victim = -1, int wepid = -1, b
 #define DND_BASE_POISON_STACKS 5
 // "DnD Do Poison Damage"'s wepid for a spell's own poison; the script turns it back into -1.
 #define DND_SPELL_POISON_SOURCE -2
+// The same for a spell poison priced off its row, not a hit: no hit fed it, so the poison pile adds the hit side increases.
+#define DND_SPELL_POISON_ROW -3
 
-// dont include flat ele dmg and percent damage here, as they are applied to the attacks that inflicted the poison already, no double application!
-int GetPoisonDOTDamage(int pnum, int base_poison, int victim = -1, int wepid = -1, bool isSpell = false) {
+// The increases a hit takes that also reach a DoT no hit fed: a DoT seeded from a hit already carries them through it.
+int GetHitSideDoTIncrease(int pnum, int category, bool isSpell) {
+	return GetPercentDamageFor(pnum, category, 0, isSpell) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1, isSpell) +
+		isSpell * GetSpellDamageIncrease(pnum);
+}
+
+// "Poison weapon attack damage" for a poison a weapon hit seeds: a poison damage hit already took it, so only a hit of another type adds it.
+int GetWeaponPoisonSeedFlat(int pnum, int tic_flags) {
+	if(tic_flags & (DND_DAMAGETICFLAG_POISON | DND_DAMAGETICFLAG_SPELL))
+		return 0;
+	return PlayerModData[pnum].vals[PSTAT_FLATDMG_BASE + DND_DAMAGECATEGORY_POISON];
+}
+
+// A poison seeded from a hit takes only the poison and DoT increases; fromRow (a spell poison off its row) takes the hit side too.
+int GetPoisonDOTDamage(int pnum, int base_poison, int victim = -1, int wepid = -1, bool isSpell = false, bool fromRow = false) {
 	int dmg = base_poison;
 	if(!dmg)
 		dmg = 1;
 		
-	// flat dmg
-	dmg += 	!isSpell * PlayerModData[pnum].vals[PSTAT_FLATDMG_BASE + DND_DAMAGECATEGORY_POISON] +
-			PlayerModData[pnum].vals[PSTAT_DOT_FLAT];
+	// flat dmg: the DoT flat only. A weapon's flat poison is in the seed already, see GetWeaponPoisonSeedFlat.
+	dmg += PlayerModData[pnum].vals[PSTAT_DOT_FLAT];
 
 	// percent increase
-	dmg = dmg * (100 + PlayerModData[pnum].vals[PSTAT_POIS_DMG_PCT] + GetPercentDamageFor(pnum, DND_DAMAGECATEGORY_POISON, 0, isSpell) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1, isSpell) + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED]) / 100;
-	
+	dmg = dmg * (100 + PlayerModData[pnum].vals[PSTAT_POIS_DMG_PCT] + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED] +
+		fromRow * GetHitSideDoTIncrease(pnum, DND_DAMAGECATEGORY_POISON, isSpell)) / 100;
+
 	// dot multi
 	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid, PSTAT_DOTMULTI_POISON, isSpell)) / 100;
 	dmg = ApplyAilmentMoreDamage(pnum, dmg);
@@ -1709,7 +1748,7 @@ int GetPoisonDOTDamage(int pnum, int base_poison, int victim = -1, int wepid = -
 }
 
 // this doesn't consider INV_EX_FLATDOT here because the weapon that calls this does -- if wepid is left at -1, it should then consider it!
-// extra_inc joins the increased pool: a spell tick's element increase.
+// extra_inc joins the increased pool: a spell tick's hit side increases (GetHitSideDoTIncrease).
 int GetGenericDoTDamage(int pnum, int base, int victim = -1, int wepid = -1, bool isSpell = false, int extra_inc = 0) {
 	if(wepid == -1)
 		base += PlayerModData[pnum].vals[PSTAT_DOT_FLAT];
@@ -2336,7 +2375,7 @@ int GetSelfExplosiveResist(int pnum) {
 		if(!HasClassPerk_Fast(DND_PLAYER_CYBORG, 1))
 			base = FixedMul(base, (100 - DND_EXP_RES_ABILITY_BONUS) * 1.0 / 100);
 		else
-			base = FixedMul(base, (100 - (DND_EXP_RES_ABILITY_BONUS + DND_EXP_RES_ABILITY_BONUS * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV)) * 1.0 / 100);
+			base = FixedMul(base, (100 - DND_EXP_RES_ABILITY_BONUS * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV) * 1.0 / 100);
 	}
 		
 	// this is 75.0 or maximum 90.0, map it to 0-1.0 and reverse it

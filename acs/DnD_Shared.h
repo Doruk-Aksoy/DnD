@@ -104,8 +104,12 @@ Script DND_SHARED_ITEM_SCRIPT (int tid) {
 	}
 }
 
-Script "DND Shared Item Init" (int type) {
+Script "DND Shared Item Init" (int type, int chance_penalty) {
 	if(GameType() != GAME_SINGLE_PLAYER) {
+		// started here, not from the actor's states, so a removed _MP copy never starts them
+		ACS_NamedExecuteAlways("DnD Chest Dropping Item", 0, chance_penalty);
+		ACS_NamedExecuteAlways("DnD Init Shared Translation", 0);
+
 		int temp = TICRATE + random(0, 7);
 		while(!IsSetupComplete(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS))
 			Delay(temp);
@@ -114,6 +118,10 @@ Script "DND Shared Item Init" (int type) {
 		if (InformationInLevel[LEVELINFO_TID_SHAREDITEMS] < MAX_SHARED_ITEMS) {
 			GiveSharedItemTID();
 			SetActorProperty(0, APROP_MASS, type);
+
+			// set once the tid exists: the setup can finish long after spawn, e.g. waiting on the first player
+			if(ActivatorTID())
+				Thing_SetSpecial(0, 226, DND_SHARED_ITEM_SCRIPT, 0, ActivatorTID());
 		}
 	}
 	else {

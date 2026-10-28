@@ -21,15 +21,21 @@
 // the cvar was written on a client, against a page that may already be stale.
 Script "DnD Bind Hotbar" (int slot) NET {
 	int pnum = PlayerNumber();
+
+	// A negative slot is a right click emptying slot -slot - 1.
+	bool clear = slot < 0;
+	if(clear)
+		slot = -slot - 1;
 	if(slot < 0 || slot >= GetHotbarSlotCount(pnum))
 		Terminate;
 
-	int spell = GetUserCVar(pnum, "dnd_hoveredspell");
+	int spell = clear ? -1 : GetUserCVar(pnum, "dnd_hoveredspell");
 
-	// An empty hover clears the slot, which is the only way to unbind one.
+	// An empty hover clears the slot too.
 	if(spell < 0 || spell >= MAX_SPELL_IDS) {
 		SetHotbarSpell(pnum, slot, -1);
 		SyncHotbarSlot(pnum, slot);
+		LocalAmbientSound("RPG/MenuChoose", 127);
 		Terminate;
 	}
 
@@ -771,12 +777,10 @@ Script "DnD Immolation Tick" (int pnum) {
 		if(SpellThresholdMet(pnum, SPL_IMMOLATION, DND_SPELL_THRESH_LOW))
 			cost = Max(0, cost - DND_IMMOLATION_R5_COSTCUT);
 
-		// The press already bought the first second, the same way a channel's first tick is free.
-		if(!first && !HasDebugFreeSpells(pnum)) {
-			if(GetPlayerMana(pnum) < cost)
-				break;
-			SetPlayerMana(pnum, GetPlayerMana(pnum) - cost);
-		}
+		// The press already bought the first second, the same way a channel's first tick is free. Paid as any cost is,
+		// so Blood Magic, Haemocrafter, Tap into the Arcane and Temporal Surge reach the upkeep too.
+		if(!first && !HasDebugFreeSpells(pnum) && !PaySpellCost(pnum, SPL_IMMOLATION, cost))
+			break;
 		first = false;
 
 		// One per damage pass, on its own channel so it never cuts the activation. Per monster would
@@ -884,6 +888,8 @@ Script "DnD Heat Shield Timer" (int pnum, int endtic) {
 	}
 }
 
+#define DND_ANGER_R10_LESS 50
+
 // Anger. An aura, so it has no duration of its own -- "DnD Spell Aura Upkeep" refreshes it while the
 // aura is switched on and simply stops when it is switched off. Both halves are separate buff nodes
 // for the same reason Rally's are: one node carries one value.
@@ -901,6 +907,10 @@ void ApplyAngerAura(int pnum, int dur) {
 		ign += 5;
 
 	GiveSpellBuffAround(pnum, SPL_ANGER, BTI_SPELL_ANGER_IGNITE, ign, dur, allies);
+
+	// "Ignites on you and affected allies last 50% less."
+	if(SpellThresholdMet(pnum, SPL_ANGER, DND_SPELL_THRESH_HIGH))
+		GiveSpellBuffAround(pnum, SPL_ANGER, BTI_SPELL_ANGER_IGNITELESS, DND_ANGER_R10_LESS, dur, allies);
 }
 
 #define DND_HATRED_R10_CRIT 0.05        // "5% additional crit chance to cold spells and attacks"
@@ -943,8 +953,7 @@ void ApplyWrathAura(int pnum, int dur) {
 // stats and the weapon that caused it, which would throw away the "8 fire damage every 0.25 seconds"
 // the spell actually promises. This ticks the spell's own number on the spell's own clock.
 //
-// base is passed in already scaled, because the caster has just run it through "DnD Spell Damage" for
-// the hit and there is no reason to price it twice.
+// base is the row's raw tick value; each tick prices it once through the DoT pile.
 Script "DnD Blaze Burn" (int victim, int pnum, int base) {
 	int ticks = (GetSpellValue(pnum, SPL_BLAZE, SPELLVAL_DURATION) * TICRATE) >> 16;
 
@@ -1126,8 +1135,7 @@ Script "DnD Incinerate Burst" (int pnum, int victim) {
 #define DND_MOLTENBOULDER_R5_BONUS (3 * TICRATE)
 
 // Rank 10: "Sends six Pyroblasts outward when it shatters."
-// "You gain 25% additional fire resistance against this spell." Against THIS spell, so it is
-// applied to the self burn here rather than added to the player's fire resistance generally.
+// "You gain 25% additional fire resistance against this spell": added to the player's fire resistance for the self burn only.
 #define DND_RIGHTEOUSFIRE_R5_RESIST 25
 
 // The burn hum. Held for as long as the aura is. CHAN_6 keeps it off CHAN_7, where Scorching Ray
@@ -1189,6 +1197,7 @@ Script "DnD Pyroblast Burst" (void) {
 // ignited." SPLF_TARGETED, so the area is centred on what the player is aiming at rather than on the
 // caster -- the aim trace always lands a puff, so an empty sky still gives a point at max range.
 #define DND_FLAMMABILITY_R5_AOE 25
+#define DND_FLAMMABILITY_R10_TICS (4 * TICRATE)
 
 int GetFlammabilityRadius(int pnum) {
 	// "25% increased area of effect" -- increased, so it joins the additive pool.
@@ -1495,7 +1504,8 @@ Script "DnD Flammability Cast" (int pnum) {
 	}
 
 	int r = GetFlammabilityRadius(pnum);
-	int tics = GetSpellDurationTics(pnum, SPL_FLAMMABILITY);
+	int tics = GetSpellDurationTics(pnum, SPL_FLAMMABILITY) +
+		ScaleSpellEffectTics(pnum, SPL_FLAMMABILITY, DND_FLAMMABILITY_R10_TICS) * SpellThresholdMet(pnum, SPL_FLAMMABILITY, DND_SPELL_THRESH_HIGH);
 
 	ACS_NamedExecuteWithResult("DnD Flammability Area FX", cx, cy, cz, r);
 	// Witch: more curse effect on both of what the curse does.
@@ -1697,7 +1707,7 @@ Script "DnD Heat Shield Retaliate" (int pnum, int attacker) {
 		dur_pct = 200;
 
 	// "Ignites from this are guaranteed to spread."
-	ApplyForcedIgnite(pnum, attacker, dur_pct, rank >= DND_SPELL_THRESH_HIGH);
+	ApplyForcedIgnite(pnum, attacker, dur_pct, rank >= DND_SPELL_THRESH_HIGH, SPL_HEATSHIELD);
 }
 
 // Effects for the new spell system. TryCastSpell has already checked the gates, spent the mana and
@@ -2772,6 +2782,7 @@ Script "DnD Frost Bomb" (int pnum) {
 #define DND_ICEGOLEM_DIST 72
 #define DND_ICEGOLEM_DASHMULT 3         // 50 melee and 150 dash are exactly this
 #define DND_ICEGOLEM_BOLTCHANCE 30
+#define DND_ICEGOLEM_CHEST 34.0         // how high off its feet the bolt leaves
 #define DND_ICEGOLEM_R5_MANAREGEN 50    // percent, rank 5
 #define DND_ICEGOLEM_AURATICS 35        // how often the rank 5 buff is pushed out again
 #define DND_ICEGOLEM_AURAPOLL 5         // and how often the golem is looked for, so a death ends it promptly
@@ -2803,8 +2814,11 @@ Script "DnD Ice Golem Bolt" (void) {
 		Terminate;
 	}
 
-	// Thrown FROM the golem, owned BY the caster, exactly as the demon's jet is.
-	SpawnSpellProjectile(pnum, SPL_ICEBOLT, "Spell_IceBolt", DND_ICEBOLT_SPEED, 0, 0, 0, 0, golem);
+	// Thrown FROM the golem's chest at its target's middle, owned BY the caster, exactly as the demon's jet is.
+	int target = SetActivator(0, AAPTR_TARGET) ? ActivatorTID() : 0;
+	SetActivator(golem);
+	SpawnSpellProjectile(pnum, SPL_ICEBOLT, "Spell_IceBolt", DND_ICEBOLT_SPEED, 0, 0, 0, 0, golem, true, DND_ICEGOLEM_CHEST,
+		target ? PetThrowPitch(golem, target, DND_ICEGOLEM_CHEST) : 0);
 	SetResultValue(1);
 }
 
@@ -2867,7 +2881,7 @@ Script "DnD Ice Golem Aura" (int pnum) {
 	for(int t = 0; PlayerInGame(pnum) && CountPlayerPetsOfKind(pnum, MONSTER_PET_ICEGOLEM) > 0; t += DND_ICEGOLEM_AURAPOLL) {
 		// Granted for twice the refresh so a late tick leaves no gap; a dead summoner gets it back on respawn.
 		if(!(t % DND_ICEGOLEM_AURATICS) && IsActorAlive(caster))
-			HandlePlayerBuffAssignment(pnum, caster, BTI_SPELL_ICEGOLEM_MANA, 0, 0, DND_ICEGOLEM_AURATICS * 2, DND_ICEGOLEM_R5_MANAREGEN);
+			HandlePlayerBuffAssignment(pnum, caster, BTI_SPELL_ICEGOLEM_MANA, 0, 0, DND_ICEGOLEM_AURATICS * 2, ScaleMinionBuff(pnum, DND_ICEGOLEM_R5_MANAREGEN));
 		Delay(const:DND_ICEGOLEM_AURAPOLL);
 	}
 
@@ -6026,17 +6040,11 @@ Script "DnD Storm Call Strike FX" (int ks, int xy, int z) CLIENTSIDE {
 void ApplySpellPoison(int pnum, int spell, int victim, int per_sec, int tenths) {
 	// Priced per tick at the base poison rate, so faster poison ticks deal more, as a weapon's do.
 	if(per_sec > 0)
-		PoisonWithSpell(pnum, spell, victim, Max(1, PriceSpellPoison(pnum, spell, (per_sec * DND_BASE_POISON_TIC) >> 16)), tenths);
-}
-
-// A spell hit's poison as a weapon hit's would be: a tick of DND_BASE_POISON_FACTOR percent of what landed.
-void PoisonFromSpellHit(int pnum, int spell, int victim, int dealt, int tenths) {
-	if(dealt > 0)
-		PoisonWithSpell(pnum, spell, victim, Max(1, dealt * DND_BASE_POISON_FACTOR / 100), tenths);
+		PoisonWithSpell(pnum, spell, victim, Max(1, PriceSpellPoison(pnum, spell, (per_sec * DND_BASE_POISON_TIC) >> 16)), tenths, DND_SPELL_POISON_ROW);
 }
 
 // One poison stack of tick a tick for tenths of a second, with the spell's duration gear; tick is the poison's base.
-void PoisonWithSpell(int pnum, int spell, int victim, int tick, int tenths) {
+void PoisonWithSpell(int pnum, int spell, int victim, int tick, int tenths, int src = DND_SPELL_POISON_SOURCE) {
 	if(tenths <= 0 || !IsActorAlive(victim) || !CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_TOXICBLOOD))
 		return;
 
@@ -6050,9 +6058,10 @@ void PoisonWithSpell(int pnum, int spell, int victim, int tick, int tenths) {
 	bool first = !CheckActorInventory(victim, "DnD_PoisonStacks");
 	int extra = GainPoisonStacks(pnum, victim);
 
-	ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim, tick, DND_SPELL_POISON_SOURCE, dur | first);
+	ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim, tick, src, dur | first);
 	while(extra-- > 0)
-		ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim, tick, DND_SPELL_POISON_SOURCE, dur);
+		ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim, tick, src, dur);
+	ReflectUltimatumPoison(pnum, tick, src, victim);
 
 	if(prev)
 		SetActivator(prev);
@@ -6071,6 +6080,45 @@ void CastShrapnel(int pnum) {
 	for(int i = 0; i < n; ++i)
 		SpawnSpellProjectile(pnum, SPL_SHRAPNEL, "Spell_Shrapnel", DND_SHRAPNEL_SPEED, 0, FanOffset(i, DND_SPELL_FANSPREAD));
 	ACS_NamedExecuteAlways("DnD Earth Unearth FX", 0, pnum, DND_SHRAPNEL_UNEARTH >> 16, 0);
+}
+
+// The ripper half of a spell ripper's own setup, given at spawn: one fired point-blank touches an enemy before that runs.
+void SetSpellRipperAtSpawn(int pnum, int spell, str actor, int tid) {
+	switch(spell) {
+		case SPL_SHRAPNEL:
+			if(!StrIcmp(actor, "Spell_Shrapnel")) {
+				SetSpellRipLimit(pnum, tid, Max(1, GetSpellValue(pnum, SPL_SHRAPNEL, SPELLVAL_AMOUNT)));
+				if(SpellThresholdMet(pnum, SPL_SHRAPNEL, DND_SPELL_THRESH_LOW))
+					SetActorInventory(tid, "DnD_RipThruHardened", 1);
+			}
+		break;
+		case SPL_GLACIALSPIKE:
+			if(!StrIcmp(actor, "Spell_GlacialSpike")) {
+				SetSpellRipLimit(pnum, tid, Max(1, GetSpellValue(pnum, SPL_GLACIALSPIKE, SPELLVAL_AMOUNT)));
+				if(SpellThresholdMet(pnum, SPL_GLACIALSPIKE, DND_SPELL_THRESH_HIGH))
+					SetActorInventory(tid, "DnD_RipThruHardened", 1);
+			}
+		break;
+		case SPL_FROSTSHARDS:
+			if(!StrIcmp(actor, "Spell_FrostShard") && SpellThresholdMet(pnum, SPL_FROSTSHARDS, DND_SPELL_THRESH_HIGH)) {
+				GiveActorInventory(tid, "DnD_MakeRipper", 1);
+				SetActorProperty(tid, APROP_STAMINA, GetActorProperty(tid, APROP_STAMINA) | DND_DAMAGEFLAG_RIPSONCE);
+				SetSpellRipLimit(pnum, tid, DND_FROSTSHARDS_RIPS);
+			}
+		break;
+		case SPL_CHILLINGBREATH:
+			if(!StrIcmp(actor, "Spell_ChillingBreath"))
+				SetSpellRipLimit(pnum, tid, MAX_RIPCOUNT);
+		break;
+		case SPL_WINTERORB:
+			if(!StrIcmp(actor, "Spell_WinterOrb"))
+				SetSpellRipLimit(pnum, tid, MAX_RIPCOUNT);
+		break;
+		case SPL_VENOMGYRE:
+			if(!StrIcmp(actor, "Spell_VenomGyre") || !StrIcmp(actor, "Spell_VenomGyre_Fresh"))
+				SetSpellRipLimit(pnum, tid, GetSpellValue(pnum, SPL_VENOMGYRE, SPELLVAL_AMOUNT));
+		break;
+	}
 }
 
 Script "DnD Shrapnel Setup" (void) {
@@ -6288,6 +6336,18 @@ blockade_fx_T module& GetBlockadeFX() {
 	return s;
 }
 
+// count of cls at random spots along a wall, out from its two faces in turn and turned that way, z up to zs above z.
+void BlockadeShed(str cls, int count, int cx, int cy, int z, int a, int len, int out, int zs) {
+	int side = random(0, 1) ? 0.5 : 0, off, fa;
+	for(int i = 0; i < count; ++i) {
+		off = random(-len / 2, len / 2);
+		fa = a + side;
+		Spawn(cls, cx - FixedMul(sin(a), off) + FixedMul(cos(fa), out), cy + FixedMul(cos(a), off) + FixedMul(sin(fa), out),
+			z + random(0, zs), 0, (fa >> 8) & 0xFF);
+		side = 0.5 - side;
+	}
+}
+
 // Client side: the rocks rise along the wall, stand while its anchor does, and sink when it lapses or vanish when it breaks.
 Script "DnD Blockade FX" (int pnum, int len, int through) CLIENTSIDE {
 	int anchor = DND_BLOCKADE_ANCHOR_TID + pnum;
@@ -6322,9 +6382,19 @@ Script "DnD Blockade FX" (int pnum, int len, int through) CLIENTSIDE {
 		Thing_ChangeTID(r, rocks);
 	}
 
+	// Up, tearing dirt and stone bits out at its foot and shedding crumbs off its top edge as it climbs.
+	int z = GetActorZ(anchor), t;
+	BlockadeShed("Spell_UnleashEarth_Dust", len / 32.0 + 2, cx, cy, z + 2.0, a, len, 16.0, 8.0);
+	BlockadeShed("Spell_UnleashEarth_Cloud", len / 96.0, cx, cy, z + 6.0, a, len, 12.0, 16.0);
+	BlockadeShed("StoneBitsSpawner_Soundless", len / 80.0 + 1, cx, cy, z, a, len, 12.0, 0);
 	SetActorVelocity(rocks, 0, 0, DND_BLOCKADE_DEPTH / DND_BLOCKADE_RISE, false, false);
-	Delay(const:DND_BLOCKADE_RISE);
+	for(t = 1; t <= DND_BLOCKADE_RISE; ++t) {
+		Delay(const:1);
+		if(!(t % 2))
+			BlockadeShed("Spell_UnleashEarth_Crumb", 1, cx, cy, z + DND_BLOCKADE_DEPTH * t / DND_BLOCKADE_RISE - 8.0, a, len, 8.0, 0);
+	}
 	SetActorVelocity(rocks, 0, 0, 0, false, false);
+	BlockadeShed("Spell_Rockslide_Dust", len / 64.0 + 1, cx, cy, z + 4.0, a, len, 14.0, 12.0);
 	while(ThingCount(T_NONE, anchor) && CheckActorInventory(anchor, "DnD_BlockadeFX") == me)
 		Delay(const:4);
 
@@ -6334,9 +6404,23 @@ Script "DnD Blockade FX" (int pnum, int len, int through) CLIENTSIDE {
 		Thing_Remove(rocks);
 		Terminate;
 	}
+	// Lapsed: back down, grinding dirt out at its foot and dropping crumbs off its top, the dust settling once it is gone.
+	if((i = ScratchTID()) && Spawn("Spell_Rockslide_Dust", cx, cy, z + 32.0, i)) {
+		PlaySound(i, "Blockade/Sink", CHAN_BODY);
+		Thing_ChangeTID(i, 0);
+	}
+	BlockadeShed("Spell_UnleashEarth_Dust", len / 40.0 + 2, cx, cy, z + 2.0, a, len, 16.0, 8.0);
+	BlockadeShed("StoneBitsSpawner_Soundless", len / 96.0 + 1, cx, cy, z, a, len, 12.0, 0);
 	SetActorVelocity(rocks, 0, 0, -DND_BLOCKADE_DEPTH / DND_BLOCKADE_SINK, false, false);
-	Delay(const:DND_BLOCKADE_SINK);
+	for(t = 1; t <= DND_BLOCKADE_SINK; ++t) {
+		Delay(const:1);
+		if(!(t % 3)) {
+			BlockadeShed("Spell_UnleashEarth_Dust", 1, cx, cy, z + 2.0, a, len, 16.0, 6.0);
+			BlockadeShed("Spell_UnleashEarth_Crumb", 1, cx, cy, z + DND_BLOCKADE_DEPTH * (DND_BLOCKADE_SINK - t) / DND_BLOCKADE_SINK - 8.0, a, len, 8.0, 0);
+		}
+	}
 	Thing_Remove(rocks);
+	BlockadeShed("Spell_Rockslide_Dust", len / 48.0 + 1, cx, cy, z + 2.0, a, len, 10.0, 10.0);
 }
 
 // Client side: chunks and dust burst along a broken wall.
@@ -6503,13 +6587,15 @@ Script "DnD Toxic Trap Gas" (int pnum, int xy, int zz) {
 			if(dealt > 0)
 				Thing_Damage2(m, dealt, "Special_NoPain");
 
-			// One poison per enemy per trap, from the first tick that reaches it.
+			// One poison per enemy per trap, from the first tick that lands. A tick of the base factor of the gas's row, priced as
+			// a spell poison: off what landed, the gas tick's DoT pile and the poison's would both have applied.
 			j = 0;
 			while(j < np && poisoned[j] != m)
 				++j;
-			if(j == np && np < DND_TOXICTRAP_MAXPOISONED) {
+			if(j == np && np < DND_TOXICTRAP_MAXPOISONED && dealt > 0) {
 				poisoned[np++] = m;
-				PoisonFromSpellHit(pnum, SPL_TOXICTRAP, m, dealt, GetSpellValue(pnum, SPL_TOXICTRAP, SPELLVAL_AMOUNT2));
+				ApplySpellPoison(pnum, SPL_TOXICTRAP, m, GetSpellValue(pnum, SPL_TOXICTRAP, SPELLVAL_DAMAGE) * DND_BASE_POISON_FACTOR / 50,
+					GetSpellValue(pnum, SPL_TOXICTRAP, SPELLVAL_AMOUNT2));
 			}
 		}
 		Delay(const:DND_TOXICTRAP_TICK);
@@ -6801,7 +6887,7 @@ Script "DnD Noxious Blast FX" (int xy, int z, int r) CLIENTSIDE {
 
 // ---- Vines of Torment ----
 
-#define DND_VINES_REACH 512             // how far the lash runs; 100% farther at rank 10
+#define DND_VINES_REACH 640             // how far the lash runs; 100% farther at rank 10
 #define DND_VINES_HALFWIDTH 48.0        // half its width before area gear; 25% more at rank 5
 #define DND_VINES_SPEED 24              // units a tic at AMOUNT 100
 #define DND_VINES_LIFE 88               // tics a stretch stands after it sprouts: 2.5 seconds
@@ -6879,7 +6965,7 @@ Script "DnD Vines Of Torment" (int pnum) {
 	int x = GetActorX(ptid), y = GetActorY(ptid);
 	bool far = SpellThresholdMet(pnum, SPL_VINESOFTORMENT, DND_SPELL_THRESH_HIGH);
 	int len = TraceVinesPath(x, y, a, far ? DND_VINES_REACH * 2 : DND_VINES_REACH);
-	PlaySound(ptid, "Vines/Cast", CHAN_6);
+	PlaySound(ptid, "VinesOfTorment/Cast", CHAN_6);
 	if(len <= DND_VINES_START)
 		Terminate;
 
@@ -6918,6 +7004,7 @@ Script "DnD Vines Of Torment" (int pnum) {
 				DealSpellBeamHit(pnum, SPL_VINESOFTORMENT, m, 100);
 				if(IsActorAlive(m) && !UltimatumMonstersUnstoppable()) {
 					SnareMonster(m, snare);
+					PlaySound(m, "VinesOfTorment/Snare", CHAN_7);
 					ACS_NamedExecuteAlways("DnD Vines Snare FX", 0, m, snare);
 				}
 			}
@@ -7406,7 +7493,8 @@ void PoisonNovaPoison(int pnum, int victim) {
 #define DND_CORROSIVE_R5_TAKEN 25
 #define DND_CORROSIVE_DECAY 50                  // the most of an enemy's fortification the fumes eat
 #define DND_CORROSIVE_DECAYGAP 5                // tics between bites of it
-#define DND_CORROSIVE_REACHUP 96.0              // how far above or below the caster a body can be and still be reached
+#define DND_CORROSIVE_MOUTH 20.0                // the cone's apex, and where the fumes leave, this far under the eye
+#define DND_CORROSIVE_PITCH 0.2                 // the most it tilts up or down with the caster's aim
 #define DND_CORROSIVE_NEAR 32.0                 // past its radius, closer than this a body is in the cone whatever the angle
 #define DND_CORROSIVE_MAXTOUCH 96
 
@@ -7421,7 +7509,8 @@ void AfflictCorrosion(int pnum, int m, int per_sec, int tenths, int tics, int ta
 		ACS_NamedExecuteAlways("DnD Corrosive Decay", 0, m, tics);
 }
 
-// The cone follows the caster's aim as the fumes pour out, its front moving out at their speed; each enemy reached is afflicted once.
+// The cone follows the caster's full aim, pitch too, from the mouth as the fumes pour out, its front moving out at their
+// speed; each enemy reached is afflicted once.
 Script "DnD Corrosive Breath" (int pnum) {
 	int caster = pnum + P_TIDSTART;
 	int reach = ScaleSpellArea(pnum, SPL_CORROSIVEBREATH, GetSpellValue(pnum, SPL_CORROSIVEBREATH, SPELLVAL_RADIUS) << 16);
@@ -7431,27 +7520,36 @@ Script "DnD Corrosive Breath" (int pnum) {
 	int per_sec = GetSpellValue(pnum, SPL_CORROSIVEBREATH, SPELLVAL_DAMAGE) * 10 / tenths;
 	int taken = SpellThresholdMet(pnum, SPL_CORROSIVEBREATH, DND_SPELL_THRESH_LOW) ? DND_CORROSIVE_R5_TAKEN : DND_CORROSIVE_TAKEN;
 
-	PlaySound(caster, "CorrosiveBreath/Release", CHAN_6);
+	PlaySound(caster, "CorrosiveBreath/Release", CHAN_6, 1.0, true);
 	ACS_NamedExecuteAlways("DnD Corrosive Breath FX", 0, pnum, reach >> 16,
 		half | (SpellThresholdMet(pnum, SPL_CORROSIVEBREATH, DND_SPELL_THRESH_HIGH) << 16));
 
-	int touched[DND_CORROSIVE_MAXTOUCH], n = 0, t, mn, m, k, front, dx, dy, d, a, ca, sa;
+	int touched[DND_CORROSIVE_MAXTOUCH], n = 0, t, mn, m, k, front, dx, dy, dz, d, a, p, ca, sa, cp, sp, along, ez, mz;
 	bool seen;
 	for(t = 0; t < DND_CORROSIVE_RELEASE && PlayerInGame(pnum) && IsActorAlive(caster); t += DND_CORROSIVE_CHECK) {
 		front = Min(reach, (DND_CORROSIVE_SPEED * (t + DND_CORROSIVE_CHECK)) << 16);
 		a = GetActorAngle(caster);
+		p = Clamp_Between(GetActorPitch(caster), -DND_CORROSIVE_PITCH, DND_CORROSIVE_PITCH);
 		ca = cos(a);
 		sa = sin(a);
+		cp = cos(p);
+		sp = sin(p);
+		ez = GetActorZ(caster) + GetActorViewHeight(caster) - DND_CORROSIVE_MOUTH;
 		for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER] && n < DND_CORROSIVE_MAXTOUCH; ++mn) {
 			m = UsedMonsterTIDs[mn];
-			if(!IsActorAlive(m) || !IsSpellEnemy(m) || abs(GetActorZ(m) - GetActorZ(caster)) > DND_CORROSIVE_REACHUP)
+			if(!IsActorAlive(m) || !IsSpellEnemy(m))
 				continue;
 			dx = GetActorX(m) - GetActorX(caster);
 			dy = GetActorY(m) - GetActorY(caster);
-			d = VectorLength(dx, dy);
+			// Measured to the body where the cone's axis passes its height, so a tall body is in if any of it is.
+			along = FixedMul(dx, ca) + FixedMul(dy, sa);
+			mz = GetActorZ(m);
+			dz = Clamp_Between(ez - FixedMul(along, FixedDiv(sp, cp)), mz, mz + GetActorProperty(m, APROP_HEIGHT)) - ez;
+			d = VectorLength(VectorLength(dx, dy), dz);
 			if(d > front + GetActorProperty(m, APROP_RADIUS))
 				continue;
-			if(d > GetActorProperty(m, APROP_RADIUS) + DND_CORROSIVE_NEAR && FixedDiv(FixedMul(dx, ca) + FixedMul(dy, sa), d) < halfcos)
+			// Positive pitch looks down: the aim is (ca cp, sa cp, -sp).
+			if(d > GetActorProperty(m, APROP_RADIUS) + DND_CORROSIVE_NEAR && FixedDiv(FixedMul(along, cp) - FixedMul(dz, sp), d) < halfcos)
 				continue;
 			for(k = 0, seen = false; k < n && !seen; ++k)
 				seen = touched[k] == m;
@@ -7462,6 +7560,7 @@ Script "DnD Corrosive Breath" (int pnum) {
 		}
 		Delay(const:DND_CORROSIVE_CHECK);
 	}
+	StopSound(caster, CHAN_6);
 }
 
 // Eats up to half of a fortified enemy's fortification over the affliction, never its last point: a hit breaks that.
@@ -7496,17 +7595,20 @@ Script "DnD Corroded Timer" (int m) {
 // Client side: puffs of fume thrown along the cone from below the eye while it pours; a third more from rank 10.
 Script "DnD Corrosive Breath FX" (int pnum, int reach, int hd) CLIENTSIDE {
 	int caster = pnum + P_TIDSTART, half = hd & 0xFFFF, gap = (hd >> 16) ? 3 : 4;
-	int t, k, a, p, cp, tid;
+	// The tics a puff takes from its start 20 out to the cone's end: its animation is spread over them. It billows up as
+	// fast as it swells (half of 96 x 1.2 x 0.54 over 21 of its 26 frames), so its bottom never sinks into the floor.
+	int travel = Max(1, (reach - 20) / DND_CORROSIVE_SPEED), billow = 39.0 / travel, t, k, a, p, cp, tid;
 	for(t = 0; t < DND_CORROSIVE_RELEASE && IsActorAlive(caster); t += gap) {
 		for(k = 0; k < 4; ++k) {
 			a = GetActorAngle(caster) + random(-half, half);
-			p = Clamp_Between(GetActorPitch(caster) + random(-0.02, 0.02), -0.2, 0.2);
+			p = Clamp_Between(GetActorPitch(caster) + random(-0.02, 0.02), -DND_CORROSIVE_PITCH, DND_CORROSIVE_PITCH);
 			cp = cos(p);
 			if(!(tid = ScratchTID()) || !SpawnForced("Spell_CorrosiveBreath_Fume", GetActorX(caster) + 20 * cos(a),
-				GetActorY(caster) + 20 * sin(a), GetActorZ(caster) + GetActorViewHeight(caster) - 20.0, tid))
+				GetActorY(caster) + 20 * sin(a), GetActorZ(caster) + GetActorViewHeight(caster) - DND_CORROSIVE_MOUTH, tid))
 				continue;
 			SetActorVelocity(tid, DND_CORROSIVE_SPEED * FixedMul(cos(a), cp), DND_CORROSIVE_SPEED * FixedMul(sin(a), cp),
-				-DND_CORROSIVE_SPEED * sin(p), false, false);
+				billow - DND_CORROSIVE_SPEED * sin(p), false, false);
+			SetUserVariable(tid, "user_t", travel);
 			Thing_ChangeTID(tid, 0);
 		}
 		Delay(gap);
@@ -7524,7 +7626,6 @@ Script "DnD Corrosive Breath FX" (int pnum, int reach, int hd) CLIENTSIDE {
 #define DND_CRUSHING_SQUASH 0.78        // a caught body's width at the impact, a share of its own, and its height
 #define DND_CRUSHING_STRETCH 1.07
 #define DND_CRUSHING_SHEAR 4.0          // how far the rocks rub past each other along their length while grinding
-#define DND_CRUSHING_SINK 8             // tics they take to sink after the last
 #define DND_CRUSHING_DROP 64.0          // how far under the crush point the rocks rise from
 #define DND_CRUSHING_LIFT 20.0          // and how far over it they stand, so a rock rests on the floor rather than in it
 #define DND_CRUSHING_SIDE 48.0          // how far past the target's radius each rock rises
@@ -7633,7 +7734,7 @@ int GetCrushingGrind(int t) {
 }
 
 // Client side: the spell's two rocks. They rise either side of the point once, across the caster's line, and for every
-// crush draw back, slam into the target's body, grind on it and pull apart over to where it now stands; then sink.
+// crush draw back, slam into the target's body, grind on it and pull apart over to where it now stands; then break up.
 Script "DnD Crushing Rocks FX" (int what, int zn, int sa) CLIENTSIDE {
 	int target = sa < 0 ? what : 0, n = (zn >> 16) & 0xFF, side = (sa & 0x7FFF) << 16, a = (sa >> 15) & 0xFFFF;
 	int cx = what << 16, cy = what & 0xFFFF0000, cz = ((zn << 16) >> 16) << 16;
@@ -7668,9 +7769,9 @@ Script "DnD Crushing Rocks FX" (int what, int zn, int sa) CLIENTSIDE {
 		PlaySound(t1, "CrushingRocks/Crush", CHAN_BODY);
 		Radius_Quake(2, 6, 0, 3, t1);
 		e = bite - DND_CRUSHING_MEET;
-		Spawn("Spell_CrushingRocks_Impact", cx + FixedMul(px, e), cy + FixedMul(py, e), cz + random(12.0, 36.0));
+		Spawn("Spell_CrushingRocks_Impact", cx + FixedMul(px, e), cy + FixedMul(py, e), cz + random(12.0, 36.0), 0, a >> 8);
 		if(e > 0)
-			Spawn("Spell_CrushingRocks_Impact", cx - FixedMul(px, e), cy - FixedMul(py, e), cz + random(12.0, 36.0));
+			Spawn("Spell_CrushingRocks_Impact", cx - FixedMul(px, e), cy - FixedMul(py, e), cz + random(12.0, 36.0), 0, a >> 8);
 		// Squashed in the rocks' grip, unless another pair already has it.
 		if(target && IsActorAlive(target) && !CheckActorInventory(target, "DnD_CrushSquashFX")) {
 			GiveActorInventory(target, "DnD_CrushSquashFX", 1);
@@ -7718,11 +7819,9 @@ Script "DnD Crushing Rocks FX" (int what, int zn, int sa) CLIENTSIDE {
 		}
 	}
 
-	for(t = 1; t <= DND_CRUSHING_SINK; ++t) {
-		SteerCrushingPair(t1, t2, cx, cy, cz + DND_CRUSHING_LIFT - (DND_CRUSHING_DROP + DND_CRUSHING_LIFT) * t / DND_CRUSHING_SINK,
-			px, py, bite);
-		Delay(const:1);
-	}
+	// Done: both rocks break up where they stand.
+	Spawn("Spell_CrushingRocks_Crumble", GetActorX(t1), GetActorY(t1), GetActorZ(t1), 0, a >> 8);
+	Spawn("Spell_CrushingRocks_Crumble", GetActorX(t2), GetActorY(t2), GetActorZ(t2), 0, a >> 8);
 	Thing_Remove(t1);
 	Thing_Remove(t2);
 }
@@ -7736,6 +7835,7 @@ Script "DnD Crushing Rocks FX" (int what, int zn, int sa) CLIENTSIDE {
 #define DND_ROCKGOLEM_PHYSLESS 10            // percent less physical damage its summoner takes while it stands
 #define DND_ROCKGOLEM_GUARDTICS 35           // how often that buff is pushed out again
 #define DND_ROCKGOLEM_GUARDPOLL 5            // and how often the golem is looked for, so a death ends it promptly
+#define DND_ROCKGOLEM_R10_EXPLOSIVE 50       // rank 10 "resists explosions", on top of the hit's own resist
 
 // Whether a player's guard ticker runs. Map scope, so it resets with the scripts on a new map.
 int[] module& GetRockGolemGuards() {
@@ -7743,7 +7843,7 @@ int[] module& GetRockGolemGuards() {
 	return on;
 }
 
-// Rank 10 summons the hardened kind: immune to elemental damage, resisting explosions.
+// Rank 10 (immune to elemental damage, resisting explosions) is set up with its resists, in InitPetResists.
 Script "DnD Summon Rock Golem" (int pnum) {
 	int caster = pnum + P_TIDSTART;
 	int maxkind = Max(1, GetSpellValue(pnum, SPL_ROCKGOLEM, SPELLVAL_AMOUNT));
@@ -7753,8 +7853,7 @@ Script "DnD Summon Rock Golem" (int pnum) {
 		UnsummonPet(FindOldestPlayerPet(pnum));
 
 	int tid = TEMPORARY_PET_TID + pnum;
-	if(!SpawnSummonNear(SpellThresholdMet(pnum, SPL_ROCKGOLEM, DND_SPELL_THRESH_HIGH) ? "Spell_RockGolem_Hardened" : "Spell_RockGolem",
-		caster, tid, DND_ROCKGOLEM_DIST))
+	if(!SpawnSummonNear("Spell_RockGolem", caster, tid, DND_ROCKGOLEM_DIST))
 		Terminate;
 
 	SetActorPosition(tid, GetActorX(tid), GetActorY(tid), GetActorFloorZ(tid), false);
@@ -7784,7 +7883,7 @@ Script "DnD Rock Golem Guard" (int pnum) {
 	for(int t = 0; PlayerInGame(pnum) && CountPlayerPetsOfKind(pnum, MONSTER_PET_ROCKGOLEM) > 0; t += DND_ROCKGOLEM_GUARDPOLL) {
 		// Granted for twice the refresh so a late tick leaves no gap; a dead summoner gets it back on respawn.
 		if(!(t % DND_ROCKGOLEM_GUARDTICS) && IsActorAlive(caster))
-			HandlePlayerBuffAssignment(pnum, caster, BTI_SPELL_ROCKGOLEM_PHYSLESS, 0, 0, DND_ROCKGOLEM_GUARDTICS * 2, DND_ROCKGOLEM_PHYSLESS);
+			HandlePlayerBuffAssignment(pnum, caster, BTI_SPELL_ROCKGOLEM_PHYSLESS, 0, 0, DND_ROCKGOLEM_GUARDTICS * 2, ScaleMinionBuff(pnum, DND_ROCKGOLEM_PHYSLESS));
 		Delay(const:DND_ROCKGOLEM_GUARDPOLL);
 	}
 
@@ -7824,7 +7923,8 @@ Script "DnD Rock Golem Rockslide" (void) {
 	int t = FixedDiv(d, across), up = FixedDiv(rise, t) + FixedMul(DND_ROCKSLIDE_GRAVITY >> 1, t);
 	SpawnSpellProjectile(pnum, SPL_ROCKSLIDE, "Spell_RockGolem_Boulder", VectorLength(across, up) >> 16, DND_ATF_USEGRAVITY,
 		VectorAngle(dx, dy) - GetActorAngle(golem), 0, 0, golem, true, DND_ROCKGOLEM_HAND, -VectorAngle(across, up));
-	SetUserVariable(golem, "user_slide", Timer() + DND_ROCKGOLEM_SLIDECD);
+	// Its own deadline rather than the minion counter, so Frenzied Followers shortens it here.
+	SetUserVariable(golem, "user_slide", Timer() + DND_ROCKGOLEM_SLIDECD * 100 / (100 + GetMinionCooldownRate(pnum)));
 	PlaySound(golem, "Rockslide/Cast", CHAN_WEAPON);
 	SetResultValue(1);
 }
@@ -8501,9 +8601,10 @@ Script "DnD Upheaval Slam FX" (int m) CLIENTSIDE {
 
 #define DND_TVOLLEY_SPEED 36            // the small rocks
 #define DND_TVOLLEY_BIGSPEED 26         // the energized rock
-#define DND_TVOLLEY_GAP1 16            // tics before the 2nd rock and the 3rd: the throws quicken, then every GAPMAX
-#define DND_TVOLLEY_GAP2 11
-#define DND_TVOLLEY_GAPMAX 7
+#define DND_TVOLLEY_GAP1 26            // tics before the 2nd, 3rd and 4th rock, then every GAPMAX: on the throw sound's
+#define DND_TVOLLEY_GAP2 16            // five whooshes, at 0, 26, 42, 52 and 63 tics
+#define DND_TVOLLEY_GAP3 10
+#define DND_TVOLLEY_GAPMAX 11
 #define DND_TVOLLEY_AREA 256            // energized area radius, 384 at rank 10
 #define DND_TVOLLEY_R10_AREA 384
 #define DND_TVOLLEY_R5_MORE 20          // more damage per overlapping area past the first, from rank 5
@@ -8541,10 +8642,10 @@ Script "DnD Threaded Volley" (int pnum) {
 		(r >> 16) | (tics << 16));
 
 	int n = Max(1, GetSpellValue(pnum, SPL_THREADEDVOLLEY, SPELLVAL_AMOUNT));
+	PlaySound(ptid, "ThreadedVolley/Throw", CHAN_6);
 	for(k = 0; k < n && PlayerInGame(pnum) && IsActorAlive(ptid); ++k) {
 		if(k)
-			Delay(k == 1 ? DND_TVOLLEY_GAP1 : k == 2 ? DND_TVOLLEY_GAP2 : DND_TVOLLEY_GAPMAX);
-		PlaySound(ptid, "ThreadedVolley/Throw", CHAN_6);
+			Delay(k == 1 ? DND_TVOLLEY_GAP1 : k == 2 ? DND_TVOLLEY_GAP2 : k == 3 ? DND_TVOLLEY_GAP3 : DND_TVOLLEY_GAPMAX);
 		for(i = 0; i <= extra; ++i)
 			SpawnSpellProjectile(pnum, SPL_THREADEDVOLLEY, "Spell_ThreadedVolley_Rock", DND_TVOLLEY_SPEED, 0, FanOffset(i, DND_SPELL_FANSPREAD));
 		ACS_NamedExecuteAlways("DnD Earth Unearth FX", 0, pnum, 40, 0);
@@ -8628,6 +8729,9 @@ Script "DnD Threaded Volley Area FX" (int xy, int z, int packed) CLIENTSIDE {
 #define DND_GEYSER_RISE 10             // tics the rock pile takes to come up, before the first spit
 #define DND_GEYSER_CRUMBLE 30          // and to crumble into the ground once it is spent (Crumble's frames, and a little)
 #define DND_GEYSER_DEPTH 32.0          // how far under the floor it starts, all of it hidden
+#define DND_GEYSER_FOOT 16.0           // its dirt puffs start this far out from its middle
+#define DND_GEYSER_BUBBLE 6            // its pool throws a bubble one tic in this many while it spits
+#define DND_GEYSER_POOL 8.0            // within this of its middle
 
 // The vents' shared dice: the server and every client step it from the same seed, so their drops agree.
 int GeyserStep(int s) {
@@ -8687,13 +8791,15 @@ Script "DnD Geyser" (int pnum) {
 	Thing_Remove(probe);
 }
 
-// Where a drop lands: every enemy within the splash takes the hit, which always poisons.
+// Where a drop lands: every enemy within the splash takes the hit, which always poisons, and sounds it.
 void GeyserSplash(int pnum, int probe, int x, int y, int r) {
 	int z = GetFloorZAt(x, y), i, m;
 	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
 		m = UsedMonsterTIDs[i];
-		if(InSpellArea(probe, m, x, y, r) && InSpellHeight(m, z, r))
+		if(InSpellArea(probe, m, x, y, r) && InSpellHeight(m, z, r)) {
 			DealSpellBeamHit(pnum, SPL_GEYSER, m, 100, true);
+			PlaySound(m, "Geyser/Hit", CHAN_7);
+		}
 	}
 }
 
@@ -8741,6 +8847,17 @@ Script "DnD Geyser Vent" (int pnum, int xy, int zseed) {
 	Thing_Remove(probe);
 }
 
+// count of dirt puffs round a vent's foot, each turned outward so it rolls away; one vent in three throws stone bits too.
+void GeyserFootDust(int x, int y, int z, int count) {
+	int turn = random(0, 1.0), a;
+	for(int i = 0; i < count; ++i) {
+		a = (turn + i * 1.0 / count + random(-0.05, 0.05)) & 0xFFFF;
+		Spawn("Spell_Geyser_Dust", x + FixedMul(DND_GEYSER_FOOT, cos(a)), y + FixedMul(DND_GEYSER_FOOT, sin(a)), z + 2.0, 0, a >> 8);
+	}
+	if(!random(0, 2))
+		Spawn("StoneBitsSpawner_Soundless", x, y, z);
+}
+
 // Client side: the rock pile comes up, then its drops fly on the same dice the server lands them by, then it crumbles.
 Script "DnD Geyser FX" (int xy, int zseed, int lifeextra) CLIENTSIDE {
 	int x = xy << 16, y = xy & 0xFFFF0000, z = zseed << 16, s = GeyserStep((zseed >> 16) & 0x7FFF);
@@ -8752,6 +8869,7 @@ Script "DnD Geyser FX" (int xy, int zseed, int lifeextra) CLIENTSIDE {
 		Spawn("Spell_Rockslide_Dust", x + random(-20.0, 20.0), y + random(-20.0, 20.0), z + 2.0);
 	for(t = 0; t < 3; ++t)
 		Spawn("Spell_RockArmor_Chunk", x + random(-16.0, 16.0), y + random(-16.0, 16.0), z + random(4.0, 20.0));
+	GeyserFootDust(x, y, z, 2);
 	// Steered by velocity, each tic onto its mark, quick out of the ground and easing in: SetActorPosition refuses under the floor.
 	for(t = 1; t <= DND_GEYSER_RISE; ++t) {
 		q = 1.0 - t * 1.0 / DND_GEYSER_RISE;
@@ -8761,7 +8879,7 @@ Script "DnD Geyser FX" (int xy, int zseed, int lifeextra) CLIENTSIDE {
 	}
 	if(vent)
 		SetActorVelocity(vent, 0, 0, 0, false, false);
-	PlaySound(vent, "Geyser/Spit", CHAN_BODY);
+	PlaySound(vent, "Geyser/SpitLoop", CHAN_BODY);
 	for(t = 0; t < life; ++t) {
 		for(acc += rate; acc >= TICRATE; acc -= TICRATE) {
 			s = GeyserStep(s);
@@ -8777,6 +8895,9 @@ Script "DnD Geyser FX" (int xy, int zseed, int lifeextra) CLIENTSIDE {
 			SetActorAngle(tid, a);
 			Thing_ChangeTID(tid, 0);
 		}
+		if(!random(0, DND_GEYSER_BUBBLE - 1))
+			Spawn("Spell_Geyser_Bubble", x + random(-DND_GEYSER_POOL, DND_GEYSER_POOL), y + random(-DND_GEYSER_POOL, DND_GEYSER_POOL),
+				z + random(DND_GEYSER_LIFT - 4.0, DND_GEYSER_LIFT));
 		Delay(const:1);
 	}
 	StopSound(vent, CHAN_BODY);
@@ -8786,7 +8907,11 @@ Script "DnD Geyser FX" (int xy, int zseed, int lifeextra) CLIENTSIDE {
 	for(t = 0; t < 4; ++t)
 		Spawn("Spell_RockArmor_Chunk", x + random(-14.0, 14.0), y + random(-14.0, 14.0), z + random(10.0, 22.0));
 	Spawn("Spell_Rockslide_Dust", x + random(-12.0, 12.0), y + random(-12.0, 12.0), z + 2.0);
-	Delay(const:DND_GEYSER_CRUMBLE);
+	GeyserFootDust(x, y, z, 2);
+	// Halfway down, the slumping pile pushes a last puff out.
+	Delay(const:DND_GEYSER_CRUMBLE / 2);
+	GeyserFootDust(x, y, z, 1);
+	Delay(const:DND_GEYSER_CRUMBLE - DND_GEYSER_CRUMBLE / 2);
 	Thing_Remove(vent);
 }
 
@@ -8814,6 +8939,7 @@ Script "DnD Geyser FX" (int xy, int zseed, int lifeextra) CLIENTSIDE {
 #define DND_UNLEASH_PILLARRISE 4       // tics it takes to burst up
 #define DND_UNLEASH_PILLARHOLD 30      // to stand
 #define DND_UNLEASH_PILLARSINK 24      // and to sink back
+#define DND_UNLEASH_FOOT 46.0          // the pillar's foot radius, where its dust and rocks are thrown from
 
 typedef struct {
 	int channels;		// bumped by each channel, so an enemy's DnD_UnleashChannel tells this one from an older
@@ -8822,6 +8948,15 @@ typedef struct {
 unleash_T module& GetUnleash() {
 	static unleash_T s;
 	return s;
+}
+
+// count of cls round x, y at radius r, z up to zs above z, each turned outward so its own throw carries it away.
+void UnleashRing(str cls, int count, int x, int y, int z, int r, int zs) {
+	int turn = random(0, 1.0);
+	for(int i = 0; i < count; ++i) {
+		int a = (i * 1.0 / count + turn + random(-0.03, 0.03) + 1.0) % 1.0;
+		Spawn(cls, x + FixedMul(r, cos(a)), y + FixedMul(r, sin(a)), z + random(0, zs), 0, a >> 8);
+	}
 }
 
 // How much of its height a pillar stands out of the ground, tic t of its rise: out sharply, a little past, settling.
@@ -8854,7 +8989,7 @@ Script "DnD Unleash Earth" (int pnum) {
 		idle < DND_UNLEASH_IDLE && CanAffordSpell(pnum, SPL_UNLEASHEARTH)) {
 		// Back up once a Quicktongue repeat's own bar has come and gone.
 		if(!CheckActorInventory(caster, "P_CastProgress")) {
-			SetActorInventory(caster, "P_CastSpell", (SPL_UNLEASHEARTH + 1) | DND_CASTBAR_DRAIN);
+			SetActorInventory(caster, "P_CastSpell", MakeSpellCastWord(SPL_UNLEASHEARTH, DND_UNLEASH_IDLE, true));
 			SetActorInventory(caster, "P_CastProgress", bar);
 		}
 		held = IsChannelHeld();
@@ -8986,7 +9121,7 @@ Script "DnD Unleash Landing" (int pnum, int m, int packed) {
 	dmg = FixedMul(dmg, Min(1.0, FixedDiv(top - z0, DND_UNLEASH_MAXH << 16)));
 	if(dmg > 0)
 		DealSpellAmount(pnum, SPL_UNLEASHEARTH, m, dmg);
-	PlaySound(m, "UnleashEarth/Land", CHAN_7);
+	PlaySound(m, "UnleashEarth/Retract", CHAN_7);
 	ACS_NamedExecuteAlways("DnD Upheaval Slam FX", 0, m);
 }
 
@@ -9006,20 +9141,50 @@ Script "DnD Unleash Pillar FX" (int xy, int zh, int lean) CLIENTSIDE {
 	PlaySound(p, "UnleashEarth/Erupt", CHAN_BODY);
 	for(i = 0; i < 8; ++i)
 		Spawn("Spell_RockArmor_Chunk", x + random(-32.0, 32.0), y + random(-32.0, 32.0), z + random(8.0, 48.0));
-	// Steered by velocity, each tic exactly onto its mark: SetActorPosition refuses a spot under the floor.
+	// The eruption: dirt rolling out from the foot, clouds billowing round the column, rocks flung out, stone bits.
+	UnleashRing("Spell_UnleashEarth_Dust", 14, x, y, z + 4.0, DND_UNLEASH_FOOT, 12.0);
+	UnleashRing("Spell_UnleashEarth_Cloud", 6, x, y, z + 12.0, DND_UNLEASH_FOOT - 12.0, 56.0);
+	UnleashRing("Spell_UnleashEarth_Rock", 10, x, y, z + 12.0, DND_UNLEASH_FOOT - 8.0, 28.0);
+	for(i = 0; i < 6; ++i) {
+		Spawn("Spell_Rockslide_Dust", x + random(-56.0, 56.0), y + random(-56.0, 56.0), z + random(4.0, 24.0));
+		if(i < 3)
+			Spawn("StoneBitsSpawner_Soundless", x + random(-40.0, 40.0), y + random(-40.0, 40.0), z);
+	}
+	// Steered by velocity, each tic exactly onto its mark: SetActorPosition refuses a spot under the floor. Its top
+	// sheds dust and crumbs on the way up.
 	for(t = 0; t < DND_UNLEASH_PILLARRISE; ++t) {
 		SetActorVelocity(p, 0, 0, z - FixedMul(h, 1.0 - GetUnleashRise(t)) - GetActorZ(p), false, false);
+		UnleashRing("Spell_Rockslide_Dust", 2, x, y, GetActorZ(p) + h - 8.0, 24.0, 8.0);
+		UnleashRing("Spell_UnleashEarth_Crumb", 1, x, y, GetActorZ(p) + h - 8.0, 20.0, 0);
 		Delay(const:1);
 	}
 	SetActorVelocity(p, 0, 0, 0, false, false);
+	UnleashRing("Spell_UnleashEarth_Crumb", 5, x, y, z + h - 12.0, 22.0, 8.0);
+	UnleashRing("Spell_Rockslide_Dust", 3, x, y, z + h - 8.0, 26.0, 8.0);
 	Delay(const:DND_UNLEASH_PILLARHOLD);
-	// Back under, quick at first and easing out: 1 - (1 - t)^3 of its height.
+	// It breaks loose: dirt rolling out at the foot, clouds round its base, crumbs off its top, a spray of stone bits.
+	UnleashRing("Spell_UnleashEarth_Dust", 8, x, y, z + 2.0, DND_UNLEASH_FOOT, 10.0);
+	UnleashRing("Spell_UnleashEarth_Cloud", 5, x, y, z + 8.0, DND_UNLEASH_FOOT - 8.0, 32.0);
+	UnleashRing("Spell_UnleashEarth_Crumb", 4, x, y, z + h - 8.0, 22.0, 6.0);
+	Spawn("StoneBitsSpawner_Soundless", x + random(-24.0, 24.0), y + random(-24.0, 24.0), z);
+	// Back under, quick at first and easing out: 1 - (1 - t)^3 of its height. It grinds dust out at its foot and
+	// drops crumbs off its top as it goes, and the dust settles once it is gone.
 	for(t = 1; t <= DND_UNLEASH_PILLARSINK; ++t) {
 		q = 1.0 - t * 1.0 / DND_UNLEASH_PILLARSINK;
 		SetActorVelocity(p, 0, 0, z - FixedMul(h, 1.0 - FixedMul(FixedMul(q, q), q)) - GetActorZ(p), false, false);
+		if(!(t % 2)) {
+			UnleashRing("Spell_UnleashEarth_Dust", 2, x, y, z + 2.0, DND_UNLEASH_FOOT, 8.0);
+			UnleashRing("Spell_Rockslide_Dust", 1, x, y, z + 2.0, DND_UNLEASH_FOOT, 12.0);
+		}
+		if(!(t % 4))
+			UnleashRing("Spell_UnleashEarth_Crumb", 1, x, y, GetActorZ(p) + h - 8.0, 20.0, 0);
+		if(!(t % 8))
+			Spawn("StoneBitsSpawner_Soundless", x + random(-40.0, 40.0), y + random(-40.0, 40.0), z);
 		Delay(const:1);
 	}
 	Thing_Remove(p);
+	UnleashRing("Spell_UnleashEarth_Dust", 10, x, y, z + 2.0, DND_UNLEASH_FOOT - 16.0, 6.0);
+	UnleashRing("Spell_Rockslide_Dust", 6, x, y, z + 2.0, DND_UNLEASH_FOOT - 8.0, 10.0);
 }
 
 // depth counts Quicktongue's repeats; a cast from TryCastSpell is depth 0. A proc (DND_SPELLCAST_PROC) has no bar and leaves the lock alone.
@@ -9541,10 +9706,8 @@ Script "DnD Righteous Fire Tick" (int pnum) {
 	// it away. Outside the loop deliberately.
 	int acc = 0;
 
-	// Rank 5's resistance is against THIS spell only, so it is a straight cut on the self burn rather
-	// than anything added to the player's fire resistance. Read once -- a rank cannot change mid burn.
-	int res = SpellThresholdMet(pnum, SPL_RIGHTEOUSFIRE, DND_SPELL_THRESH_LOW) ?
-		DND_RIGHTEOUSFIRE_R5_RESIST : 0;
+	// Rank 5's 25 adds to the player's own fire resistance against this spell. Read once -- a rank cannot change mid burn.
+	int res_bonus = SpellThresholdMet(pnum, SPL_RIGHTEOUSFIRE, DND_SPELL_THRESH_LOW) ? DND_RIGHTEOUSFIRE_R5_RESIST * 1.0 : 0;
 
 	while(true) {
 		// Three ways out, and the flag covers two: a second cast clears it, so does a teardown
@@ -9571,7 +9734,7 @@ Script "DnD Righteous Fire Tick" (int pnum) {
 			DND_RIGHTEOUSFIRE_BUFFTICS, GetSpellValue(pnum, SPL_RIGHTEOUSFIRE, SPELLVAL_DAMAGE2));
 
 		// Rank 10: cannot be chilled, frozen or ignited while burning. Re-stamped every second
-		// rather than read once like res, so gear that crosses the threshold mid burn counts.
+		// rather than read once like res_bonus, so gear that crosses the threshold mid burn counts.
 		SetActorInventory(ptid, "DnD_RighteousFireWard",
 			SpellThresholdMet(pnum, SPL_RIGHTEOUSFIRE, DND_SPELL_THRESH_HIGH));
 
@@ -9597,7 +9760,10 @@ Script "DnD Righteous Fire Tick" (int pnum) {
 		//
 		// Shield recharge is still held down for the duration, but that happens in
 		// ChargePoolInterrupted off the aura marker rather than through a hit timer here.
-		self_rate = dmg * (100 - res) / 100;
+
+		// The one degeneration resistance reaches: the player's fire resistance (elemental, as a fire hit meets it) plus
+		// rank 5's 25, capped like any resist, so negative resistance burns harder. Every second, as gear and buffs move it.
+		self_rate = FixedMul(dmg, 100.0 - GetPlayerDamageResist(pnum, DND_PRESIST_ELEM, res_bonus)) / 100;
 
 		// Spread across the second rather than taken as one lump. Regeneration also lands once a
 		// second, so a lump made survival depend on which of the two happened to run first; a tic by
@@ -9665,12 +9831,14 @@ Script "DnD Immolation Spread" (void) CLIENTSIDE {
 // would otherwise make the spell silently do nothing, which reads as a broken button.
 
 #define DND_FIREDEMON_DIST 96.0    // how far in front of the caster it appears
+#define DND_FIREDEMON_R5_RES 25     // "Gains 25% to all resistances"
 
 // Rank 10: the demon throws its OWNER's Fire Jet, at the rank THEY have it -- so the reward is
 // worth more the more they invested in the jet, and worth nothing if they never took it.
 //
 // Rolls and casts in one call, returning whether it fired, so the demon only needs a single jump.
 #define DND_FIREDEMON_JETCHANCE 25
+#define DND_FIREDEMON_HANDS 32.0   // how high off its feet the jet leaves, as its own fireball does
 
 Script "DnD Fire Demon Jet" (void) {
 	int demon = ActivatorTID();
@@ -9687,7 +9855,10 @@ Script "DnD Fire Demon Jet" (void) {
 
 	// Launched FROM the demon, owned BY the caster: SpawnSpellProjectile stamps the caster on it, so
 	// the jet prices itself off their SPL_FIREJET row and their stats exactly as if they had cast it.
-	SpawnSpellProjectile(pnum, SPL_FIREJET, "Spell_FireJet", DND_FIREJET_SPEED, 0, 0, 0, 0, demon);
+	int target = SetActivator(0, AAPTR_TARGET) ? ActivatorTID() : 0;
+	SetActivator(demon);
+	SpawnSpellProjectile(pnum, SPL_FIREJET, "Spell_FireJet", DND_FIREJET_SPEED, 0, 0, 0, 0, demon, true, DND_FIREDEMON_HANDS,
+		target ? PetThrowPitch(demon, target, DND_FIREDEMON_HANDS) : 0);
 	SetResultValue(1);
 }
 
@@ -9742,6 +9913,8 @@ Script "DnD Summon Fire Demon" (int pnum) {
 // A cone planted at the aim point that erupts on a loop until its countdown runs out.
 
 #define DND_VOLCANO_LOOPTICS 43       // one pass of SpawnStuff in DECORATE, in tics
+#define DND_VOLCANO_R5_INC 30
+#define DND_VOLCANO_R10_MORE 25
 
 // Crater height. The grow-in applies A_SetScale 19 times at 1.2125, so the cone settles at 1.95
 // and the sprite stands about 68 units. 58 is its summit.
@@ -9824,6 +9997,10 @@ Script "DnD Volcano Erupt" (void) {
 		Terminate;
 
 	int n = GetSpellValue(pnum, SPL_VOLCANO, SPELLVAL_DAMAGE2) + GetSpellExtraProjectiles(pnum, SPL_VOLCANO);
+
+	// Rank 10 "25% more lava", the fraction rounded at random so the average is exact.
+	if(SpellThresholdMet(pnum, SPL_VOLCANO, DND_SPELL_THRESH_HIGH))
+		n = (n * (100 + DND_VOLCANO_R10_MORE) + random(0, 99)) / 100;
 	if(n <= 0)
 		Terminate;
 

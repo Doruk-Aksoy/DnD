@@ -166,6 +166,11 @@ ACTOR VolcanoFireball6 : DnD_BaseProjectile {
 	Gravity 0.2
 	DeathSound "weapons/deathstexp2"
 	States {
+		RipSetup:
+			// the rip limit at spawn, before a first move can touch an enemy
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", MAX_RIPCOUNT)
+			TNT1 A 1
+		Goto Spawn+1
 		SpawnState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", MAX_RIPCOUNT)
 			VOL4 ABABABABABAB 4 BRIGHT
@@ -275,6 +280,11 @@ ACTOR VolcanoFireball6Fire : DnD_BaseProjectile {
 	+DONTSPLASH
 	var int user_count;
 	States {
+		RipSetup:
+			// the rip limit at spawn, before a first move can touch an enemy
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", MAX_RIPCOUNT)
+			TNT1 A 1
+		Goto Spawn+1
 		SpawnState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", MAX_RIPCOUNT)
 			FFLG A 0 Thing_Stop(0)
@@ -643,6 +653,11 @@ ACTOR RazorShot1 : DnD_RipperBase {
 	+FORCEXYBILLBOARD
 	DeathSound "weapons/glahit"
 	States {
+		RipSetup:
+			// the rip limit at spawn, before a first move can touch an enemy
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 5)
+			TNT1 A 1
+		Goto Spawn+1
 		SpawnState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 5)
 			RFX1 PPPPPPPP 1 Bright A_SpawnItemEx("BoneTrail",0,0,0,0,0,0,0,128,0)
@@ -728,6 +743,11 @@ ACTOR RazorSkull : DnD_RipperBase {
 	+FORCEXYBILLBOARD
 	DeathSound "monster/dishht1"
 	States {
+		RipSetup:
+			// the rip limit at spawn, before a first move can touch an enemy
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 32)
+			TNT1 A 1
+		Goto Spawn+1
 		SpawnState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 32)
 			RFX1 KKKKKKKKK 1 Bright A_SpawnItemEx("BoneTrail",0,0,0,0,0,0,0,128,0)

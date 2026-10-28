@@ -7,20 +7,20 @@ HardwareShader Texture PROMPT {
 // Righteous Fire. The skin must have a NAME (Graphics/, not Models/) or this silently does nothing.
 // Speed scales every rate in the shader together: timer arrives already multiplied by it.
 HardwareShader RGHTFIRE {
-	Shader "GLDefs/Shaders/RighteousFire.fp"
+	Shader "GLDefs/Shaders/AuraRings.fp"
 	Speed 1.0
 }
 
 // Annihilus. Same naming rule as RGHTFIRE: the skin lives in Graphics/ so the lump HAS a name,
 // which is the only reason this block can find it at all.
 HardwareShader ANNIHILS {
-	Shader "GLDefs/Shaders/Annihilus.fp"
+	Shader "GLDefs/Shaders/AuraRings.fp"
 	Speed 1.0
 }
 
 // Anger. Same naming rule as the rest: the skin lives under Graphics/ so the lump HAS a name.
 HardwareShader ANGERAUR {
-	Shader "GLDefs/Shaders/Anger.fp"
+	Shader "GLDefs/Shaders/AuraRings.fp"
 	Speed 1.0
 }
 
@@ -32,7 +32,7 @@ HardwareShader FREEZPUL {
 
 // Glacial Spike. Skin under Graphics/ for the same naming reason as the rest.
 HardwareShader GLACIAL {
-	Shader "GLDefs/Shaders/GlacialSpike.fp"
+	Shader "GLDefs/Shaders/IceCrystal.fp"
 	Speed 1.0
 }
 
@@ -68,14 +68,14 @@ HardwareShader ICENOVA {
 	Speed 1.0
 }
 
-// Ice Spear. Two skins, two textures, purely so the primed one can carry a shader of its own.
+// Ice Spear's two skins share IceCrystal.fp with Glacial Spike; the primed skin's half alpha picks its look.
 HardwareShader ICESPEAR {
-	Shader "GLDefs/Shaders/IceSpear.fp"
+	Shader "GLDefs/Shaders/IceCrystal.fp"
 	Speed 1.0
 }
 
 HardwareShader ICESPRP {
-	Shader "GLDefs/Shaders/IceSpearPrimed.fp"
+	Shader "GLDefs/Shaders/IceCrystal.fp"
 	Speed 1.0
 }
 
@@ -120,7 +120,7 @@ HardwareShader WNTRORB {
 
 // Hatred's aura: drifting snow, a sweeping glint and twinkling sparkles.
 HardwareShader HATRED {
-	Shader "GLDefs/Shaders/Hatred.fp"
+	Shader "GLDefs/Shaders/AuraRings.fp"
 	Speed 1.0
 }
 
@@ -132,7 +132,7 @@ HardwareShader AGONY {
 
 // Wrath's aura: soft arcs crawling out from the centre to a flickering rim.
 HardwareShader WRATH {
-	Shader "GLDefs/Shaders/Wrath.fp"
+	Shader "GLDefs/Shaders/StormWrath.fp"
 	Speed 1.0
 }
 
@@ -227,7 +227,7 @@ HardwareShader STMRUNE {
 
 // Storm Call's marked ground, crackling harder as it charges.
 HardwareShader STORMCAL {
-	Shader "GLDefs/Shaders/StormCall.fp"
+	Shader "GLDefs/Shaders/StormWrath.fp"
 	Speed 1.0
 }
 
@@ -907,13 +907,13 @@ HardwareShader PNOVA {
 	Speed 1.0
 }
 
-// Mana bar: the fill flows and the edge glows; DrawManaBar packs the surge and low-mana looks into the HudMessage alpha.
+// Mana bar fill and edge share ManaBar.fp; DrawManaBar packs the surge and low-mana looks into the HudMessage alpha.
 HardwareShader SPLMANAF {
-	Shader "GLDefs/Shaders/ManaFlow.fp"
+	Shader "GLDefs/Shaders/ManaBar.fp"
 	Speed 1.0
 }
 
 HardwareShader SPLMANAE {
-	Shader "GLDefs/Shaders/ManaEdge.fp"
+	Shader "GLDefs/Shaders/ManaBar.fp"
 	Speed 1.0
 }

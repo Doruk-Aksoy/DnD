@@ -40,11 +40,14 @@ int GetMinionCooldownTics(int which) {
 	return 0;
 }
 
-// Percent faster a minion recovers its abilities. Nothing grants it yet -- this is the seam that
-// stat arrives through, and it is a function rather than a constant so adding one is a single
-// edit here instead of a rework of the counter below.
+// Percent faster a minion recovers its abilities: Frenzied Followers. Read live by the counter below.
 int GetMinionCooldownRate(int pnum) {
-	return 0;
+	return PlayerModData[pnum].vals[PSTAT_MINION_CDR];
+}
+
+// Spiritual Aid: a buff a minion gives its master, at the master's increased effect.
+int ScaleMinionBuff(int pnum, int v) {
+	return v * (100 + PlayerModData[pnum].vals[PSTAT_MINION_BUFFEFFECT]) / 100;
 }
 
 // Started BY the minion, and runs on it. Gives the cooldown and then spends it.
@@ -129,6 +132,27 @@ int GetPetSummonSpell(int petid) {
 	if(petid == MONSTER_PET_ROCKGOLEM)
 		return SPL_ROCKGOLEM;
 	return -1;
+}
+
+// A pet's stored resists, once its traits are in: its spell's rank bonuses first, then the same trait rules as a monster's.
+void InitPetResists(int tid, int pnum, int petid) {
+	int m_id = tid - DND_PETTID_BEGIN, bonus = 0;
+	if(petid == MONSTER_PET_FIREDEMON)
+		bonus = DND_FIREDEMON_R5_RES * SpellThresholdMet(pnum, SPL_FIREDEMON, DND_SPELL_THRESH_LOW);
+	else if(petid == MONSTER_PET_ROCKGOLEM && SpellThresholdMet(pnum, SPL_ROCKGOLEM, DND_SPELL_THRESH_HIGH)) {
+		SetPetMonsterTrait(m_id, DND_ELEMENTAL_IMMUNE, true);
+		SetActorInventory(tid, "DnD_ExplosiveResist", DND_ROCKGOLEM_R10_EXPLOSIVE);
+	}
+	FillUnitResists(m_id, bonus, true);
+}
+
+// The script a summon spell casts, so a revived minion comes back as its own kind.
+str GetSpellSummonScript(int spell) {
+	if(spell == SPL_FIREDEMON)
+		return "DnD Summon Fire Demon";
+	if(spell == SPL_ROCKGOLEM)
+		return "DnD Summon Rock Golem";
+	return "DnD Summon Ice Golem";
 }
 
 // this is mainly used to reset all cooldowns of spells when map ends, to prevent bugs

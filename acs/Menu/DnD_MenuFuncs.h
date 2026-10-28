@@ -156,7 +156,7 @@ void ListenInput(int listenflag, int condx_min, int condx_max, int curr_res_page
 			GiveInventory("DnD_ClickTicker", 1);
 			// Only a refund page takes the right button too, and it has to: right click already
 			// means "all of them" there, so jump+right would otherwise spend the lot by accident.
-			if(jumpmod == DND_JUMPMOD_REFUND && IsButtonHeld(bpress, BT_JUMP))
+			if((jumpmod == DND_JUMPMOD_REFUND || jumpmod == DND_JUMPMOD_PINREFUND) && IsButtonHeld(bpress, BT_JUMP))
 				SetInventory("MenuInput", DND_MENUINPUT_JUMPRCLICK);
 			else
 				SetInventory("MenuInput", DND_MENUINPUT_RCLICK);
@@ -650,7 +650,11 @@ bool HandlePageListening(int curopt, int boxid) {
 		case MENU_PERK_MART:
 		case MENU_PERK_PERC:
 		case MENU_PERK_TORM:
+		case MENU_PERK_MAGI:
 			redraw = HandlePerkPageScroll(curopt - MENU_PERKTREE_FIRST, boxid);
+		break;
+		case MENU_SPELL:
+			redraw = HandleSpellIndexScroll();
 		break;
 		case MENU_SPELL_FIRE:
 		case MENU_SPELL_ICE:
@@ -1665,15 +1669,16 @@ rect_T module& LoadRect(int menu_page, int id) {
 			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
-		// perk -- one row per archetype, in PERK_ARCH_* order
+		// perk -- one row per archetype, in PERK_ARCH_* order, DND_PERKINDEX_ROWGAP apart
 		{
 			{ 296.0, 238.0, 80.0, 226.0 }, // acrobacy
-			{ 296.0, 218.0, 80.0, 206.0 }, // assassination
-			{ 296.0, 198.0, 80.0, 186.0 }, // cunning
-			{ 296.0, 178.0, 80.0, 166.0 }, // endurance
-			{ 296.0, 158.0, 80.0, 146.0 }, // martialist
-			{ 296.0, 138.0, 80.0, 126.0 }, // perception
-			{ 296.0, 118.0, 80.0, 106.0 }, // tormentor
+			{ 296.0, 220.0, 80.0, 208.0 }, // assassination
+			{ 296.0, 202.0, 80.0, 190.0 }, // cunning
+			{ 296.0, 184.0, 80.0, 172.0 }, // endurance
+			{ 296.0, 166.0, 80.0, 154.0 }, // martialist
+			{ 296.0, 148.0, 80.0, 136.0 }, // perception
+			{ 296.0, 130.0, 80.0, 118.0 }, // tormentor
+			{ 296.0, 112.0, 80.0, 100.0 }, // magi
 			{ 296.0, 96.0, 80.0, 84.0 },   // dash toggle, below the rule
 			{ -1, -1, -1, -1 }
 		},
@@ -1702,6 +1707,10 @@ rect_T module& LoadRect(int menu_page, int id) {
 			{ -1, -1, -1, -1 }
 		},
 		// perk tree: tormentor
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// perk tree: magi
 		{
 			{ -1, -1, -1, -1 }
 		},
@@ -2885,7 +2894,7 @@ void HandlePerkIndexDraw(int pnum, int boxid) {
 
 	for(int i = 0; i < PERK_ARCH_COUNT; ++i) {
 		perk_arch_list_T module& list = GetPerkArchList(i);
-		int y = (88 + 20 * i) << 16;
+		int y = (88 + DND_PERKINDEX_ROWGAP * i) << 16;
 
 		// An archetype with nothing authored still has a row in the layout table, so it has to say
 		// why it does nothing rather than silently swallow the click.
@@ -5393,44 +5402,52 @@ void DrawCraftingInventoryInfo(int pn, int id_begin, int x, int y, int item_id, 
 	if(my > INVENTORYINFO_NORMALVIEW_WRAPY)
 		my = INVENTORYINFO_NORMALVIEW_WRAPY + 0.1;
 
-	DeleteTextRange(id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 18, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES);
+	// the panel, the weapon lines and the stack count: everything this view draws above the text ids
+	DeleteTextRange(id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 5 - ITEMINFOBG_MAXMIDS, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES);
 
 	int bg_x = mx;
 	int bg_y = my;
 
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 	int attr_count = GetItemSyncValue(pn, DND_SYNC_ITEMSATTRIBCOUNT, item_id, -1, item_source);
-	
+
+	// measured, then lifted by any overflow past the screen bottom and drawn again, as DrawInventoryInfo does
+	int prev_x, prev_y, over;
+	for(int pass = 0; pass < 2; ++pass) {
+		SetHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2, 1);
+
+		prev_x = 3 * bg_x / 2;
+		prev_y = 3 * bg_y / 2;
+
+		mx = GetIntegerBits(3 * (bg_x + HUD_ITEMBAK_XF / 2) / 2) + 0.4;
+		my = GetIntegerBits(3 * bg_y / 2 + ITEMINFO_TEXTTOP) + 0.1;
+
+		SetHudClipRect(ITEMINFO_CLIPX + (prev_x >> 16), 15 + (prev_y >> 16), HUD_ITEMBAK_WIDTH, ITEMINFO_CLIPHEIGHT, HUD_ITEMBAK_WIDTH);
+		over = DrawCraftingInventoryText(item_type, item_id, item_source, pn, id_begin, mx, my, HUDMAX_X, HUDMAX_Y, bg_x, bg_y, attr_count);
+		SetHudClipRect(0, 0, 0, 0, 0);
+
+		over = (bg_y >> 16) + ItemInfoPanelHeight(over) - HUDMAX_Y;
+		if(over <= 0)
+			break;
+		bg_y -= over << 16;
+	}
+	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+
 	if(GetStackValue(item_type) && item_source) {
 		SetFont("NMENUFNT");
 		HudMessage(
-			d:GetTotalStackOfMaterial(item_id); HUDMSG_PLAIN | HUDMSG_FADEOUT, 
-			id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, CR_GREEN, mx + 200.1, my + 16.0, 
-			INVENTORY_HOLDTIME_CRAFT, 
-			INVENTORY_FADETIME, 
+			d:GetTotalStackOfMaterial(item_id); HUDMSG_PLAIN | HUDMSG_FADEOUT,
+			id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 5 - ITEMINFOBG_MAXMIDS, CR_GREEN, bg_x + 200.1, bg_y + 16.0,
+			INVENTORY_HOLDTIME_CRAFT,
+			INVENTORY_FADETIME,
 			INVENTORY_INFO_ALPHA
 		);
 	}
-	
-	int prev_x = GetIntegerBits(mx + HUD_ITEMBAK_XF / 2) + 0.4;
-	int prev_y;
-	
-	SetHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2, 1);
-	
-	prev_x = 3 * mx / 2;
-	prev_y = 3 * my / 2;
-	
-	mx = GetIntegerBits(3 * (mx + HUD_ITEMBAK_XF / 2) / 2) + 0.4;
-	my = GetIntegerBits(3 * my / 2 + ITEMINFO_TEXTTOP) + 0.1;
-
-	SetHudClipRect(ITEMINFO_CLIPX + (prev_x >> 16), 15 + (prev_y >> 16), HUD_ITEMBAK_WIDTH, 288, HUD_ITEMBAK_WIDTH);
-	DrawCraftingInventoryText(item_type, item_id, item_source, pn, id_begin, mx, my, HUDMAX_X, HUDMAX_Y, bg_x, bg_y, attr_count);
-	SetHudClipRect(0, 0, 0, 0, 0);
-	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 }
 
 // extra1 is topboxid for items, extra2 works as source for inventory related things (used charms vs player inventory etc.)
-void DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int id_begin, int mx, int my, int hx, int hy, int bg_x, int bg_y, int attr_count) {
+// Returns the panel's mid count, as DrawInventoryText does.
+int DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int id_begin, int mx, int my, int hx, int hy, int bg_x, int bg_y, int attr_count) {
 	if(itype == DND_ITEM_WEAPON) {
 		int j, temp;
 		j = PlayerNumber();
@@ -5496,17 +5513,18 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int 
 		
 		HudMessage(s:modText; HUDMSG_PLAIN, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 - ITEMINFOBG_MAXMIDS, CR_WHITE, mx, my - 8.0, 0.0, 0.0);
 
-		DrawItemInfoBackground(id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES, hx, hy, bg_x, bg_y, CountNewLinesInText(modText, HUD_ITEMBAK_WIDTH));
+		temp = CountNewLinesInText(modText, HUD_ITEMBAK_WIDTH);
+		DrawItemInfoBackground(id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES, hx, hy, bg_x, bg_y, temp);
+		return Min(temp, ITEMINFOBG_MAXMIDS);
 	}
-	else {
-		// draw using our established drawing routine
-		DrawInventoryText(
-			extra1, extra2, pnum, mx, my, itype, 
-			GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, extra1, -1, extra2), 
-			id_begin, HUD_DII_MULT, hx, hy, bg_x, bg_y, attr_count, false,
-			PlayerCursorData.itemHovered, INVENTORY_HOLDTIME_CRAFT
-		);
-	}
+
+	// draw using our established drawing routine
+	return DrawInventoryText(
+		extra1, extra2, pnum, mx, my, itype,
+		GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, extra1, -1, extra2),
+		id_begin, HUD_DII_MULT, hx, hy, bg_x, bg_y, attr_count, false,
+		PlayerCursorData.itemHovered, INVENTORY_HOLDTIME_CRAFT
+	);
 }
 
 void HandleCraftingView(int pnum, menu_inventory_T module& p, int boxid, int curopt, int k) {
@@ -6012,7 +6030,9 @@ void GetInputOnMenuPage(int opt) {
 		// are scrolling away from. The stat page turns a spend into a refund, both buttons being
 		// spent already.
 		int jumpmod = DND_JUMPMOD_NONE;
-		if(IsPerkTreePage(opt) || IsSpellPage(opt))
+		if(IsSpellTreePage(opt))
+			jumpmod = DND_JUMPMOD_PINREFUND;
+		else if(IsPerkTreePage(opt) || IsSpellPage(opt))
 			jumpmod = DND_JUMPMOD_PIN;
 		else if(opt == MENU_STAT1)
 			jumpmod = DND_JUMPMOD_REFUND;
@@ -6346,6 +6366,13 @@ void DrawPlayerStats(int pnum, int category) {
 					pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"\c- to ", l:GetTalentTag(i), s:" ", l:"DND_DAMAGE", s:"\n");
 					++k;
 				}
+			}
+
+			// no category of its own: an out of range one returns just the radius term, attack worded and generic
+			val = MapDamageCategoryToFlatBonus(pnum, -1, DND_DAMAGEFLAG_ISRADIUSDMG);
+			if(val) {
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"\c- to ", l:"DND_RADIUSTAG", s:" ", l:"DND_DAMAGE", s:"\n");
+				++k;
 			}
 			// end block
 			
@@ -6967,6 +6994,18 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 
+			val = PlayerModData[pnum].vals[PSTAT_REGEN_FLAT];
+			if(val) {
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"\c- ", l:"DND_MENU_FLATREGEN", s:"\n");
+				++k;
+			}
+
+			val = PlayerModData[pnum].vals[PSTAT_REGEN_PCT];
+			if(val) {
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", s:GetFixedRepresentation(val, false), s:"%\c- ", l:"DND_MENU_PCTREGEN", s:"\n");
+				++k;
+			}
+
 			// regen rate -- the CAP is listed above, the rate it refills at was not
 			val = PlayerModData[pnum].vals[PSTAT_REGENRATE];
 			if(val) {
@@ -7075,6 +7114,20 @@ void DrawPlayerStats(int pnum, int category) {
 			val = PlayerModData[pnum].vals[PSTAT_SPELL_DAMAGE];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_SPELLDMG", s:"\n");
+				++k;
+			}
+
+			// Flat spell damage per type, spell worded and generic summed, as the attack lines sum theirs; melee is physical's twin.
+			for(i = DND_DAMAGECATEGORY_BEGIN; i < DND_DAMAGECATEGORY_END; ++i) {
+				val = (i != DND_DAMAGECATEGORY_MELEE) ? GetSpellFlatDamage(pnum, i, 0) : 0;
+				if(val) {
+					pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"\c- to ", l:GetTalentTag(i), s:" ", l:"DND_SPELLDAMAGE", s:"\n");
+					++k;
+				}
+			}
+			val = GetSpellFlatDamage(pnum, -1, DND_DAMAGEFLAG_ISRADIUSDMG);
+			if(val) {
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"\c- to ", l:"DND_RADIUSTAG", s:" ", l:"DND_SPELLDAMAGE", s:"\n");
 				++k;
 			}
 

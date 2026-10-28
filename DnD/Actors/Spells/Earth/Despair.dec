@@ -11,7 +11,7 @@ Actor DespairFXMarker : FlammabilityFXMarker {
 Actor DespairAreaMarkerFX : DnD_SpecialFX {
 	RenderStyle Add
 	Alpha 0.8
-	Scale 0.5
+	Scale 0.35
 	+NOINTERACTION
 	+CLIENTSIDEONLY
 	+NOGRAVITY
@@ -19,7 +19,7 @@ Actor DespairAreaMarkerFX : DnD_SpecialFX {
 		Spawn:
 			TNT1 A 0
 			TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
-			D5FX GGHHIIJJKKLL 1 Bright A_FadeOut(0.06)
-		Stop
+			OGLP P 1 Bright A_FadeOut(0.06)
+		Wait
 	}
 }

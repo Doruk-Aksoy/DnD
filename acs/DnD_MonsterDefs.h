@@ -145,6 +145,11 @@ void SetPetMonsterTrait(int m_id, int t, bool v) {
 		PetMonsterProperties[m_id].trait_bits[t >> 5] &= ~(1 << (t & 31));
 }
 
+void ClearPetMonsterTraits(int m_id) {
+	for(int i = 0; i < MONSTER_TRAIT_WORDS; ++i)
+		PetMonsterProperties[m_id].trait_bits[i] = 0;
+}
+
 bool HasMonsterDataTrait(int mon, int t) {
 	return !!(MonsterData[mon].trait_bits[t >> 5] & (1 << (t & 31)));
 }

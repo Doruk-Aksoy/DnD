@@ -2,6 +2,7 @@
 #define DND_DUNGEONS_IN
 
 #include "Inventory/DnD_InvInfo.h"
+#include "DnD_DungeonUtil.h"
 
 /*void LogDungeonUpsideState(str who) {
 	Log(s:"[dun][", s:who, s:"] count ", d:DungeonInformation.attrib_count, s:" quality ", d:DungeonInformation.quality, s:" dungeon ", d:DungeonInformation.dungeon_id);
@@ -104,17 +105,25 @@ str GetNextMapLump() {
 	return "MAP01";
 }
 
-int PickDungeon() {
-    return DND_DUNGEON_VOIDKEEP;
+// Evenly among the ordinary dungeons whose key the drop's item level reaches.
+int PickDungeon(int ilvl) {
+	int i, n = 0;
+	for(i = DND_FIRST_DUNGEONID; i <= DND_LAST_DUNGEONID; ++i)
+		n += ilvl >= GetDungeonKeyMinLevel(i);
+	n = random(1, n);
+	for(i = DND_FIRST_DUNGEONID; i <= DND_LAST_DUNGEONID; ++i)
+		if(ilvl >= GetDungeonKeyMinLevel(i) && --n <= 0)
+			return i;
+	return DND_FIRST_DUNGEONID;
 }
 
-void SpawnDungeonKey(int pnum) {
+void SpawnDungeonKey(int pnum, int ilvl) {
 	int res = 0;
 	int c = CreateItemSpot();
 	if(c != -1) {
 		int w = random(0, 1.0);
-		
-        res = PickDungeon();
+
+        res = PickDungeon(ilvl);
 
 		// c is the index on the field now
 		RollDungeonKeyInfo(c, res, pnum);

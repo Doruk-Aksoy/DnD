@@ -229,6 +229,30 @@ enum {
 	INV_CRITPERCENT_INCREASE_GLOBAL,
 	INV_CRITDAMAGE_INCREASE_GLOBAL,
 
+	// flat damage worded for no attack or spell: weapons and spells both add it
+	INV_GENFLAT_PHYSDMG,
+	INV_GENFLAT_ENERGYDMG,
+	INV_GENFLAT_MAGICDMG,
+	INV_GENFLAT_RADIUSDMG,
+	INV_GENFLAT_ELEMDMG,
+	INV_GENFLAT_FIREDMG,
+	INV_GENFLAT_COLDDMG,
+	INV_GENFLAT_LIGHTNINGDMG,
+	INV_GENFLAT_POISONDMG,
+
+	// flat spell damage, the spell side of the attack flats
+	INV_SPELLFLAT_PHYSDMG,
+	INV_SPELLFLAT_ELEMDMG,
+	INV_SPELLFLAT_FIREDMG,
+	INV_SPELLFLAT_COLDDMG,
+	INV_SPELLFLAT_LIGHTNINGDMG,
+	INV_SPELLFLAT_POISONDMG,
+	INV_SPELLFLAT_MAGICDMG,
+
+	// life regeneration: flat health a second, and percent of the pool a second
+	INV_FLAT_LIFEREGEN,
+	INV_PCT_LIFEREGEN,
+
 	// add new regular rollable attributes here
 
 	// corrupted implicits -- add new ones here
@@ -526,7 +550,7 @@ enum {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_CRITDAMAGE_INCREASE_GLOBAL
+#define LAST_INV_ATTRIBUTE INV_PCT_LIFEREGEN
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 
 // modify the above to make it use the negative last
@@ -864,7 +888,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_SHOPSTOCK_INCREASE].allowed_slots = DND_MODBASE_CHARM;
 	
 	ItemModTable[INV_REGENCAP_INCREASE].attrib_low = 1;
-	ItemModTable[INV_REGENCAP_INCREASE].attrib_high = 4;
+	ItemModTable[INV_REGENCAP_INCREASE].attrib_high = 5;
 	ItemModTable[INV_REGENCAP_INCREASE].attrib_level_modifier = 0;
 	ItemModTable[INV_REGENCAP_INCREASE].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_LIFE;
 	ItemModTable[INV_REGENCAP_INCREASE].weight = 500;
@@ -1950,6 +1974,154 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CRITDAMAGE_INCREASE_GLOBAL].weight = 125;
 	ItemModTable[INV_CRITDAMAGE_INCREASE_GLOBAL].allowed_slots = DND_MODBASE_CHARM | DND_MODBASE_HELM | DND_MODBASE_SPECIALTY_ALL;
 	SetModTierProfile(INV_CRITDAMAGE_INCREASE_GLOBAL, DND_TIERSET_VERYSTRONG);
+
+	// Generic flat damage: the attack flats' ranges and bases at 60% of their weight, tagged DAMAGE so neither
+	// an attack nor a spell orb claims them.
+	ItemModTable[INV_GENFLAT_PHYSDMG].attrib_low = 1;
+	ItemModTable[INV_GENFLAT_PHYSDMG].attrib_high = 5;
+	ItemModTable[INV_GENFLAT_PHYSDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_GENFLAT_PHYSDMG].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_PHYSICAL;
+	ItemModTable[INV_GENFLAT_PHYSDMG].weight = 450;
+	ItemModTable[INV_GENFLAT_PHYSDMG].allowed_slots = DND_MODBASE_PHYSICALATK;
+	SetModTierProfile(INV_GENFLAT_PHYSDMG, DND_TIERSET_OFFENSE_NORMAL);
+
+	ItemModTable[INV_GENFLAT_ENERGYDMG].attrib_low = 1;
+	ItemModTable[INV_GENFLAT_ENERGYDMG].attrib_high = 5;
+	ItemModTable[INV_GENFLAT_ENERGYDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_GENFLAT_ENERGYDMG].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ENERGY;
+	ItemModTable[INV_GENFLAT_ENERGYDMG].weight = 400;
+	ItemModTable[INV_GENFLAT_ENERGYDMG].allowed_slots = DND_MODBASE_ENERGYATK;
+	SetModTierProfile(INV_GENFLAT_ENERGYDMG, DND_TIERSET_OFFENSE_NORMAL);
+
+	ItemModTable[INV_GENFLAT_MAGICDMG].attrib_low = 1;
+	ItemModTable[INV_GENFLAT_MAGICDMG].attrib_high = 5;
+	ItemModTable[INV_GENFLAT_MAGICDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_GENFLAT_MAGICDMG].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_OCCULT;
+	ItemModTable[INV_GENFLAT_MAGICDMG].weight = 400;
+	ItemModTable[INV_GENFLAT_MAGICDMG].allowed_slots = DND_MODBASE_MAGICALATK;
+	SetModTierProfile(INV_GENFLAT_MAGICDMG, DND_TIERSET_OFFENSE_NORMAL);
+
+	ItemModTable[INV_GENFLAT_RADIUSDMG].attrib_low = 1;
+	ItemModTable[INV_GENFLAT_RADIUSDMG].attrib_high = 4;
+	ItemModTable[INV_GENFLAT_RADIUSDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_GENFLAT_RADIUSDMG].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_EXPLOSIVE;
+	ItemModTable[INV_GENFLAT_RADIUSDMG].weight = 400;
+	ItemModTable[INV_GENFLAT_RADIUSDMG].allowed_slots = DND_MODBASE_RADIUSATK;
+	SetModTierProfile(INV_GENFLAT_RADIUSDMG, DND_TIERSET_OFFENSE_NORMAL);
+
+	ItemModTable[INV_GENFLAT_ELEMDMG].attrib_low = 1;
+	ItemModTable[INV_GENFLAT_ELEMDMG].attrib_high = 4;
+	ItemModTable[INV_GENFLAT_ELEMDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_GENFLAT_ELEMDMG].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL;
+	ItemModTable[INV_GENFLAT_ELEMDMG].weight = 450;
+	ItemModTable[INV_GENFLAT_ELEMDMG].allowed_slots = DND_MODBASE_ELEMATK;
+	SetModTierProfile(INV_GENFLAT_ELEMDMG, DND_TIERSET_OFFENSE_NORMAL);
+
+	ItemModTable[INV_GENFLAT_FIREDMG].attrib_low = 1;
+	ItemModTable[INV_GENFLAT_FIREDMG].attrib_high = 5;
+	ItemModTable[INV_GENFLAT_FIREDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_GENFLAT_FIREDMG].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_FIRE;
+	ItemModTable[INV_GENFLAT_FIREDMG].weight = 350;
+	ItemModTable[INV_GENFLAT_FIREDMG].allowed_slots = DND_MODBASE_ELEMATK;
+	SetModTierProfile(INV_GENFLAT_FIREDMG, DND_TIERSET_OFFENSE_NORMAL);
+
+	ItemModTable[INV_GENFLAT_COLDDMG].attrib_low = 1;
+	ItemModTable[INV_GENFLAT_COLDDMG].attrib_high = 5;
+	ItemModTable[INV_GENFLAT_COLDDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_GENFLAT_COLDDMG].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_ICE;
+	ItemModTable[INV_GENFLAT_COLDDMG].weight = 350;
+	ItemModTable[INV_GENFLAT_COLDDMG].allowed_slots = DND_MODBASE_ELEMATK;
+	SetModTierProfile(INV_GENFLAT_COLDDMG, DND_TIERSET_OFFENSE_NORMAL);
+
+	ItemModTable[INV_GENFLAT_LIGHTNINGDMG].attrib_low = 1;
+	ItemModTable[INV_GENFLAT_LIGHTNINGDMG].attrib_high = 5;
+	ItemModTable[INV_GENFLAT_LIGHTNINGDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_GENFLAT_LIGHTNINGDMG].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_LIGHTNING;
+	ItemModTable[INV_GENFLAT_LIGHTNINGDMG].weight = 350;
+	ItemModTable[INV_GENFLAT_LIGHTNINGDMG].allowed_slots = DND_MODBASE_ELEMATK;
+	SetModTierProfile(INV_GENFLAT_LIGHTNINGDMG, DND_TIERSET_OFFENSE_NORMAL);
+
+	ItemModTable[INV_GENFLAT_POISONDMG].attrib_low = 1;
+	ItemModTable[INV_GENFLAT_POISONDMG].attrib_high = 5;
+	ItemModTable[INV_GENFLAT_POISONDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_GENFLAT_POISONDMG].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_POISON;
+	ItemModTable[INV_GENFLAT_POISONDMG].weight = 350;
+	ItemModTable[INV_GENFLAT_POISONDMG].allowed_slots = DND_MODBASE_ELEMATK;
+	SetModTierProfile(INV_GENFLAT_POISONDMG, DND_TIERSET_OFFENSE_NORMAL);
+
+	// Flat spell damage: each attack flat's range and weight, on the spell bases.
+	ItemModTable[INV_SPELLFLAT_PHYSDMG].attrib_low = 1;
+	ItemModTable[INV_SPELLFLAT_PHYSDMG].attrib_high = 5;
+	ItemModTable[INV_SPELLFLAT_PHYSDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_SPELLFLAT_PHYSDMG].tags = INV_ATTR_TAG_SPELL | INV_ATTR_TAG_PHYSICAL;
+	ItemModTable[INV_SPELLFLAT_PHYSDMG].weight = 750;
+	ItemModTable[INV_SPELLFLAT_PHYSDMG].allowed_slots = DND_MODBASE_SPELLS;
+	SetModTierProfile(INV_SPELLFLAT_PHYSDMG, DND_TIERSET_OFFENSE_NORMAL);
+
+	ItemModTable[INV_SPELLFLAT_ELEMDMG].attrib_low = 1;
+	ItemModTable[INV_SPELLFLAT_ELEMDMG].attrib_high = 4;
+	ItemModTable[INV_SPELLFLAT_ELEMDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_SPELLFLAT_ELEMDMG].tags = INV_ATTR_TAG_SPELL | INV_ATTR_TAG_ELEMENTAL;
+	ItemModTable[INV_SPELLFLAT_ELEMDMG].weight = 750;
+	ItemModTable[INV_SPELLFLAT_ELEMDMG].allowed_slots = DND_MODBASE_SPELLS;
+	SetModTierProfile(INV_SPELLFLAT_ELEMDMG, DND_TIERSET_OFFENSE_NORMAL);
+
+	ItemModTable[INV_SPELLFLAT_FIREDMG].attrib_low = 1;
+	ItemModTable[INV_SPELLFLAT_FIREDMG].attrib_high = 5;
+	ItemModTable[INV_SPELLFLAT_FIREDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_SPELLFLAT_FIREDMG].tags = INV_ATTR_TAG_SPELL | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_FIRE;
+	ItemModTable[INV_SPELLFLAT_FIREDMG].weight = 600;
+	ItemModTable[INV_SPELLFLAT_FIREDMG].allowed_slots = DND_MODBASE_SPELLS;
+	SetModTierProfile(INV_SPELLFLAT_FIREDMG, DND_TIERSET_OFFENSE_NORMAL);
+
+	ItemModTable[INV_SPELLFLAT_COLDDMG].attrib_low = 1;
+	ItemModTable[INV_SPELLFLAT_COLDDMG].attrib_high = 5;
+	ItemModTable[INV_SPELLFLAT_COLDDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_SPELLFLAT_COLDDMG].tags = INV_ATTR_TAG_SPELL | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_ICE;
+	ItemModTable[INV_SPELLFLAT_COLDDMG].weight = 600;
+	ItemModTable[INV_SPELLFLAT_COLDDMG].allowed_slots = DND_MODBASE_SPELLS;
+	SetModTierProfile(INV_SPELLFLAT_COLDDMG, DND_TIERSET_OFFENSE_NORMAL);
+
+	ItemModTable[INV_SPELLFLAT_LIGHTNINGDMG].attrib_low = 1;
+	ItemModTable[INV_SPELLFLAT_LIGHTNINGDMG].attrib_high = 5;
+	ItemModTable[INV_SPELLFLAT_LIGHTNINGDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_SPELLFLAT_LIGHTNINGDMG].tags = INV_ATTR_TAG_SPELL | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_LIGHTNING;
+	ItemModTable[INV_SPELLFLAT_LIGHTNINGDMG].weight = 600;
+	ItemModTable[INV_SPELLFLAT_LIGHTNINGDMG].allowed_slots = DND_MODBASE_SPELLS;
+	SetModTierProfile(INV_SPELLFLAT_LIGHTNINGDMG, DND_TIERSET_OFFENSE_NORMAL);
+
+	ItemModTable[INV_SPELLFLAT_POISONDMG].attrib_low = 1;
+	ItemModTable[INV_SPELLFLAT_POISONDMG].attrib_high = 5;
+	ItemModTable[INV_SPELLFLAT_POISONDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_SPELLFLAT_POISONDMG].tags = INV_ATTR_TAG_SPELL | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_POISON;
+	ItemModTable[INV_SPELLFLAT_POISONDMG].weight = 600;
+	ItemModTable[INV_SPELLFLAT_POISONDMG].allowed_slots = DND_MODBASE_SPELLS;
+	SetModTierProfile(INV_SPELLFLAT_POISONDMG, DND_TIERSET_OFFENSE_NORMAL);
+
+	ItemModTable[INV_SPELLFLAT_MAGICDMG].attrib_low = 1;
+	ItemModTable[INV_SPELLFLAT_MAGICDMG].attrib_high = 5;
+	ItemModTable[INV_SPELLFLAT_MAGICDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_SPELLFLAT_MAGICDMG].tags = INV_ATTR_TAG_SPELL | INV_ATTR_TAG_OCCULT;
+	ItemModTable[INV_SPELLFLAT_MAGICDMG].weight = 675;
+	ItemModTable[INV_SPELLFLAT_MAGICDMG].allowed_slots = DND_MODBASE_SPELLS;
+	SetModTierProfile(INV_SPELLFLAT_MAGICDMG, DND_TIERSET_OFFENSE_NORMAL);
+
+	ItemModTable[INV_FLAT_LIFEREGEN].attrib_low = 1;
+	ItemModTable[INV_FLAT_LIFEREGEN].attrib_high = 8;
+	ItemModTable[INV_FLAT_LIFEREGEN].attrib_level_modifier = 0;
+	ItemModTable[INV_FLAT_LIFEREGEN].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_LIFE;
+	ItemModTable[INV_FLAT_LIFEREGEN].weight = 450;
+	ItemModTable[INV_FLAT_LIFEREGEN].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
+	SetModTierProfile(INV_FLAT_LIFEREGEN, DND_TIERSET_DEFENSE_STRONG);
+
+	// fixed point percent, as PSTAT_REGEN_PCT stores it: 0.1 is 0.1% of life a second
+	ItemModTable[INV_PCT_LIFEREGEN].attrib_low = 0.1;
+	ItemModTable[INV_PCT_LIFEREGEN].attrib_high = 0.6;
+	ItemModTable[INV_PCT_LIFEREGEN].attrib_level_modifier = 0;
+	ItemModTable[INV_PCT_LIFEREGEN].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_LIFE;
+	ItemModTable[INV_PCT_LIFEREGEN].weight = 300;
+	ItemModTable[INV_PCT_LIFEREGEN].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
+	SetModTierProfile(INV_PCT_LIFEREGEN, DND_TIERSET_VERYSTRONG);
 
 	/////////////////////////
 	// corrupted implicits //

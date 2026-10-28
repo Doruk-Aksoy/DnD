@@ -72,6 +72,7 @@ enum {
     BTI_SPELL_AGONY_POISONLESS,
     BTI_SPELL_VENOMGYRE,
     BTI_SPELL_ROCKGOLEM_PHYSLESS,
+    BTI_SPELL_ANGER_IGNITELESS,
 
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
@@ -102,6 +103,7 @@ enum {
     BTI_GOLGOTH_WEAKEN,
 
     BTI_ULTIMATUM_FLASKSLOW,
+    BTI_ULTIMATUM_MIASMASLOW,
 
     // KEEP LAST -- sizes the bt_index presence mask. Add new entries ABOVE this,
     // and above the debuff marker if the entry is a buff rather than a debuff.
@@ -677,6 +679,15 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             tic_duration = bduration;
         break;
 
+        // Its rank 10: a monster's ignite on the holder lasts this percent less.
+        case BTI_SPELL_ANGER_IGNITELESS:
+            btype = BUFF_IGNITETAKENLESS;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
         // Hatred, Anger's cold twin. inc_effect is HUNDREDTHS of a percent: its rank step is 1.5%.
         case BTI_SPELL_HATRED:
             btype = BUFF_ICEDAMAGEDEALT;
@@ -871,6 +882,15 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             bflags |= BUFF_F_NODUPLICATE | BUFF_F_MORETYPE;
             bvalue = -0.5;
             bduration = 4;
+            tic_duration = bduration * TICRATE;
+        break;
+
+        // Ultimatum / Miasma tier 4 -- see DND_ULTIMATUM3_T4. Each cloud hit refreshes it, so it lasts while inside.
+        case BTI_ULTIMATUM_MIASMASLOW:
+            btype = BUFF_SPEED;
+            bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_MORETYPE;
+            bvalue = -0.2;
+            bduration = 1;
             tic_duration = bduration * TICRATE;
         break;
         case BTI_CHILL:

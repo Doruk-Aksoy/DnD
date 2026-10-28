@@ -57,4 +57,4 @@ Actor Spell_Shrapnel_Piece {
 }
 
 // The ground breaking where the shard was torn out.
-Actor Spell_Shrapnel_Unearth : StoneBitsSpawner { }
+Actor Spell_Shrapnel_Unearth : StoneBitsSpawner_Soundless { }

@@ -120,6 +120,11 @@ Actor FlechetteShot : DnD_BaseProjectile {
 	+RIPPER
 	+NODAMAGETHRUST
 	States {
+		RipSetup:
+			// the rip limit at spawn, before a first move can touch an enemy
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 4)
+			TNT1 A 1
+		Goto Spawn+1
 		SpawnState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 4)
 		SpawnLoop:
@@ -181,6 +186,11 @@ ACTOR FlechetteSpark : DnD_BaseProjectile {
 	+DONTREFLECT
 	RenderStyle Add
 	States {
+		RipSetup:
+			// the rip limit at spawn, before a first move can touch an enemy
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 2)
+			TNT1 A 1
+		Goto Spawn+1
 		SpawnState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 2)
 		SpawnLoop:
@@ -872,6 +882,11 @@ Actor NitroWind : DnD_BaseProjectile {
 	+PAINLESS
 	+DONTREFLECT
 	States {
+		RipSetup:
+			// the rip limit at spawn, before a first move can touch an enemy
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", MAX_RIPCOUNT, 1)
+			TNT1 A 1
+		Goto Spawn+1
 		SpawnState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", MAX_RIPCOUNT, 1)
 		SpawnLoop:

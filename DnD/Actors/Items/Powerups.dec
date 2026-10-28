@@ -45,11 +45,9 @@ Actor Backpack_MP : DnD_SharedItem replaces Backpack {
 	States
 	{
 		Spawn:
-			// the delay is needed for the tid to initialize
-			BPAK A 1 NoDelay ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_BACKPACK)
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Chest Dropping Item", 0, 2)
-			BPAK A 34 ACS_NamedExecuteAlways("DnD Init Shared Translation", 0)
-			TNT1 A 0 Thing_SetSpecial(0, 226, DND_SHARED_ITEM_SCRIPT, 0, tid)
+			// a plain first state instead of NoDelay, whose first tic differs between engines
+			BPAK A 0
+			BPAK A 0 ACS_NamedExecuteAlways("DND Shared Item Init", 0, SHI_BACKPACK, 2)
 		Idle:
 		IdlePicked:
 			BPAK A -1

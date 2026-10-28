@@ -1280,6 +1280,11 @@ Actor DarkLanceProjectile : DnD_FastRipperBase {
 	+RIPPER
 	+BLOODLESSIMPACT
 	States {
+		RipSetup:
+			// the rip limit at spawn, before a first move can touch an enemy
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 20)
+			TNT1 A 1
+		Goto Spawn+1
 		SpawnState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 20)
 			TNT1 A 0 A_SetUserVar("user_expdmg",

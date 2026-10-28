@@ -68,6 +68,7 @@ enum {
     BTI_SPELL_AGONY_POISONLESS,
     BTI_SPELL_VENOMGYRE,
     BTI_SPELL_ROCKGOLEM_PHYSLESS,
+    BTI_SPELL_ANGER_IGNITELESS,
 
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
@@ -98,6 +99,7 @@ enum {
     BTI_GOLGOTH_WEAKEN,
 
     BTI_ULTIMATUM_FLASKSLOW,
+    BTI_ULTIMATUM_MIASMASLOW,
 
     // KEEP LAST -- sizes the bt_index presence mask on the ACS side.
     BTI_MAX

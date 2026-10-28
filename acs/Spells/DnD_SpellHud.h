@@ -6,11 +6,10 @@
 // The hotbar draws clientside, and SpellPlayerData is a global -- each side holds its own copy, so
 // the client never sees what the server allocated. Two ammo items per slot carry across instead.
 //
-// P_HotbarN   : spell id + 1, zero for an empty slot.
-// P_HotbarCdN : (end_tic << DND_HOTBARCD_SHIFT) | PackHotbarTotal(total_tics). The client works the percentage out
-//               from its own Timer() rather than being told it every tic.
-#define DND_HOTBARCD_SHIFT 11
-#define DND_HOTBARCD_MASK ((1 << DND_HOTBARCD_SHIFT) - 1)
+// P_HotbarN    : spell id + 1, zero for an empty slot.
+// P_HotbarCdN  : the end tic, whole; P_HotbarTotN : PackHotbarTotal(total_tics). The client works the percentage
+//                out from its own Timer(). Sharing one word, the end tic overflowed ~8.3 hours into a map.
+#define DND_HOTBARCD_MASK 0x7FF         // a packed total's 11 bits
 #define DND_HOTBARCD_LONG 1024          // totals from here on are kept in STEP tic units, up to 7.8 minutes
 #define DND_HOTBARCD_STEP 16
 
@@ -106,6 +105,11 @@ str GetHotbarChgItem(int slot) {
 	return StrParam(s:"P_HotbarChg", d:slot + 1);
 }
 
+// The slot's packed cooldown total, shared by both charge words.
+str GetHotbarTotItem(int slot) {
+	return StrParam(s:"P_HotbarTot", d:slot + 1);
+}
+
 // Server side. Called when a binding changes and when a cast starts, never on a timer.
 void SyncHotbarSlot(int pnum, int slot) {
 	int tid = pnum + P_TIDSTART;
@@ -119,31 +123,36 @@ void SyncHotbarSlot(int pnum, int slot) {
 		SetActorInventory(tid, GetHotbarCdItem(slot), 0);
 		SetActorInventory(tid, GetHotbarCdBItem(slot), 0);
 		SetActorInventory(tid, GetHotbarChgItem(slot), 0);
+		SetActorInventory(tid, GetHotbarTotItem(slot), 0);
 		return;
 	}
 
 	auto cd = GetSpellCooldowns();
 	int charges = GetSpellMaxCharges(pnum, spell);
-	int total = PackHotbarTotal(GetSpellCooldownTics(pnum, spell));
 
-	SetActorInventory(tid, GetHotbarCdItem(slot), (cd.at[pnum][spell] << DND_HOTBARCD_SHIFT) | total);
-	SetActorInventory(tid, GetHotbarCdBItem(slot),
-		charges > 1 ? ((cd.atb[pnum][spell] << DND_HOTBARCD_SHIFT) | total) : 0);
+	SetActorInventory(tid, GetHotbarCdItem(slot), cd.at[pnum][spell]);
+	SetActorInventory(tid, GetHotbarCdBItem(slot), charges > 1 ? cd.atb[pnum][spell] : 0);
 	SetActorInventory(tid, GetHotbarChgItem(slot), charges);
+	SetActorInventory(tid, GetHotbarTotItem(slot), PackHotbarTotal(GetSpellCooldownTics(pnum, spell)));
 }
 
 #define DND_CASTBAR_DRAIN 0x8000        // on P_CastSpell: the bar shows time left, for a channel's window
 #define DND_CASTBAR_SPELLMASK 0x7FFF
+#define DND_CASTBAR_TOTALSHIFT 16       // P_CastSpell carries the packed total above the spell and DRAIN
 
-// Server side, bracketing the cast delay. P_CastProgress is packed exactly as P_HotbarCd is, so the
-// client reads both with the same arithmetic. Returns the word written, for EndSpellCastBar.
+// P_CastSpell's word: the spell, DRAIN and the packed total. P_CastProgress holds the end tic, whole.
+int MakeSpellCastWord(int spell, int tics, bool drain) {
+	return (spell + 1) | (drain ? DND_CASTBAR_DRAIN : 0) | (PackHotbarTotal(tics) << DND_CASTBAR_TOTALSHIFT);
+}
+
+// Server side, bracketing the cast delay. Returns the end tic written, for EndSpellCastBar.
 int StartSpellCastBar(int pnum, int spell, int tics, bool drain = false) {
 	int tid = pnum + P_TIDSTART;
-	int packed = ((Timer() + tics) << DND_HOTBARCD_SHIFT) | PackHotbarTotal(tics);
+	int end = Timer() + tics;
 
-	SetActorInventory(tid, "P_CastSpell", (spell + 1) | (drain ? DND_CASTBAR_DRAIN : 0));
-	SetActorInventory(tid, "P_CastProgress", packed);
-	return packed;
+	SetActorInventory(tid, "P_CastSpell", MakeSpellCastWord(spell, tics, drain));
+	SetActorInventory(tid, "P_CastProgress", end);
+	return end;
 }
 
 // Only clears the bar if the cast that started it is still the one on it. Casts can overlap -- the
@@ -174,15 +183,15 @@ void SyncHotbarForSpell(int pnum, int spell) {
 // 0 when ready, up to 100 the instant it starts. Read off the packed word so the client needs no
 // per tic traffic to animate the overlay.
 int GetHotbarCooldownPercent(int slot) {
-	int packed = CheckInventory(GetHotbarCdItem(slot));
-	if(!packed)
+	int end = CheckInventory(GetHotbarCdItem(slot));
+	if(!end)
 		return 0;
 
-	int total = UnpackHotbarTotal(packed);
+	int total = UnpackHotbarTotal(CheckInventory(GetHotbarTotItem(slot)));
 	if(total <= 0)
 		return 0;
 
-	int left = (packed >> DND_HOTBARCD_SHIFT) - Timer();
+	int left = end - Timer();
 	if(left <= 0)
 		return 0;
 
@@ -191,15 +200,15 @@ int GetHotbarCooldownPercent(int slot) {
 
 // The second charge, on the same arithmetic. Zero when the spell holds only one.
 int GetHotbarCooldownBPercent(int slot) {
-	int packed = CheckInventory(GetHotbarCdBItem(slot));
-	if(!packed)
+	int end = CheckInventory(GetHotbarCdBItem(slot));
+	if(!end)
 		return 0;
 
-	int total = UnpackHotbarTotal(packed);
+	int total = UnpackHotbarTotal(CheckInventory(GetHotbarTotItem(slot)));
 	if(total <= 0)
 		return 0;
 
-	int left = (packed >> DND_HOTBARCD_SHIFT) - Timer();
+	int left = end - Timer();
 	if(left <= 0)
 		return 0;
 
@@ -496,9 +505,12 @@ int GetManaBarY() {
 // reserved share as a dead tail on the right, so switching an aura on visibly eats the pool instead of
 // silently rescaling the bar under the player.
 void DrawManaBar(int pnum) {
+	// No pool (Blood Magic): its messages are persistent, so a bar drawn before has to be taken down.
 	int cap = CheckInventory("P_ManaCap");
-	if(cap <= 0)
+	if(cap <= 0) {
+		DeleteTextRange(MANABAR_TEXT_ID, MANABAR_BACK_ID);
 		return;
+	}
 
 	UpdateHudStack();
 	int usable = Min(CheckInventory("ManaVisual"), cap);
@@ -593,15 +605,15 @@ int GetCastBarX() {
 // -1 when nothing is being cast, else how far ELAPSED the cast is, 0 to 100. Same packed word and the
 // same reasoning as GetHotbarCooldownPercent: the client animates it off its own Timer().
 int GetSpellCastPercent() {
-	int packed = CheckInventory("P_CastProgress");
-	if(!packed)
+	int end = CheckInventory("P_CastProgress");
+	if(!end)
 		return -1;
 
-	int total = UnpackHotbarTotal(packed);
+	int total = UnpackHotbarTotal(CheckInventory("P_CastSpell") >> DND_CASTBAR_TOTALSHIFT);
 	if(total <= 0)
 		return -1;
 
-	int left = (packed >> DND_HOTBARCD_SHIFT) - Timer();
+	int left = end - Timer();
 	if(left <= 0)
 		return -1;
 

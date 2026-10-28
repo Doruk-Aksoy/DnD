@@ -280,9 +280,11 @@ actor GantBash : PaladinBash {
 	deathsound "weapons/vblhit"
 	States {
 		spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			// no NoDelay: its first tic differs between engines
+			TNT1 A 0
 		SpawnLoop:
-			TNT1 AA 1 A_SeekerMissile(90, 90, SMF_PRECISE)
+			TNT1 A 0 A_SeekerMissile(90, 90, SMF_PRECISE)
+			TNT1 A 1 A_SeekerMissile(90, 90, SMF_PRECISE)
 			stop
 		death:
 			TNT1 A 0 A_Quake(4, 17, 0, 256)
@@ -306,7 +308,7 @@ Actor Gant_AcidShot {
 	+DONTBLAST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnState:
 			ACID A 2 Bright A_SpawnItemEx("Gant_AcidShotTrail", -8)
 		Loop
@@ -504,7 +506,7 @@ Actor Bronn_AcidShot : Gant_AcidShot {
 	Speed 16
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnState:
 			ACID AAAA 2 Bright A_SpawnItemEx("Gant_AcidShotTrail", -8)
 			TNT1 A 0 A_ChangeFlag("NOGRAVITY", 0)
@@ -715,7 +717,7 @@ Actor VaajKiss {
 	+HITTRACER
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnLoop:
 			SUCP J 1 Bright A_SpawnItemEx("VaajKissTrail")
 		Loop
@@ -790,7 +792,7 @@ Actor VaajBigBall {
 	+FORCERADIUSDMG
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Vaaj Pull")
 		SpawnState:
 			SUCP HI 2 Bright A_SpawnItemEx("VaajBigBall_Trail", -8)
@@ -856,7 +858,7 @@ actor PinkBall {
 	+PIERCEARMOR
 	states {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnState:
 			SUCP AABBCCDD 1 A_SpawnItemEx("PinkBallTrail", -8)
 		loop
@@ -1135,7 +1137,7 @@ Actor RemusZapProjectile {
 	+DONTBLAST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnLoop:
 			FX16 ABCABC 3 Bright
 		Stop
@@ -1157,8 +1159,8 @@ Actor RemusZapper {
 	+DONTBLAST
     States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
-			TNT1 A 1
+			// no NoDelay: its first tic differs between engines
+			TNT1 A 0
 		Death:
 			TNT1 A 1 A_Explode(random(9, 16), 108, 0)
 		Stop	
@@ -1388,7 +1390,7 @@ Actor SSrath_EyeBeam {
 	+NODAMAGETHRUST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			R075 A 3 Bright A_SpawnItemEx("SSrath_EyeBeamTrail", 0, 0, 0, velx, vely, velz, 0, SXF_ABSOLUTEVELOCITY)
 			R075 A 0 A_SetUserVar("user_dmg", 10)
 			R075 A 0 A_Explode(user_dmg * 1.5, 32, 0, 0, 32)
@@ -1460,7 +1462,7 @@ Actor SSrath_Screamer {
 	+PIERCEARMOR
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnLoop:
 			TNT1 A 0 A_PlaySound("mummy/head")
 			SRV2 AAAA 3 Bright A_SpawnItemEx("SSrath_SoulExplosion", frandom(-32, 32), frandom(-32, 32), frandom(-32, 32), 0, 0, frandom(0, 1))
@@ -1491,7 +1493,7 @@ Actor SSrath_SoulExplosion : BaseExplosionDamage {
 	Scale 0.5
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			SRV3 A 4 Bright A_PlaySound("monster/dishht1")
 			SRV3 B 4 Bright A_Explode(32, 64, 0)
 			SRV3 CDEFGHI 3 Bright
@@ -1642,7 +1644,7 @@ Actor HollowShellGasExp : BaseExplosionDamage {
 	+NODAMAGETHRUST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(4, 72, 0, 0, 36)
 		Stop
 	}
@@ -1666,7 +1668,7 @@ Actor HollowShellGas {
 	+THRUACTORS
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			DB58 A 1 Bright A_SetScale(scalex + 0.075, scaley + 0.075)
 			TNT1 A 0 A_SpawnItem("HollowShellGasExp")
 			DB58 B 1 Bright A_SetScale(scalex + 0.075, scaley + 0.075)
@@ -1707,7 +1709,7 @@ Actor HollowShellGas {
 Actor HollowShellExp : HollowShellGasExp {
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(48, 128, 0)
 		Stop
 	}
@@ -2265,7 +2267,7 @@ ACTOR OmniBall {
 	Decal "CacoScorch"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnLoop:
 			UP06 ABC 1 Bright
 		loop
@@ -2294,7 +2296,7 @@ Actor OmniBigBall {
 	+VISIBILITYPULSE
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 0 A_SetUserVar("user_count", 0)
 		SpawnLoop:
 			UP06 J 3 Bright A_CustomMissile("OmniLightning", 0, 0, user_count * ang_inc, CMF_AIMDIRECTION | CMF_TRACKOWNER)
@@ -2341,7 +2343,7 @@ Actor OmniChaosBall {
 	const float s = 32.0;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnLoop:
 			UP07 A 3 Bright A_SpawnItemEx("OmniChaosBall_TrailA")
 			UP07 B 3 Bright A_SpawnItemEx("OmniChaosBall_TrailB")
@@ -2445,7 +2447,7 @@ Actor OmniLightningBlast : BaseExplosionDamage {
 	+FLOORHUGGER
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 1
 			TNT1 A 4 A_SpawnItemEx("OmniLightningBlastFX")
 			TNT1 A 1 A_PlaySound("Omnisight/BigZap")
@@ -2598,7 +2600,7 @@ Actor ChegovaxMeteor {
 	+DONTBLAST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnLoop:
 			RW6G AABBCCDD 2 A_SpawnItemEx("ChegovaxMeteorMissileTrail", -8)
 		Loop
@@ -2633,7 +2635,7 @@ Actor ChegovaxMeteorSplit_1 : ChegovaxMeteor {
 	-NOGRAVITY
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 0 A_Jump(256, "1", "2", "3")
 		1:
 			RW6G E 1
@@ -2663,7 +2665,7 @@ Actor ChegovaxMeteorSplit_2 : ChegovaxMeteorSplit_1 {
 	Damage (12)
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 0 A_Jump(256, "1", "2")
 		1:
 			RW6G H 1
@@ -2699,7 +2701,7 @@ Actor ChegovaxFire {
 	+THRUGHOST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnLoop:
 			BOLT A 2 Bright A_SpawnItem("RedPuff",0,0)
 		Loop
@@ -2733,7 +2735,7 @@ ACTOR GuardianSpawner {
 	Translation "112:127 = 176:191"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnLoop:
 			SEF2 ABCD 2 Bright
 		loop
@@ -2767,7 +2769,7 @@ Actor ChegovaxExp1 : BaseExplosionDamage {
 	Obituary "%o fell victim to Chegovax the Overseer."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(80, 80, 0)
 		Stop
 	}
@@ -2776,7 +2778,7 @@ Actor ChegovaxExp1 : BaseExplosionDamage {
 Actor ChegovaxExp2 : ChegovaxExp1 {
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(128, 128, 0)
 		Stop
 	}
@@ -2785,7 +2787,7 @@ Actor ChegovaxExp2 : ChegovaxExp1 {
 Actor ChegovaxExp3 : ChegovaxExp1 {
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(144, 144, 0)
 		Stop
 	}
@@ -2794,7 +2796,7 @@ Actor ChegovaxExp3 : ChegovaxExp1 {
 Actor ChegovaxExp4 : ChegovaxExp1 {
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(176, 176, 0)
 		Stop
 	}
@@ -3332,7 +3334,8 @@ Actor HarkimondeFlightAtk : DemonFlightAtk {
 	Species "HK"
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			// no NoDelay: its first tic differs between engines
+			TNT1 A 2
 		Stop
 		Death:
 			TNT1 A 1
@@ -3347,9 +3350,11 @@ actor HarkimondeBash : PaladinBash {
 	deathsound "weapons/vblhit"
 	States {
 		spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			// no NoDelay: its first tic differs between engines
+			TNT1 A 0
 		SpawnLoop:
-			TNT1 AA 1 A_SeekerMissile(90, 90, SMF_PRECISE)
+			TNT1 A 0 A_SeekerMissile(90, 90, SMF_PRECISE)
+			TNT1 A 1 A_SeekerMissile(90, 90, SMF_PRECISE)
 		stop
 		death:
 			TNT1 A 0 A_Quake(4, 17, 0, 256)
@@ -3458,7 +3463,7 @@ Actor HarkimondeFlameTracer {
 	DeathSound "weapons/firex3"   
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnLoop:
 			TNT1 A 1 Bright A_SeekerMissile(12, 12)
 			TNT1 A 0 A_Countdown
@@ -3525,7 +3530,7 @@ Actor HarkimondeExp1 : BaseExplosionDamage {
 	Obituary "%o fell victim to Harkimonde the Tormentor."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(64, 96, 0)
 		Stop
 	}
@@ -3537,7 +3542,7 @@ Actor HarkimondeExp2 : BaseExplosionDamage {
 	Obituary "%o fell victim to Harkimonde the Tormentor."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(32, 64, 0)
 		Stop
 	}
@@ -3549,7 +3554,7 @@ Actor HarkimondeExp3 : BaseExplosionDamage {
 	Obituary "%o fell victim to Harkimonde the Tormentor."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(60, 96, 0)
 		Stop
 	}
@@ -3801,7 +3806,7 @@ Actor Leshrac_MineExplosion : BaseExplosionDamage {
 	Obituary "%o fell victim to Leshrac the Vile."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 5 A_Explode(160, 160)
 		Stop
 	}
@@ -3859,7 +3864,7 @@ Actor Leshrac_LobbedMineGround {
 	+THRUACTORS
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 0 A_PlaySound("Leshrac/Mine", CHAN_WEAPON)
 			BNAD A 48 Bright ACS_NamedExecuteAlways("DnD Random Shake", 0, 48, 1, 15)
 			BNAD E 3 Bright A_SetTranslucent(0.75, 1)
@@ -4007,7 +4012,7 @@ Actor KrullRocket {
 	ReactionTime 20
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnLoop:
 			HLML A 1 Bright A_SpawnItemEx("HellsMawRocketTrail", 0, 0, 0, 0, 0, 0, 0, 8)
 			TNT1 A 0 A_CountDown
@@ -4044,7 +4049,7 @@ Actor KrullRocketExp : BaseExplosionDamage {
 	Obituary "%o fell victim to Krull the Vicious."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 4 A_Explode(36, 72, 0)
 		Stop
 	}
@@ -4059,7 +4064,7 @@ Actor KrullMiniRocket : KrullRocket {
 	+THRUGHOST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnLoop:
 			HLML G 1 Bright A_SpawnItemEx("HellsMawMiniRocketTrail", 0, 0, 0, 0, 0, 0, 0, 8)	  
 			TNT1 A 0 A_CountDown
@@ -4081,7 +4086,7 @@ Actor KrullMiniRocketExp : BaseExplosionDamage {
 	Obituary "%o fell victim to Krull the Vicious."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 4 A_Explode(18, 36, 0)
 		Stop
 	}
@@ -4100,7 +4105,7 @@ Actor KrullMiniRocket_Split {
 	+THRUGHOST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 0 A_ChangeVelocity(35 * cos(angle), 35 * sin(angle), velz, CVF_REPLACE)
 		SpawnLoop:
 			HLML G 1 Bright A_SpawnItemEx("HellsMawMiniRocketTrail", 0, 0, 0, 0, 0, 0, 0, 8)	  
@@ -4284,7 +4289,7 @@ Actor ThoraxMissile {
 	+DONTBLAST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnLoop:
 			HMIS A 2 Bright A_SpawnItemEx("DnD_RocketTrail", -12, 0, 10)
 		Loop
@@ -4301,7 +4306,7 @@ Actor ThoraxMissile_Homing : ThoraxMissile {
 	+SEEKERMISSILE
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnLoop:
 			HMIS AA 2 Bright A_SpawnItemEx("DnD_RocketTrail", -12, 0, 10)
 			TNT1 A 0 A_SeekerMissile(8, 16)
@@ -4320,7 +4325,7 @@ Actor ThoraxMissileExp : BaseExplosionDamage {
 	Renderstyle Add
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			MACX A 2 Bright A_Explode(60, 108, 0)
 			MACX BCDEFGHIJ 2 Bright
 		Stop
@@ -4347,7 +4352,7 @@ Actor ThoraxFireBall {
 	-NOGRAVITY
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnLoop:
 			UP12 A 3 Bright A_TakeInventory("DnD_Info", 0)
 		B:
@@ -4391,7 +4396,7 @@ Actor ThoraxBigFireExp : BaseExplosionDamage {
 	Stamina 36
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 5 A_Explode(80, 96, 0)
 		Stop
 	}
@@ -4411,7 +4416,7 @@ Actor ThoraxFireTrail {
 	+PIERCEARMOR
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			GRTL A 3 Bright ThrustThingZ(0, random(8,16), 0, 1)
 			TNT1 A 0 A_SpawnItem("HEGrenadeTrailsTrail")
 			GRTL B 3 Bright ThrustThingZ(0, random(8,16), 0, 1)
@@ -4437,7 +4442,7 @@ Actor ThoraxFireExp : BaseExplosionDamage {
 	Stamina 36
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 5 A_Explode(24, 48, 0)
 		Stop
 	}
@@ -4685,7 +4690,7 @@ Actor ZravogSlamDamager : BaseExplosionDamage {
 	Stamina 12
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 4 A_Explode(160, 288, 0, 0, 128)
 		Stop
 	}
@@ -4740,7 +4745,7 @@ Actor ZravogHomingBall : MageStaffFX2 {
 	Damage (24)
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnLoop:
 			BSBS A 0 Bright Light(DISCIPLEBALL) A_PlaySoundEx ("DarkLich/ballfly", "SoundSlot6", 1) 
 			BSBS A 2 Bright Light(DISCIPLEBALL) A_MStaffTrack
@@ -4771,7 +4776,7 @@ Actor ZravogMissile : WizardFX1 {
 	Renderstyle Add
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnLoop:
 			UP22 AABB 2 Bright A_SpawnItemEx("ZravogMissileTrail", -8)
 		Loop
@@ -4796,7 +4801,7 @@ Actor ZravogMissileTrail {
 Actor ZravogCube : SorcBallProjectileBase {
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Avatar Ball Flare", 0, 1)
 		SpawnLoop:
 			SBMB ABCDEFGHIJKLMNOP 2 Bright
@@ -5075,7 +5080,7 @@ Actor EryxiaWind {
 	+NODAMAGETHRUST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnLoop:
 			RF34 JKLMNOPQRSTUVWX 5 A_FadeOut(0.05)
 		Loop
@@ -5106,7 +5111,7 @@ Actor EryxiaFreezer {
 	+HITTRACER
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnLoop:
 			UP14 A 2 Bright A_SpawnItemEx("EryxiaFreezer_Trail")
 			TNT1 A 0 A_SeekerMissile(8, 8)
@@ -5201,7 +5206,7 @@ Actor EryxiaBullet {
 	+DONTBLAST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 0 A_SetUserVar("user_count", 0)
 			UP13 ABCD 3 Bright
 			TNT1 A 0 A_SetUserVar("user_count", 1)
@@ -5236,7 +5241,7 @@ Actor EryxiaLob {
 	-NOGRAVITY
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnLoop:
 			UP17 ABC 3 Bright A_SpawnItem("EryxiaLobTrail")
 		Loop
@@ -5327,7 +5332,7 @@ Actor EryxiaFloorIcicle {
 	+FLOORHUGGER
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 0 A_SetUserVar("user_count", 0)
 			UP15 NMLKJIHGFEDCB 1 Bright
 			TNT1 A 0 A_ChangeFlag("THRUACTORS", 0)
@@ -5355,7 +5360,7 @@ Actor EryxiaCeilingIcicle : EryxiaFloorIcicle {
 	+CEILINGHUGGER
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 0 A_SetUserVar("user_count", 0)
 			UP16 NMLKJIHGFEDCB 1 Bright
 			TNT1 A 0 A_ChangeFlag("THRUACTORS", 0)
@@ -5710,7 +5715,7 @@ Actor AbaxothThunderRetaliation {
 	Alpha 0.9
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnLoop:
 			HSPL ABCDEFGHIJ 2 Bright A_FadeOut(0.05)
 		Loop
@@ -6084,7 +6089,7 @@ Actor AbaxothTectonicBoom_Small : BaseExplosionDamage {
 	+STEPMISSILE
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 2
 		Death:
 			TNT1 A 0 A_Stop
@@ -6099,7 +6104,7 @@ Actor AbaxothTectonicBoom_Small : BaseExplosionDamage {
 Actor AbaxothTectonicBoom_Small2 : AbaxothTectonicBoom_Small {
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 4
 		Death:
 			TNT1 A 0 A_Stop
@@ -6115,7 +6120,7 @@ Actor AbaxothTectonicBoom_Medium : AbaxothTectonicBoom_Small {
 	Scale 0.75
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 6
 		Death:
 			TNT1 A 0 A_Stop
@@ -6130,7 +6135,7 @@ Actor AbaxothTectonicBoom_Medium : AbaxothTectonicBoom_Small {
 Actor AbaxothTectonicBoom_Medium2 : AbaxothTectonicBoom_Medium {
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 8
 		Death:
 			TNT1 A 0 A_Stop
@@ -6146,7 +6151,7 @@ Actor AbaxothTectonicBoom_Big : AbaxothTectonicBoom_Small {
 	Scale 1.125
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 11
 		Death:
 			TNT1 A 0 A_Stop
@@ -6160,7 +6165,7 @@ Actor AbaxothTectonicBoom_Big : AbaxothTectonicBoom_Small {
 Actor AbaxothTectonicBoom_Big2 : AbaxothTectonicBoom_Big {
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 14
 		Death:
 			TNT1 A 0 A_Stop
@@ -6259,7 +6264,7 @@ Actor AbaxothLavaBall {
 	+DONTBLAST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 0 A_ChangeVelocity(0, 0, frandom(3, 8), CVF_RELATIVE)
 		SpawnLoop:
 			VFBL AABB 2 Bright A_SpawnItemEx("PaladinGrenadeTrail", random2[BeastPuff]()*0.015625, random2[BeastPuff]()*0.015625, random2[BeastPuff]()*0.015625, 0, 0, 0, 0, SXF_ABSOLUTEPOSITION, 64)
@@ -6280,7 +6285,7 @@ Actor AbaxothLavaBallExp : BaseExplosionDamage {
 	Stamina 36
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(40, 72, 0, 0, 24)
 		Stop
 	}
@@ -6365,7 +6370,7 @@ Actor AbaxothThunderbolt {
 	+DONTBLAST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnLoop:
 			UP25 AAA 1 Bright Light("AbaxothLightning1") A_SpawnItemEx("AbaxothThunderSparkle", frandom(-r, r), frandom(-r, r), frandom(-r, r), frandom(-v, v), frandom(-v, v), frandom(-v, v))
 			TNT1 A 0 A_SpawnItemEx("AbaxothThunderbolt_TrailA", -20)
@@ -6434,7 +6439,7 @@ Actor AbaxothThunderExp : BaseExplosionDamage {
 	+PIERCEARMOR
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(200, 192, 0, 0, 96)
 		Stop
 	}
@@ -6465,7 +6470,7 @@ Actor AbaxothChargeExp : BaseExplosionDamage {
 	Stamina 1
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(128, 160, 0, 0, 80)
 		Stop
 	}
@@ -6536,7 +6541,7 @@ Actor AbaxothRocketExp : BaseExplosionDamage {
 	Obituary "%o fell victim to Abaxoth the End of All That Is."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			TNT1 A 3 A_Explode(20, 64, 0, 0, 16)
 		Stop
 	}
@@ -6557,7 +6562,7 @@ Actor AbaxothRocket {
 	+THRUGHOST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 		SpawnLoop:
 			MICM A 2 Bright A_SpawnItemEx("DnD_RocketTrail", -12, 0, 5)
 			TNT1 A 0 A_SeekerMissile(5, 5)
@@ -6587,7 +6592,7 @@ ACTOR AbaxothHammer : CacodemonBall {
 	-NOGRAVITY
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Monster Projectile Setup")
 			UP24 ABC 3
 		SpawnLoop:
 			UP24 D 3 

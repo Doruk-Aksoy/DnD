@@ -18,6 +18,7 @@ PERK_ARCH_END                            = "Endurance";
 PERK_ARCH_MART                           = "Martialist";
 PERK_ARCH_PERC                           = "Perception";
 PERK_ARCH_TORM                           = "Tormentor";
+PERK_ARCH_MAGI                           = "Magi";
 
 
 // ================= Acrobacy =================
@@ -243,6 +244,10 @@ PERK_END_RESTLESSVITALITY_REQ            = "Physician or Vigour";
 PERK_END_INDOMITABLERESOLVE              = "Indomitable Resolve";
 PERK_END_INDOMITABLERESOLVE_DESC         = "When you are first afflicted by an ailment, prevent further ailments for the next 5 seconds.";
 PERK_END_INDOMITABLERESOLVE_REQ          = "Physician or Vigour";
+
+PERK_END_NANOMACHINERY                   = "Nano-machinery";
+PERK_END_NANOMACHINERY_DESC              = "Gain 2% life regeneration.";
+PERK_END_NANOMACHINERY_REQ               = "Physician or Vigour";
 
 PERK_END_CAMOUFLAGE                      = "Camouflage";
 PERK_END_CAMOUFLAGE_DESC                 = "10% chance to avoid projectiles from homing in on you.";
@@ -606,3 +611,115 @@ PERK_TORM_CORNEREDPREY_REQ               = "Swift Drain (1) OR Savage Wounds (1)
 
 PERK_TORM_MASTEROFWOUNDS                 = "Master of Wounds";
 PERK_TORM_MASTEROFWOUNDS_DESC            = "10% chance for bleeds you inflict to be aggravated. (Aggravated bleeds treat enemy as moving)";
+
+
+// ================= Magi =================
+
+PERK_MAGI_APPRENTICE                     = "Apprentice";
+PERK_MAGI_APPRENTICE_DESC                = "5% increased mana capacity.";
+PERK_MAGI_APPRENTICE_PER                 = "5% additional increased mana capacity.";
+
+PERK_MAGI_MANAFLOW                       = "Mana Flow";
+PERK_MAGI_MANAFLOW_DESC                  = "10% increased mana regeneration.";
+PERK_MAGI_MANAFLOW_PER                   = "5% additional mana regeneration.";
+
+PERK_MAGI_TAPINTOTHEARCANE               = "Tap into the Arcane";
+PERK_MAGI_TAPINTOTHEARCANE_DESC          = "Spend energy shield instead of 5% of the mana cost.";
+PERK_MAGI_TAPINTOTHEARCANE_PER           = "5% additional mana cost converted to energy shield.";
+
+PERK_MAGI_ARCANEWILL                     = "Arcane Will";
+PERK_MAGI_ARCANEWILL_DESC                = "+3 to mana regeneration.";
+PERK_MAGI_ARCANEWILL_PER                 = "2.5 additional mana regeneration.";
+
+PERK_MAGI_TEMPORALSURGE                  = "Temporal Surge";
+PERK_MAGI_TEMPORALSURGE_DESC             = "15% chance to recover 40% of the cost of a skill as life over 4 seconds.";
+PERK_MAGI_TEMPORALSURGE_PER              = "5% additional chance.";
+PERK_MAGI_TEMPORALSURGE_REQ              = "Arcane Will (1) OR Tap into the Arcane (1)";
+
+PERK_MAGI_WARLOCKSFEAST                  = "Warlock's Feast";
+PERK_MAGI_WARLOCKSFEAST_DESC             = "10% chance on kill to recover 1.5% of your maximum mana.";
+PERK_MAGI_WARLOCKSFEAST_PER              = "+0.5% maximum mana recovered.";
+PERK_MAGI_WARLOCKSFEAST_REQ              = "Arcane Will (1) OR Tap into the Arcane (1)";
+
+PERK_MAGI_SUBLIMECAPACITY                = "Sublime Capacity";
+PERK_MAGI_SUBLIMECAPACITY_DESC           = "10% increased mana reservation efficiency.";
+PERK_MAGI_SUBLIMECAPACITY_REQ            = "Arcane Will (1) OR Tap into the Arcane (1)";
+
+PERK_MAGI_ARCANECONSERVATION             = "Arcane Conservation";
+PERK_MAGI_ARCANECONSERVATION_DESC        = "10% less cost of skills.";
+
+PERK_MAGI_BLOODMAGIC                     = "Blood Magic";
+PERK_MAGI_BLOODMAGIC_DESC                = "Skills cost life instead of mana. Skills reserve life instead of mana. You have no mana.";
+
+PERK_MAGI_WIZARDRY                       = "Wizardry";
+PERK_MAGI_WIZARDRY_DESC                  = "10% increased spell damage.";
+PERK_MAGI_WIZARDRY_PER                   = "5% additional spell damage.";
+
+PERK_MAGI_POTENTMAGICS                   = "Potent Magics";
+PERK_MAGI_POTENTMAGICS_DESC              = "10% increased skill effect duration.";
+PERK_MAGI_POTENTMAGICS_PER               = "2.5% increased skill effect duration.";
+
+PERK_MAGI_MENTALRAPIDITY                 = "Mental Rapidity";
+PERK_MAGI_MENTALRAPIDITY_DESC            = "10% spell haste.";
+PERK_MAGI_MENTALRAPIDITY_PER             = "2.5% spell haste.";
+PERK_MAGI_MENTALRAPIDITY_REQ             = "Wizardry (1) OR Potent Magics (1)";
+
+PERK_MAGI_MYSTICRECOVERY                 = "Mystic Recovery";
+PERK_MAGI_MYSTICRECOVERY_DESC            = "10% increased cooldown recovery rate.";
+PERK_MAGI_MYSTICRECOVERY_PER             = "2.5% increased cooldown recovery rate.";
+PERK_MAGI_MYSTICRECOVERY_REQ             = "Wizardry (1) OR Potent Magics (1)";
+
+PERK_MAGI_DEVASTATION                    = "Devastation";
+PERK_MAGI_DEVASTATION_DESC               = "Spells gain +2% critical strike chance.";
+PERK_MAGI_DEVASTATION_PER                = "1.5% additional critical strike chance.";
+
+PERK_MAGI_ARCANEEXPANSION                = "Arcane Expansion";
+PERK_MAGI_ARCANEEXPANSION_DESC           = "10% increased spell area of effect.";
+PERK_MAGI_ARCANEEXPANSION_PER            = "2.5% increased spell area of effect.";
+
+PERK_MAGI_PRODIGALPERFECTION             = "Prodigal Perfection";
+PERK_MAGI_PRODIGALPERFECTION_DESC        = "2% increased spell damage per 100 maximum mana, up to 40%.";
+PERK_MAGI_PRODIGALPERFECTION_REQ         = "Mystic Recovery (1) OR Mental Rapidity (1)";
+
+PERK_MAGI_PAINATTUNEMENT                 = "Pain Attunement";
+PERK_MAGI_PAINATTUNEMENT_DESC            = "30% more spell damage while on low life.";
+
+PERK_MAGI_SUPREMEKNOWLEDGE               = "Supreme Knowledge";
+PERK_MAGI_SUPREMEKNOWLEDGE_DESC          = "Gain an additional hotbar slot.";
+
+PERK_MAGI_INSPIRATIONAL                  = "Inspirational";
+PERK_MAGI_INSPIRATIONAL_DESC             = "Minions gain 10% increased damage dealt.";
+PERK_MAGI_INSPIRATIONAL_PER              = "5% additional minion damage.";
+
+PERK_MAGI_DEVOTEDLEADER                  = "Devoted Leader";
+PERK_MAGI_DEVOTEDLEADER_DESC             = "Minions gain 5% increased health.";
+PERK_MAGI_DEVOTEDLEADER_PER              = "5% additional minion health.";
+
+PERK_MAGI_ENDURINGBOND                   = "Enduring Bond";
+PERK_MAGI_ENDURINGBOND_DESC              = "15% increased minion duration.";
+PERK_MAGI_ENDURINGBOND_PER               = "7.5% increased minion duration.";
+PERK_MAGI_ENDURINGBOND_REQ               = "Devoted Leader (1) OR Inspirational (1)";
+
+PERK_MAGI_INDOMITABLEARMY                = "Indomitable Army";
+PERK_MAGI_INDOMITABLEARMY_DESC           = "Minions gain 8% additional physical and elemental resistance.";
+PERK_MAGI_INDOMITABLEARMY_PER            = "4% additional physical and elemental resistance.";
+PERK_MAGI_INDOMITABLEARMY_REQ            = "Devoted Leader (1) OR Inspirational (1)";
+
+PERK_MAGI_PACTLEADER                     = "Pact Leader";
+PERK_MAGI_PACTLEADER_DESC                = "+1 Pet cap.";
+PERK_MAGI_PACTLEADER_PER                 = "1 additional pet cap.";
+PERK_MAGI_PACTLEADER_REQ                 = "Devoted Leader (1) OR Inspirational (1)";
+
+PERK_MAGI_SPIRITUALAID                   = "Spiritual Aid";
+PERK_MAGI_SPIRITUALAID_DESC              = "20% increased effect of buffs granted to you from your minions.";
+PERK_MAGI_SPIRITUALAID_PER               = "10% additional buff effect from your minions.";
+PERK_MAGI_SPIRITUALAID_REQ               = "Devoted Leader (1) OR Inspirational (1)";
+
+PERK_MAGI_FRENZIEDFOLLOWERS              = "Frenzied Followers";
+PERK_MAGI_FRENZIEDFOLLOWERS_DESC         = "Minions gain 15% increased cooldown recovery rate.";
+PERK_MAGI_FRENZIEDFOLLOWERS_REQ          = "Pact Leader (1) OR Spiritual Aid (1)";
+
+PERK_MAGI_RIGHTEOUSARMY                  = "Righteous Army";
+PERK_MAGI_RIGHTEOUSARMY_DESC             = "Minions regenerate 1% of their life per second.";
+PERK_MAGI_RIGHTEOUSARMY_REQ              = "Pact Leader (1) OR Spiritual Aid (1)";
+

@@ -26,7 +26,9 @@ Actor DnD_Spell : DnD_BaseProjectile {
 
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Projectile Checks")
+			// no NoDelay: its first tic differs between engines
+			TNT1 A 0
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Projectile Checks")
 			TNT1 A 35 A_Jump(256, "SpawnState")
 		Wait
 	}
@@ -75,10 +77,8 @@ Actor DnD_SpellAimPuff {
 	Radius 1
 	Height 1
 	States {
-		// The trace has no other way home -- LineAttack's pufftid argument is ignored by this engine.
-		// So the puff tags ITSELF and the caster reads that tid, which is the idiom Gore.dec and the
-		// spell FX markers already use. A script started from here gets a null activator, so reporting
-		// its own position through ACS does not work; a line special does.
+		// Tags itself for the caster (the Gore.dec idiom): LineAttack's pufftid works on 3.3 but hashes the puff unchecked,
+		// even one a damage event destroyed. A script started here gets a null activator, so a line special does it.
 		Spawn:
 			TNT1 A 3 NoDelay Thing_ChangeTID(0, SPELLAIM_TID)
 		Stop

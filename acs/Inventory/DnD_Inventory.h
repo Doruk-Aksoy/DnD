@@ -1837,14 +1837,15 @@ void DrawInventoryInfo_Field(int pnum, int topboxid, int source, int yoff, bool 
 		// moved, which is why the same item looked differently spaced depending on the row.
 		by = isOutsideSource ? (ITEMINFO_TEXTTOP + 0.1) : (GetIntegerBits(3 * (100.0 - yoff) / 2 + ITEMINFO_TEXTTOP) + 0.1);
 
-		SetHudClipRect(left + ITEMINFO_CLIPX, (by >> 16), HUD_ITEMBAK_WIDTH, 288, HUD_ITEMBAK_WIDTH);
+		SetHudClipRect(left + ITEMINFO_CLIPX, (by >> 16), HUD_ITEMBAK_WIDTH, ITEMINFO_CLIPHEIGHT, HUD_ITEMBAK_WIDTH);
 		DrawInventoryText(topboxid, source, pnum, bx, by, itype, isubt, RPGMENUINVENTORYID, HUD_DII_FIELD_MULT, HUDMAX_X, HUDMAX_Y, bg_x, bg_y, attr_count, !isOutsideSource);
 		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 	}
 }
 
-void DrawInventoryText(
-	int topboxid, 
+// Returns the panel's mid count, so a caller can tell how far down the panel reached.
+int DrawInventoryText(
+	int topboxid,
 	int source, 
 	int pnum, 
 	int bx, int by, 
@@ -1904,7 +1905,7 @@ void DrawInventoryText(
 		// stacked items are a title and a paragraph with none of the offsets below, so this one
 		// stays on the old segment-per-line rule rather than TextExtentToMids
 		DrawItemInfoBackground(id_begin - id_mult * MAX_INVENTORY_BOXES, hx, hy, bg_posx, bg_posy, item_vsync_data.attr_lines_count, -1, holdTime);
-		return;
+		return Min(item_vsync_data.attr_lines_count, ITEMINFOBG_MAXMIDS);
 	}
 	else {
 		item_vsync_data = GetItemVSyncData(DND_SYNCINDEX_ITEM);
@@ -2144,12 +2145,19 @@ void DrawInventoryText(
 		//log(s:"final lines: ", d:item_vsync_data.lines_count);
 	}
 
+	i = TextExtentToMids(yoff);
 	DrawItemInfoBackground(
 		id_begin - id_mult * MAX_INVENTORY_BOXES,
 		hx, hy, bg_posx, bg_posy,
-		TextExtentToMids(yoff),
+		i,
 		craftMaterialIdx, holdTime
 	);
+	return Min(i, ITEMINFOBG_MAXMIDS);
+}
+
+// The panel's full height in HUDMAX pixels for a mid count, both caps included.
+int ItemInfoPanelHeight(int mids) {
+	return (ITEMINFOBG_TOPLEN + Clamp_Between(mids, 0, ITEMINFOBG_MAXMIDS) * ITEMINFOBG_MIDLEN + ITEMINFOBG_BOTLEN) >> 16;
 }
 
 // text_h is the height of the text block in HUDTEXTMAX pixels, measured from the title row.

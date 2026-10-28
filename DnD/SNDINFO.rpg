@@ -663,45 +663,183 @@ $alias Shrapnel/Hit Armors/NecroShardHit
 $alias NoxiousBlast/Cast whiteballssee
 $alias NoxiousBlast/Burst whiteballsdeth
 
-$alias Rockslide/Cast BOULDCAS
-$alias Rockslide/Hit BOULDHIT
+Rockslide/Cast              ROCKSLDC
+Rockslide/Hit               ROCKSLDH
+
+Vulnerability/Cast1         VULNCAS1
+Vulnerability/Cast2         VULNCAS2
+Vulnerability/Cast3         VULNCAS3
+$random Vulnerability/Cast { Vulnerability/Cast1 Vulnerability/Cast2 Vulnerability/Cast3 }
+
+Despair/Cast1               DESPCAS1
+Despair/Cast2               DESPCAS2
+Despair/Cast3               DESPCAS3
+$random Despair/Cast { Despair/Cast1 Despair/Cast2 Despair/Cast3 }
 
 $alias ToxicTrap/Lay AcidRifle/In
-$alias ToxicTrap/Burst torturedsoul/poison
 
-$alias BalefulInfusion/Cast MageStaffFire
-$alias BalefulInfusion/Spend AcidRifle/Hit
+ToxicTrap/Burst1            TOXTRAX1
+ToxicTrap/Burst2            TOXTRAX2
+ToxicTrap/Burst3            TOXTRAX3
+ToxicTrap/Burst4            TOXTRAX4
+$random ToxicTrap/Burst { ToxicTrap/Burst1 ToxicTrap/Burst2 ToxicTrap/Burst3 ToxicTrap/Burst4 }
 
-$alias Vines/Cast Abaxoth/HammerSwing1
+BalefulInfusion/Cast1       BALEINC1
+BalefulInfusion/Cast2       BALEINC2
+BalefulInfusion/Cast3       BALEINC3
+$random BalefulInfusion/Cast { BalefulInfusion/Cast1 BalefulInfusion/Cast2 BalefulInfusion/Cast3 }
 
-$alias VenomGyre/Throw Axe/Throw1
-$alias VenomGyre/Bounce Hammer/BounceSurf1
-$alias VenomGyre/Catch AcidRifle/In
+BalefulInfusion/Spend       BALEINX
 
-$alias RockArmor/Cast EarthLich/Rock
-$alias RockArmor/Hit EarthLich/RockHit
-$alias RockArmor/Shatter stone/death
+VinesOfTorment/Cast1        VINETOC1
+VinesOfTorment/Cast2        VINETOC2
+VinesOfTorment/Cast3        VINETOC3
+$random VinesOfTorment/Cast { VinesOfTorment/Cast1 VinesOfTorment/Cast2 VinesOfTorment/Cast3 }
 
-$alias Upheaval/Rumble QuakeBase/Move1
-$alias Upheaval/Blast BOULDHIT
-$alias Upheaval/Slam EarthLich/RockHit
+VinesOfTorment/Snare1       VINETOS1
+VinesOfTorment/Snare2       VINETOS2
+VinesOfTorment/Snare3       VINETOS3
+$random VinesOfTorment/Snare { VinesOfTorment/Snare1 VinesOfTorment/Snare2 VinesOfTorment/Snare3 }
 
-$alias ThreadedVolley/Throw Armors/NecroShard
-$alias ThreadedVolley/Hit Armors/NecroShardHit
-$alias ThreadedVolley/Energized BOULDCAS
-$alias ThreadedVolley/Burst BOULDHIT
+VenomGyre/Throw1            VENGYRT1
+VenomGyre/Throw2            VENGYRT2
+VenomGyre/Throw3            VENGYRT3
+$random VenomGyre/Throw { VenomGyre/Throw1 VenomGyre/Throw2 VenomGyre/Throw3 }
 
-$alias Vulnerability/Cast EarthLich/RockHit
-$alias Despair/Cast torturedsoul/poison
+VenomGyre/Bounce1           VENGYRB1
+VenomGyre/Bounce2           VENGYRB2
+VenomGyre/Bounce3           VENGYRB3
+$random VenomGyre/Bounce { VenomGyre/Bounce1 VenomGyre/Bounce2 VenomGyre/Bounce3 }
 
-$alias Rejuvenation/Cast WoT/Heal
-$alias CorrosiveBreath/Release ChillingBreath/Start
-$alias CrushingRocks/Rise QuakeBase/Move1
-$alias CrushingRocks/Crush BOULDHIT
+VenomGyre/Catch1            VENGYRC1
+VenomGyre/Catch2            VENGYRC2
+VenomGyre/Catch3            VENGYRC3
+$random VenomGyre/Catch { VenomGyre/Catch1 VenomGyre/Catch2 VenomGyre/Catch3 }
+
+VenomGyre/Rip1              VENGYRR1
+VenomGyre/Rip2              VENGYRR2
+VenomGyre/Rip3              VENGYRR3
+$random VenomGyre/Rip { VenomGyre/Rip1 VenomGyre/Rip2 VenomGyre/Rip3 }
+
+RockArmor/Cast       ROCKARMC
+
+RockArmor/Hit1              ROCKARH1
+RockArmor/Hit2              ROCKARH2
+RockArmor/Hit3              ROCKARH3
+$random RockArmor/Hit { RockArmor/Hit1 RockArmor/Hit2 RockArmor/Hit3 }
+
+RockArmor/Shatter           ROCKARMS
+
+Upheaval/Rumble1            UPHEAVR1
+Upheaval/Rumble2            UPHEAVR2
+Upheaval/Rumble3            UPHEAVR3
+$random Upheaval/Rumble { Upheaval/Rumble1 Upheaval/Rumble2 Upheaval/Rumble3 }
+$limit Upheaval/Rumble1 0
+$limit Upheaval/Rumble2 0
+$limit Upheaval/Rumble3 0
+
+Upheaval/Blast1             UPHEAVB1
+Upheaval/Blast2             UPHEAVB2
+Upheaval/Blast3             UPHEAVB3
+Upheaval/Blast4             UPHEAVB4
+$random Upheaval/Blast { Upheaval/Blast1 Upheaval/Blast2 Upheaval/Blast3 Upheaval/Blast4 }
+$limit Upheaval/Blast1 0
+$limit Upheaval/Blast2 0
+$limit Upheaval/Blast3 0
+$limit Upheaval/Blast4 0
+
+Upheaval/Slam1              UPHEAVS1
+Upheaval/Slam2              UPHEAVS2
+Upheaval/Slam3              UPHEAVS3
+Upheaval/Slam4              UPHEAVS4
+$random Upheaval/Slam { Upheaval/Slam1 Upheaval/Slam2 Upheaval/Slam3 Upheaval/Slam4 }
+$limit Upheaval/Slam1 0
+$limit Upheaval/Slam2 0
+$limit Upheaval/Slam3 0
+$limit Upheaval/Slam4 0
+
+ThreadedVolley/Throw1       THRVOLT1
+ThreadedVolley/Throw2       THRVOLT2
+ThreadedVolley/Throw3       THRVOLT3
+$random ThreadedVolley/Throw { ThreadedVolley/Throw1 ThreadedVolley/Throw2 ThreadedVolley/Throw3 }
+
+ThreadedVolley/Hit1         THRVOLH1
+ThreadedVolley/Hit2         THRVOLH2
+ThreadedVolley/Hit3         THRVOLH3
+ThreadedVolley/Hit4         THRVOLH4
+$random ThreadedVolley/Hit { ThreadedVolley/Hit1 ThreadedVolley/Hit2 ThreadedVolley/Hit3 ThreadedVolley/Hit4 }
+
+ThreadedVolley/Energized1   THRVOLB1
+ThreadedVolley/Energized2   THRVOLB2
+$random ThreadedVolley/Energized { ThreadedVolley/Energized1 ThreadedVolley/Energized2 }
+
+ThreadedVolley/Burst1       THRVOLX1
+ThreadedVolley/Burst2       THRVOLX2
+ThreadedVolley/Burst3       THRVOLX3
+ThreadedVolley/Burst4       THRVOLX4
+ThreadedVolley/Burst5       THRVOLX5
+$random ThreadedVolley/Burst { ThreadedVolley/Burst1 ThreadedVolley/Burst2 ThreadedVolley/Burst3 ThreadedVolley/Burst4 ThreadedVolley/Burst5 }
+
+Rejuvenation/Cast REJUVCAS
+
+CorrosiveBreath/Release1    CORRBRL1
+CorrosiveBreath/Release2    CORRBRL2
+CorrosiveBreath/Release3    CORRBRL3
+$random CorrosiveBreath/Release { CorrosiveBreath/Release1 CorrosiveBreath/Release2 CorrosiveBreath/Release3 }
+
+CrushingRocks/Rise1         CRUSROR1
+CrushingRocks/Rise2         CRUSROR2
+CrushingRocks/Rise3         CRUSROR3
+$random CrushingRocks/Rise { CrushingRocks/Rise1 CrushingRocks/Rise2 CrushingRocks/Rise3 }
+
+CrushingRocks/Crush1        CRUSROH1
+CrushingRocks/Crush2        CRUSROH2
+$random CrushingRocks/Crush { CrushingRocks/Crush1 CrushingRocks/Crush2 }
+
 $alias RockGolem/Cast EarthLich/Rock
-$alias Blockade/Rise QuakeBase/Move1
-$alias Blockade/Break stone/death
-$alias Geyser/Quake QuakeBase/Move1
-$alias Geyser/Spit whiteballssee
-$alias UnleashEarth/Erupt BOULDHIT
-$alias UnleashEarth/Land EarthLich/RockHit
+
+Blockade/Rise1              BLOCKAD1
+Blockade/Rise2              BLOCKAD2
+$random Blockade/Rise { Blockade/Rise1 Blockade/Rise2 }
+
+Geyser/Rise1                GEYSERP1
+Geyser/Rise2                GEYSERP2
+Geyser/Rise3                GEYSERP3
+Geyser/Rise4                GEYSERP4
+$random Geyser/Rise { Geyser/Rise1 Geyser/Rise2 Geyser/Rise3 Geyser/Rise4 }
+
+$alias Geyser/Quake Upheaval/Rumble
+
+Geyser/Hit1                 GEYSERH1
+Geyser/Hit2                 GEYSERH2
+Geyser/Hit3                 GEYSERH3
+Geyser/Hit4                 GEYSERH4
+$random Geyser/Hit { Geyser/Hit1 Geyser/Hit2 Geyser/Hit3 Geyser/Hit4 }
+$limit Geyser/Hit1 8
+$limit Geyser/Hit2 8
+$limit Geyser/Hit3 8
+$limit Geyser/Hit4 8
+
+Geyser/SpitLoop1            GEYSERL1
+Geyser/SpitLoop2            GEYSERL2
+Geyser/SpitLoop3            GEYSERL3
+Geyser/SpitLoop4            GEYSERL4
+$random Geyser/SpitLoop { Geyser/SpitLoop1 Geyser/SpitLoop2 Geyser/SpitLoop3 Geyser/SpitLoop4 }
+
+UnleashEarth/Erupt1         UNLESER1
+UnleashEarth/Erupt2         UNLESER2
+UnleashEarth/Erupt3         UNLESER3
+UnleashEarth/Erupt4         UNLESER4
+$random UnleashEarth/Erupt { UnleashEarth/Erupt1 UnleashEarth/Erupt2 UnleashEarth/Erupt3 UnleashEarth/Erupt4 }
+$rolloff UnleashEarth/Erupt1 384 1800
+$rolloff UnleashEarth/Erupt2 384 1800
+$rolloff UnleashEarth/Erupt3 384 1800
+$rolloff UnleashEarth/Erupt4 384 1800
+
+UnleashEarth/Retract1       UNLESED1
+UnleashEarth/Retract2       UNLESED2
+UnleashEarth/Retract3       UNLESED3
+$random UnleashEarth/Retract { UnleashEarth/Retract1 UnleashEarth/Retract2 UnleashEarth/Retract3 }
+
+$alias Blockade/Break UnleashEarth/Retract
+$alias Blockade/Sink UnleashEarth/Retract

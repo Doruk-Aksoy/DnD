@@ -1216,6 +1216,11 @@ Actor SlayerHook : DnD_ExplosiveBase {
 	+THRUGHOST
 	+NOTARGETSWITCH
 	States {
+		RipSetup:
+			// the rip limit at spawn, before a first move can touch an enemy
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 8)
+			TNT1 A 1
+		Goto Spawn+1
 		SpawnState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 8)
 		SpawnLoop:
@@ -1601,6 +1606,11 @@ Actor ThunderAxeThrown : DnD_FastRipperBase {
 	+DONTREFLECT
 	+RIPPER
 	States {
+		RipSetup:
+			// the rip limit at spawn, before a first move can touch an enemy
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 5)
+			TNT1 A 1
+		Goto Spawn+1
 		SpawnState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 5)
 			// this 1 here is for safety on inverse calc as the range increase will be 100 - r on the A_FadeOut, can't have it go to 0 now

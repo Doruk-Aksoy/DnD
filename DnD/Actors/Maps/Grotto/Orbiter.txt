@@ -1,0 +1,266 @@
+Actor TrueMoonSetup 31569
+{
+	Renderstyle "Add"
+	XScale 3.0
+
+	YScale 1.0
+	Alpha 0.25
+	+FORCEYBILLBOARD
+	+FLOORHUGGER
+	States
+	{
+	Spawn:
+	TNT1 A 0 Nodelay  // A_SpawnItemEx("Orbiter_moon",0 ,random(1,2),45,		0,0,0,0,0,0,tid*10)
+	TNT1 A 0 //A_SpawnItemEx("moonphaser2",0 ,random(1,2),45,		0,0,0,0,0,0,tid)
+	TNT1 A 5 
+	TNT1 A 0 A_spawnitemEX("TrueMoonEntity", 0, 0, 0, 0, 0, 0, 0, SXF_SETMASTER,0,tid)
+	TNT1 A 0 A_spawnitemEX("TrueMoonPhaser", 0, 0, 0, 0, 0, 0, 0, SXF_SETMASTER,0,tid)
+	SRBL A 8 bright A_FadeIn(1.1)
+	SpawnLoop:
+		SRBL ABCDEFGHIHGFEDCB 4 bright
+		loop
+		RedSpawnLoop:
+		SBBL ABCDEFGHIHGFEDCB 4 bright
+		loop
+	InvisLoop:
+		TNT1 A 4 bright
+		loop
+	FadeOut:
+		SBBL A 8 Bright A_FadeOut(0.05)
+		Loop
+	}
+}
+Actor MoonSetup 31568
+{
+	Renderstyle "Add"
+	XScale 2.5
+	YScale 1.0
+	Alpha 0.25
+	radius 48
+	+FORCEYBILLBOARD
+	+FLOORHUGGER
+	States
+	{
+	Spawn:
+	TNT1 A 0 Nodelay
+	TNT1 A 5 
+	TNT1 A 0 A_spawnitemEX("MoonEntity", 0, 0, 0, 0, 0, 0, 0, SXF_SETMASTER,0,tid)
+	TNT1 A 0 A_spawnitemEX("MoonPhaser", 0, 0, 0, 0, 0, 0, 0, SXF_SETMASTER,0,tid)
+	//TNT1 A 0 A_spawnitemEX("MoonRuneA", 0, 0, 0, 0, 0, 0, 0, SXF_SETMASTER,0,tid)
+	//TNT1 A 0 A_spawnitemEX("MoonRuneB", 0, 0, 0, 0, 0, 0, 0, SXF_SETMASTER,0,tid)
+	//TNT1 A 0 A_spawnitemEX("MoonRuneC", 0, 0, 0, 0, 0, 0, 0, SXF_SETMASTER,0,tid)
+	//TNT1 A 0 A_spawnitemEX("MoonRuneD", 0, 0, 0, 0, 0, 0, 0, SXF_SETMASTER,0,tid)
+	SBBL A 8 bright A_FadeIn(1.1)
+	SpawnLoop:
+		SABL ABCDEFGHIHGFEDCB 4 bright
+		loop
+	FadeOut:
+		SABL A 1 Bright A_FadeOut(0.1)
+		Loop
+	}
+}
+ACTOR MoonEntity
+{
+radius 48
++FORCEXYBILLBOARD
+scale 1.0
+		States{
+Spawn:
+    MOON X -1
+    stop
+	}}
+ACTOR MoonPhaser
+{
+radius 48
++FORCEXYBILLBOARD
+scale 1.0
+		States{
+Spawn:
+    MNPH A 0 Nodelay
+SpawnIdle:
+	MNPH E 35
+    loop
+PhaseALoop:
+	MNPH A 35
+    loop
+PhaseBLoop:
+	MNPH B 35
+    loop
+PhaseCLoop:
+	MNPH C 35
+    loop
+PhaseDLoop:
+	MNPH D 35
+    loop
+PhaseELoop:
+	MNPH E 35
+    loop
+	}}
+Actor RuneFX
+{
+	+NoBlockmap
+	+NoInteraction
+	+FORCEYBILLBOARD
+	+CLIENTSIDEONLY
+	Radius 1
+	Height 1
+	RenderStyle "ADD"
+	Alpha 1.0
+	Scale 0.5
+	States
+	{
+	Spawn:
+		TNT1 A 0 Nodelay A_jump(256,"A","B","C","D","E","F","G","H")
+		stop
+	A:
+
+		DCDE ACE 4 Bright A_FadeOut(0.1)
+		loop
+	B:
+
+		DCDE BDF 4 Bright A_FadeOut(0.1)
+		loop
+	C:
+
+		DCDE CEG 4 Bright A_FadeOut(0.1)
+		loop
+	D:
+
+		DCDE DFH 4 Bright A_FadeOut(0.1)
+		loop
+	E:
+
+		DCDE EGA 4 Bright A_FadeOut(0.1)
+		loop
+	F:
+
+		DCDE FHB 4 Bright A_FadeOut(0.1)
+		loop
+	G:
+
+		DCDE GAC 4 Bright A_FadeOut(0.1)
+		loop
+	H:
+
+		DCDE HBD 4 Bright A_FadeOut(0.1)
+		loop
+	}
+}
+Actor RuneFX2 : RuneFX
+{
+	+SOLID
+	+Shootable
+	+invulnerable
+	+NOGRAVITY
+	-NoBlockmap
+	-NoInteraction
+	+FORCEYBILLBOARD
+	-CLIENTSIDEONLY
+	Radius 16
+	Height 16
+}
+Actor Orbiter_Moon
+{
+  Height 32
+  Radius 32
+  mass 99999
+  +FORCEYBILLBOARD
+  var int user_count;
+  var int user_stock;
+  var int user_stockb;
+  RenderStyle Add
+  Alpha 1
+  projectile
+  +RIPPER
+  +NOTARGETSWITCH
+  +NOGRAVITY
+  +NOCLIP +NOBLOCKMAP
+  DONTHURTSHOOTER
+		States{
+Spawn:
+	RTUR A 0 Bright NoDelay A_SetUserVar("user_stockb",  1575)
+Idle:
+    MZZN Z  1 Bright A_Warp(AAPTR_TARGET, 561, 0, 100, user_stock, WARPF_ABSOLUTEANGLE|WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE)
+	loop
+Spawnloop:
+	MOON AAA 0 A_SpawnItemEx("RuneFx2",random(-20,20),random(-20,20),random(-60,80),0,0,0)
+	RTUR A 0 A_jumpif(user_stockb <=0,"PhaseIncrease")
+	RTUR A 0 A_SetUserVar("user_stock",  user_stock+27)
+	RTUR A 0 A_SetUserVar("user_stockb",  user_stockb-9)
+    MZZN Z 1 Bright A_Warp(AAPTR_TARGET, 400, 0, 100, 0, WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE)
+	
+	//MZZN Z 1 Bright A_Warp(AAPTR_TARGET, 561, 0, 330, user_stock/35, WARPF_ABSOLUTEANGLE|WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE)
+    Loop
+PhaseIncrease:
+	MZZN Z 0 bright ACS_namedexecutealways("ProcessData",0,user_count,0)
+	RTUR A 0 A_SetUserVar("user_count",  user_count+1)
+	RTUR A 0 A_SetUserVar("user_stockb",  1575)
+	RTUR A 0 ACS_namedexecutealways("moon cycle",0,user_count)
+	goto Spawnloop
+/*
+PhaseIncreaseWait:
+	MZZN Z 1 bright  A_Warp(AAPTR_TARGET, 561, 0, 100, user_stock/35, WARPF_ABSOLUTEANGLE|WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE)
+	//loop
+PhaseIncreaseEnd:
+	MZZN Z 1 Bright A_Warp(AAPTR_TARGET, 561, 0, 100, user_stock/35, WARPF_ABSOLUTEANGLE|WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE)
+	RTUR A 0 A_SetUserVar("user_count",  user_count+1)
+	RTUR A 0 A_SetUserVar("user_stockb",  1575)
+	RTUR A 0 ACS_namedexecutealways("moon cycle",0,user_count)
+	goto spawnloop*/
+Stoploop:
+    MZZN Z  1
+    Loop
+Death:
+	RTUR A 0 A_die
+	RTUR C 4 
+	RTUR C 2 A_Fall
+FadeOut:
+	MZZN Z 4 A_fadeout(0.05)
+	loop
+}}
+ACTOR TrueMoonEntity
+{
++FORCEXYBILLBOARD
+XScale 3.0
+scale 1.75
+		States{
+Spawn:
+    MOON X 1 bright
+    loop
+RedSpawnloop:
+	MOON W 1 bright
+	loop
+FadeOut:
+		MOON W 8 Bright A_FadeOut(0.05)
+		Loop
+	}}
+ACTOR TrueMoonPhaser
+{
++FORCEXYBILLBOARD
+XScale 3.0
+scale 1.75
+		States{
+Spawn:
+    MNPH A 0 Nodelay
+SpawnIdle:
+	MNPH E 35
+    loop
+PhaseALoop:
+	MNPH A 35
+    loop
+PhaseBLoop:
+	MNPH B 35
+    loop
+PhaseCLoop:
+	MNPH C 35
+    loop
+PhaseDLoop:
+	MNPH D 35
+    loop
+PhaseELoop:
+	MNPH E 35
+    loop
+FadeOut:
+		MNPH A 8 Bright A_FadeOut(0.05)
+		Loop
+	}}

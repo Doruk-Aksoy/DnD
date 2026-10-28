@@ -1,0 +1,60 @@
+warp texture GR_0000 0.1
+TEXTURE GR_0005
+    pic GR_0005 tics 4
+    pic GR_0006 tics 4
+	pic GR_0007 tics 4
+	
+texture GRWATERA
+pic 1 tics 4
+pic 2 tics 4
+pic 3 tics 4
+pic 4 tics 4
+pic 5 tics 4
+pic 6 tics 4
+pic 7 tics 4
+pic 8 tics 4
+pic 9 tics 4
+pic 10 tics 4
+pic 11 tics 4
+pic 12 tics 4
+pic 13 tics 4
+pic 14 tics 4
+pic 15 tics 4
+pic 16 tics 4
+pic 17 tics 4
+pic 18 tics 4
+pic 19 tics 4
+pic 20 tics 4
+pic 21 tics 4
+pic 22 tics 4
+pic 23 tics 4
+pic 24 tics 4
+pic 25 tics 4
+pic 26 tics 4
+
+warp flat GRWATERA
+warp flat GRWATERB
+warp flat GRWATERC
+warp flat GRWATERD
+warp flat GRWATERE
+warp flat GRWATERF
+warp flat GRWATERG
+warp flat GRWATERH
+warp flat GRWATERI
+warp flat GRWATERJ
+warp flat GRWATERK
+warp flat GRWATERL
+warp flat GRWATERM
+warp flat GRWATERN
+warp flat GRWATERO
+warp flat GRWATERP
+warp flat GRWATERQ
+warp flat GRWATERR
+warp flat GRWATERS
+warp flat GRWATERT
+warp flat GRWATERU
+warp flat GRWATERV
+warp flat GRWATERW
+warp flat GRWATERX
+warp flat GRWATERY
+warp flat GRWATERZ

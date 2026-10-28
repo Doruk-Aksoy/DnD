@@ -33,8 +33,8 @@ Actor P_MetronomeWindow : Ammo {
 	+IGNORESKILL
 }
 
-// The cast in progress, packed exactly as P_HotbarCd is: the client animates the cast bar off its
-// own Timer() rather than being told the fraction every tic. Zero means nothing is being cast.
+// The cast in progress: its end tic, which the client animates the bar off with its own Timer(). Zero means nothing is
+// being cast; the bar's total rides in P_CastSpell above bit 16.
 Actor P_CastProgress : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF
@@ -43,7 +43,8 @@ Actor P_CastProgress : Ammo {
 	+IGNORESKILL
 }
 
-// Which spell it is, for the label over the bar. Spell id + 1, zero for none; 0x8000 when it counts a channel's window down.
+// Which spell it is, for the label over the bar. Spell id + 1, zero for none; 0x8000 when it counts a channel's window
+// down; the packed total from bit 16.
 Actor P_CastSpell : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF
@@ -53,7 +54,7 @@ Actor P_CastSpell : Ammo {
 }
 
 // Hotbar mirrors. The bar draws clientside and SpellPlayerData is a global, so the binding and
-// the packed cooldown word have to cross as inventory.
+// the cooldown words have to cross as inventory.
 Actor P_Hotbar1 : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF
@@ -62,9 +63,8 @@ Actor P_Hotbar1 : Ammo {
 	+IGNORESKILL
 }
 
-// Multi charge hotbar slots. CdB is the SECOND charge's cooldown word, packed exactly as
-// P_HotbarCd is; Chg is how many charges the spell has at all, so the client can tell
-// "second charge ready" from "there is no second charge".
+// Multi charge hotbar slots. CdB is the SECOND charge's end tic, as P_HotbarCd is the first's; Chg is how many charges
+// the spell has at all, so the client can tell "second charge ready" from "there is no second charge".
 Actor P_HotbarCdB1 : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF
@@ -287,6 +287,55 @@ Actor P_Hotbar6 : Ammo {
 }
 
 Actor P_HotbarCd6 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+// Each slot's packed cooldown total, beside its whole end tics (packed in one word, the tic overflowed ~8.3 hours in).
+Actor P_HotbarTot1 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor P_HotbarTot2 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor P_HotbarTot3 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor P_HotbarTot4 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor P_HotbarTot5 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor P_HotbarTot6 : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF
 	ammo.backpackamount 0
