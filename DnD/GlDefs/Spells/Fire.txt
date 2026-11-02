@@ -215,3 +215,14 @@ Object Spell_FireDemon_BurningGround_Final {
     Frame S011M { Light HellFire_13 }
     Frame S011N { Light HellFire_14 }
 }
+
+// Gem chain and fork hops: the projectiles' flight lights.
+object Spell_Fireball_GemArc {
+    frame FX14A { light SERPENTBALL }
+    frame FX14B { light SERPENTBALL }
+    frame FX14C { light SERPENTBALL }
+}
+
+object Spell_Pyroblast_GemArc {
+    frame PYRB { light FireJetTrapLight }
+}

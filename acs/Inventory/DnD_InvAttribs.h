@@ -573,6 +573,9 @@ int MapAttributeToPStat(int mod) {
 		case INV_INC_BLOCKPREVENTION:               return PSTAT_INC_BLOCKPREVENTION;
 		case INV_INC_RIPPERSEXPLODE:                return PSTAT_INC_RIPPERSEXPLODE;
 		case INV_INC_INVERTRESISTANCES:             return PSTAT_INC_INVERTRESISTANCES;
+		case INV_INC_WEAPONDMG_PERINT:              return PSTAT_INC_WEAPONDMG_PERINT;
+		case INV_INC_SPELLDMG_PERSTR:               return PSTAT_INC_SPELLDMG_PERSTR;
+		case INV_INC_SPELLDMG_PERDEX:               return PSTAT_INC_SPELLDMG_PERDEX;
 
 		// unique mods
 		case INV_EX_CHANCE_CASTELEMSPELLONATK:      return PSTAT_EX_CHANCE_CASTELEMSPELLONATK;
@@ -681,6 +684,14 @@ int MapAttributeToPStat(int mod) {
 		case INV_REGENRATE:                         return PSTAT_REGENRATE;
 		case INV_FLAT_LIFEREGEN:                    return PSTAT_REGEN_FLAT;
 		case INV_PCT_LIFEREGEN:                     return PSTAT_REGEN_PCT;
+		case INV_MINION_DAMAGE:                     return PSTAT_MINION_DAMAGE;
+		case INV_MINION_CDR:                        return PSTAT_MINION_CDR;
+		case INV_MINION_CRIT:                       return PSTAT_MINION_CRIT;
+		case INV_MINION_CRITDAMAGE:                 return PSTAT_MINION_CRITDAMAGE;
+		case INV_MINION_CRITPERCENT:                return PSTAT_MINION_CRITPERCENT;
+		case INV_MINION_HEALTH:                     return PSTAT_MINION_HEALTH;
+		case INV_MINION_RES_CORPOREAL:              return PSTAT_MINION_RES_BASE + DND_MINIONRES_CORPOREAL;
+		case INV_MINION_RES_MAGIC:                  return PSTAT_MINION_RES_BASE + DND_MINIONRES_MAGIC;
 		case INV_FLAT_TECH:                         return PSTAT_FLAT_TECH;
 		case INV_FLAT_PRECISION:                    return PSTAT_FLAT_PRECISION;
 		case INV_TECH_PERCENT:                      return PSTAT_TECH_PERCENT;
@@ -915,6 +926,7 @@ bool IsFixedPointMod(int mod) {
 		case INV_CRITPERCENT_INCREASE_GLOBAL:
 		case INV_CRIT_SPELL:
 		case INV_CRITCHANCE_INCREASE_SPELL:
+		case INV_MINION_CRIT:
 		case INV_CRITPERCENT_FORWEPTYPE:
 		case INV_DAMAGEPERCENT_MORE:
 		case INV_BLOCKERS_MOREDMG:
@@ -1634,7 +1646,14 @@ int MapItemTypeToCraftableID(int type) {
 }
 
 int PickRandomIncursionMod() {
-	return random(FIRST_INCURSION_ATTRIBUTE, LAST_INCURSION_ATTRIBUTE);
+	int i, w = 0;
+	for(i = FIRST_INCURSION_ATTRIBUTE; i <= LAST_INCURSION_ATTRIBUTE; ++i)
+		w += ItemModTable[i].weight;
+
+	w = random(1, w);
+	for(i = FIRST_INCURSION_ATTRIBUTE; i < LAST_INCURSION_ATTRIBUTE && w > ItemModTable[i].weight; ++i)
+		w -= ItemModTable[i].weight;
+	return i;
 }
 
 #include "DnD_InvAttribText.h"

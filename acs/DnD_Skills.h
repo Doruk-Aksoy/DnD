@@ -78,45 +78,37 @@ Script "DnD Minion Cooldown" (int which) {
 	}
 }
 
+// GraveCaller: the dying enemy rises as the spell's zombie where it fell, at its killer's Summon: Zombie rank, 1 if not learned.
 void HandleZombieRaiseOnDeath(int target) {
-	int pet_tid = target - P_TIDSTART + TEMPORARY_PET_TID;
+	int pnum = target - P_TIDSTART;
+	int pet_tid = TEMPORARY_PET_TID + pnum;
 	int this = ActivatorTID();
-	SpawnForced("ZombiePet", GetActorX(this), GetActorY(this), GetActorFloorZ(this), pet_tid);
-	GiveActorInventory(target, "SummonedZombiePets", 1);
-	GiveActorInventory(target, "PetCounter", 1);
-	// assignments of properties
-	SetActorProperty(pet_tid, APROP_MASTERTID, target);
-	SetActivator(pet_tid);
-	SetPointer(AAPTR_MASTER, target);
-	SetActorProperty(0, APROP_FRIENDLY, true);
-	Thing_ChangeTID(pet_tid, 0);
-	SetActivator(target);
-	// do the trigger
-	ACS_NamedExecuteAlways("DnD On Pet Summon", 0);
+	if(SpawnForced(GetZombieClass(pnum), GetActorX(this), GetActorY(this), GetActorFloorZ(this), pet_tid)) {
+		SetupZombiePet(pnum, pet_tid);
+		ApplyPortalBoon(pnum, pet_tid);
+	}
 	SetActivator(this);
 }
 
 void CleanPetStuff() {
-	SetInventory("SummonedZombiePets", 0);
 	SetInventory("PetCounter", 0);
 	for(int i = 0; i < DND_MAX_PETPAINSHARE; ++i)
 		TakeInventory(StrParam(s:"PetDamageReduction_", d:i + 1), 1);
 }
 
-// One rate for every pet. The per kind switch is gone: it keyed off the id shifted out of the
-// caller's damage argument, and every pet passes a plain number there, so every pet collected the
-// zombie's figure regardless -- a bug that was invisible while the zombie was the only pet, and
-// pointless to fix when the answer is the same for all of them anyway.
-int GetPetDamageFactor(int master) {
-	return GetIntellectEffect(master - P_TIDSTART, DND_PET_DMG_PER_INT);
-}
-
 // The summoning spell's "more minion damage", looked up by pet kind. Carried on the pet at spawn
 // so the damage scale can apply it without knowing which spell produced the thing it is scaling.
-int GetPetSpellDamageBonus(int pnum, int petid) {
+// rank 0 reads the spell's own rank; the spell panel passes the rank it previews.
+int GetPetSpellDamageBonus(int pnum, int petid, int rank = 0) {
 	int bonus = 0, spell = GetPetSummonSpell(petid);
 	if(petid == MONSTER_PET_FIREDEMON)
-		bonus = GetSpellValue(pnum, SPL_FIREDEMON, SPELLVAL_DAMAGE2);
+		bonus = GetSpellValue(pnum, SPL_FIREDEMON, SPELLVAL_DAMAGE2, rank);
+	// Skeleton Mastery's more damage, and a mage's own more on top.
+	else if(petid == MONSTER_PET_SKELETON || petid == MONSTER_PET_SKELETONMAGE) {
+		bonus = GetSpellValue(pnum, SPL_SKELETONMASTERY, SPELLVAL_DAMAGE);
+		if(petid == MONSTER_PET_SKELETONMAGE)
+			bonus = (100 + bonus) * (100 + DND_SKELETONMAGE_MORE) / 100 - 100;
+	}
 
 	// Commander: the summoning spell's gems, MORE on top of the row's own bonus.
 	if(spell != -1)
@@ -125,13 +117,81 @@ int GetPetSpellDamageBonus(int pnum, int petid) {
 }
 
 int GetPetSummonSpell(int petid) {
-	if(petid == MONSTER_PET_FIREDEMON)
-		return SPL_FIREDEMON;
-	if(petid == MONSTER_PET_ICEGOLEM)
-		return SPL_ICEGOLEM;
-	if(petid == MONSTER_PET_ROCKGOLEM)
-		return SPL_ROCKGOLEM;
+	switch(petid) {
+		case MONSTER_PET_FIREDEMON:		return SPL_FIREDEMON;
+		case MONSTER_PET_ICEGOLEM:		return SPL_ICEGOLEM;
+		case MONSTER_PET_ROCKGOLEM:		return SPL_ROCKGOLEM;
+		case MONSTER_PET_ZOMBIE:		return SPL_ZOMBIE;
+		case MONSTER_PET_SKELETON:
+		case MONSTER_PET_SKELETONMAGE:	return SPL_SKELETON;
+		case MONSTER_PET_GHAST:			return SPL_GHAST;
+		case MONSTER_PET_SLAYERKNIGHT:	return SPL_SLAYERKNIGHT;
+		case MONSTER_PET_DOOMGUARD:		return SPL_DOOMGUARD;
+		case MONSTER_PET_DARKPORTAL:	return SPL_DARKPORTAL;
+	}
 	return -1;
+}
+
+// The pet kind a summon spell makes, or -1. Skeleton's mage is its own kind, decided at the summon.
+int GetSummonPetKind(int spell) {
+	switch(spell) {
+		case SPL_FIREDEMON:		return MONSTER_PET_FIREDEMON;
+		case SPL_ICEGOLEM:		return MONSTER_PET_ICEGOLEM;
+		case SPL_ROCKGOLEM:		return MONSTER_PET_ROCKGOLEM;
+		case SPL_ZOMBIE:		return MONSTER_PET_ZOMBIE;
+		case SPL_SKELETON:		return MONSTER_PET_SKELETON;
+		case SPL_GHAST:			return MONSTER_PET_GHAST;
+		case SPL_SLAYERKNIGHT:	return MONSTER_PET_SLAYERKNIGHT;
+		case SPL_DOOMGUARD:		return MONSTER_PET_DOOMGUARD;
+		case SPL_DARKPORTAL:	return MONSTER_PET_DARKPORTAL;
+	}
+	return -1;
+}
+
+// Pet cap points a pet takes: the heavier minions more, the Dark Portal none.
+int GetPetCapWeight(int petid) {
+	switch(petid) {
+		case MONSTER_PET_GHAST:			return 2;
+		case MONSTER_PET_SLAYERKNIGHT:	return 3;
+		case MONSTER_PET_DOOMGUARD:		return 5;
+		case MONSTER_PET_DARKPORTAL:	return 0;
+	}
+	return 1;
+}
+
+// Pets that follow their master through a regular map exit: the untimed ones. Zombies and skeletons once a mastery
+// takes their duration away; never the Dark Portal.
+bool IsPetCarried(int pnum, int petid) {
+	switch(petid) {
+		case MONSTER_PET_ROCKGOLEM:
+		case MONSTER_PET_ICEGOLEM:
+		case MONSTER_PET_FIREDEMON:
+		case MONSTER_PET_GHAST:
+		case MONSTER_PET_SLAYERKNIGHT:
+		case MONSTER_PET_DOOMGUARD:
+		return true;
+		case MONSTER_PET_ZOMBIE:
+		case MONSTER_PET_SKELETON:
+		case MONSTER_PET_SKELETONMAGE:
+		return GetMinionLifeTics(pnum, GetPetSummonSpell(petid), 0) == 0;
+	}
+	return false;
+}
+
+// How many of a summon's pets may stand at once. The rows that say so (AMOUNT on the golems and the demon); zombies,
+// skeletons and the heavy minions only the pet cap; one Dark Portal.
+int GetSummonKindCap(int pnum, int spell) {
+	switch(spell) {
+		case SPL_ZOMBIE:
+		case SPL_SKELETON:
+		case SPL_GHAST:
+		case SPL_SLAYERKNIGHT:
+		case SPL_DOOMGUARD:
+		return DND_MAX_PETS_PER_PLAYER;
+		case SPL_DARKPORTAL:
+		return 1;
+	}
+	return Max(1, GetSpellValue(pnum, spell, SPELLVAL_AMOUNT));
 }
 
 // A pet's stored resists, once its traits are in: its spell's rank bonuses first, then the same trait rules as a monster's.
@@ -143,15 +203,33 @@ void InitPetResists(int tid, int pnum, int petid) {
 		SetPetMonsterTrait(m_id, DND_ELEMENTAL_IMMUNE, true);
 		SetActorInventory(tid, "DnD_ExplosiveResist", DND_ROCKGOLEM_R10_EXPLOSIVE);
 	}
+	else if(petid == MONSTER_PET_ZOMBIE)
+		bonus = DND_ZOMBIE_R10_RES * SpellThresholdMet(pnum, SPL_ZOMBIE, DND_SPELL_THRESH_HIGH);
+
+	// Dark Portal rank 10, for a minion summoned near it.
+	if(CheckActorInventory(tid, "DnD_PortalBoon") & DND_PORTALBOON_RESIST)
+		bonus += DND_DARKPORTAL_R10_RES;
+
+	// Summon Mastery rank 10: Hardened Skin (rippers stop on it).
+	if(SpellThresholdMet(pnum, SPL_SUMMONMASTERY, DND_SPELL_THRESH_HIGH)) {
+		SetPetMonsterTrait(m_id, DND_HARDENED_SKIN, true);
+		GiveActorInventory(tid, "MakeHardenedSkin", 1);
+	}
 	FillUnitResists(m_id, bonus, true);
 }
 
-// The script a summon spell casts, so a revived minion comes back as its own kind.
+// The script a summon spell casts, so a revived or carried minion comes back as its own kind.
 str GetSpellSummonScript(int spell) {
-	if(spell == SPL_FIREDEMON)
-		return "DnD Summon Fire Demon";
-	if(spell == SPL_ROCKGOLEM)
-		return "DnD Summon Rock Golem";
+	switch(spell) {
+		case SPL_FIREDEMON:		return "DnD Summon Fire Demon";
+		case SPL_ROCKGOLEM:		return "DnD Summon Rock Golem";
+		case SPL_ZOMBIE:		return "DnD Summon Zombie";
+		case SPL_SKELETON:		return "DnD Summon Skeleton";
+		case SPL_GHAST:			return "DnD Summon Ghast";
+		case SPL_SLAYERKNIGHT:	return "DnD Summon Slayer Knight";
+		case SPL_DOOMGUARD:		return "DnD Summon Doomguard";
+		case SPL_DARKPORTAL:	return "DnD Summon Dark Portal";
+	}
 	return "DnD Summon Ice Golem";
 }
 
@@ -170,13 +248,13 @@ Script "DnD Cast Spell" (int spell_id, int usesCooldown) NET {
 		case DND_SPELL_RALLY:
 			ActivatorSound("Spell/RallyCast", 127);
 			spell_level = PlayerModData[pnum].vals[PSTAT_EX_ABILITY_RALLY];
-			temp = RALLY_DISTANCE + GetIntellectEffect(pnum, RALLY_DIST_PER_INT);
 			bufftimer = RALLY_DURATION * TICRATE;
 
 			// Pack both halves of the spell into the one spare parameter:
 			// damage percent in the low 16 bits, speed percent in the high 16.
 			// Both level curves are resolved here, where their constants live.
 			temp2 = Clamp_Between(spell_level, DND_SKILL_MINLEVEL, DND_SKILL_MAXLEVEL);
+			temp = RALLY_DISTANCE + (temp2 - 1) * RALLY_DIST_PER_LEVEL;
 			temp2 = (RALLY_BASEDAMAGE + (temp2 - 1) * RALLY_DAMAGEPERLVL) | ((8 + temp2) << 16);
 
 			for(i = P_TIDSTART; i < P_TIDSTART + MAXPLAYERS; ++i) {

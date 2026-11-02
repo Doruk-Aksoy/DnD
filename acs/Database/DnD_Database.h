@@ -34,8 +34,7 @@ void FinishDBTransaction() {
 }*/
 
 void RestoreResearchItems() {
-	if(CheckResearchStatus(RES_DOUBLESPECIALCAP) == RES_DONE)
-		DoubleSpecialAmmoCapacity();
+	SetSpecialAmmoCapacities(PlayerNumber());
 }
 
 // The packed perk lanes. Written by BOTH save paths on purpose: the activity save is what runs at a
@@ -369,6 +368,29 @@ void SavePlayerItem(int pnum, int char_id, int itemid, int source) {
 	}
 }
 
+// The character's untimed pets as they stand now, recorded fresh: none once they died with their master.
+void SavePlayerPets(int pnum, int char_id, str pacc) {
+	RecordPlayerPets(pnum);
+	for(int i = 0; i < DND_PETCARRY_MAX; ++i)
+		SetDBEntry(GetCharField(StrParam(s:DND_DB_PETS, d:i), char_id), pacc, PetCarry[pnum * DND_PETCARRY_STRIDE + 1 + i]);
+}
+
+// Read back under a fresh ticket; the end of "DnD Player Setup" summons them.
+void LoadPlayerPets(int pnum, int char_id, str pacc) {
+	int i, v, n = 0;
+	for(i = 0; i < DND_PETCARRY_MAX; ++i) {
+		v = GetDBEntry(GetCharField(StrParam(s:DND_DB_PETS, d:i), char_id), pacc);
+		PetCarry[pnum * DND_PETCARRY_STRIDE + 1 + i] = v;
+		n += !!v;
+	}
+	SetPetCarryTicket(pnum, n ? random(1, 0x7FFFFFFF) : 0);
+}
+
+void DB_ClearPetData(int char_id, str pacc) {
+	for(int i = 0; i < DND_PETCARRY_MAX; ++i)
+		SetDBEntry(GetCharField(StrParam(s:DND_DB_PETS, d:i), char_id), pacc, 0);
+}
+
 void SavePlayerData(int pnum, int char_id) {
 	int temp, tid = pnum + P_TIDSTART, i, j;
 	char_id = Clamp_Between(char_id, 0, DND_MAX_CHARS - 1);
@@ -560,7 +582,8 @@ void SavePlayerData(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_KILLTRACKER, char_id), pacc, CheckActorInventory(pnum + P_TIDSTART, "DnD_LifeTimeKills"));
 	SetDBEntry(GetCharField(DND_DB_KILLTRACKER_MILLION, char_id), pacc, CheckActorInventory(pnum + P_TIDSTART, "DnD_LifeTimeKills_Millions"));
 	SetDBEntry(GetCharField(DND_DB_KILLTRACKER_BILLION, char_id), pacc, CheckActorInventory(pnum + P_TIDSTART, "DnD_LifeTimeKills_Billions"));
-	
+	SavePlayerPets(pnum, char_id, pacc);
+
 	#ifdef ISAPRILFIRST
 		// save nft
 		SetDBEntry(GetCharField(DND_DB_NFT, char_id), pacc, CheckActorInventory(tid, "NFT_Token"));
@@ -661,7 +684,9 @@ void SavePlayerActivities(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_VOTESKIPS, char_id), pacc, PlayerActivities[pnum].vote_skips);
 	for(i = 0; i < MAX_MAPS_RECORDED; ++i)
 		SetDBEntryString(GetCharField(StrParam(s:DND_DB_TRACKEDMAP, d:i), char_id), pacc, PlayerActivities[pnum].visited_maps[i]);
-	
+	// The death and disconnect saves: pets that died with their master leave none, a disconnect keeps those standing.
+	SavePlayerPets(pnum, char_id, pacc);
+
 	Log(s:"Saving player ", n:pnum + 1, s:"'s activities.");
 }
 
@@ -1104,7 +1129,7 @@ void LoadPlayerData(int pnum, int char_id) {
 	
 	// Restoration steps
 	RestoreRPGStat(RES_PLAYERSPEED | RES_NOCLASSPERK);
-	UpdatePlayerKnockbackResist();
+	UpdateStrengthDerivedStats();
 	
 	// fixes some clientside things not being synced right on load
 	ACS_NamedExecuteAlways("DnD Menu Reset Forced", 0);
@@ -1125,6 +1150,8 @@ void LoadPlayerData(int pnum, int char_id) {
 		SetInventory("NFT_Token", GetDBEntry(GetCharField(DND_DB_NFT, char_id), pacc));
 	#endif
 	
+	LoadPlayerPets(pnum, char_id, pacc);
+
 	//printbold(s:"finish load");
 	Log(s:"Loaded player ", n:pnum + 1, s:"'s data.");
 }
@@ -1141,6 +1168,18 @@ void load_char(int pnum, int char_id) {
 	SetInventory("CanLoad", 0);
 
 	LoadPlayerData(pnum, char_id);
+	// A load can land after "DnD Player Setup" has run its own restore, from the skip or from the menu.
+	ACS_NamedExecuteAlways("DnD Restore Loaded Pets", 0, pnum);
+}
+
+// The loaded character's pets come back once the game runs and the player stands unfrozen; a no-op if the setup's
+// own restore, at its end, got to them first.
+Script "DnD Restore Loaded Pets" (int pnum) {
+	while(PlayerInGame(pnum) && (GetGameModeState() != GAMESTATE_INPROGRESS || GetActorProperty(pnum + P_TIDSTART, APROP_INVULNERABLE)))
+		Delay(const:TICRATE / 2);
+	Delay(const:TICRATE);
+	if(PlayerInGame(pnum) && IsActorAlive(pnum + P_TIDSTART))
+		RestoreCarriedPets(pnum);
 }
 
 // A non-zero saved health is what "this slot holds a real character" means everywhere in here --
@@ -1235,6 +1274,7 @@ void WipeoutPlayerData(int pnum, int cid) {
 
 	DB_ClearPerkData(char_id, pacc);
 	DB_ClearSpellData(char_id, pacc);
+	DB_ClearPetData(char_id, pacc);
 
 	SetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ESHIELD, char_id), pacc, 0);
@@ -1393,6 +1433,7 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 
 	DB_ClearPerkData(char_id, pacc);
 	DB_ClearSpellData(char_id, pacc);
+	DB_ClearPetData(char_id, pacc);
 
 	SetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc, 100); // base health
 	SetDBEntry(GetCharField(DND_DB_ESHIELD, char_id), pacc, 0);

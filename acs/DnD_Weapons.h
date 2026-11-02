@@ -129,13 +129,43 @@ void HandleMagazinePerks(int pnum, str ammo) {
 	}
 }
 
+// The last two classes asked about and their answers: a shot can ask about two classes in turn.
+typedef struct {
+	int next;
+	bool valid[2];
+	str ammo[2];
+	bool res[2];
+} magazine_memo_T;
+
+magazine_memo_T module& GetMagazineMemo() {
+	static magazine_memo_T memo;
+	return memo;
+}
+
 // Is this ammo class one of the magazines? Perception's magazine perks all need to know, and the
 // class name is the only thing TakeAmmoFromPlayer is given -- there is no magazine id at that point.
 bool IsMagazineAmmoClass(str ammo) {
-	for(int i = 0; i < DND_MAX_MAGAZINES; ++i)
-		if(WeaponMagazineList[i] == ammo)
-			return true;
-	return false;
+	magazine_memo_T module& memo = GetMagazineMemo();
+	int k;
+	for(k = 0; k < 2; ++k) {
+		if(memo.valid[k] && memo.ammo[k] == ammo)
+			return memo.res[k];
+	}
+
+	bool res = false;
+	for(int i = 0; i < DND_MAX_MAGAZINES; ++i) {
+		if(WeaponMagazineList[i] == ammo) {
+			res = true;
+			break;
+		}
+	}
+
+	k = memo.next;
+	memo.valid[k] = true;
+	memo.ammo[k] = ammo;
+	memo.res[k] = res;
+	memo.next = 1 - k;
+	return res;
 }
 
 int TakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt, int flags = 0) {
@@ -201,6 +231,9 @@ int TakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt, int flags = 0) {
 
 // we get weapon id, primary or alt and flags only
 // ammo_slot >> 16 contains subslot, first 16 contains main slot
+// "DnD Fire Weapon"'s working vectors in one heap block: a Vec2_T, then five Vec3_T.
+#define DND_FIRE_WORK_INTS 17
+
 Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 	// The weapon is no longer idle. Cleared here rather than in 465 DECORATE states, and reaching
 	// this script already means the shot passed the canFire gate.
@@ -246,17 +279,27 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 	str proj_name_alt = "";			// alternative name
 	int count = 1;					// proj count
 	int sp_x = 0, sp_y = 0;			// spread values
-	Vec2_T* angle_vec = GetVec2();		// negative is left, positive is right
-	Vec3_T* offset_vec = GetVec3();
+	// angle 2 ints, offset 3, then position, direction, up and right 3 each, in one block freed at the end
+	int work = (int)bcs::malloc(DND_FIRE_WORK_INTS);
+	Vec2_T* angle_vec = work;		// negative is left, positive is right
+	Vec3_T* offset_vec = work + 2;
 	bool use_default = false;		// default behavior
 	int ammo_gain_guarantee = DND_AMMOGAIN_FAIL;
 	int hitscan_id = -1;
 
+	// malloc does not zero, and most weapons never set these two
+	SetVec2(angle_vec, 0, 0);
+	SetVec3XYZ(offset_vec, 0, 0, 0);
+
 	// vectors of owner
-	Vec3_T* vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 5.0);
-	Vec3_T* vDir = GetDirectionVector(owner);
-	Vec3_T* vUp = GetUpVector(vDir);
-	Vec3_T* vRight = GetRightVector(vDir, vUp);
+	Vec3_T* vPos = work + 5;
+	Vec3_T* vDir = work + 8;
+	Vec3_T* vUp = work + 11;
+	Vec3_T* vRight = work + 14;
+	SetVec3XYZ(vPos, GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 5.0);
+	LoadDirectionVectorInto(vDir, owner);
+	LoadUpVectorInto(vUp, vDir);
+	LoadRightVectorInto(vRight, vDir, vUp);
 
 	// check for cyborg instability
 	flags |= 
@@ -2497,14 +2540,8 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			);
 	}
 
-	bcs::free(vPos);
-	bcs::free(vUp);
-	bcs::free(vDir);
-	bcs::free(vRight);
-	
-	bcs::free(angle_vec);
-	bcs::free(offset_vec);
-	
+	bcs::free(work);
+
 	SetResultValue(0);
 }
 

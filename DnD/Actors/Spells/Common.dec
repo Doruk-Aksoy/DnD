@@ -1,8 +1,4 @@
 enum {
-	SKILLINFO_ZOMBIEPETTIMER
-};
-
-enum {
 	DND_SPELL_RALLY
 };
 
@@ -44,6 +40,12 @@ Actor DnD_BlazeDamage : DnD_Info { }
 Actor PetCounter : Inventory {
 	inventory.maxamount 32
 }
+
+// The number a player's carried pets were written down under; a new player in that slot holds none, so cannot inherit them.
+Actor DnD_PetCarryTicket : DnD_Info { }
+
+// On a pet summoned back after a map change or a load: its arrival sound is skipped.
+Actor DnD_QuietArrival : DnD_Info { }
 
 Actor CooldownCounter : Inventory {
 	inventory.maxamount 300

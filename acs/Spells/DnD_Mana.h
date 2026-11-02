@@ -72,19 +72,52 @@ int GetManaReservationOf(int pnum, int spell) {
 	return base * 100 / (100 + PlayerModData[pnum].vals[PSTAT_MANARESERVE_EFF] + GetSpellGemMod(pnum, spell, GEMSTAT_RESERVE_EFF));
 }
 
-// Holding a reservation right now: a reserving spell, or one a gem makes reserve, learned and switched on.
-bool SpellReservesMana(int pnum, int spell) {
-	return ((SpellDefs[spell].flags & SPLF_RESERVES) || GetSpellGemMod(pnum, spell, GEMSTAT_RESERVE_ADD)) && IsSpellActive(pnum, spell);
+// The spells that CAN reserve, in id order: SPLF_RESERVES, or a gem's GEMSTAT_RESERVE_ADD. Rank, toggle and cost stay live.
+typedef struct {
+	bool valid;
+	int count;
+	int ids[MAX_SPELL_IDS];
+} mana_reserve_list_T;
+
+mana_reserve_list_T module& GetManaReserveList(int pnum) {
+	static mana_reserve_list_T lists[MAXPLAYERS];
+	return lists[pnum];
+}
+
+// Called by every writer of a gem row's GEMSTAT_RESERVE_ADD, and by InitSpellDefs.
+void InvalidateManaReserveList(int pnum) {
+	GetManaReserveList(pnum).valid = false;
+}
+
+void InvalidateAllManaReserveLists() {
+	for(int i = 0; i < MAXPLAYERS; ++i)
+		GetManaReserveList(i).valid = false;
+}
+
+mana_reserve_list_T module& GetBuiltManaReserveList(int pnum) {
+	mana_reserve_list_T module& l = GetManaReserveList(pnum);
+	if(!l.valid) {
+		l.count = 0;
+		for(int i = 0; i < MAX_SPELL_IDS; ++i) {
+			if((SpellDefs[i].flags & SPLF_RESERVES) || GetSpellGemMod(pnum, i, GEMSTAT_RESERVE_ADD)) {
+				l.ids[l.count] = i;
+				++l.count;
+			}
+		}
+		l.valid = true;
+	}
+	return l;
 }
 
 // Auras hold a percentage of the cap rather than a flat amount, so this is recomputed rather than
 // tracked -- a mana roll on a new charm must not leave a stale reservation behind.
 int GetReservedPercent(int pnum) {
-	int i, pct = 0;
-	for(i = 0; i < MAX_SPELL_IDS; ++i) {
-		if(!SpellReservesMana(pnum, i))
-			continue;
-		pct += GetManaReservationOf(pnum, i);
+	mana_reserve_list_T module& l = GetBuiltManaReserveList(pnum);
+	int i, s, pct = 0;
+	for(i = 0; i < l.count; ++i) {
+		s = l.ids[i];
+		if(IsSpellActive(pnum, s))
+			pct += GetManaReservationOf(pnum, s);
 	}
 	return Min(pct, 100);
 }
@@ -98,6 +131,32 @@ int GetReservedMana(int pnum) {
 
 int GetUnreservedManaCap(int pnum) {
 	return Max(0, GetPlayerManaCap(pnum) - GetReservedMana(pnum));
+}
+
+// Blood Magic: a hold of pct percent of this life cap fits only while at least 1 life stays unheld.
+bool LifeHoldFits(int cap, int pct) {
+	return cap * (100 - pct) >= 100;
+}
+
+// Switches off, in id order, every active aura whose reservation no longer fits.
+void FitAuraReservations(int pnum) {
+	mana_reserve_list_T module& l = GetBuiltManaReserveList(pnum);
+	bool blood = HasPlayerFlag(pnum, PFLAG_BLOODMAGIC);
+	int cap = blood ? GetSpawnHealthBeforeReserve(false, pnum) : 0;
+	int i, k, pct = 0, r;
+	for(k = 0; k < l.count; ++k) {
+		i = l.ids[k];
+		if(!IsSpellActive(pnum, i))
+			continue;
+
+		r = GetManaReservationOf(pnum, i);
+		if(pct + r > 100 || (blood && !LifeHoldFits(cap, pct + r))) {
+			SetSpellToggledOff(pnum, i, true);
+			SyncSpellToggleWord(pnum, i);
+		}
+		else
+			pct += r;
+	}
 }
 
 int GetPlayerMana(int pnum) {
@@ -131,7 +190,15 @@ void UpdateManaVisualCap(int pnum) {
 
 	// Blood Magic: the auras' hold on life, kept on a marker so GetSpawnHealth does not sum every aura per call. A
 	// changed hold moves the health cap, so it is pushed at once and the player's health clamped under it.
-	int life = HasPlayerFlag(pnum, PFLAG_BLOODMAGIC) ? GetReservedPercent(pnum) : 0;
+	int life = 0;
+	if(HasPlayerFlag(pnum, PFLAG_BLOODMAGIC)) {
+		life = GetReservedPercent(pnum);
+		// a life cap that fell under the hold (1 max life holds nothing) drops the auras that no longer fit
+		if(life && !LifeHoldFits(GetSpawnHealthBeforeReserve(false, pnum), life)) {
+			FitAuraReservations(pnum);
+			life = GetReservedPercent(pnum);
+		}
+	}
 	if(CheckActorInventory(tid, "DnD_LifeReserved") != life) {
 		SetActorInventory(tid, "DnD_LifeReserved", life);
 		cap = GetSpawnHealth(false, pnum);
@@ -152,6 +219,86 @@ void GiveMana(int pnum, int amt) {
 	if(amt <= 0)
 		return;
 	SetPlayerMana(pnum, Min(GetPlayerMana(pnum) + amt, GetUnreservedManaCap(pnum)));
+}
+
+// Mana leech pays out as life leech does: a pool held to a share of the unreserved mana, paid a share of it a pulse.
+#define DND_BASE_MANALEECHCAP 33		// percent of the unreserved mana the pool holds (life leech: 33 of the heal cap)
+#define DND_BASE_MANALEECHRATE 25		// tics between pulses (life leech's base rate)
+#define DND_BASE_MANALEECHRECOVERY 1	// percent of the unreserved mana a pulse pays (life leech: 1 of the heal cap)
+
+int GetManaLeechCap(int pnum) {
+	return GetUnreservedManaCap(pnum) * DND_BASE_MANALEECHCAP / 100;
+}
+
+int GetManaLeechRecovery(int pnum) {
+	return Max(1, GetUnreservedManaCap(pnum) * DND_BASE_MANALEECHRECOVERY / 100);
+}
+
+// Tics between pulses; the instant leech mod's reduced leech recovery rate slows it as it slows life leech.
+int GetManaLeechRate(int pnum) {
+	return Max(1, DND_BASE_MANALEECHRATE * (100 + ReadPlayerModExtra(pnum, INV_INC_INSTANTLIFESTEAL)) / 100);
+}
+
+// The share of any leech, life or mana, paid at once by the instant leech mods; at most all of it.
+int GetInstantLeechPercent(int pnum) {
+	return Min(100, PlayerModData[pnum].vals[PSTAT_CORR_INSTALEECHPCT] + PlayerModData[pnum].vals[PSTAT_INC_INSTANTLIFESTEAL]);
+}
+
+// "More damage while leeching": held while either leech pays out, so the one ending first leaves it to the other.
+void GrantLeechingDamage(int pnum) {
+	int v = PlayerModData[pnum].vals[PSTAT_LIFESTEAL_DAMAGE];
+	if(v && !HasPlayerBuff(pnum, BTI_LEECHINGDAMAGE))
+		HandlePlayerBuffAssignment(pnum, 0, BTI_LEECHINGDAMAGE, 0, 0, 0, v);
+}
+
+void EndLeechingDamage(int pnum) {
+	int ptid = pnum + P_TIDSTART;
+	if(!CheckActorInventory(ptid, "LifestealScriptRunning") && !CheckActorInventory(ptid, "ManaLeechScriptRunning"))
+		RemoveBuffWithTableIndex(pnum, BTI_LEECHINGDAMAGE);
+}
+
+// Leeched mana into the pool, up to its cap, less the instant share paid now; starts the payout if it is not running.
+void ResolveManaLeech(int pnum, int amt) {
+	// "Players cannot leech" covers mana too, blocked before the pool as life's is, so a dungeon cannot bank it either.
+	if(DungeonBlocksLeech())
+		return;
+
+	int ptid = pnum + P_TIDSTART;
+	amt = Min(amt, GetManaLeechCap(pnum) - CheckActorInventory(ptid, "ManaLeechAmount"));
+	if(amt <= 0)
+		return;
+
+	int inst = amt * GetInstantLeechPercent(pnum) / 100;
+	if(inst) {
+		GiveMana(pnum, inst);
+		amt -= inst;
+		if(amt <= 0)
+			return;
+	}
+
+	GiveActorInventory(ptid, "ManaLeechAmount", amt);
+	if(!CheckActorInventory(ptid, "ManaLeechScriptRunning")) {
+		GiveActorInventory(ptid, "ManaLeechScriptRunning", 1);
+		ACS_NamedExecuteAlways("DnD Mana Leech", 0, ptid);
+	}
+}
+
+// Pays the pool out a pulse at a time, the first at once; full mana or death ends the leech and empties it, as with life.
+Script "DnD Mana Leech" (int tid) {
+	SetActivator(tid);
+	int pnum = PlayerNumber(), amt;
+	GrantLeechingDamage(pnum);
+	while(IsAlive() && (amt = CheckInventory("ManaLeechAmount"))) {
+		amt = Min(amt, GetManaLeechRecovery(pnum));
+		TakeInventory("ManaLeechAmount", amt);
+		GiveMana(pnum, amt);
+		if(GetPlayerMana(pnum) >= GetUnreservedManaCap(pnum))
+			break;
+		Delay(GetManaLeechRate(pnum));
+	}
+	SetInventory("ManaLeechAmount", 0);
+	SetInventory("ManaLeechScriptRunning", 0);
+	EndLeechingDamage(pnum);
 }
 
 #ifdef ISDEBUGBUILD
@@ -274,19 +421,7 @@ Script "DnD Temporal Surge" (int pnum, int total) {
 // An aura whose reservation no longer fits switches itself off. Called when the cap or the set of
 // enabled auras changes, so the two can never disagree.
 void ValidateAuraReservations(int pnum) {
-	int i, pct = 0, r;
-	for(i = 0; i < MAX_SPELL_IDS; ++i) {
-		if(!SpellReservesMana(pnum, i))
-			continue;
-
-		r = GetManaReservationOf(pnum, i);
-		if(pct + r > 100) {
-			SetSpellToggledOff(pnum, i, true);
-			SyncSpellToggleWord(pnum, i);
-		}
-		else
-			pct += r;
-	}
+	FitAuraReservations(pnum);
 
 	// The clamp lives inside this now, so switching an aura on still cannot leave the player
 	// holding more than the reservation left them.

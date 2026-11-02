@@ -58,10 +58,12 @@ typedef struct {
     int per_extra[DND_PERK_STATSLOTS];
     int pflag;                          // PFLAG_* held while the perk has any point, -1 for none
     int flags;
+    int page_order;                     // its place among the DefinePerk calls, which is its place on the page
 } perk_def_T;
 
 global perk_def_T 44: PerkTable[DND_MAX_PERKS_NEW];
 
+// An id is the perk's save slot: never insert or remove one, append. The page order is SetupPerkTable's.
 enum {
     // ---- Acrobacy: 14 perks, 36 points ----
     PERK_ACRO_TACTICALDASH,
@@ -127,7 +129,6 @@ enum {
     PERK_END_VIGOUR,
     PERK_END_RESTLESSVITALITY,
     PERK_END_INDOMITABLERESOLVE,
-    PERK_END_NANOMACHINERY,
 
     PERK_END_CAMOUFLAGE,
     PERK_END_DENSEEXOSKELETON,
@@ -161,7 +162,7 @@ enum {
     PERK_MART_MARTIALFINESSE,
     PERK_MART_GRATUITOUSVIOLENCE,
 
-    // ---- Perception: 21 perks, 45 points ----
+    // ---- Perception: 22 perks, 46 points ----
     PERK_PERC_MUNITIONIST,
     PERK_PERC_PLANB,
     PERK_PERC_EXCESSCONVERSION,
@@ -187,8 +188,7 @@ enum {
     PERK_PERC_HEATSINKS,
     PERK_PERC_EMERGENCYPROTOCOL,
 
-    // ---- Tormentor: 35 perks, 84 points ----
-    // Five ailment lines of seven. Order here is the order the page lists them in.
+    // ---- Tormentor: 34 perks, 83 points ----
     // poison
     PERK_TORM_STUDENTOFDECAY,
     PERK_TORM_PROLONGEDTORTURE,
@@ -266,6 +266,9 @@ enum {
     PERK_MAGI_FRENZIEDFOLLOWERS,
     PERK_MAGI_RIGHTEOUSARMY,
 
+    // New perks go here whatever their archetype, with their key at the end of GetPerkLangKey's list.
+    PERK_END_NANOMACHINERY,
+
     PERK_COUNT
 };
 
@@ -274,6 +277,16 @@ enum {
 // ---------------------------------------------------------------- authoring
 // Guarded the way SetTierStep is. A bad id here writes past PerkTable and there is no plausible way
 // to notice at runtime, so it says so at load instead.
+
+// Hands each DefinePerk the next page position; SetupPerkTable rewinds it before the first.
+int NextPerkPageOrder(bool rewind) {
+    static int next;
+    if(rewind) {
+        next = 0;
+        return 0;
+    }
+    return next++;
+}
 
 void DefinePerk(int id, int arch, int cat, int max_points, int threshold = 0, int tags = 0) {
     if(id < 0 || id >= DND_MAX_PERKS_NEW) {
@@ -302,6 +315,7 @@ void DefinePerk(int id, int arch, int cat, int max_points, int threshold = 0, in
     PerkTable[id].req_tag = 0;
     PerkTable[id].pflag = -1;
     PerkTable[id].flags = 0;
+    PerkTable[id].page_order = NextPerkPageOrder(false);
 
     int i;
     for(i = 0; i < DND_PERK_STATSLOTS; ++i) {
@@ -819,7 +833,6 @@ str GetPerkLangKey(int id) {
         "PERK_END_VIGOUR",
         "PERK_END_RESTLESSVITALITY",
         "PERK_END_INDOMITABLERESOLVE",
-        "PERK_END_NANOMACHINERY",
         "PERK_END_CAMOUFLAGE",
         "PERK_END_DENSEEXOSKELETON",
         "PERK_END_STONESKIN",
@@ -932,6 +945,8 @@ str GetPerkLangKey(int id) {
         "PERK_MAGI_SPIRITUALAID",
         "PERK_MAGI_FRENZIEDFOLLOWERS",
         "PERK_MAGI_RIGHTEOUSARMY",
+        // Appended, in enum order
+        "PERK_END_NANOMACHINERY",
     };
 
     if(id < 0 || id >= PERK_COUNT)
@@ -1021,8 +1036,14 @@ void EnsurePerkArchLists() {
         BuildPerkArchLists();
 }
 
+// Perk ids by page position, refilled by every BuildPerkArchLists.
+int[] module& GetPerkPageOrder() {
+    static int by_pos[DND_MAX_PERKS_NEW];
+    return by_pos;
+}
+
 void BuildPerkArchLists() {
-    int a, i;
+    int a, i, pos;
 
     for(a = 0; a < DND_MAX_PERK_ARCHETYPES; ++a) {
         perk_arch_list_T module& wipe = GetPerkArchList(a);
@@ -1031,8 +1052,17 @@ void BuildPerkArchLists() {
         wipe.maxpoints = 0;
     }
 
-    for(i = 0; i < PERK_COUNT; ++i) {
-        if(!PerkTable[i].max_points)
+    // Page order, not id order, so a perk appended to the enum can still sit anywhere on its page.
+    int[] module& by_pos = GetPerkPageOrder();
+    for(pos = 0; pos < DND_MAX_PERKS_NEW; ++pos)
+        by_pos[pos] = -1;
+    for(i = 0; i < PERK_COUNT; ++i)
+        if(PerkTable[i].max_points && PerkTable[i].page_order < DND_MAX_PERKS_NEW)
+            by_pos[PerkTable[i].page_order] = i;
+
+    for(pos = 0; pos < DND_MAX_PERKS_NEW; ++pos) {
+        i = by_pos[pos];
+        if(i == -1)
             continue;
 
         perk_arch_list_T module& list = GetPerkArchList(PerkTable[i].archetype);
@@ -1213,7 +1243,7 @@ Script "DnD Apply Loaded Perks" (int pnum) {
     // this -- most of what it does hands out one-per-map items and is not safe to repeat.
     SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(pnum));
     SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth(false, pnum));
-    UpdatePlayerKnockbackResist();
+    UpdateStrengthDerivedStats();
 
     // One recalculation for the whole tree rather than one per perk. Everything is already folded
     // into PlayerModData by this point, so the cache is the only thing left holding old numbers.
@@ -1378,7 +1408,7 @@ void SetupPerkStats() {
     SetPerkStat(PERK_END_HIDDENRESERVE, PSTAT_SHIELD_RECOVERYRATE, -40, 15);
     SetPerkStat(PERK_END_MEDIC, PSTAT_HEALING_EFFECT, 20);
     SetPerkStat(PERK_END_STONESKIN, PSTAT_DOT_DMGTAKEN_REDUCE, 15, 10);
-    SetPerkStat(PERK_END_VIGOUR, PSTAT_REGEN_FLAT, 2);
+    SetPerkStat(PERK_END_VIGOUR, PSTAT_REGEN_FLAT, 4, 2);
     SetPerkStat(PERK_END_RESTLESSVITALITY, PSTAT_REGEN_DOTNOPAUSE, 1);
     SetPerkStat(PERK_END_NANOMACHINERY, PSTAT_REGEN_PCT, 2.0);                // fixed point
     SetPerkStat(PERK_END_CRYSTALSKIN, PSTAT_MAXRESIST_ADDED, 1.5);          // fixed point
@@ -1568,6 +1598,9 @@ void SetupPerkStats() {
 // and requirements all come straight from the notes. pstat/per_point/flags are phase 3 and are set
 // by SetPerkStat below, which nothing calls yet.
 void SetupPerkTable() {
+    // The order of the DefinePerk calls below is the order each page lists its perks in.
+    NextPerkPageOrder(true);
+
     // ================= Acrobacy =================
 
     // -- category 0 --

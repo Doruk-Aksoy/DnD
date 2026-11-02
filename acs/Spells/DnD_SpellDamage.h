@@ -13,13 +13,16 @@
 // This lives here rather than beside the spell tables because DND_DAMAGETYPE_ is declared in
 // DnD_Damage.h and enums do not forward reference.
 
-// 0.4% spell damage per point of intellect, in hundredths of a percent -- the unit "DND Player
-// Damage Scale" unpacks back to a fixed fraction.
-#define DND_SPELL_INT_ATTUNE 40
+// Spell attunement in hundredths of a percent per point; every profile sums to 0.4%.
+#define DND_SPELL_ATTUNE_TOTAL 40
+#define DND_SPELL_ATTUNE_MAJOR 25
+#define DND_SPELL_ATTUNE_MINOR 15
+#define DND_SPELL_ATTUNE_EVEN 20
+#define DND_SPELL_ATTUNE_SLIGHT 10
+#define DND_SPELL_ATTUNE_DOMINANT 30
 
-// The same figure as the fixed fraction HandleStatBonus takes directly, derived from the one
-// above so the two cannot drift. Shift before dividing, or the result truncates low.
-#define DND_SPELL_INT_SCALE ((DND_SPELL_INT_ATTUNE << 16) / 10000)
+// STR, DEX and INT a byte each, the layout "DND Player Damage Scale" unpacks.
+#define PACK_SPELL_ATTUNE(S, D, I) ((S) | ((D) << DEX_ATTUNE_BITS) | ((I) << INT_ATTUNE_BITS))
 
 // Every tree deals its own element. A spell that deals something else takes a case of its own above
 // the tree switch -- none do yet.
@@ -54,6 +57,121 @@ int GetSpellDamageType(int spell) {
 
 int GetSpellDamageCategory(int spell) {
 	return GetDamageCategory(GetSpellDamageType(spell), 0);
+}
+
+// A spell's own attunement where it differs from its tree's, or 0.
+int GetSpellAttunementOverride(int spell) {
+	switch(spell) {
+		// cast around the caster, or riding a melee hit
+		case SPL_IMMOLATION:
+		case SPL_RIGHTEOUSFIRE:
+		case SPL_HEATSHIELD:
+		case SPL_SEARINGBOND:
+		case SPL_VOLCANO:
+		case SPL_THUNDERCLAP:
+		case SPL_ICENOVA:
+		// the undead that fight up close
+		case SPL_ZOMBIE:
+		case SPL_SKELETON:
+		case SPL_SLAYERKNIGHT:
+		case SPL_DOOMGUARD:
+		return PACK_SPELL_ATTUNE(DND_SPELL_ATTUNE_MINOR, 0, DND_SPELL_ATTUNE_MAJOR);
+
+		case SPL_INFERNALSTRIKE:
+		case SPL_GUSTOFFROST:
+		case SPL_GLACIALCASCADE:
+		case SPL_AVALANCHE:
+		case SPL_ICEGOLEM:
+		return PACK_SPELL_ATTUNE(DND_SPELL_ATTUNE_MAJOR, 0, DND_SPELL_ATTUNE_MINOR);
+
+		// fast or swarming
+		case SPL_ICEBOLT:
+		case SPL_GLACIALSPIKE:
+		case SPL_FROSTSHARDS:
+		case SPL_ICESPEAR:
+		case SPL_FREEZINGPULSE:
+		case SPL_CHILLINGBREATH:
+		case SPL_CREEPINGFROST:
+		case SPL_WINTERORB:
+		case SPL_GHAST:
+		case SPL_CARRIONCROWS:
+		return PACK_SPELL_ATTUNE(0, DND_SPELL_ATTUNE_MINOR, DND_SPELL_ATTUNE_MAJOR);
+
+		// Black's damage spells: mostly Intellect, a touch of speed or of raw force
+		case SPL_PLAGUE:
+		case SPL_DARKWIND:
+		case SPL_ESSENCETHEFT:
+		case SPL_FINGEROFDEATH:
+		case SPL_CONTAGION:
+		case SPL_IMPLOSION:
+		case SPL_NETHERWALK:
+		return PACK_SPELL_ATTUNE(0, DND_SPELL_ATTUNE_SLIGHT, DND_SPELL_ATTUNE_DOMINANT);
+		case SPL_SOULSTORM:
+		case SPL_DEATHANDDECAY:
+		return PACK_SPELL_ATTUNE(DND_SPELL_ATTUNE_SLIGHT, 0, DND_SPELL_ATTUNE_DOMINANT);
+	}
+	return 0;
+}
+
+int GetSpellAttunementPacked(int spell) {
+	int res = GetSpellAttunementOverride(spell);
+	if(res)
+		return res;
+
+	switch(SpellDefs[spell].tree) {
+		case DND_SKILLTREE_LIGHTNING:
+		return PACK_SPELL_ATTUNE(0, DND_SPELL_ATTUNE_MINOR, DND_SPELL_ATTUNE_MAJOR);
+		case DND_SKILLTREE_EARTH:
+			if(GetSpellDamageType(spell) == DND_DAMAGETYPE_POISON)
+				return PACK_SPELL_ATTUNE(0, DND_SPELL_ATTUNE_EVEN, DND_SPELL_ATTUNE_EVEN);
+		return PACK_SPELL_ATTUNE(DND_SPELL_ATTUNE_MAJOR, 0, DND_SPELL_ATTUNE_MINOR);
+	}
+	return PACK_SPELL_ATTUNE(0, 0, DND_SPELL_ATTUNE_TOTAL);
+}
+
+// One stat's share in hundredths of a percent.
+int GetSpellAttunementRaw(int spell, int stat) {
+	int shift = stat == STAT_STR ? 0 : stat == STAT_DEX ? DEX_ATTUNE_BITS : INT_ATTUNE_BITS;
+	return (GetSpellAttunementPacked(spell) >> shift) & ATTUNEMENT_MASK;
+}
+
+// The fixed fraction HandleStatBonus takes. Shift before dividing, or it truncates low.
+int GetSpellAttunement(int spell, int stat) {
+	return (GetSpellAttunementRaw(spell, stat) << 16) / 10000;
+}
+
+int GetSpellStatBonus(int pnum, int spell) {
+	return HandleStatBonus(pnum, GetSpellAttunement(spell, STAT_STR), GetSpellAttunement(spell, STAT_DEX), GetSpellAttunement(spell, STAT_INT), false);
+}
+
+// A pet's hit through the level curve monsters take; the pet damage script and the spell panel share it.
+int GetPetLevelDamage(int level, int base) {
+	return base * (100 + (level > 1) * GetMonsterDMGScaleForLevel(level)) / 100;
+}
+
+// What the master adds: the summoning spell's attunement, increased minion damage (Summon Mastery's in its 2.5% steps)
+// and the flat health conversion. The increases add up in tenths of a percent.
+int ApplyPetMasterDamage(int pnum, int spell, int dmg) {
+	int temp = PlayerModData[pnum].vals[PSTAT_MINION_DAMAGE];
+	if(spell != -1)
+		temp += GetSpellStatBonus(pnum, spell);
+	temp = temp * 10 + (GetSpellValue(pnum, SPL_SUMMONMASTERY, SPELLVAL_DAMAGE) * 10 >> 16);
+	dmg = dmg / 1000 * (1000 + temp) + dmg % 1000 * (1000 + temp) / 1000;
+
+	if((temp = PlayerModData[pnum].vals[PSTAT_EX_PHYSDAMAGEPER_FLATHEALTH]))
+		dmg = dmg * (100 + GetFlatHealthDamageFactor(temp)) / 100;
+	return dmg;
+}
+
+// A pet's health from its base: the monster level curve, then increased minion health (Summon Mastery's too) in
+// hundredths of a percent.
+int GetPetScaledHealth(int pnum, int base, int level) {
+	int add = level > 1 ? ApplyHPScale(base, GetMonsterHPScaleForLevel(level)) : 0;
+	int pct = PlayerModData[pnum].vals[PSTAT_MINION_HEALTH] * 100 + (GetSpellValue(pnum, SPL_SUMMONMASTERY, SPELLVAL_DAMAGE2) * 100 >> 16);
+
+	// Split, as dividing first gave nothing under 10000 health and multiplying first overflows.
+	add += (base + add) / 10000 * pct + (base + add) % 10000 * pct / 10000;
+	return base + Clamp_Between(add, 0, DND_MAX_MONSTER_HP - base);
 }
 
 // The word the event handler unpacks: damage, then type, then the spell id in the slot a weapon hit
@@ -112,10 +230,10 @@ int GetSpellActorOwner() {
 // -- Pyroblast's rank 10 fireballs take an eighth. Applied AFTER the scale, so the fragment is an
 // eighth of what the parent would really have dealt rather than an eighth of its table row.
 
-// The intellect attunement on its own, for a tick: the DoT path withholds the attribute bonus with the hit piles,
-// and a spell tick, priced off its row, has no earlier hit that already took INT. Called by PriceSpellDamage.
-int ApplySpellIntScaling(int pnum, int dmg) {
-	return dmg * (100 + HandleStatBonus(pnum, 0, 0, DND_SPELL_INT_SCALE, false)) / 100;
+// The spell's attunement on its own, for a tick: the DoT path withholds the attribute bonus with the hit piles,
+// and a spell tick, priced off its row, has no earlier hit that already took it. Called by PriceSpellDamage.
+int ApplySpellAttunement(int pnum, int spell, int dmg) {
+	return dmg * (100 + GetSpellStatBonus(pnum, spell)) / 100;
 }
 
 // MORE spell damage from BUFF_SPELLDAMAGE, applied by PriceSpellDamage. Righteous Fire is refused its own grant
@@ -158,24 +276,26 @@ int PriceSpellDamage(int pnum, int spell, int dmg, int scale_flags = 0, bool isD
 		scale_flags |= DND_WDMG_ISDOT;
 	}
 
-	dmg = HandleNonWeaponDamageScale(dmg, GetSpellDamageCategory(spell), DND_WDMG_ISSPELL | scale_flags, 0, 0, DND_SPELL_INT_SCALE, pnum, own);
+	dmg = HandleNonWeaponDamageScale(dmg, GetSpellDamageCategory(spell), DND_WDMG_ISSPELL | scale_flags,
+		GetSpellAttunement(spell, STAT_STR), GetSpellAttunement(spell, STAT_DEX), GetSpellAttunement(spell, STAT_INT), pnum, own);
 
-	// ISDOT dropped the attunement with the hit piles, so INT goes back on at the rate a hit gets.
+	// ISDOT dropped the attunement with the hit piles, so it goes back on at the rate a hit gets.
 	if(isDot)
-		dmg = ApplySpellIntScaling(pnum, dmg);
+		dmg = ApplySpellAttunement(pnum, spell, dmg);
 
 	return FinishSpellDamage(pnum, spell, dmg, isDot, noMore);
 }
 
 // A flat a spell hit adds in another type (Sightless Vigil's physical): priced as the spell's hit, in that category.
 int PriceSpellAddedDamage(int pnum, int spell, int dmg, int category, int scale_flags) {
-	dmg = HandleNonWeaponDamageScale(dmg, category, DND_WDMG_ISSPELL | scale_flags, 0, 0, DND_SPELL_INT_SCALE, pnum, GetSpellRankDamageIncrease(pnum, spell));
+	dmg = HandleNonWeaponDamageScale(dmg, category, DND_WDMG_ISSPELL | scale_flags,
+		GetSpellAttunement(spell, STAT_STR), GetSpellAttunement(spell, STAT_DEX), GetSpellAttunement(spell, STAT_INT), pnum, GetSpellRankDamageIncrease(pnum, spell));
 	return FinishSpellDamage(pnum, spell, dmg, false, false);
 }
 
-// A spell's poison tick: INT and the spell's own multipliers. "DnD Do Poison Damage" adds the poison, DoT and spell damage gear.
+// A spell's poison tick: its attunement and own multipliers. "DnD Do Poison Damage" adds the poison, DoT and spell damage gear.
 int PriceSpellPoison(int pnum, int spell, int dmg) {
-	return FinishSpellDamage(pnum, spell, ApplySpellIntScaling(pnum, dmg), true, false);
+	return FinishSpellDamage(pnum, spell, ApplySpellAttunement(pnum, spell, dmg), true, false);
 }
 
 // What every spell hit or tick takes after its scale.
@@ -220,7 +340,8 @@ int GetSpellAilmentSeed(int pnum, int spell, int dmg) {
 
 // All increased spell damage: gear, Wizardry and Prodigal Perfection. A spell's hits and its damage over time both take it.
 int GetSpellDamageIncrease(int pnum) {
-	return PlayerModData[pnum].vals[PSTAT_SPELL_DAMAGE] + GetSpellDamageFromMana(pnum);
+	return PlayerModData[pnum].vals[PSTAT_SPELL_DAMAGE] + GetSpellDamageFromMana(pnum) +
+		GetHybridStatDamage(pnum, PSTAT_INC_SPELLDMG_PERSTR, STAT_STR) + GetHybridStatDamage(pnum, PSTAT_INC_SPELLDMG_PERDEX, STAT_DEX);
 }
 
 int ApplySpellGemChargeDamage(int pnum, int spell, int dmg) {
@@ -282,6 +403,11 @@ Script "DnD Spell Damage" (int which, int flags, int div) {
 
 	// A percent of the spell instead, as Threaded Volley's energized rock over overlapping areas; 0 when absent too.
 	int pct = GetUserVariable(0, "user_dmgpct");
+	if(pct > 0)
+		dmg = dmg * pct / 100;
+
+	// A gem chain's last hop: the parked projectile's own blast loses what the chain lost.
+	pct = GetUserVariable(0, "user_chainpct");
 	if(pct > 0)
 		dmg = dmg * pct / 100;
 

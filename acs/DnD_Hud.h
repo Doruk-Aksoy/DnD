@@ -522,8 +522,8 @@ void ListenMouseInput() {
 }
 
 int GetAspectRatio(void) {
-	int width = getcvar("vid_defwidth");
-	int height = getcvar("vid_defheight");
+	int width = GetScreenWidth();
+	int height = GetScreenHeight();
 	int nowidescreen = getcvar("vid_nowidescreen");
 	int tft = getcvar("vid_tft");
 	int aspect = getcvar("vid_aspect");
@@ -1195,11 +1195,66 @@ void DrawInventoryInfo(int pnum) {
 	}
 }
 
+#define MONBAR_FILL_BIT(id) (1 << ((id) - MONSTER_BARFILLID))
+#define MONBAR_FILLS_ALL 0x1F
+
+// What the monster bar has on screen: fill ids (MONSTER_BARFILLID..OVERLAY4), the tip and trait lines, plus the trait list.
+typedef struct {
+	int fills;
+	bool tip;
+	int lines;
+	bool pet;
+	int bits[MONSTER_TRAIT_WORDS];
+	int count;
+	int ids[MAX_MONSTER_TRAITS_SHOWN];
+} monster_bar_drawn_T;
+
+monster_bar_drawn_T module& GetMonsterBarDrawn() {
+	static monster_bar_drawn_T s;
+	return s;
+}
+
+// Other draws into the bar's ids; the next monster bar deletes what it does not redraw.
+void MarkMonsterBarForeign(int lines) {
+	GetMonsterBarDrawn().fills = MONBAR_FILLS_ALL;
+	GetMonsterBarDrawn().lines = Max(GetMonsterBarDrawn().lines, lines);
+}
+
+// The shown trait ids, rebuilt only when the monster's trait words changed.
+void UpdateMonsterBarTraits(int m_id, bool pet) {
+	monster_bar_drawn_T module& d = GetMonsterBarDrawn();
+	bool same = d.pet == pet;
+	int i, w;
+	for(i = 0; i < MONSTER_TRAIT_WORDS; ++i) {
+		if(pet)
+			w = PetMonsterProperties[m_id].trait_bits[i];
+		else
+			w = MonsterProperties[m_id].trait_bits[i];
+		if(d.bits[i] != w) {
+			d.bits[i] = w;
+			same = false;
+		}
+	}
+	if(same)
+		return;
+
+	d.pet = pet;
+	d.count = 0;
+	for(i = 0; i < MAX_MONSTER_TRAITS_SHOWN; ++i) {
+		if(d.bits[i >> 5] & (1 << (i & 31))) {
+			d.ids[d.count] = i;
+			++d.count;
+		}
+	}
+}
+
 // hp bar of monsters
 void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int monid, int m_id, int fortify_amt) {
 	str barGraphic = "";
 	str fortGraphic = "";
-	int i, j;
+	str tip = "HPEDGEG";
+	int i, j, fills = 0, tipw = 0;
+	monster_bar_drawn_T module& drawn = GetMonsterBarDrawn();
 
 	SetFont ("MONFONT");
 	SetHudSize(800, 600, 0);
@@ -1236,8 +1291,8 @@ void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 	// Draw the main bar graphic and background
 	// made this way to reduce variable dependancy and if statement use
 	SetHudSize(720, 600, 0);
-	DeleteTextRange(MONSTER_BARFILLID, MONSTER_BARFILLOVERLAY4);
 	if(CheckInventory("TargetHealthBarColor")) {
+		tip = "HPEDGER";
 		if(!is_unique)
 			SetFont("MNRHPBAR");
 		else
@@ -1255,24 +1310,32 @@ void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 				SetHudClipRect(265, 17, j, 18, j);
 				SetFont("FILLFORT");
 				HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLID, CR_GREEN, 265.1, 28.0, MONSTERINFO_HOLDTIME);
-				
+				fills |= MONBAR_FILL_BIT(MONSTER_BARFILLID);
+
 				if(i > 0) {
 					SetHudClipRect(265, 17, i, 18, i);
 					SetFont("FILLCRIT");
 					HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLOVERLAY, CR_GREEN, 265.1, 28.0, MONSTERINFO_HOLDTIME);
+					fills |= MONBAR_FILL_BIT(MONSTER_BARFILLOVERLAY);
 
 					HandleCurseOverlays(mon_tid);
 				}
+
+				// the fortify fill draws in front, so the red only ends in view past it
+				if(i > j)
+					tipw = i;
 				SetHudClipRect(0, 0, 0, 0, 0);
 			}
 			else if(i > 0) {
 				SetHudClipRect(265, 17, i, 18, i);
 				SetFont("FILLCRIT");
 				HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLID, CR_GREEN, 265.1, 28.0, MONSTERINFO_HOLDTIME);
+				fills |= MONBAR_FILL_BIT(MONSTER_BARFILLID);
 
 				HandleCurseOverlays(mon_tid);
 
 				SetHudClipRect(0, 0, 0, 0, 0);
+				tipw = i;
 			}
 		}
 	}
@@ -1286,53 +1349,61 @@ void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 			SetHudClipRect(265, 17, i, 18, i);
 			SetFont("FILLNORM");
 			HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLID, CR_GREEN, 265.1, 28.0, MONSTERINFO_HOLDTIME);
+			fills |= MONBAR_FILL_BIT(MONSTER_BARFILLID);
 			SetHudClipRect(0, 0, 0, 0, 0);
+			tipw = i;
 		}
 	}
+
+	// The tip bulges a few pixels past the fill.
+	if(tipw > 0) {
+		SetHudClipRect(264, 17, DND_MONSTERBAR_WIDTH + 2, 18);
+		SetFont(tip);
+		HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARTIPID, CR_UNTRANSLATED, ((265 + tipw - DND_MONSTERBAR_TIPW / 2) << 16) + 0.1, 28.0, MONSTERINFO_HOLDTIME);
+		SetHudClipRect(0, 0, 0, 0, 0);
+		drawn.tip = true;
+	}
+	else if(drawn.tip) {
+		DeleteText(MONSTER_BARTIPID);
+		drawn.tip = false;
+	}
+
+	// fill pieces on screen that this draw did not redraw
+	for(i = MONSTER_BARFILLID; i <= MONSTER_BARFILLOVERLAY4; ++i)
+		if(drawn.fills & ~fills & MONBAR_FILL_BIT(i))
+			DeleteText(i);
+	drawn.fills = fills;
 
 	SetHudSize(800, 600, 0);
 	SetFont(GetMonsterTypeIcon(GetMonsterType(monid, mon_tid)));	
 	HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_TYPEICONID, CR_UNTRANSLATED, 250.0, 27.0, MONSTERINFO_HOLDTIME);
 	HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_TYPEICONID_RIGHT, CR_UNTRANSLATED, 561.0, 27.0, MONSTERINFO_HOLDTIME);
 
-	i = j = 0;
-	// show monster traits
-	// legendary monsters show no traits at all
-	// this delete is added to keep support with new dungeon boss + regular monsters -- hoping a monster gets max 12 traits to show...
-	DeleteTextRange(MONSTER_TRAITID, MONSTER_TRAITID + 12);
-	
-	if(!mon_isPet) {
-		if(HasMonsterTrait(m_id, DND_LEGENDARY)) {
-			SetFont ("MONFONT");
-			HudMessage(s:"\c[D1]", l:"DND_EMOD_LEGENDARY_LONG"; HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
-		}
-		else if(HasMonsterTrait(m_id, DND_MARKOFCHAOS)) {
-			SetFont ("MONFONT");
-			HudMessage(s:"\c[D1]", l:"DND_EMOD_MARKOFCHAOS_NOCOL"; HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
-		}
-		else if(HasMonsterTrait(m_id, DND_MARKOFASMODEUS)) {
-			SetFont ("MONFONT");
-			HudMessage(s:"\c[D1]", l:"DND_EMOD_MARKOFASMODEUS_NOCOL"; HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
-		}
-		else if(MonsterHasTraits(m_id)) {
-			SetFont ("MONFONT");
-			for(i = 0; i < MAX_MONSTER_TRAITS_SHOWN; ++i) {
-				if(HasMonsterTrait(m_id, i)) {
-					HudMessage(l:GetMonsterTraitLabel(i); HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
-					++j;
-				}
-			}
-		}
+	// show monster traits; legendary and marked monsters show only that one line
+	j = 0;
+	UpdateMonsterBarTraits(m_id, mon_isPet);
+	SetFont ("MONFONT");
+	if(!mon_isPet && HasMonsterTrait(m_id, DND_LEGENDARY)) {
+		HudMessage(s:"\c[D1]", l:"DND_EMOD_LEGENDARY_LONG"; HUDMSG_FADEOUT, MONSTER_TRAITID, CR_WHITE, 404.4, 44.0, MONSTERINFO_HOLDTIME);
+		j = 1;
 	}
-	else if(PetMonsterProperties[m_id].flags & DND_MONFLAG_HASTRAITS) {
-		SetFont ("MONFONT");
-		for(i = 0; i < MAX_MONSTER_TRAITS_SHOWN; ++i) {
-			if(HasPetMonsterTrait(m_id, i)) {
-				HudMessage(l:GetMonsterTraitLabel(i); HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
-				++j;
-			}
-		}
+	else if(!mon_isPet && HasMonsterTrait(m_id, DND_MARKOFCHAOS)) {
+		HudMessage(s:"\c[D1]", l:"DND_EMOD_MARKOFCHAOS_NOCOL"; HUDMSG_FADEOUT, MONSTER_TRAITID, CR_WHITE, 404.4, 44.0, MONSTERINFO_HOLDTIME);
+		j = 1;
 	}
+	else if(!mon_isPet && HasMonsterTrait(m_id, DND_MARKOFASMODEUS)) {
+		HudMessage(s:"\c[D1]", l:"DND_EMOD_MARKOFASMODEUS_NOCOL"; HUDMSG_FADEOUT, MONSTER_TRAITID, CR_WHITE, 404.4, 44.0, MONSTERINFO_HOLDTIME);
+		j = 1;
+	}
+	else if(!mon_isPet || (PetMonsterProperties[m_id].flags & DND_MONFLAG_HASTRAITS)) {
+		for(j = 0; j < drawn.count; ++j)
+			HudMessage(l:GetMonsterTraitLabel(drawn.ids[j]); HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
+	}
+
+	// trait lines on screen past this draw's
+	for(i = j; i < drawn.lines; ++i)
+		DeleteText(MONSTER_TRAITID + i);
+	drawn.lines = j;
 }
 
 void DrawBigBossHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int monid, int m_id, int fortify_amt) {
@@ -1393,6 +1464,7 @@ void DrawBigBossHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 	// legendary monsters show no traits at all
 	SetFont ("MONFONT");
 	HudMessage(s:"\c[D1]", l:"DND_EMOD_DUNGEONBOSS"; HUDMSG_FADEOUT, MONSTER_TRAITID, CR_WHITE, 400.4, 84.1, MONSTERINFO_HOLDTIME);
+	MarkMonsterBarForeign(1);
 }
 
 // Vaultstride. One icon per charge the item rolled: lit for a charge in the bank, dark for a spent
@@ -1502,6 +1574,7 @@ Script "DnD Boss HP FX Overlay" (int tid) CLIENTSIDE {
 			
 			HudMessage(s:"a"; HUDMSG_FADEOUT | HUDMSG_ALPHA | HUDMSG_ADDBLEND, draw_id, CR_GREEN, 174.1, 61.1, MONSTERINFO_HOLDTIME, MONSTERINFO_HOLDTIME, alpha);
 			SetHudClipRect(0, 0, 0, 0, 0);
+			MarkMonsterBarForeign(0);
 		}
 		
 		Delay(const:1);

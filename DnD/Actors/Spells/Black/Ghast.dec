@@ -1,0 +1,87 @@
+// Summon: Ghast, the user's S021 art: it never melees, it casts its owner's Dark Wind at the Ghast's rank ("DnD Ghast Cast").
+ACTOR Spell_Ghast : PetMonsterBase {
+	Health 100
+	GibHealth -100
+	Radius 20
+	Height 56
+	Speed 9
+	PainChance 64
+	Stamina 1
+	SeeSound "UndeadSoul/See"
+	PainSound "UndeadSoul/See"
+	DeathSound "UndeadSoul/Die"
+	Obituary "%o was swept away by a Ghast."
+	Tag "Ghast"
+	RenderStyle Translucent
+	Alpha 0.85
+	+FLOAT
+	+NOGRAVITY
+	+MISSILEMORE
+	+MISSILEEVENMORE
+	var int user_casts;
+	var int user_rest;
+	var int user_shift;
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pet Monster Scale", 0, DND_PET_GHASTID, -1, -1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pet Distance Move", 0)
+			S021 AAAAAAAA 1 A_FadeIn(0.1)
+		SpawnLoop:
+			S021 AB 8 A_Look
+		Goto See
+		See:
+			S021 AABBCCDD 2 A_Chase
+		Loop
+		Missile:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Ghast Cast") == 0, "See")
+			TNT1 A 0 A_AlertMonsters(0, AMF_TARGETNONPLAYER)
+			S021 E 8 Bright
+			S021 F 8 Bright
+		Goto See
+		Pain:
+			S021 G 4
+			S021 G 4 A_Pain
+		Goto See
+		Death:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Summon Death Check", 0, DND_PET_GHASTID)
+			S021 H 4 A_Scream
+			S021 IJK 4 A_NoBlocking
+			S021 LMNOP 4
+		Stop
+	}
+}
+
+// Rank 5: out of existence for a moment, then back. Flags from an item: ACS cannot set them in Zandronum.
+Actor DnD_GhastShiftOn : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("SHOOTABLE", 0)
+			TNT1 A 0 A_SetTranslucent(0.25)
+			TNT1 A 0 A_SpawnItemEx("Spell_Ghast_ShiftFX", 0, 0, 28, 0, 0, 0, 0, 128)
+		Stop
+	}
+}
+
+Actor DnD_GhastShiftOff : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("SHOOTABLE", 1)
+			TNT1 A 0 A_SetTranslucent(0.85)
+			TNT1 A 0 A_SpawnItemEx("Spell_Ghast_ShiftFX", 0, 0, 28, 0, 0, 0, 0, 128)
+		Stop
+	}
+}
+
+Actor Spell_Ghast_ShiftFX : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.8
+	Scale 0.6
+	Translation "0:255=%[0.00,0.00,0.00]:[0.65,0.70,0.95]"
+	States {
+		Spawn:
+			TNT1 A 0
+			D4FX GHIJKL 2 Bright
+		Stop
+	}
+}

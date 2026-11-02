@@ -917,3 +917,45 @@ HardwareShader SPLMANAE {
 	Shader "GLDefs/Shaders/ManaBar.fp"
 	Speed 1.0
 }
+
+// Cast bar fill and its crimson silenced copy (TEXTURES.spl), in ManaBar.fp too; the alpha carries the front column.
+HardwareShader SPLCSTF {
+	Shader "GLDefs/Shaders/ManaBar.fp"
+	Speed 1.0
+}
+
+HardwareShader SPLCSTS {
+	Shader "GLDefs/Shaders/ManaBar.fp"
+	Speed 1.0
+}
+
+HardwareShader WHEELSEP {
+	Shader "GLDefs/Shaders/ManaBar.fp"
+	Speed 1.0
+}
+
+HardwareShader WHEELSEL {
+	Shader "GLDefs/Shaders/ManaBar.fp"
+	Speed 1.0
+}
+
+// Monster bar fills and their tips live in ManaBar.fp too; the tip arts are the liquid's colour at alpha 0.5.
+HardwareShader FILLCRIT {
+	Shader "GLDefs/Shaders/ManaBar.fp"
+	Speed 1.0
+}
+
+HardwareShader FILLNORM {
+	Shader "GLDefs/Shaders/ManaBar.fp"
+	Speed 1.0
+}
+
+HardwareShader HPEDGER {
+	Shader "GLDefs/Shaders/ManaBar.fp"
+	Speed 1.0
+}
+
+HardwareShader HPEDGEG {
+	Shader "GLDefs/Shaders/ManaBar.fp"
+	Speed 1.0
+}

@@ -47,10 +47,12 @@ ACTOR FlemMine : DnD_BaseHybridMonster {
 			C005 A 0 A_TakeInventory("DnD_Boolean", 255)
 		Loop
 		IdleState:
-			C005 AB 6 A_GiveInventory("DnD_SightChecker", 1)
+			C005 AB 6 A_Look
 		loop
 		MeleeState:
 			C005 A 0 A_JumpIfInventory("DnD_Boolean", 1, "See")
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			C005 F 0 A_Die
 			C005 F 1
 		wait
@@ -67,6 +69,8 @@ ACTOR FlemMine : DnD_BaseHybridMonster {
 			C005 A 0 A_FaceTarget
 			C005 C 4 A_PlaySound("q3skull/active")
 		MissileLoop:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			C005 D 4 A_PlaySound("q3skull/active")
 			C005 C 4 A_FaceTarget
 			C005 D 4 A_SkullAttack (26)

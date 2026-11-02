@@ -253,6 +253,16 @@ enum {
 	INV_FLAT_LIFEREGEN,
 	INV_PCT_LIFEREGEN,
 
+	// minion mods, spell tagged at a lower weight than the spell mods
+	INV_MINION_DAMAGE,
+	INV_MINION_CDR,
+	INV_MINION_CRIT,
+	INV_MINION_CRITDAMAGE,
+	INV_MINION_CRITPERCENT,
+	INV_MINION_HEALTH,
+	INV_MINION_RES_CORPOREAL,
+	INV_MINION_RES_MAGIC,
+
 	// add new regular rollable attributes here
 
 	// corrupted implicits -- add new ones here
@@ -362,6 +372,9 @@ enum {
 	INV_INC_ACCURACYREVERSED,
 	INV_INC_PROJREVERSE,
 	INV_INC_EXCESSCRIT,
+	INV_INC_WEAPONDMG_PERINT,
+	INV_INC_SPELLDMG_PERSTR,
+	INV_INC_SPELLDMG_PERDEX,
 	// add new incursion mods here
 
 	INV_FLASK_IMP_CHARGECOUNT = FLASK_IMPLICIT_ID_BEGIN,
@@ -550,7 +563,7 @@ enum {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_PCT_LIFEREGEN
+#define LAST_INV_ATTRIBUTE INV_MINION_RES_MAGIC
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 
 // modify the above to make it use the negative last
@@ -572,9 +585,11 @@ enum {
 #define ESSENCE_MAP_MACRO(X) ((X) - FIRST_ESSENCE_ATTRIBUTE + 1)
 
 #define FIRST_INCURSION_ATTRIBUTE INV_INC_MOREHPBONUS
-#define LAST_INCURSION_ATTRIBUTE INV_INC_EXCESSCRIT
+#define LAST_INCURSION_ATTRIBUTE INV_INC_SPELLDMG_PERDEX
 #define INCURSION_ATTRIBUTE_COUNT (LAST_INCURSION_ATTRIBUTE - FIRST_INCURSION_ATTRIBUTE + 1)
 #define INCURSION_MAP_MACRO(X) ((X) - FIRST_INCURSION_ATTRIBUTE + 1)
+#define DND_INCURSION_MOD_WEIGHT 100
+#define DND_INCURSION_HYBRID_WEIGHT 30
 
 #define FIRST_FLASK_IMPLICIT INV_FLASK_IMP_CHARGECOUNT
 #define LAST_FLASK_IMPICIT INV_FLASK_IMP_MANA
@@ -2123,6 +2138,66 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_PCT_LIFEREGEN].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
 	SetModTierProfile(INV_PCT_LIFEREGEN, DND_TIERSET_VERYSTRONG);
 
+	// minion mods take their spell counterparts' ranges at lower weights
+	ItemModTable[INV_MINION_DAMAGE].attrib_low = 1;
+	ItemModTable[INV_MINION_DAMAGE].attrib_high = 10;
+	ItemModTable[INV_MINION_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_MINION_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_SPELL;
+	ItemModTable[INV_MINION_DAMAGE].weight = 300;
+	ItemModTable[INV_MINION_DAMAGE].allowed_slots = DND_MODBASE_SPELLS;
+	SetModTierProfile(INV_MINION_DAMAGE, DND_TIERSET_OFFENSE_NORMAL);
+
+	ItemModTable[INV_MINION_CDR].attrib_low = 1;
+	ItemModTable[INV_MINION_CDR].attrib_high = 6;
+	ItemModTable[INV_MINION_CDR].attrib_level_modifier = 0;
+	ItemModTable[INV_MINION_CDR].tags = INV_ATTR_TAG_SPELL;
+	ItemModTable[INV_MINION_CDR].weight = 150;
+	ItemModTable[INV_MINION_CDR].allowed_slots = DND_MODBASE_SPELLS;
+	SetModTierProfile(INV_MINION_CDR, DND_TIERSET_COMMON_LASTFROMBOSS);
+
+	// the rare one: flat crit, fixed point like spell crit
+	ItemModTable[INV_MINION_CRIT].attrib_low = 0.004;
+	ItemModTable[INV_MINION_CRIT].attrib_high = 0.008;
+	ItemModTable[INV_MINION_CRIT].attrib_level_modifier = 0.005;
+	ItemModTable[INV_MINION_CRIT].tags = INV_ATTR_TAG_CRIT | INV_ATTR_TAG_SPELL;
+	ItemModTable[INV_MINION_CRIT].weight = 50;
+	ItemModTable[INV_MINION_CRIT].allowed_slots = DND_MODBASE_SPELLS;
+	SetModTierProfile(INV_MINION_CRIT, DND_TIERSET_OFFENSE_STRONG);
+
+	ItemModTable[INV_MINION_CRITDAMAGE].attrib_low = 5;
+	ItemModTable[INV_MINION_CRITDAMAGE].attrib_high = 15;
+	ItemModTable[INV_MINION_CRITDAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_MINION_CRITDAMAGE].tags = INV_ATTR_TAG_CRIT | INV_ATTR_TAG_SPELL;
+	ItemModTable[INV_MINION_CRITDAMAGE].weight = 150;
+	ItemModTable[INV_MINION_CRITDAMAGE].allowed_slots = DND_MODBASE_SPELLS;
+	SetModTierProfile(INV_MINION_CRITDAMAGE, DND_TIERSET_COMMON_LASTFROMBOSS);
+
+	ItemModTable[INV_MINION_CRITPERCENT].attrib_low = 1;
+	ItemModTable[INV_MINION_CRITPERCENT].attrib_high = 5;
+	ItemModTable[INV_MINION_CRITPERCENT].attrib_level_modifier = 5;
+	ItemModTable[INV_MINION_CRITPERCENT].tags = INV_ATTR_TAG_CRIT | INV_ATTR_TAG_SPELL;
+	ItemModTable[INV_MINION_CRITPERCENT].weight = 150;
+	ItemModTable[INV_MINION_CRITPERCENT].allowed_slots = DND_MODBASE_SPELLS;
+	SetModTierProfile(INV_MINION_CRITPERCENT, DND_TIERSET_COMMON_LASTFROMBOSS);
+
+	ItemModTable[INV_MINION_HEALTH].attrib_low = 5;
+	ItemModTable[INV_MINION_HEALTH].attrib_high = 15;
+	ItemModTable[INV_MINION_HEALTH].attrib_level_modifier = 0;
+	ItemModTable[INV_MINION_HEALTH].tags = INV_ATTR_TAG_SPELL | INV_ATTR_TAG_LIFE;
+	ItemModTable[INV_MINION_HEALTH].weight = 250;
+	ItemModTable[INV_MINION_HEALTH].allowed_slots = DND_MODBASE_SPELLS;
+	SetModTierProfile(INV_MINION_HEALTH, DND_TIERSET_COMMON_LASTFROMBOSS);
+
+	for(int mres = INV_MINION_RES_CORPOREAL; mres <= INV_MINION_RES_MAGIC; ++mres) {
+		ItemModTable[mres].attrib_low = 3;
+		ItemModTable[mres].attrib_high = 8;
+		ItemModTable[mres].attrib_level_modifier = 0;
+		ItemModTable[mres].tags = INV_ATTR_TAG_SPELL;
+		ItemModTable[mres].weight = 80;
+		ItemModTable[mres].allowed_slots = DND_MODBASE_SPELLS;
+		SetModTierProfile(mres, DND_TIERSET_DEFENSE_NORMAL);
+	}
+
 	/////////////////////////
 	// corrupted implicits //
 	/////////////////////////
@@ -2453,6 +2528,33 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_INC_EXCESSCRIT].attrib_level_modifier = -1;
 	ItemModTable[INV_INC_EXCESSCRIT].tags = INV_ATTR_TAG_CRIT;
 	SetModTierProfile(INV_INC_EXCESSCRIT, DND_TIERSET_FLAT);
+
+	// hybrids: damage per 10 points of a stat that damage does not scale with, rarer than the rest
+	ItemModTable[INV_INC_WEAPONDMG_PERINT].attrib_low = 3;
+	ItemModTable[INV_INC_WEAPONDMG_PERINT].attrib_high = 5;
+	ItemModTable[INV_INC_WEAPONDMG_PERINT].attrib_level_modifier = 1;
+	ItemModTable[INV_INC_WEAPONDMG_PERINT].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_STAT;
+	ItemModTable[INV_INC_WEAPONDMG_PERINT].weight = DND_INCURSION_HYBRID_WEIGHT;
+	SetModTierProfile(INV_INC_WEAPONDMG_PERINT, DND_TIERSET_OFFENSE_STRONG);
+
+	ItemModTable[INV_INC_SPELLDMG_PERSTR].attrib_low = 1;
+	ItemModTable[INV_INC_SPELLDMG_PERSTR].attrib_high = 2;
+	ItemModTable[INV_INC_SPELLDMG_PERSTR].attrib_level_modifier = 1;
+	ItemModTable[INV_INC_SPELLDMG_PERSTR].tags = INV_ATTR_TAG_SPELL | INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_STAT;
+	ItemModTable[INV_INC_SPELLDMG_PERSTR].weight = DND_INCURSION_HYBRID_WEIGHT;
+	SetModTierProfile(INV_INC_SPELLDMG_PERSTR, DND_TIERSET_OFFENSE_STRONG);
+
+	ItemModTable[INV_INC_SPELLDMG_PERDEX].attrib_low = 1;
+	ItemModTable[INV_INC_SPELLDMG_PERDEX].attrib_high = 2;
+	ItemModTable[INV_INC_SPELLDMG_PERDEX].attrib_level_modifier = 1;
+	ItemModTable[INV_INC_SPELLDMG_PERDEX].tags = INV_ATTR_TAG_SPELL | INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_STAT;
+	ItemModTable[INV_INC_SPELLDMG_PERDEX].weight = DND_INCURSION_HYBRID_WEIGHT;
+	SetModTierProfile(INV_INC_SPELLDMG_PERDEX, DND_TIERSET_OFFENSE_STRONG);
+
+	// the incursion pick is weighted; rows without a weight of their own take the common one
+	for(int inc = FIRST_INCURSION_ATTRIBUTE; inc <= LAST_INCURSION_ATTRIBUTE; ++inc)
+		if(!ItemModTable[inc].weight)
+			ItemModTable[inc].weight = DND_INCURSION_MOD_WEIGHT;
 
 	///////////////////////////////
 	// flask mods from here out  //

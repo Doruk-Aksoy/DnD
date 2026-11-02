@@ -1,0 +1,25 @@
+// On one enemy: Contagion's tick, its caster + 1 and the half seconds left.
+Actor DnD_ContagionBase : DnD_Info {}
+Actor DnD_ContagionOwner : DnD_Info {}
+Actor DnD_ContagionTimer : DnD_Info {}
+
+// The zone's edge, and a spread's ring round the dead host, in sickly green sparks.
+Actor ContagionRingFX : NoxAreaMarkerFX {
+	Translation "80:111=%[0.00,0.00,0.00]:[0.70,1.60,0.40]"
+}
+
+// Motes rising off the zone's floor.
+Actor ContagionMoteFX : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.7
+	Scale 0.3
+	Translation "0:255=%[0.00,0.00,0.00]:[0.70,1.60,0.40]"
+	+NOGRAVITY
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_ChangeVelocity(0, 0, frandom(0.5, 1.2), CVF_REPLACE)
+			D5FX GHIJKL 4 Bright A_FadeOut(0.06)
+		Stop
+	}
+}

@@ -7,7 +7,7 @@
 
 #define SIZEOF_INT 4
 
-//#define ISDEBUGBUILD
+#define ISDEBUGBUILD
 //#define WANTCURSORPOS
 //#define VERBOSE_TID_SETUP
 //#define WANT_BUFF_LOG
@@ -197,6 +197,8 @@ enum {
 // seconds, which could not express Searing Bond's 1.5 second snare -- and this is the step it both
 // sleeps and decrements by, so the loop costs the same as the old one-second version.
 #define DND_SLOWTICKER_RATE 5
+// How often "DnD Monster Lockout Ticker" wakes and runs pacify and silence down, in tics.
+#define DND_LOCKOUT_TICKRATE 5
 #define DND_CRANIUMBASH_STUNTICS 70     // 2 seconds
 
 // Sector light level at or below which Master of Shadows considers the player to be in the dark.
@@ -208,6 +210,13 @@ enum {
 // defined here rather than read from there because that file is included later, and bcs does
 // not resolve macro forward references.
 #define DND_MAX_CHARGETYPES 3
+
+// Minion resistance mods: magic, and corporeal for every other damage type.
+enum {
+	DND_MINIONRES_CORPOREAL,
+	DND_MINIONRES_MAGIC
+};
+#define DND_MAX_MINIONRES 2
 
 enum {
 	// Flat added damage, one slot per DND_DAMAGECATEGORY_*. Categories with no mod that can fill
@@ -785,6 +794,18 @@ enum {
 	PSTAT_REGEN_PCT,			// percent of the pool a second, fixed point: 2.0 is 2% (Nano-machinery)
 	PSTAT_REGEN_DOTNOPAUSE,		// damage over time, and a hit that lands it, leaves life regeneration running (Restless Vitality)
 
+	// Minion crit is its own roll: flat chance fixed point, increased chance and multiplier integer percent.
+	PSTAT_MINION_CRIT,
+	PSTAT_MINION_CRITPERCENT,
+	PSTAT_MINION_CRITDAMAGE,
+	PSTAT_MINION_RES_BASE,		// integer percent, indexed by DND_MINIONRES_*
+	PSTAT_MINION_RES_END = PSTAT_MINION_RES_BASE + DND_MAX_MINIONRES - 1,
+
+	// Hybrid incursion mods: increased damage per 10 points of a stat, integer percent.
+	PSTAT_INC_WEAPONDMG_PERINT,
+	PSTAT_INC_SPELLDMG_PERSTR,
+	PSTAT_INC_SPELLDMG_PERDEX,
+
 	PSTAT_COUNT
 };
 
@@ -801,7 +822,7 @@ enum {
 //
 // _NEW is a leftover from the migration -- the old DND_MAX_PERKS is gone, so this can lose the
 // suffix whenever someone wants to do the rename.
-#define DND_MAX_PERKS_NEW       192     // 160 authored, room to grow
+#define DND_MAX_PERKS_NEW       192     // 161 authored, room to grow
 #define DND_PERK_MAXPOINTS      3
 #define DND_MAX_PERK_ARCHETYPES 8       // all 8 authored: a ninth needs this raised
 #define DND_MAX_PERK_REQS       3       // Blademaster and Gratuitous Violence each name three
@@ -980,6 +1001,7 @@ enum {
 
 #define DND_MAX_MONSTERS 12800
 #define DND_MAX_MONSTER_ATTACHMENTS 32
+#define DND_MAX_ATTACHMENT_SLOTS (DND_MAX_MONSTERS + MAX_PETS) // monster slots, then pet slots
 
 #define DND_MAX_TEMP_PROJ 200
 #define DND_MAX_TEMP_PROJ_SMALL 32
@@ -1079,8 +1101,8 @@ enum {
 	// 64 player temp tid range
 	KANJI_TRAP_TID = DARKLANCE_SHREDDER + MAXPLAYERS,
 	KANJI_TRAPEXP_TID = KANJI_TRAP_TID + MAXPLAYERS,
-	
-	UNIQUE_MON_AUX_TID,
+
+	UNIQUE_MON_AUX_TID = KANJI_TRAPEXP_TID + MAXPLAYERS,
 	DND_FROZENFX_TID,
 	DND_CHAOSMARKFX_TID,
 	DND_OTHERWORDLYGRIP_TID,
@@ -1160,10 +1182,11 @@ enum {
 	DND_INCURSIONPORTAL_TID = DND_INCURSIONMARKER_TID + DND_MAX_INCURSION_MARKERS,
 
 	// used for shit like elite sparkles or reflect shields that are attached to a monster
-	// DND_MAX_MONSTERS * DND_MAX_MONSTER_ATTACHMENTS is the skip for next
+	// DND_MAX_MONSTER_ATTACHMENTS per monster or pet slot; the next range starts past the whole span
 	DND_MONSTER_ATTACHMENT_TID_BEGIN = DND_INCURSIONPORTAL_TID + DND_MAX_INCURSION_PORTALS,
+	DND_MONSTER_ATTACHMENT_TID_END = DND_MONSTER_ATTACHMENT_TID_BEGIN + DND_MAX_ATTACHMENT_SLOTS * DND_MAX_MONSTER_ATTACHMENTS,
 
-	DND_ULTIMATUM_TEMPTID,
+	DND_ULTIMATUM_TEMPTID = DND_MONSTER_ATTACHMENT_TID_END,
 	DND_ULTIMATUM_STORMCALL_TID,
 	DND_ULTIMATUM_STORMCALL_TEMPTID = DND_ULTIMATUM_STORMCALL_TID + 16,
 
@@ -1192,6 +1215,17 @@ enum {
 	DND_BLOCKADE_TID_END = DND_BLOCKADE_TID + MAXPLAYERS,
 	DND_BLOCKADE_ANCHOR_TID = DND_BLOCKADE_TID_END,
 	DND_BLOCKADE_ANCHOR_TID_END = DND_BLOCKADE_ANCHOR_TID + MAXPLAYERS,
+
+	// Nox: one blind decoy per monster slot.
+	DND_BLIND_DECOY_TID = DND_BLOCKADE_ANCHOR_TID_END,
+	DND_BLIND_DECOY_TID_END = DND_BLIND_DECOY_TID + DND_MAX_MONSTERS,
+
+	// Client side only, one per client: the wheels' camera at the local player's eye.
+	DND_WHEEL_CAMERA_TID = DND_BLIND_DECOY_TID_END,
+
+	// Gem chains: a projectile parked while its chain runs, 16 a player.
+	DND_GEMCHAIN_TID,
+	DND_GEMCHAIN_TID_END = DND_GEMCHAIN_TID + MAXPLAYERS * 16,
 
 	// ScratchTID()'s window: far above every range here, just under the three fixed ones at the top.
 	DND_SCRATCH_TID = bcs::INT_MAX - 2 - 256,
@@ -1490,13 +1524,21 @@ void GiveMonsterTID(int base_tid) {
 		base_tid = 0;
 	}
 
+	bool reused = false;
 	if(!base_tid) {
 		temp = DND_MONSTERTID_BEGIN + InformationInLevel[LEVELINFO_TID_MONSTER] + InformationInLevel[LEVELINFO_SKIPPEDMONSTERTID];
-		
+
 		// we have to constantly check if we have run into a specific tid monster...
-		while(ThingCount(0, temp)) {
+		while(temp < DND_LASTMONSTER_TID && ThingCount(0, temp)) {
 			++temp;
 			++InformationInLevel[LEVELINFO_SKIPPEDMONSTERTID];
+		}
+		// The pool ran out: the first id no living actor holds, which UsedMonsterTIDs lists already from its first owner.
+		if(temp >= DND_LASTMONSTER_TID) {
+			for(temp = DND_MONSTERTID_BEGIN; temp < DND_LASTMONSTER_TID && ThingCount(0, temp); ++temp);
+			if(temp >= DND_LASTMONSTER_TID)
+				return;
+			reused = true;
 		}
 		base_tid = temp;
 		Thing_ChangeTID(0, base_tid);
@@ -1504,6 +1546,11 @@ void GiveMonsterTID(int base_tid) {
 	// This id has just changed hands, so drop whatever the last owner left latched on it. No Delay
 	// may be introduced between the line above and this one -- see DropMonsterTicResidue.
 	DropMonsterTicResidue(base_tid - DND_MONSTERTID_BEGIN);
+
+	if(reused) {
+		ACS_NamedExecuteAlways("DnD Update Monster TID CS", 0, -1, base_tid, InformationInLevel[LEVELINFO_TID_MONSTER]);
+		return;
+	}
 
 	temp = InformationInLevel[LEVELINFO_TID_MONSTER];
 	UsedMonsterTIDs[InformationInLevel[LEVELINFO_TID_MONSTER]++] = base_tid;
@@ -1519,7 +1566,9 @@ Script "DnD Update Monster TID CS" (int id, int val, int newcount) CLIENTSIDE {
 	if(GameType() == GAME_SINGLE_PLAYER)
 		Terminate;
 
-	UsedMonsterTIDs[id] = val;
+	// id -1: a reused id the list holds already.
+	if(id >= 0)
+		UsedMonsterTIDs[id] = val;
 	InformationInLevel[LEVELINFO_TID_MONSTER] = newcount;
 
 	// this is necessary to fix a bug
@@ -1529,19 +1578,40 @@ Script "DnD Update Monster TID CS" (int id, int val, int newcount) CLIENTSIDE {
 void GivePetTID(int master_tid) {
 	int master_pnum = master_tid - P_TIDSTART;
 	int i;
-	int pet_tid_beg = DND_PETTID_BEGIN + master_pnum * DND_MAX_PETS_PER_PLAYER;
-	
+	int pet_tid_beg = DND_PETTID_BEGIN + master_pnum * DND_MAX_PETS_PER_PLAYER, held = ActivatorTID();
+
+	// Its summon claimed a slot of this band already: kept, so it is never moved to a second one.
+	if(held >= pet_tid_beg && held < pet_tid_beg + DND_MAX_PETS_PER_PLAYER)
+		return;
+
 	// check linearly while the pet tids are occupied, find one that isn't
 	for(i = 0; i < DND_MAX_PETS_PER_PLAYER && ThingCount(T_NONE, pet_tid_beg + i); ++i);
 	
-	// we haven't skipped over lim which is beginning of pet tid for that player + max pet cap + 1
-	if(i != pet_tid_beg + DND_MAX_PETS_PER_PLAYER + 1)
-		Thing_ChangeTID(0, pet_tid_beg + i);
+	// Every slot holds a live pet: the oldest goes home, sent by its master like a capped summon, and its slot is reused.
+	if(i == DND_MAX_PETS_PER_PLAYER) {
+		int old = Max(FindOldestPlayerPet(master_pnum), pet_tid_beg), self = ScratchTID();
+		Thing_ChangeTID(0, self);
+		SetActivator(master_tid);
+		UnsummonPet(old);
+		// Its kill script has untagged it already; this covers a pet without kill scripts.
+		Thing_ChangeTID(old, 0);
+		SetActivator(self);
+		i = old - pet_tid_beg;
+	}
+	Thing_ChangeTID(0, pet_tid_beg + i);
 }
 
+// Round its own range, past ids a living actor still holds, so it never runs on into the pets' after it; none when all are held.
 void GiveShootableTID() {
-	Thing_ChangeTID(0, DND_SHOOTABLETID_BEGIN + InformationInLevel[LEVELINFO_TID_SHOOTABLE]);
-	++InformationInLevel[LEVELINFO_TID_SHOOTABLE];
+	int n = InformationInLevel[LEVELINFO_TID_SHOOTABLE] % MAX_SHOOTABLE_TIDS;
+	for(int i = 0; i < MAX_SHOOTABLE_TIDS; ++i) {
+		if(!ThingCount(T_NONE, DND_SHOOTABLETID_BEGIN + n)) {
+			Thing_ChangeTID(0, DND_SHOOTABLETID_BEGIN + n);
+			InformationInLevel[LEVELINFO_TID_SHOOTABLE] = n + 1;
+			return;
+		}
+		n = (n + 1) % MAX_SHOOTABLE_TIDS;
+	}
 }
 
 // These counters define a tid range other systems treat as DENSE -- the artifact placer picks a

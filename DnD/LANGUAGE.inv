@@ -584,6 +584,14 @@ IATTR_T188          = "poison spell damage";
 IATTR_T189          = "magic spell damage";
 IATTR_T190          = "to life regeneration";
 IATTR_T191          = "life regeneration";
+IATTR_T192          = "increased minion damage";
+IATTR_T193          = "increased minion cooldown recovery rate";
+IATTR_T194          = "crit chance for minions";
+IATTR_T195          = "additional crit multiplier for minions";
+IATTR_T196          = "increased crit chance for minions";
+IATTR_T197          = "increased minion health";
+IATTR_T198          = "to minion corporeal resistances";
+IATTR_T199          = "to minion magic resistance";
 
 // corrupt implicits
 IATTR_TC1			= "more weapon damage to";
@@ -597,7 +605,7 @@ IATTR_TC8			= "of damage dealt as poison to";
 IATTR_TC9			= "chance to force pain";
 IATTR_TC10			= "CYBERNETIC";
 IATTR_TC11			= "Taking damage doesn't stop regeneration";
-IATTR_TC12			= "of lifesteal is instant";
+IATTR_TC12			= "of leech is instant";
 IATTR_TC13			= "more area of effect";
 IATTR_TC14			= "to global resist pierce";
 IATTR_TC15			= "Culling Strike";
@@ -677,7 +685,7 @@ IATTR_TINC5			= "Overload can no longer chain, and its effect is reduced by "; I
 IATTR_TINC6			= "Energy shield recharge is not interrupted by damage"; IATTR_TINC6S = "Energy shield recharges at half rate";
 IATTR_TINC7			= "+1 additional projectiles fired from "; IATTR_TINC7S = "less damage to ";
 IATTR_TINC8			= "+2 additional projectiles fired from ";
-IATTR_TINC9			= "of lifesteal is instant"; IATTR_TINC9S = "reduced lifesteal recovery rate";
+IATTR_TINC9			= "of leech is instant"; IATTR_TINC9S = "reduced leech recovery rate";
 IATTR_TINC10		= "chance to defend with twice your armor rating";
 IATTR_TINC11		= "Mitigation is converted to dodge chance at half the value"; IATTR_TINC11S = "Dodge chance is capped at 60% (Can't dodge radius damage)";
 IATTR_TINC12		= "Accuracy rating increases damage of precision weapons by 1% per 25 points";
@@ -690,6 +698,9 @@ IATTR_TINC18		= "chance to treat enemy resistances as inverted";
 IATTR_TINC19		= "Effect of accuracy is reversed";
 IATTR_TINC20		= "Your projectiles reverse direction after "; IATTR_TINC20S = " seconds";
 IATTR_TINC21		= "% less crit chance"; IATTR_TINC21S = "Excess crit chance acts as an additional multiplier to crit damage";
+IATTR_TINC22		= "increased weapon damage per 10 Intellect";
+IATTR_TINC23		= "increased spell damage per 10 Strength";
+IATTR_TINC24		= "increased spell damage per 10 Dexterity";
 
 // exotic ones
 IATTR_TX_CHANCE 	= "chance to ";

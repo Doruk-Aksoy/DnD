@@ -1,3 +1,111 @@
+==== DND NEXT VERSION PATCH NOTES ====
+
+* New elite property "Curse Immune": the monster is unaffected by curses, unless a skill states it can affect curse immune enemies.
+	- Can roll on Elite and Tough monsters from monster level 30.
+* New very rare gem roles, for curse skills only:
+	- Hexmaster: Socketed curse can affect curse immune enemies. 50% more mana cost. Greater: 33% more mana cost.
+	- Ritualist: Socketed curse lingers in its area for 3 seconds, re-cursing every enemy inside it, so their curse stays refreshed while they remain. Its effect is reduced by 30%. Greater: 4 seconds, effect reduced by 20%.
+* New rare gem roles for spells that strike an enemy directly:
+	- Serpent: The hit chains to up to 3 more enemies, losing 10% of its damage at each chain. 20% more mana cost. Greater: up to 5 more, losing 15% each, never below 60%. 33% more mana cost.
+	- Hydra: The hit forks to up to 4 more enemies behind the target, at 10% less damage. 20% more mana cost. Greater: up to 7 more. 33% more mana cost.
+	- The projectile visibly travels from enemy to enemy. A chained projectile explodes only at its last enemy, at that chain's damage; a forking one explodes at the first enemy it hits.
+	- Serpent and Hydra do not work together on one spell: the gem in the earlier socket wins.
+	- "Chain Lightning" adds the chains to its own, and "Forked Lightning" adds the forks to its own.
+	- Works on "Fireball", "Pyroblast" and "Ice Bolt" for now.
+* New uncommon gem roles for summoning spells:
+	- Voracious: Minions gain +3% critical strike chance. 33% more mana cost. Greater: +5%, 50% more mana cost.
+	- Alpha: Minions gain +50% critical strike multiplier. 25% more mana cost. Greater: +100%, 40% more mana cost.
+	- They count for the minions of the spell they are socketed in, and a gem swapped while its minions are out counts at once.
+* New very rare gem role "Archon": 1.5% of a spell's hit damage is leeched as mana. 20% more mana cost. Greater: 3%, 35% more mana cost.
+	- Mana leech works like life leech: it fills a pool that holds up to 33% of your unreserved mana and pays out 1% of your unreserved mana at once, then every 0.7 seconds. Reaching full mana ends the leech.
+	- The instant leech modifiers now read "of leech is instant" and pay that share of mana leech at once as well. The incursion one's downside is now "reduced leech recovery rate", and slows mana leech too.
+	- "More damage while leeching" now also holds while leeching mana.
+* The dungeon modifier "Players cannot lifesteal" is now "Players cannot leech", and blocks mana leech too.
+* New elite property "Silencer": hits from the monster's attacks and spells have a 33% chance to silence you for 4 seconds; its damage over time does not. A new silence restarts the timer.
+	- While silenced you cannot cast spells. A spell being cast never comes out, channelled spells end as if you let go ("Annihilus" releases what it has charged so far) and toggled spells switch off. Auras and passives keep running.
+	- Can roll on Elite and Tough monsters from monster level 40.
+* Attributes now reward spreading your points:
+	- The damage an attribute gives to weapons, spells and minions counts in full up to your level, and a quarter past it.
+	- Dexterity also grants spell haste, up to 25%. Intellect also grants increased spell cooldown recovery rate, up to 20%. Both grow fastest from the first points.
+	- Each attribute also helps builds that do not use it for damage, again growing fastest from the first points:
+		+ Strength grants increased ammo capacity, special ammo included, up to 40%.
+		+ Dexterity grants a chance to shake off homing projectiles, up to 25%.
+		+ Intellect grants reduced curse effect on you, up to 20%.
+* Spells now scale with attributes the way weapons do, shown in each spell's tooltip as its attunement:
+	- Fire spells scale with Intellect. "Immolation", "Righteous Fire", "Heat Shield", "Searing Bond" and "Volcano" scale with Strength and Intellect, "Infernal Strike" mostly with Strength.
+	- Cold spells scale with Intellect. "Ice Bolt", "Freezing Pulse", "Glacial Spike", "Chilling Breath", "Creeping Frost", "Frost Shards", "Winter Orb" and "Ice Spear" scale with Dexterity and Intellect, "Ice Nova" with Strength and Intellect. "Gust of Frost", "Glacial Cascade", "Avalanche" and "Summon: Ice Golem" mostly with Strength.
+	- Lightning spells scale with Dexterity and Intellect, "Thunder Clap" with Strength and Intellect.
+	- Earth's rock spells scale mostly with Strength, its poison spells evenly with Dexterity and Intellect.
+	- Black spells scale with Intellect. "Summon: Zombie", "Summon: Skeleton", "Summon: Slayer Knight" and "Summon: Doomguard" also with Strength, "Summon: Ghast" and "Carrion Crows" with Dexterity. "Plague", "Dark Wind", "Essence Theft", "Finger of Death", "Contagion", "Implosion" and "Nether Walk" take a little Dexterity, "Soulstorm" and "Death and Decay" a little Strength.
+* Minion rework:
+	- Minion damage now grows with your level the way monster damage does, and with the attunement of the spell that summoned it.
+	- Intellect no longer adds minion damage or minion health directly. Raised monsters no longer gain damage from Intellect.
+	- Minions roll their own critical strikes: 5% chance and 150% multiplier, raised only by minion modifiers. They no longer use your crit chance.
+	- Summon tooltips show the minion's health and the damage of each of its attacks at your level and gear, and what the next rank brings, instead of base numbers.
+	- Each rank of a summon now adds its full health at every level. Health gains under 100 per rank used to be lost to level scaling.
+* New minion modifiers on spell items, rarer than other spell modifiers:
+	- Increased minion damage, increased minion cooldown recovery rate and increased minion health.
+	- Crit chance for minions (very rare), increased crit chance for minions and additional crit multiplier for minions.
+	- Minion corporeal resistances (every damage type except magic) and minion magic resistance. These can raise a minion's resistance up to 75%.
+* New incursion modifiers that reward a second attribute, rarer than the other incursion modifiers and dropped only by incursion monsters:
+	- Increased weapon damage per 10 Intellect, up to 11% on armor, helms and boots.
+	- Increased spell damage per 10 Strength, and the same per 10 Dexterity, up to 8% on armor, helms and boots.
+	- As with attribute damage, points past your level count a quarter.
+* New "Skill Wheel" for your spell hotbar, under Controls in "DnD Spells":
+	- Hold the key, move the mouse towards a spell and let go to cast it. Letting go in the middle casts nothing.
+	- You keep moving while it is open. Your view stays put, so the spell goes where you were looking when you opened it.
+	- Spells on cooldown show grey, with the time left under the spell's name.
+	- The borders of the slot under the cursor light up.
+
+==== BUG FIXES / TWEAKS ====
+
+* Elite and Tough monster properties now respect their level requirements. Below monster level 50, monsters could roll properties meant for higher levels, and some low level properties never appeared.
+* "Fire Immune", "Ice Immune", "Poison Immune" and "Lightning Immune" elite properties now actually make the monster immune to that element.
+	- They count towards the limit of 2 immunities per monster, and "dnd_no_immunity" disables them like the other immunities.
+* "dnd_no_immunity" and "dnd_no_reflect" now work together. With both on, immunities could still roll.
+* Help menu: added "Warding Aura" to the defensive monster properties, and the special monster properties page shows the right descriptions again.
+* Regenerating monsters pause their regeneration while at full health, and resume within a second of being hurt.
+* The "Ruby Wand" fire trail and the "Thunder Staff" lightning zaps show again on maps that have their own scripts. They never appeared there.
+* "Earth Lich" no longer runs out of spike volleys. It could cast only 30 spikes per life and then threw nothing but rocks.
+* "Onimuz the Unbroken" no longer stands still forever after casting its projection. It now stops channeling once the projection expires, or when the projection never forms.
+* "Blood Magic": auras can no longer reserve your last point of life. They used to run for free at 1 max life.
+	- At 1 max life ("Protoshell", or "Sanguine Covenant" without energy shield) auras switch off and cannot be switched on.
+	- Auras reserving 100% of your life together no longer fit, the last one switches off.
+* Performance: firing weapons, monster spawning on large maps and starting a new game cost much less script time, on the server and on clients.
+* "GraveCaller": raised zombies are now the zombie "Summon: Zombie" conjures, with its health, melee damage and duration at your "Summon: Zombie" rank, or rank 1 if you have not learned it.
+	- The charm keeps raising while you have fewer than 5 zombies, counting the ones you summon yourself.
+* Fixed effects attached to the first monsters of a map (elite sparkles, reflect shields and similar) clashing with "Ultimatum" objects. An Ultimatum could remove a monster's effect, or wait on a popped pustule that never counted as gone.
+* "Demon Sealer": Kanji Trap explosions from players other than the first no longer clash with other effects, such as parries.
+* Pet icons no longer stay over dead pets.
+* Monster spells now count as magic damage against your armor, and armor piercing monsters pierce your armor only with their attacks.
+* Help menu: "Blackout", the poison, chill, ignite and overload properties and ammo theft now say they work with the monster's spells too, as they always have.
+* Fixed pets writing their icon data into memory used by other systems, which could cause hard to trace problems while pets were out.
+* Fixed the pet limit being ignored in multiplayer after dying: pets that outlived you no longer counted towards it, so every death let you summon more.
+	- Pets now die when their summoner dies or leaves the game.
+	- Summoning at a full limit no longer sends home two pets to make room for one.
+	- A summon that cannot make room, such as when raised minions fill your limit, is no longer cast, and costs nothing.
+* Pets without a time limit ("Summon: Rock Golem", "Summon: Ice Golem", "Summon: Fire Demon") now follow you to the next map when the level is exited, at the health they had, with no mana, cooldown or cast time.
+	- They are also saved with your character and return when you load it. Pets that died with you are not saved.
+* Skill and gem pockets: long headings, such as "In: Summon: Ice Golem", shrink to fit instead of running past the frame.
+* A new character no longer shows the flasks of your previous character on the HUD. They could not be drunk. The same applied after losing a hardcore character.
+* Attribute descriptions show the right numbers: Strength gives 1.5 maximum life and 0.5 stamina per point, Intellect 0.5 energy shield and 1.5 mana.
+* "Rally" reaches further with its own level instead of with Intellect: 128 units at level 1, up to 344 at level 10.
+* The cast bar and the silence bar no longer glow a few pixels past the front of the fill along their top and bottom edges.
+* Items with percent Strength, or that turn Strength's effects off, now update stamina, knockback resistance and ammo capacity as soon as they are equipped or removed. Items granting all attributes, percent attributes or "Unity" now update stamina too.
+* Losing Strength from an item or an attribute refund now lowers your life to the new maximum, and healing respects a Strength item's new maximum right away instead of after a map change.
+* Weapon Wheel: the dotted borders between weapons are now solid lines coming out from under the middle ring, and the borders of the weapon under the cursor light up.
+* Weapon Wheel now opens while its key is held and switches to the weapon under the cursor when you let go. Your view stays put while it is open and you keep moving. Rebind it under Controls, "DnD Keys".
+* While choosing your class, the DnD menu, inventory, stash, weapon and skill wheels, current weapon tip and NPC conversations no longer open over the class screen.
+* The software renderer is no longer supported: the mana bar, cast bar, monster health bar and wheels only draw their OpenGL look.
+
+==== MONSTER CHANGES ====
+
+* Fixed level scaling ignoring part of a monster's base health. Monsters whose base health is 100 or more and not a round hundred now gain their full health from level, up to 93% more at level 100.
+	- Hit hardest: "Scavenger", "Stone Imp", "Demon", "Spectre", "Satyr" and others between 150 and 199 base health, which scaled as if they had 100.
+	- Unchanged: monsters under 100 base health, or with a round hundred such as "Cacodemon" and "Baron of Hell".
+* Monster self-healing now scales with the monster's health, so it heals the same share of its life at every level. It barely grew with level before.
+	- Covers the regeneration of the "Roach" and "Crystal Golem", the "Dark Zealot" healing itself and nearby monsters, and the healing of "Azazel", "Hell Smith" and "Iron Lich".
+
 ==== DND 2022 APRIL 1ST EDITION v2.5 PATCH NOTES ====
 
 * Added NFTs. (See Shop)

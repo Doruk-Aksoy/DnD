@@ -1,0 +1,105 @@
+// Summon: Doomguard, the Bruiser Demon's look: an arc cleave ("DnD Minion Cleave") or a meteor with a blast where it lands.
+ACTOR Spell_Doomguard : PetMonsterBase {
+	Health 2000
+	GibHealth -100
+	Radius 26
+	Height 70
+	Speed 8
+	PainChance 16
+	Mass 1000
+	Scale 1.15
+	Stamina 1
+	SeeSound "superbaron/scream"
+	PainSound "superbaron/pain"
+	DeathSound "superbaron/death"
+	ActiveSound "superbaron/act"
+	Obituary "%o was crushed by a Doomguard."
+	Tag "Doomguard"
+	MeleeRange 96
+	var int user_stomp;
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pet Monster Scale", 0, DND_PET_DOOMGUARDID, -1, -1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pet Distance Move", 0)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Doomguard Curse", 0)
+			BRUD VUTSRQ 2
+			BRUD PONMLKJIHGFEDCBA 2 Bright
+		SpawnLoop:
+			BRUS AB 10 Bright A_Look
+		Goto See
+		See:
+			BRUS AAABBBCCCDDD 2 Bright A_Chase
+		Loop
+		Melee:
+			// Rank 5: War Stomp when it is ready, else the cleave.
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Doomguard Stomp"), "Stomp")
+			TNT1 A 0 A_AlertMonsters(0, AMF_TARGETNONPLAYER)
+			BRUS E 6 Bright A_FaceTarget
+			BRUS F 5 Bright A_FaceTarget
+			TNT1 A 0 A_PlaySound("baron/melee", CHAN_WEAPON)
+			BRUS G 6 Bright ACS_NamedExecuteWithResult("DnD Minion Cleave", MINIONHIT_DOOMMELEE)
+		Goto See
+		Stomp:
+			BRUS KL 5 Bright
+			BRUS M 8 Bright
+		Goto See
+		Missile:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Doomguard Stomp"), "Stomp")
+			TNT1 A 0 A_AlertMonsters(0, AMF_TARGETNONPLAYER)
+			BRUS H 6 Bright A_FaceTarget
+			BRUS I 6 Bright A_FaceTarget
+			BRUS J 6 Bright A_CustomMissile("Spell_DoomguardMeteor", 56)
+		Goto See
+		Pain:
+			BRUS N 5 Bright A_Pain
+		Goto See
+		Death:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Summon Death Check", 0, DND_PET_DOOMGUARDID)
+			BRUD A 6 Bright A_Scream
+			BRUD BCDEFG 4 Bright
+			BRUD H 4 Bright A_NoBlocking
+			BRUD IJKLMNOP 4 Bright
+			BRUD QRSTUV 4
+			BRUD W 35
+			BRUD W 1 A_FadeOut(0.05)
+		Wait
+	}
+}
+
+// Its meteor: AMOUNT on the enemy it strikes, then AMOUNT2 in a 160 blast.
+Actor Spell_DoomguardMeteor : DnD_BaseProjectile_ForPets {
+	Speed 20
+	Radius 8
+	Height 10
+	Damage(ACS_NamedExecuteWithResult("DnD Spell Minion Hit", MINIONHIT_METEOR, DND_USETARGET))
+	DamageType "Fire"
+	Scale 1.5
+	SeeSound "monster/dkball"
+	DeathSound "MoonSatyr/MeteorExplode"
+	+FORCERADIUSDMG
+	var int user_dmg;
+	States {
+		SpawnState:
+			MSX0 ABC 2 Bright
+		Loop
+		Death:
+			TNT1 A 0 A_SetUserVar("user_dmg", ACS_NamedExecuteWithResult("DnD Spell Minion Hit", MINIONHIT_METEORBLAST, DND_USETARGET))
+			TNT1 A 0 A_Explode(user_dmg, 160, 0, 0, 48)
+			MSX0 DEFGHI 2 Bright
+		Stop
+	}
+}
+
+Actor Spell_Doomguard_StompFX : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.8
+	Scale 0.7
+	Translation "0:255=%[0.00,0.00,0.00]:[1.60,0.70,0.20]"
+	States {
+		Spawn:
+			TNT1 A 0
+			D4FX GHIJKL 3 Bright
+		Stop
+	}
+}

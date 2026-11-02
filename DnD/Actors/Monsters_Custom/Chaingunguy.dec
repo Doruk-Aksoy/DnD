@@ -24,13 +24,17 @@ Actor DoubleChaingunner : DnD_BaseRangedMonster 21035 {
 		Goto SpawnSetup
 	
 		IdleState:
-			DPOS AB 10 A_GiveInventory("DnD_SightChecker", 1)
+			DPOS AB 10 A_Look
 		Loop
 		SeeState:
 			DPOS AABBCCDD 3 Fast A_Chase
 		Goto See
 		MissileState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			DPOS E 10 Fast A_FaceTarget
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_PlaySound("weapons/minigunfire", CHAN_WEAPON)
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 32, 26, -4, 0, frandom(3.0, 5.0), random(-130, -110))
@@ -43,7 +47,7 @@ Actor DoubleChaingunner : DnD_BaseRangedMonster 21035 {
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			DPOS E 4 Fast Bright A_CustomMissile("ZombieBullet", 32, 32, frandom(-22.5, 22.5))
 			DPOS F 1 A_CPosRefire
-		Goto MissileState + 1
+		Goto MissileState + 3
 		PainState:
 			DPOS G 3 Fast
 			DPOS G 3 Fast A_Pain
@@ -113,13 +117,17 @@ Actor ChaingunMajor : DnD_BaseRangedMonster 21036 {
 		Goto SpawnSetup
 
 		IdleState:
-			CPS2 AB 10 A_GiveInventory("DnD_SightChecker", 1)
+			CPS2 AB 10 A_Look
 		Loop
 		SeeState:
 			CPS2 AABBCCDD 3 Fast A_Chase
 		Goto See
 		MissileState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			CPS2 E 10 Fast A_FaceTarget
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 A 0 A_PlaySound("weapons/minigunfire", CHAN_WEAPON)
 			CPS2 F 3 Fast A_CustomMissile("MajorBullet", 32, 8, frandom(-22.5, 22.5))
@@ -128,7 +136,7 @@ Actor ChaingunMajor : DnD_BaseRangedMonster 21036 {
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			CPS2 E 3 Fast A_CustomMissile("MajorBullet", 32, 8, frandom(-22.5, 22.5))
 			CPS2 F 1 A_CPosRefire
-		Goto MissileState + 1
+		Goto MissileState + 3
 		PainState:
 			CPS2 G 3 Fast
 			CPS2 G 3 Fast A_Pain
@@ -195,7 +203,7 @@ actor ZSec : DnD_BaseRangedMonster 21037 {
 		Goto SpawnSetup
 
 		IdleState:
-			ZSEC E 1 A_GiveInventory("DnD_SightChecker", 1)
+			ZSEC E 1 A_Look
 		loop
 		SeeState:
 			ZSEC A 0 A_TakeInventory("ZSecCharge", 1)
@@ -218,9 +226,11 @@ actor ZSec : DnD_BaseRangedMonster 21037 {
 		Goto See
 		MissileState:
 			ZSEC E 0 A_ChangeFlag("NoPain", 1)
-			ZSEC E 0 A_Jump(64, 19)
+			ZSEC E 0 A_Jump(64, 21)
 			ZSEC E 10 Fast A_FaceTarget
-			ZSEC E 0 A_JumpIfInventory("ZSecAmmo", 10, 13)
+			ZSEC E 0 A_JumpIfInventory("ZSecAmmo", 10, 15)
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 24, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 A 0 A_PlaySound("zsec/attack", CHAN_WEAPON)
 			ZSEC F 2 Fast bright A_CustomMissile("SMGZombieBullet", 32, 0, frandom(-5.0, 5.0), 0, frandom(-5.0, 5.0))
@@ -362,13 +372,17 @@ Actor ZSpecOpsMachinegun : DnD_BaseRangedMonster 21038 {
 		Goto SpawnSetup
 	
 		IdleState:
-			ZSP2 AAAAAAAAAABBBBBBBBBB 1 A_GiveInventory("DnD_SightChecker", 1)
+			ZSP2 AAAAAAAAAABBBBBBBBBB 1 A_Look
 		Loop
 		SeeState:
 			ZSP2 ABCD 3 A_Chase
 		Goto See
 		MissileState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			ZSP2 EEE 4 Fast A_FaceTarget
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			ZSP2 F 0 Bright A_PlayWeaponSound("ZSpecOps/MGun")
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 24, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			ZSP2 F 2 Fast Bright A_CustomMissile("UndeadInitiateBullet", 32, 8, frandom(-11.0, 11.0), 0, frandom(-8.0, 8.0))
@@ -383,7 +397,7 @@ Actor ZSpecOpsMachinegun : DnD_BaseRangedMonster 21038 {
 			ZSP2 F 2 Fast Bright A_CustomMissile("UndeadInitiateBullet", 32, 8, frandom(-11.0, 11.0), 0, frandom(-8.0, 8.0))
 			ZSP2 E 2 Fast A_FaceTarget
 			ZSP2 F 0 A_MonsterRefire(40, "See")
-		Goto MissileState + 3
+		Goto MissileState + 5
 		PainState:
 			ZSP2 G 4 Fast
 			ZSP2 G 4 Fast A_Pain
@@ -445,7 +459,7 @@ Actor QuakeZombieChaingun : DnD_BaseRangedMonster 21039 {
 		Goto SpawnSetup
 
 		IdleState:
-			QZOM AB 10 A_GiveInventory("DnD_SightChecker", 1)
+			QZOM AB 10 A_Look
 		Loop
 		SeeState:
 			QZOM AABBCCDD 4 A_Chase
@@ -453,6 +467,8 @@ Actor QuakeZombieChaingun : DnD_BaseRangedMonster 21039 {
 		MissileState:
 			QZOM E 6 Fast A_FaceTarget
 			TNT1 A 0 A_Jump(128, "Double")
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_Playsound("Enforcer/Fire")
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			QZOM F 4 Fast Bright A_CustomMissile("EnforcerPlasma2", 32, 6)
@@ -460,6 +476,8 @@ Actor QuakeZombieChaingun : DnD_BaseRangedMonster 21039 {
 			QZOM E 1 A_CPosRefire
 		Goto MissileState + 1
 		Double:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_Playsound("Enforcer/Fire")
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			TNT1 A 0 A_CustomMissile("EnforcerPlasma2", 32, 6, -1)
@@ -558,7 +576,7 @@ actor UndeadInitiate : DnD_BaseHybridMonster 21040 {
 		Goto SpawnSetup
 
 		IdleState:
-			1102 A 10 A_GiveInventory("DnD_SightChecker", 1)
+			1102 A 10 A_Look
 		loop
 		SeeState:
 			1102 A 0 A_Jump (32, "Run")
@@ -576,6 +594,8 @@ actor UndeadInitiate : DnD_BaseHybridMonster 21040 {
 		Loop
 		MeleeState:
 		MissileState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			1102 E 6 Fast A_FaceTarget
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 28, 34, -4, 0, frandom(3.0, 5.0), random(-80, -90))
 			1102 F 5 Fast bright A_CustomMissile("UndeadInitiateBullet", 32, -8, frandom(-3.0, 3.0), 0, frandom(-2.0, 2.0))
@@ -650,7 +670,7 @@ Actor MrRobot : DnD_BaseRangedMonster 21041 {
 		Goto SpawnSetup
 	
 		IdleState:
-			MROB A 4 A_GiveInventory("DnD_SightChecker", 1)
+			MROB A 4 A_Look
 		Loop
 		SeeState:
 			MROB A 0 A_Jump(96, "Sprint")
@@ -677,6 +697,8 @@ Actor MrRobot : DnD_BaseRangedMonster 21041 {
 		MissileState:
 			MROB E 4 Fast A_FaceTarget
 		MissileLoop:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_Playsound("Enforcer/Fire")
 			MROB F 3 Fast Bright A_CustomMissile("EnforcerPlasma3", 50, -12)
 			MROB E 2 Fast A_MonsterRefire(32, "Sprint")
@@ -790,13 +812,17 @@ Actor MachinegunGuy : DnD_BaseRangedMonster 21042 {
 		Goto SpawnSetup
 	
 		IdleState:
-			EASS AB 10 A_GiveInventory("DnD_SightChecker", 1)
+			EASS AB 10 A_Look
 		Loop
 		SeeState:
 			EASS AABBCCDD 3 Fast A_Chase
 		Goto See
 		MissileState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			EASS E 10 Fast A_FaceTarget
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_PlaySound("Weapons/MGFireSoft")
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			EASS F 3 Fast Bright A_CustomMissile("ZombieBullet", 32, 8, frandom(-22.5, 22.5), 0, frandom(-1.5, 1.5))
@@ -805,7 +831,7 @@ Actor MachinegunGuy : DnD_BaseRangedMonster 21042 {
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			EASS E 3 Bright A_CustomMissile("ZombieBullet", 32, 8, frandom(-22.5, 22.5), 0, frandom(-1.5, 1.5))
 			EASS F 1 A_CPosRefire
-		Goto MissileState + 1
+		Goto MissileState + 3
 		PainState:
 			EASS G 3 Fast
 			EASS G 3 Fast A_Pain
@@ -868,13 +894,17 @@ ACTOR PlasmaZombie : DnD_BaseRangedMonster 21043 {
 		Goto SpawnSetup
 
 		IdleState:
-			ZMAY AB 10 A_GiveInventory("DnD_SightChecker", 1)
+			ZMAY AB 10 A_Look
 		Loop
 		SeeState:
 			ZMAY AABBCCDD 4 Fast A_Chase
 		Goto See
 		MissileState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			ZMAY E 10 Fast A_FaceTarget
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			ZMAY F 3 Fast A_CustomMissile("ZombiePlasma", 32, 4, frandom(-1.5, 1.5))
 			ZMAY E 5 Fast A_FaceTarget
 			ZMAY F 3 Fast A_CustomMissile("ZombiePlasma", 32, 4, frandom(-1.5, 1.5))
@@ -886,7 +916,7 @@ ACTOR PlasmaZombie : DnD_BaseRangedMonster 21043 {
 			ZMAY E 5 Fast A_FaceTarget
 			ZMAY F 3 Fast A_CustomMissile("ZombiePlasma", 32, 4, frandom(-1.5, 1.5))
 			ZMAY E 5 A_MonsterRefire(120, "See")
-		Goto MissileState + 1
+		Goto MissileState + 3
 		PainState:
 			ZMAY G 3 Fast
 			ZMAY G 3 Fast A_Pain
@@ -979,7 +1009,7 @@ Actor Berserkerguy : DnD_BaseRangedMonster 21044 {
 		Goto SpawnSetup
 	
 		IdleState:
-			CGOS AB 10 A_GiveInventory("DnD_SightChecker", 1)
+			CGOS AB 10 A_Look
 		Loop
 		SeeState:
 			CGOS A 0 A_JumpIfHealthLower (ACS_ExecuteWithResult(961, 7) / 2, "See2")
@@ -994,6 +1024,8 @@ Actor Berserkerguy : DnD_BaseRangedMonster 21044 {
 		MissileDecide:
 			TNT1 A 0 A_JumpIfHealthLower (ACS_ExecuteWithResult(961, 7) / 4, "Missile2")
 			TNT1 A 0 A_JumpIfHealthLower (ACS_ExecuteWithResult(961, 7) / 2, "Missile3")
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_PlaySound("weapons/minigunfire", CHAN_WEAPON)
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			CGOS F 4 Fast Bright A_CustomMissile("ZombieBullet", 32, 7, frandom(-16.5, 16.5))
@@ -1004,6 +1036,8 @@ Actor Berserkerguy : DnD_BaseRangedMonster 21044 {
 			CGOS F 1 A_CPosRefire
 		Goto MissileDecide
 		Missile2:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_PlaySound("weapons/minigunfire", CHAN_WEAPON)
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 A 0 A_SetAngle(angle + frandom(-8.0, 8.0))
@@ -1015,6 +1049,8 @@ Actor Berserkerguy : DnD_BaseRangedMonster 21044 {
 			CGOS F 1 A_CPosRefire
 		Goto MissileDecide
 		Missile3:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_PlaySound("weapons/minigunfire", CHAN_WEAPON)
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 A 0 A_SetAngle(angle + frandom(-4.0, 4.0))

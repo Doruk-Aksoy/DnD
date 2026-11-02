@@ -29,19 +29,23 @@ ACTOR Cardinal : DnD_BaseRangedBoss 21178 {
 		Goto SpawnSetup
 
 		IdleState:
-			CARD AB 4 Bright A_GiveInventory("DnD_SightChecker", 1)
+			CARD AB 4 Bright A_Look
 		Loop
 		SeeState:
 			CARD AABBAABBAABB 2 Fast Bright A_Chase 
 		Goto See
 		MissileState:
 			CARD A 0 A_jump(128, "Missile2", "Missile3")
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			CARD C 4 Fast Bright A_FaceTarget
 			CARD D 5 Fast Bright A_CustomMissile("Cardinal_Rocket", 72, -30, 0)
 			CARD C 4 Fast Bright A_FaceTarget
 			CARD D 5 Fast Bright A_CustomMissile("Cardinal_Rocket", 72, -30, 0)
 		Goto See
 		Missile2:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			CARD C 4 Fast Bright A_FaceTarget
 			CARD D 5 Fast Bright A_CustomMissile("CardinalPlasma", 72, -30, 0)
 			CARD C 4 Fast Bright A_FaceTarget
@@ -56,6 +60,8 @@ ACTOR Cardinal : DnD_BaseRangedBoss 21178 {
 			CARD D 5 Fast Bright A_CustomMissile("CardinalPlasma", 72, -30, 0)
 		Goto See
 		Missile3:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			CARD C 4 Fast Bright A_FaceTarget
 			CARD D 5 Fast Bright A_CustomMissile("DeathBall", 72, -30, 0)
 			CARD C 4 Fast Bright A_FaceTarget
@@ -71,25 +77,55 @@ ACTOR Cardinal : DnD_BaseRangedBoss 21178 {
 		Goto See
 		Missile4:
 			CARD C 4 Fast Bright A_FaceTarget
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, 3)
 			CARD D 5 Fast Bright A_CustomMissile("Cardinal_Rocket", 72, -30, 0)
+			"####" "#" 0 A_Jump(256, 2)
+			CARD D 5 Fast Bright
 			CARD C 4 Fast Bright A_FaceTarget
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, 3)
 			CARD D 5 Fast Bright A_CustomMissile("Cardinal_Rocket", 72, -30, 0)
+			"####" "#" 0 A_Jump(256, 2)
+			CARD D 5 Fast Bright
 			CARD C 4 Fast Bright A_FaceTarget
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, 3)
 			CARD D 5 Fast Bright A_CustomMissile("DeathBall", 72, -30, 0)
+			"####" "#" 0 A_Jump(256, 2)
+			CARD D 5 Fast Bright
 			CARD C 4 Fast Bright A_FaceTarget
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, 3)
 			CARD D 5 Fast Bright A_CustomMissile("DeathBall", 72, -30, 0)
+			"####" "#" 0 A_Jump(256, 2)
+			CARD D 5 Fast Bright
 			CARD C 4 Fast Bright A_FaceTarget
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, 3)
 			CARD D 5 Fast Bright A_CustomMissile("DeathBall", 72, -30, 0)
+			"####" "#" 0 A_Jump(256, 2)
+			CARD D 5 Fast Bright
 			CARD C 4 Fast Bright A_FaceTarget
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, 3)
 			CARD D 5 Fast Bright A_CustomMissile("DeathBall", 72, -30, 0)
+			"####" "#" 0 A_Jump(256, 2)
+			CARD D 5 Fast Bright
 			CARD C 4 Fast Bright A_FaceTarget
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, 3)
 			CARD D 5 Fast Bright A_CustomMissile("DeathBall", 72, -30, 0)
+			"####" "#" 0 A_Jump(256, 2)
+			CARD D 5 Fast Bright
 			CARD C 4 Fast Bright A_FaceTarget
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, 3)
 			CARD D 5 Fast Bright A_CustomMissile("DeathBall", 72, -30, 0)
+			"####" "#" 0 A_Jump(256, 2)
+			CARD D 5 Fast Bright
 			CARD C 4 Fast Bright A_FaceTarget
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, 3)
 			CARD D 5 Fast Bright A_CustomMissile("Cardinal_Rocket", 72, -30, 0)
+			"####" "#" 0 A_Jump(256, 2)
+			CARD D 5 Fast Bright
 			CARD C 4 Fast Bright A_FaceTarget
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, 3)
 			CARD D 4 Fast Bright A_CustomMissile("Cardinal_Rocket", 72, -30, 0)
+			"####" "#" 0 A_Jump(256, 2)
+			CARD D 4 Fast Bright
 			CARD D 1 Fast Bright A_ChangeFlag("NOPAIN", 0)
 		Goto See
 		Retaliate:
@@ -353,7 +389,7 @@ ACTOR TerminatorX : DnD_BaseRangedBoss 21179 {
 		Goto SpawnSetup
 
 		IdleState:
-			TERM AB 10 A_GiveInventory("DnD_SightChecker", 1) 
+			TERM AB 10 A_Look 
 		Loop 
 		SeeState:
 			TERM A 1 A_Playsound("Terminator/terstepA")
@@ -375,6 +411,8 @@ ACTOR TerminatorX : DnD_BaseRangedBoss 21179 {
 		MissileState:
 			TERM E 0 A_Jump(160, "Bullets", "RedStar") 
 		Blaster:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TERM EE 4 Fast A_FaceTarget
 			TERM F 8 Fast Bright A_CustomMissile("TerminatorBlaster", 56, 20,0,0)
 			TERM F 0 A_jump(144, "Refire")
@@ -383,6 +421,8 @@ ACTOR TerminatorX : DnD_BaseRangedBoss 21179 {
 			TERM E 8 Fast A_Spidrefire
 		Goto Blaster
 		Bullets:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TERM G 2 Fast A_Facetarget
 			TNT1 A 0 A_SpawnItemEx ("shotguncasing", -8, 44, 58, -4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 AA 0 A_CustomMissile("TerminatorBullet", 60, -18, frandom(-8.0, 8.0), 0, frandom(-4.0, 4.0))
@@ -400,11 +440,15 @@ ACTOR TerminatorX : DnD_BaseRangedBoss 21179 {
 		RedStar:
 			TERM J 0 A_JumpIfCloser(256, "RedGrenade")
 		RedStarGo:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TERM JJ 4 Fast A_Facetarget
 			TERM K 8 Bright A_CustomMissile("Redstar", 42, -15, 0, 0)
 		Goto See
 		RedGrenade:
 			TNT1 A 0 A_Jump(48, "RedStarGo")
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TERM JJ 4 Fast A_Facetarget
 			TERM K 8 Fast Bright A_CustomMissile("Redgrenade", 46, -15, 0, 0)
 		Goto See
@@ -728,7 +772,7 @@ Actor Thamuz : DnD_BaseRangedBoss 21180 {
 		Goto SpawnSetup
 		
 		IdleState:
-			CYBR A 10 A_GiveInventory("DnD_SightChecker", 1)
+			CYBR A 10 A_Look
 		Loop
 		SeeState:
 			CYBR A 0 A_ChangeFlag("NOBLOOD", 0)
@@ -752,6 +796,8 @@ Actor Thamuz : DnD_BaseRangedBoss 21180 {
 		Goto See
 		MissileState:
 			TNT1 A 0 A_Jump(160,"Var1", "Var2", "Var3")
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			CYBR AE 5 Fast A_FaceTarget
 			CYBR E 5 Fast A_FaceTarget
 			CYBR F 10 Fast A_CustomMissile("DCBMiss1",56,-25,0)
@@ -762,6 +808,8 @@ Actor Thamuz : DnD_BaseRangedBoss 21180 {
 			CYBR A 0 A_MonsterRefire(64, "See")
 		Goto MissileState
 		Var1:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, -1, -1, -1)
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 1)
 			//TNT1 A 0 ACS_NamedExecuteAlways("DnD Draw Pentagram", 0, DND_PENTAGRAMFX_THAMUZ)
@@ -790,6 +838,8 @@ Actor Thamuz : DnD_BaseRangedBoss 21180 {
 			CYBR G 10 Fast
 		Goto See
 		Var2:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			CYBR AE 3 Fast A_FaceTarget
 			CYBR E 4 Fast A_FaceTarget
 			CYBR F 4 Fast A_CustomMissile("DCBMiss2",56,-25,0)
@@ -813,6 +863,8 @@ Actor Thamuz : DnD_BaseRangedBoss 21180 {
 			CYBR F 4 Fast A_CustomMissile("DCBMiss2",56,-25,0)
 		Goto See
 		Var3:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			CYBR AE 3 Fast A_FaceTarget
 			CYBR E 12 Fast A_FaceTarget
 			CYBR E 4 Fast A_FaceTarget
@@ -1178,7 +1230,7 @@ actor Azazel : DnD_BaseHybridBoss 21181 {
 		Goto SpawnSetup
 
 		IdleState:
-			AZEW A 5 A_GiveInventory("DnD_SightChecker", 1)
+			AZEW A 5 A_Look
 		Loop
 		SeeState:
 			AZEW AABB 3 Fast A_Chase
@@ -1191,18 +1243,24 @@ actor Azazel : DnD_BaseHybridBoss 21181 {
 			TNT1 A 0 A_Jump(64, "MDoubleSerie", "SpreadSerie")
 			TNT1 A 0 A_Jump(128,"MRightHand")
 		MLeftHand:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_PlaySound("Goat/Attack")
 			AZEA D 4 Fast A_FaceTarget
 			AZEA E 4 Fast A_FaceTarget
 			AZEA F 7 Fast A_CustomMissile("SatyrLordMissile1",38,-5,0)
 		Goto see
 		MRightHand:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_PlaySound("Goat/Attack")
 			AZEA A 4 Fast A_FaceTarget
 			AZEA B 4 Fast A_FaceTarget
 			AZEA C 7 Fast A_CustomMissile("SatyrLordMissile2",38,5,0)
 		Goto see	
 		MDoubleSerie:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_PlaySoundEx("missile1charge","SoundSlot5")
 			TNT1 A 0 A_FaceTarget
 			AZEA D 4 Fast A_SpawnItemEx("SatyrLordMissileDual1Fake",10,-20,66,0,0,0,32)
@@ -1225,6 +1283,8 @@ actor Azazel : DnD_BaseHybridBoss 21181 {
 			AZEA C 6 Fast A_CustomMissile("SatyrLordMissileDual2Real",34,-4,0)
 		Goto see  
 		SpreadSerie:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_PlaySoundEx("missile1charge","SoundSlot5")
 			TNT1 A 0 A_FaceTarget
 			AZEA D 4 Fast A_SpawnItemEx("SatyrLordMissileDual1Fake",10,-32,52,0,0,0,32)
@@ -1250,6 +1310,8 @@ actor Azazel : DnD_BaseHybridBoss 21181 {
 			AZEP A 2 Fast
 			AZEP A 2 Fast A_Pain
 			TNT1 A 0 A_Jump(128, "NoCircle")
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Regen Script", 0, DND_MHR_DURATION | (1 << 16), 150, 5)
 			AZEP A 1 A_CustomMissile("SLGroundFire",0,0,0)
 			AZEP A 1 A_CustomMissile("SLGroundFire",0,0,45)
@@ -1752,17 +1814,19 @@ ACTOR HellsmithX : DnD_BaseHybridBoss 21182 {
 		Goto SpawnSetup
 	
 		IdleState:
-			BSMT AB 10 A_GiveInventory("DnD_SightChecker", 1) 
+			BSMT AB 10 A_Look 
 		Loop 
 		SeeState: 
 			BSMT A 0 A_ChangeFlag("NOBLOOD", 0)
-			BSMT A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", 0, DND_ISBLOCKING) 
+			BSMT A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1) 
 			BSMT A 3 Fast A_Playsound ("monster/fihoof") 
 			BSMT ABB 3 Fast A_Chase 
 			BSMT C 3 Fast A_Playsound ("monster/fihoof") 
 			BSMT CDD 3 Fast A_Chase
 		Goto See
 		MeleeState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			BSMT E 6 Fast A_FaceTarget
 			BSMT F 1 A_Playsound ("monster/hamswg")
 			BSMT F 5 Fast A_FaceTarget
@@ -1770,6 +1834,8 @@ ACTOR HellsmithX : DnD_BaseHybridBoss 21182 {
 			BSMT B 0 A_Jump (192, "Melee2")
 		Goto See
 		Melee2:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			BSMT J 6 Fast A_FaceTarget
 			BSMT K 1 A_Playsound ("monster/hamswg")
 			BSMT K 5 Fast A_FaceTarget
@@ -1784,6 +1850,8 @@ ACTOR HellsmithX : DnD_BaseHybridBoss 21182 {
 			BSMT A 0 A_JumpIfCloser(420, "ContinueCharge")
 		Goto RerollMissile
 		ContinueCharge:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			BSMT O 1 A_UnsetFloorClip
 			TNT1 A 0 A_Playsound ("weapons/suldth")
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 1)
@@ -1816,6 +1884,8 @@ ACTOR HellsmithX : DnD_BaseHybridBoss 21182 {
 			BSMT O 1 A_SetFloorClip
 		Goto See
 		Missile1:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			BSMT E 6 Fast A_FaceTarget
 			BSMT H 6 Fast A_PlaySound ("monster/hamswg")
 			BSMT N 0 A_PLaySound ("weapons/hellfi") 
@@ -1836,6 +1906,8 @@ ACTOR HellsmithX : DnD_BaseHybridBoss 21182 {
 			BSMT N 0
 		Goto Missile2
 		Missile2:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			BSMT E 6 Fast A_FaceTarget
 			BSMT F 1 A_Playsound ("monster/hamswg")
 			BSMT F 5 Fast A_FaceTarget
@@ -1855,6 +1927,8 @@ ACTOR HellsmithX : DnD_BaseHybridBoss 21182 {
 			BSMT N 0
 		Goto Missile3
 		Missile3:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			BSMT J 6 Fast A_FaceTarget
 			BSMT K 1 A_Playsound ("monster/hamswg")
 			BSMT K 5 Fast A_FaceTarget
@@ -1874,6 +1948,8 @@ ACTOR HellsmithX : DnD_BaseHybridBoss 21182 {
 			BSMT P 0 A_Jump (128, "PainPentagram")
 		Goto See
 		PainPentagram:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			BSMT E 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, -1, -1, -1)
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 1)
 			BSMT E 6 A_FaceTarget
@@ -1886,7 +1962,7 @@ ACTOR HellsmithX : DnD_BaseHybridBoss 21182 {
 			BSMT F 0 A_CustomMissile("PentaLine1",0,0,0,2)
 			BSMT G 1 A_Playsound ("monster/hamflr")
 			TNT1 A 0 A_SpawnItem("SmithExplosion1", 0, 64)
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Regen Script", 0, DND_MHR_DURATION | (10 << 16), ACS_NamedExecuteWithResult("DnD Monster Heal Potency", 20), 7)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Regen Script", 0, DND_MHR_DURATION | (10 << 16), 20, 7)
 			BSMT GGGGGGGGGG 7 Fast A_SpawnItem("SmithExplosion1", 0, 64)
 			BSMT G 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
 			BSMT G 0 A_ChangeFlag("NOBLOOD", 0)
@@ -2425,7 +2501,7 @@ ACTOR AvatarOfChaos : DnD_BaseRangedBoss 21183 {
 
 		IdleState:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Avatar Ball Setup", 0)
-			AVAT AB 10 A_GiveInventory("DnD_SightChecker", 1) 
+			AVAT AB 10 A_Look 
 		Loop 
 		SeeState: 
 			AVAT A 0 A_ChangeFlag("NOPAIN", 0)
@@ -2439,6 +2515,8 @@ ACTOR AvatarOfChaos : DnD_BaseRangedBoss 21183 {
 			TNT1 A 0 A_Jump(256, "Missile1", "Missile4")
 		Goto Missile1
 		Missile1: // Red Lightning
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_FaceTarget
 			AVAT E 1 Bright A_PlaySound ("monster/avaatk")
 			TNT1 A 0 ACS_ExecuteAlways(973, 0, 2)
@@ -2461,6 +2539,8 @@ ACTOR AvatarOfChaos : DnD_BaseRangedBoss 21183 {
 			AVAT F 0 ACS_NamedExecuteAlways("DnD Monster State Syncer", 0, 9)
 		Goto See
 		Missile2: // Blue Ball
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0  A_FaceTarget
 			AVAT I 1 Bright A_PlaySound ("monster/avaatk")
 			TNT1 A 0 ACS_ExecuteAlways(973, 0, 2)
@@ -2474,6 +2554,8 @@ ACTOR AvatarOfChaos : DnD_BaseRangedBoss 21183 {
 			AVAT J 0 ACS_NamedExecuteAlways("DnD Monster State Syncer", 0, 9)
 		Goto See
 		Missile3:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_FaceTarget
 			AVAT K 1 Bright A_PlaySound ("monster/avaatk")
 			TNT1 A 0 ACS_ExecuteAlways(973, 0, 2)
@@ -2485,6 +2567,8 @@ ACTOR AvatarOfChaos : DnD_BaseRangedBoss 21183 {
 			TNT1 A 0 A_CustomMissile ("AvaFireBall", 56, 0, -12)
 		Missile3Loop:
 			TNT1 A 0 A_JumpIf(user_count == 48, "Missile3Finish")
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			AVAT L 2 Fast Bright A_CustomMissile ("AvaFireBall", 56, 0, 25 * sin(15 * user_count))
 			TNT1 A 0 A_FaceTarget
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
@@ -2581,111 +2665,12 @@ Actor SorcBallBase {
 	Speed 16
 }
 
+// Placed every tic by "DnD Avatar Ball Setup"; this only animates.
 Actor SorcBall1New : SorcBallBase {
 	+CLIENTSIDEONLY
-	var int user_angle;
 	States {
 		Spawn:
-			TNT1 A 0
-			TNT1 A 0 A_SetUserVar("user_angle", 0)
-			TNT1 A 0 ACS_ExecuteAlways(970, 0, 0, 1, 32)
-		SpawnLoop:
-			SBMP A 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))
-			SBMP A 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))			
-			SBMP B 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMP B 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMP C 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMP C 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))					
-			SBMP D 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))
-			SBMP D 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))					
-			SBMP E 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMP E 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))				
-			SBMP F 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))			
-			SBMP F 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))				
-			SBMP G 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))			
-			SBMP G 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMP H 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))			
-			SBMP H 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMP I 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))			
-			SBMP I 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMP J 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMP J 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMP K 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMP K 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMP L 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMP L 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMP M 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMP M 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMP N 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMP N 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMP O 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))			
-			SBMP O 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMP P 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMP P 1 ACS_ExecuteAlways(970, 0, 1, 1, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
+			SBMP AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPP 1
 		Loop
 		Death:
 			TNT1 A 1 A_SpawnItemEx("ExplosionFXMagic", 0, 0, 0, 0, 0, 0, 0, 128)
@@ -2693,111 +2678,12 @@ Actor SorcBall1New : SorcBallBase {
 	}
 }
 
+
 Actor SorcBall2New : SorcBallBase {
 	+CLIENTSIDEONLY
-	var int user_angle;
 	States {
 		Spawn:
-			TNT1 A 0
-			TNT1 A 0 A_SetUserVar("user_angle", 60)
-			TNT1 A 0 ACS_ExecuteAlways(970, 0, 0, 2, 32)
-		SpawnLoop:
-			SBMB A 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))
-			SBMB A 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))			
-			SBMB B 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMB B 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMB C 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMB C 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))					
-			SBMB D 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))
-			SBMB D 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))					
-			SBMB E 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMB E 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))				
-			SBMB F 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))			
-			SBMB F 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))				
-			SBMB G 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))			
-			SBMB G 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMB H 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))			
-			SBMB H 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMB I 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))			
-			SBMB I 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMB J 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMB J 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMB K 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMB K 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMB L 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMB L 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMB M 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMB M 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMB N 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMB N 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMB O 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))			
-			SBMB O 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMB P 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMB P 1 ACS_ExecuteAlways(970, 0, 1, 2, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
+			SBMB AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPP 1
 		Loop
 		Death:
 			TNT1 A 1 A_SpawnItemEx("ExplosionFXMagicBlue", 0, 0, 0, 0, 0, 0, 0, 128)
@@ -2805,117 +2691,19 @@ Actor SorcBall2New : SorcBallBase {
 	}
 }
 
+
 Actor SorcBall3New : SorcBallBase {
 	+CLIENTSIDEONLY
-	var int user_angle;
 	States {
 		Spawn:
-			TNT1 A 0
-			TNT1 A 0 A_SetUserVar("user_angle", 120)
-			TNT1 A 0 ACS_ExecuteAlways(970, 0, 0, 3, 32)
-		SpawnLoop:
-			SBMG A 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))
-			SBMG A 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))			
-			SBMG B 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMG B 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMG C 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMG C 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))					
-			SBMG D 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))
-			SBMG D 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))					
-			SBMG E 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMG E 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))				
-			SBMG F 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))			
-			SBMG F 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))				
-			SBMG G 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))			
-			SBMG G 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMG H 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))			
-			SBMG H 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMG I 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))			
-			SBMG I 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMG J 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMG J 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMG K 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMG K 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMG L 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMG L 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMG M 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMG M 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMG N 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMG N 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMG O 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))			
-			SBMG O 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
-			SBMG P 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))		
-			SBMG P 1 ACS_ExecuteAlways(970, 0, 1, 3, 32)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Avatar Ball State Check") == -2, "Death")
-			TNT1 A 0 A_SetUserVar("user_angle", user_angle + 4 * ACS_NamedExecuteWithResult("DnD Avatar Ball State Check"))	
+			SBMG AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPP 1
 		Loop
 		Death:
 			TNT1 A 1 A_SpawnItemEx("ExplosionFXMagicYellow", 0, 0, 0, 0, 0, 0, 0, 128)
 		Stop
 	}
 }
+
 
 Actor SorcBallProjectileBase {
 	PROJECTILE
@@ -3604,7 +3392,7 @@ Actor Thanatos : DnD_BaseRangedBoss 21184 {
 		Goto SpawnSetup
 	
 		IdleState:
-			4NNI AB 10 A_GiveInventory("DnD_SightChecker", 1) 
+			4NNI AB 10 A_Look 
 		Loop 
 		SeeState: 
 			4NNI A 3 Fast A_Playsound ("monster/annhoof")
@@ -3616,6 +3404,8 @@ Actor Thanatos : DnD_BaseRangedBoss 21184 {
 			TNT1 A 0 A_JumpIfCloser(288, "Stomp")
 		Rockets:
 			TNT1 A 0 A_Jump(144, "Mini", "Homing")
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			4NNI E 6 Fast A_FaceTarget 
 			4NNI F 0 A_CustomMissile ("CyberdemonRocket2",56,30,0)
 			4NNI F 12 Fast Bright A_CustomMissile ("CyberdemonRocket2",56,-30,0)
@@ -3627,6 +3417,8 @@ Actor Thanatos : DnD_BaseRangedBoss 21184 {
 			4NNI F 12 Fast Bright A_CustomMissile ("CyberdemonRocket2",56,-30,0)
 		Goto See
 		Homing:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			4NNI E 6 Fast A_FaceTarget 
 			4NNI F 0 A_CustomMissile ("ThanatosRocket",56,30,0)
 			4NNI F 12 Fast Bright A_CustomMissile ("ThanatosRocket",56,-30,0)
@@ -3638,6 +3430,8 @@ Actor Thanatos : DnD_BaseRangedBoss 21184 {
 			4NNI F 12 Fast Bright A_CustomMissile ("ThanatosRocket",56,-30,0)
 		Goto See
 		Mini:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			4NNI E 6 Fast A_FaceTarget 
 			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,30, random(-5, 5), CMF_OFFSETPITCH | CMF_AIMOFFSET, frandom(-2.8, 2.8))
 			4NNI F 0 A_CustomMissile ("ThanatosMiniRocket",64,30, random(-5, 5), CMF_OFFSETPITCH | CMF_AIMOFFSET, frandom(-2.8, 2.8))
@@ -3670,6 +3464,8 @@ Actor Thanatos : DnD_BaseRangedBoss 21184 {
 		Goto See
 		Stomp:
 			TNT1 A 0 A_Jump(64, "Rockets")
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			ANMA AA 6 Fast A_FaceTarget
 			TNT1 A 0 A_SpawnItem("CyberdemonStomper")
 			TNT1 A 0 A_SpawnItemEx("ThanatosStompShockwave", 24)
@@ -3978,10 +3774,10 @@ actor Cerberus : DnD_BaseRangedBoss 21185 {
 		IdleState:
 			TNT1 A 0 A_JumpIfInventory("LowerThanHp", 1, "Idle2")
 			TNT1 A 0 A_JumpIfHealthLower(ACS_ExecuteWithResult(961, 7) / 2, "PainX")
-			CERB A 14 A_GiveInventory("DnD_SightChecker", 1)
+			CERB A 14 A_Look
 		loop
 		Idle2:
-			CERB N 14 A_GiveInventory("DnD_SightChecker", 1)
+			CERB N 14 A_Look
 		loop
 		SeeState:
 			CERB B 0 A_JumpIfInventory("LowerThanHp", 1, "See2")
@@ -4014,6 +3810,8 @@ actor Cerberus : DnD_BaseRangedBoss 21185 {
 			TNT1 A 0 A_JumpIfInventory("LowerThanHp", 1, "MissileSingle")
 			TNT1 A 0 A_JumpIfHealthLower(ACS_ExecuteWithResult(961, 7) / 2, "PainX")
 			CYBR F 0 A_Jump(96, "Pattern1", "Pattern2")
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			CERB G 9 Fast A_FaceTarget 
 			CERB H 8 Fast A_FaceTarget
 			CYBR H 0 A_CustomMissile ("CerberusShot", 45, 24, 0, CMF_AIMOFFSET)
@@ -4023,6 +3821,8 @@ actor Cerberus : DnD_BaseRangedBoss 21185 {
 			CERB J 7 Fast
 		Goto See
 		MissileSingle:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			CERX F 3 Fast A_FaceTarget 
 			CERX G 4 Fast A_FaceTarget 
 			CRB2 J 0 A_CustomMissile ("CerberusShot", 45, 24)
@@ -4030,6 +3830,8 @@ actor Cerberus : DnD_BaseRangedBoss 21185 {
 			CERB N 3 Fast A_SentinelRefire
 		Goto Missile
 		Pattern1:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			CERB G 5 Fast A_FaceTarget 
 			CERB H 9 Fast A_FaceTarget
 			CYBR H 0 A_CustomMissile("CerberusShot", 45, 24, -36, CMF_AIMOFFSET | CMF_AIMDIRECTION, -5)
@@ -4069,6 +3871,8 @@ actor Cerberus : DnD_BaseRangedBoss 21185 {
 			CERB J 6 Fast
 		Goto See
 		Pattern2:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			CERB I 6 Fast
 			CERB J 6 Fast A_FaceTarget
 			CYBR H 0 A_CustomMissile("CerberusShot", 45, -24, 0, CMF_AIMOFFSET) 
@@ -4272,7 +4076,7 @@ ACTOR DeathWyvern : DnD_BaseRangedBoss 21186 {
 		Goto SpawnSetup
 	
 		IdleState:
-			DRAG D 10 A_GiveInventory("DnD_SightChecker", 1)
+			DRAG D 10 A_Look
 		Loop
 		SeeState:
 			DRAG AAA 2 Fast A_Chase
@@ -4283,6 +4087,8 @@ ACTOR DeathWyvern : DnD_BaseRangedBoss 21186 {
 			DRAG F 10 Fast A_Pain
 		Goto See
 		MissileState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_GiveInventory("WyvernGlideDecider", 1)
 			TNT1 A 0 A_FaceTarget
 			DRAG E 3 Fast A_GiveInventory("WyvernGlider", 1)

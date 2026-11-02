@@ -60,7 +60,7 @@ map DND01 "Void Keep" {
 }
 
 map DND02 "Boreas Grotto" {
-	music = "D_GROTTO"
+	music = "DNDM03"
    sky1 = "GR_0001", 0
 	SmoothLighting
 	lightmode = 3 // dark

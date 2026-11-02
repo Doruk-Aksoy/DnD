@@ -1,0 +1,12 @@
+// Rank 10's leech on one minion: life still owed, and the half seconds left to pay it.
+Actor DnD_MinionLeechPool : DnD_Info {}
+Actor DnD_MinionLeechSteps : DnD_Info {}
+
+// The mark over the prey, a marker's height above the curse row; it never joins the row. S431 is its icon, in TEXTURES.spl.
+Actor MarkPreyFXMarker : FlammabilityFXMarker {
+	States {
+		SpawnLoop:
+			S431 A 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 64.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+		Loop
+	}
+}

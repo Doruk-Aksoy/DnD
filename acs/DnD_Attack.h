@@ -122,12 +122,14 @@ int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int
 		Thing_ChangeTID(p_helper_tid, 0);
 	}
 	else {
-		Vec3_T* owner_pos_temp = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner));
+		Vec3_T owner_pos_temp;
+		owner_pos_temp.x = GetActorX(owner);
+		owner_pos_temp.y = GetActorY(owner);
+		owner_pos_temp.z = GetActorZ(owner);
 		SetActorPosition(owner, vPos.x, vPos.y, vPos.z, false);
 		SetActivator(owner);
 		SpawnProjectile(0, projectile, angle >> 8, 0, 0, g, TEMPORARY_ATTACK_TID);
 		SetActorPosition(owner, owner_pos_temp.x, owner_pos_temp.y, owner_pos_temp.z, false);
-		bcs::free(owner_pos_temp);
 	}
 
 	// manipulate newly spawned projectiles
@@ -173,7 +175,9 @@ int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int
 
 	if(flags & DND_ATF_ISREFLECTED) {
 		SetActorProperty(TEMPORARY_ATTACK_TID, APROP_STAMINA, extra2);
-		SetActorProperty(TEMPORARY_ATTACK_TID, APROP_STOREDREFLECTDAMAGETYPE, dmg_category);
+		// The type lives in health, and health set to 0 kills the copy. A monster's shot off a player carries none.
+		if(dmg_category > 0)
+			SetActorProperty(TEMPORARY_ATTACK_TID, APROP_STOREDREFLECTDAMAGETYPE, dmg_category);
 		GiveActorInventory(TEMPORARY_ATTACK_TID, "TakeThruSpecies", 1);
 		GiveActorInventory(TEMPORARY_ATTACK_TID, "MakeNoReflect", 1); // fixed ping pong reflect thing causing TID issues, system is too fragile to handle memes like that
 	}
@@ -457,6 +461,9 @@ void Do_Railgun_Attack(str rail_helper, int count) {
 		GiveInventory(rail_helper, 1);
 }
 
+// Do_Projectile_Attack's working vectors, carved from one heap block a call: three Vec3_T and a Vec2_T.
+#define DND_PROJ_WORK_INTS 11
+
 // Does a projectile attack, depending on special weapon behavior it can fire additional things --- we check for those using wepid, proj_id and flags
 // angle_vec is (angle, pitch) offsets
 // offset_vec is (x,y,z) offsets of the projectile to fire
@@ -474,24 +481,25 @@ int Do_Projectile_Attack
 	if(makeGhostHitter)
 		proj_name = StrParam(s:proj_name, s:"_GhostHitter");
 	
+	// direction, position and fire direction 3 ints each, then the 2 angles, in one block freed on return
+	int work = (int)bcs::malloc(DND_PROJ_WORK_INTS);
+	Vec3_T* vDirTemp = work;
+	Vec3_T* vPosTemp = work + 3;
+	Vec3_T* vFireDir = work + 6;
+	Vec2_T* proj_ang_vec = work + 9;
+
+	// malloc does not zero, and the spread loop reads it before writing it
+	SetVec3XYZ(vFireDir, 0, 0, 0);
+
 	// do angle and pitch offsets -- negative on angle to flip it to decorate direction (- is left + is right)
-	Vec3_T* vTemp = GetVec3();
-	Vec3_T* vDirTemp = GetVec3();
-	Vec3_T* vPosTemp = GetVec3();
 	AssignVec3(vDirTemp, vDir);
 	AssignVec3(vPosTemp, vPos);
 
-	if(angle_vec.x) {
-		AssignVec3(vTemp, vRight);
-		ScaleVec3(vTemp, sin(ANG_TO_DOOM(-angle_vec.x)));
-		AddVec3(vDirTemp, vTemp);
-	}
+	if(angle_vec.x)
+		AddScaledVec3(vDirTemp, vRight, sin(ANG_TO_DOOM(-angle_vec.x)));
 	
-	if(angle_vec.y) {
-		AssignVec3(vTemp, vUp);
-		ScaleVec3(vTemp, sin(ANG_TO_DOOM(-angle_vec.y)));
-		AddVec3(vDirTemp, vTemp);
-	}
+	if(angle_vec.y)
+		AddScaledVec3(vDirTemp, vUp, sin(ANG_TO_DOOM(-angle_vec.y)));
 	
 	// angle and pitch corrections
 	int a = AngleOfVector3(vDirTemp);
@@ -502,23 +510,12 @@ int Do_Projectile_Attack
 	
 	// offset adjustment
 	if(offset_vec.x || offset_vec.y || offset_vec.z) {
-		AssignVec3(vTemp, vDirTemp);
-		ScaleVec3(vTemp, offset_vec.x);
-		AddVec3(vPosTemp, vTemp);
-		
-		AssignVec3(vTemp, vRight);
-		ScaleVec3(vTemp, offset_vec.y);
-		AddVec3(vPosTemp, vTemp);
-		
-		AssignVec3(vTemp, vUp);
-		ScaleVec3(vTemp, offset_vec.z);
-		AddVec3(vPosTemp, vTemp);
+		AddScaledVec3(vPosTemp, vDirTemp, offset_vec.x);
+		AddScaledVec3(vPosTemp, vRight, offset_vec.y);
+		AddScaledVec3(vPosTemp, vUp, offset_vec.z);
 	}
 	else
 		flags |= DND_ATF_NOHELPER;
-	
-	// we dont use it beyond here
-	bcs::free(vTemp);
 	
 	spread_x = GetPlayerBaseSpread(pnum, spread_x);
 	spread_y = GetPlayerBaseSpread(pnum, spread_y);
@@ -529,8 +526,6 @@ int Do_Projectile_Attack
 	int sp_y = ANG_TO_DOOM(FixedMul(spread_y, acc));
 	acc = 0;
 
-	Vec3_T* vFireDir = GetVec3();
-	Vec2_T* proj_ang_vec = GetVec2();
 	for(int i = 0; i < count; ++i) {
 		// use conical spread to obtain velocities of firing the projectile
 		SetBulletAngleVec3(vFireDir, a, p, vDirTemp, sp_x, sp_y);
@@ -550,10 +545,7 @@ int Do_Projectile_Attack
 			acc = spread_x;
 	}
 
-	bcs::free(proj_ang_vec);
-	bcs::free(vFireDir);
-	bcs::free(vDirTemp);
-	bcs::free(vPosTemp);
+	bcs::free(work);
 
 	return acc;
 }
@@ -571,24 +563,25 @@ int Do_Projectile_Attack_Named
 	if(makeGhostHitter)
 		proj_name = StrParam(s:proj_name, s:"_GhostHitter");
 	
+	// direction, position and fire direction 3 ints each, then the 2 angles, in one block freed on return
+	int work = (int)bcs::malloc(DND_PROJ_WORK_INTS);
+	Vec3_T* vDirTemp = work;
+	Vec3_T* vPosTemp = work + 3;
+	Vec3_T* vFireDir = work + 6;
+	Vec2_T* proj_ang_vec = work + 9;
+
+	// malloc does not zero, and the spread loop reads it before writing it
+	SetVec3XYZ(vFireDir, 0, 0, 0);
+
 	// do angle and pitch offsets -- negative on angle to flip it to decorate direction (- is left + is right)
-	Vec3_T* vTemp = GetVec3();
-	Vec3_T* vDirTemp = GetVec3();
-	Vec3_T* vPosTemp = GetVec3();
 	AssignVec3(vDirTemp, vDir);
 	AssignVec3(vPosTemp, vPos);
 
-	if(angle_vec.x) {
-		AssignVec3(vTemp, vRight);
-		ScaleVec3(vTemp, sin(ANG_TO_DOOM(-angle_vec.x)));
-		AddVec3(vDirTemp, vTemp);
-	}
+	if(angle_vec.x)
+		AddScaledVec3(vDirTemp, vRight, sin(ANG_TO_DOOM(-angle_vec.x)));
 	
-	if(angle_vec.y) {
-		AssignVec3(vTemp, vUp);
-		ScaleVec3(vTemp, sin(ANG_TO_DOOM(-angle_vec.y)));
-		AddVec3(vDirTemp, vTemp);
-	}
+	if(angle_vec.y)
+		AddScaledVec3(vDirTemp, vUp, sin(ANG_TO_DOOM(-angle_vec.y)));
 	
 	// angle and pitch corrections
 	int a = AngleOfVector3(vDirTemp);
@@ -599,23 +592,12 @@ int Do_Projectile_Attack_Named
 	
 	// offset adjustment
 	if(offset_vec.x || offset_vec.y || offset_vec.z) {
-		AssignVec3(vTemp, vDirTemp);
-		ScaleVec3(vTemp, offset_vec.x);
-		AddVec3(vPosTemp, vTemp);
-		
-		AssignVec3(vTemp, vRight);
-		ScaleVec3(vTemp, offset_vec.y);
-		AddVec3(vPosTemp, vTemp);
-		
-		AssignVec3(vTemp, vUp);
-		ScaleVec3(vTemp, offset_vec.z);
-		AddVec3(vPosTemp, vTemp);
+		AddScaledVec3(vPosTemp, vDirTemp, offset_vec.x);
+		AddScaledVec3(vPosTemp, vRight, offset_vec.y);
+		AddScaledVec3(vPosTemp, vUp, offset_vec.z);
 	}
 	else
 		flags |= DND_ATF_NOHELPER;
-	
-	// we dont use it beyond here
-	bcs::free(vTemp);
 	
 	spread_x = GetPlayerBaseSpread(pnum, spread_x);
 	spread_y = GetPlayerBaseSpread(pnum, spread_y);
@@ -625,8 +607,6 @@ int Do_Projectile_Attack_Named
 	int sp_x = ANG_TO_DOOM(FixedMul(spread_x, acc));
 	int sp_y = ANG_TO_DOOM(FixedMul(spread_y, acc));
 	
-	Vec3_T* vFireDir = GetVec3();
-	Vec2_T* proj_ang_vec = GetVec2();
 	for(int i = 0; i < count; ++i) {
 		// use conical spread to obtain velocities of firing the projectile
 		SetBulletAngleVec3(vFireDir, a, p, vDirTemp, sp_x, sp_y);
@@ -645,10 +625,7 @@ int Do_Projectile_Attack_Named
 			acc = spread_x;
 	}
 
-	bcs::free(proj_ang_vec);
-	bcs::free(vFireDir);
-	bcs::free(vDirTemp);
-	bcs::free(vPosTemp);
+	bcs::free(work);
 
 	return acc;
 }

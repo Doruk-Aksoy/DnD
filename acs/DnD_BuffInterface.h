@@ -140,7 +140,7 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
         int sc_flags = 0;
         if(i) {
             // player's curse effect thing goes here
-            curse_effect = curse_effect * (100 - PlayerModData[pnum].vals[PSTAT_REDUCEDCURSEEFFECT]) / 100;
+            curse_effect = curse_effect * (100 - GetReducedCurseEffect(pnum)) / 100;
             if(curse_effect <= 0) {
                 SetResultValue(0);
                 Terminate;

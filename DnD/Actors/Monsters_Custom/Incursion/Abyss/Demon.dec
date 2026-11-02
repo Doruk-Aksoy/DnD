@@ -23,12 +23,14 @@ Actor AbyssalDemon : DnD_BaseMeleeMonster {
 		Goto SpawnSetup
 		
 		IdleState:
-			C019 AB 10 A_GiveInventory("DnD_SightChecker", 1)
+			C019 AB 10 A_Look
 		Loop
 		SeeState:
 			C019 AABBCCDD 2 Fast A_Chase
 		Goto See
 		MeleeState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			C019 EF 4 Fast A_FaceTarget
 			C019 G 8 Fast A_CustomMeleeAttack(random(8, 12) * 4, "", "")
 		goto See

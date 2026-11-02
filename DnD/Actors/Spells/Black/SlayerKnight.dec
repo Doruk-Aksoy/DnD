@@ -1,0 +1,135 @@
+// Summon: Slayer Knight, the Dread Knight's look: physical melee, or a fan of six dark flames that burst for fire damage.
+ACTOR Spell_SlayerKnight : PetMonsterBase {
+	Health 1000
+	GibHealth -100
+	Radius 24
+	Height 64
+	Speed 9
+	PainChance 24
+	Mass 500
+	Scale 1.1
+	Stamina 1
+	SeeSound "DreadKnight/See"
+	PainSound "DreadKnight/Pain"
+	DeathSound "DreadKnight/Die"
+	ActiveSound "DreadKnight/Act"
+	Obituary "%o was slain by a Slayer Knight."
+	Tag "Slayer Knight"
+	MeleeRange 80
+	var int user_counter;
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pet Monster Scale", 0, DND_PET_SLAYERKNIGHTID, DND_SILVER_WEAKNESS, -1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pet Distance Move", 0)
+			KNGT QPONLMK 3
+		SpawnLoop:
+			KNGT E 8 A_Look
+		Goto See
+		See:
+			KNGT AABBCCDD 2 A_Chase
+		Loop
+		Melee:
+			TNT1 A 0 A_AlertMonsters(0, AMF_TARGETNONPLAYER)
+			KNGT E 4 A_FaceTarget
+			KNGT F 3 A_FaceTarget
+			TNT1 A 0 A_PlaySound("dknight/swing", CHAN_WEAPON)
+			KNGT GH 2
+			KNGT I 3 A_CustomMeleeAttack(ACS_NamedExecuteWithResult("DnD Spell Minion Hit", MINIONHIT_SLAYERMELEE, 0), "dknight/melee")
+			KNGT J 4
+			KNGT E 2
+		Goto See
+		Missile:
+			TNT1 A 0 A_AlertMonsters(0, AMF_TARGETNONPLAYER)
+			KNGT E 5 A_FaceTarget
+			KNGT F 4 A_FaceTarget
+			KNGT GH 3 A_FaceTarget
+			TNT1 A 0 A_PlaySound("monster/dkball", CHAN_WEAPON)
+			KNGT I 0 A_CustomMissile("Spell_SlayerKnight_Flame", 44, 0, -12.5)
+			KNGT I 0 A_CustomMissile("Spell_SlayerKnight_Flame", 44, 0, -7.5)
+			KNGT I 0 A_CustomMissile("Spell_SlayerKnight_Flame", 44, 0, -2.5)
+			KNGT I 0 A_CustomMissile("Spell_SlayerKnight_Flame", 44, 0, 2.5)
+			KNGT I 0 A_CustomMissile("Spell_SlayerKnight_Flame", 44, 0, 7.5)
+			KNGT I 4 A_CustomMissile("Spell_SlayerKnight_Flame", 44, 0, 12.5)
+			KNGT E 4
+		Goto See
+		// Rank 5: "DnD Slayer Counter" points it at its attacker and sends it here.
+		Counter:
+			KNGT E 2 A_FaceTarget
+			KNGT E 0 A_JumpIfCloser(96, "Melee")
+		Goto Missile
+		Pain:
+			KNGT E 3
+			KNGT E 3 A_Pain
+		Goto See
+		Death:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Summon Death Check", 0, DND_PET_SLAYERKNIGHTID)
+			KNGT K 6 A_Scream
+			KNGT L 5 A_NoBlocking
+			KNGT MNOPQ 5
+			KNGT R 35
+			KNGT R 1 A_FadeOut(0.05)
+		Wait
+	}
+}
+
+// Rank 10: the melee is a slashing wave over an arc in front ("DnD Minion Cleave").
+ACTOR Spell_SlayerKnightWave : Spell_SlayerKnight {
+	MeleeRange 128
+	States {
+		Melee:
+			TNT1 A 0 A_AlertMonsters(0, AMF_TARGETNONPLAYER)
+			KNGT E 4 A_FaceTarget
+			KNGT F 3 A_FaceTarget
+			TNT1 A 0 A_PlaySound("dknight/swing", CHAN_WEAPON)
+			KNGT GH 2
+			KNGT I 3 ACS_NamedExecuteWithResult("DnD Minion Cleave", MINIONHIT_SLAYERMELEE)
+			KNGT J 4
+			KNGT E 2
+		Goto See
+		Counter:
+			KNGT E 2 A_FaceTarget
+			KNGT E 0 A_JumpIfCloser(144, "Melee")
+		Goto Missile
+	}
+}
+
+// A dark flame: its fire blast (AMOUNT2 in RADIUS) wherever it lands, the knight's minion damage.
+Actor Spell_SlayerKnight_Flame : DnD_BaseProjectile_ForPets {
+	Speed 18
+	Radius 6
+	Height 8
+	Damage 0
+	DamageType "Fire"
+	RenderStyle Add
+	Translation "0:255=%[0.00,0.00,0.00]:[0.80,0.30,1.60]"
+	DeathSound "weapons/phoenixhit"
+	+FORCERADIUSDMG
+	var int user_dmg;
+	States {
+		SpawnState:
+			KATK E 2 Bright
+		Loop
+		Death:
+			TNT1 A 0 A_SetUserVar("user_dmg", ACS_NamedExecuteWithResult("DnD Spell Minion Hit", MINIONHIT_SLAYERFLAME, DND_USETARGET))
+			TNT1 A 0 A_Explode(user_dmg, 96, 0, 0, 32)
+			KATK HIJ 4 Bright
+		Stop
+	}
+}
+
+Actor Spell_SlayerKnight_WaveFX : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.8
+	Scale 0.5
+	Translation "0:255=%[0.00,0.00,0.00]:[1.20,1.20,1.40]"
+	States {
+		Spawn:
+			TNT1 A 0
+			D4FX GHIJKL 2 Bright
+		Stop
+	}
+}
+
+// Rank 5: untouchable for the few tics after a counter.
+Actor DnD_SlayerGuard : DnD_Boolean {}

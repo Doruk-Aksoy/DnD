@@ -23,7 +23,7 @@ ACTOR FusionSpider : DnD_BaseRangedMonster 21159 {
 		Goto SpawnSetup
 	
 		IdleState:
-			FSPI AB 10 A_GiveInventory("DnD_SightChecker", 1)
+			FSPI AB 10 A_Look
 		Loop
 		SeeState:
 			FSPI A 0 A_JumpIfInventory("DnD_Boolean", 1, "SeeSkip")
@@ -35,7 +35,11 @@ ACTOR FusionSpider : DnD_BaseRangedMonster 21159 {
 			FSPI DEEFF 3 Fast A_Chase
 		Goto See
 		MissileState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			FSPI A 16 Fast BRIGHT A_FaceTarget
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			FSPI A 0 A_FaceTarget
 			FSPI G 3 Fast BRIGHT A_CustomMissile("FusionShot",24,0,0)
 			FSPI H 3 Fast BRIGHT A_CustomMissile("FusionShot",24,0,5)
@@ -49,7 +53,7 @@ ACTOR FusionSpider : DnD_BaseRangedMonster 21159 {
 			FSPI G 0 BRIGHT A_CustomMissile("FusionShot",24,0,10)
 			FSPI H 3 Fast BRIGHT A_CustomMissile("FusionShot",24,0,-10)
 			FSPI H 1 BRIGHT A_SpidRefire
-		Goto MissileState + 1
+		Goto MissileState + 3
 		PainState:
 			FSPI I 3 Fast
 			FSPI I 3 Fast A_Pain
@@ -172,7 +176,7 @@ ACTOR HellforgeSpider : DnD_BaseRangedMonster 21160 {
 		
 		IdleState:
 			TNT1 A 0 A_TakeInventory("MultiShot", 99)
-			ESPD AB 10 A_GiveInventory("DnD_SightChecker", 1)
+			ESPD AB 10 A_Look
 		Loop
 		SeeState:
 			ESPD A 0 A_TakeInventory("MultiShot", 99)
@@ -188,6 +192,9 @@ ACTOR HellforgeSpider : DnD_BaseRangedMonster 21160 {
 			ESPD A 16 Fast A_FaceTarget
 			ESPD G 3 Fast BRIGHT
 			ESPD G 0 A_JumpIfInventory("MultiShot", 4, "Multi")
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			ESPD G 0 A_FaceTarget
 			ESPD H 3 Fast BRIGHT A_CustomMissile("HFSpiderShot",24)
 			ESPD H 0 A_GiveInventory("MultiShot", 1)
@@ -204,6 +211,9 @@ ACTOR HellforgeSpider : DnD_BaseRangedMonster 21160 {
 			ESPD H 1 BRIGHT A_SpidRefire
 		Goto MissileState + 1
 		Multi:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			ESPD G 3 Fast BRIGHT
 			TNT1 A 0 A_FaceTarget
 			TNT1 A 0 A_CustomMissile("HFSpiderShot",24,0, -5)
@@ -324,7 +334,7 @@ ACTOR RailArachnotron : DnD_BaseRangedMonster 21161 {
 		Goto SpawnSetup
 		
 		IdleState:
-			RSPI AB 10 A_GiveInventory("DnD_SightChecker", 1)
+			RSPI AB 10 A_Look
 		Loop
 		SeeState:
 			RSPI A 0 A_JumpIfInventory("DnD_Boolean", 1, "SeeSkip")
@@ -336,6 +346,8 @@ ACTOR RailArachnotron : DnD_BaseRangedMonster 21161 {
 			RSPI DEEFF 3 Fast A_Chase
 		Goto See
 		MissileState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			RSPI A 0 A_PlaySound ("baby/chargerailgun")
 			RSPI A 16 Fast A_FaceTarget
 			RSPI G 16 Fast A_FaceTarget
@@ -435,7 +447,7 @@ ACTOR BabyDemolisher : DnD_BaseRangedMonster 21162 {
 		Goto SpawnSetup
 
 		IdleState:
-			MSPI A 10 A_GiveInventory("DnD_SightChecker", 1)
+			MSPI A 10 A_Look
 		Loop
 		SeeState:
 			MSPI A 0 A_Jump(64, "Rush")
@@ -476,23 +488,31 @@ ACTOR BabyDemolisher : DnD_BaseRangedMonster 21162 {
 		MissileState:
 			TNT1 A 0 A_Jump(128,"Plasma")
 		Normal:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_PlaySound("monsters/darkmasterwind")
 			MSPI A 10 Fast A_FaceTarget
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 Bright A_PlaySoundEx("weapons/minigunfire","Weapon")
 			TNT1 AA 0 A_CustomMissile("ArachnoBullet", 28, 0, frandom(-25.0, 25.0), 0, 0)
 			MSPI Q 2 Fast Bright
 			MSPI R 2 Fast Bright A_PlaySound("monsters/darkmasterwind2")
 			TNT1 A 0 A_Jump(8,"See")
 			TNT1 A 0 A_SpidRefire
-		Goto Normal + 2
+		Goto Normal + 4
 		Plasma:	
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_PlaySound("weapons/plasmacharge")
 			MSPI A 10 Fast A_FaceTarget
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			MSPI H 3 Fast Bright A_CustomMissile("BabyDemoBall",20,0,Random(-16,16))
 			MSPI G 3 Fast Bright A_CustomMissile("BabyDemoBall",20,0,Random(-16,16))
 			TNT1 A 0 A_Jump(8,"See")
 			TNT1 A 0 A_SpidRefire
-		Goto Plasma + 2
+		Goto Plasma + 4
 		PainState:
 			TNT1 A 0 A_Jump(128,"PainMissile")
 			MSPI I 12 Fast A_Pain
@@ -674,7 +694,7 @@ Actor Vore : DnD_BaseHybridMonster 21163 {
 		Goto SpawnSetup
 		
 		IdleState:
-			VORE D 10 A_GiveInventory("DnD_SightChecker", 1)
+			VORE D 10 A_Look
 		Loop
 		SeeState:
 			VORE AA 3 Fast A_Chase
@@ -686,6 +706,8 @@ Actor Vore : DnD_BaseHybridMonster 21163 {
 		Loop
 		MeleeState:
 		MissileState:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_PlaySoundEx("Vore/Attack", "Body")
 			VORE GHHHH 4 Fast Bright A_FaceTarget
 			VORE II 4 Fast Bright A_FaceTarget
@@ -891,14 +913,18 @@ Actor ChaingunCommando : DnD_BaseRangedMonster 21164 {
 		Goto SpawnSetup
 	
 		IdleState:
-			CPSX AB 10 A_GiveInventory("DnD_SightChecker", 1)
+			CPSX AB 10 A_Look
 		Loop
 		SeeState:
 			CPSX ABCD 4 Fast A_Chase
 		Goto See
 		MissileState:
 			TNT1 A 0 A_Jump(96, "ShockFire")
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			CPSX E 8 Fast Bright A_FaceTarget
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 A 0 A_PlaySound("weapons/minigunfire", CHAN_WEAPON)
 			CPSX F 3 Fast Bright A_CustomMissile("CommandoBullet1", 32, 8, frandom(-22.5, 22.5))
@@ -907,11 +933,15 @@ Actor ChaingunCommando : DnD_BaseRangedMonster 21164 {
 			CPSX E 3 Fast Bright A_CustomMissile("CommandoBullet1", 32, 8, frandom(-22.5, 22.5))
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			CPSX F 1 Bright A_CPosRefire
-		Goto MissileState + 2
+		Goto MissileState + 4
 		ShockFire:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_PlaySound("weapons/minigunup", CHAN_WEAPON)
 			CPSX Q 24 Fast A_FaceTarget
 			CPSX E 8 Fast Bright A_FaceTarget
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_SpawnItemEx ("exshotguncasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 A 0 A_PlaySound("weapons/minigunfire", CHAN_WEAPON)
 			CPSX F 3 Fast Bright A_CustomMissile("CommandoBullet2", 32, 8, frandom(-22.5, 22.5))
@@ -919,7 +949,7 @@ Actor ChaingunCommando : DnD_BaseRangedMonster 21164 {
 			TNT1 A 0 A_PlaySound("weapons/minigunfire", CHAN_WEAPON)
 			CPSX E 3 Fast Bright A_CustomMissile("CommandoBullet2", 32, 8, frandom(-22.5, 22.5))
 			CPSX F 1 Bright A_CPosRefire
-		Goto ShockFire + 3
+		Goto ShockFire + 5
 		PainState:
 			CPSX G 3 Fast
 			CPSX G 3 Fast A_Pain
@@ -1005,7 +1035,7 @@ Actor ChaingunGeneral : DnD_BaseRangedMonster 21165 {
 		Goto SpawnSetup
 		
 		IdleState:
-			ECMI AB 10 A_GiveInventory("DnD_SightChecker", 1)
+			ECMI AB 10 A_Look
 		Loop
 		SeeState:
 			ECMI ABCD 5 Fast A_Chase
@@ -1013,6 +1043,8 @@ Actor ChaingunGeneral : DnD_BaseRangedMonster 21165 {
 		MissileState:
 			ECMI U 8 Fast A_FaceTarget
 		MissileLoop:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_PlaySound("weapons/NG2Fire", 5)
 			ECMI F 3 Fast Bright A_CustomMissile("NailProjectileWeak", 36, 14)
 			TNT1 A 0 A_PlaySound("weapons/NG2Fire", 5)
@@ -1131,7 +1163,7 @@ Actor Legionnaire : DnD_BaseHybridMonster 21166 {
 		Goto SpawnSetup
 
 		IdleState:
-			LEGN A 10 A_GiveInventory("DnD_SightChecker", 1)
+			LEGN A 10 A_Look
 		Loop
 		SeeState:
 			LEGN BC 3 Fast A_Chase
@@ -1140,6 +1172,8 @@ Actor Legionnaire : DnD_BaseHybridMonster 21166 {
 			LEGN G 5 Fast A_Chase
 		Goto See
 		MeleeState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			LEGN H 5 Fast A_PlaySound("Weapons/KickSwing")
 			LEGN I 5 Fast A_FaceTarget
 			TNT1 A 0 A_CustomMissile("LegionnaireBash")
@@ -1148,7 +1182,11 @@ Actor Legionnaire : DnD_BaseHybridMonster 21166 {
 			LEGN H 0 A_Jump(192, "Missile")
 		Goto See
 		MissileState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			LEGN A 6 Fast A_FaceTarget
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			LEGN L 3 Fast Bright A_CustomMissile("LegionnaireMissile", 60, 16, 0)
 			TNT1 A 0 A_FaceTarget
 			LEGN A 4 Fast A_JumpIfCloser(84, "Melee")
@@ -1160,7 +1198,7 @@ Actor Legionnaire : DnD_BaseHybridMonster 21166 {
 			TNT1 A 0 A_FaceTarget
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			LEGN A 4 Fast A_MonsterRefire(64, "See")
-		Goto MissileState + 1
+		Goto MissileState + 3
 		Dash:
 			LEGN A 0 A_FaceTarget
 			LEGN A 0 A_Jump(128, "OtherSide")
@@ -1338,7 +1376,7 @@ ACTOR Manticore : DnD_BaseRangedMonster 21167 {
 		Goto SpawnSetup
 
 		IdleState:
-			DNET AB 10 A_GiveInventory("DnD_SightChecker", 1)
+			DNET AB 10 A_Look
 		Loop
 		SeeState:
 			DNET AABB 4 A_Chase
@@ -1349,6 +1387,8 @@ ACTOR Manticore : DnD_BaseRangedMonster 21167 {
 		MissileState:
 			DNET EF 9 A_FaceTarget
 			TNT1 A 0 A_Jump(128, "Repeated")
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			DNET G 8 A_FaceTarget
 			TNT1 A 0 A_CustomMissile("ManticoreRocket", 82, -16, 0, CMF_AIMOFFSET)
 			DNET H 5 bright A_CustomMissile("ManticoreRocket", 82, 17, 0, CMF_AIMOFFSET)
@@ -1367,6 +1407,8 @@ ACTOR Manticore : DnD_BaseRangedMonster 21167 {
 			DNET G 5
 		Goto See
 		Repeated:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			DNET G 8 A_FaceTarget
 			TNT1 A 0 A_CustomMissile("ManticoreRocket", 82, -16, 0, CMF_AIMOFFSET)
 			DNET H 5 bright A_CustomMissile("ManticoreRocket", 82, 17, 0, CMF_AIMOFFSET)
@@ -1494,7 +1536,7 @@ ACTOR Ophidian : DnD_BaseRangedMonster 21168 {
 		Goto SpawnSetup
 
 		IdleState:
-			OPHI AB 10 A_GiveInventory("DnD_SightChecker", 1)
+			OPHI AB 10 A_Look
 		Loop
 		SeeState:
 			OPHI AABBCCDD 2 Fast A_Chase
@@ -1503,6 +1545,8 @@ ACTOR Ophidian : DnD_BaseRangedMonster 21168 {
 			TNT1 A 0 A_JumpIfInventory("DnD_BlindCastCooldown", 1, "MissileGo")
 			TNT1 A 0 A_Jump(72, "Blind")
 		MissileGo:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_PlaySound("Weapons/SunStaffCharge", CHAN_5)
 			TNT1 A 0 A_CustomMissile("OphidianDamageMarker", 44, -8)
 			OPHI FFFFF 5 Fast A_FaceTarget
@@ -1524,6 +1568,8 @@ ACTOR Ophidian : DnD_BaseRangedMonster 21168 {
 			TNT1 A 0 A_JumpIfCloser(480, "BlindCont")
 		Goto MissileGo
 		BlindCont:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Create Blind FX", 0, DND_BLIND_HEAVY, 480)
 			OPHI F 32 Fast Bright A_FaceTarget
 			TNT1 A 0 A_GiveInventory("DnD_BlindCastCooldown", 1)

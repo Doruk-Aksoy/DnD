@@ -107,6 +107,40 @@ DND_SPLNAME138		=	"Unleash Earth";
 DND_SPLNAME139		=	"Geyser";
 DND_SPLNAME140		=	"Rejuvenation";
 
+// Black
+DND_SPLNAME160		=	"Plague";
+DND_SPLNAME161		=	"Summon: Zombie";
+DND_SPLNAME162		=	"Nox";
+DND_SPLNAME163		=	"Temporal Chains";
+DND_SPLNAME164		=	"Dark Wind";
+DND_SPLNAME165		=	"Essence Theft";
+DND_SPLNAME166		=	"Summon: Skeleton";
+DND_SPLNAME167		=	"Skeleton Mastery";
+DND_SPLNAME168		=	"Delirium";
+DND_SPLNAME169		=	"Enfeeble";
+DND_SPLNAME170		=	"Finger of Death";
+DND_SPLNAME171		=	"Contagion";
+DND_SPLNAME172		=	"Implosion";
+DND_SPLNAME173		=	"Summon: Dark Portal";
+DND_SPLNAME174		=	"Summon: Ghast";
+DND_SPLNAME175		=	"Subjugate";
+DND_SPLNAME176		=	"Penetrate";
+DND_SPLNAME177		=	"Pain Amp";
+DND_SPLNAME178		=	"Soulstorm";
+DND_SPLNAME179		=	"Carrion Crows";
+DND_SPLNAME180		=	"Nether Walk";
+DND_SPLNAME181		=	"Summon Mastery";
+DND_SPLNAME182		=	"Summon: Slayer Knight";
+DND_SPLNAME183		=	"Transmogrify";
+DND_SPLNAME184		=	"Remove Resist";
+DND_SPLNAME185		=	"Life Tap";
+DND_SPLNAME186		=	"Death and Decay";
+DND_SPLNAME187		=	"Summon: Doomguard";
+DND_SPLNAME188		=	"Banish";
+DND_SPLNAME189		=	"Break Immunity";
+DND_SPLNAME190		=	"Silence";
+DND_SPLNAME191		=	"Mark Prey";
+
 
 // Hover text, straight from the design docs. Positional like the names above.
 //
@@ -223,8 +257,8 @@ DND_SPLR5_15    = "A direct hit explodes for half its damage within 128 units.";
 DND_SPLR10_15   = "The sideways flames rip through enemies.";
 
 // Summon: Fire Demon
-DND_SPLDESC16   = "Summon a fire demon with 500 health to fight for you. It throws fireballs and sets the ground alight. Can have up to 1 Fire Demon active at a time.";
-DND_SPLPER16    = "+15% demon health, +10% demon damage.";
+DND_SPLDESC16   = "Summon a fire demon to fight for you. It throws fireballs and sets the ground alight. Can have up to 1 Fire Demon active at a time.";
+DND_SPLPER16    = "";
 DND_SPLR5_16    = "Gains 25% to all resistances.";
 DND_SPLR10_16   = "The demon casts Fire Jet at your rank.";
 
@@ -321,8 +355,8 @@ DND_SPLR5_49    = "The ring expands 20% faster.";
 DND_SPLR10_49   = "Enemies hit near the outer edge deal 15% less damage for 3 seconds.";
 
 // Summon: Ice Golem
-DND_SPLDESC50   = "Summon a golem of ice with 500 health to fight for you. It has a melee attack dealing 50 damage and a dash attack dealing 150 damage. Can have up to 1 Ice Golem active at a time.";
-DND_SPLPER50    = "+50 golem health, +5 golem damage.";
+DND_SPLDESC50   = "Summon a golem of ice to fight for you. It has a melee attack and a dash attack that hits three times as hard. Can have up to 1 Ice Golem active at a time.";
+DND_SPLPER50    = "";
 DND_SPLR5_50    = "Grants you 50% increased mana regeneration.";
 DND_SPLR10_50   = "The golem casts Ice Bolt at your rank.";
 
@@ -403,7 +437,7 @@ DND_SPLR10_83   = "Applies to all elemental damage, not only lightning.";
 // Telekinesis
 DND_SPLDESC84   = "Push a target enemy within 640 units away from you with magnetic force.";
 DND_SPLPER84    = "10% further push, -0.5 seconds cooldown.";
-DND_SPLR5_84    = "The pushed enemy is stunned for 1 second.";
+DND_SPLR5_84    = "Casting makes you reflective for 2 seconds: reflectable enemy projectiles that hit you are reflected back.";
 DND_SPLR10_84   = "The pushed enemy takes 10% of its maximum health as lightning damage, capped at 870 base damage.";
 
 // Static Field
@@ -413,7 +447,7 @@ DND_SPLR5_85    = "Zaps every 2.5 seconds.";
 DND_SPLR10_85   = "Zaps apply Shock.";
 
 // Forked Lightning
-DND_SPLDESC86   = "Strike the enemy you face with lightning for 15-325 damage, forking to up to 5 enemies behind it.";
+DND_SPLDESC86   = "Strike the enemy you face with lightning for 20-375 damage, forking to up to 5 enemies behind it.";
 DND_SPLPER86    = "+1 fork at every even rank.";
 DND_SPLR5_86    = "-3 seconds cooldown.";
 DND_SPLR10_86   = "+5 forks.";
@@ -449,7 +483,7 @@ DND_SPLR5_91    = "25% increased area of effect.";
 DND_SPLR10_91   = "+4 seconds duration.";
 
 // Chain Lightning
-DND_SPLDESC92   = "Unleash a bolt that chains 5 times to the nearest enemy within 384 units, dealing 20-400 damage to the first and 5% less per chain, to at most 75% less. An enemy can be chained to again only after two other chains. Every chain also forks to one more nearby enemy at that chain's damage but it does not chain further.";
+DND_SPLDESC92   = "Unleash a bolt that chains 5 times to the nearest enemy within 384 units, dealing 10-275 damage to the first and 5% less per chain, to at most 75% less. Each hit deals 15% more damage for every chain still to come. An enemy can be chained to again only after two other chains. Every chain also forks to one more nearby enemy at that chain's damage but it does not chain further.";
 DND_SPLPER92    = "+1 chain at every even rank.";
 DND_SPLR5_92    = "Only 4% less damage per chain.";
 DND_SPLR10_92   = "30% chance to apply Shock on each hit.";
@@ -577,8 +611,8 @@ DND_SPLR5_132   = "Enemies in the aura gain a base 10% chance to be poisoned and
 DND_SPLR10_132  = "Poison on you and allies in the aura lasts 25% less.";
 
 // Summon: Rock Golem
-DND_SPLDESC133  = "Summon a very durable rock golem with 750 health that fights for you with 100 damage melee attacks. It also grants you 10% less physical damage taken.";
-DND_SPLPER133   = "+250 health, +25 melee damage.";
+DND_SPLDESC133  = "Summon a very durable rock golem that fights for you with melee attacks. It also grants you 10% less physical damage taken.";
+DND_SPLPER133   = "";
 DND_SPLR5_133   = "The golem can cast Rockslide.";
 DND_SPLR10_133  = "The golem is immune to elemental damage and resists explosions.";
 
@@ -624,6 +658,200 @@ DND_SPLPER140   = "+30 health recovered, +3 mana cost.";
 DND_SPLR5_140   = "No longer ends when the target is injured.";
 DND_SPLR10_140  = "Cleanses the target's ailments when cast.";
 
+// ================= BLACK =================
+
+// Plague
+DND_SPLDESC160  = "Unleash a plague on the target enemy, dealing 50 magic damage every 0.5 seconds for 2.5 seconds. If the enemy dies with it, the plague spreads to the nearest unplagued enemy within 128 units with 10% more damage, stacking with each spread up to twice the damage. Contagion can spread it to more enemies.";
+DND_SPLPER160   = "";
+DND_SPLR5_160   = "Each spread carries 30% more damage.";
+DND_SPLR10_160  = "A death spreads the plague to up to two enemies at once.";
+
+// Summon: Zombie
+DND_SPLDESC161  = "Summon a zombie to do your bidding for 10 seconds.";
+DND_SPLPER161   = "+1 second duration.";
+DND_SPLR5_161   = "Zombies attack 50% faster.";
+DND_SPLR10_161  = "Zombies gain 15% to all resistances.";
+
+// Nox
+DND_SPLDESC162  = "Curse. Blind enemies in a 128 unit area for 5 seconds. Blinded enemies attack in random directions instead of at you.";
+DND_SPLPER162   = "+1 second duration, +8 radius.";
+DND_SPLR5_162   = "Cursed enemies become more aggressive.";
+DND_SPLR10_162  = "Cursed enemies deal 15% less damage to players.";
+
+// Temporal Chains
+DND_SPLDESC163  = "Curse. Slow enemies in a 160 unit area by 30% for 5 seconds.";
+DND_SPLPER163   = "+1 second duration, +8 radius.";
+DND_SPLR5_163   = "Projectiles of cursed enemies are slowed by half as much.";
+DND_SPLR10_163  = "The slow becomes 50%, and cursed enemies are less likely to attack.";
+
+// Dark Wind
+DND_SPLDESC164  = "Unleash a wind of darkness that deals 64 magic damage in an 80 unit radius every 0.15 seconds as it travels. Lasts 4 seconds, or until it hits a wall.";
+DND_SPLPER164   = "+0.5 seconds duration.";
+DND_SPLR5_164   = "Bounces off walls.";
+DND_SPLR10_164  = "The damage radius is 30% larger.";
+
+// Essence Theft
+DND_SPLDESC165  = "Launch a fast unholy missile that deals 450 magic damage over 3 seconds and returns 20% of the damage dealt to you as health. Contagion can spread it to more enemies.";
+DND_SPLPER165   = "";
+DND_SPLR5_165   = "Returns 33% of the damage as health.";
+DND_SPLR10_165  = "The enemy hit is pacified for 3 seconds, unable to attack.";
+
+// Summon: Skeleton
+DND_SPLDESC166  = "Summon an undead melee warrior to do your bidding for 16 seconds. Skeletons have 300 health and hit for 52-64 melee damage.";
+DND_SPLPER166   = "+150 health, +32 melee damage.";
+DND_SPLR5_166   = "After being hurt, skeletons have a 25% chance to block the next attack.";
+DND_SPLR10_166  = "Risen skeletons have a 30% chance to be Skeleton Mages, casting ranged spells for 10% more damage. Mages have 25% less health and cannot block.";
+
+// Skeleton Mastery
+DND_SPLDESC167  = "Passive. Your skeletons have 5% more health and deal 10% more damage.";
+DND_SPLPER167   = "+5% more skeleton health, +10% more skeleton damage.";
+DND_SPLR5_167   = "Skeletons no longer have a duration.";
+DND_SPLR10_167  = "Skeleton Mages can cast a random tier 1 elemental spell you have learned.";
+
+// Delirium
+DND_SPLDESC168  = "Curse. The target enemy falls into psychosis for 5 seconds, attacking a random enemy nearby, even its own kind.";
+DND_SPLPER168   = "+1 second duration.";
+DND_SPLR5_168   = "Costs 20% less mana.";
+DND_SPLR10_168  = "The cursed enemy deals 100% more damage while it lasts.";
+
+// Enfeeble
+DND_SPLDESC169  = "Curse. Enemies in a 128 unit area deal 30% less damage for 8 seconds.";
+DND_SPLPER169   = "+1% less damage dealt.";
+DND_SPLR5_169   = "The radius is doubled.";
+DND_SPLR10_169  = "Lasts 4 seconds longer.";
+
+// Finger of Death
+DND_SPLDESC170  = "Project a bolt of red lightning ahead of you that deals 600 magic damage to the first enemy it hits.";
+DND_SPLPER170   = "";
+DND_SPLR5_170   = "The bolt damages every enemy in its line instead of only one.";
+DND_SPLR10_170  = "Ignores enemy resistances and immunities.";
+
+// Contagion
+DND_SPLDESC171  = "Mark a 192 unit area where enemies take 240 magic damage over 5 seconds. An enemy that dies with magic damage over time on it passes those effects, at full strength, to enemies within the same radius.";
+DND_SPLPER171   = "";
+DND_SPLR5_171   = "The radius is 20% larger.";
+DND_SPLR10_171  = "Damage over time it carries ignores shields and fortification.";
+
+// Implosion
+DND_SPLDESC172  = "Launch a sharp needle ahead of you. The enemy it touches takes 10% of its current health as magic damage; spell damage modifiers help it past resistances, up to that 10%. It cannot kill, and always leaves the enemy at least 1% of its health.";
+DND_SPLPER172   = "+1.5% of current health.";
+DND_SPLR5_172   = "The needle travels 50% faster.";
+DND_SPLR10_172  = "Leeches 2% of the damage dealt as mana.";
+
+// Summon: Dark Portal
+DND_SPLDESC173  = "Open a portal for 8 seconds that empowers your summoning. Minions you summon or raise within 256 units of it have 10% more health, duration and damage. The portal has 300 health and benefits from minion modifiers, but does not count against your pet cap.";
+DND_SPLPER173   = "+10% more minion health and damage.";
+DND_SPLR5_173   = "Minions summoned near it also gain 25% increased movement speed.";
+DND_SPLR10_173  = "Minions summoned near it also gain 25% to all resistances.";
+
+// Summon: Ghast
+DND_SPLDESC174  = "Summon a ghostly minion with 100 health that casts your Dark Wind, at rank 1 if you have not learned it. It casts up to two Dark Winds, then rests for 8 seconds. Counts as 2 against your pet cap.";
+DND_SPLPER174   = "+100 health.";
+DND_SPLR5_174   = "When hurt, the Ghast shifts out of existence and cannot be targeted for 0.5 seconds, at most once every 3 seconds.";
+DND_SPLR10_174  = "Rests only 5 seconds between attacks.";
+
+// Subjugate
+DND_SPLDESC175  = "Curse. Launch a ball that pacifies the enemy it hits for 8 seconds, so it will not retaliate. Lasts half as long on bosses, and does not work on dungeon bosses.";
+DND_SPLPER175   = "+1 second duration.";
+DND_SPLR5_175   = "Also curses enemies within 128 units of the target.";
+DND_SPLR10_175  = "50% chance to turn cursed enemies to your side as temporary minions while it lasts.";
+
+// Penetrate
+DND_SPLDESC176  = "Curse. Pierce the imbued skin of enemies in a 160 unit area for 5 seconds, so projectiles rip through them, Hardened Skin included.";
+DND_SPLPER176   = "+1 second duration, +8 radius.";
+DND_SPLR5_176   = "The radius is doubled.";
+DND_SPLR10_176  = "Attacks and spells that pass through cursed enemies deal 25% more damage.";
+
+// Pain Amp
+DND_SPLDESC177  = "Curse. Enemies in a 128 unit area take 25% more damage for 5 seconds.";
+DND_SPLPER177   = "+2.5% more damage taken.";
+DND_SPLR5_177   = "The radius is doubled.";
+DND_SPLR10_177  = "Lasts 5 seconds longer.";
+
+// Soulstorm
+DND_SPLDESC178  = "After a brief delay, raise a storm at the target spot that drifts towards you, dealing 25 magic damage per Soul you carry every 0.35 seconds for 5 seconds. Damage is highest within 160 units of its centre and lowest at its 320 unit edge. Consumes half your Souls once it ends.";
+DND_SPLPER178   = "";
+DND_SPLR5_178   = "The area is 50% larger.";
+DND_SPLR10_178  = "Consumes only 25% of your Souls.";
+
+// Carrion Crows
+DND_SPLDESC179  = "Summon a whirl of 5 flesh eating undead crows that circle you for 10 seconds, darting out to tear at enemies within 256 units for 25 damage in very short intervals.";
+DND_SPLPER179   = "";
+DND_SPLR5_179   = "Crows fly 25% faster.";
+DND_SPLR10_179  = "Crows heal you for 5% of the damage they deal.";
+
+// Nether Walk
+DND_SPLDESC180  = "Travel 384 units towards where you are looking, unhittable on the way, dealing 225 magic damage to enemies you pass through.";
+DND_SPLPER180   = "";
+DND_SPLR5_180   = "Your energy shield starts recovering at once when you cast it, if it has not already.";
+DND_SPLR10_180  = "Explodes for the same damage in a 256 unit radius where you start and where you end.";
+
+// Summon Mastery
+DND_SPLDESC181  = "Passive. Your summons last 1 second longer and have 2.5% increased health and damage.";
+DND_SPLPER181   = "+1 second summon duration, +2.5% increased health and damage.";
+DND_SPLR5_181   = "Your minions no longer have a duration.";
+DND_SPLR10_181  = "Your minions gain Hardened Skin.";
+
+// Summon: Slayer Knight
+DND_SPLDESC182  = "Summon an undead slayer knight with 1000 health to do your bidding. It strikes for 72-96 physical melee damage, or hurls a spread of 6 dark flames that each deal 60 fire damage in a 96 unit radius. Counts as 3 against your pet cap.";
+DND_SPLPER182   = "+350 health, +40 melee damage, +30 flame damage.";
+DND_SPLR5_182   = "Gains Counter Attack: when hurt, it retaliates at once and is briefly invulnerable.";
+DND_SPLR10_182  = "Its melee becomes a slashing wave that hits an area.";
+
+// Transmogrify
+DND_SPLDESC183  = "Curse. Launch a cursed fireball that turns a monster weaker than a Baron into a random pickup.";
+DND_SPLPER183   = "-5 mana cost, -3 seconds cooldown.";
+DND_SPLR5_183   = "25% increased chance to drop a health pickup.";
+DND_SPLR10_183  = "Enemies it fails to transform take -10 to all resistances for 10 seconds.";
+
+// Remove Resist
+DND_SPLDESC184  = "Curse. Strip the resistance traits of a nearby target monster for 3 seconds.";
+DND_SPLPER184   = "+1 second duration.";
+DND_SPLR5_184   = "Also curses enemies within 128 units of the target.";
+DND_SPLR10_184  = "Cursed monsters also take 25% more damage from the damage types they resist.";
+
+// Life Tap
+DND_SPLDESC185  = "Curse. Launch a cursed ball that afflicts enemies in a 160 unit radius for 10 seconds. Hitting a cursed enemy has a 25% chance to heal you for 10 health, and a cursed enemy that dies heals you for 2.5% of your missing health.";
+DND_SPLPER185   = "+10 health healed on hit.";
+DND_SPLR5_185   = "A cursed death heals 5% of your missing health instead.";
+DND_SPLR10_185  = "The radius is doubled.";
+
+// Death and Decay
+DND_SPLDESC186  = "Channel at a target spot for up to 10 seconds, creating a 192 unit zone of pure death. Enemies inside lose 5% of their life as magic damage every second, bosses half as much; spell and damage over time modifiers help it past resistances, up to that share. You are slowed by 33% while channeling. Costs mana every second it runs.";
+DND_SPLPER186   = "+0.25% of life lost a second.";
+DND_SPLR5_186   = "The radius is doubled.";
+DND_SPLR10_186  = "The cooldown is halved.";
+
+// Summon: Doomguard
+DND_SPLDESC187  = "Summon a mighty demon from the deepest pits of hell with 2000 health. It cleaves in an arc for 250 melee damage, or hurls a meteor that deals 200 damage on impact and 300 in a 160 unit radius. Counts as 5 against your pet cap.";
+DND_SPLPER187   = "+1250 health, +100 melee damage, +80 meteor impact damage, +100 meteor blast damage.";
+DND_SPLR5_187   = "Can cast War Stomp, stunning nearby enemies for 2.5 seconds and dealing its melee damage to them.";
+DND_SPLR10_187  = "Casts a random curse you have learned once every 30 seconds.";
+
+// Banish
+DND_SPLDESC188  = "Curse. Fire a cursed ball that removes the enemy it hits from this realm for 3 seconds.";
+DND_SPLPER188   = "+1 second duration.";
+DND_SPLR5_188   = "When the enemy returns, it is afflicted by a random curse you have learned.";
+DND_SPLR10_188  = "When the enemy returns, you gain one of its properties, if it has any, for half the duration.";
+
+// Break Immunity
+DND_SPLDESC189  = "Curse. Remove a random immunity from the target enemy for 15 seconds. Does nothing to an enemy without one.";
+DND_SPLPER189   = "-4 seconds cooldown.";
+DND_SPLR5_189   = "Affects enemies in a 192 unit radius.";
+DND_SPLR10_189  = "Removes all of its immunities instead of one.";
+
+// Silence
+DND_SPLDESC190  = "Curse. The target monster cannot cast its spells for 3 seconds.";
+DND_SPLPER190   = "+0.5 seconds duration, -5 seconds cooldown.";
+DND_SPLR5_190   = "Costs 100 less mana.";
+DND_SPLR10_190  = "Affects enemies in a 192 unit radius.";
+
+// Mark Prey
+DND_SPLDESC191  = "Mark the target enemy for 10 seconds. Every one of your minions attacks it for as long as the mark lasts, whatever else is around.";
+DND_SPLPER191   = "+0.5 seconds duration, -1 mana cost.";
+DND_SPLR5_191   = "The marked enemy deals 10% less damage to your minions.";
+DND_SPLR10_191  = "Your minions leech 2% of the damage they deal to the marked enemy as life over 4 seconds.";
+
 
 // Field names for the synergy lines the panel builds from SpellSynergies. Positional on SPELLVAL_*.
 DND_SPLFIELD0   = "damage";
@@ -649,6 +877,8 @@ DND_SPLFIELD_HEAL = "ally heal";
 DND_SPLFIELD_WALLHP = "wall health";
 DND_SPLFIELD_WALLLEN = "wall length";
 DND_SPLFIELD_CRASH = "crash landing cap";
+DND_SPLFIELD_MINIONHP = "minion health";
+DND_SPLFIELD_CROWS = "crow";
 
 DND_SPLPANEL_PERRANK   = "Per Rank:";
 DND_SPLPANEL_RANK5     = "Rank 5:";
@@ -657,6 +887,13 @@ DND_SPLPANEL_COST      = "Cost:";
 DND_SPLPANEL_RESERVE   = "Reserves:";
 DND_SPLPANEL_COOLDOWN  = "Cooldown:";
 DND_SPLPANEL_CASTTIME  = "Cast Time:";
+DND_SPLPANEL_ATTUNE    = "Attunement per point:";
+DND_SPLPANEL_MINIONHP  = "Minion Health:";
+DND_SPLPANEL_MINIONMELEE = "Melee Damage:";
+DND_SPLPANEL_MINIONDASH = "Dash Damage:";
+DND_SPLPANEL_MINIONFIREBALL = "Fireball Damage:";
+DND_SPLPANEL_MINIONGROUND = "Burning Ground Damage:";
+DND_SKILLWHEEL_EMPTY   = "Empty slot";
 DND_SPLPANEL_REQUIRES  = "Requires:";
 DND_SPLPANEL_SYNERGY   = "Synergy";
 DND_SPLPANEL_LEVEL     = "Level";
@@ -675,6 +912,7 @@ DND_SPELLINDEX_HELP1 = "Click a skill in its tree to spend a point.";
 DND_SPELLINDEX_HELP2 = "Right click a learned aura or passive to switch it.";
 DND_SPELLINDEX_REFUND1 = "Hold"; DND_SPELLINDEX_REFUND2 = "and right click to refund a point for credits.";
 DND_SPLPANEL_NONE      = "None";
+DND_SPLHUD_SILENCED    = "Silenced";
 
 // Board headings, positional on DND_SKILLTREE_*.
 

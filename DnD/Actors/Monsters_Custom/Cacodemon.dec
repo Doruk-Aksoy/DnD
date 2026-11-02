@@ -27,12 +27,14 @@ ACTOR CacoLich : DnD_BaseHybridMonster 21089 {
 		Goto SpawnSetup
 	
 		IdleState:
-			CALI A 1 A_GiveInventory("DnD_SightChecker", 1)
+			CALI A 1 A_Look
 		Loop
 		SeeState:
 			CALI A 4 Fast A_Chase
 		Goto See
 		MissileState:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			CALI B 6 Fast A_FaceTarget
 			CALI C 6 Fast A_CustomMissile("CacoLichBall", 35, 0, 0)
 			CALI D 6 Fast A_FaceTarget
@@ -42,6 +44,8 @@ ACTOR CacoLich : DnD_BaseHybridMonster 21089 {
 			CALI E 0
 		Goto See
 		MeleeState:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			CALI E 8 Fast A_FaceTarget
 			CALI F 6 Fast A_FaceTarget
 			CALI G 1 A_CustomMissile("CacoLichFlame", 24, 0, 0)
@@ -269,12 +273,14 @@ ACTOR DeathWhisperer : DnD_BaseRangedMonster 21090 {
 		Goto SpawnSetup
 
 		IdleState:
-			DCAC A 10 A_GiveInventory("DnD_SightChecker", 1)
+			DCAC A 10 A_Look
 		Loop
 		SeeState:
 			DCAC A 4 Fast A_Chase
 		Goto See
 		MissileState:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			DCAC B 5 Fast A_FaceTarget
 			DCAC C 5 Fast A_Custommissile ("CacoLichBall",35,0,0)
 			DCAC D 5 Fast A_FaceTarget
@@ -341,19 +347,25 @@ ACTOR EarthLich : DnD_BaseRangedMonster 21091 {
 		Goto SpawnSetup
 
 		IdleState:
-			ELIC A 10 A_GiveInventory("DnD_SightChecker", 1)
+			ELIC A 10 A_Look
 		Loop
 		SeeState:
 			ELIC A 4 Fast A_Chase
 		Goto See
 		MissileState:
 			TNT1 A 0 A_Jump(160, "Spikes")
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_PlaySound("EarthLich/Rock")
 			ELIC BBBBBBBBB 1 A_FaceTarget
 			ELIC B 5 Fast A_Custommissile ("EarthLichRock",18,0,0)
 		Goto See
 		Spikes:
+			TNT1 A 0 A_TakeInventory("SpikeCounter", 0x7FFFFFFF)
+		SpikesLoop:
 			TNT1 A 0 A_JumpIfInventory("SpikeCounter", 30, "See")
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_FaceTarget
 			ELIC B 2 Fast A_CustomMissile ("EarthLichSpike", 18, random(-4,4), random(-6,6))
 			TNT1 A 0 A_GiveInventory("SpikeCounter", 1)
@@ -509,13 +521,15 @@ ACTOR EnhancedCacodemon : DnD_BaseHybridMonster 21092 {
 		Goto SpawnSetup
 	
 		IdleState:
-			HEAD A 10 A_GiveInventory("DnD_SightChecker", 1) 
+			HEAD A 10 A_Look 
 		Loop 
 		SeeState: 
 			HEAD A 3 Fast A_Chase 
 		Goto See 
 		MissileState: 
 		MeleeState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			HEAD BC 5 Fast A_FaceTarget 
 			HEAD B 0 bright A_CustomMissile("CacoDemonBall", 24, 0, 0, 1)
 			HEAD B 0 bright A_CustomMissile("EnhancedCacoBall_1", 24, 0, -8, 1)
@@ -594,16 +608,20 @@ ACTOR Inferno : DnD_BaseHybridMonster 21093 {
 		Goto SpawnSetup
 
 		IdleState:
-			INFR A 10 Bright A_GiveInventory("DnD_SightChecker", 1) 
+			INFR A 10 Bright A_Look 
 		Loop 
 		SeeState: 
 			INFR BCD 3 Fast Bright A_Chase 
 		Loop
 		MissileState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			INFR HI 5 Fast Bright A_FaceTarget 
 			INFR J 5 Fast Bright A_CustomMissile ("Lavaball",24,0,0,0)
 		Goto See
 		MeleeState: 
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			INFR AFG 5 Fast Bright A_FaceTarget 
 			INFR E 5 Fast Bright A_CustomMeleeAttack(8 * random(1, 8), "", "")
 		Goto See 
@@ -711,12 +729,14 @@ ACTOR Weakener : DnD_BaseRangedMonster 21094 {
 		Goto SpawnSetup
 	
 		IdleState:
-			CCMN A 10 A_GiveInventory("DnD_SightChecker", 1)
+			CCMN A 10 A_Look
 		Loop
 		SeeState:
 			CCMN A 3 Fast A_Chase
 		Goto See
 		MissileState:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			CCMN B 5 Fast A_FaceTarget
 			CCMN C 5 Fast A_FaceTarget
 			TNT1 A 0 A_CustomMissile("WeakenerBall", 15, 0, -8)
@@ -822,13 +842,15 @@ actor Grell : DnD_BaseRangedMonster 21095 {
 		Goto SpawnSetup
 	
 		IdleState:
-			GREL A 10 A_GiveInventory("DnD_SightChecker", 1)
+			GREL A 10 A_Look
 		Loop
 		SeeState:
 			GREL AAB 3 Fast A_Chase
 			GREL BCC 3 Fast A_Chase
 		Goto See
 		MissileState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			GREL D 0 A_PlaySound("grell/attack")
 			GREL D 4 Fast A_FaceTarget
 			GREL E 4 Fast Bright A_FaceTarget    
@@ -926,7 +948,7 @@ ACTOR ShadowPriest : DnD_BaseRangedMonster 21096 {
 		Goto SpawnSetup
 	
 		IdleState:
-			ACOL AB 10 A_GiveInventory("DnD_SightChecker", 1)
+			ACOL AB 10 A_Look
 		Loop
 		SeeState:
 			ACOL AAABBB 4 Fast A_Chase
@@ -985,6 +1007,8 @@ ACTOR ShadowPriest : DnD_BaseRangedMonster 21096 {
 			ACOL B 0 A_Jump(96, "See")
 		Goto Dash
 		MissileState:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			ACOL D 8 Fast Bright A_FaceTarget
 			ACOL E 5 Fast Bright A_FaceTarget
 			ACOL F 3 Fast Bright A_CustomMissile("AcolyteShot",34,0,0,0)
@@ -1170,7 +1194,7 @@ ACTOR Guardian : DnD_BaseRangedMonster_NoRes 21097 {
 		Goto SpawnSetup
 
 		IdleState:
-			GAR9 ABCDEF 3 A_GiveInventory("DnD_SightChecker", 1) 
+			GAR9 ABCDEF 3 A_Look 
 		Loop 
 		SeeState: 
 			GAR9 ABCDEF 3 Fast A_Chase
@@ -1179,6 +1203,8 @@ ACTOR Guardian : DnD_BaseRangedMonster_NoRes 21097 {
 			GAR9 G 8 Fast Bright A_FaceTarget 
 			GAR9 H 4 Fast Bright A_FaceTarget
 		KeepFiring:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			GAR9 I 0 Bright A_PlaySound("weapons/magic1",0,2.0)
 			GAR9 I 0 BRIGHT A_CustomMissile("GuardShot",32,4,0,1)
 			GAR9 I 4 Fast BRIGHT A_CustomMissile("GuardShot",32,-4,0,1)
@@ -1288,7 +1314,7 @@ Actor Wicked : DnD_BaseRangedMonster 21098 {
 		Goto SpawnSetup
 
 		IdleState:
-			WICK ABCD 8 A_GiveInventory("DnD_SightChecker", 1) 
+			WICK ABCD 8 A_Look 
 		Loop 
 		SeeState:
 			WICK AABBCCDD 4 Fast A_Chase
@@ -1302,6 +1328,8 @@ Actor Wicked : DnD_BaseRangedMonster 21098 {
 			WICK E 0 A_Jump(32, "See")
 		Goto See2
 		MissileState:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			WICK I 1 A_PlaySound("Wicked/Attack")
 			WICK I 4 A_FaceTarget
 			TNT1 A 0 A_FaceTarget

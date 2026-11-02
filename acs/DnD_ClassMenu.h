@@ -75,6 +75,11 @@ int GetMugshotXOffset(int pclass) {
 	return 0;
 }
 
+// Until a class is picked the class select screen is the only HUD: the menu, wheels, tips and prompts refuse to open.
+bool HasChosenClass() {
+	return CheckInventory("DnD_Character");
+}
+
 Script "DnD Class Select" (int isSinglePlayer) NET CLIENTSIDE {
 	// these aren't needed for net clientside
 	//if(PlayerNumber() != ConsolePlayerNumber())

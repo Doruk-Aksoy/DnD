@@ -27,8 +27,9 @@ alias viewplayer "puke -1006 %1"
 AddKeySection "DnD Keys" DNDKEYS
 	AddMenuKey "DnD Menu" upgs
 	Alias upgs "Puke 900"
-	AddMenuKey "DnD Weapon Wheel" wepwheel
-	Alias wepwheel "pukename \"DnD Weapon Wheel\" always"
+	AddMenuKey "DnD Weapon Wheel" +wepwheel
+	Alias +wepwheel "pukename \"DnD Weapon Wheel\" always 1"
+	Alias -wepwheel "pukename \"DnD Weapon Wheel\" always 0"
 	AddMenuKey "DnD Inventory" inv
 	Alias inv "pukename \"DnD Open Inventory\" always"
 	AddMenuKey "DnD Stash" stash
@@ -55,6 +56,9 @@ AddKeySection "DnD Keys" DNDKEYS
 	Alias dnd_taunt "pukename \"DnD Taunt\" always"
 
 AddKeySection "DnD Spells" DNDKEYS5
+	AddMenuKey "DnD Skill Wheel" +dnd_skillwheel
+	Alias +dnd_skillwheel "pukename \"DnD Skill Wheel\" always 1"
+	Alias -dnd_skillwheel "pukename \"DnD Skill Wheel\" always 0"
 	AddMenuKey "DnD Spell 1" dnd_spell1
 	Alias dnd_spell1 "pukename \"DnD Cast Hotbar\" always 0"
 	AddMenuKey "DnD Spell 2" dnd_spell2

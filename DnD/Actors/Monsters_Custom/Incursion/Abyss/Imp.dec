@@ -21,16 +21,20 @@ Actor AbyssalImp : DnD_BaseHybridMonster {
 		Goto SpawnSetup
 
 		IdleState:
-			C017 AB 10 Fast A_GiveInventory("DnD_SightChecker", 1)
+			C017 AB 10 Fast A_Look
 		Loop
 		SeeState:
 			C017 AABBCCDD 3 Fast A_Chase
 		Goto See
 		MissileState:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			C017 IJ 7 Fast A_FaceTarget
 			C017 K 6 Fast A_CustomMissile("AbyssImpBall", 32)
 		Goto See
 		MeleeState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			C017 EF 7 Fast A_FaceTarget
 			C017 G 6 Fast A_CustomMeleeAttack(3 * random(5, 9), "imp/melee", "")
 		Goto See

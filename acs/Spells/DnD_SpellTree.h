@@ -58,7 +58,7 @@
 // MAXH must COVER the widest edge in any tree or the crossbar stops in mid air with its legs left
 // hanging -- the widest is 108 units, which is 8 tiles, and the old cap of 6 cut it by two.
 //
-// Fire is the busiest tree at 27 edges, so the band runs 1150 + 27*20 = 1690, clear of RPGMENUID.
+// Black is the busiest tree at 30 edges: 1150 + 30*20 = 1750 is RPGMENUID, the page backdrop, so the band is full.
 #define DND_SPELLLINE_IDS 20
 #define DND_SPELLLINE_MAXV 4
 #define DND_SPELLLINE_MAXH 10
@@ -150,8 +150,8 @@ void AddSpellNodeBox(menu_pane_T module& p, int spell) {
 // other's core. Nothing about one edge can know that, so each edge logs the segments it drew and a
 // second pass over the log places the crosses.
 //
-// Map arrays, so they cost nothing between maps. Fire is the busiest tree at 27 edges, which is at
-// most 54 verticals and 27 horizontals.
+// Map arrays, so they cost nothing between maps. Black is the busiest tree at 30 edges, which is at
+// most 60 verticals and 30 horizontals.
 #define DND_SPELLTREE_MAXSEG 64
 #define DND_SPELLTREE_MAXCROSS 48
 #define DND_SPELLTREE_MAXJOINT 96
@@ -571,6 +571,33 @@ void PanelText(str text, str col = "") {
 	}
 }
 
+// Characters the player sees, colour escapes not counted.
+int PanelVisibleLength(str text) {
+	int len = StrLen(text), k = 0, seen = 0;
+	while(k < len) {
+		if(GetChar(text, k) == 28) {
+			++k;
+			if(k < len && GetChar(text, k) == '[')
+				while(k < len && GetChar(text, k) != ']')
+					++k;
+		}
+		else
+			++seen;
+		++k;
+	}
+	return seen;
+}
+
+// A heading line at y: past DND_SPELLPANEL_WRAP characters it goes on a canvas widened to match, so it shrinks to fit.
+void PanelHeading(str text, int id, int y) {
+	int n = Max(DND_SPELLPANEL_WRAP, PanelVisibleLength(text));
+	SetFont(DND_SPELLPANEL_FONT);
+	SetHudSize(HUDMAX_X * n / DND_SPELLPANEL_WRAP, HUDMAX_Y * n / DND_SPELLPANEL_WRAP, 1);
+	HudMessage(s:text; HUDMSG_PLAIN, id, CR_WHITE,
+		((DND_SPELLPANEL_X * n << 16) / DND_SPELLPANEL_WRAP) + 0.1, (y * n / DND_SPELLPANEL_WRAP) << 16, 0.0, 0.0);
+	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+}
+
 // A string split on its line breaks, each line wrapped by PanelText; an empty line is a half-line spacer.
 void PanelTextLines(str text, str col = "") {
 	int len = StrLen(text), start = 0;
@@ -595,6 +622,24 @@ str FixedToTenths(int v) {
 // Two places, for values a tenth cannot describe -- 0.25 a rank reads as "0.2" through the above.
 str FixedToHundredths(int v) {
 	return StrParam(d:v >> 16, s:".", d:((v * 10) >> 16) % 10, d:((v * 100) >> 16) % 10);
+}
+
+// "lo-hi", or one number when they match.
+str GetRangeText(int lo, int hi) {
+	return lo == hi ? StrParam(d:lo) : StrParam(d:lo, s:"-", d:hi);
+}
+
+// "STR 0.15%, INT 0.25%": damage per point of each attuned attribute.
+str GetSpellAttunementText(int spell) {
+	str res = "";
+	int v;
+	for(int i = STAT_STR; i <= STAT_INT; ++i) {
+		v = GetSpellAttunementRaw(spell, i);
+		if(!v)
+			continue;
+		res = StrParam(s:res, s:StrLen(res) ? ", " : "", l:GetAttributeLabel_Short(i), s:" ", d:v / 100, s:".", d:(v / 10) % 10, d:v % 10, s:"%");
+	}
+	return res;
 }
 
 // Built from the def rather than authored, so a requirement line cannot disagree with the rule that
@@ -682,6 +727,23 @@ void HandleSpellHoverPanel(int pnum, int spell) {
 		}
 	}
 
+	// A summon's live health and hits, as its scripts compute them, before crits.
+	if(GetSummonPetKind(spell) != -1) {
+		int lo, hi, nlo, nhi;
+		for(i = 0; StrLen(GetSummonRowLump(spell, i)); ++i) {
+			lo = GetSummonRowValue(pnum, spell, i, preview, false);
+			hi = GetSummonRowValue(pnum, spell, i, preview, true);
+			PanelText(StrParam(s:"\c[Y5]", l:GetSummonRowLump(spell, i), s:" \c-", s:GetRangeText(lo, hi)));
+
+			if(alloc && alloc < DND_SPELL_RANKCAP) {
+				nlo = GetSummonRowValue(pnum, spell, i, alloc + 1, false);
+				nhi = GetSummonRowValue(pnum, spell, i, alloc + 1, true);
+				if(nhi > hi)
+					PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_NEXTRANK", s:" \c-", s:GetRangeText(nlo, nhi), s:" (+", d:nhi - hi, s:")"));
+			}
+		}
+	}
+
 	// Paid in life at the rate PaySpellCost takes it.
 	bool blood = HasPlayerFlag(pnum, PFLAG_BLOODMAGIC);
 	int lifecost = GetSpellLifeCostRate(pnum, spell);
@@ -722,6 +784,10 @@ void HandleSpellHoverPanel(int pnum, int spell) {
 	temp = alloc ? GetSpellCastTics(pnum, spell) : (GetSpellValue(pnum, spell, SPELLVAL_CASTTIME, 1) * TICRATE) >> 16;
 	PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_CASTTIME", s:" \c-",
 		s:temp ? StrParam(s:TicsToSeconds(temp), s:"s") : StrParam(l:"DND_SPLPANEL_INSTANT")));
+
+	// Only where it matters: a damage field, a summon, or a profile of its own like Righteous Fire's.
+	if(SpellDefs[spell].scale_mask || GetSummonPetKind(spell) != -1 || GetSpellAttunementOverride(spell))
+		PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_ATTUNE", s:" \c-", s:GetSpellAttunementText(spell)));
 
 	// On a tree, the only page that takes refunds: what Jump + right click would charge for a rank, or why it cannot.
 	if(alloc && IsSpellTreePage(CheckInventory("MenuOption"))) {
@@ -873,20 +939,13 @@ void DrawSpellPocket(int pnum) {
 	int hrank = GetSpellRank(pnum, ss.shown_spell, true);
 	int halloc = GetSpellAllocatedRank(pnum, ss.shown_spell);
 
-	SetFont("SMALLFONT");
-	HudMessage(s:"\c[Y5]", l:GetSpellNameLump(ss.shown_spell);
-		HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 2, CR_WHITE,
-		(DND_SPELLPANEL_X << 16) + 0.1, 24.0, 0.0, 0.0);
+	PanelHeading(StrParam(s:"\c[Y5]", l:GetSpellNameLump(ss.shown_spell)), SPELLTREE_HEAD_ID + 2, 24);
 
 	// Effective rank in brackets only where gear is actually adding to it.
 	if(halloc && hrank != halloc)
-		HudMessage(s:"\c[Y5]", l:"DND_SPLPANEL_LEVEL", s:": \c-", d:halloc, s:" (", d:hrank, s:")";
-			HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 3, CR_WHITE,
-			(DND_SPELLPANEL_X << 16) + 0.1, 36.0, 0.0, 0.0);
+		PanelHeading(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_LEVEL", s:": \c-", d:halloc, s:" (", d:hrank, s:")"), SPELLTREE_HEAD_ID + 3, 36);
 	else
-		HudMessage(s:"\c[Y5]", l:"DND_SPLPANEL_LEVEL", s:": \c-", d:halloc, s:"/", d:DND_SPELL_RANKCAP;
-			HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 3, CR_WHITE,
-			(DND_SPELLPANEL_X << 16) + 0.1, 36.0, 0.0, 0.0);
+		PanelHeading(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_LEVEL", s:": \c-", d:halloc, s:"/", d:DND_SPELL_RANKCAP), SPELLTREE_HEAD_ID + 3, 36);
 
 	HandleSpellHoverPanel(pnum, ss.shown_spell);
 	DrawSpellPocketBar();
@@ -1124,7 +1183,7 @@ bool HandleSpellHotbarPick(int pnum, int boxid, int input) {
 	// Right click on a filled slot empties it: the bind takes a negative slot as "clear".
 	if(input == DND_MENUINPUT_RCLICK) {
 		int s = boxid - MBOX_1 - 1;
-		if(boxid < MBOX_1 || s < 0 || s >= slots || GetHotbarSpell(pnum, s) == -1)
+		if(boxid < MBOX_1 || s < 0 || s >= slots || !CheckActorInventory(pnum + P_TIDSTART, GetHotbarSlotItem(s)))
 			return false;
 		NamedRequestScriptPuke("DnD Bind Hotbar", -s - 1);
 		ss.picking_slot = -1;
@@ -1445,10 +1504,14 @@ bool IsGemRoleActiveOnSpell(int role, int spell) {
 		case DND_GEMROLE_SUMMONER:
 		case DND_GEMROLE_COMMANDER:
 		case DND_GEMROLE_NECROMANCER:
+		case DND_GEMROLE_VORACIOUS:
+		case DND_GEMROLE_ALPHA:
 		return !!(f & SPLF_SUMMON);
 		case DND_GEMROLE_PRIEST:
 		return !!(f & SPLF_HEAL);
 		case DND_GEMROLE_WITCH:
+		case DND_GEMROLE_HEXMASTER:
+		case DND_GEMROLE_RITUALIST:
 		return !!(f & SPLF_CURSE);
 		case DND_GEMROLE_SWIFTCASTER:
 		return SpellHasRow(spell, SPELLVAL_CASTTIME);
@@ -1460,9 +1523,29 @@ bool IsGemRoleActiveOnSpell(int role, int spell) {
 		case DND_GEMROLE_BLADEDANCER:
 		case DND_GEMROLE_FIGHTER:
 		return !(f & (SPLF_PASSIVE | SPLF_AURA));
+		// A spell that already chains or forks takes the matching one into its own count.
+		case DND_GEMROLE_CHAINER:
+		return !!(f & SPLF_STRIKE) || spell == SPL_CHAINLIGHTNING;
+		case DND_GEMROLE_FORKER:
+		return !!(f & SPLF_STRIKE) || spell == SPL_FORKEDLIGHTNING;
 	}
 	// The hit roles: damage, crit, ailments, leech, penetration, culling, charges.
 	return !(f & SPLF_SUPPORT);
+}
+
+// Chainer and Forker never work together: the role in an earlier socket that blocks this one, or -1.
+int GetGemRoleBlocker(int pnum, int spell, int slot, int role) {
+	if(role != DND_GEMROLE_CHAINER && role != DND_GEMROLE_FORKER)
+		return DND_GEMROLE_NONE;
+	int v, other;
+	for(int i = 0; i < slot; ++i) {
+		if(!(v = GetSpellSocket(pnum, spell, i)))
+			continue;
+		other = GetSocketGemRole(v);
+		if((other == DND_GEMROLE_CHAINER || other == DND_GEMROLE_FORKER) && other != role)
+			return other;
+	}
+	return DND_GEMROLE_NONE;
 }
 
 // Whether a gem does anything on this spell: its colour does, or its role does.
@@ -1624,6 +1707,45 @@ void AddGemRoleToSpellRow(int pnum, int spell, int role, bool g) {
 		case DND_GEMROLE_HAEMOCRAFTER:
 			if(!GetSpellGemMod(pnum, spell, GEMSTAT_LIFECOST) || GetSpellGemMod(pnum, spell, GEMSTAT_LIFECOST) > (g ? 150 : 200))
 				SetSpellGemMod(pnum, spell, GEMSTAT_LIFECOST, g ? 150 : 200);
+		break;
+		case DND_GEMROLE_HEXMASTER:
+			AddSpellGemMod(pnum, spell, GEMSTAT_HEXMASTER, 1);
+			AddGemCostPenalty(pnum, spell, g ? 0.33 : 0.5);
+		break;
+		// The longest linger socketed wins with its own reduction; two of them do not add up.
+		case DND_GEMROLE_RITUALIST:
+			if(GetSpellGemMod(pnum, spell, GEMSTAT_LINGER) < (g ? 4 : 3) * TICRATE) {
+				SetSpellGemMod(pnum, spell, GEMSTAT_LINGER, (g ? 4 : 3) * TICRATE);
+				SetSpellGemMod(pnum, spell, GEMSTAT_LINGER_LESS, g ? 20 : 30);
+			}
+		break;
+		// Counts add; a greater one's loss and floor win over a normal one's.
+		case DND_GEMROLE_CHAINER:
+			AddSpellGemMod(pnum, spell, GEMSTAT_CHAIN, g ? 5 : 3);
+			if(g) {
+				SetSpellGemMod(pnum, spell, GEMSTAT_CHAIN_LOSS, 15);
+				SetSpellGemMod(pnum, spell, GEMSTAT_CHAIN_FLOOR, 60);
+			}
+			else if(!GetSpellGemMod(pnum, spell, GEMSTAT_CHAIN_LOSS))
+				SetSpellGemMod(pnum, spell, GEMSTAT_CHAIN_LOSS, 10);
+			AddGemCostPenalty(pnum, spell, g ? 0.33 : 0.2);
+		break;
+		case DND_GEMROLE_FORKER:
+			AddSpellGemMod(pnum, spell, GEMSTAT_FORK, g ? 7 : 4);
+			SetSpellGemMod(pnum, spell, GEMSTAT_FORK_LESS, 10);
+			AddGemCostPenalty(pnum, spell, g ? 0.33 : 0.2);
+		break;
+		case DND_GEMROLE_VORACIOUS:
+			AddSpellGemMod(pnum, spell, GEMSTAT_MINION_CRIT, g ? 5 : 3);
+			AddGemCostPenalty(pnum, spell, g ? 0.5 : 0.33);
+		break;
+		case DND_GEMROLE_ALPHA:
+			AddSpellGemMod(pnum, spell, GEMSTAT_MINION_CRITMULT, g ? 100 : 50);
+			AddGemCostPenalty(pnum, spell, g ? 0.4 : 0.25);
+		break;
+		case DND_GEMROLE_ARCHON:
+			AddSpellGemMod(pnum, spell, GEMSTAT_MANALEECH, g ? 30 : 15);
+			AddGemCostPenalty(pnum, spell, g ? 0.35 : 0.2);
 		break;
 	}
 }
@@ -1898,16 +2020,14 @@ void DrawGemCell(int subt, int x, int y, int icon_id, int frame_id, bool lit) {
 }
 
 // The pocket for a gem: its name as the heading, then its colour's terms, greyed where the spell cannot use them.
-void DrawGemPocket(int subt, int role, int spell) {
+// blocker is a role in an earlier socket that leaves this gem's role inert.
+void DrawGemPocket(int subt, int role, int spell, int blocker = -1) {
 	int c = GetGemColour(subt), k, st;
 	bool g = IsGreaterGem(subt);
 
-	SetFont("SMALLFONT");
-	HudMessage(s:"\c[Y5]", l:GetItemTagName(DND_ITEM_GEM, subt);
-		HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 2, CR_WHITE, (DND_SPELLPANEL_X << 16) + 0.1, 24.0, 0.0, 0.0);
+	PanelHeading(StrParam(s:"\c[Y5]", l:GetItemTagName(DND_ITEM_GEM, subt)), SPELLTREE_HEAD_ID + 2, 24);
 	if(spell != -1)
-		HudMessage(s:"\c[Y5]", l:"DND_GEM_IN", s:": \c-", l:GetSpellNameLump(spell);
-			HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 3, CR_WHITE, (DND_SPELLPANEL_X << 16) + 0.1, 36.0, 0.0, 0.0);
+		PanelHeading(StrParam(s:"\c[Y5]", l:"DND_GEM_IN", s:": \c-", l:GetSpellNameLump(spell)), SPELLTREE_HEAD_ID + 3, 36);
 	else
 		DeleteText(SPELLTREE_HEAD_ID + 3);
 
@@ -1927,9 +2047,11 @@ void DrawGemPocket(int subt, int role, int spell) {
 		bool live = spell == -1 || IsGemRoleActiveOnSpell(role, spell);
 		PanelText("");
 		PanelText(StrParam(l:"DND_GEM_OFTHE", s:" ", l:GetGemRoleNameLump(role)), "\c[Y5]");
-		PanelText(StrParam(l:GetGemRoleTextLump(role, g)), live ? "\c-" : "\c[K5]");
+		PanelText(StrParam(l:GetGemRoleTextLump(role, g)), live && blocker == DND_GEMROLE_NONE ? "\c-" : "\c[K5]");
 		if(!live)
 			PanelText(StrParam(l:"DND_GEM_INACTIVE"), "\c[K5]");
+		else if(blocker != DND_GEMROLE_NONE)
+			PanelText(StrParam(l:"DND_GEM_BESIDE", s:" ", l:GetGemRoleNameLump(blocker), s:"."), "\c[K5]");
 	}
 
 	GetSpellScroll().panel_px = GetSpellDraw().panel_y - panel_top;
@@ -1940,9 +2062,7 @@ void DrawGemPocket(int subt, int role, int spell) {
 
 // The gem page's pocket while nothing is hovered: DND_GEMPAGE_HELPTITLE, then DND_GEMPAGE_HELP split on its line breaks.
 void DrawGemHelp() {
-	SetFont("SMALLFONT");
-	HudMessage(s:"\c[Y5]", l:"DND_GEMPAGE_HELPTITLE";
-		HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 2, CR_WHITE, (DND_SPELLPANEL_X << 16) + 0.1, 24.0, 0.0, 0.0);
+	PanelHeading(StrParam(s:"\c[Y5]", l:"DND_GEMPAGE_HELPTITLE"), SPELLTREE_HEAD_ID + 2, 24);
 	DeleteText(SPELLTREE_HEAD_ID + 3);
 
 	SetHudClipRect(DND_SPELLPANEL_X - 4, DND_SPELLPANEL_Y - 4, DND_SPELLPANEL_W, DND_SPELLPANEL_H);
@@ -1961,7 +2081,7 @@ void DrawGemHelp() {
 void HandleSpellGemsDraw(int pnum, int boxid, menu_pane_T module& p) {
 	spell_scroll_T module& ss = GetSpellScroll();
 	int i, k, n, spell, v, x, y, row, count, base;
-	int hovered = -1, gem_subt = -1, gem_role = DND_GEMROLE_NONE, gem_spell = -1, lines = 0;
+	int hovered = -1, gem_subt = -1, gem_role = DND_GEMROLE_NONE, gem_spell = -1, gem_slot = 0, lines = 0;
 	bool framed = false;
 
 	ResetPane(p);
@@ -2011,6 +2131,7 @@ void HandleSpellGemsDraw(int pnum, int boxid, menu_pane_T module& p) {
 						gem_subt = GetSocketGemSubtype(v);
 						gem_role = GetSocketGemRole(v);
 						gem_spell = spell;
+						gem_slot = k;
 					}
 				}
 				DrawGemSocket(v, GetGemSocketX(x, k), GetGemSocketY(y), SPELLTREE_LINE_ID + 4 * i + 2 * k, boxid == MBOX_1 + n, false, k >= GetSpellSocketCount(pnum, spell));
@@ -2042,6 +2163,7 @@ void HandleSpellGemsDraw(int pnum, int boxid, menu_pane_T module& p) {
 					gem_subt = GetSocketGemSubtype(v);
 					gem_role = GetSocketGemRole(v);
 					gem_spell = spell;
+					gem_slot = k;
 				}
 			}
 			DrawGemSocket(v, GetGemSocketX(x, k), GetGemSocketY(y), SPELLTREE_LINE_ID + 2 * k, boxid == MBOX_1 + n, k == pick_slot, k >= GetSpellSocketCount(pnum, spell));
@@ -2062,6 +2184,7 @@ void HandleSpellGemsDraw(int pnum, int boxid, menu_pane_T module& p) {
 				gem_subt = v;
 				gem_role = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, base, 0, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 				gem_spell = spell;
+				gem_slot = pick_slot;
 			}
 			DrawGemCell(v, x, y, SPELLTREE_NODE_ID + 2 + i, SPELLTREE_LINE_ID + 8 + i, boxid == MBOX_1 + n);
 			AddSpellBoxAt(p, x, y);
@@ -2085,7 +2208,7 @@ void HandleSpellGemsDraw(int pnum, int boxid, menu_pane_T module& p) {
 	DeleteText(SPELLTREE_PICKSEL_ID);
 
 	if(gem_subt != -1) {
-		DrawGemPocket(gem_subt, gem_role, gem_spell);
+		DrawGemPocket(gem_subt, gem_role, gem_spell, GetGemRoleBlocker(pnum, gem_spell, gem_slot, gem_role));
 		return;
 	}
 

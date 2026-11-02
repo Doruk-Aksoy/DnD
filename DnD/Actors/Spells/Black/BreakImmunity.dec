@@ -1,0 +1,26 @@
+// On one enemy: the immunities broken, a bit each (DND_IMMUNEBIT_*), and the clock.
+Actor DnD_ImmunityBroken : DnD_Info {}
+Actor DnD_ImmunityBrokenTimer : DnD_Info {}
+
+// Its explosive immunity (NORADIUSDMG) broken; MakeExplosiveHighResist puts it back.
+Actor DnD_TakeExplosiveImmunity : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("NORADIUSDMG", 0)
+		Stop
+	}
+}
+
+// The curse marker over a broken enemy: frame L of the curse row (FlammabilityFXMarker).
+Actor BreakImmunityFXMarker : FlammabilityFXMarker {
+	States {
+		SpawnLoop:
+			CM1O L 0
+		Goto CurseJoin
+	}
+}
+
+// The ring drawn round the target from rank 5, in white gold sparks.
+Actor BreakImmunityAreaMarkerFX : NoxAreaMarkerFX {
+	Translation "80:111=%[0.00,0.00,0.00]:[1.80,1.60,0.90]"
+}

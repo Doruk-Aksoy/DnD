@@ -42,6 +42,7 @@ int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1, ASPECT_4_3 };
 // 720x600 for the target bar, 800x600 for the dungeon boss one. These are what the fill is scaled
 // to, so they have to match the artwork's bar interior.
 #define DND_MONSTERBAR_WIDTH 200
+#define DND_MONSTERBAR_TIPW 16		// HPEDGER/HPEDGEG, centred on the fill's end
 #define DND_BOSSBAR_WIDTH 450
 #define EXIT_HOLDTIME 0.5
 
@@ -337,6 +338,7 @@ enum {
 	MONSTER_TYPEICONID_RIGHT,
 	MONSTER_NAMEID,
 	MONSTER_TEXTID,
+	MONSTER_BARTIPID,
 	MONSTER_BARFILL_OVERLAY1,
 	MONSTER_BARFILL_OVERLAY2,
 	MONSTER_BARFILLID,
@@ -386,6 +388,8 @@ enum {
 	CASTBAR_TEXT_ID = 3070,
 	CASTBAR_FILL_ID,
 	CASTBAR_BACK_ID,
+	// Silencer's icon over the bar, in the free id between the glints and the charge counts.
+	CASTBAR_ICON_ID = 3079,
 
 	// ---- spell tree page ----
 	// These are LOW on purpose. AttachMessage draws the highest id first, so a lower id lands in
@@ -412,7 +416,8 @@ enum {
 
 	SPELLTREE_LINE_ID = 1150,		// DND_SPELLLINE_IDS per requirement edge
 
-	SPELLPAGE_ID_LAST = 1700
+	// Up to the backdrop: Black's 30 connectors fill 1150..1749, and 1700 left its last ones on screen.
+	SPELLPAGE_ID_LAST = RPGMENUID - 1
 };
 
 void ClearMonsterScanInfo() {

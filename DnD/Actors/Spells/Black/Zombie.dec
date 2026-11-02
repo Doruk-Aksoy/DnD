@@ -1,0 +1,77 @@
+// The zombie, from Summon: Zombie or the GraveCaller charm: ZombieFodder's look; health, melee and its clock come off the spell row.
+ACTOR Spell_Zombie : PetMonsterBase {
+	Health 150
+	GibHealth 20
+	Radius 20
+	Height 56
+	Speed 10
+	PainChance 192
+	Stamina 1
+	SeeSound "ZombieFodder/sight"
+	PainSound "ZombieFodder/pain"
+	DeathSound "ZombieFodder/death"
+	ActiveSound "ZombieFodder/active"
+	Obituary "%o joins the zombies."
+	Tag "Zombie"
+	MeleeRange 78
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pet Monster Scale", 0, DND_PET_ZOMBIEID, DND_SILVER_WEAKNESS, -1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Minion Life", 0, DND_PET_ZOMBIEID)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pet Distance Move", 0)
+			ZFOD S 6
+			ZFOD RQPON 3
+		SpawnLoop:
+			ZFOD AB 8 A_Look
+		Goto See
+		See:
+			ZFOD AABBCCDD 2 A_Chase
+		Loop
+		Melee:
+			TNT1 A 0 A_AlertMonsters(0, AMF_TARGETNONPLAYER)
+			ZFOD E 6 A_FaceTarget
+			TNT1 A 0 A_PlaySound("ZombieFodder/MeleeBegin", 5)
+			ZFOD F 5 A_FaceTarget
+			ZFOD G 2 A_CustomMeleeAttack(ACS_NamedExecuteWithResult("DnD Spell Zombie Melee"), "ZombieFodder/MeleeHit")
+			ZFOD G 3
+		Goto See
+		Pain:
+			ZFOD H 4
+			ZFOD H 4 A_Pain
+		Goto See
+		// The death script runs in each death label: a shared base block ends a 0 tic state with A_Jump, a no-op on clients,
+		// and a parent Goto resolves to the parent's label, so the client would spin it until the loop breaker fired.
+		Death:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Summon Death Check", 0, DND_PET_ZOMBIEID)
+			ZFOD I 7
+			ZFOD J 7 A_Scream
+			ZFOD K 5 A_NoBlocking
+			ZFOD L 5 A_SpawnItemEx("FodderSoul", 0, 0, 10, 0, 0, 1)
+			ZFOD M -1
+		Stop
+		XDeath:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Summon Death Check", 0, DND_PET_ZOMBIEID)
+			ZFOD N 5
+			ZFOD O 5 A_XScream
+			ZFOD P 5 A_NoBlocking
+			ZFOD Q 5 A_SpawnItemEx("FodderSoul", 0, 0, 10, 0, 0, 1)
+			ZFOD R 5
+			ZFOD S -1
+		Stop
+	}
+}
+
+// Rank 5: a class of its own rather than a jump, which clients skip: the same swing in 10 tics instead of 16.
+ACTOR Spell_ZombieHaste : Spell_Zombie {
+	States {
+		Melee:
+			TNT1 A 0 A_AlertMonsters(0, AMF_TARGETNONPLAYER)
+			ZFOD E 4 A_FaceTarget
+			TNT1 A 0 A_PlaySound("ZombieFodder/MeleeBegin", 5)
+			ZFOD F 3 A_FaceTarget
+			ZFOD G 1 A_CustomMeleeAttack(ACS_NamedExecuteWithResult("DnD Spell Zombie Melee"), "ZombieFodder/MeleeHit")
+			ZFOD G 2
+		Goto See
+	}
+}

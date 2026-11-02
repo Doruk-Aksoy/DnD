@@ -73,6 +73,10 @@ enum {
     BTI_SPELL_VENOMGYRE,
     BTI_SPELL_ROCKGOLEM_PHYSLESS,
     BTI_SPELL_ANGER_IGNITELESS,
+    BTI_SPELL_BANISH_PHYS,
+    BTI_SPELL_BANISH_ELE,
+    BTI_SPELL_BANISH_ENERGY,
+    BTI_SPELL_BANISH_MAGIC,
 
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
@@ -787,6 +791,36 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
         break;
 
         // Summon: Rock Golem: whole percent less physical damage taken while one stands, refreshed on a loop like Ice Golem's.
+        // Banish rank 10: a resist the banished enemy had, lent for half the time it was gone (16.16 percent).
+        case BTI_SPELL_BANISH_PHYS:
+            btype = BUFF_PHYSRESIST;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+        case BTI_SPELL_BANISH_ELE:
+            btype = BUFF_ELEMENTALRESIST;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+        case BTI_SPELL_BANISH_ENERGY:
+            btype = BUFF_ENERGYRESIST;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+        case BTI_SPELL_BANISH_MAGIC:
+            btype = BUFF_MAGICRESIST;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
         case BTI_SPELL_ROCKGOLEM_PHYSLESS:
             btype = BUFF_PHYSDAMAGETAKEN;
             bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;

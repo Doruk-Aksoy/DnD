@@ -263,7 +263,7 @@ void CompleteResearch(int res_id) {
 	HandleDependentResearch(res_id);
 	
 	if(res_id == RES_DOUBLESPECIALCAP)
-		DoubleSpecialAmmoCapacity();
+		SetSpecialAmmoCapacities(PlayerNumber());
 
 	// Granted ONCE, here, rather than pulled the way most researches are. Perk points are a
 	// spendable pool held as inventory, not a derived number, so there is nothing to re-read --
@@ -286,12 +286,14 @@ void GiveAndDoAllResearch() {
 		GiveResearch(i, false);
 		CompleteResearch(i);
 	}
-	DoubleSpecialAmmoCapacity();
+	SetSpecialAmmoCapacities(PlayerNumber());
 }
 
-void DoubleSpecialAmmoCapacity() {
-	for(int i = 0; i < MAX_SPECIAL_AMMOS; ++i)
-		SetAmmoCapacity(GetSpecialAmmoStr(i, AMMOINFO_NAME), SpecialAmmoInfo[i].initial_capacity * 2);
+// Special ammo: its research doubles it and Strength adds its share; the gear ammo capacity mod does not reach it.
+void SetSpecialAmmoCapacities(int pnum) {
+	int factor = (CheckResearchStatus(RES_DOUBLESPECIALCAP) == RES_DONE ? 200 : 100) * (100 + GetStrengthAmmoCapPct(pnum)) / 100;
+	for(int i = 0; i < MAX_SPECIAL_AMMOS - 1; ++i)
+		SetAmmoCapacity(GetSpecialAmmoStr(i, AMMOINFO_NAME), SpecialAmmoInfo[i].initial_capacity * factor / 100);
 }
 
 #endif

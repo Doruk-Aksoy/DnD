@@ -1,45 +1,44 @@
 * Chaos Bolt
  
-	Project a bolt of unstable energy to deal 1 - 125 (+10/INT) damage.
-	Cost: 8 mana.
-	Cooldown: 5 seconds.
+	Project a bolt of unstable energy to deal 1 - 125 damage.
+	Cost: 7 mana.
+	Cooldown: NA.
 	Cast Time: 1.5 seconds.
-	Per Rank: +75 max damage.
+	Per Rank: +125 max damage.
 	Rank 5: Bolt speed +50%.
 	Rank 10: Bolt will split into 8 smaller bolts on impact to deal 1/8th damage each.
 	Unlocks: Blades of Fury.
 	Synergy - Vortex: 5% more damage per rank of Vortex.
-	NOTE: Damage bonuses only affect maximum damage value.
  
 * Hand of Fate
  
 	Do a special effect based on chance. Let X = roll 1d6.
-	If targeted an ally: 
-		- X < 3 => Ally suffers (10 + (+5/INT) * Level of Caster) damage.
-		- X = 3 => Ally is healed for 25 + 5 * Level of Caster.
+	If targeted an ally:
+		- X < 3 => Ally suffers (10 + 10  * <Level of Caster>) non-lethal damage.
+		- X = 3 => Ally is healed for 25 + 5 * <Level of Caster>.
 		- X > 3 => Ally deals 50% more damage for 2 seconds.
 	If targeted an enemy:
 		- X < 3 => Enemy is granted 50% more damage for 2 seconds.
-		- X = 3 => Enemy is healed for (15 + 0.25 * Level) % of Caster.
-		- X > 3 => Enemy takes 50% more damage for 2 seconds.
+		- X = 3 => Enemy is healed for (15 + 0.25 * <Level of Caster>)%.
+		- X > 3 => Enemy takes 50% more damage for 3 seconds.
 	Cost: 10 mana.
 	Cooldown: 12 seconds.
 	Cast Time: 1.5 seconds.
 	Per Rank: +1 second to buff and debuff duration.
-	Rank 5: Hand of Fate is guaranteed to deal (10 + (+5/INT) * Level of Caster) damage to enemies.
+	Rank 5: Hand of Fate is guaranteed to deal (10 + 10 * <Level of Caster>) damage to enemies.
 	Rank 10: When a negative effect is rolled, a new roll will be attempted.
 	Unlocks: Seal of Chance.
  
 * Furious Charge
  
 	Charge towards where you are looking, completely berserk. Charge for 2 seconds.
-	You take 50% more damage during the charge. Charge deals 175 (+10/STR) damage to enemies that you come into contact.
+	You take 50% more damage during the charge. Charge deals 200 physical damage to enemies that you come into contact.
 	Cost: 18 mana.
 	Cooldown: 16 seconds.
 	Cast Time: 1 second.
 	Per Rank: +125 damage.
-	Rank 5: During the charge, gain ability to deflect projectiles.
-	Rank 10: Charge damage debuff is reduced to 10% and you gain 2 rage per enemy hit.
+	Rank 5: Gain 2 rage per enemy hit during the charge.
+	Rank 10: Charge damage debuff is reduced to 10%.
 	Unlocks: Frenzy, Instability.
  
 * Blades of Fury

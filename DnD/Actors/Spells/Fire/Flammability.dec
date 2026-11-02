@@ -1,13 +1,630 @@
-// Flammability's curse marker
+// Every curse marker's base, and Flammability's (frame A): a row over the head that "DnD Curse Row" re-centres as curses
+// come and go. Sprites CM00-CM3C (TEXTURES.spl, base 36) are its positions, Pos60 the middle; it slides a position a tic to user_target.
 Actor FlammabilityFXMarker : DnD_AttachedFXBase {
 	Renderstyle Add
 	Alpha 0.85
 	ReactionTime 28
 	Scale 0.5
+	var int user_cursemark;
+	var int user_target;
 	States {
 		SpawnLoop:
-			S005 A 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			CM1O A 0
+		Goto CurseJoin
+		CurseJoin:
+			"####" "#" 0 A_SetUserVar("user_target", 60)
+			"####" "#" 0 A_SetUserVar("user_cursemark", 1)
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Curse Row")
+		Goto Pos60
+		Pos0:
+			CM00 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 0, "Pos1")
 		Loop
+		Pos1:
+			CM01 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 1, "Pos2")
+			"####" "#" 0 A_JumpIf(user_target < 1, "Pos0")
+		Loop
+		Pos2:
+			CM02 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 2, "Pos3")
+			"####" "#" 0 A_JumpIf(user_target < 2, "Pos1")
+		Loop
+		Pos3:
+			CM03 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 3, "Pos4")
+			"####" "#" 0 A_JumpIf(user_target < 3, "Pos2")
+		Loop
+		Pos4:
+			CM04 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 4, "Pos5")
+			"####" "#" 0 A_JumpIf(user_target < 4, "Pos3")
+		Loop
+		Pos5:
+			CM05 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 5, "Pos6")
+			"####" "#" 0 A_JumpIf(user_target < 5, "Pos4")
+		Loop
+		Pos6:
+			CM06 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 6, "Pos7")
+			"####" "#" 0 A_JumpIf(user_target < 6, "Pos5")
+		Loop
+		Pos7:
+			CM07 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 7, "Pos8")
+			"####" "#" 0 A_JumpIf(user_target < 7, "Pos6")
+		Loop
+		Pos8:
+			CM08 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 8, "Pos9")
+			"####" "#" 0 A_JumpIf(user_target < 8, "Pos7")
+		Loop
+		Pos9:
+			CM09 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 9, "Pos10")
+			"####" "#" 0 A_JumpIf(user_target < 9, "Pos8")
+		Loop
+		Pos10:
+			CM0A "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 10, "Pos11")
+			"####" "#" 0 A_JumpIf(user_target < 10, "Pos9")
+		Loop
+		Pos11:
+			CM0B "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 11, "Pos12")
+			"####" "#" 0 A_JumpIf(user_target < 11, "Pos10")
+		Loop
+		Pos12:
+			CM0C "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 12, "Pos13")
+			"####" "#" 0 A_JumpIf(user_target < 12, "Pos11")
+		Loop
+		Pos13:
+			CM0D "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 13, "Pos14")
+			"####" "#" 0 A_JumpIf(user_target < 13, "Pos12")
+		Loop
+		Pos14:
+			CM0E "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 14, "Pos15")
+			"####" "#" 0 A_JumpIf(user_target < 14, "Pos13")
+		Loop
+		Pos15:
+			CM0F "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 15, "Pos16")
+			"####" "#" 0 A_JumpIf(user_target < 15, "Pos14")
+		Loop
+		Pos16:
+			CM0G "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 16, "Pos17")
+			"####" "#" 0 A_JumpIf(user_target < 16, "Pos15")
+		Loop
+		Pos17:
+			CM0H "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 17, "Pos18")
+			"####" "#" 0 A_JumpIf(user_target < 17, "Pos16")
+		Loop
+		Pos18:
+			CM0I "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 18, "Pos19")
+			"####" "#" 0 A_JumpIf(user_target < 18, "Pos17")
+		Loop
+		Pos19:
+			CM0J "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 19, "Pos20")
+			"####" "#" 0 A_JumpIf(user_target < 19, "Pos18")
+		Loop
+		Pos20:
+			CM0K "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 20, "Pos21")
+			"####" "#" 0 A_JumpIf(user_target < 20, "Pos19")
+		Loop
+		Pos21:
+			CM0L "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 21, "Pos22")
+			"####" "#" 0 A_JumpIf(user_target < 21, "Pos20")
+		Loop
+		Pos22:
+			CM0M "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 22, "Pos23")
+			"####" "#" 0 A_JumpIf(user_target < 22, "Pos21")
+		Loop
+		Pos23:
+			CM0N "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 23, "Pos24")
+			"####" "#" 0 A_JumpIf(user_target < 23, "Pos22")
+		Loop
+		Pos24:
+			CM0O "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 24, "Pos25")
+			"####" "#" 0 A_JumpIf(user_target < 24, "Pos23")
+		Loop
+		Pos25:
+			CM0P "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 25, "Pos26")
+			"####" "#" 0 A_JumpIf(user_target < 25, "Pos24")
+		Loop
+		Pos26:
+			CM0Q "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 26, "Pos27")
+			"####" "#" 0 A_JumpIf(user_target < 26, "Pos25")
+		Loop
+		Pos27:
+			CM0R "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 27, "Pos28")
+			"####" "#" 0 A_JumpIf(user_target < 27, "Pos26")
+		Loop
+		Pos28:
+			CM0S "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 28, "Pos29")
+			"####" "#" 0 A_JumpIf(user_target < 28, "Pos27")
+		Loop
+		Pos29:
+			CM0T "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 29, "Pos30")
+			"####" "#" 0 A_JumpIf(user_target < 29, "Pos28")
+		Loop
+		Pos30:
+			CM0U "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 30, "Pos31")
+			"####" "#" 0 A_JumpIf(user_target < 30, "Pos29")
+		Loop
+		Pos31:
+			CM0V "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 31, "Pos32")
+			"####" "#" 0 A_JumpIf(user_target < 31, "Pos30")
+		Loop
+		Pos32:
+			CM0W "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 32, "Pos33")
+			"####" "#" 0 A_JumpIf(user_target < 32, "Pos31")
+		Loop
+		Pos33:
+			CM0X "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 33, "Pos34")
+			"####" "#" 0 A_JumpIf(user_target < 33, "Pos32")
+		Loop
+		Pos34:
+			CM0Y "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 34, "Pos35")
+			"####" "#" 0 A_JumpIf(user_target < 34, "Pos33")
+		Loop
+		Pos35:
+			CM0Z "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 35, "Pos36")
+			"####" "#" 0 A_JumpIf(user_target < 35, "Pos34")
+		Loop
+		Pos36:
+			CM10 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 36, "Pos37")
+			"####" "#" 0 A_JumpIf(user_target < 36, "Pos35")
+		Loop
+		Pos37:
+			CM11 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 37, "Pos38")
+			"####" "#" 0 A_JumpIf(user_target < 37, "Pos36")
+		Loop
+		Pos38:
+			CM12 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 38, "Pos39")
+			"####" "#" 0 A_JumpIf(user_target < 38, "Pos37")
+		Loop
+		Pos39:
+			CM13 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 39, "Pos40")
+			"####" "#" 0 A_JumpIf(user_target < 39, "Pos38")
+		Loop
+		Pos40:
+			CM14 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 40, "Pos41")
+			"####" "#" 0 A_JumpIf(user_target < 40, "Pos39")
+		Loop
+		Pos41:
+			CM15 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 41, "Pos42")
+			"####" "#" 0 A_JumpIf(user_target < 41, "Pos40")
+		Loop
+		Pos42:
+			CM16 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 42, "Pos43")
+			"####" "#" 0 A_JumpIf(user_target < 42, "Pos41")
+		Loop
+		Pos43:
+			CM17 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 43, "Pos44")
+			"####" "#" 0 A_JumpIf(user_target < 43, "Pos42")
+		Loop
+		Pos44:
+			CM18 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 44, "Pos45")
+			"####" "#" 0 A_JumpIf(user_target < 44, "Pos43")
+		Loop
+		Pos45:
+			CM19 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 45, "Pos46")
+			"####" "#" 0 A_JumpIf(user_target < 45, "Pos44")
+		Loop
+		Pos46:
+			CM1A "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 46, "Pos47")
+			"####" "#" 0 A_JumpIf(user_target < 46, "Pos45")
+		Loop
+		Pos47:
+			CM1B "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 47, "Pos48")
+			"####" "#" 0 A_JumpIf(user_target < 47, "Pos46")
+		Loop
+		Pos48:
+			CM1C "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 48, "Pos49")
+			"####" "#" 0 A_JumpIf(user_target < 48, "Pos47")
+		Loop
+		Pos49:
+			CM1D "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 49, "Pos50")
+			"####" "#" 0 A_JumpIf(user_target < 49, "Pos48")
+		Loop
+		Pos50:
+			CM1E "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 50, "Pos51")
+			"####" "#" 0 A_JumpIf(user_target < 50, "Pos49")
+		Loop
+		Pos51:
+			CM1F "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 51, "Pos52")
+			"####" "#" 0 A_JumpIf(user_target < 51, "Pos50")
+		Loop
+		Pos52:
+			CM1G "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 52, "Pos53")
+			"####" "#" 0 A_JumpIf(user_target < 52, "Pos51")
+		Loop
+		Pos53:
+			CM1H "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 53, "Pos54")
+			"####" "#" 0 A_JumpIf(user_target < 53, "Pos52")
+		Loop
+		Pos54:
+			CM1I "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 54, "Pos55")
+			"####" "#" 0 A_JumpIf(user_target < 54, "Pos53")
+		Loop
+		Pos55:
+			CM1J "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 55, "Pos56")
+			"####" "#" 0 A_JumpIf(user_target < 55, "Pos54")
+		Loop
+		Pos56:
+			CM1K "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 56, "Pos57")
+			"####" "#" 0 A_JumpIf(user_target < 56, "Pos55")
+		Loop
+		Pos57:
+			CM1L "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 57, "Pos58")
+			"####" "#" 0 A_JumpIf(user_target < 57, "Pos56")
+		Loop
+		Pos58:
+			CM1M "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 58, "Pos59")
+			"####" "#" 0 A_JumpIf(user_target < 58, "Pos57")
+		Loop
+		Pos59:
+			CM1N "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 59, "Pos60")
+			"####" "#" 0 A_JumpIf(user_target < 59, "Pos58")
+		Loop
+		Pos60:
+			CM1O "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 60, "Pos61")
+			"####" "#" 0 A_JumpIf(user_target < 60, "Pos59")
+		Loop
+		Pos61:
+			CM1P "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 61, "Pos62")
+			"####" "#" 0 A_JumpIf(user_target < 61, "Pos60")
+		Loop
+		Pos62:
+			CM1Q "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 62, "Pos63")
+			"####" "#" 0 A_JumpIf(user_target < 62, "Pos61")
+		Loop
+		Pos63:
+			CM1R "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 63, "Pos64")
+			"####" "#" 0 A_JumpIf(user_target < 63, "Pos62")
+		Loop
+		Pos64:
+			CM1S "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 64, "Pos65")
+			"####" "#" 0 A_JumpIf(user_target < 64, "Pos63")
+		Loop
+		Pos65:
+			CM1T "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 65, "Pos66")
+			"####" "#" 0 A_JumpIf(user_target < 65, "Pos64")
+		Loop
+		Pos66:
+			CM1U "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 66, "Pos67")
+			"####" "#" 0 A_JumpIf(user_target < 66, "Pos65")
+		Loop
+		Pos67:
+			CM1V "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 67, "Pos68")
+			"####" "#" 0 A_JumpIf(user_target < 67, "Pos66")
+		Loop
+		Pos68:
+			CM1W "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 68, "Pos69")
+			"####" "#" 0 A_JumpIf(user_target < 68, "Pos67")
+		Loop
+		Pos69:
+			CM1X "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 69, "Pos70")
+			"####" "#" 0 A_JumpIf(user_target < 69, "Pos68")
+		Loop
+		Pos70:
+			CM1Y "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 70, "Pos71")
+			"####" "#" 0 A_JumpIf(user_target < 70, "Pos69")
+		Loop
+		Pos71:
+			CM1Z "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 71, "Pos72")
+			"####" "#" 0 A_JumpIf(user_target < 71, "Pos70")
+		Loop
+		Pos72:
+			CM20 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 72, "Pos73")
+			"####" "#" 0 A_JumpIf(user_target < 72, "Pos71")
+		Loop
+		Pos73:
+			CM21 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 73, "Pos74")
+			"####" "#" 0 A_JumpIf(user_target < 73, "Pos72")
+		Loop
+		Pos74:
+			CM22 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 74, "Pos75")
+			"####" "#" 0 A_JumpIf(user_target < 74, "Pos73")
+		Loop
+		Pos75:
+			CM23 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 75, "Pos76")
+			"####" "#" 0 A_JumpIf(user_target < 75, "Pos74")
+		Loop
+		Pos76:
+			CM24 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 76, "Pos77")
+			"####" "#" 0 A_JumpIf(user_target < 76, "Pos75")
+		Loop
+		Pos77:
+			CM25 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 77, "Pos78")
+			"####" "#" 0 A_JumpIf(user_target < 77, "Pos76")
+		Loop
+		Pos78:
+			CM26 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 78, "Pos79")
+			"####" "#" 0 A_JumpIf(user_target < 78, "Pos77")
+		Loop
+		Pos79:
+			CM27 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 79, "Pos80")
+			"####" "#" 0 A_JumpIf(user_target < 79, "Pos78")
+		Loop
+		Pos80:
+			CM28 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 80, "Pos81")
+			"####" "#" 0 A_JumpIf(user_target < 80, "Pos79")
+		Loop
+		Pos81:
+			CM29 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 81, "Pos82")
+			"####" "#" 0 A_JumpIf(user_target < 81, "Pos80")
+		Loop
+		Pos82:
+			CM2A "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 82, "Pos83")
+			"####" "#" 0 A_JumpIf(user_target < 82, "Pos81")
+		Loop
+		Pos83:
+			CM2B "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 83, "Pos84")
+			"####" "#" 0 A_JumpIf(user_target < 83, "Pos82")
+		Loop
+		Pos84:
+			CM2C "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 84, "Pos85")
+			"####" "#" 0 A_JumpIf(user_target < 84, "Pos83")
+		Loop
+		Pos85:
+			CM2D "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 85, "Pos86")
+			"####" "#" 0 A_JumpIf(user_target < 85, "Pos84")
+		Loop
+		Pos86:
+			CM2E "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 86, "Pos87")
+			"####" "#" 0 A_JumpIf(user_target < 86, "Pos85")
+		Loop
+		Pos87:
+			CM2F "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 87, "Pos88")
+			"####" "#" 0 A_JumpIf(user_target < 87, "Pos86")
+		Loop
+		Pos88:
+			CM2G "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 88, "Pos89")
+			"####" "#" 0 A_JumpIf(user_target < 88, "Pos87")
+		Loop
+		Pos89:
+			CM2H "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 89, "Pos90")
+			"####" "#" 0 A_JumpIf(user_target < 89, "Pos88")
+		Loop
+		Pos90:
+			CM2I "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 90, "Pos91")
+			"####" "#" 0 A_JumpIf(user_target < 90, "Pos89")
+		Loop
+		Pos91:
+			CM2J "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 91, "Pos92")
+			"####" "#" 0 A_JumpIf(user_target < 91, "Pos90")
+		Loop
+		Pos92:
+			CM2K "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 92, "Pos93")
+			"####" "#" 0 A_JumpIf(user_target < 92, "Pos91")
+		Loop
+		Pos93:
+			CM2L "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 93, "Pos94")
+			"####" "#" 0 A_JumpIf(user_target < 93, "Pos92")
+		Loop
+		Pos94:
+			CM2M "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 94, "Pos95")
+			"####" "#" 0 A_JumpIf(user_target < 94, "Pos93")
+		Loop
+		Pos95:
+			CM2N "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 95, "Pos96")
+			"####" "#" 0 A_JumpIf(user_target < 95, "Pos94")
+		Loop
+		Pos96:
+			CM2O "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 96, "Pos97")
+			"####" "#" 0 A_JumpIf(user_target < 96, "Pos95")
+		Loop
+		Pos97:
+			CM2P "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 97, "Pos98")
+			"####" "#" 0 A_JumpIf(user_target < 97, "Pos96")
+		Loop
+		Pos98:
+			CM2Q "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 98, "Pos99")
+			"####" "#" 0 A_JumpIf(user_target < 98, "Pos97")
+		Loop
+		Pos99:
+			CM2R "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 99, "Pos100")
+			"####" "#" 0 A_JumpIf(user_target < 99, "Pos98")
+		Loop
+		Pos100:
+			CM2S "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 100, "Pos101")
+			"####" "#" 0 A_JumpIf(user_target < 100, "Pos99")
+		Loop
+		Pos101:
+			CM2T "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 101, "Pos102")
+			"####" "#" 0 A_JumpIf(user_target < 101, "Pos100")
+		Loop
+		Pos102:
+			CM2U "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 102, "Pos103")
+			"####" "#" 0 A_JumpIf(user_target < 102, "Pos101")
+		Loop
+		Pos103:
+			CM2V "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 103, "Pos104")
+			"####" "#" 0 A_JumpIf(user_target < 103, "Pos102")
+		Loop
+		Pos104:
+			CM2W "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 104, "Pos105")
+			"####" "#" 0 A_JumpIf(user_target < 104, "Pos103")
+		Loop
+		Pos105:
+			CM2X "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 105, "Pos106")
+			"####" "#" 0 A_JumpIf(user_target < 105, "Pos104")
+		Loop
+		Pos106:
+			CM2Y "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 106, "Pos107")
+			"####" "#" 0 A_JumpIf(user_target < 106, "Pos105")
+		Loop
+		Pos107:
+			CM2Z "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 107, "Pos108")
+			"####" "#" 0 A_JumpIf(user_target < 107, "Pos106")
+		Loop
+		Pos108:
+			CM30 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 108, "Pos109")
+			"####" "#" 0 A_JumpIf(user_target < 108, "Pos107")
+		Loop
+		Pos109:
+			CM31 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 109, "Pos110")
+			"####" "#" 0 A_JumpIf(user_target < 109, "Pos108")
+		Loop
+		Pos110:
+			CM32 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 110, "Pos111")
+			"####" "#" 0 A_JumpIf(user_target < 110, "Pos109")
+		Loop
+		Pos111:
+			CM33 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 111, "Pos112")
+			"####" "#" 0 A_JumpIf(user_target < 111, "Pos110")
+		Loop
+		Pos112:
+			CM34 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 112, "Pos113")
+			"####" "#" 0 A_JumpIf(user_target < 112, "Pos111")
+		Loop
+		Pos113:
+			CM35 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 113, "Pos114")
+			"####" "#" 0 A_JumpIf(user_target < 113, "Pos112")
+		Loop
+		Pos114:
+			CM36 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 114, "Pos115")
+			"####" "#" 0 A_JumpIf(user_target < 114, "Pos113")
+		Loop
+		Pos115:
+			CM37 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 115, "Pos116")
+			"####" "#" 0 A_JumpIf(user_target < 115, "Pos114")
+		Loop
+		Pos116:
+			CM38 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 116, "Pos117")
+			"####" "#" 0 A_JumpIf(user_target < 116, "Pos115")
+		Loop
+		Pos117:
+			CM39 "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 117, "Pos118")
+			"####" "#" 0 A_JumpIf(user_target < 117, "Pos116")
+		Loop
+		Pos118:
+			CM3A "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 118, "Pos119")
+			"####" "#" 0 A_JumpIf(user_target < 118, "Pos117")
+		Loop
+		Pos119:
+			CM3B "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target > 119, "Pos120")
+			"####" "#" 0 A_JumpIf(user_target < 119, "Pos118")
+		Loop
+		Pos120:
+			CM3C "#" 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			"####" "#" 0 A_JumpIf(user_target < 120, "Pos119")
+		Loop
+		// Out of the row first, so the rest close up: at once, as the next frame removes this marker.
+		Disappear:
+			TNT1 A 0 A_SetUserVar("user_cursemark", 0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Curse Row")
+			TNT1 A 35 ACS_NamedExecuteWithResult("DnD Remove Actor - CS")
+		Stop
 	}
 }
 

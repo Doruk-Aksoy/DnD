@@ -1,0 +1,36 @@
+// The needle. No hit damage: its tracer (HITTRACER, from DnD_BaseProjectile) names the enemy for "DnD Implosion Hit".
+Actor Spell_Implosion : DnD_Spell {
+	PROJECTILE
+	Speed 30
+	Radius 4
+	Height 8
+	Damage 0
+	RenderStyle Add
+	Alpha 1.0
+	Scale 0.35
+	Translation "0:255=%[0.00,0.00,0.00]:[0.90,0.25,1.70]"
+	SeeSound "UndeadSoul/See"
+	DeathSound "UndeadSoul/Die"
+	States {
+		SpawnState:
+			D5FX G 1 Bright A_SpawnItemEx("Spell_Implosion_Trail", -6, 0, 0, 0, 0, 0, 0, 128)
+		Loop
+		Death:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Implosion Hit")
+			D4FX GHIJKL 2 Bright
+		Stop
+	}
+}
+
+Actor Spell_Implosion_Trail : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.5
+	Scale 0.1
+	Translation "0:255=%[0.00,0.00,0.00]:[0.90,0.25,1.70]"
+	States {
+		Spawn:
+			TNT1 A 0
+			D5FX GHIJKL 1 Bright A_FadeOut(0.1)
+		Stop
+	}
+}

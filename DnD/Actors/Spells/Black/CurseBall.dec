@@ -1,0 +1,53 @@
+// The curse balls of Subjugate, Transmogrify, Life Tap and Banish. No hit damage: "DnD Curse Ball Hit" reads the spell off the
+// ball, and the enemy it struck off its tracer (HITTRACER, from DnD_BaseProjectile).
+Actor Spell_CurseBall : DnD_Spell {
+	PROJECTILE
+	Speed 24
+	Radius 8
+	Height 12
+	Damage 0
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.5
+	SeeSound "UndeadSoul/See"
+	DeathSound "UndeadSoul/Die"
+	States {
+		SpawnState:
+			D5FX G 2 Bright A_SpawnItemEx("Spell_CurseBall_Trail", -8, 0, 0, 0, 0, 0, 0, 129)
+		Loop
+		Death:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Curse Ball Hit")
+			D4FX GHIJKL 2 Bright
+		Stop
+	}
+}
+
+// Its trail takes the ball's colour (SXF_TRANSFERTRANSLATION with the clientside flag).
+Actor Spell_CurseBall_Trail : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.6
+	Scale 0.25
+	States {
+		Spawn:
+			TNT1 A 0
+			D5FX GHIJKL 2 Bright A_FadeOut(0.08)
+		Stop
+	}
+}
+
+Actor Spell_LifeTapBall : Spell_CurseBall {
+	Translation "0:255=%[0.00,0.00,0.00]:[1.80,0.20,0.30]"
+}
+
+Actor Spell_SubjugateBall : Spell_CurseBall {
+	Translation "0:255=%[0.00,0.00,0.00]:[1.20,0.90,1.80]"
+}
+
+// "A cursed fireball".
+Actor Spell_TransmogrifyBall : Spell_CurseBall {
+	Translation "0:255=%[0.00,0.00,0.00]:[1.40,1.80,0.30]"
+}
+
+Actor Spell_BanishBall : Spell_CurseBall {
+	Translation "0:255=%[0.00,0.00,0.00]:[0.30,0.50,1.90]"
+}

@@ -27,13 +27,15 @@ Actor Diabloist : DnD_BaseRangedMonster_NoRes 21169 {
 		Goto SpawnSetup
 	
 		IdleState:
-			DIAB AB 10 A_GiveInventory("DnD_SightChecker", 1) 
+			DIAB AB 10 A_Look 
 		Loop 
 		SeeState: 
 			DIAB AABBCCDDEEFF 2 Fast A_Chase 
 		Goto See
 		MissileState:
 			DIAB G 0 Bright A_Jump(128, "Missile2")
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			DIAB G 0 Bright A_FaceTarget
 			DIAB G 3 Bright A_FaceTarget
 			DIAB H 3 Fast Bright A_FaceTarget
@@ -56,6 +58,8 @@ Actor Diabloist : DnD_BaseRangedMonster_NoRes 21169 {
 			DIAB G 0 Bright A_Jump(128, "Missile3")       
 		Goto See
 		Missile2:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			DIAB N 5 Fast Bright A_FaceTarget
 			DIAB O 5 Fast Bright A_CustomMissile("DFlare", 40, 0, Random(-4, 4))
 			DIAB P 0 Bright A_FaceTarget
@@ -86,6 +90,8 @@ Actor Diabloist : DnD_BaseRangedMonster_NoRes 21169 {
 			DIAB P 0 Bright A_Jump(128, "Missile4")
 		Goto See
 		Missile3:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			DIAB GHIJKLM 5 Fast Bright A_FaceTarget
 			DIAB N 5 Fast Bright A_FaceTarget
 			DIAB O 1 Bright A_Playsound ("weapons/firbfi")
@@ -94,6 +100,8 @@ Actor Diabloist : DnD_BaseRangedMonster_NoRes 21169 {
 			DIAB P 0 Bright A_Jump (128,1)
 		Goto See
 		Missile4:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			DIA2 A 8 Fast Bright A_FaceTarget
 			DIA2 B 8 Fast Bright A_FaceTarget
 			DIA2 C 0 Bright A_CustomMissile ("DTracer",0,-40,0)
@@ -559,12 +567,15 @@ ACTOR DeathVile : DnD_ArchVileBase 21170 {
 		Goto SpawnSetup
 		
 		IdleState:
-			WILE AB 10 A_GiveInventory("DnD_SightChecker", 1)
+			WILE AB 10 A_Look
 		Loop
 		SeeState:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "SeeSilenced")
 			WILE AABBCCDDEEFF 2 Fast A_VileChase
 		Goto See
 		MissileState:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			WILE G 0 Bright A_PlaySound("wile/start")
 			WILE G 8 Fast Bright A_FaceTarget
 			WILE H 6 Fast Bright A_VileTarget("DarkFlame")
@@ -590,6 +601,9 @@ ACTOR DeathVile : DnD_ArchVileBase 21170 {
 			WILE TUVWXY 7
 			WILE Z -1
 		Stop
+		SeeSilenced:
+			WILE AABBCCDDEEFF 2 Fast A_Chase
+		Goto See
 	}
 }
 
@@ -650,7 +664,7 @@ Actor Hierophant : DnD_BaseHybridMonster_NoRes 21171 {
 		Goto SpawnSetup
 
 		IdleState:
-			HIER AC 10 A_GiveInventory("DnD_SightChecker", 1) 
+			HIER AC 10 A_Look 
 		Loop 
 		SeeState:
 			HIER AABBAACCDDCC 4 Fast A_Chase
@@ -711,6 +725,8 @@ Actor Hierophant : DnD_BaseHybridMonster_NoRes 21171 {
 			HIER A 0 A_FaceTarget
 			HIER A 0 A_Jump(256, "Missile1", "Missile2", "Missile3")
 		Missile1:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			HIER EF 7 Fast Bright A_FaceTarget
 			HIER G 0 Bright A_CustomMissile("HieroBall1",26,0,random(-6,-1),0) 
 			HIER G 7 Fast Bright A_CustomMissile("HieroBall1",26,0,random(1,6),0)
@@ -722,12 +738,16 @@ Actor Hierophant : DnD_BaseHybridMonster_NoRes 21171 {
 			HIER A 0 A_Jump(64, "Missile1")
 		Goto See
 		Missile2:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			HIER EF 7 Fast Bright A_FaceTarget
 			HIER G 7 Fast Bright A_CustomMissile("CurseBall",26,0,0,0)
 			HIER A 3 Fast A_SpidRefire
 			HIER A 0 A_Jump(128,"Missile1","Missile3")
 		Goto See
 		Missile3:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			HIER KLM 5 Fast Bright A_FaceTarget 
 			HIER N 1 Bright A_CustomMissile("HieroBall2",32,0,0,0,0)
 			HIER O 1 Bright A_FaceTarget
@@ -762,6 +782,8 @@ Actor Hierophant : DnD_BaseHybridMonster_NoRes 21171 {
 			HIER L 5 
 		Goto See
 		MeleeState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			HIER EF 8 Fast A_FaceTarget 
 			HIER G 3 Fast A_CustomMeleeAttack(10 * random(1, 8), "baron/melee")
 			HIER A 3 Fast 
@@ -980,7 +1002,7 @@ ACTOR Deathknight : DnD_BaseHybridMonster_NoRes 21172 {
 		Goto SpawnSetup
 
 		IdleState:
-			DKNT AB 10 A_GiveInventory("DnD_SightChecker", 1) 
+			DKNT AB 10 A_Look 
 		Loop 
 		SeeState:
 			DKNT A 0 A_JumpIfInventory("DnD_Boolean", 1, "SeeState2")
@@ -994,6 +1016,8 @@ ACTOR Deathknight : DnD_BaseHybridMonster_NoRes 21172 {
 			DKNT PPQQRRSS 3 Fast A_Chase
 		goto see
 		MeleeState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_TakeInventory("DnD_Boolean", 1)
 			DKNT E 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
 			DKNT E 6 Fast A_FaceTarget
@@ -1005,6 +1029,8 @@ ACTOR Deathknight : DnD_BaseHybridMonster_NoRes 21172 {
 			TNT1 A 0 A_TakeInventory("DnD_Boolean", 1)
 			DKNT A 0 A_Jump(88, "Balls")
 			DKNT A 0 A_Jump(88, "Bolts")
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			DKNT E 0 Bright ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
 			DKNT E 6 Fast Bright A_FaceTarget
 			DKNT F 6 Fast Bright A_Playsound ("monster/kntswg")
@@ -1015,6 +1041,8 @@ ACTOR Deathknight : DnD_BaseHybridMonster_NoRes 21172 {
 			DKNT A 0 A_Jump(64, "Bolts")
 		Goto See
 		Bolts:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			DKNT T 0 Bright ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, -1, -1, -1)
 			DKNT T 3 Fast Bright A_FaceTarget      
 			DKNT U 3 Fast Bright A_CustomMissile("DKbolt",44,-4,0,0)
@@ -1031,6 +1059,8 @@ ACTOR Deathknight : DnD_BaseHybridMonster_NoRes 21172 {
 			DKNT U 0 Bright ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
 		Goto See
 		Balls:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, -1, -1, -1)
 			DKNT T 3 Fast Bright A_FaceTarget
 			DKNT U 3 Fast A_CustomMissile ("DKBall", 44, -4, -24)
@@ -1081,6 +1111,8 @@ ACTOR Deathknight : DnD_BaseHybridMonster_NoRes 21172 {
 			DKNT P 0 A_Jump (24, "ShieldWalk")
 		Goto See
 		ShieldWalk:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			DKNT H 1 A_GiveInventory("DnD_Boolean", 1)
 		Goto See
 		Decide:
@@ -1356,7 +1388,7 @@ Actor Horshacker : DnD_BaseHybridMonster_NoRes 21173 {
 		Goto SpawnSetup
 
 		IdleState:
-			DKNT AB 10 A_GiveInventory("DnD_SightChecker", 1) 
+			DKNT AB 10 A_Look 
 		Loop 
 		SeeState:
 			DKNT A 0 A_JumpIfInventory("DnD_Boolean", 1, "SeeState2")
@@ -1374,12 +1406,18 @@ Actor Horshacker : DnD_BaseHybridMonster_NoRes 21173 {
 			DKNT E 6 Fast A_FaceTarget
 			TNT1 A 0 A_Playsound ("monster/dknswg")
 			DKNT F 6 Fast A_FaceTarget
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, 2)
 			TNT1 A 0 A_CustomMissile ("SwordSlash", 32, 0, 0, 0, 0)
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, 3)
 			DKNT G 6 Fast A_CustomMissile("HorshackerMelee", 32)
+			"####" "#" 0 A_Jump(256, 2)
+			DKNT G 6 Fast
 		Goto See
 		MissileState:
 			DKNT A 0 A_Jump(96, "Balls")
 			DKNT A 0 A_Jump(96, "Bolts")
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			DKNT E 0 Bright ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
 			DKNT E 6 Fast Bright A_FaceTarget
 			DKNT F 6 Fast Bright A_FaceTarget
@@ -1392,6 +1430,8 @@ Actor Horshacker : DnD_BaseHybridMonster_NoRes 21173 {
 			DKNT A 0 A_Jump(64, "Bolts")
 		Goto See
 		Bolts:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			DKNT T 0 Bright ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, -1, -1, -1)
 			DKNT T 3 Fast Bright A_FaceTarget
 			TNT1 A 0 A_CustomMissile("DKbolt2Lower",44,-4,0,0)
@@ -1411,6 +1451,8 @@ Actor Horshacker : DnD_BaseHybridMonster_NoRes 21173 {
 			DKNT U 0 Bright ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
 		Goto See
 		Balls:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, -1, -1, -1)
 			DKNT T 3 Fast Bright A_FaceTarget
 			TNT1 A 0 A_CustomMissile ("DKBall2", 44, -4, 24)
@@ -1441,6 +1483,8 @@ Actor Horshacker : DnD_BaseHybridMonster_NoRes 21173 {
 			DKNT P 0 A_Jump (24, "ShieldWalk")
 		Goto See
 		ShieldWalk:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			DKNT H 1 A_GiveInventory("DnD_Boolean", 1)
 		Goto See
 		XDeathState:
@@ -1781,7 +1825,7 @@ actor UndeadPriest : DnD_BaseHybridMonster_NoRes 21174 {
 
 		IdleState:
 			TNT1 A 0 A_TakeInventory("NoDrop", 1)
-			UNDP A 10 A_GiveInventory("DnD_SightChecker", 1)
+			UNDP A 10 A_Look
 		loop
 		SeeState:
 			UNDP A 0 A_TakeInventory("NoDrop", 1)
@@ -1799,6 +1843,8 @@ actor UndeadPriest : DnD_BaseHybridMonster_NoRes 21174 {
 		Goto Run
 		MeleeState:
 		MissileState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UNDP E 10 Fast A_FaceTarget
 			TNT1 AAAA 0 A_CustomMissile("UndeadPriestBullet", 42, -9, frandom(-6.4, 6.4), 0, frandom(-5.2, 5.2))
 			UNDP F 5 Fast bright A_CustomMissile("UndeadPriestBullet", 42, -9, frandom(-6.4, 6.4), 0, frandom(-5.2, 5.2))
@@ -1811,6 +1857,8 @@ actor UndeadPriest : DnD_BaseHybridMonster_NoRes 21174 {
 			UNDP E 10 Fast
 		goto See
 		Ghosts:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			UNDP E 10 Fast A_FaceTarget
 			TNT1 A 0 A_PlaySound("UndeadPriest/SoulRelease")
 			UNDP EEEEE 10 Fast A_CustomMissile("UndeadSpiritAttack", 40, random(-1, 1) * 4 * random(1, 8), random(-8, 8))
@@ -1821,6 +1869,8 @@ actor UndeadPriest : DnD_BaseHybridMonster_NoRes 21174 {
 			UNDP G 0 A_Jump(96, "ReleaseSouls")
 		goto See
 		ReleaseSouls:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			UNDP G 0 A_PlaySound("UndeadPriest/SoulRelease")
 			UNDP GG 0 A_SpawnItemEx("UndeadSpirit", 0, 0, 40, 0, 0, 0, 0, SXF_SETMASTER)
 		Goto See
@@ -1881,9 +1931,10 @@ Actor UndeadSpirit : DnD_ArchVilePassiveBase {
 		Goto SpawnSetup
 
 		IdleState:
-			BDSP AB 10 A_GiveInventory("DnD_SightChecker", 1) 
+			BDSP AB 10 A_Look 
 		Loop 
 		SeeState: 
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "SeeSilenced")
 			BDSP A 3 A_Wander
 			BDSP A 3 A_VileChase 
 			BDSP B 3 A_Wander
@@ -1901,6 +1952,12 @@ Actor UndeadSpirit : DnD_ArchVilePassiveBase {
 			TNT1 A 0 A_NoBlocking
 			BDSP GHIJ 4  
 		Stop 
+		SeeSilenced:
+			BDSP A 3 A_Wander
+			BDSP A 3 A_Chase 
+			BDSP B 3 A_Wander
+			BDSP B 3 A_Chase 
+		Loop 
 	} 
 }
 
@@ -2007,7 +2064,7 @@ Actor Guru : DnD_BaseHybridMonster_NoRes 21175 {
 		Goto SpawnSetup
 
 		IdleState:
-			GURU AB 10 A_GiveInventory("DnD_SightChecker", 1) 
+			GURU AB 10 A_Look 
 		Loop 
 		SeeState:
 			GURU AABBCCDD 3 Fast A_Chase
@@ -2020,6 +2077,8 @@ Actor Guru : DnD_BaseHybridMonster_NoRes 21175 {
 		MissileState:
 			TNT1 A 0 A_Jump(256, "Wide", "SingleBurst", "Rush")
 		Wide:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			GURU E 11 Fast A_FaceTarget
 			TNT1 A 0 A_CustomMissile("GuruPacifier", 32, 0, -8)
 			TNT1 A 0 A_CustomMissile("GuruPacifier", 32, 0, -4)
@@ -2034,6 +2093,8 @@ Actor Guru : DnD_BaseHybridMonster_NoRes 21175 {
 			GURU E 8 Fast A_FaceTarget
 		BurstLoop:
 			TNT1 A 0 A_JumpIf(user_count == 8, "FinishBurst")
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_CustomMissile("GuruSmallProjectile", 32, -6, frandom(-2.5, 2.5))
 			GURU F 4 Fast Bright A_FaceTarget
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
@@ -2045,6 +2106,8 @@ Actor Guru : DnD_BaseHybridMonster_NoRes 21175 {
 			GURU A 0 A_JumpIfTargetINLOS("ContinueWall", 0)
 		Goto See
 		ContinueWall:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			GURU E 8 Fast A_FaceTarget
 			GURU F 3 Fast Bright A_FaceTarget
 			TNT1 A 0 A_PlaySound("Guru/FireWall")
@@ -2052,6 +2115,8 @@ Actor Guru : DnD_BaseHybridMonster_NoRes 21175 {
 			GURU G 5 Fast
 		Goto See
 		MeleeState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			GURU E 5 Fast A_FaceTarget 
 			GURU F 4 Fast Bright A_CustomMeleeAttack(5 * random(1, 8), "baron/melee")
 			GURU G 4 Fast
@@ -2319,7 +2384,7 @@ Actor DarkZealot : DnD_BaseHybridMonster_NoRes 21176 {
 			TNT1 A 0 A_SetShootable
 			TNT1 A 0 A_SetTranslucent(1.0, 0)
 		IdleLoop:
-			RSON AB 10 A_GiveInventory("DnD_SightChecker", 1)
+			RSON AB 10 A_Look
 		Loop
 		SeeState:
 			RSON A 0 A_SetShootable
@@ -2345,6 +2410,8 @@ Actor DarkZealot : DnD_BaseHybridMonster_NoRes 21176 {
 			TNT1 A 0 A_Jump(224, "Attack2", "Teleport")
 		Goto Attack1
 		Attack1:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			RSON FF 4 Fast Bright A_FaceTarget
 			RSON G 5 Fast Bright A_CustomMissile("DarkZealotPierce", 44)
 			RSON TT 4 Fast Bright A_FaceTarget
@@ -2353,6 +2420,8 @@ Actor DarkZealot : DnD_BaseHybridMonster_NoRes 21176 {
 			RSON G 5 Fast Bright A_CustomMissile("DarkZealotPierce", 44)			
 		Goto See
 		Attack2:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_PlaySound("DarkServant/Attack1", CHAN_WEAPON)
 			RSON F 8 Fast Bright A_FaceTarget
 			RSON G 9 Fast Bright A_CustomMissile("HadesBoltZealot", 0, 0, 16)
@@ -2366,6 +2435,8 @@ Actor DarkZealot : DnD_BaseHybridMonster_NoRes 21176 {
 			RSON G 9 Fast Bright A_CustomMissile("HadesBoltZealot", 0, 0)
 		Goto See
 		HealAround:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			RSON TT 6 Fast Bright A_FaceTarget
 			TNT1 A 0 A_PlaySound("DarkServant/Heal", CHAN_WEAPON)
 			RSON U 8 Fast Bright A_RadiusGive("ZealotHealer", 384, RGF_MONSTERS | RGF_GIVESELF, 1)
@@ -2380,6 +2451,8 @@ Actor DarkZealot : DnD_BaseHybridMonster_NoRes 21176 {
 		Goto Attack1
 		Shield:
 			TNT1 A 0 A_JumpIfInventory("ZealotShielded", 1, "Redecide")
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			RSON F 1 Bright
 			TNT1 A 0 A_ChangeFlag("NOPAIN", 1)
 			TNT1 A 0 A_GiveInventory("ZealotShielded", 1)
@@ -2399,12 +2472,16 @@ Actor DarkZealot : DnD_BaseHybridMonster_NoRes 21176 {
 			RSON E 3 Fast A_Pain
 		Goto See
 		Teleport:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_JumpIfInventory("DarkZealotCooldown", 1, "Redecide2")
 			TNT1 A 0 A_PlaySound("DarkServant/Laugh")
 			TNT1 A 0 A_UnsetShootable
 			RSON OPQRS 3 Fast Bright
 		TeleportLoop:
 			TNT1 A 0 A_JumpIf(user_teleport == 25, "TeleportFinish")
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 AAAA 0 A_SpawnItemEx("DarkServantTrail2", frandom(-36.0, 36.0), frandom(-36.0, 36.0), frandom(8.0, 56.0), 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_CLIENTSIDE)
 			TNT1 AA 0 A_Wander
 			TNT1 A 2 A_Wander
@@ -2515,7 +2592,7 @@ Actor ZealotHealer : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 ACS_ExecuteAlways(961, 0, 6)
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Regen Script", 0, DND_MHR_DURATION | (1 << 16), ACS_NamedExecuteWithResult("DnD Monster Heal Potency", 150), 5)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Regen Script", 0, DND_MHR_DURATION | (1 << 16), 150, 5)
 		Stop
 	}
 }
@@ -2657,13 +2734,15 @@ actor FleshWizard : DnD_BaseRangedMonster_NoRes 21177 {
 		Goto SpawnSetup
 
 		IdleState:
-			LMWZ E 10 A_GiveInventory("DnD_SightChecker", 1)
+			LMWZ E 10 A_Look
 		loop
 		SeeState:
 			LMWZ EEE 4 Fast A_Chase
 			LMWZ E 0 A_Jump(12, "Teleport")
 		Goto See
 		Teleport:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_PlaySound("H2SkullWizard/Teleport")
 			TNT1 A 0 A_UnsetShootable
 			TNT1 A 0 A_UnsetSolid
@@ -2681,6 +2760,8 @@ actor FleshWizard : DnD_BaseRangedMonster_NoRes 21177 {
 		MissileState:
 			TNT1 A 0 A_JumpIfCloser(256, "Leash")
 		MissileNormal:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			LMWZ FFF 5 Fast A_FaceTarget
 			LMWZ G 7 Fast A_FaceTarget
 			TNT1 A 0 A_FaceTarget
@@ -2699,6 +2780,8 @@ actor FleshWizard : DnD_BaseRangedMonster_NoRes 21177 {
 			LMWZ EE 2 Fast A_JumpIfTargetInLOS("BeginLeash")
 		Goto See
 		BeginLeash:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_TakeInventory("StopLeash", 1)
 			TNT1 A 0 A_ChangeFlag("QUICKTORETALIATE", 0)
 			LMWZ F 5 Fast A_FaceTarget

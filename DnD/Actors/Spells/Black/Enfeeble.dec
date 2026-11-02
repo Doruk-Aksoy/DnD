@@ -1,0 +1,17 @@
+// On one enemy: percent less damage it deals, and the clock.
+Actor DnD_Enfeebled : DnD_Info {}
+Actor DnD_EnfeebledTimer : DnD_Info {}
+
+// The curse marker over an enfeebled enemy: frame H of the curse row (FlammabilityFXMarker).
+Actor EnfeebleFXMarker : FlammabilityFXMarker {
+	States {
+		SpawnLoop:
+			CM1O H 0
+		Goto CurseJoin
+	}
+}
+
+// The ring drawn where the curse lands, in sickly yellow-green sparks.
+Actor EnfeebleAreaMarkerFX : NoxAreaMarkerFX {
+	Translation "80:111=%[0.00,0.00,0.00]:[1.40,1.70,0.30]"
+}

@@ -60,8 +60,15 @@ int GetSpellCooldownTics(int pnum, int spell, int extra_rate = 0) {
 	if(cd <= 0)
 		return 0;
 
-	int rate = Max(0, GetSpellCooldownRate(pnum, spell) + extra_rate);
-	return Max(cd * 100 / (100 + rate), cd * (100 - DND_SPELL_MAXCDR) / 100);
+	// Tenths of a percent, so INT's small recovery rate is not rounded away.
+	int rate = Max(0, (GetSpellCooldownRate(pnum, spell) + extra_rate) * 10 + GetIntellectCDRTenths(pnum));
+	return Max(cd * 1000 / (1000 + rate), cd * (100 - DND_SPELL_MAXCDR) / 100);
+}
+
+// The additive spell haste pool in tenths of a percent: gear, gems, buffs and DEX.
+int GetSpellHasteTenths(int pnum, int spell) {
+	return (PlayerModData[pnum].vals[PSTAT_SPELL_HASTE] + GetSpellGemMod(pnum, spell, GEMSTAT_HASTE) +
+		pbuffs[pnum].buff_net_values[BUFF_SPELLHASTE].additive) * 10 + GetDexterityHasteTenths(pnum);
 }
 
 // Haste is given as casts per second in the design; solved for the interval it is the same shape as
@@ -75,9 +82,9 @@ int GetSpellCastTics(int pnum, int spell) {
 	if(spell == SPL_UNLEASHEARTH)
 		return ct;
 
-	int haste = PlayerModData[pnum].vals[PSTAT_SPELL_HASTE] + GetSpellGemMod(pnum, spell, GEMSTAT_HASTE) + pbuffs[pnum].buff_net_values[BUFF_SPELLHASTE].additive;
+	int haste = GetSpellHasteTenths(pnum, spell);
 	if(haste > 0)
-		ct = ct * 100 / (100 + haste);
+		ct = ct * 1000 / (1000 + haste);
 
 	// MORE haste multiplies casts per second after the additive pool, so it divides the interval.
 	int more = GetSpellGemMod(pnum, spell, GEMSTAT_MORE_HASTE);
@@ -406,7 +413,7 @@ int PetThrowPitch(int from, int target, int z) {
 // flat ignores the caster's pitch and sends the shot level along their facing.
 void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags = 0, int angle_off = 0,
 	int side_off = 0, int rtime = 0, int origin = 0, bool flat = false,
-	int zoff = DND_SPELLPROJ_FROMVIEW, int pitch_off = 0, int parent = -1, int ripper = 0, int rips = MAX_RIPCOUNT) {
+	int zoff = DND_SPELLPROJ_FROMVIEW, int pitch_off = 0, int parent = -1, int ripper = 0, int rips = MAX_RIPCOUNT, int rank_at = 0) {
 	int owner = pnum + P_TIDSTART;
 	int from = origin ? origin : owner;
 
@@ -445,8 +452,19 @@ void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags =
 	if(parent >= 0)
 		SetUserVariable(tid, "user_parent", parent + 1);
 
+	// Chainer and Forker arm it with the gem row they read, the thrower's for a throw; its first direct hit spends it.
+	int row = parent >= 0 ? parent : spell;
+	if(GetSpellGemMod(pnum, row, GEMSTAT_CHAIN) || GetSpellGemMod(pnum, row, GEMSTAT_FORK))
+		SetUserVariable(tid, "user_chain", row + 1);
+
 	if(rtime > 0)
 		SetActorProperty(tid, APROP_REACTIONTIME, rtime);
+
+	// Priced at a rank other than the caster's own, as a Ghast's Dark Wind is when its owner never learned it.
+	if(rank_at > 0) {
+		SetUserVariable(tid, "user_rankat", rank_at);
+		SetUserVariable(tid, "user_spellrank", rank_at);
+	}
 
 	// A reserved ripper id + 1, stamped at once: a cast spawning several attacks in one tic keeps them apart.
 	// rips with it, unlimited unless given, as an unset DnD_RipLimit reads as 0 and strips the ripper on its first hit.
@@ -868,6 +886,28 @@ bool IsSpellInProgress(int pnum) {
 		!!CheckActorInventory(ptid, "DnD_SpellBusy");
 }
 
+// Silencer: no casting until the end tic. Cast bars and channels watch this; cast toggles are stopped by SilencePlayer.
+bool IsPlayerSilenced(int pnum) {
+	return CheckActorInventory(pnum + P_TIDSTART, "P_SilenceEnd") > Timer();
+}
+
+// A new silence restarts the clock rather than stacking, and stops every cast toggle (auras and passives keep running).
+void SilencePlayer(int pnum, int tics) {
+	SetActorInventory(pnum + P_TIDSTART, "P_SilenceEnd", Timer() + tics);
+
+	auto run = GetSpellRunningData();
+	int w, b, spell;
+	for(w = 0; w < MAX_SPELL_IDS; w += 32) {
+		if(!run.words[pnum][w >> 5])
+			continue;
+		for(b = 0; b < 32; ++b) {
+			spell = w + b;
+			if(spell < MAX_SPELL_IDS && IsSpellRunning(pnum, spell) && !(SpellDefs[spell].flags & (SPLF_PASSIVE | SPLF_AURA)))
+				SetSpellRunning(pnum, spell, false);
+		}
+	}
+}
+
 // ---- casting ---------------------------------------------------------------------------------
 
 enum {
@@ -877,7 +917,9 @@ enum {
 	CAST_PASSIVE,
 	CAST_COOLDOWN,
 	CAST_NOMANA,
-	CAST_BUSY
+	CAST_BUSY,
+	CAST_SILENCED,
+	CAST_NOROOM
 };
 
 // "If a weapon is being fired, reloaded etc. the spell won't go off. Only when the weapon is idle."
@@ -898,6 +940,9 @@ int CanCastSpell(int pnum, int spell, int cost_pct = 100) {
 	if(SpellDefs[spell].flags & (SPLF_PASSIVE | SPLF_AURA))
 		return CAST_PASSIVE;
 
+	if(IsPlayerSilenced(pnum))
+		return CAST_SILENCED;
+
 	// Ahead of the cooldown and the mana, so a press made mid cast is simply refused rather than
 	// reported as some other failure.
 	if(IsSpellInProgress(pnum))
@@ -911,6 +956,13 @@ int CanCastSpell(int pnum, int spell, int cost_pct = 100) {
 
 	if((SpellDefs[spell].flags & SPLF_CHANNELED) && !IsWeaponIdleForCast(pnum))
 		return CAST_BUSY;
+
+	// A summon that could not make room (raised minions filling the cap) is refused before it costs anything.
+	if(SpellDefs[spell].flags & SPLF_SUMMON) {
+		int petkind = GetSummonPetKind(spell);
+		if(petkind >= 0 && GetPetsToSendHome(pnum, petkind, GetSummonKindCap(pnum, spell)) < 0)
+			return CAST_NOROOM;
+	}
 
 	return CAST_OK;
 }

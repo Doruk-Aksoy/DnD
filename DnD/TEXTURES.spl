@@ -656,3 +656,9973 @@ Graphic "SP320G", 64, 64
 		Translation Desaturate, 31
 	}
 }
+
+Graphic "SP400G", 64, 64
+{
+	Patch "SP400", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP401G", 64, 64
+{
+	Patch "SP401", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP402G", 64, 64
+{
+	Patch "SP402", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP403G", 64, 64
+{
+	Patch "SP403", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP404G", 64, 64
+{
+	Patch "SP404", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP405G", 64, 64
+{
+	Patch "SP405", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP406G", 64, 64
+{
+	Patch "SP406", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP407G", 64, 64
+{
+	Patch "SP407", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP408G", 64, 64
+{
+	Patch "SP408", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP409G", 64, 64
+{
+	Patch "SP409", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP410G", 64, 64
+{
+	Patch "SP410", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP411G", 64, 64
+{
+	Patch "SP411", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP412G", 64, 64
+{
+	Patch "SP412", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP413G", 64, 64
+{
+	Patch "SP413", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP414G", 64, 64
+{
+	Patch "SP414", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP415G", 64, 64
+{
+	Patch "SP415", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP416G", 64, 64
+{
+	Patch "SP416", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP417G", 64, 64
+{
+	Patch "SP417", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP418G", 64, 64
+{
+	Patch "SP418", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP419G", 64, 64
+{
+	Patch "SP419", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP420G", 64, 64
+{
+	Patch "SP420", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP421G", 64, 64
+{
+	Patch "SP421", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP422G", 64, 64
+{
+	Patch "SP422", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP423G", 64, 64
+{
+	Patch "SP423", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP424G", 64, 64
+{
+	Patch "SP424", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP425G", 64, 64
+{
+	Patch "SP425", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP426G", 64, 64
+{
+	Patch "SP426", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP427G", 64, 64
+{
+	Patch "SP427", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP428G", 64, 64
+{
+	Patch "SP428", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP429G", 64, 64
+{
+	Patch "SP429", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP430G", 64, 64
+{
+	Patch "SP430", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP431G", 64, 64
+{
+	Patch "SP431", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+// The cast bar fill tinted crimson for a silence; CastBar.fp reads the tint as the silenced look.
+Graphic "SPLCSTS", 276, 16
+{
+	Patch "SPLCSTF", 0, 0
+	{
+		Blend "A01828", 0.85
+	}
+}
+
+// The wheels' sector borders: UNDERLIN as a ray from the centre, which ManaBar.fp turns by the code in the alpha.
+Graphic "WHEELSEP", 364, 364
+{
+	Patch "UNDERLIN", 226, 180
+}
+
+// The hovered sector's borders, in the selected cyan of WHEELMDS.
+Graphic "WHEELSEL", 364, 364
+{
+	Patch "WHEELLNS", 226, 180
+}
+
+
+
+
+// Mark Prey's marker over the marked enemy.
+Sprite "S431A0", 64, 64
+{
+	Offset 32, 32
+	Patch "SP431", 0, 0
+}
+
+// Curse marker row (FlammabilityFXMarker): CM00-CM3C (base 36) are its positions left to right, 4 to a half slot, the frame the curse:
+// A Flammability, B Frostbite, C Conductivity, D Vulnerability, E Despair, F Nox, G Temporal Chains, H Enfeeble, I Pain Amp, J Silence, K Remove Resist, L Break Immunity, M Life Tap, N Delirium, O Subjugate, P Penetrate.
+Sprite "CM00A0", 64, 64
+{
+	Offset 572, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM00B0", 64, 64
+{
+	Offset 572, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM00C0", 64, 64
+{
+	Offset 572, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM00D0", 64, 64
+{
+	Offset 572, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM00E0", 64, 64
+{
+	Offset 572, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM00F0", 64, 64
+{
+	Offset 572, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM00G0", 64, 64
+{
+	Offset 572, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM00H0", 64, 64
+{
+	Offset 572, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM00I0", 64, 64
+{
+	Offset 572, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM00J0", 64, 64
+{
+	Offset 572, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM00K0", 64, 64
+{
+	Offset 572, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM00L0", 64, 64
+{
+	Offset 572, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM00M0", 64, 64
+{
+	Offset 572, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM00N0", 64, 64
+{
+	Offset 572, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM00O0", 64, 64
+{
+	Offset 572, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM00P0", 64, 64
+{
+	Offset 572, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM01A0", 64, 64
+{
+	Offset 563, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM01B0", 64, 64
+{
+	Offset 563, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM01C0", 64, 64
+{
+	Offset 563, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM01D0", 64, 64
+{
+	Offset 563, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM01E0", 64, 64
+{
+	Offset 563, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM01F0", 64, 64
+{
+	Offset 563, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM01G0", 64, 64
+{
+	Offset 563, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM01H0", 64, 64
+{
+	Offset 563, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM01I0", 64, 64
+{
+	Offset 563, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM01J0", 64, 64
+{
+	Offset 563, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM01K0", 64, 64
+{
+	Offset 563, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM01L0", 64, 64
+{
+	Offset 563, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM01M0", 64, 64
+{
+	Offset 563, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM01N0", 64, 64
+{
+	Offset 563, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM01O0", 64, 64
+{
+	Offset 563, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM01P0", 64, 64
+{
+	Offset 563, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM02A0", 64, 64
+{
+	Offset 554, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM02B0", 64, 64
+{
+	Offset 554, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM02C0", 64, 64
+{
+	Offset 554, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM02D0", 64, 64
+{
+	Offset 554, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM02E0", 64, 64
+{
+	Offset 554, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM02F0", 64, 64
+{
+	Offset 554, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM02G0", 64, 64
+{
+	Offset 554, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM02H0", 64, 64
+{
+	Offset 554, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM02I0", 64, 64
+{
+	Offset 554, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM02J0", 64, 64
+{
+	Offset 554, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM02K0", 64, 64
+{
+	Offset 554, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM02L0", 64, 64
+{
+	Offset 554, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM02M0", 64, 64
+{
+	Offset 554, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM02N0", 64, 64
+{
+	Offset 554, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM02O0", 64, 64
+{
+	Offset 554, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM02P0", 64, 64
+{
+	Offset 554, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM03A0", 64, 64
+{
+	Offset 545, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM03B0", 64, 64
+{
+	Offset 545, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM03C0", 64, 64
+{
+	Offset 545, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM03D0", 64, 64
+{
+	Offset 545, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM03E0", 64, 64
+{
+	Offset 545, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM03F0", 64, 64
+{
+	Offset 545, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM03G0", 64, 64
+{
+	Offset 545, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM03H0", 64, 64
+{
+	Offset 545, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM03I0", 64, 64
+{
+	Offset 545, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM03J0", 64, 64
+{
+	Offset 545, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM03K0", 64, 64
+{
+	Offset 545, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM03L0", 64, 64
+{
+	Offset 545, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM03M0", 64, 64
+{
+	Offset 545, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM03N0", 64, 64
+{
+	Offset 545, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM03O0", 64, 64
+{
+	Offset 545, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM03P0", 64, 64
+{
+	Offset 545, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM04A0", 64, 64
+{
+	Offset 536, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM04B0", 64, 64
+{
+	Offset 536, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM04C0", 64, 64
+{
+	Offset 536, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM04D0", 64, 64
+{
+	Offset 536, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM04E0", 64, 64
+{
+	Offset 536, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM04F0", 64, 64
+{
+	Offset 536, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM04G0", 64, 64
+{
+	Offset 536, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM04H0", 64, 64
+{
+	Offset 536, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM04I0", 64, 64
+{
+	Offset 536, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM04J0", 64, 64
+{
+	Offset 536, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM04K0", 64, 64
+{
+	Offset 536, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM04L0", 64, 64
+{
+	Offset 536, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM04M0", 64, 64
+{
+	Offset 536, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM04N0", 64, 64
+{
+	Offset 536, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM04O0", 64, 64
+{
+	Offset 536, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM04P0", 64, 64
+{
+	Offset 536, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM05A0", 64, 64
+{
+	Offset 527, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM05B0", 64, 64
+{
+	Offset 527, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM05C0", 64, 64
+{
+	Offset 527, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM05D0", 64, 64
+{
+	Offset 527, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM05E0", 64, 64
+{
+	Offset 527, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM05F0", 64, 64
+{
+	Offset 527, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM05G0", 64, 64
+{
+	Offset 527, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM05H0", 64, 64
+{
+	Offset 527, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM05I0", 64, 64
+{
+	Offset 527, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM05J0", 64, 64
+{
+	Offset 527, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM05K0", 64, 64
+{
+	Offset 527, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM05L0", 64, 64
+{
+	Offset 527, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM05M0", 64, 64
+{
+	Offset 527, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM05N0", 64, 64
+{
+	Offset 527, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM05O0", 64, 64
+{
+	Offset 527, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM05P0", 64, 64
+{
+	Offset 527, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM06A0", 64, 64
+{
+	Offset 518, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM06B0", 64, 64
+{
+	Offset 518, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM06C0", 64, 64
+{
+	Offset 518, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM06D0", 64, 64
+{
+	Offset 518, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM06E0", 64, 64
+{
+	Offset 518, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM06F0", 64, 64
+{
+	Offset 518, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM06G0", 64, 64
+{
+	Offset 518, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM06H0", 64, 64
+{
+	Offset 518, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM06I0", 64, 64
+{
+	Offset 518, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM06J0", 64, 64
+{
+	Offset 518, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM06K0", 64, 64
+{
+	Offset 518, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM06L0", 64, 64
+{
+	Offset 518, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM06M0", 64, 64
+{
+	Offset 518, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM06N0", 64, 64
+{
+	Offset 518, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM06O0", 64, 64
+{
+	Offset 518, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM06P0", 64, 64
+{
+	Offset 518, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM07A0", 64, 64
+{
+	Offset 509, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM07B0", 64, 64
+{
+	Offset 509, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM07C0", 64, 64
+{
+	Offset 509, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM07D0", 64, 64
+{
+	Offset 509, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM07E0", 64, 64
+{
+	Offset 509, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM07F0", 64, 64
+{
+	Offset 509, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM07G0", 64, 64
+{
+	Offset 509, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM07H0", 64, 64
+{
+	Offset 509, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM07I0", 64, 64
+{
+	Offset 509, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM07J0", 64, 64
+{
+	Offset 509, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM07K0", 64, 64
+{
+	Offset 509, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM07L0", 64, 64
+{
+	Offset 509, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM07M0", 64, 64
+{
+	Offset 509, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM07N0", 64, 64
+{
+	Offset 509, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM07O0", 64, 64
+{
+	Offset 509, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM07P0", 64, 64
+{
+	Offset 509, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM08A0", 64, 64
+{
+	Offset 500, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM08B0", 64, 64
+{
+	Offset 500, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM08C0", 64, 64
+{
+	Offset 500, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM08D0", 64, 64
+{
+	Offset 500, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM08E0", 64, 64
+{
+	Offset 500, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM08F0", 64, 64
+{
+	Offset 500, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM08G0", 64, 64
+{
+	Offset 500, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM08H0", 64, 64
+{
+	Offset 500, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM08I0", 64, 64
+{
+	Offset 500, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM08J0", 64, 64
+{
+	Offset 500, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM08K0", 64, 64
+{
+	Offset 500, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM08L0", 64, 64
+{
+	Offset 500, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM08M0", 64, 64
+{
+	Offset 500, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM08N0", 64, 64
+{
+	Offset 500, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM08O0", 64, 64
+{
+	Offset 500, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM08P0", 64, 64
+{
+	Offset 500, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM09A0", 64, 64
+{
+	Offset 491, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM09B0", 64, 64
+{
+	Offset 491, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM09C0", 64, 64
+{
+	Offset 491, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM09D0", 64, 64
+{
+	Offset 491, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM09E0", 64, 64
+{
+	Offset 491, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM09F0", 64, 64
+{
+	Offset 491, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM09G0", 64, 64
+{
+	Offset 491, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM09H0", 64, 64
+{
+	Offset 491, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM09I0", 64, 64
+{
+	Offset 491, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM09J0", 64, 64
+{
+	Offset 491, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM09K0", 64, 64
+{
+	Offset 491, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM09L0", 64, 64
+{
+	Offset 491, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM09M0", 64, 64
+{
+	Offset 491, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM09N0", 64, 64
+{
+	Offset 491, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM09O0", 64, 64
+{
+	Offset 491, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM09P0", 64, 64
+{
+	Offset 491, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0AA0", 64, 64
+{
+	Offset 482, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0AB0", 64, 64
+{
+	Offset 482, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0AC0", 64, 64
+{
+	Offset 482, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0AD0", 64, 64
+{
+	Offset 482, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0AE0", 64, 64
+{
+	Offset 482, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0AF0", 64, 64
+{
+	Offset 482, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0AG0", 64, 64
+{
+	Offset 482, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0AH0", 64, 64
+{
+	Offset 482, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0AI0", 64, 64
+{
+	Offset 482, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0AJ0", 64, 64
+{
+	Offset 482, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0AK0", 64, 64
+{
+	Offset 482, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0AL0", 64, 64
+{
+	Offset 482, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0AM0", 64, 64
+{
+	Offset 482, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0AN0", 64, 64
+{
+	Offset 482, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0AO0", 64, 64
+{
+	Offset 482, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0AP0", 64, 64
+{
+	Offset 482, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0BA0", 64, 64
+{
+	Offset 473, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0BB0", 64, 64
+{
+	Offset 473, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0BC0", 64, 64
+{
+	Offset 473, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0BD0", 64, 64
+{
+	Offset 473, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0BE0", 64, 64
+{
+	Offset 473, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0BF0", 64, 64
+{
+	Offset 473, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0BG0", 64, 64
+{
+	Offset 473, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0BH0", 64, 64
+{
+	Offset 473, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0BI0", 64, 64
+{
+	Offset 473, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0BJ0", 64, 64
+{
+	Offset 473, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0BK0", 64, 64
+{
+	Offset 473, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0BL0", 64, 64
+{
+	Offset 473, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0BM0", 64, 64
+{
+	Offset 473, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0BN0", 64, 64
+{
+	Offset 473, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0BO0", 64, 64
+{
+	Offset 473, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0BP0", 64, 64
+{
+	Offset 473, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0CA0", 64, 64
+{
+	Offset 464, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0CB0", 64, 64
+{
+	Offset 464, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0CC0", 64, 64
+{
+	Offset 464, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0CD0", 64, 64
+{
+	Offset 464, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0CE0", 64, 64
+{
+	Offset 464, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0CF0", 64, 64
+{
+	Offset 464, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0CG0", 64, 64
+{
+	Offset 464, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0CH0", 64, 64
+{
+	Offset 464, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0CI0", 64, 64
+{
+	Offset 464, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0CJ0", 64, 64
+{
+	Offset 464, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0CK0", 64, 64
+{
+	Offset 464, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0CL0", 64, 64
+{
+	Offset 464, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0CM0", 64, 64
+{
+	Offset 464, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0CN0", 64, 64
+{
+	Offset 464, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0CO0", 64, 64
+{
+	Offset 464, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0CP0", 64, 64
+{
+	Offset 464, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0DA0", 64, 64
+{
+	Offset 455, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0DB0", 64, 64
+{
+	Offset 455, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0DC0", 64, 64
+{
+	Offset 455, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0DD0", 64, 64
+{
+	Offset 455, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0DE0", 64, 64
+{
+	Offset 455, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0DF0", 64, 64
+{
+	Offset 455, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0DG0", 64, 64
+{
+	Offset 455, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0DH0", 64, 64
+{
+	Offset 455, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0DI0", 64, 64
+{
+	Offset 455, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0DJ0", 64, 64
+{
+	Offset 455, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0DK0", 64, 64
+{
+	Offset 455, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0DL0", 64, 64
+{
+	Offset 455, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0DM0", 64, 64
+{
+	Offset 455, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0DN0", 64, 64
+{
+	Offset 455, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0DO0", 64, 64
+{
+	Offset 455, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0DP0", 64, 64
+{
+	Offset 455, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0EA0", 64, 64
+{
+	Offset 446, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0EB0", 64, 64
+{
+	Offset 446, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0EC0", 64, 64
+{
+	Offset 446, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0ED0", 64, 64
+{
+	Offset 446, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0EE0", 64, 64
+{
+	Offset 446, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0EF0", 64, 64
+{
+	Offset 446, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0EG0", 64, 64
+{
+	Offset 446, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0EH0", 64, 64
+{
+	Offset 446, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0EI0", 64, 64
+{
+	Offset 446, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0EJ0", 64, 64
+{
+	Offset 446, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0EK0", 64, 64
+{
+	Offset 446, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0EL0", 64, 64
+{
+	Offset 446, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0EM0", 64, 64
+{
+	Offset 446, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0EN0", 64, 64
+{
+	Offset 446, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0EO0", 64, 64
+{
+	Offset 446, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0EP0", 64, 64
+{
+	Offset 446, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0FA0", 64, 64
+{
+	Offset 437, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0FB0", 64, 64
+{
+	Offset 437, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0FC0", 64, 64
+{
+	Offset 437, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0FD0", 64, 64
+{
+	Offset 437, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0FE0", 64, 64
+{
+	Offset 437, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0FF0", 64, 64
+{
+	Offset 437, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0FG0", 64, 64
+{
+	Offset 437, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0FH0", 64, 64
+{
+	Offset 437, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0FI0", 64, 64
+{
+	Offset 437, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0FJ0", 64, 64
+{
+	Offset 437, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0FK0", 64, 64
+{
+	Offset 437, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0FL0", 64, 64
+{
+	Offset 437, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0FM0", 64, 64
+{
+	Offset 437, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0FN0", 64, 64
+{
+	Offset 437, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0FO0", 64, 64
+{
+	Offset 437, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0FP0", 64, 64
+{
+	Offset 437, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0GA0", 64, 64
+{
+	Offset 428, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0GB0", 64, 64
+{
+	Offset 428, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0GC0", 64, 64
+{
+	Offset 428, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0GD0", 64, 64
+{
+	Offset 428, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0GE0", 64, 64
+{
+	Offset 428, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0GF0", 64, 64
+{
+	Offset 428, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0GG0", 64, 64
+{
+	Offset 428, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0GH0", 64, 64
+{
+	Offset 428, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0GI0", 64, 64
+{
+	Offset 428, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0GJ0", 64, 64
+{
+	Offset 428, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0GK0", 64, 64
+{
+	Offset 428, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0GL0", 64, 64
+{
+	Offset 428, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0GM0", 64, 64
+{
+	Offset 428, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0GN0", 64, 64
+{
+	Offset 428, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0GO0", 64, 64
+{
+	Offset 428, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0GP0", 64, 64
+{
+	Offset 428, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0HA0", 64, 64
+{
+	Offset 419, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0HB0", 64, 64
+{
+	Offset 419, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0HC0", 64, 64
+{
+	Offset 419, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0HD0", 64, 64
+{
+	Offset 419, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0HE0", 64, 64
+{
+	Offset 419, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0HF0", 64, 64
+{
+	Offset 419, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0HG0", 64, 64
+{
+	Offset 419, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0HH0", 64, 64
+{
+	Offset 419, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0HI0", 64, 64
+{
+	Offset 419, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0HJ0", 64, 64
+{
+	Offset 419, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0HK0", 64, 64
+{
+	Offset 419, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0HL0", 64, 64
+{
+	Offset 419, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0HM0", 64, 64
+{
+	Offset 419, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0HN0", 64, 64
+{
+	Offset 419, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0HO0", 64, 64
+{
+	Offset 419, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0HP0", 64, 64
+{
+	Offset 419, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0IA0", 64, 64
+{
+	Offset 410, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0IB0", 64, 64
+{
+	Offset 410, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0IC0", 64, 64
+{
+	Offset 410, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0ID0", 64, 64
+{
+	Offset 410, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0IE0", 64, 64
+{
+	Offset 410, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0IF0", 64, 64
+{
+	Offset 410, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0IG0", 64, 64
+{
+	Offset 410, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0IH0", 64, 64
+{
+	Offset 410, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0II0", 64, 64
+{
+	Offset 410, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0IJ0", 64, 64
+{
+	Offset 410, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0IK0", 64, 64
+{
+	Offset 410, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0IL0", 64, 64
+{
+	Offset 410, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0IM0", 64, 64
+{
+	Offset 410, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0IN0", 64, 64
+{
+	Offset 410, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0IO0", 64, 64
+{
+	Offset 410, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0IP0", 64, 64
+{
+	Offset 410, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0JA0", 64, 64
+{
+	Offset 401, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0JB0", 64, 64
+{
+	Offset 401, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0JC0", 64, 64
+{
+	Offset 401, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0JD0", 64, 64
+{
+	Offset 401, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0JE0", 64, 64
+{
+	Offset 401, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0JF0", 64, 64
+{
+	Offset 401, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0JG0", 64, 64
+{
+	Offset 401, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0JH0", 64, 64
+{
+	Offset 401, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0JI0", 64, 64
+{
+	Offset 401, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0JJ0", 64, 64
+{
+	Offset 401, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0JK0", 64, 64
+{
+	Offset 401, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0JL0", 64, 64
+{
+	Offset 401, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0JM0", 64, 64
+{
+	Offset 401, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0JN0", 64, 64
+{
+	Offset 401, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0JO0", 64, 64
+{
+	Offset 401, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0JP0", 64, 64
+{
+	Offset 401, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0KA0", 64, 64
+{
+	Offset 392, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0KB0", 64, 64
+{
+	Offset 392, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0KC0", 64, 64
+{
+	Offset 392, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0KD0", 64, 64
+{
+	Offset 392, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0KE0", 64, 64
+{
+	Offset 392, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0KF0", 64, 64
+{
+	Offset 392, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0KG0", 64, 64
+{
+	Offset 392, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0KH0", 64, 64
+{
+	Offset 392, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0KI0", 64, 64
+{
+	Offset 392, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0KJ0", 64, 64
+{
+	Offset 392, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0KK0", 64, 64
+{
+	Offset 392, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0KL0", 64, 64
+{
+	Offset 392, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0KM0", 64, 64
+{
+	Offset 392, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0KN0", 64, 64
+{
+	Offset 392, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0KO0", 64, 64
+{
+	Offset 392, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0KP0", 64, 64
+{
+	Offset 392, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0LA0", 64, 64
+{
+	Offset 383, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0LB0", 64, 64
+{
+	Offset 383, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0LC0", 64, 64
+{
+	Offset 383, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0LD0", 64, 64
+{
+	Offset 383, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0LE0", 64, 64
+{
+	Offset 383, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0LF0", 64, 64
+{
+	Offset 383, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0LG0", 64, 64
+{
+	Offset 383, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0LH0", 64, 64
+{
+	Offset 383, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0LI0", 64, 64
+{
+	Offset 383, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0LJ0", 64, 64
+{
+	Offset 383, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0LK0", 64, 64
+{
+	Offset 383, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0LL0", 64, 64
+{
+	Offset 383, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0LM0", 64, 64
+{
+	Offset 383, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0LN0", 64, 64
+{
+	Offset 383, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0LO0", 64, 64
+{
+	Offset 383, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0LP0", 64, 64
+{
+	Offset 383, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0MA0", 64, 64
+{
+	Offset 374, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0MB0", 64, 64
+{
+	Offset 374, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0MC0", 64, 64
+{
+	Offset 374, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0MD0", 64, 64
+{
+	Offset 374, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0ME0", 64, 64
+{
+	Offset 374, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0MF0", 64, 64
+{
+	Offset 374, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0MG0", 64, 64
+{
+	Offset 374, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0MH0", 64, 64
+{
+	Offset 374, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0MI0", 64, 64
+{
+	Offset 374, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0MJ0", 64, 64
+{
+	Offset 374, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0MK0", 64, 64
+{
+	Offset 374, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0ML0", 64, 64
+{
+	Offset 374, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0MM0", 64, 64
+{
+	Offset 374, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0MN0", 64, 64
+{
+	Offset 374, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0MO0", 64, 64
+{
+	Offset 374, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0MP0", 64, 64
+{
+	Offset 374, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0NA0", 64, 64
+{
+	Offset 365, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0NB0", 64, 64
+{
+	Offset 365, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0NC0", 64, 64
+{
+	Offset 365, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0ND0", 64, 64
+{
+	Offset 365, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0NE0", 64, 64
+{
+	Offset 365, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0NF0", 64, 64
+{
+	Offset 365, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0NG0", 64, 64
+{
+	Offset 365, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0NH0", 64, 64
+{
+	Offset 365, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0NI0", 64, 64
+{
+	Offset 365, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0NJ0", 64, 64
+{
+	Offset 365, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0NK0", 64, 64
+{
+	Offset 365, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0NL0", 64, 64
+{
+	Offset 365, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0NM0", 64, 64
+{
+	Offset 365, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0NN0", 64, 64
+{
+	Offset 365, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0NO0", 64, 64
+{
+	Offset 365, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0NP0", 64, 64
+{
+	Offset 365, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0OA0", 64, 64
+{
+	Offset 356, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0OB0", 64, 64
+{
+	Offset 356, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0OC0", 64, 64
+{
+	Offset 356, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0OD0", 64, 64
+{
+	Offset 356, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0OE0", 64, 64
+{
+	Offset 356, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0OF0", 64, 64
+{
+	Offset 356, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0OG0", 64, 64
+{
+	Offset 356, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0OH0", 64, 64
+{
+	Offset 356, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0OI0", 64, 64
+{
+	Offset 356, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0OJ0", 64, 64
+{
+	Offset 356, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0OK0", 64, 64
+{
+	Offset 356, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0OL0", 64, 64
+{
+	Offset 356, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0OM0", 64, 64
+{
+	Offset 356, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0ON0", 64, 64
+{
+	Offset 356, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0OO0", 64, 64
+{
+	Offset 356, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0OP0", 64, 64
+{
+	Offset 356, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0PA0", 64, 64
+{
+	Offset 347, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0PB0", 64, 64
+{
+	Offset 347, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0PC0", 64, 64
+{
+	Offset 347, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0PD0", 64, 64
+{
+	Offset 347, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0PE0", 64, 64
+{
+	Offset 347, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0PF0", 64, 64
+{
+	Offset 347, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0PG0", 64, 64
+{
+	Offset 347, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0PH0", 64, 64
+{
+	Offset 347, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0PI0", 64, 64
+{
+	Offset 347, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0PJ0", 64, 64
+{
+	Offset 347, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0PK0", 64, 64
+{
+	Offset 347, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0PL0", 64, 64
+{
+	Offset 347, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0PM0", 64, 64
+{
+	Offset 347, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0PN0", 64, 64
+{
+	Offset 347, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0PO0", 64, 64
+{
+	Offset 347, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0PP0", 64, 64
+{
+	Offset 347, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0QA0", 64, 64
+{
+	Offset 338, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0QB0", 64, 64
+{
+	Offset 338, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0QC0", 64, 64
+{
+	Offset 338, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0QD0", 64, 64
+{
+	Offset 338, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0QE0", 64, 64
+{
+	Offset 338, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0QF0", 64, 64
+{
+	Offset 338, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0QG0", 64, 64
+{
+	Offset 338, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0QH0", 64, 64
+{
+	Offset 338, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0QI0", 64, 64
+{
+	Offset 338, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0QJ0", 64, 64
+{
+	Offset 338, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0QK0", 64, 64
+{
+	Offset 338, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0QL0", 64, 64
+{
+	Offset 338, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0QM0", 64, 64
+{
+	Offset 338, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0QN0", 64, 64
+{
+	Offset 338, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0QO0", 64, 64
+{
+	Offset 338, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0QP0", 64, 64
+{
+	Offset 338, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0RA0", 64, 64
+{
+	Offset 329, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0RB0", 64, 64
+{
+	Offset 329, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0RC0", 64, 64
+{
+	Offset 329, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0RD0", 64, 64
+{
+	Offset 329, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0RE0", 64, 64
+{
+	Offset 329, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0RF0", 64, 64
+{
+	Offset 329, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0RG0", 64, 64
+{
+	Offset 329, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0RH0", 64, 64
+{
+	Offset 329, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0RI0", 64, 64
+{
+	Offset 329, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0RJ0", 64, 64
+{
+	Offset 329, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0RK0", 64, 64
+{
+	Offset 329, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0RL0", 64, 64
+{
+	Offset 329, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0RM0", 64, 64
+{
+	Offset 329, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0RN0", 64, 64
+{
+	Offset 329, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0RO0", 64, 64
+{
+	Offset 329, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0RP0", 64, 64
+{
+	Offset 329, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0SA0", 64, 64
+{
+	Offset 320, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0SB0", 64, 64
+{
+	Offset 320, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0SC0", 64, 64
+{
+	Offset 320, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0SD0", 64, 64
+{
+	Offset 320, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0SE0", 64, 64
+{
+	Offset 320, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0SF0", 64, 64
+{
+	Offset 320, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0SG0", 64, 64
+{
+	Offset 320, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0SH0", 64, 64
+{
+	Offset 320, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0SI0", 64, 64
+{
+	Offset 320, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0SJ0", 64, 64
+{
+	Offset 320, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0SK0", 64, 64
+{
+	Offset 320, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0SL0", 64, 64
+{
+	Offset 320, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0SM0", 64, 64
+{
+	Offset 320, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0SN0", 64, 64
+{
+	Offset 320, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0SO0", 64, 64
+{
+	Offset 320, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0SP0", 64, 64
+{
+	Offset 320, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0TA0", 64, 64
+{
+	Offset 311, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0TB0", 64, 64
+{
+	Offset 311, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0TC0", 64, 64
+{
+	Offset 311, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0TD0", 64, 64
+{
+	Offset 311, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0TE0", 64, 64
+{
+	Offset 311, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0TF0", 64, 64
+{
+	Offset 311, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0TG0", 64, 64
+{
+	Offset 311, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0TH0", 64, 64
+{
+	Offset 311, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0TI0", 64, 64
+{
+	Offset 311, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0TJ0", 64, 64
+{
+	Offset 311, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0TK0", 64, 64
+{
+	Offset 311, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0TL0", 64, 64
+{
+	Offset 311, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0TM0", 64, 64
+{
+	Offset 311, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0TN0", 64, 64
+{
+	Offset 311, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0TO0", 64, 64
+{
+	Offset 311, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0TP0", 64, 64
+{
+	Offset 311, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0UA0", 64, 64
+{
+	Offset 302, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0UB0", 64, 64
+{
+	Offset 302, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0UC0", 64, 64
+{
+	Offset 302, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0UD0", 64, 64
+{
+	Offset 302, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0UE0", 64, 64
+{
+	Offset 302, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0UF0", 64, 64
+{
+	Offset 302, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0UG0", 64, 64
+{
+	Offset 302, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0UH0", 64, 64
+{
+	Offset 302, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0UI0", 64, 64
+{
+	Offset 302, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0UJ0", 64, 64
+{
+	Offset 302, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0UK0", 64, 64
+{
+	Offset 302, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0UL0", 64, 64
+{
+	Offset 302, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0UM0", 64, 64
+{
+	Offset 302, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0UN0", 64, 64
+{
+	Offset 302, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0UO0", 64, 64
+{
+	Offset 302, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0UP0", 64, 64
+{
+	Offset 302, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0VA0", 64, 64
+{
+	Offset 293, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0VB0", 64, 64
+{
+	Offset 293, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0VC0", 64, 64
+{
+	Offset 293, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0VD0", 64, 64
+{
+	Offset 293, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0VE0", 64, 64
+{
+	Offset 293, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0VF0", 64, 64
+{
+	Offset 293, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0VG0", 64, 64
+{
+	Offset 293, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0VH0", 64, 64
+{
+	Offset 293, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0VI0", 64, 64
+{
+	Offset 293, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0VJ0", 64, 64
+{
+	Offset 293, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0VK0", 64, 64
+{
+	Offset 293, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0VL0", 64, 64
+{
+	Offset 293, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0VM0", 64, 64
+{
+	Offset 293, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0VN0", 64, 64
+{
+	Offset 293, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0VO0", 64, 64
+{
+	Offset 293, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0VP0", 64, 64
+{
+	Offset 293, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0WA0", 64, 64
+{
+	Offset 284, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0WB0", 64, 64
+{
+	Offset 284, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0WC0", 64, 64
+{
+	Offset 284, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0WD0", 64, 64
+{
+	Offset 284, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0WE0", 64, 64
+{
+	Offset 284, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0WF0", 64, 64
+{
+	Offset 284, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0WG0", 64, 64
+{
+	Offset 284, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0WH0", 64, 64
+{
+	Offset 284, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0WI0", 64, 64
+{
+	Offset 284, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0WJ0", 64, 64
+{
+	Offset 284, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0WK0", 64, 64
+{
+	Offset 284, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0WL0", 64, 64
+{
+	Offset 284, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0WM0", 64, 64
+{
+	Offset 284, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0WN0", 64, 64
+{
+	Offset 284, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0WO0", 64, 64
+{
+	Offset 284, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0WP0", 64, 64
+{
+	Offset 284, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0XA0", 64, 64
+{
+	Offset 275, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0XB0", 64, 64
+{
+	Offset 275, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0XC0", 64, 64
+{
+	Offset 275, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0XD0", 64, 64
+{
+	Offset 275, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0XE0", 64, 64
+{
+	Offset 275, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0XF0", 64, 64
+{
+	Offset 275, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0XG0", 64, 64
+{
+	Offset 275, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0XH0", 64, 64
+{
+	Offset 275, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0XI0", 64, 64
+{
+	Offset 275, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0XJ0", 64, 64
+{
+	Offset 275, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0XK0", 64, 64
+{
+	Offset 275, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0XL0", 64, 64
+{
+	Offset 275, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0XM0", 64, 64
+{
+	Offset 275, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0XN0", 64, 64
+{
+	Offset 275, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0XO0", 64, 64
+{
+	Offset 275, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0XP0", 64, 64
+{
+	Offset 275, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0YA0", 64, 64
+{
+	Offset 266, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0YB0", 64, 64
+{
+	Offset 266, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0YC0", 64, 64
+{
+	Offset 266, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0YD0", 64, 64
+{
+	Offset 266, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0YE0", 64, 64
+{
+	Offset 266, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0YF0", 64, 64
+{
+	Offset 266, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0YG0", 64, 64
+{
+	Offset 266, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0YH0", 64, 64
+{
+	Offset 266, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0YI0", 64, 64
+{
+	Offset 266, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0YJ0", 64, 64
+{
+	Offset 266, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0YK0", 64, 64
+{
+	Offset 266, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0YL0", 64, 64
+{
+	Offset 266, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0YM0", 64, 64
+{
+	Offset 266, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0YN0", 64, 64
+{
+	Offset 266, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0YO0", 64, 64
+{
+	Offset 266, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0YP0", 64, 64
+{
+	Offset 266, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM0ZA0", 64, 64
+{
+	Offset 257, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM0ZB0", 64, 64
+{
+	Offset 257, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM0ZC0", 64, 64
+{
+	Offset 257, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM0ZD0", 64, 64
+{
+	Offset 257, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM0ZE0", 64, 64
+{
+	Offset 257, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM0ZF0", 64, 64
+{
+	Offset 257, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM0ZG0", 64, 64
+{
+	Offset 257, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM0ZH0", 64, 64
+{
+	Offset 257, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM0ZI0", 64, 64
+{
+	Offset 257, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM0ZJ0", 64, 64
+{
+	Offset 257, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM0ZK0", 64, 64
+{
+	Offset 257, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM0ZL0", 64, 64
+{
+	Offset 257, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM0ZM0", 64, 64
+{
+	Offset 257, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM0ZN0", 64, 64
+{
+	Offset 257, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM0ZO0", 64, 64
+{
+	Offset 257, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM0ZP0", 64, 64
+{
+	Offset 257, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM10A0", 64, 64
+{
+	Offset 248, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM10B0", 64, 64
+{
+	Offset 248, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM10C0", 64, 64
+{
+	Offset 248, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM10D0", 64, 64
+{
+	Offset 248, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM10E0", 64, 64
+{
+	Offset 248, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM10F0", 64, 64
+{
+	Offset 248, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM10G0", 64, 64
+{
+	Offset 248, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM10H0", 64, 64
+{
+	Offset 248, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM10I0", 64, 64
+{
+	Offset 248, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM10J0", 64, 64
+{
+	Offset 248, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM10K0", 64, 64
+{
+	Offset 248, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM10L0", 64, 64
+{
+	Offset 248, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM10M0", 64, 64
+{
+	Offset 248, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM10N0", 64, 64
+{
+	Offset 248, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM10O0", 64, 64
+{
+	Offset 248, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM10P0", 64, 64
+{
+	Offset 248, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM11A0", 64, 64
+{
+	Offset 239, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM11B0", 64, 64
+{
+	Offset 239, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM11C0", 64, 64
+{
+	Offset 239, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM11D0", 64, 64
+{
+	Offset 239, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM11E0", 64, 64
+{
+	Offset 239, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM11F0", 64, 64
+{
+	Offset 239, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM11G0", 64, 64
+{
+	Offset 239, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM11H0", 64, 64
+{
+	Offset 239, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM11I0", 64, 64
+{
+	Offset 239, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM11J0", 64, 64
+{
+	Offset 239, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM11K0", 64, 64
+{
+	Offset 239, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM11L0", 64, 64
+{
+	Offset 239, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM11M0", 64, 64
+{
+	Offset 239, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM11N0", 64, 64
+{
+	Offset 239, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM11O0", 64, 64
+{
+	Offset 239, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM11P0", 64, 64
+{
+	Offset 239, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM12A0", 64, 64
+{
+	Offset 230, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM12B0", 64, 64
+{
+	Offset 230, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM12C0", 64, 64
+{
+	Offset 230, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM12D0", 64, 64
+{
+	Offset 230, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM12E0", 64, 64
+{
+	Offset 230, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM12F0", 64, 64
+{
+	Offset 230, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM12G0", 64, 64
+{
+	Offset 230, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM12H0", 64, 64
+{
+	Offset 230, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM12I0", 64, 64
+{
+	Offset 230, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM12J0", 64, 64
+{
+	Offset 230, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM12K0", 64, 64
+{
+	Offset 230, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM12L0", 64, 64
+{
+	Offset 230, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM12M0", 64, 64
+{
+	Offset 230, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM12N0", 64, 64
+{
+	Offset 230, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM12O0", 64, 64
+{
+	Offset 230, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM12P0", 64, 64
+{
+	Offset 230, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM13A0", 64, 64
+{
+	Offset 221, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM13B0", 64, 64
+{
+	Offset 221, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM13C0", 64, 64
+{
+	Offset 221, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM13D0", 64, 64
+{
+	Offset 221, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM13E0", 64, 64
+{
+	Offset 221, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM13F0", 64, 64
+{
+	Offset 221, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM13G0", 64, 64
+{
+	Offset 221, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM13H0", 64, 64
+{
+	Offset 221, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM13I0", 64, 64
+{
+	Offset 221, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM13J0", 64, 64
+{
+	Offset 221, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM13K0", 64, 64
+{
+	Offset 221, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM13L0", 64, 64
+{
+	Offset 221, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM13M0", 64, 64
+{
+	Offset 221, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM13N0", 64, 64
+{
+	Offset 221, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM13O0", 64, 64
+{
+	Offset 221, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM13P0", 64, 64
+{
+	Offset 221, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM14A0", 64, 64
+{
+	Offset 212, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM14B0", 64, 64
+{
+	Offset 212, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM14C0", 64, 64
+{
+	Offset 212, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM14D0", 64, 64
+{
+	Offset 212, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM14E0", 64, 64
+{
+	Offset 212, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM14F0", 64, 64
+{
+	Offset 212, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM14G0", 64, 64
+{
+	Offset 212, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM14H0", 64, 64
+{
+	Offset 212, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM14I0", 64, 64
+{
+	Offset 212, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM14J0", 64, 64
+{
+	Offset 212, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM14K0", 64, 64
+{
+	Offset 212, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM14L0", 64, 64
+{
+	Offset 212, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM14M0", 64, 64
+{
+	Offset 212, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM14N0", 64, 64
+{
+	Offset 212, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM14O0", 64, 64
+{
+	Offset 212, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM14P0", 64, 64
+{
+	Offset 212, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM15A0", 64, 64
+{
+	Offset 203, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM15B0", 64, 64
+{
+	Offset 203, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM15C0", 64, 64
+{
+	Offset 203, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM15D0", 64, 64
+{
+	Offset 203, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM15E0", 64, 64
+{
+	Offset 203, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM15F0", 64, 64
+{
+	Offset 203, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM15G0", 64, 64
+{
+	Offset 203, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM15H0", 64, 64
+{
+	Offset 203, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM15I0", 64, 64
+{
+	Offset 203, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM15J0", 64, 64
+{
+	Offset 203, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM15K0", 64, 64
+{
+	Offset 203, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM15L0", 64, 64
+{
+	Offset 203, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM15M0", 64, 64
+{
+	Offset 203, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM15N0", 64, 64
+{
+	Offset 203, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM15O0", 64, 64
+{
+	Offset 203, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM15P0", 64, 64
+{
+	Offset 203, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM16A0", 64, 64
+{
+	Offset 194, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM16B0", 64, 64
+{
+	Offset 194, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM16C0", 64, 64
+{
+	Offset 194, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM16D0", 64, 64
+{
+	Offset 194, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM16E0", 64, 64
+{
+	Offset 194, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM16F0", 64, 64
+{
+	Offset 194, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM16G0", 64, 64
+{
+	Offset 194, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM16H0", 64, 64
+{
+	Offset 194, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM16I0", 64, 64
+{
+	Offset 194, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM16J0", 64, 64
+{
+	Offset 194, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM16K0", 64, 64
+{
+	Offset 194, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM16L0", 64, 64
+{
+	Offset 194, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM16M0", 64, 64
+{
+	Offset 194, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM16N0", 64, 64
+{
+	Offset 194, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM16O0", 64, 64
+{
+	Offset 194, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM16P0", 64, 64
+{
+	Offset 194, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM17A0", 64, 64
+{
+	Offset 185, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM17B0", 64, 64
+{
+	Offset 185, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM17C0", 64, 64
+{
+	Offset 185, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM17D0", 64, 64
+{
+	Offset 185, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM17E0", 64, 64
+{
+	Offset 185, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM17F0", 64, 64
+{
+	Offset 185, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM17G0", 64, 64
+{
+	Offset 185, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM17H0", 64, 64
+{
+	Offset 185, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM17I0", 64, 64
+{
+	Offset 185, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM17J0", 64, 64
+{
+	Offset 185, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM17K0", 64, 64
+{
+	Offset 185, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM17L0", 64, 64
+{
+	Offset 185, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM17M0", 64, 64
+{
+	Offset 185, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM17N0", 64, 64
+{
+	Offset 185, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM17O0", 64, 64
+{
+	Offset 185, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM17P0", 64, 64
+{
+	Offset 185, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM18A0", 64, 64
+{
+	Offset 176, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM18B0", 64, 64
+{
+	Offset 176, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM18C0", 64, 64
+{
+	Offset 176, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM18D0", 64, 64
+{
+	Offset 176, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM18E0", 64, 64
+{
+	Offset 176, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM18F0", 64, 64
+{
+	Offset 176, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM18G0", 64, 64
+{
+	Offset 176, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM18H0", 64, 64
+{
+	Offset 176, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM18I0", 64, 64
+{
+	Offset 176, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM18J0", 64, 64
+{
+	Offset 176, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM18K0", 64, 64
+{
+	Offset 176, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM18L0", 64, 64
+{
+	Offset 176, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM18M0", 64, 64
+{
+	Offset 176, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM18N0", 64, 64
+{
+	Offset 176, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM18O0", 64, 64
+{
+	Offset 176, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM18P0", 64, 64
+{
+	Offset 176, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM19A0", 64, 64
+{
+	Offset 167, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM19B0", 64, 64
+{
+	Offset 167, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM19C0", 64, 64
+{
+	Offset 167, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM19D0", 64, 64
+{
+	Offset 167, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM19E0", 64, 64
+{
+	Offset 167, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM19F0", 64, 64
+{
+	Offset 167, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM19G0", 64, 64
+{
+	Offset 167, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM19H0", 64, 64
+{
+	Offset 167, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM19I0", 64, 64
+{
+	Offset 167, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM19J0", 64, 64
+{
+	Offset 167, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM19K0", 64, 64
+{
+	Offset 167, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM19L0", 64, 64
+{
+	Offset 167, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM19M0", 64, 64
+{
+	Offset 167, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM19N0", 64, 64
+{
+	Offset 167, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM19O0", 64, 64
+{
+	Offset 167, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM19P0", 64, 64
+{
+	Offset 167, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1AA0", 64, 64
+{
+	Offset 158, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1AB0", 64, 64
+{
+	Offset 158, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1AC0", 64, 64
+{
+	Offset 158, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1AD0", 64, 64
+{
+	Offset 158, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1AE0", 64, 64
+{
+	Offset 158, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1AF0", 64, 64
+{
+	Offset 158, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1AG0", 64, 64
+{
+	Offset 158, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1AH0", 64, 64
+{
+	Offset 158, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1AI0", 64, 64
+{
+	Offset 158, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1AJ0", 64, 64
+{
+	Offset 158, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1AK0", 64, 64
+{
+	Offset 158, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1AL0", 64, 64
+{
+	Offset 158, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1AM0", 64, 64
+{
+	Offset 158, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1AN0", 64, 64
+{
+	Offset 158, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1AO0", 64, 64
+{
+	Offset 158, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1AP0", 64, 64
+{
+	Offset 158, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1BA0", 64, 64
+{
+	Offset 149, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1BB0", 64, 64
+{
+	Offset 149, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1BC0", 64, 64
+{
+	Offset 149, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1BD0", 64, 64
+{
+	Offset 149, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1BE0", 64, 64
+{
+	Offset 149, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1BF0", 64, 64
+{
+	Offset 149, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1BG0", 64, 64
+{
+	Offset 149, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1BH0", 64, 64
+{
+	Offset 149, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1BI0", 64, 64
+{
+	Offset 149, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1BJ0", 64, 64
+{
+	Offset 149, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1BK0", 64, 64
+{
+	Offset 149, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1BL0", 64, 64
+{
+	Offset 149, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1BM0", 64, 64
+{
+	Offset 149, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1BN0", 64, 64
+{
+	Offset 149, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1BO0", 64, 64
+{
+	Offset 149, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1BP0", 64, 64
+{
+	Offset 149, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1CA0", 64, 64
+{
+	Offset 140, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1CB0", 64, 64
+{
+	Offset 140, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1CC0", 64, 64
+{
+	Offset 140, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1CD0", 64, 64
+{
+	Offset 140, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1CE0", 64, 64
+{
+	Offset 140, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1CF0", 64, 64
+{
+	Offset 140, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1CG0", 64, 64
+{
+	Offset 140, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1CH0", 64, 64
+{
+	Offset 140, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1CI0", 64, 64
+{
+	Offset 140, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1CJ0", 64, 64
+{
+	Offset 140, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1CK0", 64, 64
+{
+	Offset 140, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1CL0", 64, 64
+{
+	Offset 140, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1CM0", 64, 64
+{
+	Offset 140, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1CN0", 64, 64
+{
+	Offset 140, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1CO0", 64, 64
+{
+	Offset 140, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1CP0", 64, 64
+{
+	Offset 140, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1DA0", 64, 64
+{
+	Offset 131, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1DB0", 64, 64
+{
+	Offset 131, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1DC0", 64, 64
+{
+	Offset 131, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1DD0", 64, 64
+{
+	Offset 131, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1DE0", 64, 64
+{
+	Offset 131, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1DF0", 64, 64
+{
+	Offset 131, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1DG0", 64, 64
+{
+	Offset 131, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1DH0", 64, 64
+{
+	Offset 131, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1DI0", 64, 64
+{
+	Offset 131, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1DJ0", 64, 64
+{
+	Offset 131, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1DK0", 64, 64
+{
+	Offset 131, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1DL0", 64, 64
+{
+	Offset 131, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1DM0", 64, 64
+{
+	Offset 131, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1DN0", 64, 64
+{
+	Offset 131, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1DO0", 64, 64
+{
+	Offset 131, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1DP0", 64, 64
+{
+	Offset 131, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1EA0", 64, 64
+{
+	Offset 122, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1EB0", 64, 64
+{
+	Offset 122, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1EC0", 64, 64
+{
+	Offset 122, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1ED0", 64, 64
+{
+	Offset 122, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1EE0", 64, 64
+{
+	Offset 122, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1EF0", 64, 64
+{
+	Offset 122, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1EG0", 64, 64
+{
+	Offset 122, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1EH0", 64, 64
+{
+	Offset 122, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1EI0", 64, 64
+{
+	Offset 122, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1EJ0", 64, 64
+{
+	Offset 122, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1EK0", 64, 64
+{
+	Offset 122, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1EL0", 64, 64
+{
+	Offset 122, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1EM0", 64, 64
+{
+	Offset 122, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1EN0", 64, 64
+{
+	Offset 122, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1EO0", 64, 64
+{
+	Offset 122, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1EP0", 64, 64
+{
+	Offset 122, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1FA0", 64, 64
+{
+	Offset 113, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1FB0", 64, 64
+{
+	Offset 113, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1FC0", 64, 64
+{
+	Offset 113, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1FD0", 64, 64
+{
+	Offset 113, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1FE0", 64, 64
+{
+	Offset 113, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1FF0", 64, 64
+{
+	Offset 113, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1FG0", 64, 64
+{
+	Offset 113, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1FH0", 64, 64
+{
+	Offset 113, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1FI0", 64, 64
+{
+	Offset 113, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1FJ0", 64, 64
+{
+	Offset 113, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1FK0", 64, 64
+{
+	Offset 113, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1FL0", 64, 64
+{
+	Offset 113, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1FM0", 64, 64
+{
+	Offset 113, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1FN0", 64, 64
+{
+	Offset 113, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1FO0", 64, 64
+{
+	Offset 113, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1FP0", 64, 64
+{
+	Offset 113, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1GA0", 64, 64
+{
+	Offset 104, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1GB0", 64, 64
+{
+	Offset 104, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1GC0", 64, 64
+{
+	Offset 104, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1GD0", 64, 64
+{
+	Offset 104, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1GE0", 64, 64
+{
+	Offset 104, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1GF0", 64, 64
+{
+	Offset 104, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1GG0", 64, 64
+{
+	Offset 104, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1GH0", 64, 64
+{
+	Offset 104, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1GI0", 64, 64
+{
+	Offset 104, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1GJ0", 64, 64
+{
+	Offset 104, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1GK0", 64, 64
+{
+	Offset 104, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1GL0", 64, 64
+{
+	Offset 104, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1GM0", 64, 64
+{
+	Offset 104, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1GN0", 64, 64
+{
+	Offset 104, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1GO0", 64, 64
+{
+	Offset 104, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1GP0", 64, 64
+{
+	Offset 104, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1HA0", 64, 64
+{
+	Offset 95, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1HB0", 64, 64
+{
+	Offset 95, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1HC0", 64, 64
+{
+	Offset 95, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1HD0", 64, 64
+{
+	Offset 95, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1HE0", 64, 64
+{
+	Offset 95, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1HF0", 64, 64
+{
+	Offset 95, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1HG0", 64, 64
+{
+	Offset 95, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1HH0", 64, 64
+{
+	Offset 95, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1HI0", 64, 64
+{
+	Offset 95, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1HJ0", 64, 64
+{
+	Offset 95, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1HK0", 64, 64
+{
+	Offset 95, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1HL0", 64, 64
+{
+	Offset 95, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1HM0", 64, 64
+{
+	Offset 95, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1HN0", 64, 64
+{
+	Offset 95, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1HO0", 64, 64
+{
+	Offset 95, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1HP0", 64, 64
+{
+	Offset 95, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1IA0", 64, 64
+{
+	Offset 86, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1IB0", 64, 64
+{
+	Offset 86, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1IC0", 64, 64
+{
+	Offset 86, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1ID0", 64, 64
+{
+	Offset 86, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1IE0", 64, 64
+{
+	Offset 86, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1IF0", 64, 64
+{
+	Offset 86, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1IG0", 64, 64
+{
+	Offset 86, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1IH0", 64, 64
+{
+	Offset 86, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1II0", 64, 64
+{
+	Offset 86, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1IJ0", 64, 64
+{
+	Offset 86, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1IK0", 64, 64
+{
+	Offset 86, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1IL0", 64, 64
+{
+	Offset 86, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1IM0", 64, 64
+{
+	Offset 86, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1IN0", 64, 64
+{
+	Offset 86, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1IO0", 64, 64
+{
+	Offset 86, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1IP0", 64, 64
+{
+	Offset 86, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1JA0", 64, 64
+{
+	Offset 77, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1JB0", 64, 64
+{
+	Offset 77, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1JC0", 64, 64
+{
+	Offset 77, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1JD0", 64, 64
+{
+	Offset 77, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1JE0", 64, 64
+{
+	Offset 77, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1JF0", 64, 64
+{
+	Offset 77, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1JG0", 64, 64
+{
+	Offset 77, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1JH0", 64, 64
+{
+	Offset 77, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1JI0", 64, 64
+{
+	Offset 77, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1JJ0", 64, 64
+{
+	Offset 77, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1JK0", 64, 64
+{
+	Offset 77, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1JL0", 64, 64
+{
+	Offset 77, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1JM0", 64, 64
+{
+	Offset 77, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1JN0", 64, 64
+{
+	Offset 77, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1JO0", 64, 64
+{
+	Offset 77, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1JP0", 64, 64
+{
+	Offset 77, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1KA0", 64, 64
+{
+	Offset 68, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1KB0", 64, 64
+{
+	Offset 68, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1KC0", 64, 64
+{
+	Offset 68, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1KD0", 64, 64
+{
+	Offset 68, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1KE0", 64, 64
+{
+	Offset 68, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1KF0", 64, 64
+{
+	Offset 68, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1KG0", 64, 64
+{
+	Offset 68, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1KH0", 64, 64
+{
+	Offset 68, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1KI0", 64, 64
+{
+	Offset 68, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1KJ0", 64, 64
+{
+	Offset 68, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1KK0", 64, 64
+{
+	Offset 68, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1KL0", 64, 64
+{
+	Offset 68, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1KM0", 64, 64
+{
+	Offset 68, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1KN0", 64, 64
+{
+	Offset 68, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1KO0", 64, 64
+{
+	Offset 68, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1KP0", 64, 64
+{
+	Offset 68, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1LA0", 64, 64
+{
+	Offset 59, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1LB0", 64, 64
+{
+	Offset 59, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1LC0", 64, 64
+{
+	Offset 59, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1LD0", 64, 64
+{
+	Offset 59, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1LE0", 64, 64
+{
+	Offset 59, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1LF0", 64, 64
+{
+	Offset 59, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1LG0", 64, 64
+{
+	Offset 59, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1LH0", 64, 64
+{
+	Offset 59, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1LI0", 64, 64
+{
+	Offset 59, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1LJ0", 64, 64
+{
+	Offset 59, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1LK0", 64, 64
+{
+	Offset 59, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1LL0", 64, 64
+{
+	Offset 59, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1LM0", 64, 64
+{
+	Offset 59, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1LN0", 64, 64
+{
+	Offset 59, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1LO0", 64, 64
+{
+	Offset 59, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1LP0", 64, 64
+{
+	Offset 59, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1MA0", 64, 64
+{
+	Offset 50, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1MB0", 64, 64
+{
+	Offset 50, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1MC0", 64, 64
+{
+	Offset 50, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1MD0", 64, 64
+{
+	Offset 50, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1ME0", 64, 64
+{
+	Offset 50, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1MF0", 64, 64
+{
+	Offset 50, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1MG0", 64, 64
+{
+	Offset 50, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1MH0", 64, 64
+{
+	Offset 50, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1MI0", 64, 64
+{
+	Offset 50, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1MJ0", 64, 64
+{
+	Offset 50, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1MK0", 64, 64
+{
+	Offset 50, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1ML0", 64, 64
+{
+	Offset 50, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1MM0", 64, 64
+{
+	Offset 50, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1MN0", 64, 64
+{
+	Offset 50, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1MO0", 64, 64
+{
+	Offset 50, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1MP0", 64, 64
+{
+	Offset 50, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1NA0", 64, 64
+{
+	Offset 41, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1NB0", 64, 64
+{
+	Offset 41, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1NC0", 64, 64
+{
+	Offset 41, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1ND0", 64, 64
+{
+	Offset 41, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1NE0", 64, 64
+{
+	Offset 41, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1NF0", 64, 64
+{
+	Offset 41, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1NG0", 64, 64
+{
+	Offset 41, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1NH0", 64, 64
+{
+	Offset 41, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1NI0", 64, 64
+{
+	Offset 41, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1NJ0", 64, 64
+{
+	Offset 41, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1NK0", 64, 64
+{
+	Offset 41, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1NL0", 64, 64
+{
+	Offset 41, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1NM0", 64, 64
+{
+	Offset 41, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1NN0", 64, 64
+{
+	Offset 41, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1NO0", 64, 64
+{
+	Offset 41, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1NP0", 64, 64
+{
+	Offset 41, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1OA0", 64, 64
+{
+	Offset 32, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1OB0", 64, 64
+{
+	Offset 32, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1OC0", 64, 64
+{
+	Offset 32, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1OD0", 64, 64
+{
+	Offset 32, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1OE0", 64, 64
+{
+	Offset 32, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1OF0", 64, 64
+{
+	Offset 32, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1OG0", 64, 64
+{
+	Offset 32, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1OH0", 64, 64
+{
+	Offset 32, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1OI0", 64, 64
+{
+	Offset 32, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1OJ0", 64, 64
+{
+	Offset 32, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1OK0", 64, 64
+{
+	Offset 32, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1OL0", 64, 64
+{
+	Offset 32, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1OM0", 64, 64
+{
+	Offset 32, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1ON0", 64, 64
+{
+	Offset 32, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1OO0", 64, 64
+{
+	Offset 32, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1OP0", 64, 64
+{
+	Offset 32, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1PA0", 64, 64
+{
+	Offset 23, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1PB0", 64, 64
+{
+	Offset 23, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1PC0", 64, 64
+{
+	Offset 23, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1PD0", 64, 64
+{
+	Offset 23, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1PE0", 64, 64
+{
+	Offset 23, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1PF0", 64, 64
+{
+	Offset 23, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1PG0", 64, 64
+{
+	Offset 23, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1PH0", 64, 64
+{
+	Offset 23, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1PI0", 64, 64
+{
+	Offset 23, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1PJ0", 64, 64
+{
+	Offset 23, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1PK0", 64, 64
+{
+	Offset 23, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1PL0", 64, 64
+{
+	Offset 23, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1PM0", 64, 64
+{
+	Offset 23, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1PN0", 64, 64
+{
+	Offset 23, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1PO0", 64, 64
+{
+	Offset 23, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1PP0", 64, 64
+{
+	Offset 23, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1QA0", 64, 64
+{
+	Offset 14, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1QB0", 64, 64
+{
+	Offset 14, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1QC0", 64, 64
+{
+	Offset 14, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1QD0", 64, 64
+{
+	Offset 14, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1QE0", 64, 64
+{
+	Offset 14, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1QF0", 64, 64
+{
+	Offset 14, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1QG0", 64, 64
+{
+	Offset 14, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1QH0", 64, 64
+{
+	Offset 14, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1QI0", 64, 64
+{
+	Offset 14, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1QJ0", 64, 64
+{
+	Offset 14, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1QK0", 64, 64
+{
+	Offset 14, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1QL0", 64, 64
+{
+	Offset 14, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1QM0", 64, 64
+{
+	Offset 14, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1QN0", 64, 64
+{
+	Offset 14, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1QO0", 64, 64
+{
+	Offset 14, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1QP0", 64, 64
+{
+	Offset 14, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1RA0", 64, 64
+{
+	Offset 5, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1RB0", 64, 64
+{
+	Offset 5, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1RC0", 64, 64
+{
+	Offset 5, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1RD0", 64, 64
+{
+	Offset 5, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1RE0", 64, 64
+{
+	Offset 5, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1RF0", 64, 64
+{
+	Offset 5, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1RG0", 64, 64
+{
+	Offset 5, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1RH0", 64, 64
+{
+	Offset 5, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1RI0", 64, 64
+{
+	Offset 5, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1RJ0", 64, 64
+{
+	Offset 5, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1RK0", 64, 64
+{
+	Offset 5, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1RL0", 64, 64
+{
+	Offset 5, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1RM0", 64, 64
+{
+	Offset 5, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1RN0", 64, 64
+{
+	Offset 5, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1RO0", 64, 64
+{
+	Offset 5, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1RP0", 64, 64
+{
+	Offset 5, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1SA0", 64, 64
+{
+	Offset -4, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1SB0", 64, 64
+{
+	Offset -4, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1SC0", 64, 64
+{
+	Offset -4, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1SD0", 64, 64
+{
+	Offset -4, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1SE0", 64, 64
+{
+	Offset -4, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1SF0", 64, 64
+{
+	Offset -4, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1SG0", 64, 64
+{
+	Offset -4, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1SH0", 64, 64
+{
+	Offset -4, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1SI0", 64, 64
+{
+	Offset -4, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1SJ0", 64, 64
+{
+	Offset -4, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1SK0", 64, 64
+{
+	Offset -4, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1SL0", 64, 64
+{
+	Offset -4, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1SM0", 64, 64
+{
+	Offset -4, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1SN0", 64, 64
+{
+	Offset -4, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1SO0", 64, 64
+{
+	Offset -4, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1SP0", 64, 64
+{
+	Offset -4, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1TA0", 64, 64
+{
+	Offset -13, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1TB0", 64, 64
+{
+	Offset -13, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1TC0", 64, 64
+{
+	Offset -13, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1TD0", 64, 64
+{
+	Offset -13, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1TE0", 64, 64
+{
+	Offset -13, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1TF0", 64, 64
+{
+	Offset -13, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1TG0", 64, 64
+{
+	Offset -13, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1TH0", 64, 64
+{
+	Offset -13, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1TI0", 64, 64
+{
+	Offset -13, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1TJ0", 64, 64
+{
+	Offset -13, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1TK0", 64, 64
+{
+	Offset -13, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1TL0", 64, 64
+{
+	Offset -13, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1TM0", 64, 64
+{
+	Offset -13, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1TN0", 64, 64
+{
+	Offset -13, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1TO0", 64, 64
+{
+	Offset -13, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1TP0", 64, 64
+{
+	Offset -13, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1UA0", 64, 64
+{
+	Offset -22, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1UB0", 64, 64
+{
+	Offset -22, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1UC0", 64, 64
+{
+	Offset -22, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1UD0", 64, 64
+{
+	Offset -22, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1UE0", 64, 64
+{
+	Offset -22, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1UF0", 64, 64
+{
+	Offset -22, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1UG0", 64, 64
+{
+	Offset -22, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1UH0", 64, 64
+{
+	Offset -22, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1UI0", 64, 64
+{
+	Offset -22, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1UJ0", 64, 64
+{
+	Offset -22, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1UK0", 64, 64
+{
+	Offset -22, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1UL0", 64, 64
+{
+	Offset -22, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1UM0", 64, 64
+{
+	Offset -22, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1UN0", 64, 64
+{
+	Offset -22, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1UO0", 64, 64
+{
+	Offset -22, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1UP0", 64, 64
+{
+	Offset -22, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1VA0", 64, 64
+{
+	Offset -31, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1VB0", 64, 64
+{
+	Offset -31, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1VC0", 64, 64
+{
+	Offset -31, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1VD0", 64, 64
+{
+	Offset -31, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1VE0", 64, 64
+{
+	Offset -31, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1VF0", 64, 64
+{
+	Offset -31, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1VG0", 64, 64
+{
+	Offset -31, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1VH0", 64, 64
+{
+	Offset -31, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1VI0", 64, 64
+{
+	Offset -31, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1VJ0", 64, 64
+{
+	Offset -31, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1VK0", 64, 64
+{
+	Offset -31, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1VL0", 64, 64
+{
+	Offset -31, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1VM0", 64, 64
+{
+	Offset -31, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1VN0", 64, 64
+{
+	Offset -31, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1VO0", 64, 64
+{
+	Offset -31, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1VP0", 64, 64
+{
+	Offset -31, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1WA0", 64, 64
+{
+	Offset -40, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1WB0", 64, 64
+{
+	Offset -40, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1WC0", 64, 64
+{
+	Offset -40, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1WD0", 64, 64
+{
+	Offset -40, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1WE0", 64, 64
+{
+	Offset -40, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1WF0", 64, 64
+{
+	Offset -40, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1WG0", 64, 64
+{
+	Offset -40, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1WH0", 64, 64
+{
+	Offset -40, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1WI0", 64, 64
+{
+	Offset -40, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1WJ0", 64, 64
+{
+	Offset -40, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1WK0", 64, 64
+{
+	Offset -40, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1WL0", 64, 64
+{
+	Offset -40, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1WM0", 64, 64
+{
+	Offset -40, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1WN0", 64, 64
+{
+	Offset -40, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1WO0", 64, 64
+{
+	Offset -40, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1WP0", 64, 64
+{
+	Offset -40, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1XA0", 64, 64
+{
+	Offset -49, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1XB0", 64, 64
+{
+	Offset -49, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1XC0", 64, 64
+{
+	Offset -49, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1XD0", 64, 64
+{
+	Offset -49, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1XE0", 64, 64
+{
+	Offset -49, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1XF0", 64, 64
+{
+	Offset -49, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1XG0", 64, 64
+{
+	Offset -49, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1XH0", 64, 64
+{
+	Offset -49, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1XI0", 64, 64
+{
+	Offset -49, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1XJ0", 64, 64
+{
+	Offset -49, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1XK0", 64, 64
+{
+	Offset -49, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1XL0", 64, 64
+{
+	Offset -49, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1XM0", 64, 64
+{
+	Offset -49, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1XN0", 64, 64
+{
+	Offset -49, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1XO0", 64, 64
+{
+	Offset -49, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1XP0", 64, 64
+{
+	Offset -49, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1YA0", 64, 64
+{
+	Offset -58, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1YB0", 64, 64
+{
+	Offset -58, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1YC0", 64, 64
+{
+	Offset -58, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1YD0", 64, 64
+{
+	Offset -58, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1YE0", 64, 64
+{
+	Offset -58, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1YF0", 64, 64
+{
+	Offset -58, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1YG0", 64, 64
+{
+	Offset -58, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1YH0", 64, 64
+{
+	Offset -58, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1YI0", 64, 64
+{
+	Offset -58, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1YJ0", 64, 64
+{
+	Offset -58, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1YK0", 64, 64
+{
+	Offset -58, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1YL0", 64, 64
+{
+	Offset -58, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1YM0", 64, 64
+{
+	Offset -58, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1YN0", 64, 64
+{
+	Offset -58, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1YO0", 64, 64
+{
+	Offset -58, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1YP0", 64, 64
+{
+	Offset -58, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM1ZA0", 64, 64
+{
+	Offset -67, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM1ZB0", 64, 64
+{
+	Offset -67, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM1ZC0", 64, 64
+{
+	Offset -67, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM1ZD0", 64, 64
+{
+	Offset -67, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM1ZE0", 64, 64
+{
+	Offset -67, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM1ZF0", 64, 64
+{
+	Offset -67, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM1ZG0", 64, 64
+{
+	Offset -67, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM1ZH0", 64, 64
+{
+	Offset -67, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM1ZI0", 64, 64
+{
+	Offset -67, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM1ZJ0", 64, 64
+{
+	Offset -67, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM1ZK0", 64, 64
+{
+	Offset -67, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM1ZL0", 64, 64
+{
+	Offset -67, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM1ZM0", 64, 64
+{
+	Offset -67, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM1ZN0", 64, 64
+{
+	Offset -67, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM1ZO0", 64, 64
+{
+	Offset -67, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM1ZP0", 64, 64
+{
+	Offset -67, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM20A0", 64, 64
+{
+	Offset -76, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM20B0", 64, 64
+{
+	Offset -76, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM20C0", 64, 64
+{
+	Offset -76, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM20D0", 64, 64
+{
+	Offset -76, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM20E0", 64, 64
+{
+	Offset -76, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM20F0", 64, 64
+{
+	Offset -76, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM20G0", 64, 64
+{
+	Offset -76, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM20H0", 64, 64
+{
+	Offset -76, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM20I0", 64, 64
+{
+	Offset -76, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM20J0", 64, 64
+{
+	Offset -76, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM20K0", 64, 64
+{
+	Offset -76, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM20L0", 64, 64
+{
+	Offset -76, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM20M0", 64, 64
+{
+	Offset -76, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM20N0", 64, 64
+{
+	Offset -76, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM20O0", 64, 64
+{
+	Offset -76, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM20P0", 64, 64
+{
+	Offset -76, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM21A0", 64, 64
+{
+	Offset -85, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM21B0", 64, 64
+{
+	Offset -85, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM21C0", 64, 64
+{
+	Offset -85, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM21D0", 64, 64
+{
+	Offset -85, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM21E0", 64, 64
+{
+	Offset -85, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM21F0", 64, 64
+{
+	Offset -85, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM21G0", 64, 64
+{
+	Offset -85, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM21H0", 64, 64
+{
+	Offset -85, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM21I0", 64, 64
+{
+	Offset -85, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM21J0", 64, 64
+{
+	Offset -85, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM21K0", 64, 64
+{
+	Offset -85, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM21L0", 64, 64
+{
+	Offset -85, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM21M0", 64, 64
+{
+	Offset -85, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM21N0", 64, 64
+{
+	Offset -85, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM21O0", 64, 64
+{
+	Offset -85, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM21P0", 64, 64
+{
+	Offset -85, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM22A0", 64, 64
+{
+	Offset -94, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM22B0", 64, 64
+{
+	Offset -94, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM22C0", 64, 64
+{
+	Offset -94, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM22D0", 64, 64
+{
+	Offset -94, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM22E0", 64, 64
+{
+	Offset -94, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM22F0", 64, 64
+{
+	Offset -94, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM22G0", 64, 64
+{
+	Offset -94, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM22H0", 64, 64
+{
+	Offset -94, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM22I0", 64, 64
+{
+	Offset -94, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM22J0", 64, 64
+{
+	Offset -94, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM22K0", 64, 64
+{
+	Offset -94, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM22L0", 64, 64
+{
+	Offset -94, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM22M0", 64, 64
+{
+	Offset -94, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM22N0", 64, 64
+{
+	Offset -94, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM22O0", 64, 64
+{
+	Offset -94, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM22P0", 64, 64
+{
+	Offset -94, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM23A0", 64, 64
+{
+	Offset -103, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM23B0", 64, 64
+{
+	Offset -103, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM23C0", 64, 64
+{
+	Offset -103, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM23D0", 64, 64
+{
+	Offset -103, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM23E0", 64, 64
+{
+	Offset -103, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM23F0", 64, 64
+{
+	Offset -103, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM23G0", 64, 64
+{
+	Offset -103, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM23H0", 64, 64
+{
+	Offset -103, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM23I0", 64, 64
+{
+	Offset -103, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM23J0", 64, 64
+{
+	Offset -103, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM23K0", 64, 64
+{
+	Offset -103, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM23L0", 64, 64
+{
+	Offset -103, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM23M0", 64, 64
+{
+	Offset -103, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM23N0", 64, 64
+{
+	Offset -103, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM23O0", 64, 64
+{
+	Offset -103, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM23P0", 64, 64
+{
+	Offset -103, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM24A0", 64, 64
+{
+	Offset -112, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM24B0", 64, 64
+{
+	Offset -112, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM24C0", 64, 64
+{
+	Offset -112, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM24D0", 64, 64
+{
+	Offset -112, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM24E0", 64, 64
+{
+	Offset -112, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM24F0", 64, 64
+{
+	Offset -112, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM24G0", 64, 64
+{
+	Offset -112, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM24H0", 64, 64
+{
+	Offset -112, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM24I0", 64, 64
+{
+	Offset -112, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM24J0", 64, 64
+{
+	Offset -112, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM24K0", 64, 64
+{
+	Offset -112, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM24L0", 64, 64
+{
+	Offset -112, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM24M0", 64, 64
+{
+	Offset -112, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM24N0", 64, 64
+{
+	Offset -112, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM24O0", 64, 64
+{
+	Offset -112, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM24P0", 64, 64
+{
+	Offset -112, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM25A0", 64, 64
+{
+	Offset -121, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM25B0", 64, 64
+{
+	Offset -121, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM25C0", 64, 64
+{
+	Offset -121, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM25D0", 64, 64
+{
+	Offset -121, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM25E0", 64, 64
+{
+	Offset -121, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM25F0", 64, 64
+{
+	Offset -121, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM25G0", 64, 64
+{
+	Offset -121, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM25H0", 64, 64
+{
+	Offset -121, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM25I0", 64, 64
+{
+	Offset -121, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM25J0", 64, 64
+{
+	Offset -121, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM25K0", 64, 64
+{
+	Offset -121, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM25L0", 64, 64
+{
+	Offset -121, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM25M0", 64, 64
+{
+	Offset -121, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM25N0", 64, 64
+{
+	Offset -121, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM25O0", 64, 64
+{
+	Offset -121, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM25P0", 64, 64
+{
+	Offset -121, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM26A0", 64, 64
+{
+	Offset -130, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM26B0", 64, 64
+{
+	Offset -130, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM26C0", 64, 64
+{
+	Offset -130, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM26D0", 64, 64
+{
+	Offset -130, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM26E0", 64, 64
+{
+	Offset -130, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM26F0", 64, 64
+{
+	Offset -130, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM26G0", 64, 64
+{
+	Offset -130, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM26H0", 64, 64
+{
+	Offset -130, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM26I0", 64, 64
+{
+	Offset -130, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM26J0", 64, 64
+{
+	Offset -130, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM26K0", 64, 64
+{
+	Offset -130, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM26L0", 64, 64
+{
+	Offset -130, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM26M0", 64, 64
+{
+	Offset -130, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM26N0", 64, 64
+{
+	Offset -130, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM26O0", 64, 64
+{
+	Offset -130, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM26P0", 64, 64
+{
+	Offset -130, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM27A0", 64, 64
+{
+	Offset -139, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM27B0", 64, 64
+{
+	Offset -139, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM27C0", 64, 64
+{
+	Offset -139, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM27D0", 64, 64
+{
+	Offset -139, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM27E0", 64, 64
+{
+	Offset -139, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM27F0", 64, 64
+{
+	Offset -139, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM27G0", 64, 64
+{
+	Offset -139, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM27H0", 64, 64
+{
+	Offset -139, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM27I0", 64, 64
+{
+	Offset -139, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM27J0", 64, 64
+{
+	Offset -139, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM27K0", 64, 64
+{
+	Offset -139, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM27L0", 64, 64
+{
+	Offset -139, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM27M0", 64, 64
+{
+	Offset -139, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM27N0", 64, 64
+{
+	Offset -139, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM27O0", 64, 64
+{
+	Offset -139, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM27P0", 64, 64
+{
+	Offset -139, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM28A0", 64, 64
+{
+	Offset -148, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM28B0", 64, 64
+{
+	Offset -148, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM28C0", 64, 64
+{
+	Offset -148, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM28D0", 64, 64
+{
+	Offset -148, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM28E0", 64, 64
+{
+	Offset -148, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM28F0", 64, 64
+{
+	Offset -148, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM28G0", 64, 64
+{
+	Offset -148, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM28H0", 64, 64
+{
+	Offset -148, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM28I0", 64, 64
+{
+	Offset -148, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM28J0", 64, 64
+{
+	Offset -148, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM28K0", 64, 64
+{
+	Offset -148, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM28L0", 64, 64
+{
+	Offset -148, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM28M0", 64, 64
+{
+	Offset -148, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM28N0", 64, 64
+{
+	Offset -148, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM28O0", 64, 64
+{
+	Offset -148, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM28P0", 64, 64
+{
+	Offset -148, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM29A0", 64, 64
+{
+	Offset -157, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM29B0", 64, 64
+{
+	Offset -157, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM29C0", 64, 64
+{
+	Offset -157, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM29D0", 64, 64
+{
+	Offset -157, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM29E0", 64, 64
+{
+	Offset -157, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM29F0", 64, 64
+{
+	Offset -157, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM29G0", 64, 64
+{
+	Offset -157, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM29H0", 64, 64
+{
+	Offset -157, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM29I0", 64, 64
+{
+	Offset -157, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM29J0", 64, 64
+{
+	Offset -157, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM29K0", 64, 64
+{
+	Offset -157, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM29L0", 64, 64
+{
+	Offset -157, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM29M0", 64, 64
+{
+	Offset -157, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM29N0", 64, 64
+{
+	Offset -157, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM29O0", 64, 64
+{
+	Offset -157, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM29P0", 64, 64
+{
+	Offset -157, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2AA0", 64, 64
+{
+	Offset -166, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2AB0", 64, 64
+{
+	Offset -166, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2AC0", 64, 64
+{
+	Offset -166, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2AD0", 64, 64
+{
+	Offset -166, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2AE0", 64, 64
+{
+	Offset -166, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2AF0", 64, 64
+{
+	Offset -166, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2AG0", 64, 64
+{
+	Offset -166, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2AH0", 64, 64
+{
+	Offset -166, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2AI0", 64, 64
+{
+	Offset -166, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2AJ0", 64, 64
+{
+	Offset -166, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2AK0", 64, 64
+{
+	Offset -166, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2AL0", 64, 64
+{
+	Offset -166, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2AM0", 64, 64
+{
+	Offset -166, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2AN0", 64, 64
+{
+	Offset -166, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2AO0", 64, 64
+{
+	Offset -166, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2AP0", 64, 64
+{
+	Offset -166, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2BA0", 64, 64
+{
+	Offset -175, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2BB0", 64, 64
+{
+	Offset -175, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2BC0", 64, 64
+{
+	Offset -175, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2BD0", 64, 64
+{
+	Offset -175, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2BE0", 64, 64
+{
+	Offset -175, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2BF0", 64, 64
+{
+	Offset -175, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2BG0", 64, 64
+{
+	Offset -175, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2BH0", 64, 64
+{
+	Offset -175, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2BI0", 64, 64
+{
+	Offset -175, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2BJ0", 64, 64
+{
+	Offset -175, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2BK0", 64, 64
+{
+	Offset -175, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2BL0", 64, 64
+{
+	Offset -175, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2BM0", 64, 64
+{
+	Offset -175, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2BN0", 64, 64
+{
+	Offset -175, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2BO0", 64, 64
+{
+	Offset -175, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2BP0", 64, 64
+{
+	Offset -175, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2CA0", 64, 64
+{
+	Offset -184, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2CB0", 64, 64
+{
+	Offset -184, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2CC0", 64, 64
+{
+	Offset -184, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2CD0", 64, 64
+{
+	Offset -184, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2CE0", 64, 64
+{
+	Offset -184, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2CF0", 64, 64
+{
+	Offset -184, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2CG0", 64, 64
+{
+	Offset -184, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2CH0", 64, 64
+{
+	Offset -184, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2CI0", 64, 64
+{
+	Offset -184, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2CJ0", 64, 64
+{
+	Offset -184, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2CK0", 64, 64
+{
+	Offset -184, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2CL0", 64, 64
+{
+	Offset -184, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2CM0", 64, 64
+{
+	Offset -184, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2CN0", 64, 64
+{
+	Offset -184, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2CO0", 64, 64
+{
+	Offset -184, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2CP0", 64, 64
+{
+	Offset -184, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2DA0", 64, 64
+{
+	Offset -193, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2DB0", 64, 64
+{
+	Offset -193, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2DC0", 64, 64
+{
+	Offset -193, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2DD0", 64, 64
+{
+	Offset -193, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2DE0", 64, 64
+{
+	Offset -193, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2DF0", 64, 64
+{
+	Offset -193, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2DG0", 64, 64
+{
+	Offset -193, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2DH0", 64, 64
+{
+	Offset -193, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2DI0", 64, 64
+{
+	Offset -193, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2DJ0", 64, 64
+{
+	Offset -193, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2DK0", 64, 64
+{
+	Offset -193, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2DL0", 64, 64
+{
+	Offset -193, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2DM0", 64, 64
+{
+	Offset -193, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2DN0", 64, 64
+{
+	Offset -193, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2DO0", 64, 64
+{
+	Offset -193, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2DP0", 64, 64
+{
+	Offset -193, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2EA0", 64, 64
+{
+	Offset -202, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2EB0", 64, 64
+{
+	Offset -202, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2EC0", 64, 64
+{
+	Offset -202, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2ED0", 64, 64
+{
+	Offset -202, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2EE0", 64, 64
+{
+	Offset -202, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2EF0", 64, 64
+{
+	Offset -202, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2EG0", 64, 64
+{
+	Offset -202, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2EH0", 64, 64
+{
+	Offset -202, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2EI0", 64, 64
+{
+	Offset -202, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2EJ0", 64, 64
+{
+	Offset -202, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2EK0", 64, 64
+{
+	Offset -202, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2EL0", 64, 64
+{
+	Offset -202, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2EM0", 64, 64
+{
+	Offset -202, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2EN0", 64, 64
+{
+	Offset -202, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2EO0", 64, 64
+{
+	Offset -202, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2EP0", 64, 64
+{
+	Offset -202, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2FA0", 64, 64
+{
+	Offset -211, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2FB0", 64, 64
+{
+	Offset -211, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2FC0", 64, 64
+{
+	Offset -211, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2FD0", 64, 64
+{
+	Offset -211, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2FE0", 64, 64
+{
+	Offset -211, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2FF0", 64, 64
+{
+	Offset -211, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2FG0", 64, 64
+{
+	Offset -211, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2FH0", 64, 64
+{
+	Offset -211, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2FI0", 64, 64
+{
+	Offset -211, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2FJ0", 64, 64
+{
+	Offset -211, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2FK0", 64, 64
+{
+	Offset -211, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2FL0", 64, 64
+{
+	Offset -211, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2FM0", 64, 64
+{
+	Offset -211, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2FN0", 64, 64
+{
+	Offset -211, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2FO0", 64, 64
+{
+	Offset -211, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2FP0", 64, 64
+{
+	Offset -211, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2GA0", 64, 64
+{
+	Offset -220, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2GB0", 64, 64
+{
+	Offset -220, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2GC0", 64, 64
+{
+	Offset -220, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2GD0", 64, 64
+{
+	Offset -220, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2GE0", 64, 64
+{
+	Offset -220, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2GF0", 64, 64
+{
+	Offset -220, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2GG0", 64, 64
+{
+	Offset -220, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2GH0", 64, 64
+{
+	Offset -220, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2GI0", 64, 64
+{
+	Offset -220, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2GJ0", 64, 64
+{
+	Offset -220, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2GK0", 64, 64
+{
+	Offset -220, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2GL0", 64, 64
+{
+	Offset -220, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2GM0", 64, 64
+{
+	Offset -220, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2GN0", 64, 64
+{
+	Offset -220, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2GO0", 64, 64
+{
+	Offset -220, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2GP0", 64, 64
+{
+	Offset -220, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2HA0", 64, 64
+{
+	Offset -229, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2HB0", 64, 64
+{
+	Offset -229, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2HC0", 64, 64
+{
+	Offset -229, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2HD0", 64, 64
+{
+	Offset -229, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2HE0", 64, 64
+{
+	Offset -229, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2HF0", 64, 64
+{
+	Offset -229, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2HG0", 64, 64
+{
+	Offset -229, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2HH0", 64, 64
+{
+	Offset -229, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2HI0", 64, 64
+{
+	Offset -229, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2HJ0", 64, 64
+{
+	Offset -229, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2HK0", 64, 64
+{
+	Offset -229, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2HL0", 64, 64
+{
+	Offset -229, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2HM0", 64, 64
+{
+	Offset -229, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2HN0", 64, 64
+{
+	Offset -229, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2HO0", 64, 64
+{
+	Offset -229, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2HP0", 64, 64
+{
+	Offset -229, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2IA0", 64, 64
+{
+	Offset -238, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2IB0", 64, 64
+{
+	Offset -238, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2IC0", 64, 64
+{
+	Offset -238, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2ID0", 64, 64
+{
+	Offset -238, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2IE0", 64, 64
+{
+	Offset -238, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2IF0", 64, 64
+{
+	Offset -238, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2IG0", 64, 64
+{
+	Offset -238, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2IH0", 64, 64
+{
+	Offset -238, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2II0", 64, 64
+{
+	Offset -238, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2IJ0", 64, 64
+{
+	Offset -238, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2IK0", 64, 64
+{
+	Offset -238, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2IL0", 64, 64
+{
+	Offset -238, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2IM0", 64, 64
+{
+	Offset -238, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2IN0", 64, 64
+{
+	Offset -238, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2IO0", 64, 64
+{
+	Offset -238, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2IP0", 64, 64
+{
+	Offset -238, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2JA0", 64, 64
+{
+	Offset -247, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2JB0", 64, 64
+{
+	Offset -247, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2JC0", 64, 64
+{
+	Offset -247, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2JD0", 64, 64
+{
+	Offset -247, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2JE0", 64, 64
+{
+	Offset -247, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2JF0", 64, 64
+{
+	Offset -247, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2JG0", 64, 64
+{
+	Offset -247, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2JH0", 64, 64
+{
+	Offset -247, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2JI0", 64, 64
+{
+	Offset -247, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2JJ0", 64, 64
+{
+	Offset -247, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2JK0", 64, 64
+{
+	Offset -247, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2JL0", 64, 64
+{
+	Offset -247, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2JM0", 64, 64
+{
+	Offset -247, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2JN0", 64, 64
+{
+	Offset -247, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2JO0", 64, 64
+{
+	Offset -247, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2JP0", 64, 64
+{
+	Offset -247, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2KA0", 64, 64
+{
+	Offset -256, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2KB0", 64, 64
+{
+	Offset -256, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2KC0", 64, 64
+{
+	Offset -256, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2KD0", 64, 64
+{
+	Offset -256, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2KE0", 64, 64
+{
+	Offset -256, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2KF0", 64, 64
+{
+	Offset -256, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2KG0", 64, 64
+{
+	Offset -256, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2KH0", 64, 64
+{
+	Offset -256, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2KI0", 64, 64
+{
+	Offset -256, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2KJ0", 64, 64
+{
+	Offset -256, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2KK0", 64, 64
+{
+	Offset -256, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2KL0", 64, 64
+{
+	Offset -256, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2KM0", 64, 64
+{
+	Offset -256, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2KN0", 64, 64
+{
+	Offset -256, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2KO0", 64, 64
+{
+	Offset -256, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2KP0", 64, 64
+{
+	Offset -256, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2LA0", 64, 64
+{
+	Offset -265, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2LB0", 64, 64
+{
+	Offset -265, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2LC0", 64, 64
+{
+	Offset -265, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2LD0", 64, 64
+{
+	Offset -265, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2LE0", 64, 64
+{
+	Offset -265, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2LF0", 64, 64
+{
+	Offset -265, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2LG0", 64, 64
+{
+	Offset -265, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2LH0", 64, 64
+{
+	Offset -265, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2LI0", 64, 64
+{
+	Offset -265, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2LJ0", 64, 64
+{
+	Offset -265, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2LK0", 64, 64
+{
+	Offset -265, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2LL0", 64, 64
+{
+	Offset -265, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2LM0", 64, 64
+{
+	Offset -265, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2LN0", 64, 64
+{
+	Offset -265, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2LO0", 64, 64
+{
+	Offset -265, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2LP0", 64, 64
+{
+	Offset -265, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2MA0", 64, 64
+{
+	Offset -274, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2MB0", 64, 64
+{
+	Offset -274, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2MC0", 64, 64
+{
+	Offset -274, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2MD0", 64, 64
+{
+	Offset -274, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2ME0", 64, 64
+{
+	Offset -274, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2MF0", 64, 64
+{
+	Offset -274, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2MG0", 64, 64
+{
+	Offset -274, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2MH0", 64, 64
+{
+	Offset -274, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2MI0", 64, 64
+{
+	Offset -274, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2MJ0", 64, 64
+{
+	Offset -274, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2MK0", 64, 64
+{
+	Offset -274, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2ML0", 64, 64
+{
+	Offset -274, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2MM0", 64, 64
+{
+	Offset -274, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2MN0", 64, 64
+{
+	Offset -274, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2MO0", 64, 64
+{
+	Offset -274, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2MP0", 64, 64
+{
+	Offset -274, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2NA0", 64, 64
+{
+	Offset -283, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2NB0", 64, 64
+{
+	Offset -283, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2NC0", 64, 64
+{
+	Offset -283, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2ND0", 64, 64
+{
+	Offset -283, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2NE0", 64, 64
+{
+	Offset -283, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2NF0", 64, 64
+{
+	Offset -283, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2NG0", 64, 64
+{
+	Offset -283, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2NH0", 64, 64
+{
+	Offset -283, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2NI0", 64, 64
+{
+	Offset -283, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2NJ0", 64, 64
+{
+	Offset -283, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2NK0", 64, 64
+{
+	Offset -283, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2NL0", 64, 64
+{
+	Offset -283, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2NM0", 64, 64
+{
+	Offset -283, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2NN0", 64, 64
+{
+	Offset -283, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2NO0", 64, 64
+{
+	Offset -283, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2NP0", 64, 64
+{
+	Offset -283, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2OA0", 64, 64
+{
+	Offset -292, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2OB0", 64, 64
+{
+	Offset -292, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2OC0", 64, 64
+{
+	Offset -292, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2OD0", 64, 64
+{
+	Offset -292, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2OE0", 64, 64
+{
+	Offset -292, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2OF0", 64, 64
+{
+	Offset -292, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2OG0", 64, 64
+{
+	Offset -292, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2OH0", 64, 64
+{
+	Offset -292, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2OI0", 64, 64
+{
+	Offset -292, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2OJ0", 64, 64
+{
+	Offset -292, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2OK0", 64, 64
+{
+	Offset -292, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2OL0", 64, 64
+{
+	Offset -292, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2OM0", 64, 64
+{
+	Offset -292, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2ON0", 64, 64
+{
+	Offset -292, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2OO0", 64, 64
+{
+	Offset -292, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2OP0", 64, 64
+{
+	Offset -292, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2PA0", 64, 64
+{
+	Offset -301, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2PB0", 64, 64
+{
+	Offset -301, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2PC0", 64, 64
+{
+	Offset -301, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2PD0", 64, 64
+{
+	Offset -301, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2PE0", 64, 64
+{
+	Offset -301, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2PF0", 64, 64
+{
+	Offset -301, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2PG0", 64, 64
+{
+	Offset -301, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2PH0", 64, 64
+{
+	Offset -301, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2PI0", 64, 64
+{
+	Offset -301, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2PJ0", 64, 64
+{
+	Offset -301, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2PK0", 64, 64
+{
+	Offset -301, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2PL0", 64, 64
+{
+	Offset -301, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2PM0", 64, 64
+{
+	Offset -301, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2PN0", 64, 64
+{
+	Offset -301, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2PO0", 64, 64
+{
+	Offset -301, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2PP0", 64, 64
+{
+	Offset -301, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2QA0", 64, 64
+{
+	Offset -310, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2QB0", 64, 64
+{
+	Offset -310, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2QC0", 64, 64
+{
+	Offset -310, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2QD0", 64, 64
+{
+	Offset -310, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2QE0", 64, 64
+{
+	Offset -310, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2QF0", 64, 64
+{
+	Offset -310, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2QG0", 64, 64
+{
+	Offset -310, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2QH0", 64, 64
+{
+	Offset -310, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2QI0", 64, 64
+{
+	Offset -310, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2QJ0", 64, 64
+{
+	Offset -310, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2QK0", 64, 64
+{
+	Offset -310, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2QL0", 64, 64
+{
+	Offset -310, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2QM0", 64, 64
+{
+	Offset -310, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2QN0", 64, 64
+{
+	Offset -310, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2QO0", 64, 64
+{
+	Offset -310, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2QP0", 64, 64
+{
+	Offset -310, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2RA0", 64, 64
+{
+	Offset -319, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2RB0", 64, 64
+{
+	Offset -319, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2RC0", 64, 64
+{
+	Offset -319, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2RD0", 64, 64
+{
+	Offset -319, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2RE0", 64, 64
+{
+	Offset -319, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2RF0", 64, 64
+{
+	Offset -319, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2RG0", 64, 64
+{
+	Offset -319, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2RH0", 64, 64
+{
+	Offset -319, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2RI0", 64, 64
+{
+	Offset -319, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2RJ0", 64, 64
+{
+	Offset -319, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2RK0", 64, 64
+{
+	Offset -319, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2RL0", 64, 64
+{
+	Offset -319, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2RM0", 64, 64
+{
+	Offset -319, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2RN0", 64, 64
+{
+	Offset -319, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2RO0", 64, 64
+{
+	Offset -319, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2RP0", 64, 64
+{
+	Offset -319, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2SA0", 64, 64
+{
+	Offset -328, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2SB0", 64, 64
+{
+	Offset -328, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2SC0", 64, 64
+{
+	Offset -328, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2SD0", 64, 64
+{
+	Offset -328, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2SE0", 64, 64
+{
+	Offset -328, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2SF0", 64, 64
+{
+	Offset -328, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2SG0", 64, 64
+{
+	Offset -328, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2SH0", 64, 64
+{
+	Offset -328, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2SI0", 64, 64
+{
+	Offset -328, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2SJ0", 64, 64
+{
+	Offset -328, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2SK0", 64, 64
+{
+	Offset -328, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2SL0", 64, 64
+{
+	Offset -328, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2SM0", 64, 64
+{
+	Offset -328, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2SN0", 64, 64
+{
+	Offset -328, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2SO0", 64, 64
+{
+	Offset -328, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2SP0", 64, 64
+{
+	Offset -328, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2TA0", 64, 64
+{
+	Offset -337, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2TB0", 64, 64
+{
+	Offset -337, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2TC0", 64, 64
+{
+	Offset -337, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2TD0", 64, 64
+{
+	Offset -337, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2TE0", 64, 64
+{
+	Offset -337, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2TF0", 64, 64
+{
+	Offset -337, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2TG0", 64, 64
+{
+	Offset -337, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2TH0", 64, 64
+{
+	Offset -337, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2TI0", 64, 64
+{
+	Offset -337, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2TJ0", 64, 64
+{
+	Offset -337, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2TK0", 64, 64
+{
+	Offset -337, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2TL0", 64, 64
+{
+	Offset -337, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2TM0", 64, 64
+{
+	Offset -337, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2TN0", 64, 64
+{
+	Offset -337, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2TO0", 64, 64
+{
+	Offset -337, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2TP0", 64, 64
+{
+	Offset -337, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2UA0", 64, 64
+{
+	Offset -346, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2UB0", 64, 64
+{
+	Offset -346, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2UC0", 64, 64
+{
+	Offset -346, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2UD0", 64, 64
+{
+	Offset -346, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2UE0", 64, 64
+{
+	Offset -346, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2UF0", 64, 64
+{
+	Offset -346, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2UG0", 64, 64
+{
+	Offset -346, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2UH0", 64, 64
+{
+	Offset -346, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2UI0", 64, 64
+{
+	Offset -346, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2UJ0", 64, 64
+{
+	Offset -346, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2UK0", 64, 64
+{
+	Offset -346, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2UL0", 64, 64
+{
+	Offset -346, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2UM0", 64, 64
+{
+	Offset -346, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2UN0", 64, 64
+{
+	Offset -346, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2UO0", 64, 64
+{
+	Offset -346, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2UP0", 64, 64
+{
+	Offset -346, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2VA0", 64, 64
+{
+	Offset -355, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2VB0", 64, 64
+{
+	Offset -355, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2VC0", 64, 64
+{
+	Offset -355, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2VD0", 64, 64
+{
+	Offset -355, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2VE0", 64, 64
+{
+	Offset -355, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2VF0", 64, 64
+{
+	Offset -355, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2VG0", 64, 64
+{
+	Offset -355, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2VH0", 64, 64
+{
+	Offset -355, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2VI0", 64, 64
+{
+	Offset -355, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2VJ0", 64, 64
+{
+	Offset -355, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2VK0", 64, 64
+{
+	Offset -355, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2VL0", 64, 64
+{
+	Offset -355, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2VM0", 64, 64
+{
+	Offset -355, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2VN0", 64, 64
+{
+	Offset -355, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2VO0", 64, 64
+{
+	Offset -355, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2VP0", 64, 64
+{
+	Offset -355, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2WA0", 64, 64
+{
+	Offset -364, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2WB0", 64, 64
+{
+	Offset -364, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2WC0", 64, 64
+{
+	Offset -364, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2WD0", 64, 64
+{
+	Offset -364, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2WE0", 64, 64
+{
+	Offset -364, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2WF0", 64, 64
+{
+	Offset -364, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2WG0", 64, 64
+{
+	Offset -364, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2WH0", 64, 64
+{
+	Offset -364, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2WI0", 64, 64
+{
+	Offset -364, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2WJ0", 64, 64
+{
+	Offset -364, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2WK0", 64, 64
+{
+	Offset -364, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2WL0", 64, 64
+{
+	Offset -364, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2WM0", 64, 64
+{
+	Offset -364, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2WN0", 64, 64
+{
+	Offset -364, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2WO0", 64, 64
+{
+	Offset -364, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2WP0", 64, 64
+{
+	Offset -364, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2XA0", 64, 64
+{
+	Offset -373, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2XB0", 64, 64
+{
+	Offset -373, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2XC0", 64, 64
+{
+	Offset -373, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2XD0", 64, 64
+{
+	Offset -373, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2XE0", 64, 64
+{
+	Offset -373, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2XF0", 64, 64
+{
+	Offset -373, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2XG0", 64, 64
+{
+	Offset -373, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2XH0", 64, 64
+{
+	Offset -373, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2XI0", 64, 64
+{
+	Offset -373, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2XJ0", 64, 64
+{
+	Offset -373, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2XK0", 64, 64
+{
+	Offset -373, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2XL0", 64, 64
+{
+	Offset -373, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2XM0", 64, 64
+{
+	Offset -373, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2XN0", 64, 64
+{
+	Offset -373, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2XO0", 64, 64
+{
+	Offset -373, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2XP0", 64, 64
+{
+	Offset -373, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2YA0", 64, 64
+{
+	Offset -382, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2YB0", 64, 64
+{
+	Offset -382, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2YC0", 64, 64
+{
+	Offset -382, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2YD0", 64, 64
+{
+	Offset -382, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2YE0", 64, 64
+{
+	Offset -382, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2YF0", 64, 64
+{
+	Offset -382, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2YG0", 64, 64
+{
+	Offset -382, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2YH0", 64, 64
+{
+	Offset -382, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2YI0", 64, 64
+{
+	Offset -382, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2YJ0", 64, 64
+{
+	Offset -382, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2YK0", 64, 64
+{
+	Offset -382, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2YL0", 64, 64
+{
+	Offset -382, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2YM0", 64, 64
+{
+	Offset -382, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2YN0", 64, 64
+{
+	Offset -382, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2YO0", 64, 64
+{
+	Offset -382, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2YP0", 64, 64
+{
+	Offset -382, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM2ZA0", 64, 64
+{
+	Offset -391, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM2ZB0", 64, 64
+{
+	Offset -391, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM2ZC0", 64, 64
+{
+	Offset -391, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM2ZD0", 64, 64
+{
+	Offset -391, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM2ZE0", 64, 64
+{
+	Offset -391, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM2ZF0", 64, 64
+{
+	Offset -391, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM2ZG0", 64, 64
+{
+	Offset -391, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM2ZH0", 64, 64
+{
+	Offset -391, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM2ZI0", 64, 64
+{
+	Offset -391, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM2ZJ0", 64, 64
+{
+	Offset -391, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM2ZK0", 64, 64
+{
+	Offset -391, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM2ZL0", 64, 64
+{
+	Offset -391, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM2ZM0", 64, 64
+{
+	Offset -391, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM2ZN0", 64, 64
+{
+	Offset -391, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM2ZO0", 64, 64
+{
+	Offset -391, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM2ZP0", 64, 64
+{
+	Offset -391, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM30A0", 64, 64
+{
+	Offset -400, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM30B0", 64, 64
+{
+	Offset -400, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM30C0", 64, 64
+{
+	Offset -400, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM30D0", 64, 64
+{
+	Offset -400, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM30E0", 64, 64
+{
+	Offset -400, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM30F0", 64, 64
+{
+	Offset -400, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM30G0", 64, 64
+{
+	Offset -400, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM30H0", 64, 64
+{
+	Offset -400, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM30I0", 64, 64
+{
+	Offset -400, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM30J0", 64, 64
+{
+	Offset -400, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM30K0", 64, 64
+{
+	Offset -400, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM30L0", 64, 64
+{
+	Offset -400, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM30M0", 64, 64
+{
+	Offset -400, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM30N0", 64, 64
+{
+	Offset -400, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM30O0", 64, 64
+{
+	Offset -400, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM30P0", 64, 64
+{
+	Offset -400, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM31A0", 64, 64
+{
+	Offset -409, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM31B0", 64, 64
+{
+	Offset -409, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM31C0", 64, 64
+{
+	Offset -409, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM31D0", 64, 64
+{
+	Offset -409, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM31E0", 64, 64
+{
+	Offset -409, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM31F0", 64, 64
+{
+	Offset -409, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM31G0", 64, 64
+{
+	Offset -409, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM31H0", 64, 64
+{
+	Offset -409, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM31I0", 64, 64
+{
+	Offset -409, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM31J0", 64, 64
+{
+	Offset -409, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM31K0", 64, 64
+{
+	Offset -409, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM31L0", 64, 64
+{
+	Offset -409, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM31M0", 64, 64
+{
+	Offset -409, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM31N0", 64, 64
+{
+	Offset -409, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM31O0", 64, 64
+{
+	Offset -409, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM31P0", 64, 64
+{
+	Offset -409, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM32A0", 64, 64
+{
+	Offset -418, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM32B0", 64, 64
+{
+	Offset -418, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM32C0", 64, 64
+{
+	Offset -418, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM32D0", 64, 64
+{
+	Offset -418, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM32E0", 64, 64
+{
+	Offset -418, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM32F0", 64, 64
+{
+	Offset -418, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM32G0", 64, 64
+{
+	Offset -418, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM32H0", 64, 64
+{
+	Offset -418, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM32I0", 64, 64
+{
+	Offset -418, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM32J0", 64, 64
+{
+	Offset -418, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM32K0", 64, 64
+{
+	Offset -418, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM32L0", 64, 64
+{
+	Offset -418, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM32M0", 64, 64
+{
+	Offset -418, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM32N0", 64, 64
+{
+	Offset -418, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM32O0", 64, 64
+{
+	Offset -418, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM32P0", 64, 64
+{
+	Offset -418, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM33A0", 64, 64
+{
+	Offset -427, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM33B0", 64, 64
+{
+	Offset -427, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM33C0", 64, 64
+{
+	Offset -427, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM33D0", 64, 64
+{
+	Offset -427, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM33E0", 64, 64
+{
+	Offset -427, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM33F0", 64, 64
+{
+	Offset -427, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM33G0", 64, 64
+{
+	Offset -427, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM33H0", 64, 64
+{
+	Offset -427, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM33I0", 64, 64
+{
+	Offset -427, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM33J0", 64, 64
+{
+	Offset -427, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM33K0", 64, 64
+{
+	Offset -427, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM33L0", 64, 64
+{
+	Offset -427, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM33M0", 64, 64
+{
+	Offset -427, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM33N0", 64, 64
+{
+	Offset -427, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM33O0", 64, 64
+{
+	Offset -427, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM33P0", 64, 64
+{
+	Offset -427, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM34A0", 64, 64
+{
+	Offset -436, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM34B0", 64, 64
+{
+	Offset -436, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM34C0", 64, 64
+{
+	Offset -436, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM34D0", 64, 64
+{
+	Offset -436, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM34E0", 64, 64
+{
+	Offset -436, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM34F0", 64, 64
+{
+	Offset -436, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM34G0", 64, 64
+{
+	Offset -436, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM34H0", 64, 64
+{
+	Offset -436, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM34I0", 64, 64
+{
+	Offset -436, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM34J0", 64, 64
+{
+	Offset -436, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM34K0", 64, 64
+{
+	Offset -436, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM34L0", 64, 64
+{
+	Offset -436, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM34M0", 64, 64
+{
+	Offset -436, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM34N0", 64, 64
+{
+	Offset -436, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM34O0", 64, 64
+{
+	Offset -436, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM34P0", 64, 64
+{
+	Offset -436, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM35A0", 64, 64
+{
+	Offset -445, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM35B0", 64, 64
+{
+	Offset -445, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM35C0", 64, 64
+{
+	Offset -445, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM35D0", 64, 64
+{
+	Offset -445, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM35E0", 64, 64
+{
+	Offset -445, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM35F0", 64, 64
+{
+	Offset -445, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM35G0", 64, 64
+{
+	Offset -445, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM35H0", 64, 64
+{
+	Offset -445, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM35I0", 64, 64
+{
+	Offset -445, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM35J0", 64, 64
+{
+	Offset -445, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM35K0", 64, 64
+{
+	Offset -445, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM35L0", 64, 64
+{
+	Offset -445, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM35M0", 64, 64
+{
+	Offset -445, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM35N0", 64, 64
+{
+	Offset -445, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM35O0", 64, 64
+{
+	Offset -445, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM35P0", 64, 64
+{
+	Offset -445, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM36A0", 64, 64
+{
+	Offset -454, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM36B0", 64, 64
+{
+	Offset -454, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM36C0", 64, 64
+{
+	Offset -454, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM36D0", 64, 64
+{
+	Offset -454, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM36E0", 64, 64
+{
+	Offset -454, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM36F0", 64, 64
+{
+	Offset -454, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM36G0", 64, 64
+{
+	Offset -454, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM36H0", 64, 64
+{
+	Offset -454, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM36I0", 64, 64
+{
+	Offset -454, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM36J0", 64, 64
+{
+	Offset -454, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM36K0", 64, 64
+{
+	Offset -454, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM36L0", 64, 64
+{
+	Offset -454, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM36M0", 64, 64
+{
+	Offset -454, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM36N0", 64, 64
+{
+	Offset -454, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM36O0", 64, 64
+{
+	Offset -454, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM36P0", 64, 64
+{
+	Offset -454, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM37A0", 64, 64
+{
+	Offset -463, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM37B0", 64, 64
+{
+	Offset -463, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM37C0", 64, 64
+{
+	Offset -463, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM37D0", 64, 64
+{
+	Offset -463, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM37E0", 64, 64
+{
+	Offset -463, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM37F0", 64, 64
+{
+	Offset -463, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM37G0", 64, 64
+{
+	Offset -463, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM37H0", 64, 64
+{
+	Offset -463, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM37I0", 64, 64
+{
+	Offset -463, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM37J0", 64, 64
+{
+	Offset -463, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM37K0", 64, 64
+{
+	Offset -463, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM37L0", 64, 64
+{
+	Offset -463, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM37M0", 64, 64
+{
+	Offset -463, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM37N0", 64, 64
+{
+	Offset -463, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM37O0", 64, 64
+{
+	Offset -463, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM37P0", 64, 64
+{
+	Offset -463, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM38A0", 64, 64
+{
+	Offset -472, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM38B0", 64, 64
+{
+	Offset -472, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM38C0", 64, 64
+{
+	Offset -472, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM38D0", 64, 64
+{
+	Offset -472, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM38E0", 64, 64
+{
+	Offset -472, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM38F0", 64, 64
+{
+	Offset -472, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM38G0", 64, 64
+{
+	Offset -472, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM38H0", 64, 64
+{
+	Offset -472, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM38I0", 64, 64
+{
+	Offset -472, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM38J0", 64, 64
+{
+	Offset -472, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM38K0", 64, 64
+{
+	Offset -472, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM38L0", 64, 64
+{
+	Offset -472, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM38M0", 64, 64
+{
+	Offset -472, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM38N0", 64, 64
+{
+	Offset -472, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM38O0", 64, 64
+{
+	Offset -472, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM38P0", 64, 64
+{
+	Offset -472, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM39A0", 64, 64
+{
+	Offset -481, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM39B0", 64, 64
+{
+	Offset -481, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM39C0", 64, 64
+{
+	Offset -481, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM39D0", 64, 64
+{
+	Offset -481, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM39E0", 64, 64
+{
+	Offset -481, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM39F0", 64, 64
+{
+	Offset -481, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM39G0", 64, 64
+{
+	Offset -481, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM39H0", 64, 64
+{
+	Offset -481, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM39I0", 64, 64
+{
+	Offset -481, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM39J0", 64, 64
+{
+	Offset -481, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM39K0", 64, 64
+{
+	Offset -481, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM39L0", 64, 64
+{
+	Offset -481, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM39M0", 64, 64
+{
+	Offset -481, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM39N0", 64, 64
+{
+	Offset -481, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM39O0", 64, 64
+{
+	Offset -481, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM39P0", 64, 64
+{
+	Offset -481, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM3AA0", 64, 64
+{
+	Offset -490, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM3AB0", 64, 64
+{
+	Offset -490, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM3AC0", 64, 64
+{
+	Offset -490, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM3AD0", 64, 64
+{
+	Offset -490, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM3AE0", 64, 64
+{
+	Offset -490, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM3AF0", 64, 64
+{
+	Offset -490, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM3AG0", 64, 64
+{
+	Offset -490, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM3AH0", 64, 64
+{
+	Offset -490, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM3AI0", 64, 64
+{
+	Offset -490, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM3AJ0", 64, 64
+{
+	Offset -490, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM3AK0", 64, 64
+{
+	Offset -490, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM3AL0", 64, 64
+{
+	Offset -490, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM3AM0", 64, 64
+{
+	Offset -490, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM3AN0", 64, 64
+{
+	Offset -490, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM3AO0", 64, 64
+{
+	Offset -490, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM3AP0", 64, 64
+{
+	Offset -490, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM3BA0", 64, 64
+{
+	Offset -499, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM3BB0", 64, 64
+{
+	Offset -499, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM3BC0", 64, 64
+{
+	Offset -499, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM3BD0", 64, 64
+{
+	Offset -499, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM3BE0", 64, 64
+{
+	Offset -499, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM3BF0", 64, 64
+{
+	Offset -499, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM3BG0", 64, 64
+{
+	Offset -499, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM3BH0", 64, 64
+{
+	Offset -499, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM3BI0", 64, 64
+{
+	Offset -499, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM3BJ0", 64, 64
+{
+	Offset -499, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM3BK0", 64, 64
+{
+	Offset -499, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM3BL0", 64, 64
+{
+	Offset -499, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM3BM0", 64, 64
+{
+	Offset -499, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM3BN0", 64, 64
+{
+	Offset -499, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM3BO0", 64, 64
+{
+	Offset -499, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM3BP0", 64, 64
+{
+	Offset -499, 32
+	Patch "SP416", 0, 0
+}
+Sprite "CM3CA0", 64, 64
+{
+	Offset -508, 32
+	Patch "S005A0", 0, 0
+}
+Sprite "CM3CB0", 64, 64
+{
+	Offset -508, 32
+	Patch "S014A0", 0, 0
+}
+Sprite "CM3CC0", 64, 64
+{
+	Offset -508, 32
+	Patch "S211A0", 0, 0
+}
+Sprite "CM3CD0", 64, 64
+{
+	Offset -508, 32
+	Patch "S300A0", 0, 0
+}
+Sprite "CM3CE0", 64, 64
+{
+	Offset -508, 32
+	Patch "S301A0", 0, 0
+}
+Sprite "CM3CF0", 64, 64
+{
+	Offset -508, 32
+	Patch "SP402", 0, 0
+}
+Sprite "CM3CG0", 64, 64
+{
+	Offset -508, 32
+	Patch "S020A0", 0, 0
+}
+Sprite "CM3CH0", 64, 64
+{
+	Offset -508, 32
+	Patch "S020B0", 0, 0
+}
+Sprite "CM3CI0", 64, 64
+{
+	Offset -508, 32
+	Patch "SP417", 0, 0
+}
+Sprite "CM3CJ0", 64, 64
+{
+	Offset -508, 32
+	Patch "SP430", 0, 0
+}
+Sprite "CM3CK0", 64, 64
+{
+	Offset -508, 32
+	Patch "SP424", 0, 0
+}
+Sprite "CM3CL0", 64, 64
+{
+	Offset -508, 32
+	Patch "SP429", 0, 0
+}
+Sprite "CM3CM0", 64, 64
+{
+	Offset -508, 32
+	Patch "SP425", 0, 0
+}
+Sprite "CM3CN0", 64, 64
+{
+	Offset -508, 32
+	Patch "SP408", 0, 0
+}
+Sprite "CM3CO0", 64, 64
+{
+	Offset -508, 32
+	Patch "SP415", 0, 0
+}
+Sprite "CM3CP0", 64, 64
+{
+	Offset -508, 32
+	Patch "SP416", 0, 0
+}

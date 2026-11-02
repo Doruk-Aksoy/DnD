@@ -46,10 +46,6 @@ Actor DnD_ExplosionRepeatChance : DnD_Info { }
 
 Actor DamagePerFlatHPBuffer : DnD_Info { }
 
-Actor SummonedZombiePets : Inventory {
-	inventory.maxamount 5
-}
-
 Actor Menu_Setup : DnD_Boolean { }
 
 
@@ -202,6 +198,7 @@ Actor ShowingMenu_CS : DnD_Boolean { }
 Actor ShowingPrompt : DnD_Boolean { }
 Actor ShowingMerchantView : DnD_Boolean { }
 Actor ShowingWeaponWheel : DnD_Boolean { }
+Actor ShowingSkillWheel : DnD_Boolean { }
 
 Actor LimitedCraftDraw : PowerDamage {
 	damagefactor "normal", 1.0
@@ -517,6 +514,8 @@ Actor DnD_LastCooldownSpell : DnD_Info { }
 // Surgecast: armed while held; the ticket tells a recast's window from the one it replaced.
 Actor DnD_SurgecastReady : DnD_Boolean { }
 Actor DnD_SurgecastTicket : DnD_Info { }
+// Telekinesis rank 5: tics left on the window in which reflectable missiles are reflected.
+Actor DnD_TelekinesisDeflect : DnD_Info { }
 // Baleful Infusion: armed while held, spending on the tic its hit lands; the ticket tells a recast's window apart.
 Actor DnD_BalefulReady : DnD_Boolean { }
 Actor DnD_BalefulSpending : DnD_Boolean { }
@@ -715,6 +714,12 @@ Actor LifestealScriptRunning : DnD_Boolean { }
 Actor LifeStealAmount : Inventory {
 	inventory.maxamount 0x7FFFFFFF
 }
+
+// Mana leech waiting to be paid out, and whether "DnD Mana Leech" is paying it.
+Actor ManaLeechAmount : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+Actor ManaLeechScriptRunning : DnD_Boolean { }
 
 Actor DnD_EliteException : DnD_Boolean { }
 Actor DnD_CleanInventoryRequest : PowerDamage {

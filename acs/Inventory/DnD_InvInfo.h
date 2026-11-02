@@ -257,11 +257,9 @@ enum {
 	DND_MAXSYNCINDICES
 };
 
-// this is purely clientside, its freed once app quits
-inventory_vsync_T global:20? GetItemVSyncData(int id) {
-	static inventory_vsync_T[]? ItemSyncData = null;
-	if(ItemSyncData == null)
-		ItemSyncData = bcs::arrNew(DND_MAXSYNCINDICES, 9);
+// purely clientside; map storage, which ResetVSyncItemInfo marks empty as the player enters each map
+inventory_vsync_T module& GetItemVSyncData(int id) {
+	static inventory_vsync_T ItemSyncData[DND_MAXSYNCINDICES];
 	return ItemSyncData[id];
 }
 

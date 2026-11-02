@@ -20,19 +20,11 @@ int AproxDistance (int dx, int dy) {
 	return dx + dy - (dy >> 1);
 }
 
-// Copied from ZDWiki.
-// Fixed-point version, only works up to 30,000 or so:
-int fsqrt(int number) 
-{ 
-  int samples = 15; // Samples for accuracy
-
-  if (number == 1.0) return 1.0; 
-  if (number <= 0) return 0;
-  int val = (samples<<17) + (samples<<19); // x*10 = x<<1 + x<<3
-  for (int i=0; i<samples; ++i) 
-    val = (val + FixedDiv(number, val)) >> 1;
-
-  return val; 
+// Fixed point square root by the engine; 0 for anything not positive.
+int fsqrt(int number) {
+	if(number <= 0)
+		return 0;
+	return FixedSqrt(number);
 }
 
 int sqrt_z(int number)

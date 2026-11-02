@@ -46,33 +46,36 @@ Actor DnD_SlowTickerRunning : DnD_Info { }
 // timed slow, so the two cannot fight over the property.
 Actor DnD_ChillPercent : DnD_Info { }
 
+// Pacify blocks a monster's attacks, silence its spells. Both count tics, run down by "DnD Monster Lockout Ticker".
+Actor DnD_PacifyTimer : DnD_Info { }
+Actor DnD_SilenceTimer : DnD_Info { }
+Actor DnD_LockoutTickerRunning : DnD_Info { }
+// Set while either runs: the only check an unaffected monster pays when it decides to attack.
+Actor DnD_AttackLock : DnD_Boolean { }
+// Every move the Missile or Melee dispatch can reach is blocked right now, so it chases instead.
+Actor DnD_MissileBlocked : DnD_Boolean { }
+Actor DnD_MeleeBlocked : DnD_Boolean { }
+Actor DnD_AttackInMelee : DnD_Boolean { }
+Actor DnD_AttackRerolls : DnD_Info { }
+const int DND_ATTACK_REROLLS = 6;
+// Held while the monster's last gated move was a spell: each attack state's gate is followed by a line setting it.
+Actor DnD_CastingSpell : DnD_Boolean { }
+// On a monster's projectile, the kind it was fired as: 1 an attack, 2 a spell. Hits on players read it, not the shooter.
+Actor DnD_ShotKind : DnD_Info { }
+// Held for a second after a locked dispatch: a blocked gate rerolls only then, else it came from a walk or pain and is skipped.
+Actor DnD_AttackRolling : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 35
+}
+
 Actor BlindCancelledSignal : PowerDamage {
 	damagefactor "normal", 1.0
 	powerup.duration 7
 }
 
-Actor DnD_SightChecker : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DnD Can Look Around"), "Nothing")
-			TNT1 A 0 A_Look
-		Stop
-		Nothing:
-			TNT1 A 0
-		Stop
-	}
-}
-
-Actor DnD_WanderChecker : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DnD Can Wander Around"), "Nothing")
-			TNT1 A 0 A_Wander
-		Stop
-		Nothing:
-			TNT1 A 0
-		Stop
-	}
+// Given on Idle; "DnD Monster Active" takes it on the first See after, once setup is done.
+Actor DnD_MonsterIdleMark : DnD_Info {
+	inventory.maxamount 1
 }
 
 Actor DnD_BaseMonster {
@@ -158,22 +161,67 @@ Actor DnD_BaseMonster {
 		SpawnSetup:
 			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Monster Scale", args[4], args[1], args[3], args[2])
 		Idle:
+			"####" "#" 0 A_GiveInventory("DnD_MonsterIdleMark", 1)
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD Monster Idle", 0)
 			"####" "#" 0 A_Jump(256, "IdleState")
 			"####" "#" 35
 		Wait
-		
+
 		See:
 			"####" "#" 0 A_JumpIfInventory("DnD_ParryWeakness", 1, "PainLooping")
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD Monster Active", 0)
+			"####" "#" 0 A_JumpIfInventory("DnD_MonsterIdleMark", 1, "IdleWake")
 			"####" "#" 0 A_Jump(256, "SeeState")
 			"####" "#" 35
 		Wait
-		
+
+		// Plain actions keep the script off clients; the mark stays until setup is done.
+		IdleWake:
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Monster Active")
+			"####" "#" 0 A_JumpIfInventory("DnD_MonsterIdleMark", 1, "IdleWakeHold")
+			"####" "#" 0 A_Jump(256, "SeeState")
+			"####" "#" 35
+		Wait
+
+		// Woke before setup: keep the target and wait, without a second sight sound.
+		IdleWakeHold:
+			"####" "#" 5 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Look Around"), "IdleWake")
+		Loop
+
 		Pain:
 			"####" "#" 0 A_GiveInventory("BlindCancelledSignal", 1)
 		PainLooping:
 			"####" "#" 0 A_Jump(256, "PainState")
+			"####" "#" 35
+		Wait
+
+		// Only a pacified or silenced monster comes here: blocked melee tries the missile moves, chase when nothing is left.
+		MeleeLocked:
+			"####" "#" 0 A_JumpIfInventory("DnD_MeleeBlocked", 1, "MissileLocked")
+			"####" "#" 0 A_GiveInventory("DnD_AttackInMelee", 1)
+			"####" "#" 0 A_TakeInventory("DnD_AttackRerolls")
+			"####" "#" 0 A_GiveInventory("DnD_AttackRolling", 1)
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0, 1)
+			"####" "#" 0 A_Jump(256, "MeleeState")
+			"####" "#" 35
+		Wait
+		MissileLocked:
+			"####" "#" 0 A_JumpIfInventory("DnD_MissileBlocked", 1, "See")
+			"####" "#" 0 A_TakeInventory("DnD_AttackInMelee")
+			"####" "#" 0 A_TakeInventory("DnD_AttackRerolls")
+			"####" "#" 0 A_GiveInventory("DnD_AttackRolling", 1)
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
+			"####" "#" 0 A_Jump(256, "MissileState")
+			"####" "#" 35
+		Wait
+		// An attack state's gate sends a blocked move here; a few failed rolls in a row mean chase.
+		AttackReroll:
+			"####" "#" 0 A_JumpIfInventory("DnD_AttackRolling", 1, "AttackRerollRoll")
+		Goto See
+		AttackRerollRoll:
+			"####" "#" 0 A_GiveInventory("DnD_AttackRerolls", 1)
+			"####" "#" 0 A_JumpIfInventory("DnD_AttackRerolls", DND_ATTACK_REROLLS, "See")
+			"####" "#" 0 A_JumpIfInventory("DnD_AttackInMelee", 1, "MeleeState")
+			"####" "#" 0 A_Jump(256, "MissileState")
 			"####" "#" 35
 		Wait
 		
@@ -369,6 +417,7 @@ Actor DnD_BaseMeleeMonster_NoRes : DnD_BaseMonster {
 	Stamina 1
 	States {
 		Melee:
+			"####" "#" 0 A_JumpIfInventory("DnD_AttackLock", 1, "MeleeLocked")
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0, 1)
 			"####" "#" 0 A_Jump(256, "MeleeState")
 			"####" "#" 35
@@ -391,6 +440,7 @@ Actor DnD_BaseMeleeMonster : DnD_BaseMeleeMonster_NoRes {
 Actor DnD_BaseRangedMonster_NoRes : DnD_BaseMonster {
 	States {
 		Missile:
+			"####" "#" 0 A_JumpIfInventory("DnD_AttackLock", 1, "MissileLocked")
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			"####" "#" 0 A_Jump(256, "MissileState")
 			"####" "#" 35
@@ -413,11 +463,13 @@ Actor DnD_BaseHybridMonster_NoRes : DnD_BaseMonster {
 	Stamina 1
 	States {
 		Melee:
+			"####" "#" 0 A_JumpIfInventory("DnD_AttackLock", 1, "MeleeLocked")
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0, 1)
 			"####" "#" 0 A_Jump(256, "MeleeState")
 			"####" "#" 35
 		Wait
 		Missile:
+			"####" "#" 0 A_JumpIfInventory("DnD_AttackLock", 1, "MissileLocked")
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
 			"####" "#" 0 A_Jump(256, "MissileState")
 			"####" "#" 35
@@ -1183,7 +1235,7 @@ Actor AsmodeusGhost : DnD_ArchVilePassiveBase {
 		Goto SpawnSetup
 
 		IdleState:
-			RFX0 AB 10 A_GiveInventory("DnD_SightChecker", 1) 
+			RFX0 AB 10 A_Look 
 		Loop 
 		
 		SeeState: 

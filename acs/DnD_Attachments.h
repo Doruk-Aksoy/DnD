@@ -7,8 +7,17 @@ typedef struct {
 
 // max 32, using an int as a bitfield
 attachment_data_T module& GetMonsterAttachmentsUsed(int m_id) {
-	static attachment_data_T MonsterAttachmentUsed[DND_MAX_MONSTERS];
+	static attachment_data_T MonsterAttachmentUsed[DND_MAX_ATTACHMENT_SLOTS];
 	return MonsterAttachmentUsed[m_id];
+}
+
+// A monster's attachment slot is its monster id, a pet's comes after every monster's; -1 for anything else.
+int GetAttachmentSlot(int tid) {
+	if(tid >= DND_MONSTERTID_BEGIN && tid < DND_LASTMONSTER_TID)
+		return tid - DND_MONSTERTID_BEGIN;
+	if(tid >= DND_PETTID_BEGIN && tid < DND_PETTID_END)
+		return DND_MAX_MONSTERS + tid - DND_PETTID_BEGIN;
+	return -1;
 }
 
 enum {
@@ -30,7 +39,56 @@ enum {
 	DND_ATTACHMENT_CONDUCTIVITY,
 	DND_ATTACHMENT_VULNERABILITY,
 	DND_ATTACHMENT_DESPAIR,
+	DND_ATTACHMENT_NOX,
+	DND_ATTACHMENT_TEMPORALCHAINS,
+	DND_ATTACHMENT_MARKPREY,
+	DND_ATTACHMENT_ENFEEBLE,
+	DND_ATTACHMENT_PAINAMP,
+	DND_ATTACHMENT_SILENCE,
+	DND_ATTACHMENT_REMOVERESIST,
+	DND_ATTACHMENT_BREAKIMMUNITY,
+	DND_ATTACHMENT_LIFETAP,
+	DND_ATTACHMENT_DELIRIUM,
+	DND_ATTACHMENT_SUBJUGATE,
+	DND_ATTACHMENT_PENETRATE,
 };
+
+// The curse row's markers past the first ones, in the enum's order.
+str GetCurseMarkerClass(int which) {
+	switch(which) {
+		case DND_ATTACHMENT_SILENCE:		return "SilenceFXMarker";
+		case DND_ATTACHMENT_REMOVERESIST:	return "RemoveResistFXMarker";
+		case DND_ATTACHMENT_BREAKIMMUNITY:	return "BreakImmunityFXMarker";
+		case DND_ATTACHMENT_LIFETAP:		return "LifeTapFXMarker";
+		case DND_ATTACHMENT_DELIRIUM:		return "DeliriumFXMarker";
+		case DND_ATTACHMENT_SUBJUGATE:		return "SubjugateFXMarker";
+		case DND_ATTACHMENT_PENETRATE:		return "PenetrateFXMarker";
+	}
+	return "";
+}
+
+// Mirror the position states in Flammability.dec: positions to a half slot, and the middle one.
+#define DND_CURSEROW_SUB 4
+#define DND_CURSEROW_MID 60
+
+// Client side, from a curse marker joining or leaving: its monster's curse markers in a row, slot order, centred.
+// Each gets the position it slides to; n markers sit n - 1 half slots either side of the middle.
+Script "DnD Curse Row" (void) CLIENTSIDE {
+	int slot = GetAttachmentSlot(GetActorProperty(0, APROP_TARGETTID));
+	if(slot < 0) {
+		SetResultValue(0);
+		Terminate;
+	}
+
+	int base = DND_MONSTER_ATTACHMENT_TID_BEGIN + slot * DND_MAX_MONSTER_ATTACHMENTS, i, n = 0, k = 0;
+	for(i = 0; i < DND_MAX_MONSTER_ATTACHMENTS; ++i)
+		if(GetUserVariable(base + i, "user_cursemark"))
+			++n;
+	for(i = 0; i < DND_MAX_MONSTER_ATTACHMENTS; ++i)
+		if(GetUserVariable(base + i, "user_cursemark"))
+			SetUserVariable(base + i, "user_target", DND_CURSEROW_MID + (2 * k++ - (n - 1)) * DND_CURSEROW_SUB);
+	SetResultValue(0);
+}
 
 Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 	// non-zero hopefully
@@ -106,6 +164,42 @@ Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 				zoff += 4.0;
 				res = CreateMonsterAttachment(tid, "DespairFXMarker", 0, 0, zoff);
 			break;
+			case DND_ATTACHMENT_NOX:
+				zoff <<= 1;
+				zoff += 4.0;
+				res = CreateMonsterAttachment(tid, "NoxFXMarker", 0, 0, zoff);
+			break;
+			case DND_ATTACHMENT_TEMPORALCHAINS:
+				zoff <<= 1;
+				zoff += 4.0;
+				res = CreateMonsterAttachment(tid, "TemporalChainsFXMarker", 0, 0, zoff);
+			break;
+			case DND_ATTACHMENT_MARKPREY:
+				zoff <<= 1;
+				zoff += 4.0;
+				res = CreateMonsterAttachment(tid, "MarkPreyFXMarker", 0, 0, zoff);
+			break;
+			case DND_ATTACHMENT_ENFEEBLE:
+				zoff <<= 1;
+				zoff += 4.0;
+				res = CreateMonsterAttachment(tid, "EnfeebleFXMarker", 0, 0, zoff);
+			break;
+			case DND_ATTACHMENT_PAINAMP:
+				zoff <<= 1;
+				zoff += 4.0;
+				res = CreateMonsterAttachment(tid, "PainAmpFXMarker", 0, 0, zoff);
+			break;
+			case DND_ATTACHMENT_SILENCE:
+			case DND_ATTACHMENT_REMOVERESIST:
+			case DND_ATTACHMENT_BREAKIMMUNITY:
+			case DND_ATTACHMENT_LIFETAP:
+			case DND_ATTACHMENT_DELIRIUM:
+			case DND_ATTACHMENT_SUBJUGATE:
+			case DND_ATTACHMENT_PENETRATE:
+				zoff <<= 1;
+				zoff += 4.0;
+				res = CreateMonsterAttachment(tid, GetCurseMarkerClass(which), 0, 0, zoff);
+			break;
 			// Around the feet: this one is a shackle, not an overhead icon. The actor warps itself to
 			// a fixed 16 up every tic, so this only decides where it first appears.
 			case DND_ATTACHMENT_SNARE:
@@ -137,11 +231,13 @@ Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 // Within a map, DisposeAttachments shifts a slot down to 0 as it walks, so a monster that
 // dies leaves its slot clean for the next m_id to reuse.
 
-// do not send tid here, send monster id (tid - DND_MONSTERTID_BEGIN)
+// Takes the monster's or pet's tid; anything else gets no attachment.
 int CreateMonsterAttachment(int tid, str actor_name, int xoff = 0, int yoff = 0, int zoff = 0, int angle = 0) {
 	// base tid skip
 	int sfx_id = 0;
-	int m_id = tid - DND_MONSTERTID_BEGIN;
+	int m_id = GetAttachmentSlot(tid);
+	if(m_id < 0)
+		return 0;
 	auto attachment_data = GetMonsterAttachmentsUsed(m_id);
 	int temp = attachment_data.val;
 	while(temp & 1) {
@@ -176,6 +272,8 @@ int CreateMonsterAttachment(int tid, str actor_name, int xoff = 0, int yoff = 0,
 }
 
 void RemoveAttachment(int m_id, int sfx_id, bool wantStateChange = true) {
+	if(m_id < 0)
+		return;
 	auto attachment_data = GetMonsterAttachmentsUsed(m_id);
 	int temp = attachment_data.val;
 	int id_count = 0;
@@ -194,7 +292,7 @@ void RemoveAttachment(int m_id, int sfx_id, bool wantStateChange = true) {
 }
 
 Script "DnD Remove Monster Attachment" (int tid, int sfx_id) CLIENTSIDE {
-	RemoveAttachment(tid - DND_MONSTERTID_BEGIN, sfx_id);
+	RemoveAttachment(GetAttachmentSlot(tid), sfx_id);
 	SetResultValue(0);
 }
 
@@ -202,8 +300,19 @@ Script "DnD Remove Blind FX Count" (void) CLIENTSIDE {
 	SetActivatorToTarget(0);
 	
 	int this = ActivatorTID();
-	RemoveAttachment(this - DND_MONSTERTID_BEGIN, CheckInventory("DnD_BlindFXToRemove") - 1, false);
+	RemoveAttachment(GetAttachmentSlot(this), CheckInventory("DnD_BlindFXToRemove") - 1, false);
 	SetInventory("DnD_BlindFXToRemove", 0);
+	SetResultValue(0);
+}
+
+// A pet's attachment leaving on its own hands back its bit, read from its tid, and drops the tid for the next one.
+// Pet slots only: a monster's death walks its bits in DisposeAttachments, and a release mid-walk would shift them.
+Script "DnD Release Attachment CS" (void) CLIENTSIDE {
+	int t = ActivatorTID() - DND_MONSTER_ATTACHMENT_TID_BEGIN;
+	if(t >= DND_MAX_MONSTERS * DND_MAX_MONSTER_ATTACHMENTS && t < DND_MAX_ATTACHMENT_SLOTS * DND_MAX_MONSTER_ATTACHMENTS) {
+		RemoveAttachment(t / DND_MAX_MONSTER_ATTACHMENTS, t % DND_MAX_MONSTER_ATTACHMENTS, false);
+		Thing_ChangeTID(0, 0);
+	}
 	SetResultValue(0);
 }
 
@@ -407,6 +516,8 @@ void ClearPlayerAttachmentMarkers(int pnum) {
 
 // When a monster is killed this is called to do cleanup
 void DisposeAttachments(int m_id) {
+	if(m_id < 0)
+		return;
 	auto attachment_data = GetMonsterAttachmentsUsed(m_id);
 	// if theres any attachment
 	//Log(s:" attachment used? ", d:attachment_data.val, s: " ", d:m_id);

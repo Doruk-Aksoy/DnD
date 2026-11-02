@@ -322,6 +322,7 @@ int GetPlayerEstimatedArmorProtect(int pnum, int cap) {
 }
 
 void GiveStat(int stat_id, int amt) {
+	int old_cap = stat_id == STAT_STR ? GetSpawnHealth() : 0;
 	amt = Clamp_Between(CheckInventory(StatData[stat_id]) + amt, 0, DND_STAT_FULLMAX) - CheckInventory(StatData[stat_id]);
 	// GiveInventory drops a negative amount on the floor instead of subtracting, so the refund has
 	// to take the stat back off explicitly. The clamp above is already signed.
@@ -331,26 +332,19 @@ void GiveStat(int stat_id, int amt) {
 		GiveInventory(StatData[stat_id], amt);
 	UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTE, amt, stat_id);
 
-	// visual updates
-	if(stat_id == STAT_STR) {
-		UpdatePlayerKnockbackResist();
-		SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
-		UpdateStaminaCap(PlayerNumber());
-	}
+	if(stat_id == STAT_STR)
+		HandleStrengthChange(PlayerNumber(), amt < 0, old_cap);
 }
 
 // Takes a stat from the player, also removing effects of it
 void TakeStat(int stat_id, int amt) {
 	// printbold(s:"take stat ", d:stat_id, s: " amt: ", d:amt);
+	int old_cap = stat_id == STAT_STR ? GetSpawnHealth() : 0;
 	TakeInventory(StatData[stat_id], amt);
 	UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTE, -amt, stat_id);
 
-	// visual updates
-	if(stat_id == STAT_STR) {
-		UpdatePlayerKnockbackResist();
-		SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
-		UpdateStaminaCap(PlayerNumber());
-	}
+	if(stat_id == STAT_STR)
+		HandleStrengthChange(PlayerNumber(), true, old_cap);
 }
 
 void SpawnPlayerDrop(int pnum, str actor, int zoffset, int thrust, int setspecial, int setspecial2, bool noRandomVelXY = false) {
@@ -845,7 +839,7 @@ void DecideAccessories() {
 	if(IsAccessoryEquipped(this, DND_ACCESSORY_GRYPHONBOOTS)) {
 		GiveInventory("CurseImmunity", 1);
 		GiveInventory("GryphonCheck", 1);
-		UpdatePlayerKnockbackResist();
+		UpdateStrengthDerivedStats();
 		SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(PlayerNumber()));
 	}
 	else {
@@ -1097,9 +1091,12 @@ int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0, bool isS
 			chance += pct_bonus;
 	}
 
+	// a shot from a non-melee weapon, which Metronome and Lucky Bullet below both require
+	bool shot = wepid != -1 && !IsMeleeWeapon(wepid);
+
 	// Metronome, upbeat half. Crit chance where the downbeat gave damage. Scaled to the crit unit,
 	// which is 0.01 == 1%, not the 1.0 == 1% the mitigation chance uses.
-	if(!isSpell && wepid != -1 && !IsMeleeWeapon(wepid) && HasPlayerFlag(pnum, PFLAG_METRONOME) && ResolveMetronomeHalf(pnum) > DND_METRONOME_DOWNBEAT)
+	if(!isSpell && shot && HasPlayerFlag(pnum, PFLAG_METRONOME) && ResolveMetronomeHalf(pnum) > DND_METRONOME_DOWNBEAT)
 		chance += (PlayerModData[pnum].vals[PSTAT_METRONOME_MAGNITUDE] << 16) / 100;
 
 	// Perception / Lucky Bullet. Flat, not a multiplier: the notes give it as "+2.5% chance", and
@@ -1108,7 +1105,7 @@ int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0, bool isS
 	// Non-melee weapons only. "The very last round in your magazine/reserve" names ammunition, and the flag is
 	// SetInventory("DnD_LuckyBullet", left <= 1) -- it STAYS set while the magazine is low, so a
 	// spell cast on that last round was collecting it.
-	if(wepid != -1 && !IsMeleeWeapon(wepid) && CheckActorInventory(pnum + P_TIDSTART, "DnD_LuckyBullet"))
+	if(shot && CheckActorInventory(pnum + P_TIDSTART, "DnD_LuckyBullet"))
 		chance += PlayerModData[pnum].vals[PSTAT_LASTROUND_CRIT];
 
 	// Assassination / Preparation. A MULTIPLIER on the whole chance, like the two below -- "50%
@@ -1271,6 +1268,24 @@ int GetBaseCritModifier(int pnum, int wepid, bool applyExcess = true, bool isSpe
 	return base + wep_bonus;
 }
 
+// Minions roll their own crit off the minion mods, never their master's chance or multiplier.
+#define DND_MINION_BASECRIT 0.05
+#define DND_MINION_BASECRITMOD 150
+
+// add is the summoning spell's own chance (16.16, Voracious) on the flat part, so increased minion crit chance scales it.
+int GetMinionCritChance(int pnum, int add = 0) {
+	return FixedMul(DND_MINION_BASECRIT + PlayerModData[pnum].vals[PSTAT_MINION_CRIT] + add, 1.0 + (PlayerModData[pnum].vals[PSTAT_MINION_CRITPERCENT] << 16) / 100);
+}
+
+bool CheckMinionCrit(int pnum, int add = 0) {
+	return GetMinionCritChance(pnum, add) > random(0, 1.0);
+}
+
+// add is the summoning spell's own multiplier in percent (Alpha).
+int GetMinionCritModifier(int pnum, int add = 0) {
+	return DND_MINION_BASECRITMOD + PlayerModData[pnum].vals[PSTAT_MINION_CRITDAMAGE] + add;
+}
+
 int GetCritModifier(int pnum, int victim, int wepid, bool forcedReturn = false, bool isSpell = false, int added = 0) {
 	// forced return would skip this to get the value for dot multiplier bonus calculation
 	if(!forcedReturn && PlayerModData[pnum].vals[PSTAT_INC_CRITFORDOT])
@@ -1285,13 +1300,16 @@ int GetCritModifier(int pnum, int victim, int wepid, bool forcedReturn = false, 
 	// berserker perk50 check
 	base += (CheckInventory("Berserker_HitTracker") == DND_BERSERKER_PERK60_MAXSTACKS) * DND_BERSERKER_PERK60_CRITBONUS;
 
+	// a shot from a non-melee weapon, which both halves below require
+	bool shot = wepid != -1 && !IsMeleeWeapon(wepid);
+
 	// Perception / Lucky Bullet, multiplier half. Non-melee weapons only, same reasoning as the chance half.
-	if(wepid != -1 && !IsMeleeWeapon(wepid) && CheckActorInventory(pnum + P_TIDSTART, "DnD_LuckyBullet"))
+	if(shot && CheckActorInventory(pnum + P_TIDSTART, "DnD_LuckyBullet"))
 		base += PlayerModData[pnum].vals[PSTAT_LASTROUND_CRITDMG];
 
 	// Assassination / Steady Shot: a shot, so non-melee weapons only. The stationary counter is kept by
 	// "DnD Fall Impact", which already runs per tic per player -- a second loop would be waste.
-	if(wepid != -1 && !IsMeleeWeapon(wepid) && (temp = PlayerModData[pnum].vals[PSTAT_CRITDAMAGE_PERSTILLSEC]))
+	if(shot && (temp = PlayerModData[pnum].vals[PSTAT_CRITDAMAGE_PERSTILLSEC]))
 		base += temp * Min(CheckActorInventory(pnum + P_TIDSTART, "DnD_StillSeconds"), DND_STEADYSHOT_MAXSECONDS);
 
 	// Assassination / Big Game Hunter and Bane of Legends. Both are integer percent added to the
@@ -2311,7 +2329,14 @@ int HandleStatBonus(int pnum, int strength, int dexterity, int intellect, bool i
 	if(hasStrToIntConversion)
 		strength = 0;
 
-	statOf = GetStrengthEffect(pnum, strength) + GetDexterityEffect(pnum, dexterity) + GetIntellectEffect(pnum, intellect);
+	int knee = GetAttributeKnee(pnum);
+	statOf = 0;
+	if(strength && !HasPlayerStrengthDisablers(pnum))
+		statOf += GetAttributeDamageEffect(GetStrength(pnum), strength, knee);
+	if(dexterity && !HasPlayerDexterityDisablers(pnum))
+		statOf += GetAttributeDamageEffect(GetDexterity(pnum), dexterity, knee);
+	if(intellect && !HasPlayerIntellectDisablers(pnum))
+		statOf += GetAttributeDamageEffect(GetIntellect(pnum), intellect, knee);
 
 	// brutality is a more multiplier, if there are other "more" things related to melee, keep multiplying here
 	if(isMelee)
@@ -2324,7 +2349,8 @@ int HandleStatBonus(int pnum, int strength, int dexterity, int intellect, bool i
 
 int GetStatAttunementBonus(int pnum, int wepid, bool isMelee) {
 	// sharpshooting is a more multiplier
-	return HandleStatBonus(pnum, Weapons_Data[wepid].attunement[STAT_STR], Weapons_Data[wepid].attunement[STAT_DEX], Weapons_Data[wepid].attunement[STAT_INT], isMelee);
+	return HandleStatBonus(pnum, Weapons_Data[wepid].attunement[STAT_STR], Weapons_Data[wepid].attunement[STAT_DEX], Weapons_Data[wepid].attunement[STAT_INT], isMelee) +
+		GetHybridStatDamage(pnum, PSTAT_INC_WEAPONDMG_PERINT, STAT_INT);
 }
 
 int GetMaxResistCap(int pnum) {

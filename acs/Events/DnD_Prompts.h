@@ -676,6 +676,8 @@ void ApplyMarkOfAsmodeus(int m_id, int m_class) {
 	SetActorProperty(tid, APROP_HEALTH, base);
 
 	GiveActorInventory(tid, "AsmodeusMark_Script_Run", 1);
+	// an awake one only runs "DnD Monster Active" again with the idle mark, which starts the challenge track
+	GiveActorInventory(tid, "DnD_MonsterIdleMark", 1);
 
 	// add to existing resist now that we changed the model (cap applies on the one area checking for it in damage deal)
 	for(int i = 0; i < MAX_DAMAGE_CATEGORIES; ++i)

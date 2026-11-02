@@ -549,7 +549,7 @@ bool HandlePageListening(int curopt, int boxid) {
 			// The attribute panel is the only thing here that can overflow and it exists only while
 			// a stat is hovered, so the bar stands down the moment the cursor leaves those rows.
 			if(boxid != MAINBOX_NONE && boxid <= MBOX_3)
-				redraw = ListenScroll(-2, 0, 8, 64);
+				redraw = ListenScroll(-7, 0, 8, 54);
 		break;
 		case MENU_STAT2_DEFENSE:
 			redraw = ListenScroll(ScrollPos.y - 8, 0, 6, 196);
@@ -561,7 +561,7 @@ bool HandlePageListening(int curopt, int boxid) {
 			redraw = ListenScroll(ScrollPos.y, 0, 6, 196);
 		break;
 		case MENU_HELP_MMODS_IMMUNITY:
-			redraw = ListenScroll(-192, 0, DND_SCROLL_MMODSTEP, DND_SCROLL_MMODVIEW);
+			redraw = ListenScroll(-208, 0, DND_SCROLL_MMODSTEP, DND_SCROLL_MMODVIEW);
 		break;
 		case MENU_HELP_CHARACTER:
 			redraw = ListenScroll(-96, 0, 4, 216);
@@ -573,7 +573,7 @@ bool HandlePageListening(int curopt, int boxid) {
 			redraw = ListenScroll(-128, 0, 4, 216);
 		break;
 		case MENU_HELP_MMODS_UTILITY:
-			redraw = ListenScroll(-304, 0, DND_SCROLL_MMODSTEP, DND_SCROLL_MMODVIEW);
+			redraw = ListenScroll(-320, 0, DND_SCROLL_MMODSTEP, DND_SCROLL_MMODVIEW);
 		break;
 		case MENU_HELP_LEGMONS:
 			temp = 0;
@@ -600,7 +600,7 @@ bool HandlePageListening(int curopt, int boxid) {
 			redraw = ListenScroll(-385, 0, 8, 220);
 		break;
 		case MENU_HELP_MMODS_DEFENSIVE:
-			redraw = ListenScroll(-304, 0, DND_SCROLL_MMODSTEP, DND_SCROLL_MMODVIEW);
+			redraw = ListenScroll(-320, 0, DND_SCROLL_MMODSTEP, DND_SCROLL_MMODVIEW);
 		break;
 
 		// weapon pages -- this part is ugly I know, at this time I couldnt find a better solution :P
@@ -6478,6 +6478,12 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 
+			val = PlayerModData[pnum].vals[PSTAT_INC_WEAPONDMG_PERINT];
+			if(val) {
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_INC_WEAPONDMG_PERINT, 0, 0, val), s:"\n");
+				++k;
+			}
+
 			// essences that act on the attack itself
 			val = PlayerModData[pnum].vals[PSTAT_ESS_VAAJ];
 			if(val) {
@@ -6939,9 +6945,15 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 
-			val = PlayerModData[pnum].vals[PSTAT_REDUCEDCURSEEFFECT];
+			val = GetReducedCurseEffect(pnum);
 			if(val > 0) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_REDUCEDCURSEEFFECT, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			val = GetHomingAvoidChance(pnum);
+			if(val > 0) {
+				pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_HOMINGAVOID", s:"\n");
 				++k;
 			}
 
@@ -7117,6 +7129,14 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 
+			for(i = INV_INC_SPELLDMG_PERSTR; i <= INV_INC_SPELLDMG_PERDEX; ++i) {
+				val = ReadPlayerModValue(pnum, i);
+				if(val) {
+					pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(i, 0, 0, val), s:"\n");
+					++k;
+				}
+			}
+
 			// Flat spell damage per type, spell worded and generic summed, as the attack lines sum theirs; melee is physical's twin.
 			for(i = DND_DAMAGECATEGORY_BEGIN; i < DND_DAMAGECATEGORY_END; ++i) {
 				val = (i != DND_DAMAGECATEGORY_MELEE) ? GetSpellFlatDamage(pnum, i, 0) : 0;
@@ -7131,15 +7151,16 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 
-			val = PlayerModData[pnum].vals[PSTAT_SPELL_CDR];
-			if(val) {
-				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_SPELLCDR", s:"\n");
+			// Tenths, with INT's and DEX's shares in.
+			val = PlayerModData[pnum].vals[PSTAT_SPELL_CDR] * 10 + GetIntellectCDRTenths(pnum);
+			if(val > 0) {
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val / 10, s:".", d:val % 10, s:"%\c- ", l:"DND_MENU_SPELLCDR", s:"\n");
 				++k;
 			}
 
-			val = PlayerModData[pnum].vals[PSTAT_SPELL_HASTE];
-			if(val) {
-				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_SPELLHASTE", s:"\n");
+			val = PlayerModData[pnum].vals[PSTAT_SPELL_HASTE] * 10 + GetDexterityHasteTenths(pnum);
+			if(val > 0) {
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val / 10, s:".", d:val % 10, s:"%\c- ", l:"DND_MENU_SPELLHASTE", s:"\n");
 				++k;
 			}
 
@@ -7577,7 +7598,8 @@ void DrawMonsterModCategory(int category) {
 		DND_ICE_IMMUNE,
 		DND_POISON_IMMUNE,
 		DND_LIGHTNING_IMMUNE,
-		
+		DND_CURSEIMMUNE,
+
 		// aggression
 		DND_RAGE,
 		DND_PIERCE,
@@ -7626,7 +7648,8 @@ void DrawMonsterModCategory(int category) {
 		DND_PHASING,
 		DND_TEMPORALBUBBLE,
 		DND_CHTHONBLESSED,
-		
+		DND_AURA_WARD,
+
 		// utility
 		DND_CURSE,
 		DND_RAISE,
@@ -7650,7 +7673,8 @@ void DrawMonsterModCategory(int category) {
 		DND_SCORCHED,
 		DND_VOLTAIC,
 		DND_ENERGYLEECH,
-		
+		DND_SILENCER,
+
 		DND_MARKOFCHAOS,
 		DND_MARKOFASMODEUS,
 		

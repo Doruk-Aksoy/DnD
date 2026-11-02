@@ -1,0 +1,17 @@
+// Rank 10: a failed transform's resist cut on the enemy, and its clock.
+Actor DnD_TransmogWeakened : DnD_Info {}
+Actor DnD_TransmogWeakenedTimer : DnD_Info {}
+
+// Where an enemy became a pickup.
+Actor Spell_Transmogrify_Poof : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.8
+	Translation "0:255=%[0.00,0.00,0.00]:[1.40,1.80,0.30]"
+	States {
+		Spawn:
+			TNT1 A 0
+			D4FX GHIJKL 3 Bright
+		Stop
+	}
+}

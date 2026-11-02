@@ -32,7 +32,7 @@ Actor AbyssalNightmareCaco : DnD_BaseHybridMonster {
 		Goto SpawnSetup
 	 
 		IdleState:
-			C023 A 10 A_GiveInventory("DnD_SightChecker", 1)
+			C023 A 10 A_Look
 		Loop
 		SeeState:
 			C023 A 0 A_CheckSight("NormalChase")
@@ -44,11 +44,13 @@ Actor AbyssalNightmareCaco : DnD_BaseHybridMonster {
 			C023 AABBCCDD 3 Fast A_Chase
 		Goto See
 		MissileState:
+			"####" "#" 0 A_JumpIfInventory("DnD_AttackLock", 1, "MissileStateLocked")
 			C023 E 4 Fast Bright A_FaceTarget
 			C023 F 4 Fast Bright A_FaceTarget
 			C023 G 5 Fast bright A_CustomComboAttack("AbyssNightmareCacoBall", 32, 10 * random(6, 7), "", "")
 		goto See
 		MeleeState:
+			"####" "#" 0 A_JumpIfInventory("DnD_AttackLock", 1, "MeleeStateLocked")
 			C023 E 4 Fast Bright A_FaceTarget
 			TNT1 A 0 A_FaceTarget
 			C023 F 4 Fast Bright A_Recoil(-1.6)
@@ -72,6 +74,42 @@ Actor AbyssalNightmareCaco : DnD_BaseHybridMonster {
 			C023 M 8 A_UnSetFloorClip
 			C023 LKJIH 8
 		Goto See
+		MeleeStateLocked:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "MeleeStateBall")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
+			"####" "#" 0 A_JumpIfTargetInsideMeleeRange("MeleeStateClaw")
+		Goto AttackReroll
+		MeleeStateClaw:
+			C023 E 4 Fast Bright A_FaceTarget
+			TNT1 A 0 A_FaceTarget
+			C023 F 4 Fast Bright A_Recoil(-1.6)
+			C023 G 5 Fast bright A_CustomMeleeAttack(10 * random(6, 7), "", "", "")
+		goto See
+		MeleeStateBall:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
+			C023 E 4 Fast Bright A_FaceTarget
+			TNT1 A 0 A_FaceTarget
+			C023 F 4 Fast Bright A_Recoil(-1.6)
+			C023 G 5 Fast bright A_CustomMissile("AbyssNightmareCacoBall", 32)
+		goto See
+		MissileStateLocked:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "MissileStateBall")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
+			"####" "#" 0 A_JumpIfTargetInsideMeleeRange("MissileStateClaw")
+		Goto AttackReroll
+		MissileStateClaw:
+			C023 E 4 Fast Bright A_FaceTarget
+			C023 F 4 Fast Bright A_FaceTarget
+			C023 G 5 Fast bright A_CustomMeleeAttack(10 * random(6, 7), "", "", "")
+		goto See
+		MissileStateBall:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
+			C023 E 4 Fast Bright A_FaceTarget
+			C023 F 4 Fast Bright A_FaceTarget
+			C023 G 5 Fast bright A_CustomMissile("AbyssNightmareCacoBall", 32)
+		goto See
 	}
 }
 

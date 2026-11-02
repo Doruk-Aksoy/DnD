@@ -42,7 +42,7 @@ Script 900 (int opt, int showInv) NET {
 	}
 	else {
 		// a little extra check for singleplayer case
-		if(CheckInventory("DnD_IntermissionState"))
+		if(CheckInventory("DnD_IntermissionState") || !HasChosenClass())
 			Terminate;
 
 		if
@@ -55,6 +55,7 @@ Script 900 (int opt, int showInv) NET {
 				TakeInventory("ShowingWeaponWheel", 1);
 				ACS_NamedExecuteWithResult("DnD Create Weapon Wheel", pnum, 1);
 			}
+			CloseSkillWheel(pnum);
 
 			// No full resync on open: it was 100+ packets a time and "DnD Sync Check" found nothing for it
 			// to fix. It is the manual "DnD Resync" now.
@@ -684,8 +685,9 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				HudMessage(s:"\c[Y5]Loot Penalty: \c-", d:PlayerActivities[pnum].vote_skips; HUDMSG_PLAIN, RPGMENUITEMID - 15, CR_WHITE, 192.1, 208.1, 0.0, 0.0);
 				
 				if(boxid != MAINBOX_NONE && boxid <= MBOX_3) {
-					SetHudClipRect(184, 208, 256, 64, 256);
+					SetHudClipRect(184, 218, 256, 54, 256);
 					HudMessage(s:"\cd*\c- ", l:GetAttributeLabel(boxid - 1), s:"\n", l:GetAttributeText(boxid - 1),
+						s:"\n\cu", l:"DND_MENU_ATTRKNEE",
 						s:"\n\cu", l:"DND_MENU_STAT_REFUND1", s:" \ci", k:"+jump", s:"\cu ", l:"DND_MENU_STAT_REFUND2", s:"$", d:GetAttributeRefundCost(pnum); HUDMSG_PLAIN, RPGMENUITEMID - 14, CR_WHITE, 184.1, 232.1 + 8.0 * ScrollPos.x, 0.0, 0.0);
 					SetHudClipRect(0, 0, 0, 0, 0);
 				}

@@ -598,6 +598,93 @@ int GetStrengthEffect(int pnum, int factor, int divisor = 1) {
 	return 0;
 }
 
+// Attribute damage counts in full up to the knee, a share of the level, and a quarter past it.
+#define DND_ATTRIB_KNEE_PCT 100
+#define DND_ATTRIB_KNEE_FALLOFF 4
+
+int GetAttributeKnee(int pnum) {
+	return Max(1, CheckActorInventory(pnum + P_TIDSTART, "Level") * DND_ATTRIB_KNEE_PCT / 100);
+}
+
+// stat * factor, the part past the knee cut down; factor is a fixed attunement.
+int GetAttributeDamageEffect(int stat, int factor, int knee) {
+	if(stat <= knee)
+		return stat * factor;
+	return knee * factor + (stat - knee) * factor / DND_ATTRIB_KNEE_FALLOFF;
+}
+
+// A hybrid incursion mod's increased damage: its value per 10 points of the stat, past the knee cut like attribute damage.
+int GetHybridStatDamage(int pnum, int pstat, int stat) {
+	int per = PlayerModData[pnum].vals[pstat];
+	if(!per)
+		return 0;
+	if(stat == STAT_STR)
+		stat = GetStrengthEffect(pnum, 1);
+	else if(stat == STAT_DEX)
+		stat = GetDexterityEffect(pnum, 1);
+	else
+		stat = GetIntellectEffect(pnum, 1);
+	return per * GetAttributeDamageEffect(stat, 1, GetAttributeKnee(pnum)) / 10;
+}
+
+// Spell haste from DEX and cooldown recovery from INT, in tenths of a percent; the curve never reaches its cap.
+#define DND_DEX_HASTE_CAP 250
+#define DND_DEX_HASTE_HALF 200
+#define DND_INT_CDR_CAP 200
+#define DND_INT_CDR_HALF 400
+
+// Utility for builds that do not use the stat for damage, whole percents: STR ammo capacity, DEX homing, INT curses.
+#define DND_STR_AMMOCAP_CAP 40
+#define DND_DEX_HOMINGAVOID_CAP 25
+#define DND_INT_CURSEEFFECT_CAP 20
+#define DND_ATTRIB_UTILITY_HALF 100
+
+// Half the cap at `half` points; in the cap's own unit.
+int GetAttributeCurve(int stat, int cap, int half) {
+	return stat > 0 ? cap * stat / (stat + half) : 0;
+}
+
+int GetDexterityHasteTenths(int pnum) {
+	if(HasPlayerDexterityDisablers(pnum))
+		return 0;
+	return GetAttributeCurve(GetDexterity(pnum), DND_DEX_HASTE_CAP, DND_DEX_HASTE_HALF);
+}
+
+int GetIntellectCDRTenths(int pnum) {
+	if(HasPlayerIntellectDisablers(pnum))
+		return 0;
+	return GetAttributeCurve(GetIntellect(pnum), DND_INT_CDR_CAP, DND_INT_CDR_HALF);
+}
+
+// Also covers special ammo, which the gear mod leaves alone.
+int GetStrengthAmmoCapPct(int pnum) {
+	if(HasPlayerStrengthDisablers(pnum))
+		return 0;
+	return GetAttributeCurve(GetStrength(pnum), DND_STR_AMMOCAP_CAP, DND_ATTRIB_UTILITY_HALF);
+}
+
+int GetDexterityHomingAvoid(int pnum) {
+	if(HasPlayerDexterityDisablers(pnum))
+		return 0;
+	return GetAttributeCurve(GetDexterity(pnum), DND_DEX_HOMINGAVOID_CAP, DND_ATTRIB_UTILITY_HALF);
+}
+
+int GetIntellectCurseReduce(int pnum) {
+	if(HasPlayerIntellectDisablers(pnum))
+		return 0;
+	return GetAttributeCurve(GetIntellect(pnum), DND_INT_CURSEEFFECT_CAP, DND_ATTRIB_UTILITY_HALF);
+}
+
+// Percent chance to shake a seeker's lock: the Camouflage perk plus Dexterity's share.
+int GetHomingAvoidChance(int pnum) {
+	return PlayerModData[pnum].vals[PSTAT_AVOID_HOMING] + GetDexterityHomingAvoid(pnum);
+}
+
+// Reduced curse effect on the player: gear and perks plus Intellect's share.
+int GetReducedCurseEffect(int pnum) {
+	return PlayerModData[pnum].vals[PSTAT_REDUCEDCURSEEFFECT] + GetIntellectCurseReduce(pnum);
+}
+
 // this sets player's unity item to cache it so we don't request it over and over in intense calculations
 // dont use the "geteffect" functions here as unity is concerned only with raw value of the stats themselves
 void CalculateUnity(int pnum) {
@@ -631,6 +718,12 @@ int GetActorPetCap(int tid) {
 // The cap evicts by AGE and nothing else records one: GivePetTID hands out the first FREE slot in
 // the player's band, so a low slot index means an early gap was reused, not an old pet.
 global int 59: PetSummonTic[DND_MAX_PETS];
+
+// Pets carried through a regular map exit: per player its ticket, then DND_PETCARRY_MAX records oldest first, each
+// (kind + 1) | (health percent << 8). A global, so a console "map" (a new game) clears it; exits and changemap keep it.
+#define DND_PETCARRY_MAX 8
+#define DND_PETCARRY_STRIDE (DND_PETCARRY_MAX + 1)
+global int 61: PetCarry[];
 
 int GetPlayerPetSlotBase(int pnum) {
 	return DND_PETTID_BEGIN + pnum * DND_MAX_PETS_PER_PLAYER;
@@ -699,6 +792,145 @@ void UnsummonPet(int tid) {
 
 bool CanActorHaveMorePets(int tid) {
 	return CheckActorInventory(tid, "PetCounter") < GetActorPetCap(tid);
+}
+
+// Live pets in the player's slots.
+int CountPlayerPets(int pnum) {
+	int i, n = 0, base = GetPlayerPetSlotBase(pnum);
+	for(i = 0; i < DND_MAX_PETS_PER_PLAYER; ++i)
+		if(IsActorAlive(base + i))
+			++n;
+	return n;
+}
+
+// The oldest live pet's slot (0..24) not yet in taken, of a kind (-1: any); -1 when there is none.
+int FindOldestPetSlot(int pnum, int petid, int taken) {
+	int i, tid, best = -1, best_tic = 0, base = GetPlayerPetSlotBase(pnum);
+	for(i = 0; i < DND_MAX_PETS_PER_PLAYER; ++i) {
+		tid = base + i;
+		if((taken & (1 << i)) || !IsActorAlive(tid) || (petid != -1 && PetMonsterProperties[tid - DND_PETTID_BEGIN].id != petid))
+			continue;
+		if(best == -1 || PetSummonTic[tid - DND_PETTID_BEGIN] < best_tic) {
+			best = i;
+			best_tic = PetSummonTic[tid - DND_PETTID_BEGIN];
+		}
+	}
+	return best;
+}
+
+// Slots (a bit each) to send home so one more of a kind fits: its oldest past the kind limit, then the oldest until the
+// cap has room for its weight. Counted up front (points come back a tic later); -1 when even all would not do.
+int GetPetsToSendHome(int pnum, int petid, int maxkind, bool prefer_kind = false) {
+	int caster = pnum + P_TIDSTART, base = GetPlayerPetSlotBase(pnum), mask = 0, freed = 0, pick;
+	int kind = Max(0, CountPlayerPetsOfKind(pnum, petid) - maxkind + 1);
+	int need = CheckActorInventory(caster, "PetCounter") + GetPetCapWeight(petid) - GetActorPetCap(caster);
+	while(kind > 0 || freed < need) {
+		pick = FindOldestPetSlot(pnum, kind > 0 || prefer_kind ? petid : -1, mask);
+		if(pick == -1 && kind <= 0)
+			pick = FindOldestPetSlot(pnum, -1, mask);
+		if(pick == -1)
+			return -1;
+		mask |= 1 << pick;
+		freed += GetPetCapWeight(PetMonsterProperties[base + pick - DND_PETTID_BEGIN].id);
+		--kind;
+	}
+	return mask;
+}
+
+// Sends them home. False, sending none, when there is no room to make.
+bool MakeRoomForPet(int pnum, int petid, int maxkind, bool prefer_kind = false) {
+	int mask = GetPetsToSendHome(pnum, petid, maxkind, prefer_kind), base = GetPlayerPetSlotBase(pnum);
+	if(mask < 0)
+		return false;
+	for(int i = 0; i < DND_MAX_PETS_PER_PLAYER; ++i)
+		if(mask & (1 << i))
+			UnsummonPet(base + i);
+	return true;
+}
+
+// Pets do not outlive their master: every slotted pet goes home, and every monster it raised (in no slot) with them.
+void UnsummonAllPets(int pnum) {
+	int i, tid, base = GetPlayerPetSlotBase(pnum), master = pnum + P_TIDSTART;
+	for(i = 0; i < DND_MAX_PETS_PER_PLAYER; ++i)
+		UnsummonPet(base + i);
+	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+		tid = UsedMonsterTIDs[i];
+		if(IsActorAlive(tid) && GetActorProperty(tid, APROP_MASTERTID) == master)
+			UnsummonPet(tid);
+	}
+	// Cleared here: their death checks come a tic later, when a dead master is already untagged.
+	SetActorInventory(master, "PetCounter", 0);
+	for(i = 0; i < DND_PETCARRY_STRIDE; ++i)
+		PetCarry[pnum * DND_PETCARRY_STRIDE + i] = 0;
+}
+
+// The new pet (the activator) takes its slot and kind at once, so a summon on the next tic already counts it. Returns its tid.
+int ClaimPetSlot(int master_tid, int petid) {
+	GivePetTID(master_tid);
+	int tid = ActivatorTID(), m_id = tid - DND_PETTID_BEGIN;
+	if(m_id >= 0 && m_id < DND_MAX_PETS) {
+		PetMonsterProperties[m_id].id = petid;
+		PetSummonTic[m_id] = Timer();
+	}
+	return tid;
+}
+
+// Writes the player's untimed pets down oldest first with their health share, under a fresh ticket the player also
+// holds. Returns how many; with none the ticket is 0.
+int RecordPlayerPets(int p) {
+	int n, i, tid, m_id, best, taken = 0, hp, base = p * DND_PETCARRY_STRIDE, count = 0;
+	for(n = 0; n < DND_PETCARRY_MAX; ++n) {
+		best = -1;
+		for(i = 0; i < DND_MAX_PETS_PER_PLAYER; ++i) {
+			tid = GetPlayerPetSlotBase(p) + i;
+			m_id = tid - DND_PETTID_BEGIN;
+			if(!(taken & (1 << i)) && IsActorAlive(tid) && IsPetCarried(p, PetMonsterProperties[m_id].id) &&
+				(best == -1 || PetSummonTic[m_id] < PetSummonTic[GetPlayerPetSlotBase(p) + best - DND_PETTID_BEGIN]))
+				best = i;
+		}
+		PetCarry[base + 1 + n] = 0;
+		if(best == -1)
+			continue;
+		taken |= 1 << best;
+		tid = GetPlayerPetSlotBase(p) + best;
+		m_id = tid - DND_PETTID_BEGIN;
+		hp = Clamp_Between(GetActorProperty(tid, APROP_HEALTH) * 100 / Max(1, PetMonsterProperties[m_id].maxhp), 1, 100);
+		PetCarry[base + 1 + count++] = (PetMonsterProperties[m_id].id + 1) | (hp << 8);
+	}
+	SetPetCarryTicket(p, count ? random(1, 0x7FFFFFFF) : 0);
+	return count;
+}
+
+// The ticket goes in the record and on the player, where a new player in that slot does not have it.
+void SetPetCarryTicket(int p, int ticket) {
+	PetCarry[p * DND_PETCARRY_STRIDE] = ticket;
+	if(PlayerInGame(p))
+		SetActorInventory(p + P_TIDSTART, "DnD_PetCarryTicket", ticket);
+}
+
+// At a regular map exit: every player's untimed pets written down.
+void RecordCarriedPets() {
+	for(int p = 0; p < MAXPLAYERS; ++p)
+		RecordPlayerPets(p);
+}
+
+// Next map or after a load: back through their summon scripts (free: mana, cooldown and cast bar are the cast's), silent,
+// at their health share; only for the ticket's holder, since a disconnect in the intermission runs no DISCONNECT script.
+void RestoreCarriedPets(int pnum) {
+	int n, v, spell, tid, base = pnum * DND_PETCARRY_STRIDE;
+	bool mine = PetCarry[base] && CheckActorInventory(pnum + P_TIDSTART, "DnD_PetCarryTicket") == PetCarry[base];
+	SetPetCarryTicket(pnum, 0);
+	for(n = 0; n < DND_PETCARRY_MAX; ++n) {
+		v = PetCarry[base + 1 + n];
+		PetCarry[base + 1 + n] = 0;
+		spell = mine && v ? GetPetSummonSpell((v & 0xFF) - 1) : -1;
+		if(spell == -1 || !GetSpellAllocatedRank(pnum, spell))
+			continue;
+		// The kind + 1 too, so a carried Skeleton Mage comes back a mage.
+		tid = ACS_NamedExecuteWithResult(GetSpellSummonScript(spell), pnum, 1, v & 0xFF);
+		if(tid)
+			ACS_NamedExecuteAlways("DnD Carried Pet Health", 0, tid, v >> 8);
+	}
 }
 
 int GetHealingBonuses(int pnum) {
@@ -787,18 +1019,21 @@ int GetRawSpawnHealth(bool bypassEShieldCheck, int pnum) {
 	return res;
 }
 
+// Max health before Blood Magic's auras take their share, which is what that share is a percent of.
+int GetSpawnHealthBeforeReserve(bool bypassEShieldCheck, int pnum) {
+	// Sanguine Covenant. The two caps trade places here and nowhere else, which keeps the raw
+	// pair recursion free and stops the cyborg conversion running twice.
+	if(HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD))
+		return Max(1, GetRawEnergyShieldCap(pnum));
+	return GetRawSpawnHealth(bypassEShieldCheck, pnum);
+}
+
 // returns player max health
 int GetSpawnHealth(bool bypassEShieldCheck = false, int pnum = -1) {
 	if(pnum == -1)
 		pnum = PlayerNumber();
 
-	// Sanguine Covenant. The two caps trade places here and nowhere else, which keeps the raw
-	// pair recursion free and stops the cyborg conversion running twice.
-	int res;
-	if(HasPlayerFlag(pnum, PFLAG_SWAP_HP_SHIELD))
-		res = Max(1, GetRawEnergyShieldCap(pnum));
-	else
-		res = GetRawSpawnHealth(bypassEShieldCheck, pnum);
+	int res = GetSpawnHealthBeforeReserve(bypassEShieldCheck, pnum);
 
 	// Blood Magic: the share of life the auras hold is not there to have. UpdateManaVisualCap keeps the marker.
 	int held = CheckActorInventory(pnum + P_TIDSTART, "DnD_LifeReserved");
@@ -865,7 +1100,8 @@ void HandleCurseImmunityRemoval() {
 		TakeInventory("CurseImmunity", 1);
 }
 
-void UpdatePlayerKnockbackResist() {
+// Everything Strength sets on the actor: knockback resist and ammo capacities. Every STR change calls this.
+void UpdateStrengthDerivedStats() {
 	int pnum = PlayerNumber();
 	if(CheckUniquePropertyOnPlayer(pnum, PUP_KNOCKBACKIMMUNE))
 		SetActorProperty(0, APROP_MASS, bcs::INT_MAX);
@@ -879,6 +1115,8 @@ void UpdatePlayerKnockbackResist() {
 
 		SetActorProperty(0, APROP_MASS, val);
 	}
+
+	SetAllAmmoCapacities(pnum);
 }
 
 // Explosion radius that only artillery weapons get. Separate from GetPlayerAoEIncrease because that
@@ -973,7 +1211,7 @@ void RestoreRPGStat (int statflag) {
 	if(statflag & RES_PLAYERSPEED)
 		SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(pnum));
 		
-	UpdatePlayerKnockbackResist();
+	UpdateStrengthDerivedStats();
 	
 	// accessories
 	// can only intervene once per map

@@ -39,11 +39,13 @@ ACTOR Snotfolus : DnD_BaseRangedBoss {
 			C011 AABBCCDD 3 A_Chase
 		loop
 		IdleState:
-			C011 AABB 4 A_GiveInventory("DnD_SightChecker", 1)
+			C011 AABB 4 A_Look
 		loop
 		MissileState:
 			C011 E 0 A_Jump(56, "Meteor")
 		Spit:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			C011 E 5 A_FaceTarget
 			C011 F 3 A_CustomMissile("SnotfolusBall", 90, 0, frandom(-4, 4))
 			C011 E 0 A_FaceTarget
@@ -62,6 +64,8 @@ ACTOR Snotfolus : DnD_BaseRangedBoss {
 			C011 E 1 A_JumpIf(ceilingz - z > 640, "LimitedZ")
 			C011 E 0 A_SetUserVar("user_z", ceilingz - 16)
 		ContMeteor:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			C011 EEEEE 5 A_FaceTarget(0, 0)
 			C011 F 9 A_CustomMissile("ChexMeteor", 90 + random(0, user_z / 2), frandom(-48, 48), frandom(-20, 20), CMF_AIMDIRECTION, frandom(4, 20))
 			C011 F 9 A_CustomMissile("ChexMeteor", 90 + random(0, user_z / 2), frandom(-24, 24), frandom(-12, 12), CMF_AIMDIRECTION, frandom(4, 12))

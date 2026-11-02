@@ -219,9 +219,11 @@ Script "DnD Player HUD" ENTER CLIENTSIDE {
 
 	int window, tick = 0;
 	str glyph;
-	bool drawn = false;
+	bool drawn = false, beat = false;
 	while(PlayerInGame(pnum)) {
 		if(isAlive() && !IsHudBlocked()) {
+			// once a tic for both: it reads hud_scale and the screen size
+			UpdateHudStack();
 			DrawSpellHotbar(pnum);
 			DrawManaBar(pnum);
 			DrawSpellCastBar(pnum);
@@ -231,6 +233,7 @@ Script "DnD Player HUD" ENTER CLIENTSIDE {
 			ClearSpellHotbar();
 			DeleteText(METRONOME_BEAT_ID);
 			drawn = false;
+			beat = false;
 		}
 
 		window = CheckInventory("P_MetronomeWindow");
@@ -247,9 +250,12 @@ Script "DnD Player HUD" ENTER CLIENTSIDE {
 			// Bottom centre: clear of the status bar on the left, and above the exp bar row at -16.
 			HudMessage(s:"A"; HUDMSG_PLAIN, METRONOME_BEAT_ID, CR_UNTRANSLATED, 632.4, 560.0, 0.1);
 			drawn = true;
+			beat = true;
 		}
-		else
+		else if(beat) {
 			DeleteText(METRONOME_BEAT_ID);
+			beat = false;
+		}
 
 		// A slower consumer COUNTS rather than sleeping -- a loop cannot hold two delays.
 		// DrawDashCharges gates itself on the unlock, and deliberately draws whether or not
@@ -438,7 +444,9 @@ Script "DND Check Hardcore Softcore" OPEN {
 Script "DnD On Death" DEATH {
 	int i, pnum = PlayerNumber();
 	int temp;
-	
+
+	UnsummonAllPets(pnum);
+
 	// put this at the beginning to prevent the rare last second lvl 1 char auto-load bug.
 	if(GetCVar("Survival")) {
 		if(CheckInventory("CurrentLives"))
@@ -892,7 +900,7 @@ Script "DND On Revive" (void) {
 		int more = PlayerModData[pnum].vals[PSTAT_MINION_HEALTH], full = MonsterProperties[id].maxhp;
 		if(more && full)
 			SetActorProperty(0, APROP_HEALTH, full / 100 * (100 + more) + full % 100 * (100 + more) / 100);
-		ACS_NamedExecuteAlways("DnD Minion Regen", 0, false);
+		ACS_NamedExecuteAlways("DnD Minion Regen", 0);
 		//printbold(s:"give pet counter total: ", d:CheckActorInventory(temp, "PetCounter"));
 
 		SpawnForced("EnemyResSoul", GetActorX(0), GetActorY(0), GetActorZ(0) + GetActorProperty(0, APROP_HEIGHT) / 4);
@@ -922,7 +930,7 @@ Script "DnD On Revive CS" (void) CLIENTSIDE {
 
 Script "DnD On Kill Forced CS" (void) CLIENTSIDE {
 	GiveInventory("Mo_Died", 1);
-	DisposeAttachments(ActivatorTID() - DND_MONSTERTID_BEGIN);
+	DisposeAttachments(GetAttachmentSlot(ActivatorTID()));
 }
 
 // accepts similar flags to explosion actors
@@ -945,7 +953,7 @@ Script "DnD Scale Non Weapon Damage" (int damage, int damage_type, int flags) {
 // Make sure clients are aware too
 Script "DnD On Kill CS" (int tid) CLIENTSIDE {
 	GiveInventory("Mo_Died", 1);
-	DisposeAttachments(tid - DND_MONSTERTID_BEGIN);
+	DisposeAttachments(GetAttachmentSlot(tid));
 	SetResultValue(0);
 }
 
@@ -977,6 +985,10 @@ Script "DND On Kill" KILL {
 	}
 	
 	int target = GetActorProperty(0, APROP_TARGETTID), temp;
+
+	// Black curses read at the death, before their clocks clear: Life Tap's heal, Contagion's spread.
+	LifeTapOnDeath(this);
+	ContagionOnDeath(this);
 
 	if(HasTrait(m_id, DND_ENSHROUDED))
 		ACS_NamedExecuteAlways("DnD Aura Giver CS", 0, DND_ENSHROUDED, 1);
@@ -1170,7 +1182,7 @@ Script "DND On Kill" KILL {
 	// check zombie summon
 	if(!IsLostSoul() && !IsRobotic()) {
 		temp = PlayerModData[pnum].vals[PSTAT_EX_CHANCE_ONDEATH_RAISEZOMBIE];
-		if(CanActorHaveMorePets(target) && CheckActorInventory(target, "SummonedZombiePets") < MAX_SUMMON_ZOMBIECOUNT && temp >= random(1, 100)) {
+		if(CanActorHaveMorePets(target) && CountPlayerPetsOfKind(pnum, MONSTER_PET_ZOMBIE) < MAX_SUMMON_ZOMBIECOUNT && temp >= random(1, 100)) {
 			// raise zombie
 			HandleZombieRaiseOnDeath(target);
 		}
@@ -1419,13 +1431,14 @@ Script "DnD Periodic Checks" ENTER {
 
 // Special Interaction script with NPCs
 Script 895 (int val, int this) {
-	if(!CheckInventory("ShowingMenu") && !CheckInventory("NPC_Trigger_Cooldown")) {
+	if(HasChosenClass() && !CheckInventory("ShowingMenu") && !CheckInventory("NPC_Trigger_Cooldown")) {
 		GiveInventory("NPC_Trigger_Cooldown", 1);
 
 		if(CheckInventory("ShowingWeaponWheel")) {
 			TakeInventory("ShowingWeaponWheel", 1);
 			ACS_NamedExecuteWithResult("DnD Create Weapon Wheel", PlayerNumber(), 1);
 		}
+		CloseSkillWheel(PlayerNumber());
 
 		switch(val) {
 			case 0:
@@ -1558,7 +1571,8 @@ Script 902 (int forceset, int id) CLIENTSIDE {
 
 // Current weapon tip
 Script 903 (void) NET CLIENTSIDE {
-	DoWeaponTip(GetCurrentWeaponID());
+	if(HasChosenClass())
+		DoWeaponTip(GetCurrentWeaponID());
 }
 
 Script "DnD Weapon Tip Trigger" (int wepid, int targetToUse) CLIENTSIDE {
@@ -2185,7 +2199,7 @@ Script "DnD Monster Spawner" (int category) {
 
     // for each bin, do condition check, see if roll fits in a range
     // wait for the players to enter (returns 0 to imply everyone ready)
-    while(IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED) || PlayersNotReadyForHardcore() || !InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART])
+    while(MonsterSpawnsMustWait())
         Delay(const:10);
 
 	if(MapData[DND_MAPDATA_INCURSIONSTATE] == DND_INCURSION_NA) {
@@ -2310,34 +2324,6 @@ Script 961 (int type, int amt, int item) {
 
 // 962 - 969 are in mons.c
 
-script 970 (int type, int actor_num, int radius) CLIENTSIDE {
-	int angle, this, owner, cx, cy, cz;
-	if(!type) {
-		this = ActivatorTID();
-		angle = (GetUserVariable(this, "user_angle") * 360) % 1.0;
-		owner = GetActorProperty(this, APROP_HEALTH);
-		cx = radius * cos(angle) + GetActorX(owner);
-		cy = radius * sin(angle) + GetActorY(owner);
-		cz = GetActorZ(owner) + 108.0;
-
-		SetActorPosition(this, cx, cy, cz, 0);
-	}
-	else {
-		angle = (GetUserVariable(0, "user_angle") * 360) % 1.0;
-		this = ActivatorTID();
-		owner = GetActorProperty(this, APROP_HEALTH);
-		
-		if(CheckInventory("AvatarOnAttack")) {
-			angle = (60 * (actor_num - 1)) * 360;
-			SetUserVariable(this, "user_angle", 60 * (actor_num - 1));
-		}
-		
-		cx = radius * cos(angle) + GetActorX(owner);
-		cy = radius * sin(angle) + GetActorY(owner);
-		cz = GetActorZ(owner) + 108.0;
-		SetActorPosition(this, cx, cy, cz, 0);
-	}
-}
 
 // 971 - 972 are in mons.c
 
@@ -2456,16 +2442,18 @@ Script "DnD Monster Health Check" (int makeNoPain) {
 		GiveInventory("MakeNoPain", 1);
 }
 
+// A clientside forward from the server is a broadcast to every client, so only a real change is sent.
 Script "DnD Monster Trait Take" (int flag1, int flag2, int flag3, int flag4) {
 	int m_tid = ActivatorTID() - DND_MONSTERTID_BEGIN;
-	SetMonsterTrait(m_tid, flag1, false);
+	bool changed = ChangeMonsterTrait(m_tid, flag1, false);
 	if(flag2 != -1)
-		SetMonsterTrait(m_tid, flag2, false);
+		changed = ChangeMonsterTrait(m_tid, flag2, false) || changed;
 	if(flag3 != -1)
-		SetMonsterTrait(m_tid, flag3, false);
+		changed = ChangeMonsterTrait(m_tid, flag3, false) || changed;
 	if(flag4 != -1)
-		SetMonsterTrait(m_tid, flag4, false);
-	ACS_NamedExecuteWithResult("DnD Monster Trait Take CS", flag1, flag2, flag3, flag4);
+		changed = ChangeMonsterTrait(m_tid, flag4, false) || changed;
+	if(changed)
+		ACS_NamedExecuteWithResult("DnD Monster Trait Take CS", flag1, flag2, flag3, flag4);
 	SetResultValue(0);
 }
 
@@ -2483,12 +2471,13 @@ Script "DnD Monster Trait Take CS" (int flag1, int flag2, int flag3, int flag4) 
 
 Script "DnD Monster Trait Take - TID" (int tid, int flag1, int flag2, int flag3) {
 	int m_tid = tid - DND_MONSTERTID_BEGIN;
-	SetMonsterTrait(m_tid, flag1, false);
+	bool changed = ChangeMonsterTrait(m_tid, flag1, false);
 	if(flag2 != -1)
-		SetMonsterTrait(m_tid, flag2, false);
+		changed = ChangeMonsterTrait(m_tid, flag2, false) || changed;
 	if(flag3 != -1)
-		SetMonsterTrait(m_tid, flag3, false);
-	ACS_NamedExecuteWithResult("DnD Monster Trait Take CS", tid, flag1, flag2, flag3);
+		changed = ChangeMonsterTrait(m_tid, flag3, false) || changed;
+	if(changed)
+		ACS_NamedExecuteWithResult("DnD Monster Trait Take CS - TID", tid, flag1, flag2, flag3);
 	SetResultValue(0);
 }
 
@@ -2503,9 +2492,8 @@ Script "DnD Monster Trait Take CS - TID" (int tid, int flag1, int flag2, int fla
 }
 
 Script "DnD Monster Trait Take Single" (int tid, int flag) {
-	int m_tid = tid - DND_MONSTERTID_BEGIN;
-	SetMonsterTrait(m_tid, flag, false);
-	ACS_NamedExecuteWithResult("DnD Monster Trait Take Single CS", tid, flag);
+	if(ChangeMonsterTrait(tid - DND_MONSTERTID_BEGIN, flag, false))
+		ACS_NamedExecuteWithResult("DnD Monster Trait Take Single CS", tid, flag);
 	SetResultValue(0);
 }
 
@@ -2517,28 +2505,29 @@ Script "DnD Monster Trait Take Single CS" (int tid, int flag) CLIENTSIDE {
 
 Script "DnD Monster Trait Give" (int flag1, int flag2, int flag3, int flag4) {
 	int m_tid = ActivatorTID() - DND_MONSTERTID_BEGIN;
-	bool noAntiBlock = !CheckInventory("DnD_AntiBlockCounter");
+	bool noAntiBlock = !CheckInventory("DnD_AntiBlockCounter"), changed = false;
 	if(flag1 != DND_ISBLOCKING || noAntiBlock)
-		SetMonsterTrait(m_tid, flag1, true);
+		changed = ChangeMonsterTrait(m_tid, flag1, true);
 	else
 		flag1 = -1;
 
 	if(flag2 != -1 && (flag2 != DND_ISBLOCKING || noAntiBlock))
-		SetMonsterTrait(m_tid, flag2, true);
+		changed = ChangeMonsterTrait(m_tid, flag2, true) || changed;
 	else
 		flag2 = -1;
 
 	if(flag3 != -1 && (flag3 != DND_ISBLOCKING || noAntiBlock))
-		SetMonsterTrait(m_tid, flag3, true);
+		changed = ChangeMonsterTrait(m_tid, flag3, true) || changed;
 	else
 		flag3 = -1;
 
 	if(flag4 != -1 && (flag4 != DND_ISBLOCKING || noAntiBlock))
-		SetMonsterTrait(m_tid, flag4, true);
+		changed = ChangeMonsterTrait(m_tid, flag4, true) || changed;
 	else
 		flag4 = -1;
 
-	ACS_NamedExecuteWithResult("DnD Monster Trait Give CS", flag1, flag2, flag3, flag4);
+	if(changed)
+		ACS_NamedExecuteWithResult("DnD Monster Trait Give CS", flag1, flag2, flag3, flag4);
 	SetResultValue(0);
 }
 
@@ -2558,8 +2547,8 @@ Script "DnD Monster Trait Give CS" (int flag1, int flag2, int flag3, int flag4) 
 Script "DnD Monster Trait Give Single" (int tid, int flag) {
 	int m_tid = tid - DND_MONSTERTID_BEGIN;
 	if(flag != DND_ISBLOCKING || !CheckInventory("DnD_AntiBlockCounter")) {
-		SetMonsterTrait(m_tid, flag, true);
-		ACS_NamedExecuteWithResult("DnD Monster Trait Give Single CS", tid, flag);
+		if(ChangeMonsterTrait(m_tid, flag, true))
+			ACS_NamedExecuteWithResult("DnD Monster Trait Give Single CS", tid, flag);
 	}
 	SetResultValue(0);
 }
@@ -2652,6 +2641,11 @@ Script "DnD Player Levelup Check" (int tid) {
 			
 		// sync level cap exp
 		CalculatePlayerExpRatio(tid);
+
+		// The attribute knee rose with the level, and the weapon damage cache holds the old one.
+		if(Max(Max(GetStrength(pnum), GetDexterity(pnum)), GetIntellect(pnum)) > Max(1, prevlvl * DND_ATTRIB_KNEE_PCT / 100))
+			ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, pnum);
+
 		// heal on level up flag is on
 		if(GetCVar("dnd_healonlevelup"))
 			ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 0);
@@ -3154,6 +3148,7 @@ Script "DnD On Respawn" RESPAWN {
 	TakeInventory("DnD_PDead", 1);
 
 	ClearLingeringBuffs(pnum);
+	SetInventory("P_SilenceEnd", 0);
 
 	RestoreRPGStat(RES_ACCURACY | RES_EXPLOSIONRADIUS);
 	ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 4); // full heal
@@ -3242,6 +3237,8 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	// save accumulated stats when player leaves
 	// things saved are in DnD_Activity.h
 	HandlePlayerDataSave(pnum, true);
+	// After the save has kept them with the character; before the slot can be taken by someone who would inherit them.
+	UnsummonAllPets(pnum);
 
 	// fixes a character deletion bug with spectating during countdown
 	PlayerGameState[pnum] &= ~(DND_PSTATE_LOADED);
@@ -3269,6 +3266,8 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 
 // End of level checks
 Script "DnD On Unloading" UNLOADING {
+	RecordCarriedPets();
+
 	// Ahead of ResetUsedTIDs, which forgets how far the ids got, and ahead of the accumulate scripts
 	// dying with the level -- one sitting in its tic delay now is what leaves a latch set.
 	FlushDamageTicResidue();
@@ -3340,7 +3339,7 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("DnD_SpreeCountdownRunning", 0);
 	SetInventory("DnD_MultikillCounter", 0);
 	TakeInventory("EShieldCharging", 1);
-	// Surgecast's window is counted by a script, which the level change ended.
+	// Spell windows are counted by scripts, which the level change ended.
 	SetInventory("DnD_SurgecastReady", 0);
 	SetInventory("P_SurgecastTime", 0);
 	SetInventory("DnD_BalefulReady", 0);
@@ -3348,6 +3347,8 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("P_BalefulTime", 0);
 	SetInventory("DnD_RockArmor", 0);
 	SetInventory("P_RockArmor", 0);
+	SetInventory("DnD_TelekinesisDeflect", 0);
+	SetInventory("P_TelekinesisTime", 0);
 
 	RemoveAllBuffs(pnum);
 	ClearLingeringBuffs(pnum);
@@ -3643,6 +3644,9 @@ Script "DnD Player Setup" ENTER {
 	UpdateManaVisualCap(pnum);
 	SetPlayerMana(pnum, GetUnreservedManaCap(pnum));
 
+	// A silence's end tic belongs to the map it landed in; the next map's clock starts over.
+	SetInventory("P_SilenceEnd", 0);
+
 	// The hotbar mirrors are per life: SpellPlayerData survives a death, the inventory words carrying it
 	// to the client do not, so without this the bar comes back blank until the next rebind.
 	SyncHotbarAll(pnum);
@@ -3656,6 +3660,7 @@ Script "DnD Player Setup" ENTER {
 	Delay(const:1);
 
 	ReadjustOrbWeightsForRarerOnes(pnum);
+	RestoreCarriedPets(pnum);
 
 /*#ifdef ISDEBUGBUILD
 	Delay(10*TICRATE);
@@ -3673,17 +3678,20 @@ Script "DnD Can Look Around" (void) {
 	SetResultValue(res);
 }
 
-Script "DnD Can Wander Around" (void) {
-	int res = IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS);
-	SetResultValue(res);
-}
-
 Script "DnD Monster Idle" (void) {
+	// started a tic late: a monster that already woke ("DnD Monster Active" took the mark) is not idle
+	if(!CheckInventory("DnD_MonsterIdleMark"))
+		Terminate;
 	int tid = ActivatorTID();
 	MonsterProperties[tid - DND_MONSTERTID_BEGIN].flags |= DND_MONFLAG_ISIDLE;
 }
 
+// Runs on the first See after Idle (DnD_MonsterIdleMark); before setup it keeps the mark, which holds the monster.
 Script "DnD Monster Active" (void) {
+	if(!IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS))
+		Terminate;
+	TakeInventory("DnD_MonsterIdleMark", 1);
+
 	int tid = ActivatorTID();
 	MonsterProperties[tid - DND_MONSTERTID_BEGIN].flags &= ~DND_MONFLAG_ISIDLE;
 
@@ -5208,10 +5216,8 @@ Script "DnD Lifesteal Script" (int tid) {
 
 	int pnum = PlayerNumber();
 
-	// only bother granting the leech damage buff when the player has the affix at all
-	int leech_dmg = PlayerModData[pnum].vals[PSTAT_LIFESTEAL_DAMAGE];
-	if(leech_dmg)
-		HandlePlayerBuffAssignment(pnum, 0, BTI_LEECHINGDAMAGE, 0, 0, 0, leech_dmg);
+	// the leech damage buff, when the player has the affix; mana leech holds it too
+	GrantLeechingDamage(pnum);
 
 	int tics = GetLifestealRate(pnum);
 	int amt;
@@ -5253,8 +5259,8 @@ Script "DnD Lifesteal Script" (int tid) {
 	TakeInventory("LifestealScriptRunning", 1);
 	SetInventory("LifeStealAmount", 0);
 
-	// unconditional teardown -- reached by both the loop exit and the break above
-	RemoveBuffWithTableIndex(pnum, BTI_LEECHINGDAMAGE);
+	// reached by both the loop exit and the break above; kept while mana leech still pays out
+	EndLeechingDamage(pnum);
 }
 
 // for elites with pierce armor flag
@@ -5285,7 +5291,7 @@ Script "DnD Projectile Camouflage Watch" (void) {
 
 			int pnum = tracer - P_TIDSTART;
 			if(pnum >= 0 && pnum < MAXPLAYERS && PlayerInGame(pnum)) {
-				int chance = PlayerModData[pnum].vals[PSTAT_AVOID_HOMING];
+				int chance = GetHomingAvoidChance(pnum);
 				if(chance && random(1, 100) <= chance)
 					SetPointer(AAPTR_TRACER, 0);
 			}
@@ -5298,6 +5304,15 @@ Script "DnD Projectile Camouflage Watch" (void) {
 Script "DnD Monster Projectile Setup" (void) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	int m_id = owner - DND_MONSTERTID_BEGIN;
+
+	// The kind it was fired as, from its monster's last gated move, kept for when it lands.
+	if(IsMonster(owner))
+		SetInventory("DnD_ShotKind", CheckActorInventory(owner, "DnD_CastingSpell") ? 2 : 1);
+
+#ifdef DND_LOCKCHECK
+	// test builds only: tells the pacify/silence harness which monster fired what
+	LC_NoteShot(owner, GetActorClass(0));
+#endif
 
 	// Only a seeker has a lock to break, so only a seeker pays for a watcher.
 	if(CheckFlag(0, "SEEKERMISSILE") || CheckFlag(0, "SCREENSEEKER"))
@@ -5312,6 +5327,10 @@ Script "DnD Monster Projectile Setup" (void) {
 
 	if((temp = HasDungeonAttributeVal(DUN_ATTR_FASTPROJ)) != -1)
 		factor = FixedMul(factor, 1.0 + ((temp << 16) / 100));
+
+	// Temporal Chains rank 5: a chained monster's shots fly slower by half its slow.
+	if(IsMonster(owner) && (temp = CheckActorInventory(owner, "DnD_ChainedShotSlow")))
+		factor = FixedMul(factor, 1.0 - ((temp << 16) / 100));
 
 	if(factor != 1.0 && (temp = GetActorProperty(0, APROP_SPEED))) {
 		temp = FixedMul(temp, factor);
@@ -6034,9 +6053,10 @@ Script "DnD Try Open Chestkey" (int keytype) {
 /*#ifdef ISDEBUGBUILD
 	SetResultValue(1);
 #else*/
-	int res = -1;
-	if ((GetGameModeState() == GAMESTATE_INPROGRESS) && (!CheckActorInventory(GetActorProperty(0, APROP_TARGETTID), "CanLoad"))) {
-		res = CheckPlayerInventoryList(GetActorProperty(0, APROP_TARGETTID) - P_TIDSTART, DND_ITEM_CHESTKEY, keytype);
+	// the chest polls every tic; its target is a player only on the tic one uses it
+	int res = -1, tid = GetActorProperty(0, APROP_TARGETTID);
+	if (isPlayer(tid) && (GetGameModeState() == GAMESTATE_INPROGRESS) && (!CheckActorInventory(tid, "CanLoad"))) {
+		res = CheckPlayerInventoryList(tid - P_TIDSTART, DND_ITEM_CHESTKEY, keytype);
 		if(res != -1) {
 			SetActivatorToTarget(0);
 			UsePlayerItem(PlayerNumber(), res, false);
@@ -6212,26 +6232,33 @@ Script "DnD Ammo Gain Chance" (int slot, int ammo, int amount) {
 	HandleAttackEvent(CheckInventory("DnD_WeaponID"), slot == DND_AMMOSLOT_SPECIAL, ammo > SSAM_SLUG ? ammo - 1 : ammo);
 }
 
+// Set by "DnD Warmaster Ping" during one Warmaster's probe; the probe runs synchronously, so one slot serves them all.
+typedef struct {
+	bool found;
+} warmaster_probe_T;
+
+warmaster_probe_T module& GetWarmasterProbe() {
+	static warmaster_probe_T s;
+	return s;
+}
+
+// A live monster within WARMASTER_DIST of the Warmaster probing, the same set the old scan of every monster tid found.
+Script "DnD Warmaster Ping" (void) {
+	int tid = ActivatorTID();
+	if(tid >= DND_MONSTERTID_BEGIN && tid < DND_LASTMONSTER_TID && isAlive())
+		GetWarmasterProbe().found = true;
+	SetResultValue(0);
+}
+
 // in here because dnd_mons.bcs can't access values of the variables used below
 Script "DnD Warmaster Rage" (void) {
 	while(!CheckInventory("WarmasterActive"))
 		Delay(const:17);
-	int i, tidlim, dist;
 	while(CheckInventory("WarmasterActive")) {
-		bool found = false;
-		// try to see if there's at least one monster that is closest to this
-		for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER] && !found; ++mn) {
-			i = UsedMonsterTIDs[mn];
-		
-			if(IsActorAlive(i)) {
-				dist = fdistance(0, i);
-				// no self find
-				if(dist >= 2.0 && dist <= WARMASTER_DIST)
-					found = true;
-			}
-		}
-		
-		if(found)
+		// WarmasterProbe pings every monster in reach through the blockmap before GiveInventory returns
+		GetWarmasterProbe().found = false;
+		GiveInventory("WarmasterProbe", 1);
+		if(GetWarmasterProbe().found)
 			GiveInventory("WarmasterRage", 1);
 		else
 			TakeInventory("WarmasterRage", 1);
@@ -6267,32 +6294,14 @@ Script "DnD Pet Monster Scale" (int petid, int trait1, int trait2) {
 
 	GivePetTID(master);
 	
-	int base, add, level, temp, this = ActivatorTID();
+	int base, level, this = ActivatorTID();
 	int m_id = this - DND_PETTID_BEGIN;
 	int pnum = master - P_TIDSTART;
 	base = GetActorProperty(0, APROP_HEALTH);
-	
-	add = 0, level = CheckActorInventory(master, "Level");
-	if(level > 1) {
-		// The level-only curve, NOT GetMonsterHPScaling: m_id indexes PetMonsterProperties, but that
-		// function's unique boss branch reads MonsterProperties, so a pet picked up the boss
-		// multiplier whenever a custom unique boss sat at the same index. A pet is never one.
-		add = GetMonsterHPScaleForLevel(level);
+	level = CheckActorInventory(master, "Level");
 
-		add = ApplyHPScale(base, add);
-	}
-
-	// Intellect and Devoted Leader, both increases in hundredths of a percent of the level-scaled total; outside the level
-	// check so level 1 gets them too. Split, as dividing first gave nothing under 10000 health and multiplying first overflows.
-	temp = GetIntellectEffect(pnum, DND_PET_HP_PER_INT) + PlayerModData[pnum].vals[PSTAT_MINION_HEALTH] * 100;
-	add += (base + add) / 10000 * temp + (base + add) % 10000 * temp / 10000;
-
-	// Re-clamped: the intellect term lands after the scale and can push the total over the ceiling
-	// on its own.
-	if(add > DND_MAX_MONSTER_HP - base)
-		add = DND_MAX_MONSTER_HP - base;
-	if(add < 0)
-		add = 0;
+	// The level-only curve, not GetMonsterHPScaling: its unique boss branch reads MonsterProperties at a pet's index.
+	int add = GetPetScaledHealth(pnum, base, level) - base;
 	SetActorProperty(0, APROP_HEALTH, base + add);
 	ScaleMonsterMass(level);
 	PetMonsterProperties[m_id].id = petid;
@@ -6301,6 +6310,9 @@ Script "DnD Pet Monster Scale" (int petid, int trait1, int trait2) {
 	// dmg_bonus is free on a pet -- only MonsterProperties ever used it.
 	PetSummonTic[m_id] = Timer();
 	PetMonsterProperties[m_id].dmg_bonus = GetPetSpellDamageBonus(pnum, petid);
+	// Summoned near a Dark Portal: its more damage on top.
+	if(CheckInventory("DnD_PortalMore"))
+		PetMonsterProperties[m_id].dmg_bonus = (100 + PetMonsterProperties[m_id].dmg_bonus) * (100 + CheckInventory("DnD_PortalMore")) / 100 - 100;
 	PetMonsterProperties[m_id].basehp = base;
 	PetMonsterProperties[m_id].maxhp = base + add;
 	PetMonsterProperties[m_id].level = level;
@@ -6335,12 +6347,12 @@ Script "DnD Pet Monster Scale" (int petid, int trait1, int trait2) {
 	// Started here rather than from each pet's DECORATE: every pet already routes through this
 	// script, so a new one gets it without remembering to ask.
 	ACS_NamedExecuteAlways("DnD Pet Reactivity", 0);
-	ACS_NamedExecuteAlways("DnD Minion Regen", 0, true);
+	ACS_NamedExecuteAlways("DnD Minion Regen", 0);
 }
 
 // Righteous Army: a minion heals a share of its maximum life each second while its master holds the perk. Polled, so a
 // perk bought after the summon reaches minions already out. A revived monster is capped by its own record and Devoted Leader.
-Script "DnD Minion Regen" (int pet) {
+Script "DnD Minion Regen" (void) {
 	int this = ActivatorTID(), master, pct, cap, hp;
 	while(IsAlive()) {
 		Delay(const:TICRATE);
@@ -6348,14 +6360,7 @@ Script "DnD Minion Regen" (int pet) {
 		if(!IsPlayer(master) || !(pct = PlayerModData[master - P_TIDSTART].vals[PSTAT_MINION_REGEN]))
 			continue;
 
-		if(pet)
-			cap = PetMonsterProperties[this - DND_PETTID_BEGIN].maxhp;
-		else {
-			cap = MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp;
-			cap = cap / 100 * (100 + PlayerModData[master - P_TIDSTART].vals[PSTAT_MINION_HEALTH]) +
-				cap % 100 * (100 + PlayerModData[master - P_TIDSTART].vals[PSTAT_MINION_HEALTH]) / 100;
-		}
-
+		cap = GetMinionLifeCap(this, master);
 		hp = GetActorProperty(0, APROP_HEALTH);
 		if(hp > 0 && hp < cap)
 			SetActorProperty(0, APROP_HEALTH, Min(cap, hp + Max(1, cap / 100 * pct)));
@@ -6391,33 +6396,20 @@ Script "DnD Pet Reactivity" (void) {
 	}
 }
 
-Script "DnD Master Skill Info" (int skill_id) {
-	int res = 0;
-	int master = GetActorProperty(0, APROP_MASTERTID);
-	switch(skill_id) {
-		case SKILLINFO_ZOMBIEPETTIMER:
-			res = GetIntellectEffect(master - P_TIDSTART, SKILL_ZOMBIE_DURATION, ZOMBIE_INT_TIMER_FACTOR);
-		break;
-	}
-	SetResultValue(res);
-}
-
 Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 	if(flags & DND_WDMG_USETARGET) // target
 		SetactivatorToTarget(0);
 	int this = ActivatorTID();
 	int master = GetActorProperty(0, APROP_MASTERTID);
-	int res = 1.0 + Clamp_Between(PetMonsterProperties[this - DND_PETTID_BEGIN].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100);
+	int m_id = this - DND_PETTID_BEGIN;
+
+	// we don't need monster id from here onwards
+	int res = GetPetLevelDamage(Clamp_Between(PetMonsterProperties[m_id].level, 1, DND_MAX_MONSTERLVL), base & 0xFFFF);
 	if(flags & DND_WDMG_ISRIPPER)
 		res >>= 1;
-	res += GetPetDamageFactor(master);
-	// we don't need monster id from here onwards
-	base &= 0xFFFF;
-	// apply the monster's base damage first
-	res *= base;
-	res >>= 16;
-	// A spell's minion fights as the spell: no "magic attack" flat or percent, no occult weapon bonus, spell crit.
-	bool isSpell = GetPetSummonSpell(PetMonsterProperties[this - DND_PETTID_BEGIN].id) != -1;
+	// A spell's minion fights as the spell: its attunement, no "magic attack" flat or percent, no occult weapon bonus.
+	int spell = GetPetSummonSpell(PetMonsterProperties[m_id].id);
+	bool isSpell = spell != -1;
 
 	// now get player damage bonus stuff included
 	SetActivator(master);
@@ -6427,30 +6419,20 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 		res = res * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;
 	}
 
-	// talent bonus, with Inspirational's increased minion damage summed into it
-	// to do: check if pet attack was melee or ranged... it makes no sense otherwise -- assuming melee as the only pet is a melee one now
-	res = res * (100 + HandleStatBonus(pnum, 0, 0, DND_STAT_ATTUNEMENT_GAIN, true) + PlayerModData[pnum].vals[PSTAT_MINION_DAMAGE]) / 100;
+	res = ApplyPetMasterDamage(pnum, spell, res);
 
-	// TODO: later check if damage is physical, improve this script
-	int temp = PlayerModData[pnum].vals[PSTAT_EX_PHYSDAMAGEPER_FLATHEALTH];
-	if(temp) {
-		temp = GetFlatHealthDamageFactor(temp);
-		res = res * (100 + temp) / 100;
-	}
-		
-	temp = !isSpell * MapDamageCategoryToPercentBonus(pnum, DND_DAMAGECATEGORY_OCCULT, 0);
+	int temp = !isSpell * MapDamageCategoryToPercentBonus(pnum, DND_DAMAGECATEGORY_OCCULT, 0);
 	if(temp)
 		res = res * (100 + temp) / 100;
 
-	// finally crit chance -- move to damagedeal for pets in damage event later
-	if(CheckCritChance(pnum, -1, -1, false, -1, isSpell)) {
-		res = res * GetCritModifier(pnum, -1, -1, false, isSpell) / 100;
+	if(CheckMinionCrit(pnum)) {
+		res = res * GetMinionCritModifier(pnum) / 100;
 		HandleHunterTalisman();
 	}
 
 	// The summoning spell's own "more minion damage". Stamped on the pet at spawn, so a demon keeps
 	// the rank it was summoned at even if the caster respecs afterwards.
-	temp = PetMonsterProperties[this - DND_PETTID_BEGIN].dmg_bonus;
+	temp = PetMonsterProperties[m_id].dmg_bonus;
 	if(temp)
 		res = res * (100 + temp) / 100;
 
@@ -6473,19 +6455,27 @@ Script "DnD On Summon Death Check" (int monsterID) {
 		PetSummonTic[m_id] = 0;
 
 	bool evicted = CheckInventory("DnD_PetUnsummoned");
-	if(!SetActivator(0, AAPTR_MASTER))
+	// By the master's tid, not its pointer: a pet outlives its master's death, and the pointer keeps the old body.
+	int master = GetActorProperty(0, APROP_MASTERTID);
+	if(!isPlayer(master) || !SetActivator(master))
 		Terminate;
 
-	// EVERY pet counts against the cap, so every pet gives the point back. Only the zombie keeps
-	// its own separate tally.
-	TakeInventory("PetCounter", 1);
+	// EVERY pet counts against the cap, so every pet gives its points back.
+	TakeInventory("PetCounter", GetPetCapWeight(petid));
 
 	// Necromancer, for a minion that was slain rather than sent home by the cap.
 	if(!evicted && PlayerNumber() != -1)
 		ACS_NamedExecuteAlways("DnD Gem Minion Revive", 0, PlayerNumber(), petid);
+}
 
-	if(petid == MONSTER_PET_ZOMBIE)
-		TakeInventory("SummonedZombiePets", 1);
+// A carried pet takes back its health share once its scale script, on its first tic, has set its full health.
+Script "DnD Carried Pet Health" (int tid, int pct) {
+	Delay(const:5);
+	int m_id = tid - DND_PETTID_BEGIN, full;
+	if(m_id < 0 || m_id >= DND_MAX_PETS || !IsActorAlive(tid))
+		Terminate;
+	full = PetMonsterProperties[m_id].maxhp;
+	SetActorProperty(tid, APROP_HEALTH, Max(1, full / 100 * pct + full % 100 * pct / 100));
 }
 
 Script "DnD On Pet Summon" (void) {
@@ -6501,7 +6491,8 @@ Script "DnD On Pet Summon" (void) {
 Script "DnD Pet Distance Move" (void) {
 	int master = GetActorProperty(0, APROP_MASTERTID), dx, dy, dz;
 	while(IsAlive() && IsActorAlive(master)) {
-		if(!CheckInventory("MovePetCooldown")) {
+		// Not while its master's Mark Prey lasts: the chase may take it far away.
+		if(!CheckInventory("MovePetCooldown") && !GetMarkedPrey(master - P_TIDSTART)) {
 			dx = GetActorX(0) - GetActorX(master);
 			dy = GetActorY(0) - GetActorY(master);
 			dz = GetActorZ(0) - GetActorZ(master);
@@ -6561,8 +6552,8 @@ Script "DnD On Monster Attack" (int isMelee) {
 	int this = ActivatorTID();
 	int m_id = this - DND_MONSTERTID_BEGIN;
 	if(HasMonsterTrait(m_id, DND_MARKOFCHAOS)) {
-		// check monster size category -- small, medium or big
-		int size = GetMonsterSizeType(MonsterProperties[m_id].id);
+		// check monster size category -- small, medium or big; chaos bolts are a spell, so silence stops them
+		int size = CheckInventory("DnD_SilenceTimer") ? -1 : GetMonsterSizeType(MonsterProperties[m_id].id);
 		switch(size) {
 			case DND_MONSTERSIZE_SMALL:
 				GiveInventory("Monster_Chaos_Check", 1);
@@ -6583,7 +6574,7 @@ Script "DnD On Monster Attack" (int isMelee) {
 	// summon the grabby hands under the player the monster is targeting
 	if
 	(
-		HasMonsterTrait(m_id, DND_OTHERWORLDGRIP) && 
+		HasMonsterTrait(m_id, DND_OTHERWORLDGRIP) && !CheckInventory("DnD_SilenceTimer") &&
 		random(1, 100) <= DND_OTHERWORLDGRIP_CHANCE && !CheckInventory("OtherworldGripCooldown") &&
 		isPlayer(target) && fdistance(this, target) <= OTHERWORLD_GRIP_DIST
 	)
@@ -6932,18 +6923,7 @@ Script "DnD Heal Monster Direct" (int amount, int isPercent) {
 		HealMonster(mid, MonsterProperties[mid].maxhp * isPercent / 100);
 }
 
-Script "DnD Monster Heal Potency" (int base) {
-	int this = ActivatorTID() - DND_MONSTERTID_BEGIN;
-	int factor = Clamp_Between(MonsterProperties[this].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100);
-	
-	if(HasMonsterTrait(this, DND_VITAL))
-		factor <<= 1;
-	
-	base = base * (100 + factor) / 100;
-	
-	SetResultValue(base);
-}
-
+// amount is authored against the monster's table health; each heal scales it by the live max health.
 Script "DnD Monster Health Regen Script" (int style, int amount, int period) {
 	while(!isSetupComplete(SETUP_STATE1, SETUP_MONSTERS) || !IsSetupComplete(SETUP_STATE1, SETUP_MAPEVENTS))
 		Delay(const:TICRATE_TIMESFIVE);
@@ -6955,16 +6935,21 @@ Script "DnD Monster Health Regen Script" (int style, int amount, int period) {
 	if(style == DND_MHR_DURATION) {
 		while(duration) {
 			if(CanHealMonster())
-				HealMonster(mid, amount);
+				HealMonster(mid, GetMonsterHealAmount(mid, amount));
 			--duration;
 			Delay(period);
 		}
 	}
 	else if(style == DND_MHR_PERIODIC) {
 		while(isAlive()) {
-			if(CanHealMonster())
-				HealMonster(mid, amount);
-			Delay(period);
+			// at full health it checks once a second, so regen resumes up to a second after a hit
+			if(GetActorProperty(0, APROP_HEALTH) >= MonsterProperties[mid].maxhp)
+				Delay(const:TICRATE);
+			else {
+				if(CanHealMonster())
+					HealMonster(mid, GetMonsterHealAmount(mid, amount));
+				Delay(period);
+			}
 		}
 	}
 }
@@ -7117,8 +7102,8 @@ Script "DnD Rejuvenation" (void) {
 	while(isAlive()) {
 		Delay(const:REJUV_TICS);
 		
-		// ignite effects prevent rejuvenation
-		if(CanHealMonster() && GetActorProperty(0, APROP_HEALTH) != MonsterProperties[id].maxhp) {
+		// ignite effects prevent rejuvenation, and so does silence
+		if(CanHealMonster() && !CheckInventory("DnD_SilenceTimer") && GetActorProperty(0, APROP_HEALTH) != MonsterProperties[id].maxhp) {
 			HealMonster(id, hp_per);
 			ACS_NamedExecuteAlways("DnD Rejuvenation FX CS", 0);
 		}
@@ -7136,6 +7121,9 @@ Script "DnD Repel" (void) {
 		
 		if(!isAlive())
 			break;
+
+		if(CheckInventory("DnD_SilenceTimer"))
+			continue;
 
 		// check all players to see if they are close to us
 		for(int i = 0; i < MAXPLAYERS; ++i) {
@@ -7179,6 +7167,10 @@ Script "DnD Phasing" (void) {
 		if(!isAlive() || CheckFlag(0, "GHOST") || HasMonsterTrait(m_id, DND_GHOST))
 			break;
 
+		// a silenced monster cannot phase; it tries again after the next wait
+		if(CheckInventory("DnD_SilenceTimer"))
+			continue;
+
 		// make ghost
 		GiveInventory("MakeGhost", 1);
 		PlaySound(0, "PhaseIn", CHAN_AUTO, 1.0);
@@ -7212,6 +7204,9 @@ Script "DnD Cripple" (void) {
 	while(isAlive()) {
 		Delay(const:CRIPPLE_REFRESH_RATE);
 
+		if(CheckInventory("DnD_SilenceTimer"))
+			continue;
+
 		// check all players to see if they are close to us -- dont target players if we are friendly to them
 		for(int i = 0; !CheckFlag(0, "FRIENDLY") && i < MAXPLAYERS; ++i) {
 			p_tid = i + P_TIDSTART;
@@ -7243,7 +7238,8 @@ Script "DnD Aura Ward" (void) {
 	while(IsAlive()) {
 		// ACS cannot call A_RadiusGive, so giving the pulse item is the handoff into DECORATE. The
 		// activator is this monster, which is what the sweep ends up centred on.
-		GiveInventory("Aura_Ward_Pulse", 1);
+		if(!CheckInventory("DnD_SilenceTimer"))
+			GiveInventory("Aura_Ward_Pulse", 1);
 		Delay(const:DND_MONSTERAURA_REFRESHRATE);
 	}
 }
@@ -7597,7 +7593,7 @@ Script "DnD Vaaj Charm" (int spd) {
 		int pnum = victim - P_TIDSTART;
 		if(!CheckUniquePropertyOnPlayer(pnum, PUP_CURSEIMMUNITY)) {
 			int base_t = DND_VAAJ_CHARMTIME;
-			int curse_effect = 100 - PlayerModData[pnum].vals[PSTAT_REDUCEDCURSEEFFECT];
+			int curse_effect = 100 - GetReducedCurseEffect(pnum);
             if(curse_effect <= 0) {
                 SetResultValue(0);
                 Terminate;
@@ -7913,7 +7909,7 @@ Script "DnD Debug Gem Drop" (int colour, int greater, int role) NET {
 #define DND_DEBUG_GEMS_MAX 30
 
 // pukename "DnD Debug Gems" <count> <colour> <role> <greater>: gems thrown in front of you; 0 rolls that part as a drop would.
-// colour 1-8 (see "DnD Debug Gem List"), role 1-33 or -1 for none, greater 1 normal or 2 greater. count 0 is one, at most 30.
+// colour 1-8 (see "DnD Debug Gem List"), role 1-35 or -1 for none, greater 1 normal or 2 greater. count 0 is one, at most 30.
 Script "DnD Debug Gems" (int count, int colour, int role, int greater) NET {
 	int pnum = PlayerNumber();
 	if(pnum < 0)

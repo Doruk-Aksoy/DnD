@@ -444,8 +444,9 @@ void TraceScorchRay(int pnum, int offx, int offy, int offz, int len, bool pierce
 		if(!pierces)
 			return;
 
-		// Resume just past the far side of what was hit, so the next hop cannot pick it up again.
-		step = GetActorProperty(v, APROP_RADIUS) + 8.0;
+		// Resume just past the far side of what was hit: its centre's distance along the ray, plus its radius.
+		step = Max(8.0, FixedMul(GetActorX(v) - ox, fx) + FixedMul(GetActorY(v) - oy, fy) +
+			FixedMul(GetActorZ(v) + GetActorProperty(v, APROP_HEIGHT) / 2 - oz, fz) + GetActorProperty(v, APROP_RADIUS) + 8.0);
 		adv += step;
 		if(adv >= len)
 			return;
@@ -483,7 +484,7 @@ Script "DnD Scorching Ray" (int pnum) {
 	PlaySound(caster, "ScorchingRay/Loop", CHAN_7, 1.0, true);
 
 	while(true) {
-		if(!PlayerInGame(pnum) || !IsActorAlive(caster))
+		if(!PlayerInGame(pnum) || !IsActorAlive(caster) || IsPlayerSilenced(pnum))
 			break;
 
 		// Held ends it; not yet held is forgiven until the grace window runs out.
@@ -1467,6 +1468,209 @@ Script "DnD Rain Of Fire" (int pnum) {
 	}
 }
 
+// ---- Curses: what lands on one enemy, shared by the casts and Ritualist's lingering area ----
+
+#define DND_CURSE_LINGER_SLOTS 4		// lingering areas a player keeps at once; a fifth replaces the oldest
+#define DND_CURSE_LINGER_TICK 8			// how often a lingering area looks for enemies
+#define DND_CURSE_LINGER_FXTICS 16		// and how often it redraws its ring
+
+// Curse Immune enemies ignore curses, unless the curse says it can affect them: Hexmaster.
+bool CanCurseMonster(int pnum, int spell, int tid) {
+	return !HasMonsterTrait(tid - DND_MONSTERTID_BEGIN, DND_CURSEIMMUNE) || GetSpellGemMod(pnum, spell, GEMSTAT_HEXMASTER);
+}
+
+// A curse's resist cut or chance after its gems: Witch's more curse effect, then Ritualist's reduced effect.
+int GetSpellCurseEffect(int pnum, int spell, int v) {
+	v = ApplySpellGemMore(pnum, spell, GEMSTAT_MORE_CURSE, v);
+	if(GetSpellGemMod(pnum, spell, GEMSTAT_LINGER))
+		v = v * (100 - GetSpellGemMod(pnum, spell, GEMSTAT_LINGER_LESS)) / 100;
+	return v;
+}
+
+// One enemy: the curse's resist cut and its ailment chance, each keeping the strongest and the longest.
+void ApplySpellCurse(int pnum, int spell, int tid, int pct, int chance, int tics) {
+	switch(spell) {
+		case SPL_FLAMMABILITY:
+			ApplyFireExposure(tid, pct, tics);
+			CurseMonster(tid, "DnD_Flammable", "DnD_FlammableTimer", "DnD Flammability Timer", chance, tics);
+		break;
+		case SPL_FROSTBITE:
+			ApplyColdExposure(tid, pct, tics);
+			CurseMonster(tid, "DnD_Frostbitten", "DnD_FrostbittenTimer", "DnD Frostbite Timer", chance, tics);
+		break;
+		case SPL_CONDUCTIVITY:
+			ApplyLightningExposure(tid, pct, tics);
+			CurseMonster(tid, "DnD_Conductive", "DnD_ConductiveTimer", "DnD Conductivity Timer", chance, tics);
+		break;
+		case SPL_VULNERABILITY:
+			ApplyPhysicalExposure(tid, pct, tics);
+			CurseMonster(tid, "DnD_Vulnerable", "DnD_VulnerableTimer", "DnD Vulnerability Timer", chance, tics);
+		break;
+		case SPL_DESPAIR:
+			ApplyPoisonExposure(tid, pct, tics);
+			CurseMonster(tid, "DnD_Despaired", "DnD_DespairedTimer", "DnD Despair Timer", chance, tics);
+			if(SpellThresholdMet(pnum, spell, DND_SPELL_THRESH_HIGH))
+				PauseMonsterRegen(tid, tics);
+		break;
+		case SPL_NOX:
+			BlindMonster(pnum, tid, tics);
+		break;
+		case SPL_TEMPORALCHAINS:
+			ChainMonster(pnum, tid, pct, tics);
+		break;
+		case SPL_ENFEEBLE:
+			EnfeebleMonster(tid, pct, tics);
+		break;
+		case SPL_PAINAMP:
+			PainAmpMonster(tid, pct, tics);
+		break;
+		case SPL_SILENCE:
+			SilenceCurseMonster(tid, tics);
+		break;
+		case SPL_LIFETAP:
+			LifeTapMonster(pnum, tid, tics);
+		break;
+		case SPL_DELIRIUM:
+			DeliriumMonster(pnum, tid, tics);
+		break;
+		case SPL_SUBJUGATE:
+			SubjugateMonster(pnum, tid, tics);
+		break;
+		case SPL_PENETRATE:
+			PenetrateMonster(pnum, tid, tics);
+		break;
+		case SPL_REMOVERESIST:
+			RemoveResistMonster(pnum, tid, tics);
+		break;
+		case SPL_BREAKIMMUNITY:
+			BreakImmunityMonster(pnum, tid, tics);
+		break;
+		case SPL_TRANSMOGRIFY:
+			TransmogrifyMonster(pnum, tid);
+		break;
+		case SPL_BANISH:
+			BanishMonster(pnum, tid, tics);
+		break;
+	}
+}
+
+// Every enemy within r of the centre, in 3D to the monster's origin.
+void CurseArea(int pnum, int spell, int cx, int cy, int cz, int r, int pct, int chance, int tics) {
+	for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
+		int i = UsedMonsterTIDs[mn];
+		if(!IsActorAlive(i) || !IsSpellEnemy(i) || fdistance_delta(cx - GetActorX(i), cy - GetActorY(i), cz - GetActorZ(i)) > r)
+			continue;
+		if(CanCurseMonster(pnum, spell, i))
+			ApplySpellCurse(pnum, spell, i, pct, chance, tics);
+	}
+}
+
+// The curse's ring of markers where it landed, client side.
+void DrawCurseArea(int spell, int cx, int cy, int cz, int r) {
+	switch(spell) {
+		case SPL_FLAMMABILITY:
+			ACS_NamedExecuteWithResult("DnD Flammability Area FX", cx, cy, cz, r);
+		break;
+		case SPL_FROSTBITE:
+			ACS_NamedExecuteWithResult("DnD Frostbite Area FX", cx, cy, cz, r);
+		break;
+		case SPL_CONDUCTIVITY:
+			ACS_NamedExecuteWithResult("DnD Conductivity Area FX", cx, cy, cz, r);
+		break;
+		case SPL_VULNERABILITY:
+			ACS_NamedExecuteWithResult("DnD Vulnerability Area FX", cx, cy, cz, r);
+		break;
+		case SPL_DESPAIR:
+			ACS_NamedExecuteWithResult("DnD Despair Area FX", cx, cy, cz, r);
+		break;
+		case SPL_NOX:
+			ACS_NamedExecuteWithResult("DnD Nox Area FX", cx, cy, cz, r);
+		break;
+		case SPL_TEMPORALCHAINS:
+			ACS_NamedExecuteWithResult("DnD Temporal Chains Area FX", cx, cy, cz, r);
+		break;
+		case SPL_ENFEEBLE:
+			ACS_NamedExecuteWithResult("DnD Enfeeble Area FX", cx, cy, cz, r);
+		break;
+		case SPL_PAINAMP:
+			ACS_NamedExecuteWithResult("DnD Pain Amp Area FX", cx, cy, cz, r);
+		break;
+		case SPL_SILENCE:
+			ACS_NamedExecuteWithResult("DnD Silence Area FX", cx, cy, cz, r);
+		break;
+		case SPL_LIFETAP:
+			ACS_NamedExecuteWithResult("DnD Life Tap Area FX", cx, cy, cz, r);
+		break;
+		case SPL_SUBJUGATE:
+			ACS_NamedExecuteWithResult("DnD Black Curse Area FX", cx, cy, cz, ((r >> 16) << 8) | DND_ATTACHMENT_SUBJUGATE);
+		break;
+		case SPL_PENETRATE:
+			ACS_NamedExecuteWithResult("DnD Black Curse Area FX", cx, cy, cz, ((r >> 16) << 8) | DND_ATTACHMENT_PENETRATE);
+		break;
+		case SPL_REMOVERESIST:
+			ACS_NamedExecuteWithResult("DnD Black Curse Area FX", cx, cy, cz, ((r >> 16) << 8) | DND_ATTACHMENT_REMOVERESIST);
+		break;
+		case SPL_BREAKIMMUNITY:
+			ACS_NamedExecuteWithResult("DnD Black Curse Area FX", cx, cy, cz, ((r >> 16) << 8) | DND_ATTACHMENT_BREAKIMMUNITY);
+		break;
+	}
+}
+
+typedef struct {
+	int next;
+	int gen[DND_CURSE_LINGER_SLOTS];
+	int spell[DND_CURSE_LINGER_SLOTS];
+	int cx[DND_CURSE_LINGER_SLOTS];
+	int cy[DND_CURSE_LINGER_SLOTS];
+	int cz[DND_CURSE_LINGER_SLOTS];
+	int r[DND_CURSE_LINGER_SLOTS];
+	int pct[DND_CURSE_LINGER_SLOTS];
+	int chance[DND_CURSE_LINGER_SLOTS];
+	int tics[DND_CURSE_LINGER_SLOTS];
+} curse_linger_T;
+
+curse_linger_T module& GetCurseLingers(int pnum) {
+	static curse_linger_T lingers[MAXPLAYERS];
+	return lingers[pnum];
+}
+
+// Ritualist: the cast's area keeps re-cursing every enemy inside it at the cast's own, already reduced, strength,
+// so the curse's clock stays full while an enemy remains and runs down once it leaves.
+void StartCurseLinger(int pnum, int spell, int cx, int cy, int cz, int r, int pct, int chance, int tics) {
+	int linger = GetSpellGemMod(pnum, spell, GEMSTAT_LINGER);
+	if(!linger)
+		return;
+
+	curse_linger_T module& z = GetCurseLingers(pnum);
+	int s = z.next;
+	z.next = (s + 1) % DND_CURSE_LINGER_SLOTS;
+	++z.gen[s];
+	z.spell[s] = spell;
+	z.cx[s] = cx;
+	z.cy[s] = cy;
+	z.cz[s] = cz;
+	z.r[s] = r;
+	z.pct[s] = pct;
+	z.chance[s] = chance;
+	z.tics[s] = tics;
+	ACS_NamedExecuteAlways("DnD Curse Linger", 0, pnum, s, ScaleSpellEffectTics(pnum, spell, linger));
+}
+
+Script "DnD Curse Linger" (int pnum, int s, int linger) {
+	curse_linger_T module& z = GetCurseLingers(pnum);
+	int gen = z.gen[s];
+	for(int t = 0; t < linger; t += DND_CURSE_LINGER_TICK) {
+		if(t && !(t % DND_CURSE_LINGER_FXTICS))
+			DrawCurseArea(z.spell[s], z.cx[s], z.cy[s], z.cz[s], z.r[s]);
+		Delay(const:DND_CURSE_LINGER_TICK);
+
+		// a newer area took this slot, or the caster left
+		if(z.gen[s] != gen || !PlayerInGame(pnum))
+			Terminate;
+		CurseArea(pnum, z.spell[s], z.cx[s], z.cy[s], z.cz[s], z.r[s], z.pct[s], z.chance[s], z.tics[s]);
+	}
+}
+
 // Two ways to find the centre, because the curse has to land on a patch of floor as readily as on a
 // monster. PickActor answers in the same call and exactly, so it is the fast path; failing that the
 // aim puff tags itself where it struck geometry, which costs the few tics it takes the puff to tick.
@@ -1507,34 +1711,12 @@ Script "DnD Flammability Cast" (int pnum) {
 	int tics = GetSpellDurationTics(pnum, SPL_FLAMMABILITY) +
 		ScaleSpellEffectTics(pnum, SPL_FLAMMABILITY, DND_FLAMMABILITY_R10_TICS) * SpellThresholdMet(pnum, SPL_FLAMMABILITY, DND_SPELL_THRESH_HIGH);
 
-	ACS_NamedExecuteWithResult("DnD Flammability Area FX", cx, cy, cz, r);
-	// Witch: more curse effect on both of what the curse does.
-	int pct = ApplySpellGemMore(pnum, SPL_FLAMMABILITY, GEMSTAT_MORE_CURSE, GetSpellValue(pnum, SPL_FLAMMABILITY, SPELLVAL_DAMAGE));
-	int chance = ApplySpellGemMore(pnum, SPL_FLAMMABILITY, GEMSTAT_MORE_CURSE, GetSpellValue(pnum, SPL_FLAMMABILITY, SPELLVAL_DAMAGE2));
-
-	int i, mn;
-	for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
-		i = UsedMonsterTIDs[mn];
-		if(!IsActorAlive(i) || !IsSpellEnemy(i))
-			continue;
-		if(fdistance_delta(cx - GetActorX(i), cy - GetActorY(i), cz - GetActorZ(i)) > r)
-			continue;
-
-		ApplyFireExposure(i, pct, tics);
-
-		// Strongest and longest win independently, same rule as the exposure lane beside it.
-		if(CheckActorInventory(i, "DnD_Flammable") < chance)
-			SetActorInventory(i, "DnD_Flammable", chance);
-
-		// One ticker per monster -- it owns the marker, so a second would leave an orphan attachment.
-		bool ticking = !!CheckActorInventory(i, "DnD_FlammableTimer");
-		if(CheckActorInventory(i, "DnD_FlammableTimer") < tics)
-			SetActorInventory(i, "DnD_FlammableTimer", tics);
-
-		if(!ticking)
-			ACS_NamedExecuteAlways("DnD Flammability Timer", 0, i);
-	}
-
+	DrawCurseArea(SPL_FLAMMABILITY, cx, cy, cz, r);
+	// Witch and Ritualist: the curse's effect, on both of what it does.
+	int pct = GetSpellCurseEffect(pnum, SPL_FLAMMABILITY, GetSpellValue(pnum, SPL_FLAMMABILITY, SPELLVAL_DAMAGE));
+	int chance = GetSpellCurseEffect(pnum, SPL_FLAMMABILITY, GetSpellValue(pnum, SPL_FLAMMABILITY, SPELLVAL_DAMAGE2));
+	CurseArea(pnum, SPL_FLAMMABILITY, cx, cy, cz, r, pct, chance, tics);
+	StartCurseLinger(pnum, SPL_FLAMMABILITY, cx, cy, cz, r, pct, chance, tics);
 }
 
 // Same two ways in as Flammability, and the same one ticker per monster owning its marker.
@@ -1575,31 +1757,12 @@ Script "DnD Frostbite Cast" (int pnum) {
 	int tics = GetSpellDurationTics(pnum, SPL_FROSTBITE) +
 		ScaleSpellEffectTics(pnum, SPL_FROSTBITE, DND_FROSTBITE_R10_TICS) * SpellThresholdMet(pnum, SPL_FROSTBITE, DND_SPELL_THRESH_HIGH);
 
-	ACS_NamedExecuteWithResult("DnD Frostbite Area FX", cx, cy, cz, r);
-	// Witch, as for Flammability.
-	int pct = ApplySpellGemMore(pnum, SPL_FROSTBITE, GEMSTAT_MORE_CURSE, GetSpellValue(pnum, SPL_FROSTBITE, SPELLVAL_DAMAGE));
-	int chance = ApplySpellGemMore(pnum, SPL_FROSTBITE, GEMSTAT_MORE_CURSE, GetSpellValue(pnum, SPL_FROSTBITE, SPELLVAL_DAMAGE2));
-
-	int i, mn;
-	for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
-		i = UsedMonsterTIDs[mn];
-		if(!IsActorAlive(i) || !IsSpellEnemy(i))
-			continue;
-		if(fdistance_delta(cx - GetActorX(i), cy - GetActorY(i), cz - GetActorZ(i)) > r)
-			continue;
-
-		ApplyColdExposure(i, pct, tics);
-
-		if(CheckActorInventory(i, "DnD_Frostbitten") < chance)
-			SetActorInventory(i, "DnD_Frostbitten", chance);
-
-		bool ticking = !!CheckActorInventory(i, "DnD_FrostbittenTimer");
-		if(CheckActorInventory(i, "DnD_FrostbittenTimer") < tics)
-			SetActorInventory(i, "DnD_FrostbittenTimer", tics);
-
-		if(!ticking)
-			ACS_NamedExecuteAlways("DnD Frostbite Timer", 0, i);
-	}
+	DrawCurseArea(SPL_FROSTBITE, cx, cy, cz, r);
+	// Witch and Ritualist, as for Flammability.
+	int pct = GetSpellCurseEffect(pnum, SPL_FROSTBITE, GetSpellValue(pnum, SPL_FROSTBITE, SPELLVAL_DAMAGE));
+	int chance = GetSpellCurseEffect(pnum, SPL_FROSTBITE, GetSpellValue(pnum, SPL_FROSTBITE, SPELLVAL_DAMAGE2));
+	CurseArea(pnum, SPL_FROSTBITE, cx, cy, cz, r, pct, chance, tics);
+	StartCurseLinger(pnum, SPL_FROSTBITE, cx, cy, cz, r, pct, chance, tics);
 }
 
 // Molten Boulder. The same spawn as the pre-tree version -- dropped from just under the ceiling at
@@ -2117,7 +2280,7 @@ Script "DnD Chilling Breath" (int pnum) {
 	int t = 0, due = 0;
 
 	while(true) {
-		if(!PlayerInGame(pnum) || !IsActorAlive(caster))
+		if(!PlayerInGame(pnum) || !IsActorAlive(caster) || IsPlayerSilenced(pnum))
 			break;
 
 		if(IsChannelHeld())
@@ -2822,18 +2985,11 @@ Script "DnD Ice Golem Bolt" (void) {
 	SetResultValue(1);
 }
 
-Script "DnD Summon Ice Golem" (int pnum) {
+// quiet: summoned back after a map change or a load, so it arrives without its sounds.
+Script "DnD Summon Ice Golem" (int pnum, int quiet) {
 	int caster = pnum + P_TIDSTART;
-
-	int maxkind = Max(1, GetSpellValue(pnum, SPL_ICEGOLEM, SPELLVAL_AMOUNT));
-
-	// The oldest GOLEM makes way first, and only once its own kind is full, so a golem never costs
-	// an unrelated pet its place.
-	if(CountPlayerPetsOfKind(pnum, MONSTER_PET_ICEGOLEM) >= maxkind)
-		UnsummonPet(FindOldestPlayerPetOfKind(pnum, MONSTER_PET_ICEGOLEM));
-
-	if(!CanActorHaveMorePets(caster))
-		UnsummonPet(FindOldestPlayerPet(pnum));
+	if(!MakeRoomForPet(pnum, MONSTER_PET_ICEGOLEM, GetSummonKindCap(pnum, SPL_ICEGOLEM)))
+		Terminate;
 
 	int tid = TEMPORARY_PET_TID + pnum;
 	if(!SpawnSummonNear("Spell_IceGolem", caster, tid, DND_ICEGOLEM_DIST))
@@ -2844,12 +3000,14 @@ Script "DnD Summon Ice Golem" (int pnum) {
 	// Before its first tic: "DnD Pet Monster Scale" reads APROP_HEALTH as the base it levels up
 	// from, so this is what makes the row's number the one that gets scaled.
 	SetActorProperty(tid, APROP_HEALTH, Max(1, ApplySpellGemMore(pnum, SPL_ICEGOLEM, GEMSTAT_MORE_MINIONLIFE, GetSpellValue(pnum, SPL_ICEGOLEM, SPELLVAL_DAMAGE))));
+	ApplyPortalBoon(pnum, tid);
 
 	SetActorProperty(tid, APROP_MASTERTID, caster);
 	SetActivator(tid);
 	SetPointer(AAPTR_MASTER, caster);
 	SetActorProperty(0, APROP_FRIENDLY, true);
-	Thing_ChangeTID(tid, 0);
+	int pet = ClaimPetSlot(caster, MONSTER_PET_ICEGOLEM);
+	SetInventory("DnD_QuietArrival", quiet);
 
 	GiveActorInventory(caster, "PetCounter", 1);
 
@@ -2859,6 +3017,7 @@ Script "DnD Summon Ice Golem" (int pnum) {
 	if(SpellThresholdMet(pnum, SPL_ICEGOLEM, DND_SPELL_THRESH_HIGH) ||
 		SpellThresholdMet(pnum, SPL_ICEGOLEM, DND_SPELL_THRESH_LOW))
 		ACS_NamedExecuteAlways("DnD Ice Golem Aura", 0, pnum);
+	SetResultValue(pet);
 }
 
 // Whether a player's aura ticker runs. Map scope, so it resets with the scripts on a new map.
@@ -4019,8 +4178,11 @@ void SendBeamToEnemy(str fx, int x0, int y0, int z0, int victim) {
 }
 
 // One hit of a spell from a base amount, priced and dealt, as area damage when area is set. Returns what landed.
-int DealSpellAmount(int pnum, int spell, int victim, int base, bool area = false, int flags = 0) {
+// more is percent more damage on the priced hit, so it multiplies the flat added damage too.
+int DealSpellAmount(int pnum, int spell, int victim, int base, bool area = false, int flags = 0, int more = 0) {
 	int dmg = PriceSpellDamage(pnum, spell, base, area ? DND_WDMG_ISRADIUSDMG : 0);
+	if(more)
+		dmg = dmg * (100 + more) / 100;
 	int dealt = HandleDamageDeal(pnum + P_TIDSTART, victim, dmg, GetSpellDamageType(spell), spell,
 		DND_DAMAGEFLAG_ISSPELL | (area ? DND_DAMAGEFLAG_ISRADIUSDMG : 0) | flags, 0, 0, 0, 0, true);
 	if(dealt > 0)
@@ -4029,8 +4191,8 @@ int DealSpellAmount(int pnum, int spell, int victim, int base, bool area = false
 }
 
 // One rolled hit of a beam spell at pct of its damage, priced and dealt, as area damage when area is set. Returns what landed.
-int DealSpellBeamHit(int pnum, int spell, int victim, int pct, bool area = false, int flags = 0) {
-	return DealSpellAmount(pnum, spell, victim, RollSpellValue(pnum, spell, SPELLVAL_DAMAGE) * pct / 100, area, flags);
+int DealSpellBeamHit(int pnum, int spell, int victim, int pct, bool area = false, int flags = 0, int more = 0) {
+	return DealSpellAmount(pnum, spell, victim, RollSpellValue(pnum, spell, SPELLVAL_DAMAGE) * pct / 100, area, flags, more);
 }
 
 // Client side: a crackle somewhere on an actor's body.
@@ -4229,13 +4391,41 @@ Script "DnD Shock FX" (int m_tid, int tics) CLIENTSIDE {
 // ============================ Telekinesis ============================
 
 #define DND_TELEKINESIS_PUSH 24         // shove at full strength, units a tic; AMOUNT is its percent
-#define DND_TELEKINESIS_R5_STUN TICRATE
+#define DND_TELEKINESIS_R5_DEFLECT (2 * TICRATE)
 #define DND_TELEKINESIS_R10_HPPCT 10
+
+// Rank 5: while the count runs, reflectable missiles that hit the caster are reflected (see the damage event).
+void StartTelekinesisDeflect(int pnum, int tics) {
+	int ptid = pnum + P_TIDSTART;
+	bool running = !!CheckActorInventory(ptid, "DnD_TelekinesisDeflect");
+	SetActorInventory(ptid, "DnD_TelekinesisDeflect", tics);
+	SetActorInventory(ptid, "P_TelekinesisTime", (tics + TICRATE - 1) / TICRATE);
+	if(!running)
+		ACS_NamedExecuteAlways("DnD Telekinesis Deflect", 0, pnum);
+}
+
+// Counts the window down; a recast inside it only resets the count.
+Script "DnD Telekinesis Deflect" (int pnum) {
+	int ptid = pnum + P_TIDSTART;
+	while(CheckActorInventory(ptid, "DnD_TelekinesisDeflect") && PlayerInGame(pnum) && IsActorAlive(ptid)) {
+		int s = (CheckActorInventory(ptid, "DnD_TelekinesisDeflect") + TICRATE - 1) / TICRATE;
+		if(s != CheckActorInventory(ptid, "P_TelekinesisTime"))
+			SetActorInventory(ptid, "P_TelekinesisTime", s);
+		TakeActorInventory(ptid, "DnD_TelekinesisDeflect", 1);
+		Delay(const:1);
+	}
+	SetActorInventory(ptid, "DnD_TelekinesisDeflect", 0);
+	SetActorInventory(ptid, "P_TelekinesisTime", 0);
+}
 
 void CastTelekinesis(int pnum) {
 	int caster = pnum + P_TIDSTART;
 
 	PlaySound(caster, "Telekinesis/Cast", CHAN_VOICE);
+
+	// On every cast, so a miss still buys the window.
+	if(SpellThresholdMet(pnum, SPL_TELEKINESIS, DND_SPELL_THRESH_LOW))
+		StartTelekinesisDeflect(pnum, ScaleSpellEffectTics(pnum, SPL_TELEKINESIS, DND_TELEKINESIS_R5_DEFLECT));
 
 	int victim = GetSpellEnemyTarget(pnum, GetSpellValue(pnum, SPL_TELEKINESIS, SPELLVAL_RADIUS) << 16);
 	if(!victim)
@@ -4245,9 +4435,6 @@ void CastTelekinesis(int pnum) {
 	ThrustThing(away >> 8, DND_TELEKINESIS_PUSH * GetSpellValue(pnum, SPL_TELEKINESIS, SPELLVAL_AMOUNT) / 100 * GetMonsterPushPercent(victim) / 100, 1, victim);
 	PlaySound(victim, "Telekinesis/Push", CHAN_7);
 	ACS_NamedExecuteAlways("DnD Spell Clientside FX", 0, SPL_TELEKINESIS, victim, pnum + 1);
-
-	if(SpellThresholdMet(pnum, SPL_TELEKINESIS, DND_SPELL_THRESH_LOW))
-		StunMonster(victim, ScaleSpellEffectTics(pnum, SPL_TELEKINESIS, DND_TELEKINESIS_R5_STUN));
 
 	// Rank 10: a share of max health, never more than the DAMAGE row, then priced like any spell hit.
 	int m_id = victim - DND_MONSTERTID_BEGIN;
@@ -4348,22 +4535,9 @@ fork_cand_T module& GetForkCandidates() {
 	return s;
 }
 
-// Strikes the enemy you face, then forks from it to the nearest enemies behind it, within a cone along the line.
-void CastForkedLightning(int pnum) {
-	int ptid = pnum + P_TIDSTART;
-	int target = GetSpellEnemyTarget(pnum, DND_FORKED_RANGE);
-	if(!target)
-		return;
-	PlaySound(ptid, "ForkedLightning/Cast", CHAN_7);
-
-	int forks = GetSpellValue(pnum, SPL_FORKEDLIGHTNING, SPELLVAL_AMOUNT) + GetSpellExtraProjectiles(pnum, SPL_FORKEDLIGHTNING);
-	if(SpellThresholdMet(pnum, SPL_FORKEDLIGHTNING, DND_SPELL_THRESH_HIGH))
-		forks += DND_FORKED_R10_FORKS;
-
-	int tx = GetActorX(target), ty = GetActorY(target), tz = GetActorZ(target) + GetActorProperty(target, APROP_HEIGHT) / 2;
-	int ang = VectorAngle(tx - GetActorX(ptid), ty - GetActorY(ptid));
-	int lx = cos(ang), ly = sin(ang);
-
+// Enemies behind target along the line (lx, ly), within the fork reach and cone and in sight of it, into GetForkCandidates.
+int CollectForkCandidates(int target, int lx, int ly) {
+	int tx = GetActorX(target), ty = GetActorY(target);
 	auto cand = GetForkCandidates();
 	int i, m, dx, dy, d, n = 0;
 	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER] && n < DND_FORKED_MAXCAND; ++i) {
@@ -4379,24 +4553,50 @@ void CastForkedLightning(int pnum) {
 		cand.dist[n] = d;
 		++n;
 	}
+	return n;
+}
+
+// The nearest of the n candidates left, taken off the list; 0 when none is left.
+int TakeNearestForkCandidate(int n) {
+	auto cand = GetForkCandidates();
+	int best = -1;
+	for(int i = 0; i < n; ++i)
+		if(cand.tid[i] && (best == -1 || cand.dist[i] < cand.dist[best]))
+			best = i;
+	if(best == -1)
+		return 0;
+	int m = cand.tid[best];
+	cand.tid[best] = 0;
+	return m;
+}
+
+// Strikes the enemy you face, then forks from it to the nearest enemies behind it, within a cone along the line.
+void CastForkedLightning(int pnum) {
+	int ptid = pnum + P_TIDSTART;
+	int target = GetSpellEnemyTarget(pnum, DND_FORKED_RANGE);
+	if(!target)
+		return;
+	PlaySound(ptid, "ForkedLightning/Cast", CHAN_7);
+
+	int forks = GetSpellValue(pnum, SPL_FORKEDLIGHTNING, SPELLVAL_AMOUNT) + GetSpellExtraProjectiles(pnum, SPL_FORKEDLIGHTNING) +
+		GetSpellGemMod(pnum, SPL_FORKEDLIGHTNING, GEMSTAT_FORK);
+	if(SpellThresholdMet(pnum, SPL_FORKEDLIGHTNING, DND_SPELL_THRESH_HIGH))
+		forks += DND_FORKED_R10_FORKS;
+
+	int tx = GetActorX(target), ty = GetActorY(target), tz = GetActorZ(target) + GetActorProperty(target, APROP_HEIGHT) / 2;
+	int ang = VectorAngle(tx - GetActorX(ptid), ty - GetActorY(ptid));
+	int n = CollectForkCandidates(target, cos(ang), sin(ang));
 
 	int a = GetActorAngle(ptid);
 	SendBeamToEnemy("DnD Forked Beam FX", GetActorX(ptid) + FixedMul(DND_BEAM_HANDS, cos(a)), GetActorY(ptid) + FixedMul(DND_BEAM_HANDS, sin(a)),
 		GetActorZ(ptid) + GetActorViewHeight(ptid) - DND_BEAM_DROP, target);
 
 	// Nearest first: each pass takes the closest candidate left.
-	int f, best;
-	for(f = 0; f < forks; ++f) {
-		best = -1;
-		for(i = 0; i < n; ++i)
-			if(cand.tid[i] && (best == -1 || cand.dist[i] < cand.dist[best]))
-				best = i;
-		if(best == -1)
-			break;
-		SendBeamToEnemy("DnD Forked Beam FX", tx, ty, tz, cand.tid[best]);
-		DealSpellBeamHit(pnum, SPL_FORKEDLIGHTNING, cand.tid[best], 100);
-		PlaySound(cand.tid[best], "ForkedLightning/Hit", CHAN_7);
-		cand.tid[best] = 0;
+	int m;
+	for(int f = 0; f < forks && (m = TakeNearestForkCandidate(n)); ++f) {
+		SendBeamToEnemy("DnD Forked Beam FX", tx, ty, tz, m);
+		DealSpellBeamHit(pnum, SPL_FORKEDLIGHTNING, m, 100);
+		PlaySound(m, "ForkedLightning/Hit", CHAN_7);
 	}
 
 	DealSpellBeamHit(pnum, SPL_FORKEDLIGHTNING, target, 100);
@@ -4917,31 +5117,12 @@ Script "DnD Conductivity Cast" (int pnum) {
 	int tics = GetSpellDurationTics(pnum, SPL_CONDUCTIVITY) +
 		ScaleSpellEffectTics(pnum, SPL_CONDUCTIVITY, DND_CONDUCTIVITY_R10_TICS) * SpellThresholdMet(pnum, SPL_CONDUCTIVITY, DND_SPELL_THRESH_HIGH);
 
-	ACS_NamedExecuteWithResult("DnD Conductivity Area FX", cx, cy, cz, r);
-	// Witch: more curse effect on both halves.
-	int pct = ApplySpellGemMore(pnum, SPL_CONDUCTIVITY, GEMSTAT_MORE_CURSE, GetSpellValue(pnum, SPL_CONDUCTIVITY, SPELLVAL_DAMAGE));
-	int chance = ApplySpellGemMore(pnum, SPL_CONDUCTIVITY, GEMSTAT_MORE_CURSE, GetSpellValue(pnum, SPL_CONDUCTIVITY, SPELLVAL_DAMAGE2));
-
-	int i, mn;
-	for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
-		i = UsedMonsterTIDs[mn];
-		if(!IsActorAlive(i) || !IsSpellEnemy(i))
-			continue;
-		if(fdistance_delta(cx - GetActorX(i), cy - GetActorY(i), cz - GetActorZ(i)) > r)
-			continue;
-
-		ApplyLightningExposure(i, pct, tics);
-
-		if(CheckActorInventory(i, "DnD_Conductive") < chance)
-			SetActorInventory(i, "DnD_Conductive", chance);
-
-		bool ticking = !!CheckActorInventory(i, "DnD_ConductiveTimer");
-		if(CheckActorInventory(i, "DnD_ConductiveTimer") < tics)
-			SetActorInventory(i, "DnD_ConductiveTimer", tics);
-
-		if(!ticking)
-			ACS_NamedExecuteAlways("DnD Conductivity Timer", 0, i);
-	}
+	DrawCurseArea(SPL_CONDUCTIVITY, cx, cy, cz, r);
+	// Witch and Ritualist: the curse's effect on both halves.
+	int pct = GetSpellCurseEffect(pnum, SPL_CONDUCTIVITY, GetSpellValue(pnum, SPL_CONDUCTIVITY, SPELLVAL_DAMAGE));
+	int chance = GetSpellCurseEffect(pnum, SPL_CONDUCTIVITY, GetSpellValue(pnum, SPL_CONDUCTIVITY, SPELLVAL_DAMAGE2));
+	CurseArea(pnum, SPL_CONDUCTIVITY, cx, cy, cz, r, pct, chance, tics);
+	StartCurseLinger(pnum, SPL_CONDUCTIVITY, cx, cy, cz, r, pct, chance, tics);
 }
 
 // ============================ Chain Lightning ============================
@@ -4951,6 +5132,7 @@ Script "DnD Conductivity Cast" (int pnum) {
 #define DND_CHAIN_MAXLOSS 75            // damage lost to chaining never passes this percent
 #define DND_CHAIN_R5_LOSS 4
 #define DND_CHAIN_R10_SHOCK 30
+#define DND_CHAIN_REMAINING_MORE 15     // more damage per chain still to come, so a short chain hits harder
 
 // The nearest enemy in reach of a point and in sight of it, other than the last two the chain hit, or also.
 int FindChainTarget(int x, int y, int z, int reach, int last, int before, int also = 0) {
@@ -4979,14 +5161,14 @@ void CastChainLightning(int pnum) {
 		ACS_NamedExecuteAlways("DnD Chain Lightning", 0, pnum, target);
 }
 
-// One chain hit at pct of the damage: its sounds, the damage and rank 10's Shock roll.
-void ChainLightningHit(int pnum, int victim, int pct, bool shocks) {
+// One chain hit at pct of the damage and more percent more: its sounds, the damage and rank 10's Shock roll.
+void ChainLightningHit(int pnum, int victim, int pct, bool shocks, int more) {
 	if(random(0, 1))
 		PlaySound(victim, "ChainLightning/Cast", CHAN_6);
 	else
 		PlaySound(victim, "ChainLightning/Beam", CHAN_6);
 	PlaySound(victim, "ChainLightning/Hit", CHAN_7);
-	DealSpellBeamHit(pnum, SPL_CHAINLIGHTNING, victim, pct);
+	DealSpellBeamHit(pnum, SPL_CHAINLIGHTNING, victim, pct, false, 0, more);
 	if(shocks && IsActorAlive(victim) && random(1, 100) <= DND_CHAIN_R10_SHOCK)
 		ApplySpellShock(pnum, victim);
 }
@@ -4995,7 +5177,8 @@ void ChainLightningHit(int pnum, int victim, int pct, bool shocks) {
 // Every hop also forks a bolt that cannot chain to one more enemy, at the hop's damage.
 Script "DnD Chain Lightning" (int pnum, int target) {
 	int ptid = pnum + P_TIDSTART;
-	int chains = GetSpellValue(pnum, SPL_CHAINLIGHTNING, SPELLVAL_AMOUNT) + GetSpellExtraProjectiles(pnum, SPL_CHAINLIGHTNING);
+	int chains = GetSpellValue(pnum, SPL_CHAINLIGHTNING, SPELLVAL_AMOUNT) + GetSpellExtraProjectiles(pnum, SPL_CHAINLIGHTNING) +
+		GetSpellGemMod(pnum, SPL_CHAINLIGHTNING, GEMSTAT_CHAIN);
 	int loss = SpellThresholdMet(pnum, SPL_CHAINLIGHTNING, DND_SPELL_THRESH_LOW) ? DND_CHAIN_R5_LOSS : GetSpellValue(pnum, SPL_CHAINLIGHTNING, SPELLVAL_DAMAGE2);
 	int reach = GetSpellValue(pnum, SPL_CHAINLIGHTNING, SPELLVAL_RADIUS) << 16;
 	bool shocks = SpellThresholdMet(pnum, SPL_CHAINLIGHTNING, DND_SPELL_THRESH_HIGH);
@@ -5023,10 +5206,11 @@ Script "DnD Chain Lightning" (int pnum, int target) {
 		y = GetActorY(victim);
 		z = GetActorZ(victim) + GetActorProperty(victim, APROP_HEIGHT) / 2;
 
+		// Every chain counts toward the bonus, gems and synergy included; the hop's side bolt takes the hop's.
 		pct = 100 - Min(DND_CHAIN_MAXLOSS, c * loss);
-		ChainLightningHit(pnum, victim, pct, shocks);
+		ChainLightningHit(pnum, victim, pct, shocks, DND_CHAIN_REMAINING_MORE * (chains - c));
 		if(side)
-			ChainLightningHit(pnum, side, pct, shocks);
+			ChainLightningHit(pnum, side, pct, shocks, DND_CHAIN_REMAINING_MORE * (chains - c));
 
 		before = last;
 		last = victim;
@@ -5039,6 +5223,295 @@ Script "DnD Chain Beam FX" (int from_xy, int to_xy, int zz) CLIENTSIDE {
 	int x1 = to_xy << 16, y1 = to_xy & 0xFFFF0000, z1 = zz & 0xFFFF0000;
 	Spawn("Spell_ChainLightning_Hit", x1, y1, z1);
 	SpawnStretchedBeam("Spell_ChainLightning_Beam", DND_FORKBEAM_LEN, from_xy << 16, from_xy & 0xFFFF0000, zz << 16, x1, y1, z1);
+}
+
+// ============================ Gem chains and forks ============================
+
+#define DND_GEMCHAIN_REACH 384.0		// a hop's reach from the enemy just hit
+#define DND_GEMCHAIN_SLOTS 16			// parked projectiles a player may hold: DND_GEMCHAIN_TID's band
+#define DND_GEMHOP_MINTICS 3
+#define DND_GEMHOP_MAXTICS 10
+#define DND_GEMHOP_SPEED 20				// units a tic for a hit that carried no speed
+#define DND_GEMHOP_DMGBITS 19			// a chain's damage, speed and radius share one script argument
+#define DND_GEMHOP_RADIUSBITS (DND_GEMHOP_DMGBITS + 8)
+
+typedef struct {
+	int val;
+} gem_serial_T;
+
+gem_serial_T module& GetGemChainSerial() {
+	static gem_serial_T s;
+	return s;
+}
+
+typedef struct {
+	int x, y, z;
+} gem_point_T;
+
+// Where the last hop SendGemHop flew lands, read before any Delay.
+gem_point_T module& GetGemHopEnd() {
+	static gem_point_T p;
+	return p;
+}
+
+// A fresh id for one chain's memory; never 0, so an unmarked monster never reads as hit.
+int NextGemChainSerial() {
+	auto s = GetGemChainSerial();
+	s.val = s.val % 0x3FFFFFFF + 1;
+	return s.val;
+}
+
+// Marks an enemy this chain hit; never tid 0, which the actor inventory calls read as the players.
+void MarkGemHop(int tid, int serial) {
+	if(tid)
+		SetActorInventory(tid, "DnD_GemChainMark", serial);
+}
+
+// The nearest live enemy in reach of a point and in sight of src, other than except and those this chain marked.
+int FindGemHopTarget(int src, int x, int y, int z, int reach, int serial, int except = 0) {
+	int i, m, d, best = 0, bestd = reach + 1;
+	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+		m = UsedMonsterTIDs[i];
+		if(!m || m == except || !IsActorAlive(m) || !IsSpellEnemy(m))
+			continue;
+		d = VectorLength(VectorLength(GetActorX(m) - x, GetActorY(m) - y), GetActorZ(m) + GetActorProperty(m, APROP_HEIGHT) / 2 - z);
+		if(d < bestd && CheckActorInventory(m, "DnD_GemChainMark") != serial && CheckSight(src, m, CSF_NOBLOCKALL)) {
+			best = m;
+			bestd = d;
+		}
+	}
+	return best;
+}
+
+// Tics a hop takes at the projectile's own speed, held to a pace the eye can follow.
+int GetGemHopTics(int x0, int y0, int z0, int x1, int y1, int z1, int speed) {
+	int d = VectorLength(VectorLength(x1 - x0, y1 - y0), z1 - z0) >> 16;
+	return Clamp_Between(d / Max(1, speed), DND_GEMHOP_MINTICS, DND_GEMHOP_MAXTICS);
+}
+
+// The stand-in that flies a spell's hops; "" for a spell that has none.
+str GetGemHopLook(int spell) {
+	switch(spell) {
+		case SPL_FIREBALL:
+		return "Spell_Fireball_GemArc";
+		case SPL_ICEBOLT:
+		return "Spell_IceBolt_GemArc";
+		case SPL_PYROBLAST:
+		return "Spell_Pyroblast_GemArc";
+	}
+	return "";
+}
+
+// Every client flies the spell's stand-in from one point to another over tics.
+void SendGemHopFX(int spell, int x0, int y0, int z0, int x1, int y1, int z1, int tics) {
+	ACS_NamedExecuteWithResult("DnD Gem Hop FX", PackMapPair(x0, y0), PackMapPair(x1, y1), PackMapPair(z0, z1), spell | (tics << 9));
+}
+
+// The share of a line from a box's centre, d long on each axis, that lies inside the box of half width w and half height h.
+int GemBoxShare(int dx, int dy, int dz, int w, int h) {
+	int s = 1.0;
+	dx = abs(dx);
+	dy = abs(dy);
+	dz = abs(dz);
+	if(dx > w)
+		s = Min(s, FixedDiv(w, dx));
+	if(dy > w)
+		s = Min(s, FixedDiv(w, dy));
+	if(dz > h)
+		s = Min(s, FixedDiv(h, dz));
+	return s;
+}
+
+// Flies a hop from the edge of the box around a centre (half sizes w, h) to the edge of enemy m's, grown by the projectile's
+// radius r, where the projectile would touch it. Returns its tics; GetGemHopEnd holds the centre point it lands on.
+int SendGemHop(int spell, int x, int y, int z, int w, int h, int m, int r, int speed) {
+	int mh = GetActorProperty(m, APROP_HEIGHT) / 2;
+	int dx = GetActorX(m) - x, dy = GetActorY(m) - y, dz = GetActorZ(m) + mh - z;
+	int a = GemBoxShare(dx, dy, dz, w, h), b = GemBoxShare(dx, dy, dz, GetActorProperty(m, APROP_RADIUS) + r, mh + r);
+	// boxes that overlap along the line meet in between
+	if(a + b > 1.0) {
+		a = FixedDiv(a, a + b);
+		b = 1.0 - a;
+	}
+	x += FixedMul(dx, a);
+	y += FixedMul(dy, a);
+	z += FixedMul(dz, a);
+	b = 1.0 - a - b;
+	auto e = GetGemHopEnd();
+	e.x = x + FixedMul(dx, b);
+	e.y = y + FixedMul(dy, b);
+	e.z = z + FixedMul(dz, b);
+	int tics = GetGemHopTics(x, y, z, e.x, e.y, e.z, speed);
+	// the stand-in's model draws centred on its z, as the projectile's does, so it flies the line between mid-heights
+	SendGemHopFX(spell, x, y, z, e.x, e.y, e.z, tics);
+	return tics;
+}
+
+// Client side: a hop's stand-in, flown in a straight line and gone on arrival. look is spell | tics << 9.
+Script "DnD Gem Hop FX" (int from_xy, int to_xy, int zz, int look) CLIENTSIDE {
+	SetResultValue(0);
+	str fx = GetGemHopLook(look & 0x1FF);
+	int tics = look >> 9, tid = UniqueTID();
+	int x0 = from_xy << 16, y0 = from_xy & 0xFFFF0000, z0 = zz << 16;
+	int x1 = to_xy << 16, y1 = to_xy & 0xFFFF0000, z1 = zz & 0xFFFF0000;
+	if(!tid || tics <= 0 || !SpawnForced(fx, x0, y0, z0, tid, 0))
+		Terminate;
+
+	SetActorAngle(tid, VectorAngle(x1 - x0, y1 - y0));
+	SetActorVelocity(tid, (x1 - x0) / tics, (y1 - y0) / tics, (z1 - z0) / tics, false, false);
+	Delay(tics - 1);
+	// Whether a hit or a script sent it shifts its last move by a tic against the delay: it stops on its end, shown a tic.
+	int len = VectorLength(VectorLength(x1 - x0, y1 - y0), z1 - z0), half = FixedMul(len / tics / 2, len);
+	for(int k = 0; k < 2 && FixedMul(x1 - GetActorX(tid), x1 - x0) + FixedMul(y1 - GetActorY(tid), y1 - y0) + FixedMul(z1 - GetActorZ(tid), z1 - z0) > half; ++k)
+		Delay(1);
+	SetActorVelocity(tid, 0, 0, 0, false, false);
+	Delay(1);
+	Thing_Remove(tid);
+}
+
+// One hop's hit: the strike's priced damage dealt as the spell's own hit, its crit rolled on this enemy.
+void DealGemHopHit(int pnum, int spell, int victim, int dmg, int crit = 0, int critmult = 0) {
+	int dealt = HandleDamageDeal(pnum + P_TIDSTART, victim, dmg, GetSpellDamageType(spell), spell, DND_DAMAGEFLAG_ISSPELL, 0, 0, 0, 0, true, false, crit, critmult);
+	if(dealt > 0)
+		Thing_Damage2(victim, dealt, "SkipHandle");
+}
+
+// The parked projectile to where the last hop landed and into its own Death, its blast priced at the last hop's percent.
+void ReleaseGemHeld(int tid, int x, int y, int z, int pct) {
+	// it draws centred on its z, so z is the hop's line; a ceiling that refuses it takes it a height lower
+	if(!SetActorPosition(tid, x, y, z, false))
+		SetActorPosition(tid, x, y, z - GetActorProperty(tid, APROP_HEIGHT), false);
+	SetUserVariable(tid, "user_chainpct", pct);
+	SetUserVariable(tid, "user_chain", 0);
+	SetActorState(tid, "Death");
+	Thing_ChangeTID(tid, 0);
+}
+
+// A chain from a projectile's first hit: the stand-in hops enemy to enemy, each hit landing on arrival, then a parked
+// projectile dies where the last one landed. packed is pnum | row << 6 | spell << 15 | slot << 24, slot 0 when none is parked.
+Script "DnD Gem Chain" (int packed, int victim, int dmg_speed, int first) {
+	int pnum = packed & 63, row = (packed >> 6) & 0x1FF, spell = (packed >> 15) & 0x1FF, slot = packed >> 24;
+	int held = slot ? DND_GEMCHAIN_TID + pnum * DND_GEMCHAIN_SLOTS + slot - 1 : 0;
+	int dmg = dmg_speed & ((1 << DND_GEMHOP_DMGBITS) - 1), speed = (dmg_speed >> DND_GEMHOP_DMGBITS) & 0xFF;
+	int r = ((dmg_speed >> DND_GEMHOP_RADIUSBITS) & 31) << 16;
+	int hops = GetSpellGemMod(pnum, row, GEMSTAT_CHAIN), loss = GetSpellGemMod(pnum, row, GEMSTAT_CHAIN_LOSS);
+	int floor = GetSpellGemMod(pnum, row, GEMSTAT_CHAIN_FLOOR);
+	int crit = 0, critmult = 0, lx, ly, lz;
+	if(held) {
+		crit = GetUserVariable(held, "user_critchance");
+		critmult = GetUserVariable(held, "user_critmult");
+		// where it was parked, should no hop fly
+		lx = GetActorX(held);
+		ly = GetActorY(held);
+		lz = GetActorZ(held) + GetActorProperty(held, APROP_HEIGHT) / 2;
+	}
+	// The player, not the projectile, so the hits credit the kill.
+	SetActivator(pnum + P_TIDSTART);
+
+	int serial = NextGemChainSerial();
+	MarkGemHop(victim, serial);
+	// the centre and half sizes of the box the next hop leaves: the enemy just hit, grown by the projectile
+	int hh = GetActorProperty(victim, APROP_HEIGHT) / 2;
+	int x = GetActorX(victim), y = GetActorY(victim), z = GetActorZ(victim) + hh;
+	int w = GetActorProperty(victim, APROP_RADIUS) + r;
+	hh += r;
+	int target = first, pct = 100, tics, anchor;
+	for(int h = 1; h <= hops && target && PlayerInGame(pnum); ++h) {
+		MarkGemHop(target, serial);
+		tics = SendGemHop(spell, x, y, z, w, hh, target, r, speed);
+		auto e = GetGemHopEnd();
+		lx = e.x;
+		ly = e.y;
+		lz = e.z;
+		Delay(tics);
+
+		pct = Max(floor, 100 - h * loss);
+		if(IsActorAlive(target))
+			DealGemHopHit(pnum, spell, target, dmg * pct / 100, crit, critmult);
+
+		// The next hop leaves this enemy's box where it is now, or the point the hop landed on if it is gone.
+		if(ClassifyActor(target) != ACTOR_NONE) {
+			hh = GetActorProperty(target, APROP_HEIGHT) / 2;
+			x = GetActorX(target);
+			y = GetActorY(target);
+			z = GetActorZ(target) + hh;
+			w = GetActorProperty(target, APROP_RADIUS) + r;
+			hh += r;
+		}
+		else {
+			x = lx;
+			y = ly;
+			z = lz;
+			w = 0;
+			hh = 0;
+		}
+		target = 0;
+		if(h < hops && (anchor = ScratchTID()) && SpawnForced("DnD_SpellAnchor", x, y, z, anchor, 0)) {
+			target = FindGemHopTarget(anchor, x, y, z, DND_GEMCHAIN_REACH, serial);
+			Thing_Remove(anchor);
+		}
+	}
+
+	if(held)
+		ReleaseGemHeld(held, lx, ly, lz, pct);
+}
+
+// One fork's hit, once its stand-in arrives. packed is pnum | spell << 6 | tics << 15.
+Script "DnD Gem Fork Hit" (int packed, int victim, int dmg) {
+	int pnum = packed & 63;
+	Delay(packed >> 15);
+	if(PlayerInGame(pnum) && IsActorAlive(victim)) {
+		SetActivator(pnum + P_TIDSTART);
+		DealGemHopHit(pnum, (packed >> 6) & 0x1FF, victim, dmg);
+	}
+}
+
+// Forks off a projectile's first hit to the nearest enemies behind it along its flight; the projectile dies as it would.
+void ForkGemStrike(int pnum, int row, int spell, int victim, int dmg, int ang, int speed, int r) {
+	int hh = GetActorProperty(victim, APROP_HEIGHT) / 2, w = GetActorProperty(victim, APROP_RADIUS) + r;
+	int x = GetActorX(victim), y = GetActorY(victim), z = GetActorZ(victim) + hh;
+	int forks = GetSpellGemMod(pnum, row, GEMSTAT_FORK), n = CollectForkCandidates(victim, cos(ang), sin(ang));
+	int m, tics;
+	dmg = dmg * (100 - GetSpellGemMod(pnum, row, GEMSTAT_FORK_LESS)) / 100;
+	for(int f = 0; f < forks && (m = TakeNearestForkCandidate(n)); ++f) {
+		tics = SendGemHop(spell, x, y, z, w, hh + r, m, r, speed);
+		ACS_NamedExecuteAlways("DnD Gem Fork Hit", 0, pnum | (spell << 6) | (tics << 15), m, dmg);
+	}
+}
+
+// Chainer or Forker off an armed projectile's first direct hit, called from the damage event with the projectile as the
+// activator. Spends the arming, parks a chained non-ripper and starts the hops; every hit waits for its hop to land.
+void StartGemStrike(int pnum, int row, int victim, int dmg) {
+	SetUserVariable(0, "user_chain", 0);
+	int spell = GetUserVariable(0, "user_spellid");
+	int vx = GetActorVelX(0), vy = GetActorVelY(0);
+	int speed = Min(255, VectorLength(VectorLength(vx, vy), GetActorVelZ(0)) >> 16);
+	int ang = speed ? VectorAngle(vx, vy) : GetActorAngle(0);
+	if(!speed)
+		speed = DND_GEMHOP_SPEED;
+	dmg = Min(dmg, (1 << DND_GEMHOP_DMGBITS) - 1);
+	// its radius, which is also about its half height on every spell projectile, sizes where a hop touches an enemy
+	int r = Clamp_Between(GetActorProperty(0, APROP_RADIUS) >> 16, 1, 31);
+
+	if(!GetSpellGemMod(pnum, row, GEMSTAT_CHAIN)) {
+		ForkGemStrike(pnum, row, spell, victim, dmg, ang, speed, r << 16);
+		return;
+	}
+
+	int first = FindGemHopTarget(victim, GetActorX(victim), GetActorY(victim), GetActorZ(victim) + GetActorProperty(victim, APROP_HEIGHT) / 2,
+		DND_GEMCHAIN_REACH, -1, victim);
+	if(!first)
+		return;
+
+	// The guard at the top of its Death sends it to GemChainHold; a ripper flies on instead.
+	int slot = 0, tid;
+	if(!CheckFlag(0, "RIPPER") && (tid = UniqueTID(DND_GEMCHAIN_TID + pnum * DND_GEMCHAIN_SLOTS, DND_GEMCHAIN_SLOTS))) {
+		Thing_ChangeTID(0, tid);
+		SetUserVariable(0, "user_chain", -1);
+		slot = tid - DND_GEMCHAIN_TID - pnum * DND_GEMCHAIN_SLOTS + 1;
+	}
+	ACS_NamedExecuteWithResult("DnD Gem Chain", pnum | (row << 6) | (spell << 15) | (slot << 24), victim,
+		dmg | (speed << DND_GEMHOP_DMGBITS) | (r << DND_GEMHOP_RADIUSBITS), first);
 }
 
 // ============================ Galvanic Surge ============================
@@ -5282,9 +5755,8 @@ Script "DnD Storm Brand Seat" (int slot, int seat) CLIENTSIDE {
 
 // Half a second between activations, shortened by spell haste and stretched by its reductions; fixed point tics.
 int GetStormBrandPeriod(int pnum) {
-	int haste = PlayerModData[pnum].vals[PSTAT_SPELL_HASTE] + GetSpellGemMod(pnum, SPL_STORMBRAND, GEMSTAT_HASTE) +
-		pbuffs[pnum].buff_net_values[BUFF_SPELLHASTE].additive;
-	int p = FixedDiv(DND_STORMBRAND_PERIOD, Max(10, 100 + haste) << 16) * 100;
+	int haste = GetSpellHasteTenths(pnum, SPL_STORMBRAND);
+	int p = FixedDiv(DND_STORMBRAND_PERIOD * 10, Max(100, 1000 + haste) << 16) * 100;
 	int more = GetSpellGemMod(pnum, SPL_STORMBRAND, GEMSTAT_MORE_HASTE);
 	if(more)
 		p = FixedDiv(p, 1.0 + more);
@@ -7844,13 +8316,10 @@ int[] module& GetRockGolemGuards() {
 }
 
 // Rank 10 (immune to elemental damage, resisting explosions) is set up with its resists, in InitPetResists.
-Script "DnD Summon Rock Golem" (int pnum) {
+Script "DnD Summon Rock Golem" (int pnum, int quiet) {
 	int caster = pnum + P_TIDSTART;
-	int maxkind = Max(1, GetSpellValue(pnum, SPL_ROCKGOLEM, SPELLVAL_AMOUNT));
-	if(CountPlayerPetsOfKind(pnum, MONSTER_PET_ROCKGOLEM) >= maxkind)
-		UnsummonPet(FindOldestPlayerPetOfKind(pnum, MONSTER_PET_ROCKGOLEM));
-	if(!CanActorHaveMorePets(caster))
-		UnsummonPet(FindOldestPlayerPet(pnum));
+	if(!MakeRoomForPet(pnum, MONSTER_PET_ROCKGOLEM, GetSummonKindCap(pnum, SPL_ROCKGOLEM)))
+		Terminate;
 
 	int tid = TEMPORARY_PET_TID + pnum;
 	if(!SpawnSummonNear("Spell_RockGolem", caster, tid, DND_ROCKGOLEM_DIST))
@@ -7859,17 +8328,21 @@ Script "DnD Summon Rock Golem" (int pnum) {
 	SetActorPosition(tid, GetActorX(tid), GetActorY(tid), GetActorFloorZ(tid), false);
 	// Before its first tic: "DnD Pet Monster Scale" levels up from whatever APROP_HEALTH holds.
 	SetActorProperty(tid, APROP_HEALTH, Max(1, ApplySpellGemMore(pnum, SPL_ROCKGOLEM, GEMSTAT_MORE_MINIONLIFE, GetSpellValue(pnum, SPL_ROCKGOLEM, SPELLVAL_DAMAGE))));
+	ApplyPortalBoon(pnum, tid);
 	SetActorProperty(tid, APROP_MASTERTID, caster);
 	SetActivator(tid);
 	SetPointer(AAPTR_MASTER, caster);
 	SetActorProperty(0, APROP_FRIENDLY, true);
-	Thing_ChangeTID(tid, 0);
+	int pet = ClaimPetSlot(caster, MONSTER_PET_ROCKGOLEM);
+	SetInventory("DnD_QuietArrival", quiet);
 
 	GiveActorInventory(caster, "PetCounter", 1);
 	SetActivator(caster);
-	PlaySound(caster, "RockGolem/Cast", CHAN_6);
+	if(!quiet)
+		PlaySound(caster, "RockGolem/Cast", CHAN_6);
 	ACS_NamedExecuteAlways("DnD On Pet Summon", 0);
 	ACS_NamedExecuteAlways("DnD Rock Golem Guard", 0, pnum);
+	SetResultValue(pet);
 }
 
 // Its summoner takes less physical damage while a Rock Golem stands; the buff is removed as soon as none does.
@@ -8071,33 +8544,13 @@ Script "DnD Earth Curse" (int pnum, int spell) {
 	int r = ScaleSpellArea(pnum, spell, GetSpellValue(pnum, spell, SPELLVAL_RADIUS) << 16,
 		DND_EARTHCURSE_R5_AOE * SpellThresholdMet(pnum, spell, DND_SPELL_THRESH_LOW));
 	int tics = GetSpellDurationTics(pnum, spell);
-	if(vuln)
-		ACS_NamedExecuteWithResult("DnD Vulnerability Area FX", cx, cy, cz, r);
-	else
-		ACS_NamedExecuteWithResult("DnD Despair Area FX", cx, cy, cz, r);
+	DrawCurseArea(spell, cx, cy, cz, r);
 
-	// Witch: more curse effect on both halves.
-	int pct = ApplySpellGemMore(pnum, spell, GEMSTAT_MORE_CURSE, GetSpellValue(pnum, spell, SPELLVAL_DAMAGE));
-	int chance = ApplySpellGemMore(pnum, spell, GEMSTAT_MORE_CURSE, GetSpellValue(pnum, spell, SPELLVAL_DAMAGE2));
-	bool noregen = !vuln && SpellThresholdMet(pnum, spell, DND_SPELL_THRESH_HIGH);
-
-	int i, mn;
-	for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
-		i = UsedMonsterTIDs[mn];
-		if(!IsActorAlive(i) || !IsSpellEnemy(i) || fdistance_delta(cx - GetActorX(i), cy - GetActorY(i), cz - GetActorZ(i)) > r)
-			continue;
-
-		if(vuln) {
-			ApplyPhysicalExposure(i, pct, tics);
-			CurseMonster(i, "DnD_Vulnerable", "DnD_VulnerableTimer", "DnD Vulnerability Timer", chance, tics);
-		}
-		else {
-			ApplyPoisonExposure(i, pct, tics);
-			CurseMonster(i, "DnD_Despaired", "DnD_DespairedTimer", "DnD Despair Timer", chance, tics);
-			if(noregen)
-				PauseMonsterRegen(i, tics);
-		}
-	}
+	// Witch and Ritualist: the curse's effect on both halves.
+	int pct = GetSpellCurseEffect(pnum, spell, GetSpellValue(pnum, spell, SPELLVAL_DAMAGE));
+	int chance = GetSpellCurseEffect(pnum, spell, GetSpellValue(pnum, spell, SPELLVAL_DAMAGE2));
+	CurseArea(pnum, spell, cx, cy, cz, r, pct, chance, tics);
+	StartCurseLinger(pnum, spell, cx, cy, cz, r, pct, chance, tics);
 }
 
 // ---- Upheaval ----
@@ -9187,10 +9640,2684 @@ Script "DnD Unleash Pillar FX" (int xy, int zh, int lean) CLIENTSIDE {
 	UnleashRing("Spell_Rockslide_Dust", 6, x, y, z + 2.0, DND_UNLEASH_FOOT - 8.0, 10.0);
 }
 
+// ============================== BLACK ==============================
+
+// ---- Nox ----
+
+#define DND_NOX_R10_LESS 15              // percent less damage cursed enemies deal to players at rank 10
+#define DND_NOX_DECOY_NEAR 128           // how far from its enemy the blind decoy lands, a fresh spot every MOVEMIN-MOVEMAX tics
+#define DND_NOX_DECOY_FAR 320
+#define DND_NOX_DECOY_TRIES 6
+#define DND_NOX_MOVEMIN 20
+#define DND_NOX_MOVEMAX 45
+
+// A blinded enemy chases and attacks an invisible decoy wandering round it; a spot it can see, else the last try.
+void MoveBlindDecoy(int m, int decoy) {
+	int mx = GetActorX(m), my = GetActorY(m), mz = GetActorZ(m) + GetActorProperty(m, APROP_HEIGHT) / 2;
+	for(int i = 0; i < DND_NOX_DECOY_TRIES; ++i) {
+		int a = random(0, 1.0), d = random(DND_NOX_DECOY_NEAR, DND_NOX_DECOY_FAR) << 16;
+		if(SetActorPosition(decoy, mx + FixedMul(cos(a), d), my + FixedMul(sin(a), d), mz, false) && CheckSight(m, decoy, 0))
+			return;
+	}
+}
+
+// Rank 5: MISSILEMORE and MISSILEEVENMORE, only those it lacked (bits 1 and 2) so its own flags survive; bit 4 marks it done.
+int AddNoxAggression(int m) {
+	int added = 4;
+	if(!CheckFlag(m, "MISSILEMORE")) {
+		GiveActorInventory(m, "Nox_MissileMoreOn", 1);
+		added |= 1;
+	}
+	if(!CheckFlag(m, "MISSILEEVENMORE")) {
+		GiveActorInventory(m, "Nox_MissileEvenMoreOn", 1);
+		added |= 2;
+	}
+	return added;
+}
+
+void RemoveNoxAggression(int m, int added) {
+	if(added & 1)
+		GiveActorInventory(m, "Nox_MissileMoreOff", 1);
+	if(added & 2)
+		GiveActorInventory(m, "Nox_MissileEvenMoreOff", 1);
+}
+
+// Nox on one enemy: the blind and its clock, rank 5's aggression and rank 10's weaker hits.
+void BlindMonster(int pnum, int m, int tics) {
+	SetActorInventory(m, "DnD_BlindCaster", pnum + 1);
+	if(SpellThresholdMet(pnum, SPL_NOX, DND_SPELL_THRESH_LOW))
+		SetActorInventory(m, "DnD_NoxAggroWanted", 1);
+	if(SpellThresholdMet(pnum, SPL_NOX, DND_SPELL_THRESH_HIGH))
+		WeakenMonster(m, GetSpellCurseEffect(pnum, SPL_NOX, DND_NOX_R10_LESS), tics);
+	CurseMonster(m, "DnD_Blinded", "DnD_BlindedTimer", "DnD Nox Timer", 1, tics);
+}
+
+// One per enemy: the decoy, the marker and rank 5's flags, all handed back when the blind runs out or it dies.
+Script "DnD Nox Timer" (int m) {
+	int sfx_id = ACS_NamedExecuteWithResult("DND Spawn Attachment", m, DND_ATTACHMENT_NOX);
+	int decoy = DND_BLIND_DECOY_TID + m - DND_MONSTERTID_BEGIN;
+	Thing_Remove(decoy);
+	bool have = SpawnForced("DnD_BlindDecoy", GetActorX(m), GetActorY(m), GetActorZ(m), decoy, 0);
+	int added = 0, move = 0;
+
+	while(CheckActorInventory(m, "DnD_BlindedTimer") && IsActorAlive(m)) {
+		if(have && --move <= 0) {
+			MoveBlindDecoy(m, decoy);
+			move = random(DND_NOX_MOVEMIN, DND_NOX_MOVEMAX);
+		}
+		// Every tic: a hit would otherwise turn it back onto its attacker.
+		if(have) {
+			SetActivator(m);
+			SetPointer(AAPTR_TARGET, decoy);
+		}
+		if(!added && CheckActorInventory(m, "DnD_NoxAggroWanted"))
+			added = AddNoxAggression(m);
+		TakeActorInventory(m, "DnD_BlindedTimer", 1);
+		Delay(const:1);
+	}
+
+	Thing_Remove(decoy);
+	if(IsActorAlive(m)) {
+		ACS_NamedExecuteWithResult("DnD Remove Monster Attachment", m, sfx_id);
+		RemoveNoxAggression(m, added);
+		// It sees again: back onto whoever blinded it, else free to look for someone.
+		int c = CheckActorInventory(m, "DnD_BlindCaster") - 1;
+		SetActivator(m);
+		if(c >= 0 && PlayerInGame(c) && IsActorAlive(c + P_TIDSTART))
+			SetPointer(AAPTR_TARGET, c + P_TIDSTART);
+		else
+			GiveActorInventory(m, "PetTargetClear", 1);
+	}
+	SetActorInventory(m, "DnD_Blinded", 0);
+	SetActorInventory(m, "DnD_BlindedTimer", 0);
+	SetActorInventory(m, "DnD_BlindCaster", 0);
+	SetActorInventory(m, "DnD_NoxAggroWanted", 0);
+}
+
+Script "DnD Nox Area FX" (int cx, int cy, int cz, int r) CLIENTSIDE {
+	if(r > 0)
+		SpawnCurseRing("NoxAreaMarkerFX", cx, cy, cz, r);
+	SetResultValue(0);
+}
+
+// The Earth curses' way in: the enemy under the crosshair, else where the aim trace struck.
+Script "DnD Nox Cast" (int pnum) {
+	int caster = pnum + P_TIDSTART, cx, cy, cz;
+	PlaySound(caster, "Despair/Cast", 6);
+
+	int target = PickActor(caster, GetActorAngle(caster), GetActorPitch(caster),
+		DND_SPELL_HITSCANRANGE, 0, MF_SHOOTABLE, ML_BLOCKEVERYTHING, PICKAF_RETURNTID);
+	if(target && IsActorAlive(target)) {
+		cx = GetActorX(target);
+		cy = GetActorY(target);
+		cz = GetActorZ(target);
+	}
+	else {
+		if(!TraceSpellAim(pnum, DND_SPELL_HITSCANRANGE))
+			Terminate;
+		for(int w = 0; !ReadSpellAim(pnum) && w < DND_SPELLAIM_WAIT; ++w)
+			Delay(const:1);
+		if(!SpellAimReady(pnum) || !PlayerInGame(pnum) || !IsActorAlive(caster))
+			Terminate;
+		auto aim = GetSpellAim();
+		cx = aim.x[pnum];
+		cy = aim.y[pnum];
+		cz = aim.z[pnum];
+	}
+
+	int r = ScaleSpellArea(pnum, SPL_NOX, GetSpellValue(pnum, SPL_NOX, SPELLVAL_RADIUS) << 16);
+	int tics = GetSpellDurationTics(pnum, SPL_NOX);
+	DrawCurseArea(SPL_NOX, cx, cy, cz, r);
+	CurseArea(pnum, SPL_NOX, cx, cy, cz, r, 0, 0, tics);
+	StartCurseLinger(pnum, SPL_NOX, cx, cy, cz, r, 0, 0, tics);
+}
+
+// ---- Temporal Chains ----
+
+#define DND_TEMPORAL_HESITATE 10         // rank 10: percent chance each tic to cost a chained enemy its next attack check
+
+// Temporal Chains on one enemy: its own slow lane (a snare is never stretched to the curse's length), rank 5's shot slow at half, rank 10's hesitation.
+void ChainMonster(int pnum, int m, int pct, int tics) {
+	pct = Clamp_Between(pct, 0, 100);
+	if(SpellThresholdMet(pnum, SPL_TEMPORALCHAINS, DND_SPELL_THRESH_LOW) && CheckActorInventory(m, "DnD_ChainedShotSlow") < pct / 2)
+		SetActorInventory(m, "DnD_ChainedShotSlow", pct / 2);
+	if(SpellThresholdMet(pnum, SPL_TEMPORALCHAINS, DND_SPELL_THRESH_HIGH))
+		SetActorInventory(m, "DnD_ChainedHesitate", 1);
+	CurseMonster(m, "DnD_ChainedSlow", "DnD_ChainedTimer", "DnD Temporal Chains Timer", pct, tics);
+	ACS_NamedExecuteAlways("DnD Monster Slow Ticker", 0, m);
+}
+
+// One per enemy: the marker and rank 10's hesitation; "DnD Monster Slow Ticker" reads the slow while the clock runs.
+Script "DnD Temporal Chains Timer" (int m) {
+	int sfx_id = ACS_NamedExecuteWithResult("DND Spawn Attachment", m, DND_ATTACHMENT_TEMPORALCHAINS);
+	while(CheckActorInventory(m, "DnD_ChainedTimer") && IsActorAlive(m)) {
+		// JUSTATTACKED makes its next A_Chase skip the melee and missile checks, as after any attack.
+		if(CheckActorInventory(m, "DnD_ChainedHesitate") && random(1, 100) <= DND_TEMPORAL_HESITATE)
+			GiveActorInventory(m, "TemporalChains_Hesitate", 1);
+		TakeActorInventory(m, "DnD_ChainedTimer", 1);
+		Delay(const:1);
+	}
+
+	if(IsActorAlive(m))
+		ACS_NamedExecuteWithResult("DnD Remove Monster Attachment", m, sfx_id);
+	SetActorInventory(m, "DnD_ChainedTimer", 0);
+	SetActorInventory(m, "DnD_ChainedSlow", 0);
+	SetActorInventory(m, "DnD_ChainedShotSlow", 0);
+	SetActorInventory(m, "DnD_ChainedHesitate", 0);
+}
+
+Script "DnD Temporal Chains Area FX" (int cx, int cy, int cz, int r) CLIENTSIDE {
+	if(r > 0)
+		SpawnCurseRing("TemporalChainsAreaMarkerFX", cx, cy, cz, r);
+	SetResultValue(0);
+}
+
+// Centred as Nox is: the enemy under the crosshair, else where the aim trace struck.
+Script "DnD Temporal Chains Cast" (int pnum) {
+	int caster = pnum + P_TIDSTART, cx, cy, cz;
+	PlaySound(caster, "Frostbite/Cast", 6);
+
+	int target = PickActor(caster, GetActorAngle(caster), GetActorPitch(caster),
+		DND_SPELL_HITSCANRANGE, 0, MF_SHOOTABLE, ML_BLOCKEVERYTHING, PICKAF_RETURNTID);
+	if(target && IsActorAlive(target)) {
+		cx = GetActorX(target);
+		cy = GetActorY(target);
+		cz = GetActorZ(target);
+	}
+	else {
+		if(!TraceSpellAim(pnum, DND_SPELL_HITSCANRANGE))
+			Terminate;
+		for(int w = 0; !ReadSpellAim(pnum) && w < DND_SPELLAIM_WAIT; ++w)
+			Delay(const:1);
+		if(!SpellAimReady(pnum) || !PlayerInGame(pnum) || !IsActorAlive(caster))
+			Terminate;
+		auto aim = GetSpellAim();
+		cx = aim.x[pnum];
+		cy = aim.y[pnum];
+		cz = aim.z[pnum];
+	}
+
+	int r = ScaleSpellArea(pnum, SPL_TEMPORALCHAINS, GetSpellValue(pnum, SPL_TEMPORALCHAINS, SPELLVAL_RADIUS) << 16);
+	int tics = GetSpellDurationTics(pnum, SPL_TEMPORALCHAINS);
+	int pct = GetSpellCurseEffect(pnum, SPL_TEMPORALCHAINS, GetSpellValue(pnum, SPL_TEMPORALCHAINS, SPELLVAL_DAMAGE));
+	DrawCurseArea(SPL_TEMPORALCHAINS, cx, cy, cz, r);
+	CurseArea(pnum, SPL_TEMPORALCHAINS, cx, cy, cz, r, pct, 0, tics);
+	StartCurseLinger(pnum, SPL_TEMPORALCHAINS, cx, cy, cz, r, pct, 0, tics);
+}
+
+// ---- Enfeeble ----
+
+// Its own "less damage dealt" lane, apart from Nox's and Ice Nova's weaken, so neither stretches the other; the two multiply.
+void EnfeebleMonster(int m, int pct, int tics) {
+	CurseMonster(m, "DnD_Enfeebled", "DnD_EnfeebledTimer", "DnD Enfeeble Timer", Clamp_Between(pct, 0, 100), tics);
+}
+
+// What an enfeebled monster's hits lose, on players and minions alike; 0 when it is not.
+int GetEnfeebleLess(int m) {
+	return m && CheckActorInventory(m, "DnD_EnfeebledTimer") ? CheckActorInventory(m, "DnD_Enfeebled") : 0;
+}
+
+int ReduceEnfeebledHit(int shooter, int dmg) {
+	int less = GetEnfeebleLess(shooter);
+	return less ? dmg * (100 - less) / 100 : dmg;
+}
+
+Script "DnD Enfeeble Timer" (int m) {
+	int sfx_id = ACS_NamedExecuteWithResult("DND Spawn Attachment", m, DND_ATTACHMENT_ENFEEBLE);
+	while(CheckActorInventory(m, "DnD_EnfeebledTimer") && IsActorAlive(m)) {
+		TakeActorInventory(m, "DnD_EnfeebledTimer", 1);
+		Delay(const:1);
+	}
+
+	if(IsActorAlive(m))
+		ACS_NamedExecuteWithResult("DnD Remove Monster Attachment", m, sfx_id);
+	SetActorInventory(m, "DnD_Enfeebled", 0);
+	SetActorInventory(m, "DnD_EnfeebledTimer", 0);
+}
+
+Script "DnD Enfeeble Area FX" (int cx, int cy, int cz, int r) CLIENTSIDE {
+	if(r > 0)
+		SpawnCurseRing("EnfeebleAreaMarkerFX", cx, cy, cz, r);
+	SetResultValue(0);
+}
+
+// Centred as Nox is: the enemy under the crosshair, else where the aim trace struck.
+Script "DnD Enfeeble Cast" (int pnum) {
+	int caster = pnum + P_TIDSTART, cx, cy, cz;
+	PlaySound(caster, "Conductivity/Cast", 6);
+
+	int target = PickActor(caster, GetActorAngle(caster), GetActorPitch(caster),
+		DND_SPELL_HITSCANRANGE, 0, MF_SHOOTABLE, ML_BLOCKEVERYTHING, PICKAF_RETURNTID);
+	if(target && IsActorAlive(target)) {
+		cx = GetActorX(target);
+		cy = GetActorY(target);
+		cz = GetActorZ(target);
+	}
+	else {
+		if(!TraceSpellAim(pnum, DND_SPELL_HITSCANRANGE))
+			Terminate;
+		for(int w = 0; !ReadSpellAim(pnum) && w < DND_SPELLAIM_WAIT; ++w)
+			Delay(const:1);
+		if(!SpellAimReady(pnum) || !PlayerInGame(pnum) || !IsActorAlive(caster))
+			Terminate;
+		auto aim = GetSpellAim();
+		cx = aim.x[pnum];
+		cy = aim.y[pnum];
+		cz = aim.z[pnum];
+	}
+
+	int r = ScaleSpellArea(pnum, SPL_ENFEEBLE, GetSpellValue(pnum, SPL_ENFEEBLE, SPELLVAL_RADIUS) << 16);
+	int tics = GetSpellDurationTics(pnum, SPL_ENFEEBLE);
+	int pct = GetSpellCurseEffect(pnum, SPL_ENFEEBLE, GetSpellValue(pnum, SPL_ENFEEBLE, SPELLVAL_DAMAGE));
+	DrawCurseArea(SPL_ENFEEBLE, cx, cy, cz, r);
+	CurseArea(pnum, SPL_ENFEEBLE, cx, cy, cz, r, pct, 0, tics);
+	StartCurseLinger(pnum, SPL_ENFEEBLE, cx, cy, cz, r, pct, 0, tics);
+}
+
+// ---- Pain Amp ----
+
+// More damage taken from every source, in tenths of a percent (the row's 2.5% steps); strongest wins, longest wins.
+void PainAmpMonster(int m, int tenths, int tics) {
+	CurseMonster(m, "DnD_PainAmped", "DnD_PainAmpedTimer", "DnD Pain Amp Timer", Max(0, tenths), tics);
+}
+
+int GetPainAmpMore(int m) {
+	return m && CheckActorInventory(m, "DnD_PainAmpedTimer") ? CheckActorInventory(m, "DnD_PainAmped") : 0;
+}
+
+// A minion's hit on a pain amped enemy; players' hits take it in HandlePlayerBuffs.
+int AmplifyPainHit(int victim, int dmg) {
+	int amp = GetPainAmpMore(victim);
+	return amp ? dmg / 1000 * (1000 + amp) + dmg % 1000 * (1000 + amp) / 1000 : dmg;
+}
+
+Script "DnD Pain Amp Timer" (int m) {
+	int sfx_id = ACS_NamedExecuteWithResult("DND Spawn Attachment", m, DND_ATTACHMENT_PAINAMP);
+	while(CheckActorInventory(m, "DnD_PainAmpedTimer") && IsActorAlive(m)) {
+		TakeActorInventory(m, "DnD_PainAmpedTimer", 1);
+		Delay(const:1);
+	}
+
+	if(IsActorAlive(m))
+		ACS_NamedExecuteWithResult("DnD Remove Monster Attachment", m, sfx_id);
+	SetActorInventory(m, "DnD_PainAmped", 0);
+	SetActorInventory(m, "DnD_PainAmpedTimer", 0);
+}
+
+Script "DnD Pain Amp Area FX" (int cx, int cy, int cz, int r) CLIENTSIDE {
+	if(r > 0)
+		SpawnCurseRing("PainAmpAreaMarkerFX", cx, cy, cz, r);
+	SetResultValue(0);
+}
+
+// Centred as Nox is: the enemy under the crosshair, else where the aim trace struck.
+Script "DnD Pain Amp Cast" (int pnum) {
+	int caster = pnum + P_TIDSTART, cx, cy, cz;
+	PlaySound(caster, "Despair/Cast", 6);
+
+	int target = PickActor(caster, GetActorAngle(caster), GetActorPitch(caster),
+		DND_SPELL_HITSCANRANGE, 0, MF_SHOOTABLE, ML_BLOCKEVERYTHING, PICKAF_RETURNTID);
+	if(target && IsActorAlive(target)) {
+		cx = GetActorX(target);
+		cy = GetActorY(target);
+		cz = GetActorZ(target);
+	}
+	else {
+		if(!TraceSpellAim(pnum, DND_SPELL_HITSCANRANGE))
+			Terminate;
+		for(int w = 0; !ReadSpellAim(pnum) && w < DND_SPELLAIM_WAIT; ++w)
+			Delay(const:1);
+		if(!SpellAimReady(pnum) || !PlayerInGame(pnum) || !IsActorAlive(caster))
+			Terminate;
+		auto aim = GetSpellAim();
+		cx = aim.x[pnum];
+		cy = aim.y[pnum];
+		cz = aim.z[pnum];
+	}
+
+	int r = ScaleSpellArea(pnum, SPL_PAINAMP, GetSpellValue(pnum, SPL_PAINAMP, SPELLVAL_RADIUS) << 16);
+	int tics = GetSpellDurationTics(pnum, SPL_PAINAMP);
+	int tenths = GetSpellCurseEffect(pnum, SPL_PAINAMP, GetSpellValue(pnum, SPL_PAINAMP, SPELLVAL_DAMAGE)) * 10 >> 16;
+	DrawCurseArea(SPL_PAINAMP, cx, cy, cz, r);
+	CurseArea(pnum, SPL_PAINAMP, cx, cy, cz, r, tenths, 0, tics);
+	StartCurseLinger(pnum, SPL_PAINAMP, cx, cy, cz, r, tenths, 0, tics);
+}
+
+// ---- Single-target curses ----
+
+// The enemy under the crosshair or nearest it, as Plague finds its host; from area_rank on (0: never) every enemy within
+// RADIUS of it too, lingering with Ritualist. Returns the target, 0 when there was none.
+int CastTargetedCurse(int pnum, int spell, int pct, int area_rank) {
+	int target = GetSpellEnemyTarget(pnum, DND_SPELL_HITSCANRANGE);
+	if(!target)
+		return 0;
+	int tics = GetSpellDurationTics(pnum, spell);
+	if(area_rank && SpellThresholdMet(pnum, spell, area_rank)) {
+		int r = ScaleSpellArea(pnum, spell, GetSpellValue(pnum, spell, SPELLVAL_RADIUS) << 16);
+		int cx = GetActorX(target), cy = GetActorY(target), cz = GetActorZ(target);
+		DrawCurseArea(spell, cx, cy, cz, r);
+		CurseArea(pnum, spell, cx, cy, cz, r, pct, 0, tics);
+		StartCurseLinger(pnum, spell, cx, cy, cz, r, pct, 0, tics);
+	}
+	else if(CanCurseMonster(pnum, spell, target))
+		ApplySpellCurse(pnum, spell, target, pct, 0, tics);
+	return target;
+}
+
+// ---- Silence ----
+
+// The monster's spells locked (the lockout's own clock), and the curse's marker on a clock of its own.
+void SilenceCurseMonster(int m, int tics) {
+	SilenceMonster(m, tics);
+	CurseMonster(m, "DnD_SilenceCursed", "DnD_SilenceCursedTimer", "DnD Silence Timer", 1, tics);
+}
+
+Script "DnD Silence Timer" (int m) {
+	int sfx_id = ACS_NamedExecuteWithResult("DND Spawn Attachment", m, DND_ATTACHMENT_SILENCE);
+	while(CheckActorInventory(m, "DnD_SilenceCursedTimer") && IsActorAlive(m)) {
+		TakeActorInventory(m, "DnD_SilenceCursedTimer", 1);
+		Delay(const:1);
+	}
+
+	if(IsActorAlive(m))
+		ACS_NamedExecuteWithResult("DnD Remove Monster Attachment", m, sfx_id);
+	SetActorInventory(m, "DnD_SilenceCursed", 0);
+	SetActorInventory(m, "DnD_SilenceCursedTimer", 0);
+}
+
+Script "DnD Silence Area FX" (int cx, int cy, int cz, int r) CLIENTSIDE {
+	if(r > 0)
+		SpawnCurseRing("SilenceAreaMarkerFX", cx, cy, cz, r);
+	SetResultValue(0);
+}
+
+// ---- Life Tap ----
+
+// On one enemy: its caster + 1, whose hits it may heal and whose missing life its death restores (a newer caster takes it).
+void LifeTapMonster(int pnum, int m, int tics) {
+	SetActorInventory(m, "DnD_LifeTapOwner", pnum + 1);
+	CurseMonster(m, "DnD_LifeTapped", "DnD_LifeTappedTimer", "DnD Life Tap Timer", 1, tics);
+}
+
+// The caster's hit on a tapped enemy: AMOUNT percent chance to heal DAMAGE, with the gems' more healing.
+void LifeTapOnHit(int pnum, int victim) {
+	if(!CheckActorInventory(victim, "DnD_LifeTappedTimer") || CheckActorInventory(victim, "DnD_LifeTapOwner") != pnum + 1)
+		return;
+	if(random(1, 100) <= GetSpellValue(pnum, SPL_LIFETAP, SPELLVAL_AMOUNT))
+		HealSpellAlly(pnum, ApplySpellGemMore(pnum, SPL_LIFETAP, GEMSTAT_MORE_HEALING, GetSpellValue(pnum, SPL_LIFETAP, SPELLVAL_DAMAGE)));
+}
+
+// A tapped enemy's death: DAMAGE2 percent (16.16) of its caster's missing life. Read inside Die(), before its clock clears.
+void LifeTapOnDeath(int m) {
+	int pnum = CheckActorInventory(m, "DnD_LifeTapOwner") - 1;
+	if(pnum < 0 || !CheckActorInventory(m, "DnD_LifeTappedTimer") || !PlayerInGame(pnum))
+		return;
+	int ptid = pnum + P_TIDSTART;
+	int missing = Max(0, GetActorProperty(ptid, APROP_SPAWNHEALTH) - GetActorProperty(ptid, APROP_HEALTH));
+	int heal = FixedMul(missing, GetSpellValue(pnum, SPL_LIFETAP, SPELLVAL_DAMAGE2)) / 100;
+	if(heal > 0 && IsActorAlive(ptid))
+		HealSpellAlly(pnum, ApplySpellGemMore(pnum, SPL_LIFETAP, GEMSTAT_MORE_HEALING, heal));
+}
+
+Script "DnD Life Tap Timer" (int m) {
+	int sfx_id = ACS_NamedExecuteWithResult("DND Spawn Attachment", m, DND_ATTACHMENT_LIFETAP);
+	while(CheckActorInventory(m, "DnD_LifeTappedTimer") && IsActorAlive(m)) {
+		TakeActorInventory(m, "DnD_LifeTappedTimer", 1);
+		Delay(const:1);
+	}
+
+	if(IsActorAlive(m))
+		ACS_NamedExecuteWithResult("DnD Remove Monster Attachment", m, sfx_id);
+	SetActorInventory(m, "DnD_LifeTapped", 0);
+	SetActorInventory(m, "DnD_LifeTappedTimer", 0);
+	SetActorInventory(m, "DnD_LifeTapOwner", 0);
+}
+
+Script "DnD Life Tap Area FX" (int cx, int cy, int cz, int r) CLIENTSIDE {
+	if(r > 0)
+		SpawnCurseRing("LifeTapAreaMarkerFX", cx, cy, cz, r);
+	SetResultValue(0);
+}
+
+// ---- Curses from a minion or a returning banish ----
+
+// A random curse the caster has learned, except one; never Transmogrify or Banish, which end a fight rather than shape it. -1 for none.
+int PickLearnedCurse(int pnum, int except) {
+	int n = 0, pick = -1;
+	for(int s = 0; s < MAX_SPELL_IDS; ++s) {
+		if(s == except || s == SPL_TRANSMOGRIFY || s == SPL_BANISH || !(SpellDefs[s].flags & SPLF_CURSE) || !GetSpellAllocatedRank(pnum, s))
+			continue;
+		if(!random(0, n++))
+			pick = s;
+	}
+	return pick;
+}
+
+// One enemy cursed as the caster's own cast would curse it, at their rank: the row's effect and chance, Witch included.
+void ApplyLearnedCurse(int pnum, int spell, int tid) {
+	if(!CanCurseMonster(pnum, spell, tid))
+		return;
+	int pct = GetSpellCurseEffect(pnum, spell, GetSpellValue(pnum, spell, SPELLVAL_DAMAGE));
+	int chance = GetSpellCurseEffect(pnum, spell, GetSpellValue(pnum, spell, SPELLVAL_DAMAGE2));
+	if(spell == SPL_PAINAMP)
+		pct = pct * 10 >> 16;
+	ApplySpellCurse(pnum, spell, tid, pct, chance, GetSpellDurationTics(pnum, spell));
+}
+
+// ---- The later Black curses' lanes ----
+
+#define DND_CURSELANE_TRANSMOG (-1)       // Transmogrify rank 10's resist cut: a lane with no marker
+
+str GetBlackCurseLane(int which) {
+	switch(which) {
+		case DND_ATTACHMENT_DELIRIUM:		return "DnD_Delirious";
+		case DND_ATTACHMENT_SUBJUGATE:		return "DnD_Subjugated";
+		case DND_ATTACHMENT_PENETRATE:		return "DnD_Penetrated";
+		case DND_ATTACHMENT_REMOVERESIST:	return "DnD_ResistStripped";
+		case DND_ATTACHMENT_BREAKIMMUNITY:	return "DnD_ImmunityBroken";
+	}
+	return "DnD_TransmogWeakened";
+}
+
+str GetBlackCurseClock(int which) {
+	switch(which) {
+		case DND_ATTACHMENT_DELIRIUM:		return "DnD_DeliriousTimer";
+		case DND_ATTACHMENT_SUBJUGATE:		return "DnD_SubjugatedTimer";
+		case DND_ATTACHMENT_PENETRATE:		return "DnD_PenetratedTimer";
+		case DND_ATTACHMENT_REMOVERESIST:	return "DnD_ResistStrippedTimer";
+		case DND_ATTACHMENT_BREAKIMMUNITY:	return "DnD_ImmunityBrokenTimer";
+	}
+	return "DnD_TransmogWeakenedTimer";
+}
+
+// A lane's value on one enemy while its clock runs, else 0.
+int GetBlackCurse(int m, int which) {
+	return CheckActorInventory(m, GetBlackCurseClock(which)) ? CheckActorInventory(m, GetBlackCurseLane(which)) : 0;
+}
+
+// The strongest value and the longest clock win; one ticker per lane per monster, with the curse row's marker.
+void BlackCurseMonster(int m, int which, int v, int tics) {
+	str lane = GetBlackCurseLane(which), clock = GetBlackCurseClock(which);
+	if(CheckActorInventory(m, lane) < v)
+		SetActorInventory(m, lane, v);
+	bool ticking = !!CheckActorInventory(m, clock);
+	if(CheckActorInventory(m, clock) < tics)
+		SetActorInventory(m, clock, tics);
+	if(!ticking) {
+		ACS_NamedExecuteAlways("DnD Black Curse Timer", 0, m, which);
+		if(which == DND_ATTACHMENT_DELIRIUM)
+			ACS_NamedExecuteAlways("DnD Delirium", 0, m);
+	}
+}
+
+Script "DnD Black Curse Timer" (int m, int which) {
+	str lane = GetBlackCurseLane(which), clock = GetBlackCurseClock(which);
+	int sfx_id = which >= 0 ? ACS_NamedExecuteWithResult("DND Spawn Attachment", m, which) : 0;
+	while(CheckActorInventory(m, clock) && IsActorAlive(m)) {
+		// Penetrate: projectiles near the enemy become rippers for as long as they stay near.
+		if(which == DND_ATTACHMENT_PENETRATE)
+			GiveActorInventory(m, "DnD_PenetratePulse", 1);
+		TakeActorInventory(m, clock, 1);
+		Delay(const:1);
+	}
+
+	if(IsActorAlive(m)) {
+		if(which >= 0)
+			ACS_NamedExecuteWithResult("DnD Remove Monster Attachment", m, sfx_id);
+		if(which == DND_ATTACHMENT_SUBJUGATE)
+			EndSubjugation(m);
+		else if(which == DND_ATTACHMENT_BREAKIMMUNITY)
+			RestoreBrokenImmunity(m);
+		else if(which == DND_ATTACHMENT_PENETRATE && HasMonsterTrait(m - DND_MONSTERTID_BEGIN, DND_HARDENED_SKIN))
+			GiveActorInventory(m, "MakeHardenedSkin", 1);
+	}
+	SetActorInventory(m, lane, 0);
+	SetActorInventory(m, clock, 0);
+}
+
+// The ring a curse draws where it lands, client side.
+Script "DnD Black Curse Area FX" (int cx, int cy, int cz, int which) CLIENTSIDE {
+	int r = which >> 8;
+	str fx = "PenetrateAreaMarkerFX";
+	switch(which & 0xFF) {
+		case DND_ATTACHMENT_SUBJUGATE:		fx = "SubjugateAreaMarkerFX"; break;
+		case DND_ATTACHMENT_REMOVERESIST:	fx = "RemoveResistAreaMarkerFX"; break;
+		case DND_ATTACHMENT_BREAKIMMUNITY:	fx = "BreakImmunityAreaMarkerFX"; break;
+	}
+	if(r > 0)
+		SpawnCurseRing(fx, cx, cy, cz, r << 16);
+	SetResultValue(0);
+}
+
+// The enemy under the crosshair, else where the aim trace struck, as Pain Amp centres: every enemy within RADIUS cursed.
+Script "DnD Area Curse Cast" (int pnum, int spell, int pct) {
+	int caster = pnum + P_TIDSTART, cx, cy, cz;
+	PlaySound(caster, "Despair/Cast", 6);
+	int target = PickActor(caster, GetActorAngle(caster), GetActorPitch(caster),
+		DND_SPELL_HITSCANRANGE, 0, MF_SHOOTABLE, ML_BLOCKEVERYTHING, PICKAF_RETURNTID);
+	if(target && IsActorAlive(target)) {
+		cx = GetActorX(target);
+		cy = GetActorY(target);
+		cz = GetActorZ(target);
+	}
+	else {
+		if(!TraceSpellAim(pnum, DND_SPELL_HITSCANRANGE))
+			Terminate;
+		for(int w = 0; !ReadSpellAim(pnum) && w < DND_SPELLAIM_WAIT; ++w)
+			Delay(const:1);
+		if(!SpellAimReady(pnum) || !PlayerInGame(pnum) || !IsActorAlive(caster))
+			Terminate;
+		auto aim = GetSpellAim();
+		cx = aim.x[pnum];
+		cy = aim.y[pnum];
+		cz = aim.z[pnum];
+	}
+	int r = ScaleSpellArea(pnum, spell, GetSpellValue(pnum, spell, SPELLVAL_RADIUS) << 16);
+	int tics = GetSpellDurationTics(pnum, spell);
+	DrawCurseArea(spell, cx, cy, cz, r);
+	CurseArea(pnum, spell, cx, cy, cz, r, pct, 0, tics);
+	StartCurseLinger(pnum, spell, cx, cy, cz, r, pct, 0, tics);
+}
+
+// ---- Delirium ----
+
+#define DND_DELIRIUM_REACH 768.0         // how far a delirious enemy looks for another to attack
+#define DND_DELIRIUM_LOOK 17             // tics between looks while it has none
+
+// rank: 2 at rank 10, whose delirious enemy deals double damage to other monsters (in the damage event).
+void DeliriumMonster(int pnum, int m, int tics) {
+	if(!CheckActorInventory(m, "DnD_DeliriousTimer"))
+		SetActorInventory(m, "DnD_DeliriumOwner", pnum + 1);
+	BlackCurseMonster(m, DND_ATTACHMENT_DELIRIUM, 1 + SpellThresholdMet(pnum, SPL_DELIRIUM, DND_SPELL_THRESH_HIGH), tics);
+}
+
+// A random monster in reach and in sight, its own species too (the curse lifts the kin rules both ways). 0 for none.
+int FindDeliriumVictim(int m) {
+	int i, t, n = 0, pick = 0;
+	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+		t = UsedMonsterTIDs[i];
+		if(t == m || !IsActorAlive(t) || !IsSpellEnemy(t) || fdistance(m, t) > DND_DELIRIUM_REACH || !CheckSight(m, t, 0))
+			continue;
+		if(!random(0, n++))
+			pick = t;
+	}
+	return pick;
+}
+
+// Every tic while it lasts: its target is the monster it picked, which it hates, so it ignores players meanwhile.
+// On the end its old disposition comes back and it turns on its curser.
+Script "DnD Delirium" (int m) {
+	int nosight = CheckFlag(m, "NOSIGHTCHECK");
+	int restore = CheckFlag(m, "HUNTPLAYERS") ? 3 + nosight : CheckFlag(m, "NOHATEPLAYERS") ? 5 + nosight : 1 + nosight;
+	int victim = 0, look = 0;
+	// Kin may hurt it and its splash may hurt kin while it lasts; the damage event lets kin hits through for it as well.
+	int kin = CheckFlag(m, "DOHARMSPECIES") | (CheckFlag(m, "DONTHARMSPECIES") << 1) | (CheckFlag(m, "DONTHURTSPECIES") << 2);
+	GiveActorInventory(m, "DnD_DeliriumKinOn", 1);
+	while(IsActorAlive(m) && CheckActorInventory(m, "DnD_DeliriousTimer")) {
+		if(victim && (!IsActorAlive(victim) || !IsSpellEnemy(victim)))
+			victim = 0;
+		if(!victim && --look <= 0) {
+			look = DND_DELIRIUM_LOOK;
+			if((victim = FindDeliriumVictim(m)))
+				Thing_Hate(m, victim, 6);
+		}
+		if(victim) {
+			SetActivator(m);
+			SetPointer(AAPTR_TARGET, victim);
+		}
+		Delay(const:1);
+	}
+	if(IsActorAlive(m)) {
+		Thing_Hate(m, 0, restore);
+		if(!(kin & 1))
+			GiveActorInventory(m, "DnD_DeliriumKinOffDo", 1);
+		if(kin & 2)
+			GiveActorInventory(m, "DnD_DeliriumKinOffDont", 1);
+		if(kin & 4)
+			GiveActorInventory(m, "DnD_DeliriumKinOffClass", 1);
+		int c = CheckActorInventory(m, "DnD_DeliriumOwner") - 1;
+		SetActivator(m);
+		if(c >= 0 && PlayerInGame(c) && IsActorAlive(c + P_TIDSTART))
+			SetPointer(AAPTR_TARGET, c + P_TIDSTART);
+		else
+			GiveActorInventory(m, "PetTargetClear", 1);
+	}
+	SetActorInventory(m, "DnD_DeliriumOwner", 0);
+}
+
+// Rank 10, in the damage event: a delirious enemy's hit on another monster.
+int AmplifyDeliriousHit(int shooter, int dmg) {
+	return GetBlackCurse(shooter, DND_ATTACHMENT_DELIRIUM) > 1 ? dmg * 2 : dmg;
+}
+
+// ---- Subjugate ----
+
+#define DND_SUBJUGATE_R10_CHANCE 50
+
+// Pacified for the curse's length, half on a boss and never on a dungeon boss. Rank 10: a chance to fight for its subjugator
+// instead, as a raised monster does, until the curse ends; never a boss.
+void SubjugateMonster(int pnum, int m, int tics) {
+	int id = m - DND_MONSTERTID_BEGIN;
+	if(MonsterProperties[id].flags & DND_MONFLAG_ISDUNGEONBOSS)
+		return;
+	bool boss = IsMonsterIdBoss(MonsterProperties[id].id);
+	if(boss)
+		tics /= 2;
+	if(!boss && !CheckActorInventory(m, "DnD_SubjugatedOwner") && SpellThresholdMet(pnum, SPL_SUBJUGATE, DND_SPELL_THRESH_HIGH) &&
+		random(1, 100) <= DND_SUBJUGATE_R10_CHANCE) {
+		SetActorInventory(m, "DnD_SubjugatedOwner", pnum + 1);
+		SetActorProperty(m, APROP_MASTERTID, pnum + P_TIDSTART);
+		SetActorProperty(m, APROP_FRIENDLY, true);
+		GiveActorInventory(m, "PetTargetClear", 1);
+	}
+	else
+		PacifyMonster(m, tics);
+	BlackCurseMonster(m, DND_ATTACHMENT_SUBJUGATE, 1, tics);
+}
+
+// A converted enemy goes back to its own side when the curse ends, after its curser.
+void EndSubjugation(int m) {
+	int c = CheckActorInventory(m, "DnD_SubjugatedOwner") - 1;
+	if(c < 0)
+		return;
+	SetActorInventory(m, "DnD_SubjugatedOwner", 0);
+	SetActorProperty(m, APROP_FRIENDLY, false);
+	SetActorProperty(m, APROP_MASTERTID, 0);
+	SetActivator(m);
+	if(PlayerInGame(c) && IsActorAlive(c + P_TIDSTART))
+		SetPointer(AAPTR_TARGET, c + P_TIDSTART);
+	else
+		GiveActorInventory(m, "PetTargetClear", 1);
+}
+
+// ---- Penetrate ----
+
+#define DND_PENETRATE_R10_MORE 25        // rank 10: percent more damage from a hit that rips through
+
+// The lane: 2 at rank 10. "DnD_PenetratePulse" (Penetrate.dec) hands nearby player projectiles "DnD Penetrate Missile".
+// Hardened Skin is off while it lasts: DONTRIP by item, the trait read through HasHardenedSkin; both back when it ends.
+void PenetrateMonster(int pnum, int m, int tics) {
+	if(!GetBlackCurse(m, DND_ATTACHMENT_PENETRATE) && HasMonsterTrait(m - DND_MONSTERTID_BEGIN, DND_HARDENED_SKIN))
+		GiveActorInventory(m, "DnD_PenetrateSkinOff", 1);
+	BlackCurseMonster(m, DND_ATTACHMENT_PENETRATE, 1 + SpellThresholdMet(pnum, SPL_PENETRATE, DND_SPELL_THRESH_HIGH), tics);
+}
+
+// A ripper stops on Hardened Skin, unless Penetrate has it off.
+bool HasHardenedSkin(int m) {
+	return HasMonsterTrait(m - DND_MONSTERTID_BEGIN, DND_HARDENED_SKIN) && !GetBlackCurse(m, DND_ATTACHMENT_PENETRATE);
+}
+
+// On a player projectile near a penetrated enemy: a ripper that hits each enemy once while any such enemy is near
+// (DnD_PenetrateNear, topped up by the pulse), then back to what it was. A projectile's tid is 0: activator calls only.
+Script "DnD Penetrate Missile" (void) {
+	if(CheckInventory("DnD_Penetrating") || CheckFlag(0, "RIPPER") || !IsPlayer(GetActorProperty(0, APROP_TARGETTID)))
+		Terminate;
+	GiveInventory("DnD_Penetrating", 1);
+	int stamina = GetActorProperty(0, APROP_STAMINA), rips = CheckInventory("DnD_RipLimit");
+	GiveInventory("DnD_MakeRipper", 1);
+	SetActorProperty(0, APROP_STAMINA, stamina | DND_DAMAGEFLAG_RIPSONCE);
+	SetInventory("DnD_RipLimit", MAX_RIPCOUNT);
+	while(CheckInventory("DnD_PenetrateNear")) {
+		TakeInventory("DnD_PenetrateNear", 1);
+		Delay(const:1);
+		if(ClassifyActor(0) & ACTOR_WORLD)
+			Terminate;
+	}
+	GiveInventory("TakeRipperAway", 1);
+	SetActorProperty(0, APROP_STAMINA, (GetActorProperty(0, APROP_STAMINA) & ~DND_DAMAGEFLAG_RIPSONCE) | (stamina & DND_DAMAGEFLAG_RIPSONCE));
+	SetInventory("DnD_RipLimit", rips);
+	TakeInventory("DnD_Penetrating", 1);
+}
+
+// A ripper's hit on a penetrated enemy, rank 10.
+int AmplifyPenetratingHit(int victim, int dmg) {
+	return GetBlackCurse(victim, DND_ATTACHMENT_PENETRATE) > 1 ? dmg / 100 * (100 + DND_PENETRATE_R10_MORE) + dmg % 100 * (100 + DND_PENETRATE_R10_MORE) / 100 : dmg;
+}
+
+// ---- Remove Resist ----
+
+#define DND_REMOVERESIST_R10_MORE 25     // rank 10: percent more damage from the types it resisted
+
+// The resistance a monster's resist traits give a category: no immunity, no level bonus. What Remove Resist strips.
+int GetTraitResistShare(int m_id, int category) {
+	int ethereal = HasMonsterTrait(m_id, DND_ETHEREAL) * ETHEREAL_RESIST;
+	int ele = HasMonsterTrait(m_id, DND_ELEMENTAL_RESIST) * DND_RESIST_FACTOR + ethereal;
+	int ctype = GetMonsterCreatureType(m_id, false);
+	switch(category) {
+		case DND_DAMAGECATEGORY_BULLET:
+		case DND_DAMAGECATEGORY_MELEE:
+		return HasMonsterTrait(m_id, DND_BULLET_RESIST) * DND_RESIST_FACTOR + ethereal;
+		case DND_DAMAGECATEGORY_ENERGY:
+		return HasMonsterTrait(m_id, DND_ENERGY_RESIST) * DND_RESIST_FACTOR + ethereal;
+		case DND_DAMAGECATEGORY_OCCULT:
+		case DND_DAMAGECATEGORY_SOUL:
+		return HasMonsterTrait(m_id, DND_MAGIC_RESIST) * DND_RESIST_FACTOR;
+		// A creature's own element is an immunity that replaces the shared elemental share.
+		case DND_DAMAGECATEGORY_FIRE:
+		return ctype == DND_FIRECREATURE ? 0 : ele + (ctype == DND_STONECREATURE) * DND_RESIST_FACTOR;
+		case DND_DAMAGECATEGORY_ICE:
+		return ctype == DND_ICECREATURE ? 0 : ele;
+		case DND_DAMAGECATEGORY_POISON:
+		return ctype == DND_EARTHCREATURE ? 0 : ele;
+		case DND_DAMAGECATEGORY_LIGHTNING:
+		return ctype == DND_STONECREATURE ? 0 : ele;
+	}
+	return 0;
+}
+
+// Rank 10 is lane 2.
+void RemoveResistMonster(int pnum, int m, int tics) {
+	BlackCurseMonster(m, DND_ATTACHMENT_REMOVERESIST, 1 + SpellThresholdMet(pnum, SPL_REMOVERESIST, DND_SPELL_THRESH_HIGH), tics);
+}
+
+// ---- Break Immunity ----
+
+// Immunities, a bit each, on the lane: the four broad ones, the four single elements (trait or creature) and explosions.
+enum {
+	DND_IMMUNEBIT_PHYS = 1,
+	DND_IMMUNEBIT_ENERGY = 2,
+	DND_IMMUNEBIT_MAGIC = 4,
+	DND_IMMUNEBIT_ELEMENTAL = 8,
+	DND_IMMUNEBIT_FIRE = 16,
+	DND_IMMUNEBIT_ICE = 32,
+	DND_IMMUNEBIT_POISON = 64,
+	DND_IMMUNEBIT_LIGHTNING = 128,
+	DND_IMMUNEBIT_EXPLOSIVE = 256
+};
+#define DND_IMMUNEBIT_COUNT 9
+
+int GetMonsterImmunityBits(int m_id) {
+	int ctype = GetMonsterCreatureType(m_id, false);
+	return	DND_IMMUNEBIT_PHYS * HasMonsterTrait(m_id, DND_BULLET_IMMUNE) |
+			DND_IMMUNEBIT_ENERGY * HasMonsterTrait(m_id, DND_ENERGY_IMMUNE) |
+			DND_IMMUNEBIT_MAGIC * HasMonsterTrait(m_id, DND_MAGIC_IMMUNE) |
+			DND_IMMUNEBIT_ELEMENTAL * HasMonsterTrait(m_id, DND_ELEMENTAL_IMMUNE) |
+			DND_IMMUNEBIT_FIRE * (HasMonsterTrait(m_id, DND_FIRE_IMMUNE) || ctype == DND_FIRECREATURE) |
+			DND_IMMUNEBIT_ICE * (HasMonsterTrait(m_id, DND_ICE_IMMUNE) || ctype == DND_ICECREATURE) |
+			DND_IMMUNEBIT_POISON * (HasMonsterTrait(m_id, DND_POISON_IMMUNE) || ctype == DND_EARTHCREATURE) |
+			DND_IMMUNEBIT_LIGHTNING * (HasMonsterTrait(m_id, DND_LIGHTNING_IMMUNE) || ctype == DND_STONECREATURE) |
+			DND_IMMUNEBIT_EXPLOSIVE * HasMonsterTrait(m_id, DND_EXPLOSIVE_IMMUNE);
+}
+
+// The immunity broken bits take off a category, in resist points: 95 a covering immunity (a creature's own element and its
+// trait are one immunity of that element).
+int GetBrokenImmunityShare(int m_id, int category, int bits) {
+	int ctype = GetMonsterCreatureType(m_id, false), v = 0;
+	switch(category) {
+		case DND_DAMAGECATEGORY_BULLET:
+		case DND_DAMAGECATEGORY_MELEE:
+		return (bits & DND_IMMUNEBIT_PHYS) ? HasMonsterTrait(m_id, DND_BULLET_IMMUNE) * DND_IMMUNITY_FACTOR : 0;
+		case DND_DAMAGECATEGORY_ENERGY:
+		return (bits & DND_IMMUNEBIT_ENERGY) ? HasMonsterTrait(m_id, DND_ENERGY_IMMUNE) * DND_IMMUNITY_FACTOR : 0;
+		case DND_DAMAGECATEGORY_OCCULT:
+		case DND_DAMAGECATEGORY_SOUL:
+		return (bits & DND_IMMUNEBIT_MAGIC) ? HasMonsterTrait(m_id, DND_MAGIC_IMMUNE) * DND_IMMUNITY_FACTOR : 0;
+		case DND_DAMAGECATEGORY_FIRE:
+			if(bits & DND_IMMUNEBIT_FIRE)
+				v = (HasMonsterTrait(m_id, DND_FIRE_IMMUNE) + (ctype == DND_FIRECREATURE)) * DND_IMMUNITY_FACTOR;
+			if((bits & DND_IMMUNEBIT_ELEMENTAL) && ctype != DND_FIRECREATURE)
+				v += HasMonsterTrait(m_id, DND_ELEMENTAL_IMMUNE) * DND_IMMUNITY_FACTOR;
+		return v;
+		case DND_DAMAGECATEGORY_ICE:
+			if(bits & DND_IMMUNEBIT_ICE)
+				v = (HasMonsterTrait(m_id, DND_ICE_IMMUNE) + (ctype == DND_ICECREATURE)) * DND_IMMUNITY_FACTOR;
+			if((bits & DND_IMMUNEBIT_ELEMENTAL) && ctype != DND_ICECREATURE)
+				v += HasMonsterTrait(m_id, DND_ELEMENTAL_IMMUNE) * DND_IMMUNITY_FACTOR;
+		return v;
+		case DND_DAMAGECATEGORY_POISON:
+			if(bits & DND_IMMUNEBIT_POISON)
+				v = (HasMonsterTrait(m_id, DND_POISON_IMMUNE) + (ctype == DND_EARTHCREATURE)) * DND_IMMUNITY_FACTOR;
+			if((bits & DND_IMMUNEBIT_ELEMENTAL) && ctype != DND_EARTHCREATURE)
+				v += HasMonsterTrait(m_id, DND_ELEMENTAL_IMMUNE) * DND_IMMUNITY_FACTOR;
+		return v;
+		case DND_DAMAGECATEGORY_LIGHTNING:
+			if(bits & DND_IMMUNEBIT_LIGHTNING)
+				v = (HasMonsterTrait(m_id, DND_LIGHTNING_IMMUNE) + (ctype == DND_STONECREATURE)) * DND_IMMUNITY_FACTOR;
+			if((bits & DND_IMMUNEBIT_ELEMENTAL) && ctype != DND_STONECREATURE)
+				v += HasMonsterTrait(m_id, DND_ELEMENTAL_IMMUNE) * DND_IMMUNITY_FACTOR;
+		return v;
+	}
+	return 0;
+}
+
+// One random immunity it still has, or all at rank 10. Nothing to break, no curse. Explosions come back through NORADIUSDMG.
+void BreakImmunityMonster(int pnum, int m, int tics) {
+	int m_id = m - DND_MONSTERTID_BEGIN, have = GetMonsterImmunityBits(m_id) & ~GetBlackCurse(m, DND_ATTACHMENT_BREAKIMMUNITY);
+	if(!have)
+		return;
+	int bits = have;
+	if(!SpellThresholdMet(pnum, SPL_BREAKIMMUNITY, DND_SPELL_THRESH_HIGH)) {
+		int n = 0;
+		for(int i = 0; i < DND_IMMUNEBIT_COUNT; ++i)
+			if((have & (1 << i)) && !random(0, n++))
+				bits = 1 << i;
+	}
+	bits |= GetBlackCurse(m, DND_ATTACHMENT_BREAKIMMUNITY);
+	if(bits & DND_IMMUNEBIT_EXPLOSIVE)
+		GiveActorInventory(m, "DnD_TakeExplosiveImmunity", 1);
+	SetActorInventory(m, "DnD_ImmunityBroken", bits);
+	BlackCurseMonster(m, DND_ATTACHMENT_BREAKIMMUNITY, bits, tics);
+}
+
+void RestoreBrokenImmunity(int m) {
+	if(CheckActorInventory(m, "DnD_ImmunityBroken") & DND_IMMUNEBIT_EXPLOSIVE)
+		GiveActorInventory(m, "MakeExplosiveHighResist", 1);
+}
+
+// ---- Transmogrify ----
+
+#define DND_TRANSMOG_R5_HEALTH 25        // rank 5: percent increased chance of a health pickup
+#define DND_TRANSMOG_R10_RES 10          // rank 10: resist off everything on a failure
+#define DND_TRANSMOG_R10_TICS (10 * TICRATE)
+
+// Weaker than a Baron, and no boss, unique or legendary.
+bool CanTransmogrify(int m) {
+	int m_id = m - DND_MONSTERTID_BEGIN, id = MonsterProperties[m_id].id, c = MonsterProperties[m_id].class;
+	return !(c >= MONSTERCLASS_BARON && c != MONSTERCLASS_WOLFENSS) && !IsMonsterIdBoss(id) && !IsUniqueMonster(id) && !isLegendaryMonster(id);
+}
+
+// A random pickup by weight; health ones (stimpack, medikit, bonus) weigh more at rank 5.
+str PickTransmogPickup(bool more_health) {
+	int h = more_health ? 100 + DND_TRANSMOG_R5_HEALTH : 100;
+	int roll = random(1, 8 * h + 1800);
+	if((roll -= 3 * h) <= 0)
+		return "Stimpack_MP";
+	if((roll -= h) <= 0)
+		return "Medikit_MP";
+	if((roll -= 4 * h) <= 0)
+		return "NewHealthBonus";
+	if((roll -= 400) <= 0)
+		return "NewArmorBonus";
+	if((roll -= 300) <= 0)
+		return "NewClip";
+	if((roll -= 300) <= 0)
+		return "NewShell";
+	if((roll -= 200) <= 0)
+		return "RocketAmmo2";
+	if((roll -= 200) <= 0)
+		return "Cell2";
+	return "SoulsDrop";
+}
+
+// The enemy dies to its caster (kill, rewards and all) and its body becomes the pickup. Rank 10: a failure loses resists.
+void TransmogrifyMonster(int pnum, int m) {
+	if(!CanTransmogrify(m)) {
+		if(SpellThresholdMet(pnum, SPL_TRANSMOGRIFY, DND_SPELL_THRESH_HIGH))
+			BlackCurseMonster(m, DND_CURSELANE_TRANSMOG, DND_TRANSMOG_R10_RES, ScaleSpellEffectTics(pnum, SPL_TRANSMOGRIFY, DND_TRANSMOG_R10_TICS));
+		return;
+	}
+	int x = GetActorX(m), y = GetActorY(m), z = GetActorZ(m), prev = ActivatorTID();
+	SetActivator(pnum + P_TIDSTART);
+	Thing_Damage2(m, GetActorProperty(m, APROP_HEALTH) + 1, "InstantDeath");
+	if(prev)
+		SetActivator(prev);
+	if(IsActorAlive(m))
+		return;
+	ACS_NamedExecuteAlways("DnD Transmogrify Body", 0, m, PackMapPair(x, y), z >> 16);
+	SpawnForced(PickTransmogPickup(SpellThresholdMet(pnum, SPL_TRANSMOGRIFY, DND_SPELL_THRESH_LOW)), x, y, z + 16.0, DND_DROP_TID);
+	ThrustThingZ(DND_DROP_TID, 8, 0, 1);
+	Thing_ChangeTID(DND_DROP_TID, 0);
+	Spawn("Spell_Transmogrify_Poof", x, y, z + 24.0);
+}
+
+// The body goes a tic after the death, once its own death scripts have had it.
+Script "DnD Transmogrify Body" (int m, int xy, int z) {
+	Delay(const:1);
+	if(!IsActorAlive(m))
+		Thing_Remove(m);
+}
+
+// ---- Banish ----
+
+#define DND_BANISH_RETURNWAIT 35         // tics a return waits for a player standing in its spot
+#define DND_BANISH_R10_RESIST 25.0       // rank 10: the resist it lends, more for an immunity
+#define DND_BANISH_R10_IMMUNE 50.0
+
+// Out of this realm: dormant (no thinking, no harm), unshootable, unseen and unsolid, back where it left.
+void BanishMonster(int pnum, int m, int tics) {
+	int m_id = m - DND_MONSTERTID_BEGIN;
+	if(MonsterProperties[m_id].flags & DND_MONFLAG_ISDUNGEONBOSS)
+		return;
+	SetActorInventory(m, "DnD_BanishOwner", pnum + 1);
+	if(CheckActorInventory(m, "DnD_BanishedTimer")) {
+		if(CheckActorInventory(m, "DnD_BanishedTimer") < tics)
+			SetActorInventory(m, "DnD_BanishedTimer", tics);
+		return;
+	}
+	SetActorInventory(m, "DnD_BanishedTimer", tics);
+	ACS_NamedExecuteAlways("DnD Banish", 0, m, tics);
+}
+
+// A player standing where the enemy would come back solid.
+bool BanishSpotTaken(int m) {
+	int r = GetActorProperty(m, APROP_RADIUS), z = GetActorZ(m), h = GetActorProperty(m, APROP_HEIGHT), p;
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		p = i + P_TIDSTART;
+		if(!PlayerInGame(i) || !IsActorAlive(p))
+			continue;
+		if(abs(GetActorX(p) - GetActorX(m)) < r + GetActorProperty(p, APROP_RADIUS) && abs(GetActorY(p) - GetActorY(m)) < r + GetActorProperty(p, APROP_RADIUS) &&
+			GetActorZ(p) < z + h && GetActorZ(p) + GetActorProperty(p, APROP_HEIGHT) > z)
+			return true;
+	}
+	return false;
+}
+
+// Rank 10: one of its resists or immunities lent to its banisher for half the time it was gone. False when it has none.
+bool LendBanishedTrait(int pnum, int m, int tics) {
+	int m_id = m - DND_MONSTERTID_BEGIN, n = 0, pick = -1, i, bti, imm;
+	// A creature type (fire, ice, stone, earth) is an elemental immunity of its own element.
+	bool creature = GetMonsterCreatureType(m_id, false) != -1;
+	for(i = 0; i < 4; ++i) {
+		switch(i) {
+			case 0: imm = HasMonsterTrait(m_id, DND_BULLET_IMMUNE) ? 2 : HasMonsterTrait(m_id, DND_BULLET_RESIST) || HasMonsterTrait(m_id, DND_ETHEREAL); break;
+			case 1: imm = HasMonsterTrait(m_id, DND_ELEMENTAL_IMMUNE) ? 2 : HasMonsterTrait(m_id, DND_ELEMENTAL_RESIST) || creature; break;
+			case 2: imm = HasMonsterTrait(m_id, DND_ENERGY_IMMUNE) ? 2 : HasMonsterTrait(m_id, DND_ENERGY_RESIST); break;
+			default: imm = HasMonsterTrait(m_id, DND_MAGIC_IMMUNE) ? 2 : HasMonsterTrait(m_id, DND_MAGIC_RESIST); break;
+		}
+		if(imm && !random(0, n++))
+			pick = i | (imm << 4);
+	}
+	if(pick == -1)
+		return false;
+	switch(pick & 15) {
+		case 0: bti = BTI_SPELL_BANISH_PHYS; break;
+		case 1: bti = BTI_SPELL_BANISH_ELE; break;
+		case 2: bti = BTI_SPELL_BANISH_ENERGY; break;
+		default: bti = BTI_SPELL_BANISH_MAGIC; break;
+	}
+	HandlePlayerBuffAssignment(pnum, pnum + P_TIDSTART, bti, 0, 0, Max(1, tics / 2), (pick >> 4) > 1 ? DND_BANISH_R10_IMMUNE : DND_BANISH_R10_RESIST);
+	return true;
+}
+
+Script "DnD Banish" (int m, int tics) {
+	int style = GetActorProperty(m, APROP_RENDERSTYLE);
+	Thing_Deactivate(m);
+	GiveActorInventory(m, "DnD_BanishOut", 1);
+	SetActorProperty(m, APROP_RENDERSTYLE, STYLE_None);
+	ACS_NamedExecuteAlways("DnD Banish FX", 0, m);
+	while(CheckActorInventory(m, "DnD_BanishedTimer") > 0 && IsActorAlive(m)) {
+		TakeActorInventory(m, "DnD_BanishedTimer", 1);
+		Delay(const:1);
+	}
+	for(int w = 0; w < DND_BANISH_RETURNWAIT && IsActorAlive(m) && BanishSpotTaken(m); ++w)
+		Delay(const:1);
+	SetActorInventory(m, "DnD_BanishedTimer", 0);
+	if(!IsActorAlive(m))
+		Terminate;
+
+	GiveActorInventory(m, "DnD_BanishIn", 1);
+	SetActorProperty(m, APROP_RENDERSTYLE, style);
+	Thing_Activate(m);
+	ACS_NamedExecuteAlways("DnD Banish FX", 0, m);
+
+	int pnum = CheckActorInventory(m, "DnD_BanishOwner") - 1;
+	SetActorInventory(m, "DnD_BanishOwner", 0);
+	if(pnum < 0 || !PlayerInGame(pnum))
+		Terminate;
+	if(SpellThresholdMet(pnum, SPL_BANISH, DND_SPELL_THRESH_LOW)) {
+		int spell = PickLearnedCurse(pnum, -1);
+		if(spell != -1)
+			ApplyLearnedCurse(pnum, spell, m);
+	}
+	if(SpellThresholdMet(pnum, SPL_BANISH, DND_SPELL_THRESH_HIGH) && IsActorAlive(pnum + P_TIDSTART))
+		LendBanishedTrait(pnum, m, tics);
+}
+
+Script "DnD Banish FX" (int m) CLIENTSIDE {
+	Spawn("Spell_Banish_Poof", GetActorX(m), GetActorY(m), GetActorZ(m) + GetActorProperty(m, APROP_HEIGHT) / 2);
+	PlaySound(m, "UndeadSoul/Die", CHAN_BODY);
+	SetResultValue(0);
+}
+
+// ---- The curse balls ----
+
+#define DND_CURSEBALL_SPEED 24
+
+// Subjugate (rank 5 its area), Transmogrify, Life Tap (an area where it bursts) and Banish: the ball's spell, its tracer the enemy.
+Script "DnD Curse Ball Hit" (void) {
+	int pnum = GetSpellActorOwner(), spell = GetUserVariable(0, "user_spellid");
+	if(pnum == -1 || !PlayerInGame(pnum)) {
+		SetResultValue(0);
+		Terminate;
+	}
+	int x = GetActorX(0), y = GetActorY(0), z = GetActorZ(0), r;
+	int victim = SetActivator(0, AAPTR_TRACER) ? ActivatorTID() : 0;
+	if(victim && !(IsMonster(victim) && IsActorAlive(victim) && IsSpellEnemy(victim)))
+		victim = 0;
+	int tics = GetSpellDurationTics(pnum, spell);
+
+	switch(spell) {
+		case SPL_LIFETAP:
+			r = ScaleSpellArea(pnum, spell, GetSpellValue(pnum, spell, SPELLVAL_RADIUS) << 16);
+			DrawCurseArea(spell, x, y, z, r);
+			CurseArea(pnum, spell, x, y, z, r, 0, 0, tics);
+			StartCurseLinger(pnum, spell, x, y, z, r, 0, 0, tics);
+		break;
+		case SPL_SUBJUGATE:
+			if(SpellThresholdMet(pnum, spell, DND_SPELL_THRESH_LOW)) {
+				if(victim) {
+					x = GetActorX(victim);
+					y = GetActorY(victim);
+					z = GetActorZ(victim);
+				}
+				r = ScaleSpellArea(pnum, spell, GetSpellValue(pnum, spell, SPELLVAL_RADIUS) << 16);
+				DrawCurseArea(spell, x, y, z, r);
+				CurseArea(pnum, spell, x, y, z, r, 0, 0, tics);
+				StartCurseLinger(pnum, spell, x, y, z, r, 0, 0, tics);
+			}
+			else if(victim && CanCurseMonster(pnum, spell, victim))
+				ApplySpellCurse(pnum, spell, victim, 0, 0, tics);
+		break;
+		case SPL_TRANSMOGRIFY:
+		case SPL_BANISH:
+			if(victim && CanCurseMonster(pnum, spell, victim))
+				ApplySpellCurse(pnum, spell, victim, 0, 0, tics);
+		break;
+	}
+	SetResultValue(0);
+}
+
+// ---- Spell aim shared by the zone spells ----
+
+// The enemy under the crosshair as a zone's centre (true, the aim already holds it); else the aim trace is fired and
+// the script waits on it, as Pain Amp does.
+bool PickSpellZone(int pnum, int range) {
+	int caster = pnum + P_TIDSTART;
+	int target = PickActor(caster, GetActorAngle(caster), GetActorPitch(caster), range, 0, MF_SHOOTABLE, ML_BLOCKEVERYTHING, PICKAF_RETURNTID);
+	if(target && IsActorAlive(target)) {
+		GetSpellAim().x[pnum] = GetActorX(target);
+		GetSpellAim().y[pnum] = GetActorY(target);
+		GetSpellAim().z[pnum] = GetActorZ(target);
+		return true;
+	}
+	TraceSpellAim(pnum, range);
+	return false;
+}
+
+// ---- Contagion ----
+
+#define DND_CONTAGION_TICK 17            // tics between its half second checks (17, 18 alternating)
+#define DND_CONTAGION_ZONEZ 96.0         // how far above or below the zone an enemy still counts as in it
+
+// A half second's tick of Contagion's DoT: DAMAGE spread over the row's own half seconds, as Essence Theft's is.
+int GetContagionTick(int pnum) {
+	return Max(1, GetSpellValue(pnum, SPL_CONTAGION, SPELLVAL_DAMAGE) / Max(1, (SpellDefs[SPL_CONTAGION].base[SPELLVAL_DURATION] * 2) >> 16));
+}
+
+// The DoT on one enemy, full length; an enemy already carrying one keeps it.
+void ApplyContagion(int pnum, int m, int tick) {
+	if(CheckActorInventory(m, "DnD_ContagionTimer"))
+		return;
+	SetActorInventory(m, "DnD_ContagionBase", tick);
+	SetActorInventory(m, "DnD_ContagionOwner", pnum + 1);
+	SetActorInventory(m, "DnD_ContagionTimer", Max(1, (GetSpellValue(pnum, SPL_CONTAGION, SPELLVAL_DURATION) * 2 + 0.5) >> 16));
+	ACS_NamedExecuteAlways("DnD Contagion", 0, m);
+}
+
+// Ticks on one enemy, Plague's way: occult, never crits; rank 10 past shields and fortification.
+Script "DnD Contagion" (int m) {
+	int t = 0;
+	while(CheckActorInventory(m, "DnD_ContagionTimer") > 0 && IsActorAlive(m)) {
+		int pnum = CheckActorInventory(m, "DnD_ContagionOwner") - 1;
+		if(CheckFlag(m, "SHOOTABLE") && pnum >= 0 && PlayerInGame(pnum)) {
+			int flags = DND_ACTORFLAG_ISDAMAGEOVERTIME | DND_ACTORFLAG_PAINLESS;
+			if(SpellThresholdMet(pnum, SPL_CONTAGION, DND_SPELL_THRESH_HIGH))
+				flags |= DND_ACTORFLAG_FOILINVUL;
+			int dmg = PriceSpellDamage(pnum, SPL_CONTAGION, CheckActorInventory(m, "DnD_ContagionBase"), 0, true, m);
+			dmg = HandleDamageDeal(pnum + P_TIDSTART, m, dmg, DND_DAMAGETYPE_OCCULT, SPL_CONTAGION, DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_NOPUSH,
+				0, 0, 0, flags, true);
+			if(dmg > 0)
+				Thing_Damage2(m, dmg, "Special_NoPain");
+			if(!IsActorAlive(m))
+				break;
+		}
+		Delay(DND_CONTAGION_TICK + (t++ & 1));
+		TakeActorInventory(m, "DnD_ContagionTimer", 1);
+	}
+	SetActorInventory(m, "DnD_ContagionTimer", 0);
+}
+
+// Called from the kill script: an enemy that dies with Contagion on it passes its magic damage over time (Contagion's own,
+// Essence Theft's) at full strength to every enemy within the radius. Plague spreads by its own rules.
+void ContagionOnDeath(int m) {
+	int pnum = CheckActorInventory(m, "DnD_ContagionOwner") - 1;
+	if(pnum < 0 || !CheckActorInventory(m, "DnD_ContagionTimer") || !PlayerInGame(pnum))
+		return;
+	int r = GetContagionRadius(pnum), tick = CheckActorInventory(m, "DnD_ContagionBase"), i, t;
+	int thief = CheckActorInventory(m, "DnD_EssenceTimer") ? CheckActorInventory(m, "DnD_EssenceOwner") - 1 : -1;
+	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+		t = UsedMonsterTIDs[i];
+		if(t == m || !IsActorAlive(t) || !IsSpellEnemy(t) || fdistance(m, t) > r)
+			continue;
+		ApplyContagion(pnum, t, tick);
+		if(thief >= 0 && PlayerInGame(thief))
+			ApplyEssenceTheft(thief, t, CheckActorInventory(m, "DnD_EssenceTick"));
+	}
+	ACS_NamedExecuteAlways("DnD Contagion Spread FX", 0, GetActorX(m), GetActorY(m), (GetActorZ(m) & 0xFFFF0000) | (r >> 16));
+}
+
+int GetContagionRadius(int pnum) {
+	return ScaleSpellArea(pnum, SPL_CONTAGION, GetSpellValue(pnum, SPL_CONTAGION, SPELLVAL_RADIUS) << 16);
+}
+
+Script "DnD Contagion Spread FX" (int x, int y, int zr) CLIENTSIDE {
+	SpawnCurseRing("ContagionRingFX", x, y, zr & 0xFFFF0000, (zr & 0xFFFF) << 16);
+	SetResultValue(0);
+}
+
+// The zone stands its duration; every half second each enemy inside without the DoT catches it.
+Script "DnD Contagion Cast" (int pnum) {
+	int caster = pnum + P_TIDSTART;
+	PlaySound(caster, "Despair/Cast", CHAN_6);
+	if(!PickSpellZone(pnum, DND_SPELL_HITSCANRANGE)) {
+		for(int w = 0; !ReadSpellAim(pnum) && w < DND_SPELLAIM_WAIT; ++w)
+			Delay(const:1);
+		if(!SpellAimReady(pnum) || !PlayerInGame(pnum) || !IsActorAlive(caster))
+			Terminate;
+	}
+	auto aim = GetSpellAim();
+	int cx = aim.x[pnum], cy = aim.y[pnum], cz = aim.z[pnum];
+	int r = GetContagionRadius(pnum), tick = GetContagionTick(pnum), tics = GetSpellDurationTics(pnum, SPL_CONTAGION);
+	ACS_NamedExecuteAlways("DnD Contagion Zone FX", 0, PackMapPair(cx, cy), cz, (r >> 16) | (tics << 16));
+	for(int t = 0, k = 0; t < tics && PlayerInGame(pnum); t += DND_CONTAGION_TICK + (k++ & 1)) {
+		for(int i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+			int m = UsedMonsterTIDs[i];
+			if(!IsActorAlive(m) || !IsSpellEnemy(m) || VectorLength(GetActorX(m) - cx, GetActorY(m) - cy) > r || abs(GetActorZ(m) - cz) > DND_CONTAGION_ZONEZ)
+				continue;
+			ApplyContagion(pnum, m, tick);
+		}
+		Delay(DND_CONTAGION_TICK + (k & 1));
+	}
+}
+
+// Client side: the zone's edge in sickly motes, redrawn while it stands.
+Script "DnD Contagion Zone FX" (int xy, int cz, int rt) CLIENTSIDE {
+	int cx = xy << 16, cy = xy & 0xFFFF0000, r = (rt & 0xFFFF) << 16, tics = rt >> 16;
+	for(int t = 0; t < tics; t += 16) {
+		SpawnCurseRing("ContagionRingFX", cx, cy, cz, r);
+		for(int i = 0; i < 4; ++i) {
+			int a = random(0, 1.0), d = FixedMul(r, fsqrt(random(0, 1.0)));
+			Spawn("ContagionMoteFX", cx + FixedMul(cos(a), d), cy + FixedMul(sin(a), d), cz + 8.0);
+		}
+		Delay(const:16);
+	}
+	SetResultValue(0);
+}
+
+// ---- Soulstorm ----
+
+#define DND_SOULSTORM_DELAY 26           // tics before the storm rises, "after a brief delay"
+#define DND_SOULSTORM_PULSE 12           // tics between its blasts, the doc's 0.35 s
+#define DND_SOULSTORM_DRIFT 2.5          // units a tic it drifts towards the caster
+#define DND_SOULSTORM_EDGE 25            // percent of its damage at the very edge
+#define DND_SOULSTORM_FXEVERY 3          // tics between the client's swirling souls
+
+// Every enemy in reach and in sight takes DAMAGE per Soul held, full in the core, falling off to the edge share.
+void SoulstormPulse(int pnum, int storm, int r, int core, int souls) {
+	int base = RollSpellValue(pnum, SPL_SOULSTORM, SPELLVAL_DAMAGE) * souls, i, m, d, pct;
+	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+		m = UsedMonsterTIDs[i];
+		if(!IsActorAlive(m) || !IsSpellEnemy(m) || (d = fdistance(storm, m)) > r || !CheckSight(storm, m, CSF_NOBLOCKALL))
+			continue;
+		pct = d <= core ? 100 : 100 - (100 - DND_SOULSTORM_EDGE) * ((d - core) >> 8) / Max(1, (r - core) >> 8);
+		DealSpellAmount(pnum, SPL_SOULSTORM, m, base * pct / 100, true);
+	}
+}
+
+Script "DnD Soulstorm Cast" (int pnum) {
+	int caster = pnum + P_TIDSTART;
+	if(!PickSpellZone(pnum, DND_SPELL_HITSCANRANGE)) {
+		for(int w = 0; !ReadSpellAim(pnum) && w < DND_SPELLAIM_WAIT; ++w)
+			Delay(const:1);
+		if(!SpellAimReady(pnum) || !PlayerInGame(pnum) || !IsActorAlive(caster))
+			Terminate;
+	}
+	auto aim = GetSpellAim();
+	int cx = aim.x[pnum], cy = aim.y[pnum], cz = aim.z[pnum];
+	int tid = ScratchTID();
+	if(!tid || !SpawnForced("Spell_SoulstormAnchor", cx, cy, cz, tid, 0))
+		Terminate;
+	SetActorPosition(tid, cx, cy, GetActorFloorZ(tid) + 32.0, false);
+	PlaySound(tid, "Ambience/Windgust", CHAN_BODY);
+	Delay(const:DND_SOULSTORM_DELAY);
+
+	int r = ScaleSpellArea(pnum, SPL_SOULSTORM, GetSpellValue(pnum, SPL_SOULSTORM, SPELLVAL_RADIUS) << 16);
+	int core = r * GetSpellValue(pnum, SPL_SOULSTORM, SPELLVAL_AMOUNT) / 100;
+	int tics = GetSpellDurationTics(pnum, SPL_SOULSTORM), dx, dy, len;
+	ACS_NamedExecuteAlways("DnD Soulstorm FX", 0, tid, (r >> 16) | (tics << 16));
+	for(int t = 0; t < tics && PlayerInGame(pnum); ++t) {
+		if(!(t % DND_SOULSTORM_PULSE))
+			SoulstormPulse(pnum, tid, r, core, CheckActorInventory(caster, "Souls"));
+		// Drifts along the floor towards the caster, stopping short of them.
+		dx = GetActorX(caster) - GetActorX(tid);
+		dy = GetActorY(caster) - GetActorY(tid);
+		len = VectorLength(dx, dy);
+		if(len > DND_SOULSTORM_DRIFT * 8)
+			SetActorVelocity(tid, FixedMul(FixedDiv(dx, len), DND_SOULSTORM_DRIFT), FixedMul(FixedDiv(dy, len), DND_SOULSTORM_DRIFT), 0, false, false);
+		else
+			SetActorVelocity(tid, 0, 0, 0, false, false);
+		Delay(const:1);
+	}
+	SetActorState(tid, "Vanish");
+	Thing_ChangeTID(tid, 0);
+	TakeActorInventory(caster, "Souls", CheckActorInventory(caster, "Souls") * GetSpellValue(pnum, SPL_SOULSTORM, SPELLVAL_AMOUNT2) / 100);
+}
+
+// Client side: souls whirling round the storm, at its edge and inward, while it lasts.
+Script "DnD Soulstorm FX" (int tid, int rt) CLIENTSIDE {
+	int r = (rt & 0xFFFF) << 16, tics = rt >> 16, spin = 0;
+	for(int t = 0; t < tics && !(ClassifyActor(tid) & ACTOR_WORLD); t += DND_SOULSTORM_FXEVERY) {
+		spin = (spin + 0.03) % 1.0;
+		for(int i = 0; i < 3; ++i) {
+			int a = (spin + i * 0.333 + random(-0.02, 0.02)) % 1.0, d = FixedMul(r, random(0.25, 1.0));
+			Spawn("Spell_SoulstormSoul", GetActorX(tid) + FixedMul(cos(a), d), GetActorY(tid) + FixedMul(sin(a), d),
+				GetActorFloorZ(tid) + random(8.0, 96.0), 0, ((a + 0.25) % 1.0) >> 8);
+		}
+		Delay(const:DND_SOULSTORM_FXEVERY);
+	}
+	SetResultValue(0);
+}
+
+// ---- Carrion Crows ----
+
+#define DND_CROWS_ORBIT 56.0             // how far from the caster they circle
+#define DND_CROWS_LIFT 44.0              // and how high
+#define DND_CROWS_SPIN 0.012             // turn fraction the circle turns a tic
+#define DND_CROWS_SPEED 14.0             // units a tic; 25% more at rank 5
+#define DND_CROWS_R5_SPEED 125
+#define DND_CROWS_BITE 20.0              // how close to the enemy's edge a bite lands
+#define DND_CROWS_REST 6                 // tics a crow pulls back after a bite before it darts again
+#define DND_CROWS_R10_LEECH 5            // rank 10: percent of what they deal back as life
+#define DND_CROWS_MAX 16                 // crows one cast keeps track of
+
+typedef struct {
+	int tid[DND_CROWS_MAX];
+	int prey[DND_CROWS_MAX];
+	int rest[DND_CROWS_MAX];
+} crows_T;
+
+crows_T module& GetCrows(int pnum) {
+	static crows_T crows[MAXPLAYERS];
+	return crows[pnum];
+}
+
+// Moves a crow up to speed towards a point by its velocity; true once it is there.
+bool SteerCrow(int crow, int x, int y, int z, int speed) {
+	int dx = x - GetActorX(crow), dy = y - GetActorY(crow), dz = z - GetActorZ(crow), len = fdistance_delta(dx, dy, dz);
+	if(len <= speed) {
+		SetActorVelocity(crow, dx, dy, dz, false, false);
+		return true;
+	}
+	SetActorVelocity(crow, FixedMul(FixedDiv(dx, len), speed), FixedMul(FixedDiv(dy, len), speed), FixedMul(FixedDiv(dz, len), speed), false, false);
+	SetActorAngle(crow, VectorAngle(dx, dy));
+	return false;
+}
+
+// The nearest enemy within reach of the caster and in their sight, fewest crows on it first; 0 for none.
+int PickCrowPrey(int pnum, int r, int n) {
+	int caster = pnum + P_TIDSTART, best = 0, best_score = 0x7FFFFFFF, i, j, m, score;
+	crows_T module& c = GetCrows(pnum);
+	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+		m = UsedMonsterTIDs[i];
+		if(!IsActorAlive(m) || !IsSpellEnemy(m) || fdistance(caster, m) > r || !CheckSight(caster, m, 0))
+			continue;
+		score = fdistance(caster, m) >> 16;
+		for(j = 0; j < n; ++j)
+			if(c.prey[j] == m)
+				score += 512;
+		if(score < best_score) {
+			best = m;
+			best_score = score;
+		}
+	}
+	return best;
+}
+
+// The crows circle the caster and dart at enemies within reach, each bite a hit of the spell; a recast replaces them.
+Script "DnD Carrion Crows" (int pnum) {
+	int caster = pnum + P_TIDSTART, i, crow, m, a, gen;
+	crows_T module& c = GetCrows(pnum);
+	gen = CheckActorInventory(caster, "DnD_CrowsCast") + 1;
+	SetActorInventory(caster, "DnD_CrowsCast", gen);
+	for(i = 0; i < DND_CROWS_MAX; ++i) {
+		if(c.tid[i])
+			Thing_Remove(c.tid[i]);
+		c.tid[i] = 0;
+		c.prey[i] = 0;
+		c.rest[i] = 0;
+	}
+	int n = Clamp_Between(GetSpellValue(pnum, SPL_CARRIONCROWS, SPELLVAL_AMOUNT) + GetSpellExtraProjectiles(pnum, SPL_CARRIONCROWS), 1, DND_CROWS_MAX);
+	int r = ScaleSpellArea(pnum, SPL_CARRIONCROWS, GetSpellValue(pnum, SPL_CARRIONCROWS, SPELLVAL_RADIUS) << 16);
+	int speed = SpellThresholdMet(pnum, SPL_CARRIONCROWS, DND_SPELL_THRESH_LOW) ? DND_CROWS_SPEED * DND_CROWS_R5_SPEED / 100 : DND_CROWS_SPEED;
+	int tics = GetSpellDurationTics(pnum, SPL_CARRIONCROWS), spin = 0, leech = 0, dealt;
+	bool heal = SpellThresholdMet(pnum, SPL_CARRIONCROWS, DND_SPELL_THRESH_HIGH);
+	for(i = 0; i < n; ++i) {
+		crow = ScratchTID();
+		a = (i * 1.0) / n;
+		if(SpawnForced("Spell_CarrionCrow", GetActorX(caster) + FixedMul(cos(a), DND_CROWS_ORBIT), GetActorY(caster) + FixedMul(sin(a), DND_CROWS_ORBIT),
+			GetActorZ(caster) + DND_CROWS_LIFT, crow, a >> 8))
+			c.tid[i] = crow;
+	}
+	PlaySound(caster, "UndeadSoul/See", CHAN_6);
+
+	for(int t = 0; t < tics && PlayerInGame(pnum) && IsActorAlive(caster) && CheckActorInventory(caster, "DnD_CrowsCast") == gen; ++t) {
+		spin = (spin + DND_CROWS_SPIN) % 1.0;
+		for(i = 0; i < n; ++i) {
+			crow = c.tid[i];
+			if(!crow)
+				continue;
+			m = c.prey[i];
+			if(m && (!IsActorAlive(m) || !IsSpellEnemy(m) || fdistance(caster, m) > r + 128.0))
+				m = c.prey[i] = 0;
+			if(c.rest[i] > 0) {
+				--c.rest[i];
+				m = 0;
+			}
+			else if(!m && !(t % 4))
+				m = c.prey[i] = PickCrowPrey(pnum, r, n);
+
+			if(m) {
+				if(fdistance(crow, m) - GetActorProperty(m, APROP_RADIUS) <= DND_CROWS_BITE) {
+					dealt = DealSpellBeamHit(pnum, SPL_CARRIONCROWS, m, 100);
+					if(heal && dealt > 0) {
+						leech += dealt * DND_CROWS_R10_LEECH;
+						if(leech >= 100) {
+							HealSpellAlly(pnum, leech / 100);
+							leech %= 100;
+						}
+					}
+					PlaySound(crow, "imp/melee", CHAN_BODY);
+					c.rest[i] = DND_CROWS_REST;
+				}
+				else
+					SteerCrow(crow, GetActorX(m), GetActorY(m), GetActorZ(m) + GetActorProperty(m, APROP_HEIGHT) * 2 / 3, speed);
+			}
+			else {
+				a = (spin + (i * 1.0) / n) % 1.0;
+				SteerCrow(crow, GetActorX(caster) + FixedMul(cos(a), DND_CROWS_ORBIT), GetActorY(caster) + FixedMul(sin(a), DND_CROWS_ORBIT),
+					GetActorZ(caster) + DND_CROWS_LIFT + random(-4.0, 4.0), speed);
+			}
+		}
+		Delay(const:1);
+	}
+	if(CheckActorInventory(caster, "DnD_CrowsCast") != gen)
+		Terminate;
+	for(i = 0; i < n; ++i) {
+		if(c.tid[i]) {
+			SetActorState(c.tid[i], "Vanish");
+			Thing_ChangeTID(c.tid[i], 0);
+		}
+		c.tid[i] = 0;
+	}
+}
+
+// ---- Nether Walk ----
+
+#define DND_NETHERWALK_CHEST 32.0        // the streak's height over the caster's feet
+#define DND_NETHERWALK_SAFE 6            // tics past the walk the caster stays unhittable
+
+// Every enemy the caster's body swept through, Static Wake's capsule, takes one hit of the walk.
+void NetherWalkPath(int pnum, int x0, int y0, int z0) {
+	int ptid = pnum + P_TIDSTART;
+	int dx = GetActorX(ptid) - x0, dy = GetActorY(ptid) - y0, len = VectorLength(dx, dy);
+	if(len < 1.0)
+		return;
+	int ux = FixedDiv(dx, len), uy = FixedDiv(dy, len), body = GetActorProperty(ptid, APROP_RADIUS);
+	int zlo = Min(z0, GetActorZ(ptid)), zhi = Max(z0, GetActorZ(ptid)) + GetActorProperty(ptid, APROP_HEIGHT);
+	int i, m, rx, ry, along, reach;
+	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+		m = UsedMonsterTIDs[i];
+		if(!IsActorAlive(m) || !IsSpellEnemy(m))
+			continue;
+		reach = body + GetActorProperty(m, APROP_RADIUS);
+		rx = GetActorX(m) - x0;
+		ry = GetActorY(m) - y0;
+		along = FixedMul(rx, ux) + FixedMul(ry, uy);
+		if(along < 0 || along > len + reach || abs(FixedMul(rx, uy) - FixedMul(ry, ux)) > reach)
+			continue;
+		if(GetActorZ(m) > zhi || GetActorZ(m) + GetActorProperty(m, APROP_HEIGHT) < zlo)
+			continue;
+		DealSpellBeamHit(pnum, SPL_NETHERWALK, m, 100);
+	}
+}
+
+// Rank 10: the walk's damage again round a point, every enemy in reach and in its sight.
+void NetherWalkBlast(int pnum, int x, int y, int z, int r) {
+	int probe = ScratchTID(), i, m;
+	if(!probe || !SpawnForced("MapSpot", x, y, z + 16.0, probe, 0))
+		return;
+	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+		m = UsedMonsterTIDs[i];
+		if(IsActorAlive(m) && IsSpellEnemy(m) && fdistance(probe, m) <= r && CheckSight(probe, m, CSF_NOBLOCKALL))
+			DealSpellBeamHit(pnum, SPL_NETHERWALK, m, 100, true);
+	}
+	Thing_Remove(probe);
+	ACS_NamedExecuteAlways("DnD Nether Walk Blast FX", 0, PackMapPair(x, y), z, r >> 16);
+}
+
+// Blink's one tic dash at the walk's length, unhittable from the press until just after it lands.
+Script "DnD Nether Walk" (int pnum) {
+	int ptid = pnum + P_TIDSTART;
+	int a = GetActorAngle(ptid), d = BlinkClearDistance(ptid, a, GetSpellValue(pnum, SPL_NETHERWALK, SPELLVAL_AMOUNT) << 16);
+	int x0 = GetActorX(ptid), y0 = GetActorY(ptid), z0 = GetActorZ(ptid);
+	int vx = GetActorVelX(ptid), vy = GetActorVelY(ptid);
+	bool protected = !!CheckActorInventory(ptid, "DnD_CountdownProtection");
+	bool far = SpellThresholdMet(pnum, SPL_NETHERWALK, DND_SPELL_THRESH_HIGH);
+	int r = far ? ScaleSpellArea(pnum, SPL_NETHERWALK, GetSpellValue(pnum, SPL_NETHERWALK, SPELLVAL_RADIUS) << 16) : 0;
+
+	// Rank 5: the energy shield's recovery starts now, as if out of combat.
+	if(SpellThresholdMet(pnum, SPL_NETHERWALK, DND_SPELL_THRESH_LOW)) {
+		SetActorInventory(ptid, "DnD_Hit_CombatTimer", 0);
+		SetActorInventory(ptid, "DnD_Hit_RegenTimer", 0);
+		GiveActorInventory(ptid, "EShieldChargeNow", 1);
+	}
+
+	GiveActorInventory(ptid, "DnD_CountdownProtection", 1);
+	GiveActorInventory(ptid, "AllowThruObjects", 1);
+	if(far)
+		NetherWalkBlast(pnum, x0, y0, z0, r);
+	SetActorVelocity(ptid, FixedMul(d, cos(a)), FixedMul(d, sin(a)), GetActorVelZ(ptid), false, false);
+	PlaySound(ptid, "Draugr/Fade", CHAN_7);
+	Delay(const:1);
+
+	SetActorVelocity(ptid, vx, vy, GetActorVelZ(ptid), false, false);
+	ACS_NamedExecuteAlways("DnD Nether Walk FX", 0, PackMapPair(x0, y0), PackMapPair(GetActorX(ptid), GetActorY(ptid)),
+		PackMapPair(z0 + DND_NETHERWALK_CHEST, GetActorZ(ptid) + DND_NETHERWALK_CHEST));
+	NetherWalkPath(pnum, x0, y0, z0);
+	if(far)
+		NetherWalkBlast(pnum, GetActorX(ptid), GetActorY(ptid), GetActorZ(ptid), r);
+
+	Delay(const:DND_NETHERWALK_SAFE);
+	if(!protected)
+		TakeActorInventory(ptid, "DnD_CountdownProtection", 1);
+	// A player turned solid inside a monster cannot move until it does, as Blink waits.
+	while(IsActorAlive(ptid) && BlinkOverlapsActor(ptid))
+		Delay(const:1);
+	if(IsActorAlive(ptid))
+		GiveActorInventory(ptid, "TakeThruObjects", 1);
+}
+
+// Client side: a smoky streak of shades along the walk and a puff at each end.
+Script "DnD Nether Walk FX" (int from_xy, int to_xy, int zz) CLIENTSIDE {
+	int x0 = from_xy << 16, y0 = from_xy & 0xFFFF0000, z0 = zz << 16;
+	int x1 = to_xy << 16, y1 = to_xy & 0xFFFF0000, z1 = zz & 0xFFFF0000;
+	int len = fdistance_delta(x1 - x0, y1 - y0, z1 - z0), n = Clamp_Between(len / 16.0, 1, 48);
+	Spawn("Spell_NetherWalk_Puff", x0, y0, z0);
+	Spawn("Spell_NetherWalk_Puff", x1, y1, z1);
+	for(int i = 0; i <= n; ++i) {
+		int f = (i * 1.0) / n;
+		Spawn("Spell_NetherWalk_Shade", x0 + FixedMul(x1 - x0, f), y0 + FixedMul(y1 - y0, f), z0 + FixedMul(z1 - z0, f) + random(-8.0, 8.0));
+	}
+	SetResultValue(0);
+}
+
+Script "DnD Nether Walk Blast FX" (int xy, int z, int r) CLIENTSIDE {
+	SpawnCurseRing("Spell_NetherWalk_Ring", xy << 16, xy & 0xFFFF0000, z, r << 16);
+	Spawn("Spell_NetherWalk_Burst", xy << 16, xy & 0xFFFF0000, z + 24.0);
+	SetResultValue(0);
+}
+
+// ---- Death and Decay ----
+
+#define DND_DEATHDECAY_PERIOD TICRATE    // its damage and its bill, once a second
+#define DND_DEATHDECAY_SLOW 33           // percent slower while channeling
+#define DND_DEATHDECAY_BUFFTICS 8        // the slow is refreshed for this long each tic
+#define DND_DEATHDECAY_ZONEZ 96.0        // how far above or below the zone an enemy still counts as in it
+
+// One second of the zone: every enemy inside loses DAMAGE percent (16.16) of its maximum life, bosses half, as magic
+// damage over time; priced, resisted, then capped at that share, as Implosion's is.
+void DeathAndDecayTick(int pnum, int cx, int cy, int cz, int r) {
+	int pct = GetSpellValue(pnum, SPL_DEATHANDDECAY, SPELLVAL_DAMAGE), i, m, m_id, dmg, share;
+	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+		m = UsedMonsterTIDs[i];
+		if(!IsActorAlive(m) || !IsSpellEnemy(m) || VectorLength(GetActorX(m) - cx, GetActorY(m) - cy) > r || abs(GetActorZ(m) - cz) > DND_DEATHDECAY_ZONEZ)
+			continue;
+		m_id = m - DND_MONSTERTID_BEGIN;
+		share = FixedMul(MonsterProperties[m_id].maxhp, pct) / 100;
+		if(IsMonsterIdBoss(MonsterProperties[m_id].id))
+			share /= 2;
+		share = Max(1, share);
+		dmg = HandleDamageDeal(pnum + P_TIDSTART, m, PriceSpellDamage(pnum, SPL_DEATHANDDECAY, share, 0, true, m), DND_DAMAGETYPE_OCCULT, SPL_DEATHANDDECAY,
+			DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_ISDAMAGEOVERTIME | DND_ACTORFLAG_PAINLESS, true);
+		dmg = Min(dmg, share);
+		if(dmg > 0)
+			Thing_Damage2(m, dmg, "Special_NoPain");
+	}
+}
+
+// Held: a zone at the aim, paid and dealt each second up to the duration, the caster slowed throughout.
+Script "DnD Death And Decay" (int pnum) {
+	int caster = pnum + P_TIDSTART;
+	if(!PickSpellZone(pnum, DND_SPELL_HITSCANRANGE)) {
+		for(int w = 0; !ReadSpellAim(pnum) && w < DND_SPELLAIM_WAIT; ++w)
+			Delay(const:1);
+		if(!SpellAimReady(pnum) || !PlayerInGame(pnum) || !IsActorAlive(caster))
+			Terminate;
+	}
+	auto aim = GetSpellAim();
+	int cx = aim.x[pnum], cy = aim.y[pnum], cz = aim.z[pnum];
+	int tid = ScratchTID();
+	if(tid && SpawnForced("Spell_DeathAndDecayZone", cx, cy, cz, tid, 0))
+		SetActorPosition(tid, cx, cy, GetActorFloorZ(tid), false);
+	cz = tid ? GetActorZ(tid) : cz;
+	int r = ScaleSpellArea(pnum, SPL_DEATHANDDECAY, GetSpellValue(pnum, SPL_DEATHANDDECAY, SPELLVAL_RADIUS) << 16);
+	int tics = GetSpellDurationTics(pnum, SPL_DEATHANDDECAY);
+	if(tid)
+		SetActorProperty(tid, APROP_SCALEX, FixedDiv(r, 64.0));
+	ACS_NamedExecuteAlways("DnD Death And Decay FX", 0, tid, r >> 16);
+	BeginSpellBusy(pnum);
+	bool held = false;
+	for(int t = 0; t < tics; ++t) {
+		if(!PlayerInGame(pnum) || !IsActorAlive(caster) || IsPlayerSilenced(pnum))
+			break;
+		if(IsChannelHeld())
+			held = true;
+		else if(held || t >= DND_CHANNEL_GRACE)
+			break;
+		if(!(t % DND_DEATHDECAY_PERIOD)) {
+			if(!PayChannelTick(pnum, SPL_DEATHANDDECAY, !t))
+				break;
+			DeathAndDecayTick(pnum, cx, cy, cz, r);
+		}
+		HandlePlayerBuffAssignment(pnum, caster, BTI_SPELL_ANNIHILUS_SLOW, 0, 0, DND_DEATHDECAY_BUFFTICS, DND_DEATHDECAY_SLOW);
+		Delay(const:1);
+	}
+	EndSpellBusy(pnum);
+	if(tid) {
+		SetActorState(tid, "Vanish");
+		Thing_ChangeTID(tid, 0);
+	}
+}
+
+// Client side: rising wisps of death across the zone while it stands.
+Script "DnD Death And Decay FX" (int tid, int r) CLIENTSIDE {
+	r <<= 16;
+	while(tid && !(ClassifyActor(tid) & ACTOR_WORLD) && GetActorProperty(tid, APROP_ALPHA) > 0.2) {
+		for(int i = 0; i < 3; ++i) {
+			int a = random(0, 1.0), d = FixedMul(r, fsqrt(random(0, 1.0)));
+			Spawn("Spell_DeathAndDecayWisp", GetActorX(tid) + FixedMul(cos(a), d), GetActorY(tid) + FixedMul(sin(a), d), GetActorZ(tid) + 4.0);
+		}
+		Delay(const:3);
+	}
+	SetResultValue(0);
+}
+
+// ---- Plague ----
+
+#define DND_PLAGUE_MAXPOT 200            // a spread chain's potency stops at twice the cast's
+#define DND_PLAGUE_MOTERATE 3            // tics between a plagued enemy's rising motes
+#define DND_PLAGUE_TRAILSTEP 16.0        // a spread's trail of motes, one this often along it
+
+// Plague on one enemy: the stronger tick and the longer clock win; the half-second count is set here, so a spread sees it at once.
+void ApplyPlague(int pnum, int victim, int base, int pot) {
+	int ticks = (GetSpellValue(pnum, SPL_PLAGUE, SPELLVAL_DURATION) * 2 + 0.5) >> 16;
+	if(ticks <= 0)
+		return;
+	if(base * pot > CheckActorInventory(victim, "DnD_PlagueBase") * CheckActorInventory(victim, "DnD_PlaguePotency")) {
+		SetActorInventory(victim, "DnD_PlagueBase", base);
+		SetActorInventory(victim, "DnD_PlaguePotency", pot);
+		SetActorInventory(victim, "DnD_PlagueOwner", pnum + 1);
+	}
+	if(CheckActorInventory(victim, "DnD_PlagueTimer") < ticks)
+		SetActorInventory(victim, "DnD_PlagueTimer", ticks);
+	ACS_NamedExecuteAlways("DnD Plague FX", 0, victim, ticks * TICRATE / 2);
+
+	// One ticker per enemy, owned by this refcount rather than the timer, as Blaze's is.
+	if(!CheckActorInventory(victim, "DnD_PlagueScripts")) {
+		GiveActorInventory(victim, "DnD_PlagueScripts", 1);
+		ACS_NamedExecuteAlways("DnD Plague", 0, victim);
+	}
+}
+
+// The host died with it: the nearest unplagued enemies in reach catch it, each spread AMOUNT percent stronger, up to MAXPOT.
+void SpreadPlague(int pnum, int hx, int hy, int hz, int base, int pot) {
+	int r = ScaleSpellArea(pnum, SPL_PLAGUE, GetSpellValue(pnum, SPL_PLAGUE, SPELLVAL_RADIUS) << 16);
+	int n = Max(1, GetSpellValue(pnum, SPL_PLAGUE, SPELLVAL_AMOUNT2));
+	pot = Min(DND_PLAGUE_MAXPOT, pot * (100 + GetSpellValue(pnum, SPL_PLAGUE, SPELLVAL_AMOUNT)) / 100);
+	for(int k = 0; k < n; ++k) {
+		int best = 0, bestd = r + 1;
+		for(int i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+			int m = UsedMonsterTIDs[i];
+			if(!m || !IsActorAlive(m) || !IsSpellEnemy(m) || CheckActorInventory(m, "DnD_PlagueTimer"))
+				continue;
+			int d = fdistance_delta(GetActorX(m) - hx, GetActorY(m) - hy, GetActorZ(m) + GetActorProperty(m, APROP_HEIGHT) / 2 - hz);
+			if(d < bestd) {
+				best = m;
+				bestd = d;
+			}
+		}
+		if(!best)
+			break;
+		ACS_NamedExecuteWithResult("DnD Plague Spread FX", hx >> 16, hy >> 16, hz >> 16, best);
+		ApplyPlague(pnum, best, base, pot);
+	}
+}
+
+// Every half second (17 and 18 tics in turn). A death between ticks or in the last half second still spreads it.
+Script "DnD Plague" (int victim) {
+	int t = 0, hx = GetActorX(victim), hy = GetActorY(victim), hz = GetActorZ(victim);
+	bool spread = false;
+	while(CheckActorInventory(victim, "DnD_PlagueTimer") > 0) {
+		if(!IsActorAlive(victim)) {
+			spread = true;
+			break;
+		}
+		hx = GetActorX(victim);
+		hy = GetActorY(victim);
+		hz = GetActorZ(victim) + GetActorProperty(victim, APROP_HEIGHT) / 2;
+
+		// SHOOTABLE excludes a monster mid teleport, as Blaze's burn does. The tick never crits: ISDAMAGEOVERTIME.
+		int pnum = CheckActorInventory(victim, "DnD_PlagueOwner") - 1;
+		if(CheckFlag(victim, "SHOOTABLE") && pnum >= 0 && PlayerInGame(pnum)) {
+			int dmg = CheckActorInventory(victim, "DnD_PlagueBase") * CheckActorInventory(victim, "DnD_PlaguePotency") / 100;
+			dmg = PriceSpellDamage(pnum, SPL_PLAGUE, dmg, 0, true, victim);
+			dmg = HandleDamageDeal(pnum + P_TIDSTART, victim, dmg,
+				DND_DAMAGETYPE_OCCULT, SPL_PLAGUE, DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_NOPUSH,
+				0, 0, 0, DND_ACTORFLAG_ISDAMAGEOVERTIME | DND_ACTORFLAG_PAINLESS, true);
+			if(dmg > 0)
+				Thing_Damage2(victim, dmg, "Special_NoPain");
+			if(!IsActorAlive(victim)) {
+				spread = true;
+				break;
+			}
+		}
+
+		Delay(17 + (t++ & 1));
+		TakeActorInventory(victim, "DnD_PlagueTimer", 1);
+	}
+	if(!IsActorAlive(victim))
+		spread = true;
+
+	int owner = CheckActorInventory(victim, "DnD_PlagueOwner") - 1;
+	int base = CheckActorInventory(victim, "DnD_PlagueBase"), pot = CheckActorInventory(victim, "DnD_PlaguePotency");
+	TakeActorInventory(victim, "DnD_PlagueScripts", 1);
+	SetActorInventory(victim, "DnD_PlagueTimer", 0);
+	SetActorInventory(victim, "DnD_PlagueBase", 0);
+	SetActorInventory(victim, "DnD_PlaguePotency", 0);
+	SetActorInventory(victim, "DnD_PlagueOwner", 0);
+
+	if(spread && owner >= 0 && PlayerInGame(owner))
+		SpreadPlague(owner, hx, hy, hz, base, pot);
+}
+
+// Client side: a sickly burst as it lands, then motes rising off the enemy while it lasts.
+Script "DnD Plague FX" (int victim, int tics) CLIENTSIDE {
+	bool running = !!CheckActorInventory(victim, "DnD_PlagueFXTimer");
+	if(CheckActorInventory(victim, "DnD_PlagueFXTimer") < tics)
+		SetActorInventory(victim, "DnD_PlagueFXTimer", tics);
+	if(running)
+		Terminate;
+
+	int h = GetActorProperty(victim, APROP_HEIGHT), rad = GetActorProperty(victim, APROP_RADIUS);
+	SpawnForced("Spell_Plague_Burst", GetActorX(victim), GetActorY(victim), GetActorZ(victim) + h / 2, 0, 0);
+	for(int t = 0; CheckActorInventory(victim, "DnD_PlagueFXTimer") && IsActorAlive(victim); ++t) {
+		if(!(t % DND_PLAGUE_MOTERATE))
+			SpawnForced("Spell_Plague_Mote", GetActorX(victim) + random(-rad, rad), GetActorY(victim) + random(-rad, rad),
+				GetActorZ(victim) + random(h / 4, h), 0, 0);
+		TakeActorInventory(victim, "DnD_PlagueFXTimer", 1);
+		Delay(const:1);
+	}
+	SetActorInventory(victim, "DnD_PlagueFXTimer", 0);
+}
+
+// Client side: a trail of motes from the dead host to the enemy that caught it.
+Script "DnD Plague Spread FX" (int hx, int hy, int hz, int to) CLIENTSIDE {
+	int x = hx << 16, y = hy << 16, z = hz << 16;
+	int dx = GetActorX(to) - x, dy = GetActorY(to) - y, dz = GetActorZ(to) + GetActorProperty(to, APROP_HEIGHT) / 2 - z;
+	int len = fdistance_delta(dx, dy, dz);
+	int n = Max(1, FixedDiv(len, DND_PLAGUE_TRAILSTEP) >> 16);
+	for(int i = 0; i <= n; ++i)
+		SpawnForced("Spell_Plague_Mote", x + dx * i / n, y + dy * i / n, z + dz * i / n, 0, 0);
+	SetResultValue(0);
+}
+
+// The enemy under the crosshair or nearest it, past any pet in the way, found without a damaging trace: the ticks are its only damage.
+void CastPlague(int pnum) {
+	int target = GetSpellEnemyTarget(pnum, DND_SPELL_HITSCANRANGE);
+	if(!target)
+		return;
+	PlaySound(target, "NoxiousBlast/Burst", CHAN_BODY);
+	ApplyPlague(pnum, target, GetSpellValue(pnum, SPL_PLAGUE, SPELLVAL_DAMAGE), 100);
+}
+
+// ---- Essence Theft ----
+
+#define DND_ESSENCE_SPEED 40
+#define DND_ESSENCE_R10_PACIFY (3 * TICRATE)    // rank 10: the enemy hit cannot attack for this long
+#define DND_ESSENCE_MOTERATE 4                  // tics between the motes drawn off a drained enemy
+
+// The theft on one enemy: the stronger tick and the longer clock win, one ticker per enemy, as Plague's.
+// tick_at: a Contagion spread's tick, the dead host's own.
+void ApplyEssenceTheft(int pnum, int victim, int tick_at = 0) {
+	int ticks = (GetSpellValue(pnum, SPL_ESSENCETHEFT, SPELLVAL_DURATION) * 2 + 0.5) >> 16;
+	// DAMAGE is spread over the row's own half seconds; duration gear adds more at the same rate.
+	int halves = Max(1, (SpellDefs[SPL_ESSENCETHEFT].base[SPELLVAL_DURATION] * 2) >> 16);
+	int tick = tick_at ? tick_at : GetSpellValue(pnum, SPL_ESSENCETHEFT, SPELLVAL_DAMAGE) / halves;
+	if(ticks <= 0 || tick <= 0)
+		return;
+	if(tick >= CheckActorInventory(victim, "DnD_EssenceTick")) {
+		SetActorInventory(victim, "DnD_EssenceTick", tick);
+		SetActorInventory(victim, "DnD_EssenceOwner", pnum + 1);
+	}
+	if(CheckActorInventory(victim, "DnD_EssenceTimer") < ticks)
+		SetActorInventory(victim, "DnD_EssenceTimer", ticks);
+	ACS_NamedExecuteAlways("DnD Essence Theft FX", 0, victim, ticks * TICRATE / 2);
+
+	if(!CheckActorInventory(victim, "DnD_EssenceScripts")) {
+		GiveActorInventory(victim, "DnD_EssenceScripts", 1);
+		ACS_NamedExecuteAlways("DnD Essence Theft", 0, victim);
+	}
+}
+
+// The missile's tracer is what it struck (HITTRACER); it carries no hit damage, the theft is all of it.
+Script "DnD Essence Theft Hit" (void) {
+	int pnum = GetSpellActorOwner();
+	if(pnum != -1 && SetActivator(0, AAPTR_TRACER)) {
+		int victim = ActivatorTID();
+		if(IsMonster(victim) && IsActorAlive(victim) && IsSpellEnemy(victim)) {
+			ApplyEssenceTheft(pnum, victim);
+			if(SpellThresholdMet(pnum, SPL_ESSENCETHEFT, DND_SPELL_THRESH_HIGH))
+				PacifyMonster(victim, ScaleSpellEffectTics(pnum, SPL_ESSENCETHEFT, DND_ESSENCE_R10_PACIFY));
+		}
+	}
+	SetResultValue(0);
+}
+
+// Every half second (17 and 18 tics in turn), first tick at once; AMOUNT percent of what the enemy lost heals its owner.
+Script "DnD Essence Theft" (int victim) {
+	int t = 0;
+	while(CheckActorInventory(victim, "DnD_EssenceTimer") > 0 && IsActorAlive(victim)) {
+		// SHOOTABLE excludes a monster mid teleport, as Plague's tick does. Never crits: ISDAMAGEOVERTIME.
+		int pnum = CheckActorInventory(victim, "DnD_EssenceOwner") - 1;
+		if(CheckFlag(victim, "SHOOTABLE") && pnum >= 0 && PlayerInGame(pnum)) {
+			int hp = GetActorProperty(victim, APROP_HEALTH);
+			int dmg = PriceSpellDamage(pnum, SPL_ESSENCETHEFT, CheckActorInventory(victim, "DnD_EssenceTick"), 0, true, victim);
+			dmg = HandleDamageDeal(pnum + P_TIDSTART, victim, dmg,
+				DND_DAMAGETYPE_OCCULT, SPL_ESSENCETHEFT, DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_NOPUSH,
+				0, 0, 0, DND_ACTORFLAG_ISDAMAGEOVERTIME | DND_ACTORFLAG_PAINLESS, true);
+			if(dmg > 0) {
+				Thing_Damage2(victim, dmg, "Special_NoPain");
+				int heal = Min(dmg, hp) / 100 * GetSpellValue(pnum, SPL_ESSENCETHEFT, SPELLVAL_AMOUNT) +
+					Min(dmg, hp) % 100 * GetSpellValue(pnum, SPL_ESSENCETHEFT, SPELLVAL_AMOUNT) / 100;
+				heal = ApplySpellGemMore(pnum, SPL_ESSENCETHEFT, GEMSTAT_MORE_HEALING, heal);
+				if(heal > 0 && IsActorAlive(pnum + P_TIDSTART))
+					HealSpellAlly(pnum, heal);
+			}
+		}
+
+		Delay(17 + (t++ & 1));
+		TakeActorInventory(victim, "DnD_EssenceTimer", 1);
+	}
+
+	TakeActorInventory(victim, "DnD_EssenceScripts", 1);
+	SetActorInventory(victim, "DnD_EssenceTimer", 0);
+	SetActorInventory(victim, "DnD_EssenceTick", 0);
+	SetActorInventory(victim, "DnD_EssenceOwner", 0);
+}
+
+// Client side: dark motes drawn up off the drained enemy while it lasts.
+Script "DnD Essence Theft FX" (int victim, int tics) CLIENTSIDE {
+	bool running = !!CheckActorInventory(victim, "DnD_EssenceFXTimer");
+	if(CheckActorInventory(victim, "DnD_EssenceFXTimer") < tics)
+		SetActorInventory(victim, "DnD_EssenceFXTimer", tics);
+	if(running)
+		Terminate;
+
+	int h = GetActorProperty(victim, APROP_HEIGHT), rad = GetActorProperty(victim, APROP_RADIUS);
+	for(int t = 0; CheckActorInventory(victim, "DnD_EssenceFXTimer") && IsActorAlive(victim); ++t) {
+		if(!(t % DND_ESSENCE_MOTERATE))
+			SpawnForced("Spell_Essence_Mote", GetActorX(victim) + random(-rad, rad), GetActorY(victim) + random(-rad, rad),
+				GetActorZ(victim) + random(h / 4, h), 0, 0);
+		TakeActorInventory(victim, "DnD_EssenceFXTimer", 1);
+		Delay(const:1);
+	}
+	SetActorInventory(victim, "DnD_EssenceFXTimer", 0);
+}
+
+// ---- Dark Wind ----
+
+#define DND_DARKWIND_SPEED 12
+#define DND_DARKWIND_PULSE 5            // tics between its blasts; mirrors DARKWIND_PULSE in DarkWind.dec
+#define DND_DARKWIND_Z 24.0             // flown level this high off the caster's feet
+
+// One wind per cast, plus one per "+X projectiles", fanned. Its life is counted in blasts; rank 5's bounces off walls.
+// origin: a Ghast throwing its owner's Dark Wind from itself, at rank 1 when the owner never learned it.
+void CastDarkWind(int pnum, int origin = 0) {
+	int at = GetSpellRank(pnum, SPL_DARKWIND, true) ? 0 : 1;
+	int life = Max(1, ((GetSpellValue(pnum, SPL_DARKWIND, SPELLVAL_DURATION, at) * TICRATE) >> 16) / DND_DARKWIND_PULSE);
+	str cls = SpellThresholdMet(pnum, SPL_DARKWIND, DND_SPELL_THRESH_LOW) ? "Spell_DarkWind_Bounce" : "Spell_DarkWind";
+	int n = 1 + GetSpellExtraProjectiles(pnum, SPL_DARKWIND);
+	for(int i = 0; i < n; ++i)
+		SpawnSpellProjectile(pnum, SPL_DARKWIND, cls, DND_DARKWIND_SPEED, 0, FanOffset(i, DND_SPELL_FANSPREAD), 0, life, origin, true, DND_DARKWIND_Z,
+			0, -1, 0, MAX_RIPCOUNT, at);
+}
+
+// ---- Finger of Death ----
+
+#define DND_FINGER_RANGE 2048.0
+#define DND_FINGER_MAXHITS 16           // rank 5: how many enemies one bolt passes through
+#define DND_FINGER_ZOFF 15.0            // the bolt leaves this far under the eye
+#define DND_FINGER_SPARKSTEP 12.0       // client side: a spark this often along the bolt
+
+typedef struct {
+	int count;
+	int hit[DND_FINGER_MAXHITS];
+	int ex, ey, ez;
+} fingerbolt_T;
+
+fingerbolt_T module& GetFingerBolt() {
+	static fingerbolt_T f;
+	return f;
+}
+
+// One bolt from the caster's hands: a ruler trace, and at rank 5 re-traced from just past each enemy it meets. The end
+// point is where it stopped: a wall, the range, or (below rank 5) the first enemy.
+void TraceFingerBolt(int pnum, int a, int p, bool pierce) {
+	fingerbolt_T module& fb = GetFingerBolt();
+	int caster = pnum + P_TIDSTART, helper = PROJECTILE_HELPER_TID + pnum, puff = TEMPORARY_SPELL_TID + pnum;
+	int fx = FixedMul(cos(a), cos(p)), fy = FixedMul(sin(a), cos(p)), fz = -sin(p);
+	int nose = GetActorProperty(caster, APROP_RADIUS) + 8.0;
+	int ox = GetActorX(caster) + FixedMul(nose, fx), oy = GetActorY(caster) + FixedMul(nose, fy);
+	int oz = GetActorZ(caster) + GetActorViewHeight(caster) - DND_FINGER_ZOFF + FixedMul(nose, fz);
+	int len = DND_FINGER_RANGE - nose, gone = 0, v, step, i;
+
+	fb.count = 0;
+	fb.ex = ox + FixedMul(len, fx);
+	fb.ey = oy + FixedMul(len, fy);
+	fb.ez = oz + FixedMul(len, fz);
+	for(i = 0; i < DND_FINGER_MAXHITS; ++i) {
+		if(!SpawnForced("Spell_TraceHelper", ox, oy, oz, helper, 0))
+			return;
+		SetActorAngle(helper, a);
+		SetActorPitch(helper, p);
+		LineAttack(helper, a, p, 0, "Spell_ScorchRayPuff", "None", len - gone, FHF_NORANDOMPUFFZ | FHF_NOIMPACTDECAL, puff);
+		v = FindHitscanVictim(puff);
+		if(ThingCount(T_NONE, puff)) {
+			fb.ex = GetActorX(puff);
+			fb.ey = GetActorY(puff);
+			fb.ez = GetActorZ(puff);
+		}
+		// Released, not removed: the engine still holds them as this tic's shot.
+		Thing_ChangeTID(puff, 0);
+		Thing_ChangeTID(helper, 0);
+		if(!v)
+			return;
+
+		fb.hit[fb.count++] = v;
+		if(!pierce)
+			return;
+
+		// Resume past the enemy's far side: its centre's distance along the bolt, plus its radius.
+		step = Max(8.0, FixedMul(GetActorX(v) - ox, fx) + FixedMul(GetActorY(v) - oy, fy) +
+			FixedMul(GetActorZ(v) + GetActorProperty(v, APROP_HEIGHT) / 2 - oz, fz) + GetActorProperty(v, APROP_RADIUS) + 8.0);
+		gone += step;
+		if(gone >= len)
+			return;
+		ox += FixedMul(step, fx);
+		oy += FixedMul(step, fy);
+		oz += FixedMul(step, fz);
+		// the trace stopped on the enemy, so the bolt's end is past it now
+		fb.ex = ox + FixedMul(len - gone, fx);
+		fb.ey = oy + FixedMul(len - gone, fy);
+		fb.ez = oz + FixedMul(len - gone, fz);
+	}
+}
+
+// One bolt per cast, plus one per "+X projectiles", fanned. Rank 10's bolts meet no resistance or immunity.
+void CastFingerOfDeath(int pnum) {
+	int caster = pnum + P_TIDSTART, a = GetActorAngle(caster), p = GetActorPitch(caster);
+	bool pierce = SpellThresholdMet(pnum, SPL_FINGEROFDEATH, DND_SPELL_THRESH_LOW);
+	int flags = SpellThresholdMet(pnum, SPL_FINGEROFDEATH, DND_SPELL_THRESH_HIGH) ? DND_DAMAGEFLAG_DOFULLDAMAGE : 0;
+	int n = 1 + GetSpellExtraProjectiles(pnum, SPL_FINGEROFDEATH), hx, hy, hz, i, k;
+	fingerbolt_T module& fb = GetFingerBolt();
+
+	PlaySound(caster, "ChainLightning/Cast", CHAN_6);
+	for(i = 0; i < n; ++i) {
+		int ba = (a + FanOffset(i, DND_SPELL_FANSPREAD) + 1.0) % 1.0;
+		TraceFingerBolt(pnum, ba, p, pierce);
+		hx = GetActorX(caster) + FixedMul(DND_BEAM_HANDS, cos(ba));
+		hy = GetActorY(caster) + FixedMul(DND_BEAM_HANDS, sin(ba));
+		hz = GetActorZ(caster) + GetActorViewHeight(caster) - DND_BEAM_DROP;
+		ACS_NamedExecuteAlways("DnD Finger of Death FX", 0, PackMapPair(hx, hy), PackMapPair(fb.ex, fb.ey), PackMapPair(hz, fb.ez));
+		for(k = 0; k < fb.count; ++k) {
+			DealSpellBeamHit(pnum, SPL_FINGEROFDEATH, fb.hit[k], 100, false, flags);
+			PlaySound(fb.hit[k], "ForkedLightning/Hit", CHAN_7);
+		}
+	}
+}
+
+// Client side: red sparks strung along the bolt and a burst where it ends. Each argument is a packed pair.
+Script "DnD Finger of Death FX" (int from_xy, int to_xy, int zz) CLIENTSIDE {
+	int x0 = from_xy << 16, y0 = from_xy & 0xFFFF0000, z0 = zz << 16;
+	int dx = (to_xy << 16) - x0, dy = (to_xy & 0xFFFF0000) - y0, dz = (zz & 0xFFFF0000) - z0;
+	int n = Max(1, FixedDiv(fdistance_delta(dx, dy, dz), DND_FINGER_SPARKSTEP) >> 16);
+	for(int i = 0; i <= n; ++i)
+		Spawn("Spell_FingerOfDeath_Spark", x0 + dx / n * i, y0 + dy / n * i, z0 + dz / n * i);
+	Spawn("Spell_FingerOfDeath_Burst", x0 + dx, y0 + dy, z0 + dz);
+}
+
+// ---- Implosion ----
+
+#define DND_IMPLOSION_SPEED 30
+#define DND_IMPLOSION_R5_SPEED 45       // rank 5: 50% faster
+#define DND_IMPLOSION_R10_MANA 2        // rank 10: percent of the damage dealt returned as mana
+
+void CastImplosion(int pnum) {
+	SpawnSpellFan(pnum, SPL_IMPLOSION, "Spell_Implosion",
+		SpellThresholdMet(pnum, SPL_IMPLOSION, DND_SPELL_THRESH_LOW) ? DND_IMPLOSION_R5_SPEED : DND_IMPLOSION_SPEED);
+}
+
+// The needle's tracer is what it struck. A share of the CURRENT health, through magic resistance but none of the spell
+// damage increases, and never below 1% of its maximum.
+Script "DnD Implosion Hit" (void) {
+	int pnum = GetSpellActorOwner();
+	if(pnum == -1 || !SetActivator(0, AAPTR_TRACER)) {
+		SetResultValue(0);
+		Terminate;
+	}
+	int victim = ActivatorTID();
+	if(IsMonster(victim) && IsActorAlive(victim) && IsSpellEnemy(victim)) {
+		int hp = GetActorProperty(victim, APROP_HEALTH);
+		int floor = Max(1, MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp / 100);
+		int share = FixedMul(hp, GetSpellValue(pnum, SPL_IMPLOSION, SPELLVAL_DAMAGE)) / 100;
+		int dmg = HandleDamageDeal(pnum + P_TIDSTART, victim, PriceSpellDamage(pnum, SPL_IMPLOSION, share, 0, false, victim), DND_DAMAGETYPE_OCCULT,
+			SPL_IMPLOSION, DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, 0, true);
+		// Spell damage gear only wins back what resistance took: never past the share, never below the floor.
+		dmg = Min(Min(dmg, share), hp - floor);
+		if(dmg > 0) {
+			Thing_Damage2(victim, dmg, "SkipHandle");
+			if(SpellThresholdMet(pnum, SPL_IMPLOSION, DND_SPELL_THRESH_HIGH))
+				GiveMana(pnum, dmg / 100 * DND_IMPLOSION_R10_MANA + dmg % 100 * DND_IMPLOSION_R10_MANA / 100);
+		}
+	}
+	SetResultValue(0);
+}
+
+// ---- Summon: Zombie ----
+
+#define DND_ZOMBIE_DIST 56
+#define DND_ZOMBIE_R10_RES 15            // rank 10's resist to everything, in InitPetResists
+
+// Every zombie, cast or raised by the GraveCaller charm, takes Summon: Zombie's numbers at this rank: 1 if not learned.
+int GetZombieRank(int pnum) {
+	return Max(1, GetSpellRank(pnum, SPL_ZOMBIE, true));
+}
+
+// Rank 5's faster swing is its own class: a jump in the Melee state would be skipped on clients.
+str GetZombieClass(int pnum) {
+	return SpellThresholdMet(pnum, SPL_ZOMBIE, DND_SPELL_THRESH_LOW) ? "Spell_ZombieHaste" : "Spell_Zombie";
+}
+
+// A zombie just spawned on tid: its health before its first tic ("DnD Pet Monster Scale" levels up from it), its master, the cap point.
+void SetupZombiePet(int pnum, int tid) {
+	int caster = pnum + P_TIDSTART;
+	SetActorProperty(tid, APROP_HEALTH, Max(1, ApplySpellGemMore(pnum, SPL_ZOMBIE, GEMSTAT_MORE_MINIONLIFE,
+		GetSpellValue(pnum, SPL_ZOMBIE, SPELLVAL_DAMAGE, GetZombieRank(pnum)))));
+	SetActorProperty(tid, APROP_MASTERTID, caster);
+	SetActivator(tid);
+	SetPointer(AAPTR_MASTER, caster);
+	SetActorProperty(0, APROP_FRIENDLY, true);
+	ClaimPetSlot(caster, MONSTER_PET_ZOMBIE);
+
+	GiveActorInventory(caster, "PetCounter", 1);
+	SetActivator(caster);
+	ACS_NamedExecuteAlways("DnD On Pet Summon", 0);
+}
+
+// Any number of zombies up to the pet cap. A full cap gives up its oldest zombie first, so a cheap one never costs a golem.
+Script "DnD Summon Zombie" (int pnum) {
+	int caster = pnum + P_TIDSTART;
+	if(!MakeRoomForPet(pnum, MONSTER_PET_ZOMBIE, GetSummonKindCap(pnum, SPL_ZOMBIE), true))
+		Terminate;
+
+	int tid = TEMPORARY_PET_TID + pnum;
+	if(!SpawnSummonNear(GetZombieClass(pnum), caster, tid, DND_ZOMBIE_DIST))
+		Terminate;
+	SetActorPosition(tid, GetActorX(tid), GetActorY(tid), GetActorFloorZ(tid), false);
+	SetupZombiePet(pnum, tid);
+	ApplyPortalBoon(pnum, tid);
+	PlaySound(caster, "ZombieFodder/sight", CHAN_6);
+}
+
+// Each hit rolls between the two melee rows, then takes the pet damage scaling.
+Script "DnD Spell Zombie Melee" (void) {
+	int pnum = GetActorProperty(0, APROP_MASTERTID) - P_TIDSTART;
+	if(pnum < 0 || pnum >= MAXPLAYERS) {
+		SetResultValue(0);
+		Terminate;
+	}
+	int r = GetZombieRank(pnum), lo = GetSpellValue(pnum, SPL_ZOMBIE, SPELLVAL_DAMAGE2MIN, r);
+	SetResultValue(ACS_NamedExecuteWithResult("DND Pet Monster Damage Scale", random(lo, Max(lo, GetSpellValue(pnum, SPL_ZOMBIE, SPELLVAL_DAMAGE2, r))), 0, 0));
+}
+
+// ---- Black summons: shared ----
+
+#define DND_SKELETON_DIST 56
+#define DND_SKELETONMAGE_CHANCE 30       // rank 10: percent of skeletons that rise as mages
+#define DND_SKELETONMAGE_MORE 10         // and a mage's more damage
+#define DND_SKELETONMAGE_LESSHP 25       // and its less health
+#define DND_SKELETON_R5_BLOCK 25         // rank 5: percent chance, once hurt, to block the next hit
+#define DND_SKELETONMAGE_CHEST 40.0      // how high off its feet a mage's spell leaves
+#define DND_GHAST_DIST 64
+#define DND_GHAST_CASTS 2                // Dark Winds before it rests
+#define DND_GHAST_REST (8 * TICRATE)
+#define DND_GHAST_R10_REST (5 * TICRATE)
+#define DND_GHAST_SHIFT 18               // rank 5: tics it cannot be hit
+#define DND_GHAST_SHIFTCD (3 * TICRATE)  // and the least time between shifts
+#define DND_SLAYER_DIST 72
+#define DND_SLAYER_COUNTERCD (2 * TICRATE)   // rank 5: least time between counter attacks
+#define DND_SLAYER_COUNTERSAFE 12        // and the tics it cannot be hurt after one
+#define DND_SLAYER_WAVE 160.0            // rank 10: the slashing wave's reach
+#define DND_SLAYER_WAVEARC 0.17          // and its half arc, a turn fraction (about 60 degrees)
+#define DND_DOOMGUARD_DIST 80
+#define DND_DOOMGUARD_CLEAVE 112.0       // its arc melee's reach
+#define DND_DOOMGUARD_CLEAVEARC 0.125    // and half arc (45 degrees)
+#define DND_DOOMGUARD_STOMP 192.0        // rank 5: War Stomp's reach
+#define DND_DOOMGUARD_STOMPTICS 88       // and its stun, 2.5 seconds
+#define DND_DOOMGUARD_STOMPCD (10 * TICRATE)
+#define DND_DOOMGUARD_CURSECD (30 * TICRATE)  // rank 10
+#define DND_PORTAL_DIST 96
+#define DND_PORTALBOON_SPEED 1           // the boon's bits, on the minion's DnD_PortalBoon
+#define DND_PORTALBOON_RESIST 2
+#define DND_DARKPORTAL_R5_SPEED 25       // percent increased movement speed
+#define DND_DARKPORTAL_R10_RES 25        // resist to everything, in InitPetResists
+
+// Mirrors MINIONHIT_* in Pets.dec: which row a minion's hit reads.
+enum {
+	DND_MINIONHIT_SKELETON,
+	DND_MINIONHIT_SLAYERMELEE,
+	DND_MINIONHIT_SLAYERFLAME,
+	DND_MINIONHIT_DOOMMELEE,
+	DND_MINIONHIT_METEOR,
+	DND_MINIONHIT_METEORBLAST
+};
+
+// Tics a timed summon lives, 0 for none: no duration row, or a mastery's rank 5 takes it away (never the portal's).
+// Spell and minion duration are both "increased", so they add before it scales; a portal's boon is "more".
+int GetMinionLifeTics(int pnum, int spell, int rank, int portal_more = 0) {
+	if(spell < 0 || !(SpellDefs[spell].flags & SPLF_DURATION))
+		return 0;
+	if(spell != SPL_DARKPORTAL && (SpellThresholdMet(pnum, SPL_SUMMONMASTERY, DND_SPELL_THRESH_LOW) ||
+		(spell == SPL_SKELETON && SpellThresholdMet(pnum, SPL_SKELETONMASTERY, DND_SPELL_THRESH_LOW))))
+		return 0;
+	int s = PlayerModData[pnum].vals[PSTAT_SPELL_DURATION];
+	int tics = ((GetSpellValue(pnum, spell, SPELLVAL_DURATION, rank) + GetSpellValue(pnum, SPL_SUMMONMASTERY, SPELLVAL_DURATION)) * TICRATE) >> 16;
+	tics = tics * Max(0, 100 + s + PlayerModData[pnum].vals[PSTAT_MINION_DURATION]) / Max(1, 100 + s);
+	return Max(1, tics * (100 + portal_more) / 100);
+}
+
+// A summon's health before the pet scaling: the row, the spell's gems, then any "more" its kind carries.
+int GetSpellMinionHealth(int pnum, int spell, int petid) {
+	int hp = ApplySpellGemMore(pnum, spell, GEMSTAT_MORE_MINIONLIFE, GetSpellValue(pnum, spell, SPELLVAL_DAMAGE));
+	if(petid == MONSTER_PET_SKELETON || petid == MONSTER_PET_SKELETONMAGE)
+		hp = hp * (100 + GetSpellValue(pnum, SPL_SKELETONMASTERY, SPELLVAL_DAMAGE2)) / 100;
+	if(petid == MONSTER_PET_SKELETONMAGE)
+		hp = hp * (100 - DND_SKELETONMAGE_LESSHP) / 100;
+	return Max(1, hp);
+}
+
+// The caster's Dark Portal near a minion just summoned on tid: its more health and duration, rank 5's speed, rank 10's resists.
+void ApplyPortalBoon(int pnum, int tid) {
+	if(!GetSpellAllocatedRank(pnum, SPL_DARKPORTAL))
+		return;
+	int base = GetPlayerPetSlotBase(pnum), p, flags = 0;
+	int r = ScaleSpellArea(pnum, SPL_DARKPORTAL, GetSpellValue(pnum, SPL_DARKPORTAL, SPELLVAL_RADIUS) << 16);
+	for(int i = 0; i < DND_MAX_PETS_PER_PLAYER; ++i) {
+		p = base + i;
+		if(!IsActorAlive(p) || PetMonsterProperties[p - DND_PETTID_BEGIN].id != MONSTER_PET_DARKPORTAL || fdistance(p, tid) > r)
+			continue;
+		int more = GetSpellValue(pnum, SPL_DARKPORTAL, SPELLVAL_DAMAGE2);
+		SetActorInventory(tid, "DnD_PortalMore", more);
+		SetActorInventory(tid, "DnD_PortalLonger", GetSpellValue(pnum, SPL_DARKPORTAL, SPELLVAL_AMOUNT));
+		SetActorProperty(tid, APROP_HEALTH, GetActorProperty(tid, APROP_HEALTH) * (100 + more) / 100);
+		if(SpellThresholdMet(pnum, SPL_DARKPORTAL, DND_SPELL_THRESH_LOW)) {
+			SetActorProperty(tid, APROP_SPEED, GetActorProperty(tid, APROP_SPEED) * (100 + DND_DARKPORTAL_R5_SPEED) / 100);
+			flags |= DND_PORTALBOON_SPEED;
+		}
+		if(SpellThresholdMet(pnum, SPL_DARKPORTAL, DND_SPELL_THRESH_HIGH))
+			flags |= DND_PORTALBOON_RESIST;
+		SetActorInventory(tid, "DnD_PortalBoon", flags);
+		Spawn("Spell_DarkPortal_Boon", GetActorX(tid), GetActorY(tid), GetActorZ(tid));
+		return;
+	}
+}
+
+// A minion just spawned on tid: on the floor, its health before its first tic (Pet Monster Scale levels up from it), a
+// nearby portal's boon, its master, its cap points. Returns the claimed slot, as the other summons do.
+int SetupSpellMinion(int pnum, int tid, int petid, int health, int quiet) {
+	int caster = pnum + P_TIDSTART;
+	SetActorPosition(tid, GetActorX(tid), GetActorY(tid), GetActorFloorZ(tid), false);
+	SetActorProperty(tid, APROP_HEALTH, Max(1, health));
+	if(petid != MONSTER_PET_DARKPORTAL)
+		ApplyPortalBoon(pnum, tid);
+	SetActorProperty(tid, APROP_MASTERTID, caster);
+	SetActivator(tid);
+	SetPointer(AAPTR_MASTER, caster);
+	SetActorProperty(0, APROP_FRIENDLY, true);
+	int pet = ClaimPetSlot(caster, petid);
+	SetInventory("DnD_QuietArrival", quiet);
+
+	GiveActorInventory(caster, "PetCounter", GetPetCapWeight(petid));
+	SetActivator(caster);
+	ACS_NamedExecuteAlways("DnD On Pet Summon", 0);
+	return pet;
+}
+
+// A timed minion's clock, run from its Spawn state; untimed kinds end at once. Halted with the other monster timers.
+Script "DnD Minion Life" (int petid) {
+	int pnum = GetActorProperty(0, APROP_MASTERTID) - P_TIDSTART;
+	if(pnum < 0 || pnum >= MAXPLAYERS)
+		Terminate;
+	int spell = GetPetSummonSpell(petid);
+	int tics = GetMinionLifeTics(pnum, spell, spell == SPL_ZOMBIE ? GetZombieRank(pnum) : 0, CheckInventory("DnD_PortalLonger"));
+	if(!tics)
+		Terminate;
+	for(int t = 0; t < tics; ++t) {
+		Delay(const:1);
+		// ACTOR_WORLD: the minion is gone and the activator is the world.
+		if((ClassifyActor(0) & ACTOR_WORLD) || !IsActorAlive(0))
+			Terminate;
+		if(CheckInventory("DnD_HaltMonsterTimer"))
+			--t;
+	}
+	Thing_Damage2(0, GetActorProperty(0, APROP_HEALTH) * 3, "Perish");
+}
+
+// A Black minion's hit off its row, rolled between the two ends, then the pet damage scaling. USETARGET for projectiles.
+Script "DnD Spell Minion Hit" (int which, int flags) {
+	if(flags & DND_WDMG_USETARGET)
+		SetActivatorToTarget(0);
+	int pnum = GetActorProperty(0, APROP_MASTERTID) - P_TIDSTART;
+	if(pnum < 0 || pnum >= MAXPLAYERS) {
+		SetResultValue(0);
+		Terminate;
+	}
+	int lo, hi;
+	switch(which) {
+		case DND_MINIONHIT_SKELETON:
+			lo = GetSpellValue(pnum, SPL_SKELETON, SPELLVAL_DAMAGE2MIN);
+			hi = GetSpellValue(pnum, SPL_SKELETON, SPELLVAL_DAMAGE2);
+		break;
+		case DND_MINIONHIT_SLAYERMELEE:
+			lo = GetSpellValue(pnum, SPL_SLAYERKNIGHT, SPELLVAL_DAMAGE2MIN);
+			hi = GetSpellValue(pnum, SPL_SLAYERKNIGHT, SPELLVAL_DAMAGE2);
+		break;
+		case DND_MINIONHIT_SLAYERFLAME:
+			lo = hi = GetSpellValue(pnum, SPL_SLAYERKNIGHT, SPELLVAL_AMOUNT2);
+		break;
+		case DND_MINIONHIT_DOOMMELEE:
+			lo = hi = GetSpellValue(pnum, SPL_DOOMGUARD, SPELLVAL_DAMAGE2);
+		break;
+		case DND_MINIONHIT_METEOR:
+			lo = hi = GetSpellValue(pnum, SPL_DOOMGUARD, SPELLVAL_AMOUNT);
+		break;
+		default:
+			lo = hi = GetSpellValue(pnum, SPL_DOOMGUARD, SPELLVAL_AMOUNT2);
+		break;
+	}
+	SetResultValue(ACS_NamedExecuteWithResult("DND Pet Monster Damage Scale", random(lo, Max(lo, hi)), 0, 0));
+}
+
+// The angle from one actor to another, less a facing, as a signed turn fraction in -0.5..0.5.
+int GetFacingOffset(int from, int to, int a) {
+	return (VectorAngle(GetActorX(to) - GetActorX(from), GetActorY(to) - GetActorY(from)) - a + 1.5) % 1.0 - 0.5;
+}
+
+// The Doomguard's cleave and the Slayer Knight's rank 10 wave: every enemy in front within reach and the half arc, its
+// target among them, takes the hit from the minion. 1 when anything was hit.
+Script "DnD Minion Cleave" (int which) {
+	int me = ActivatorTID(), pnum = GetActorProperty(0, APROP_MASTERTID) - P_TIDSTART;
+	if(!me || pnum < 0 || pnum >= MAXPLAYERS) {
+		SetResultValue(0);
+		Terminate;
+	}
+	bool doom = which == DND_MINIONHIT_DOOMMELEE;
+	int reach = doom ? DND_DOOMGUARD_CLEAVE : DND_SLAYER_WAVE, arc = doom ? DND_DOOMGUARD_CLEAVEARC : DND_SLAYER_WAVEARC;
+	int dmg = ACS_NamedExecuteWithResult("DnD Spell Minion Hit", which, 0);
+	int a = GetActorAngle(me), z = GetActorZ(me), h = GetActorProperty(me, APROP_HEIGHT), hits = 0, i, m;
+	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+		m = UsedMonsterTIDs[i];
+		if(!IsActorAlive(m) || !IsSpellEnemy(m) || fdistance(me, m) - GetActorProperty(m, APROP_RADIUS) > reach)
+			continue;
+		if(abs(GetFacingOffset(me, m, a)) > arc || GetActorZ(m) > z + h || GetActorZ(m) + GetActorProperty(m, APROP_HEIGHT) < z)
+			continue;
+		if(!CheckSight(me, m, 0))
+			continue;
+		Thing_Damage2(m, dmg, "Melee");
+		++hits;
+	}
+	if(!doom && hits)
+		ACS_NamedExecuteAlways("DnD Slayer Wave FX", 0, me);
+	SetResultValue(hits > 0);
+}
+
+Script "DnD Slayer Wave FX" (int me) CLIENTSIDE {
+	int a = GetActorAngle(me), x = GetActorX(me), y = GetActorY(me), z = GetActorZ(me) + 32.0;
+	for(int i = -4; i <= 4; ++i) {
+		int fa = a + i * DND_SLAYER_WAVEARC / 4;
+		Spawn("Spell_SlayerKnight_WaveFX", x + FixedMul(cos(fa), DND_SLAYER_WAVE * 2 / 3), y + FixedMul(sin(fa), DND_SLAYER_WAVE * 2 / 3), z, 0, fa >> 8);
+	}
+	SetResultValue(0);
+}
+
+// A monster's hit on a minion: a skeleton's block, the Ghast's shift, the Slayer Knight's counter. Returns what lands.
+int HandleMinionHurt(int pnum, int pet, int shooter, int dmg) {
+	if(pet < DND_PETTID_BEGIN || pet >= DND_PETTID_END || dmg <= 0)
+		return dmg;
+	// Rank 5 Slayer Knight: briefly untouchable after a counter.
+	if(CheckActorInventory(pet, "DnD_SlayerGuard"))
+		return 0;
+	switch(PetMonsterProperties[pet - DND_PETTID_BEGIN].id) {
+		case MONSTER_PET_SKELETON:
+			if(CheckActorInventory(pet, "DnD_SkeletonBlock")) {
+				TakeActorInventory(pet, "DnD_SkeletonBlock", 1);
+				ACS_NamedExecuteAlways("DnD Skeleton Block FX", 0, pet);
+				return 0;
+			}
+			if(SpellThresholdMet(pnum, SPL_SKELETON, DND_SPELL_THRESH_LOW) && random(1, 100) <= DND_SKELETON_R5_BLOCK)
+				GiveActorInventory(pet, "DnD_SkeletonBlock", 1);
+		break;
+		case MONSTER_PET_GHAST:
+			if(SpellThresholdMet(pnum, SPL_GHAST, DND_SPELL_THRESH_LOW) && Timer() >= GetUserVariable(pet, "user_shift"))
+				ACS_NamedExecuteAlways("DnD Ghast Shift", 0, pet);
+		break;
+		case MONSTER_PET_SLAYERKNIGHT:
+			if(SpellThresholdMet(pnum, SPL_SLAYERKNIGHT, DND_SPELL_THRESH_LOW) && Timer() >= GetUserVariable(pet, "user_counter")) {
+				SetUserVariable(pet, "user_counter", Timer() + DND_SLAYER_COUNTERCD);
+				ACS_NamedExecuteAlways("DnD Slayer Counter", 0, pet, shooter);
+			}
+		break;
+	}
+	return dmg;
+}
+
+Script "DnD Skeleton Block FX" (int pet) CLIENTSIDE {
+	Spawn("Spell_Skeleton_BlockFX", GetActorX(pet), GetActorY(pet), GetActorZ(pet) + GetActorProperty(pet, APROP_HEIGHT) / 2);
+	PlaySound(pet, "skeleton/melee", CHAN_BODY);
+	SetResultValue(0);
+}
+
+// ---- Summon: Skeleton ----
+
+// arg petid1: a carried minion's kind + 1, so a mage comes back a mage; 0 rolls rank 10's mage chance.
+Script "DnD Summon Skeleton" (int pnum, int quiet, int petid1) {
+	int caster = pnum + P_TIDSTART;
+	int petid = petid1 ? petid1 - 1 : MONSTER_PET_SKELETON;
+	if(!petid1 && SpellThresholdMet(pnum, SPL_SKELETON, DND_SPELL_THRESH_HIGH) && random(1, 100) <= DND_SKELETONMAGE_CHANCE)
+		petid = MONSTER_PET_SKELETONMAGE;
+	if(!MakeRoomForPet(pnum, petid, GetSummonKindCap(pnum, SPL_SKELETON), true))
+		Terminate;
+
+	int tid = TEMPORARY_PET_TID + pnum;
+	if(!SpawnSummonNear(petid == MONSTER_PET_SKELETONMAGE ? "Spell_SkeletonMage" : "Spell_Skeleton", caster, tid, DND_SKELETON_DIST))
+		Terminate;
+	int pet = SetupSpellMinion(pnum, tid, petid, GetSpellMinionHealth(pnum, SPL_SKELETON, petid), quiet);
+	if(!quiet)
+		PlaySound(caster, "Draugr/See", CHAN_6);
+	SetResultValue(pet);
+}
+
+// Skeleton Mastery rank 10: a random tier 1 elemental projectile the owner has learned, thrown from the mage at its
+// target at the owner's rank. False, casting nothing, when there is none; the mage throws its own bolt then.
+Script "DnD Skeleton Mage Spell" (void) {
+	int mage = ActivatorTID(), pnum = GetActorProperty(0, APROP_MASTERTID) - P_TIDSTART;
+	if(!mage || pnum < 0 || pnum >= MAXPLAYERS || !PlayerInGame(pnum) || !SpellThresholdMet(pnum, SPL_SKELETONMASTERY, DND_SPELL_THRESH_HIGH)) {
+		SetResultValue(0);
+		Terminate;
+	}
+	int n = 0, pick = -1, s;
+	for(int i = 0; i < 4; ++i) {
+		s = i == 0 ? SPL_FIREBALL : i == 1 ? SPL_ICEBOLT : i == 2 ? SPL_CHARGEDBOLT : SPL_SHRAPNEL;
+		if(GetSpellAllocatedRank(pnum, s) && !random(0, n++))
+			pick = s;
+	}
+	int target = pick != -1 && SetActivator(0, AAPTR_TARGET) ? ActivatorTID() : 0;
+	SetActivator(mage);
+	if(!target || !IsActorAlive(target)) {
+		SetResultValue(0);
+		Terminate;
+	}
+	int pt = PetThrowPitch(mage, target, DND_SKELETONMAGE_CHEST);
+	switch(pick) {
+		case SPL_FIREBALL:
+			SpawnSpellProjectile(pnum, pick, "Spell_Fireball", DND_FIREBALL_SPEED, 0, 0, 0, 0, mage, true, DND_SKELETONMAGE_CHEST, pt);
+		break;
+		case SPL_ICEBOLT:
+			SpawnSpellProjectile(pnum, pick, "Spell_IceBolt", DND_ICEBOLT_SPEED, 0, 0, 0, 0, mage, true, DND_SKELETONMAGE_CHEST, pt);
+		break;
+		case SPL_CHARGEDBOLT:
+			SpawnSpellProjectile(pnum, pick, "Spell_ChargedBolt", DND_CHARGEDBOLT_SPEED, 0, 0, 0,
+				Max(1, GetSpellDurationTics(pnum, pick) / DND_CHARGEDBOLT_STEP), mage, true, DND_SKELETONMAGE_CHEST, pt);
+		break;
+		default:
+			SpawnSpellProjectile(pnum, pick, "Spell_Shrapnel", DND_SHRAPNEL_SPEED, 0, 0, 0, 0, mage, true, DND_SKELETONMAGE_CHEST, pt);
+		break;
+	}
+	SetResultValue(1);
+}
+
+// ---- Summon: Ghast ----
+
+Script "DnD Summon Ghast" (int pnum, int quiet) {
+	int caster = pnum + P_TIDSTART;
+	if(!MakeRoomForPet(pnum, MONSTER_PET_GHAST, GetSummonKindCap(pnum, SPL_GHAST)))
+		Terminate;
+	int tid = TEMPORARY_PET_TID + pnum;
+	if(!SpawnSummonNear("Spell_Ghast", caster, tid, DND_GHAST_DIST))
+		Terminate;
+	int pet = SetupSpellMinion(pnum, tid, MONSTER_PET_GHAST, GetSpellMinionHealth(pnum, SPL_GHAST, MONSTER_PET_GHAST), quiet);
+	if(!quiet)
+		PlaySound(caster, "UndeadSoul/See", CHAN_6);
+	SetResultValue(pet);
+}
+
+// The owner's Dark Wind thrown from the Ghast at its target; two, then a rest (the Ghast's rank 10 shortens it, as does
+// minion cooldown recovery). 1 when it cast.
+Script "DnD Ghast Cast" (void) {
+	int ghast = ActivatorTID(), pnum = GetActorProperty(0, APROP_MASTERTID) - P_TIDSTART;
+	if(!ghast || pnum < 0 || pnum >= MAXPLAYERS || !PlayerInGame(pnum) || Timer() < GetUserVariable(0, "user_rest") || !SetActivator(0, AAPTR_TARGET)) {
+		SetResultValue(0);
+		Terminate;
+	}
+	int target = ActivatorTID();
+	SetActivator(ghast);
+	if(!target || !IsActorAlive(target)) {
+		SetResultValue(0);
+		Terminate;
+	}
+	int rank = Max(1, GetSpellRank(pnum, SPL_GHAST, true));
+	SetActorAngle(ghast, VectorAngle(GetActorX(target) - GetActorX(ghast), GetActorY(target) - GetActorY(ghast)));
+	CastDarkWind(pnum, ghast);
+
+	int n = GetUserVariable(0, "user_casts") + 1;
+	if(n >= DND_GHAST_CASTS) {
+		n = 0;
+		int rest = rank >= DND_SPELL_THRESH_HIGH ? DND_GHAST_R10_REST : DND_GHAST_REST;
+		SetUserVariable(0, "user_rest", Timer() + rest * 100 / (100 + GetMinionCooldownRate(pnum)));
+	}
+	SetUserVariable(0, "user_casts", n);
+	SetResultValue(1);
+}
+
+// Rank 5: out of existence (unshootable, faded) for a moment, at most once every few seconds.
+Script "DnD Ghast Shift" (int pet) {
+	SetUserVariable(pet, "user_shift", Timer() + DND_GHAST_SHIFTCD);
+	GiveActorInventory(pet, "DnD_GhastShiftOn", 1);
+	Delay(const:DND_GHAST_SHIFT);
+	if(IsActorAlive(pet))
+		GiveActorInventory(pet, "DnD_GhastShiftOff", 1);
+}
+
+// ---- Summon: Slayer Knight ----
+
+Script "DnD Summon Slayer Knight" (int pnum, int quiet) {
+	int caster = pnum + P_TIDSTART;
+	if(!MakeRoomForPet(pnum, MONSTER_PET_SLAYERKNIGHT, GetSummonKindCap(pnum, SPL_SLAYERKNIGHT)))
+		Terminate;
+	int tid = TEMPORARY_PET_TID + pnum;
+	if(!SpawnSummonNear(SpellThresholdMet(pnum, SPL_SLAYERKNIGHT, DND_SPELL_THRESH_HIGH) ? "Spell_SlayerKnightWave" : "Spell_SlayerKnight",
+		caster, tid, DND_SLAYER_DIST))
+		Terminate;
+	int pet = SetupSpellMinion(pnum, tid, MONSTER_PET_SLAYERKNIGHT, GetSpellMinionHealth(pnum, SPL_SLAYERKNIGHT, MONSTER_PET_SLAYERKNIGHT), quiet);
+	if(!quiet)
+		PlaySound(caster, "DreadKnight/See", CHAN_6);
+	SetResultValue(pet);
+}
+
+// Rank 5: straight back at whoever hurt it, and untouchable for a few tics.
+Script "DnD Slayer Counter" (int pet, int shooter) {
+	if(!IsActorAlive(pet) || !IsActorAlive(shooter))
+		Terminate;
+	SetActorInventory(pet, "DnD_SlayerGuard", 1);
+	SetActivator(pet);
+	SetPointer(AAPTR_TARGET, shooter);
+	SetActorState(pet, "Counter");
+	Delay(const:DND_SLAYER_COUNTERSAFE);
+	SetActorInventory(pet, "DnD_SlayerGuard", 0);
+}
+
+// ---- Summon: Doomguard ----
+
+Script "DnD Summon Doomguard" (int pnum, int quiet) {
+	int caster = pnum + P_TIDSTART;
+	if(!MakeRoomForPet(pnum, MONSTER_PET_DOOMGUARD, GetSummonKindCap(pnum, SPL_DOOMGUARD)))
+		Terminate;
+	int tid = TEMPORARY_PET_TID + pnum;
+	if(!SpawnSummonNear("Spell_Doomguard", caster, tid, DND_DOOMGUARD_DIST))
+		Terminate;
+	int pet = SetupSpellMinion(pnum, tid, MONSTER_PET_DOOMGUARD, GetSpellMinionHealth(pnum, SPL_DOOMGUARD, MONSTER_PET_DOOMGUARD), quiet);
+	if(!quiet)
+		PlaySound(caster, "superbaron/scream", CHAN_6);
+	SetResultValue(pet);
+}
+
+// Rank 5 War Stomp: every enemy near it stunned and struck with its melee, on a cooldown minion recovery shortens. 1 when it stomped.
+Script "DnD Doomguard Stomp" (void) {
+	int me = ActivatorTID(), pnum = GetActorProperty(0, APROP_MASTERTID) - P_TIDSTART;
+	if(!me || pnum < 0 || pnum >= MAXPLAYERS || !SpellThresholdMet(pnum, SPL_DOOMGUARD, DND_SPELL_THRESH_LOW) || Timer() < GetUserVariable(0, "user_stomp")) {
+		SetResultValue(0);
+		Terminate;
+	}
+	int i, m, n = 0, z = GetActorZ(me), dmg = 0;
+	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+		m = UsedMonsterTIDs[i];
+		if(!IsActorAlive(m) || !IsSpellEnemy(m) || fdistance(me, m) - GetActorProperty(m, APROP_RADIUS) > DND_DOOMGUARD_STOMP || abs(GetActorZ(m) - z) > 64.0)
+			continue;
+		if(!dmg)
+			dmg = ACS_NamedExecuteWithResult("DnD Spell Minion Hit", DND_MINIONHIT_DOOMMELEE, 0);
+		Thing_Damage2(m, dmg, "Melee");
+		if(IsActorAlive(m))
+			StunMonster(m, DND_DOOMGUARD_STOMPTICS);
+		++n;
+	}
+	if(n) {
+		SetUserVariable(me, "user_stomp", Timer() + DND_DOOMGUARD_STOMPCD * 100 / (100 + GetMinionCooldownRate(pnum)));
+		ACS_NamedExecuteAlways("DnD Doomguard Stomp FX", 0, me);
+	}
+	SetResultValue(n > 0);
+}
+
+Script "DnD Doomguard Stomp FX" (int me) CLIENTSIDE {
+	int x = GetActorX(me), y = GetActorY(me), z = GetActorFloorZ(me);
+	for(int i = 0; i < 16; ++i) {
+		int a = (i * 1.0) / 16;
+		Spawn("Spell_Doomguard_StompFX", x + FixedMul(cos(a), 48.0), y + FixedMul(sin(a), 48.0), z, 0, a >> 8);
+	}
+	PlaySound(me, "superbaron/clap", CHAN_BODY);
+	SetResultValue(0);
+}
+
+// Rank 10: a random learned curse on its target every 30 seconds, as its owner would cast it; started at its spawn.
+Script "DnD Doomguard Curse" (void) {
+	int me = ActivatorTID(), pnum = GetActorProperty(0, APROP_MASTERTID) - P_TIDSTART;
+	if(!me || pnum < 0 || pnum >= MAXPLAYERS || !SpellThresholdMet(pnum, SPL_DOOMGUARD, DND_SPELL_THRESH_HIGH))
+		Terminate;
+	int wait = 0, target, spell;
+	while(IsActorAlive(me)) {
+		Delay(const:TICRATE);
+		wait += TICRATE * (100 + GetMinionCooldownRate(pnum)) / 100;
+		if(wait < DND_DOOMGUARD_CURSECD || !PlayerInGame(pnum))
+			continue;
+		target = GetActorProperty(me, APROP_TARGETTID);
+		if(!target || !IsActorAlive(target) || !IsSpellEnemy(target) || !IsMonster(target))
+			continue;
+		spell = PickLearnedCurse(pnum, -1);
+		if(spell == -1)
+			continue;
+		ApplyLearnedCurse(pnum, spell, target);
+		PlaySound(me, "Despair/Cast", CHAN_WEAPON);
+		wait = 0;
+	}
+}
+
+// ---- Summon: Dark Portal ----
+
+// One at a time; it stands where it opens, takes no cap point and lasts its own duration.
+Script "DnD Summon Dark Portal" (int pnum, int quiet) {
+	int caster = pnum + P_TIDSTART;
+	if(!MakeRoomForPet(pnum, MONSTER_PET_DARKPORTAL, GetSummonKindCap(pnum, SPL_DARKPORTAL), true))
+		Terminate;
+	int tid = TEMPORARY_PET_TID + pnum;
+	if(!SpawnSummonNear("Spell_DarkPortal", caster, tid, DND_PORTAL_DIST))
+		Terminate;
+	int pet = SetupSpellMinion(pnum, tid, MONSTER_PET_DARKPORTAL, GetSpellMinionHealth(pnum, SPL_DARKPORTAL, MONSTER_PET_DARKPORTAL), quiet);
+	if(!quiet)
+		PlaySound(caster, "DungeonPortal/Make", CHAN_6);
+	SetResultValue(pet);
+}
+
+// ---- Mark Prey ----
+
+#define DND_MARKPREY_R5_LESS 10          // rank 5: percent less damage the marked enemy deals to the caster's minions
+#define DND_MARKPREY_R10_LEECH 2         // rank 10: percent of minion damage on the marked enemy leeched as life
+#define DND_MARKPREY_LEECHSTEPS 8        // and the half seconds that life comes back over
+#define DND_MARKPREY_RAISED 8            // raised minions (monster tids) one mark keeps hold of
+#define DND_MARKPREY_RESCAN TICRATE      // how often it looks for newly raised ones
+#define DND_MARKPREY_SETTLE TICRATE      // an idle pet is sent after the prey only this long after its summon, past its arrival
+
+// One mark a player: a recast moves it, and gen tells the old mark's script to stop.
+typedef struct {
+	int prey;
+	int gen;
+	int raised[DND_MARKPREY_RAISED];
+} markprey_T;
+
+markprey_T module& GetMarkPrey(int pnum) {
+	static markprey_T marks[MAXPLAYERS];
+	return marks[pnum];
+}
+
+// The player's marked enemy while the mark lasts, else 0.
+int GetMarkedPrey(int pnum) {
+	if(pnum < 0 || pnum >= MAXPLAYERS)
+		return 0;
+	int prey = GetMarkPrey(pnum).prey;
+	return prey && IsActorAlive(prey) ? prey : 0;
+}
+
+// A minion's own health ceiling: a pet's from its summon, a raised monster's from its record and Devoted Leader.
+int GetMinionLifeCap(int tid, int master) {
+	int m_id = tid - DND_PETTID_BEGIN, cap;
+	if(m_id >= 0 && m_id < DND_MAX_PETS)
+		return PetMonsterProperties[m_id].maxhp;
+	cap = MonsterProperties[tid - DND_MONSTERTID_BEGIN].maxhp;
+	return cap / 100 * (100 + PlayerModData[master - P_TIDSTART].vals[PSTAT_MINION_HEALTH]) +
+		cap % 100 * (100 + PlayerModData[master - P_TIDSTART].vals[PSTAT_MINION_HEALTH]) / 100;
+}
+
+// Rank 5: the prey's hits on its marker's minions.
+int ReduceMarkedPreyHit(int pnum, int shooter, int dmg) {
+	if(shooter && shooter == GetMarkedPrey(pnum) && SpellThresholdMet(pnum, SPL_MARKPREY, DND_SPELL_THRESH_LOW))
+		return dmg * (100 - DND_MARKPREY_R5_LESS) / 100;
+	return dmg;
+}
+
+// Rank 10: a minion's hit on its master's prey goes into its leech pool, in hundredths of life so small hits add up;
+// a new hit spreads what is left over a fresh 4 seconds.
+void LeechFromMarkedPrey(int pnum, int minion, int victim, int dmg) {
+	if(dmg <= 0 || !victim || victim != GetMarkedPrey(pnum) || !SpellThresholdMet(pnum, SPL_MARKPREY, DND_SPELL_THRESH_HIGH))
+		return;
+	GiveActorInventory(minion, "DnD_MinionLeechPool", dmg * DND_MARKPREY_R10_LEECH);
+	bool running = !!CheckActorInventory(minion, "DnD_MinionLeechSteps");
+	SetActorInventory(minion, "DnD_MinionLeechSteps", DND_MARKPREY_LEECHSTEPS);
+	if(!running)
+		ACS_NamedExecuteAlways("DnD Minion Leech", 0, minion, pnum + P_TIDSTART);
+}
+
+// Each half second pays the whole life its share holds; the fraction stays in the pool for the next.
+Script "DnD Minion Leech" (int minion, int master) {
+	int t = 0, steps, amt, hp, cap;
+	while(IsActorAlive(minion) && (steps = CheckActorInventory(minion, "DnD_MinionLeechSteps")) > 0) {
+		Delay(17 + (t++ & 1));
+		if(!IsActorAlive(minion))
+			break;
+		amt = CheckActorInventory(minion, "DnD_MinionLeechPool") / steps / 100;
+		hp = GetActorProperty(minion, APROP_HEALTH);
+		cap = GetMinionLifeCap(minion, master);
+		if(amt > 0 && hp < cap)
+			SetActorProperty(minion, APROP_HEALTH, Min(cap, hp + amt));
+		TakeActorInventory(minion, "DnD_MinionLeechPool", amt * 100);
+		TakeActorInventory(minion, "DnD_MinionLeechSteps", 1);
+	}
+	SetActorInventory(minion, "DnD_MinionLeechPool", 0);
+	SetActorInventory(minion, "DnD_MinionLeechSteps", 0);
+}
+
+// A minion after something else drops it for the prey; an idle one is woken, since A_Look never reads a target it was handed.
+void SendMinionAtPrey(int tid, int prey, bool settled) {
+	if(!IsActorAlive(tid))
+		return;
+	int old = GetActorProperty(tid, APROP_TARGETTID);
+	if(old == prey)
+		return;
+	SetActivator(tid);
+	SetPointer(AAPTR_TARGET, prey);
+	if((old && IsActorAlive(old)) || settled)
+		SetActorState(tid, "See");
+}
+
+// Raised minions are monsters with their master's tid, not pets: found by a scan, kept until the next one.
+void FindRaisedMinions(int pnum) {
+	markprey_T module& mark = GetMarkPrey(pnum);
+	int n = 0, master = pnum + P_TIDSTART;
+	for(int i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER] && n < DND_MARKPREY_RAISED; ++i) {
+		int m = UsedMonsterTIDs[i];
+		if(m && IsActorAlive(m) && GetActorProperty(m, APROP_MASTERTID) == master)
+			mark.raised[n++] = m;
+	}
+	for(; n < DND_MARKPREY_RAISED; ++n)
+		mark.raised[n] = 0;
+}
+
+// Every tic, as Nox holds its decoy: a hit would otherwise turn a minion onto its attacker.
+Script "DnD Mark Prey" (int pnum, int gen, int tics) {
+	markprey_T module& mark = GetMarkPrey(pnum);
+	int prey = mark.prey, base = GetPlayerPetSlotBase(pnum), i, tid;
+	int sfx_id = ACS_NamedExecuteWithResult("DND Spawn Attachment", prey, DND_ATTACHMENT_MARKPREY);
+	for(int t = 0; t < tics; ++t) {
+		if(mark.gen != gen || !PlayerInGame(pnum) || !IsActorAlive(prey))
+			break;
+		if(!(t % DND_MARKPREY_RESCAN))
+			FindRaisedMinions(pnum);
+		for(i = 0; i < DND_MAX_PETS_PER_PLAYER; ++i) {
+			tid = base + i;
+			SendMinionAtPrey(tid, prey, Timer() - PetSummonTic[tid - DND_PETTID_BEGIN] >= DND_MARKPREY_SETTLE);
+		}
+		for(i = 0; i < DND_MARKPREY_RAISED; ++i)
+			if(mark.raised[i])
+				SendMinionAtPrey(mark.raised[i], prey, false);
+		Delay(const:1);
+	}
+
+	if(IsActorAlive(prey))
+		ACS_NamedExecuteWithResult("DnD Remove Monster Attachment", prey, sfx_id);
+	if(mark.gen == gen)
+		mark.prey = 0;
+}
+
+// The enemy under the crosshair or nearest it, as Plague finds its host. A recast moves the mark.
+void CastMarkPrey(int pnum) {
+	int target = GetSpellEnemyTarget(pnum, DND_SPELL_HITSCANRANGE);
+	if(!target)
+		return;
+	markprey_T module& mark = GetMarkPrey(pnum);
+	mark.prey = target;
+	++mark.gen;
+	PlaySound(target, "Vulnerability/Cast", CHAN_BODY);
+	ACS_NamedExecuteAlways("DnD Mark Prey", 0, pnum, mark.gen, GetSpellDurationTics(pnum, SPL_MARKPREY));
+}
+
 // depth counts Quicktongue's repeats; a cast from TryCastSpell is depth 0. A proc (DND_SPELLCAST_PROC) has no bar and leaves the lock alone.
 Script "DnD Spell Cast" (int spell, int pnum, int depth) {
 	bool proc = !!(depth & DND_SPELLCAST_PROC);
 	depth &= ~DND_SPELLCAST_PROC;
+
+	// Silencer: a Quicktongue repeat after the silence landed never starts; a press lets go of its casting lock.
+	if(!proc && IsPlayerSilenced(pnum)) {
+		if(!depth)
+			EndSpellCasting(pnum);
+		Terminate;
+	}
 
 	// Monsters wake to a hostile cast the way they wake to a gunshot. At the START of the cast, not
 	// when the effect lands, so a long cast bar cannot be used to open on a sleeping room for free
@@ -9213,18 +12340,16 @@ Script "DnD Spell Cast" (int spell, int pnum, int depth) {
 			BeginSpellCasting(pnum);
 		int casting = StartSpellCastBar(pnum, spell, wait);
 
-		if(ally) {
-			// Re-aimed every tic for the first stretch of the bar, then COMMITTED. The last quarter is
-			// locked in so the spell lands where the marker said it would, rather than on whoever the
-			int track = wait * DND_SPELLLOCK_TRACKPCT / 100;
-			for(int e = 0; e < wait; ++e) {
-				if(e < track)
-					SetSpellLockTarget(pnum, GetSpellAllyTarget(pnum, spell == SPL_REJUVENATION));
-				Delay(const:1);
-			}
+		// Re-aimed every tic for the first stretch of the bar, then COMMITTED. The last quarter is
+		// locked in so the spell lands where the marker said it would, rather than on whoever the
+		int track = ally ? wait * DND_SPELLLOCK_TRACKPCT / 100 : 0;
+		bool silenced = false;
+		for(int e = 0; e < wait && !silenced; ++e) {
+			if(e < track)
+				SetSpellLockTarget(pnum, GetSpellAllyTarget(pnum, spell == SPL_REJUVENATION));
+			Delay(const:1);
+			silenced = IsPlayerSilenced(pnum);
 		}
-		else
-			Delay(wait);
 
 		EndSpellCastBar(pnum, casting);
 		EndSpellCasting(pnum);
@@ -9232,6 +12357,10 @@ Script "DnD Spell Cast" (int spell, int pnum, int depth) {
 		// The box goes now; WHO was locked is still needed by the cast below.
 		if(ally)
 			DropSpellLockMarker(pnum);
+
+		// Silencer: a silence landing mid bar ends the cast, already paid for.
+		if(silenced)
+			Terminate;
 	}
 	else if(!depth && !proc)
 		EndSpellCasting(pnum);
@@ -9591,6 +12720,127 @@ Script "DnD Spell Cast" (int spell, int pnum, int depth) {
 				SpawnSpellProjectile(pnum, spell, "Spell_Fireball", DND_FIREBALL_SPEED, 0,
 					FanOffset(i, DND_FIREBALL_SPREAD));
 		break;
+
+		case SPL_PLAGUE:
+			CastPlague(pnum);
+		break;
+
+		case SPL_ZOMBIE:
+			ACS_NamedExecuteAlways("DnD Summon Zombie", 0, pnum);
+		break;
+
+		case SPL_NOX:
+			ACS_NamedExecuteAlways("DnD Nox Cast", 0, pnum);
+		break;
+
+		case SPL_TEMPORALCHAINS:
+			ACS_NamedExecuteAlways("DnD Temporal Chains Cast", 0, pnum);
+		break;
+
+		case SPL_ESSENCETHEFT:
+			SpawnSpellFan(pnum, SPL_ESSENCETHEFT, "Spell_EssenceTheft", DND_ESSENCE_SPEED);
+		break;
+
+		case SPL_DARKWIND:
+			CastDarkWind(pnum);
+		break;
+
+		case SPL_ENFEEBLE:
+			ACS_NamedExecuteAlways("DnD Enfeeble Cast", 0, pnum);
+		break;
+
+		case SPL_PAINAMP:
+			ACS_NamedExecuteAlways("DnD Pain Amp Cast", 0, pnum);
+		break;
+
+		case SPL_FINGEROFDEATH:
+			CastFingerOfDeath(pnum);
+		break;
+
+		case SPL_IMPLOSION:
+			CastImplosion(pnum);
+		break;
+
+		case SPL_SILENCE:
+			PlaySound(pnum + P_TIDSTART, "Despair/Cast", CHAN_6);
+			CastTargetedCurse(pnum, SPL_SILENCE, 0, DND_SPELL_THRESH_HIGH);
+		break;
+
+		case SPL_MARKPREY:
+			CastMarkPrey(pnum);
+		break;
+
+		case SPL_DELIRIUM:
+			PlaySound(pnum + P_TIDSTART, "Despair/Cast", CHAN_6);
+			CastTargetedCurse(pnum, SPL_DELIRIUM, 0, 0);
+		break;
+
+		case SPL_REMOVERESIST:
+		case SPL_BREAKIMMUNITY:
+			PlaySound(pnum + P_TIDSTART, "Despair/Cast", CHAN_6);
+			CastTargetedCurse(pnum, spell, 0, DND_SPELL_THRESH_LOW);
+		break;
+
+		case SPL_PENETRATE:
+			ACS_NamedExecuteAlways("DnD Area Curse Cast", 0, pnum, SPL_PENETRATE, 0);
+		break;
+
+		case SPL_SUBJUGATE:
+			SpawnSpellFan(pnum, spell, "Spell_SubjugateBall", DND_CURSEBALL_SPEED);
+		break;
+
+		case SPL_TRANSMOGRIFY:
+			SpawnSpellFan(pnum, spell, "Spell_TransmogrifyBall", DND_CURSEBALL_SPEED);
+		break;
+
+		case SPL_LIFETAP:
+			SpawnSpellFan(pnum, spell, "Spell_LifeTapBall", DND_CURSEBALL_SPEED);
+		break;
+
+		case SPL_BANISH:
+			SpawnSpellFan(pnum, spell, "Spell_BanishBall", DND_CURSEBALL_SPEED);
+		break;
+
+		case SPL_SKELETON:
+			ACS_NamedExecuteAlways("DnD Summon Skeleton", 0, pnum, 0, 0);
+		break;
+
+		case SPL_GHAST:
+			ACS_NamedExecuteAlways("DnD Summon Ghast", 0, pnum, 0);
+		break;
+
+		case SPL_SLAYERKNIGHT:
+			ACS_NamedExecuteAlways("DnD Summon Slayer Knight", 0, pnum, 0);
+		break;
+
+		case SPL_DOOMGUARD:
+			ACS_NamedExecuteAlways("DnD Summon Doomguard", 0, pnum, 0);
+		break;
+
+		case SPL_DARKPORTAL:
+			ACS_NamedExecuteAlways("DnD Summon Dark Portal", 0, pnum, 0);
+		break;
+
+		case SPL_CONTAGION:
+			ACS_NamedExecuteAlways("DnD Contagion Cast", 0, pnum);
+		break;
+
+		case SPL_SOULSTORM:
+			PlaySound(pnum + P_TIDSTART, "Despair/Cast", CHAN_6);
+			ACS_NamedExecuteAlways("DnD Soulstorm Cast", 0, pnum);
+		break;
+
+		case SPL_CARRIONCROWS:
+			ACS_NamedExecuteAlways("DnD Carrion Crows", 0, pnum);
+		break;
+
+		case SPL_NETHERWALK:
+			ACS_NamedExecuteAlways("DnD Nether Walk", 0, pnum);
+		break;
+
+		case SPL_DEATHANDDECAY:
+			ACS_NamedExecuteAlways("DnD Death And Decay", 0, pnum);
+		break;
 	}
 
 	// Bladedancer and Fighter open their windows when the cast lands.
@@ -9833,6 +13083,15 @@ Script "DnD Immolation Spread" (void) CLIENTSIDE {
 #define DND_FIREDEMON_DIST 96.0    // how far in front of the caster it appears
 #define DND_FIREDEMON_R5_RES 25     // "Gains 25% to all resistances"
 
+// Mirrors the bases and rolls FireDemon.dec hands the pet damage script, for the spell panel.
+#define DND_FIREDEMON_MELEE_BASE 7
+#define DND_FIREDEMON_MELEE_LO 5
+#define DND_FIREDEMON_MELEE_HI 6
+#define DND_FIREDEMON_BALL_BASE 16
+#define DND_FIREDEMON_BALL_LO 6
+#define DND_FIREDEMON_BALL_HI 10
+#define DND_FIREDEMON_GROUND_BASE 10
+
 // Rank 10: the demon throws its OWNER's Fire Jet, at the rank THEY have it -- so the reward is
 // worth more the more they invested in the jet, and worth nothing if they never took it.
 //
@@ -9862,23 +13121,11 @@ Script "DnD Fire Demon Jet" (void) {
 	SetResultValue(1);
 }
 
-Script "DnD Summon Fire Demon" (int pnum) {
+Script "DnD Summon Fire Demon" (int pnum, int quiet) {
 	int caster = pnum + P_TIDSTART;
-
-	// How many demons may stand at once, from the row. At its current 1 this reads as "recasting
-	// replaces the one you have"; raise the row and it becomes a real roster limit with no code
-	// change. The point is that the PET cap alone would happily be filled with nothing but these.
-	int maxkind = Max(1, GetSpellValue(pnum, SPL_FIREDEMON, SPELLVAL_AMOUNT));
-
-	// The oldest DEMON makes way, not an unrelated pet, and only once the kind is actually full.
-	// Done BEFORE the global cap is consulted, so a demon never costs something else its place.
-	if(CountPlayerPetsOfKind(pnum, MONSTER_PET_FIREDEMON) >= maxkind)
-		UnsummonPet(FindOldestPlayerPetOfKind(pnum, MONSTER_PET_FIREDEMON));
-
-	// Still full, so the longest standing pet makes way. The kill runs its death states, which is
-	// what returns the PetCounter point this summon is about to take.
-	if(!CanActorHaveMorePets(caster))
-		UnsummonPet(FindOldestPlayerPet(pnum));
+	// The oldest demon makes way once the row's AMOUNT stand, then the oldest pet once the cap is full.
+	if(!MakeRoomForPet(pnum, MONSTER_PET_FIREDEMON, GetSummonKindCap(pnum, SPL_FIREDEMON)))
+		Terminate;
 
 	// In front where there is room, and around the caster where there is not.
 	int tid = TEMPORARY_PET_TID + pnum;
@@ -9893,6 +13140,7 @@ Script "DnD Summon Fire Demon" (int pnum) {
 	// what makes the spell's own number the one that gets scaled, rather than the 500 in DECORATE.
 	SetActorProperty(tid, APROP_HEALTH,
 		Max(1, ApplySpellGemMore(pnum, SPL_FIREDEMON, GEMSTAT_MORE_MINIONLIFE, GetSpellValue(pnum, SPL_FIREDEMON, SPELLVAL_DAMAGE))));
+	ApplyPortalBoon(pnum, tid);
 
 	SetActorProperty(tid, APROP_MASTERTID, caster);
 	SetActivator(tid);
@@ -9901,12 +13149,61 @@ Script "DnD Summon Fire Demon" (int pnum) {
 
 	// No "DnD Timed Monster" call: the demon stands until something kills it. The zombie is the
 	// timed pet, and SPL_FIREDEMON carries no DURATION row to read any more either.
-	Thing_ChangeTID(tid, 0);
+	int pet = ClaimPetSlot(caster, MONSTER_PET_FIREDEMON);
+	SetInventory("DnD_QuietArrival", quiet);
 
 	GiveActorInventory(caster, "PetCounter", 1);
 
 	SetActivator(caster);
 	ACS_NamedExecuteAlways("DnD On Pet Summon", 0);
+	SetResultValue(pet);
+}
+
+// ---- Summon previews for the spell panel ----
+
+// A summon's hit as the pet damage script prices it at a rank (0: its own), before crits.
+int GetSummonHitPreview(int pnum, int spell, int base, int rank) {
+	int dmg = ApplyPetMasterDamage(pnum, spell, GetPetLevelDamage(CheckActorInventory(pnum + P_TIDSTART, "Level"), base));
+	int more = GetPetSpellDamageBonus(pnum, GetSummonPetKind(spell), rank);
+	return more ? dmg * (100 + more) / 100 : dmg;
+}
+
+// The panel's summon rows: 0 health, then each attack; "" past the last.
+str GetSummonRowLump(int spell, int row) {
+	if(!row)
+		return "DND_SPLPANEL_MINIONHP";
+	if(row == 1)
+		return "DND_SPLPANEL_MINIONMELEE";
+	if(spell == SPL_ICEGOLEM && row == 2)
+		return "DND_SPLPANEL_MINIONDASH";
+	if(spell == SPL_FIREDEMON && row == 2)
+		return "DND_SPLPANEL_MINIONFIREBALL";
+	if(spell == SPL_FIREDEMON && row == 3)
+		return "DND_SPLPANEL_MINIONGROUND";
+	return "";
+}
+
+// A row at a rank, computed as the summon and pet damage scripts compute it; high picks the top of a range.
+int GetSummonRowValue(int pnum, int spell, int row, int rank, bool high) {
+	if(!row)
+		return GetPetScaledHealth(pnum, Max(1, ApplySpellGemMore(pnum, spell, GEMSTAT_MORE_MINIONLIFE, GetSpellValue(pnum, spell, SPELLVAL_DAMAGE, rank))),
+			CheckActorInventory(pnum + P_TIDSTART, "Level"));
+
+	switch(spell) {
+		case SPL_ZOMBIE:
+		return GetSummonHitPreview(pnum, spell, GetSpellValue(pnum, spell, high ? SPELLVAL_DAMAGE2 : SPELLVAL_DAMAGE2MIN, rank), rank);
+		case SPL_ICEGOLEM:
+		return GetSummonHitPreview(pnum, spell, GetSpellValue(pnum, spell, SPELLVAL_DAMAGE2, rank) * (row == 2 ? DND_ICEGOLEM_DASHMULT : 1), rank);
+		case SPL_ROCKGOLEM:
+		return GetSummonHitPreview(pnum, spell, GetSpellValue(pnum, spell, SPELLVAL_DAMAGE2, rank), rank);
+		case SPL_FIREDEMON:
+			if(row == 1)
+				return GetSummonHitPreview(pnum, spell, DND_FIREDEMON_MELEE_BASE, rank) * (high ? DND_FIREDEMON_MELEE_HI : DND_FIREDEMON_MELEE_LO);
+			if(row == 2)
+				return GetSummonHitPreview(pnum, spell, DND_FIREDEMON_BALL_BASE, rank) * (high ? DND_FIREDEMON_BALL_HI : DND_FIREDEMON_BALL_LO);
+		return GetSummonHitPreview(pnum, spell, DND_FIREDEMON_GROUND_BASE, rank);
+	}
+	return 0;
 }
 
 // ============================ Volcano ============================
@@ -10299,7 +13596,7 @@ Script "DnD Annihilus" (int pnum) {
 	int t = 0, inst = 0, charge = 0, prog, weight, added, self_dmg;
 
 	while(inst < maxinst) {
-		if(!PlayerInGame(pnum) || !IsActorAlive(caster))
+		if(!PlayerInGame(pnum) || !IsActorAlive(caster) || IsPlayerSilenced(pnum))
 			break;
 
 		// Held ends it; not yet held is forgiven until the grace window runs out. Letting go early is

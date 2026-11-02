@@ -936,6 +936,27 @@ bool PlayersNotReadyForHardcore() {
 	return players_notready;
 }
 
+typedef struct {
+	int tic;
+	bool wait;
+} spawn_wait_memo_T;
+
+spawn_wait_memo_T module& GetSpawnWaitMemo() {
+	static spawn_wait_memo_T memo;
+	return memo;
+}
+
+// Whether monster spawners still wait for the players, worked out once a tic: every spawner on the map asks on the same tics.
+bool MonsterSpawnsMustWait() {
+	spawn_wait_memo_T module& memo = GetSpawnWaitMemo();
+	// keyed on Timer() + 1 so a new map's zeroed memo never passes for tic 0
+	if(memo.tic != Timer() + 1) {
+		memo.tic = Timer() + 1;
+		memo.wait = IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED) || PlayersNotReadyForHardcore() || !InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART];
+	}
+	return memo.wait;
+}
+
 void SpawnTalentCapsule() {
 	if(GameType() != GAME_SINGLE_PLAYER) {
 		for(int i = 0; i < MAXPLAYERS; ++i)
@@ -1782,6 +1803,8 @@ void ClearLingeringBuffs(int pnum) {
 
 	SetInventory("LifeStealAmount", 0);
 	SetInventory("LifestealScriptRunning", 0);
+	SetInventory("ManaLeechAmount", 0);
+	SetInventory("ManaLeechScriptRunning", 0);
 
 	SetInventory("Hobo_ShotgunFrenzyTimer", 0);
 
@@ -1800,9 +1823,8 @@ void ClearLingeringBuffs(int pnum) {
 	SetInventory("DaemonicBarrier", 0);
 	SetInventory("DaemonicBarrierTimer", 0);
 
-	// rework this when we add persistent pets
-	SetInventory("PetCounter", 0);
-	
+	// No PetCounter reset here: pets outlive their master's death, and the ENTER script clears it for a new map.
+
 	// some buffs from weapons
 	SetInventory("SniperZoomTimer", 0);
 	SetInventory("DnD_HandgunMoreCritShots", 0);
@@ -2042,6 +2064,10 @@ Script "DnD Register Unique Boss" (int tid, int monid, int maxhp, int level) CLI
 
 void HandleAsmodeusAttack(int m_id, int isMelee) {
 	int tid = m_id + DND_MONSTERTID_BEGIN;
+	// demon fire and robot plasma are attacks; the magic and undead branches are spells
+	if(CheckInventory((IsMonsterIdDemon(m_id) || IsActorRobotic(tid)) ? "DnD_PacifyTimer" : "DnD_SilenceTimer"))
+		return;
+
 	if(IsMonsterIdDemon(m_id)) {
 		if(!isMelee) {
 			if(!CheckInventory("AsmodeusFireLobCooldown")) {
@@ -2108,3 +2134,4 @@ void HandleChargeAcquisitionOnKill(int this, int pnum) {
 #include "Spells/DnD_SpellDamage.h"
 #include "DnD_Weapons.h"
 #include "DnD_WeaponWheel.h"
+#include "DnD_SkillWheel.h"

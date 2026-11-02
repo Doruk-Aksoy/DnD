@@ -29,7 +29,7 @@ Actor Teron : DnD_BaseRangedMonster_NoRes 21195 {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE00 AB 5 A_GiveInventory("DnD_SightChecker", 1)
+			UE00 AB 5 A_Look
 		Loop
 		SeeState:
 			UE00 ABCD 4 Fast A_Chase
@@ -38,6 +38,8 @@ Actor Teron : DnD_BaseRangedMonster_NoRes 21195 {
 			TNT1 A 0 A_JumpIfInventory("DnD_Info", 8, "NeedReload")
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "HardHit")
 			TNT1 A 0 A_Jump(128, "SpreadShot")
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE00 E 6 Fast A_FaceTarget
 			TNT1 A 0 A_SpawnItemEx ("shotguncasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 AAAAAAAAA 0 A_CustomMissile("TeronBullet", 32, 0, frandom(-11.2, 11.2), 0, frandom(-7.1, 7.1))
@@ -46,6 +48,8 @@ Actor Teron : DnD_BaseRangedMonster_NoRes 21195 {
 			UE00 E 6 Fast
 		Goto See
 		HardHit:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE00 E 0 A_GiveInventory("TeronDasher", 1)
 			UE00 E 6 Fast A_FaceTarget
 			TNT1 A 0 A_SpawnItemEx ("shotguncasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
@@ -58,6 +62,8 @@ Actor Teron : DnD_BaseRangedMonster_NoRes 21195 {
 		Goto See
 		SpreadShot:
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "SpreadHardHit")
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE00 E 6 Fast A_FaceTarget
 			TNT1 A 0 A_SpawnItemEx ("shotguncasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 AAAAAAAAA 0 A_CustomMissile("TeronBullet", 32, 0, frandom(-11.2, 11.2), 0, frandom(-7.1, 7.1))
@@ -77,6 +83,8 @@ Actor Teron : DnD_BaseRangedMonster_NoRes 21195 {
 			UE00 F 7 Fast Bright A_PlaySound("weapons/autosgfire", CHAN_WEAPON)
 		Goto See
 		SpreadHardHit:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE00 E 6 Fast A_FaceTarget
 			UE00 E 0 A_GiveInventory("TeronDasher", 1)
 			TNT1 A 0 A_SpawnItemEx ("shotguncasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
@@ -190,10 +198,10 @@ Actor Gant : DnD_BaseHybridMonster_NoRes 21196 {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE01 AB 5 A_GiveInventory("DnD_SightChecker", 1)
+			UE01 AB 5 A_Look
 		Loop
 		SeeState:
-			UE01 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", 0, DND_ISBLOCKING) 
+			UE01 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1) 
 			UE01 A 2 Fast A_Chase("Melee", "")
 			UE01 A 2 Fast A_Chase
 			UE01 B 2 Fast A_Chase("Melee", "")
@@ -204,6 +212,8 @@ Actor Gant : DnD_BaseHybridMonster_NoRes 21196 {
 			UE01 D 2 Fast A_Chase
 		Goto See
 		MeleeState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE01 H 8 Fast A_FaceTarget
 			TNT1 A 0 A_CustomMissile("GantBash", 32)
 			UE01 I 4 Fast A_FaceTarget
@@ -223,6 +233,8 @@ Actor Gant : DnD_BaseHybridMonster_NoRes 21196 {
 			UE01 J 4 Fast A_SetFloorClip
 		Goto See
 		DashFinish:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE01 J 2 Fast A_FaceTarget
 			TNT1 A 0 A_CustomMeleeAttack(6 * random(6, 10), "weapons/vblhit")
 			UE01 J 2 Fast A_FaceTarget
@@ -232,7 +244,9 @@ Actor Gant : DnD_BaseHybridMonster_NoRes 21196 {
 		MissileState:
 			UE01 E 1 A_JumpIfInventory("DnD_Boolean", 1, "CheckCharge")
 		ContMissile:
-			UE01 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", 0, DND_ISBLOCKING) 
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
+			UE01 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1) 
 			UE01 E 0 A_JumpIfInventory("DnD_Boolean", 1, "FastMissile")
 			UE01 E 6 Fast A_FaceTarget
 			TNT1 A 0 A_PlaySound("Gant/Fire", CHAN_WEAPON)
@@ -241,6 +255,8 @@ Actor Gant : DnD_BaseHybridMonster_NoRes 21196 {
 			UE01 G 10 Fast A_FaceTarget
 		Goto See
 		FastMissile:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE01 E 4 Fast A_FaceTarget
 			TNT1 A 0 A_PlaySound("Gant/Fire", CHAN_WEAPON)
 			TNT1 AAAAA 0 A_CustomMissile("Gant_AcidShot", 40, 9, frandom(-5.25, 5.25), CMF_OFFSETPITCH, frandom(-3.25, 3.25))
@@ -387,7 +403,7 @@ Actor Bronn : DnD_BaseHybridMonster_NoRes 21197 {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE02 AB 5 A_GiveInventory("DnD_SightChecker", 1)
+			UE02 AB 5 A_Look
 		Loop
 		SeeState:
 			UE02 A 2 Fast A_Chase("Melee", "")
@@ -403,6 +419,8 @@ Actor Bronn : DnD_BaseHybridMonster_NoRes 21197 {
 			TNT1 A 0 A_Jump(128, "MissileState")
 			TNT1 A 0 A_JumpIfCloser(80, "CloseMelee")
 		DashMelee:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE02 C 2 Fast A_FaceTarget
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Vel Adjust", 0, 25)
 			UE02 DAB 2 Fast
@@ -412,6 +430,8 @@ Actor Bronn : DnD_BaseHybridMonster_NoRes 21197 {
 			UE02 J 4 Fast A_FaceTarget
 		Goto See
 		CloseMelee:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE02 H 8 Fast A_FaceTarget
 			TNT1 A 0 A_CustomMissile("BronnBash", 32)
 			UE02 I 4 Fast A_FaceTarget
@@ -422,6 +442,8 @@ Actor Bronn : DnD_BaseHybridMonster_NoRes 21197 {
 		MissileGo:
 			UE02 E 10 Fast A_FaceTarget
 		MissileLoop:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_PlaySound("Gant/Fire", CHAN_WEAPON)
 			TNT1 A 0 A_CustomMissile("Gant_AcidShot", 48, 12, frandom(-3, 3), CMF_OFFSETPITCH, frandom(-1.75, 1.75))
 			UE02 F 4 Fast Bright A_FaceTarget
@@ -434,6 +456,8 @@ Actor Bronn : DnD_BaseHybridMonster_NoRes 21197 {
 			TNT1 A 0 A_JumpIfCloser(256, "ContinueLob")
 		Goto MissileGo
 		ContinueLob:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE02 EEE 8 Fast A_FaceTarget
 			TNT1 A 0 A_PlaySound("Gant/Fire", CHAN_WEAPON)
 			UE02 F 4 Fast Bright A_CustomMissile("Bronn_AcidShot", frandom(47, 49), 12, frandom(-4.25, 4.25), CMF_OFFSETPITCH, frandom(8, 15.0))
@@ -453,6 +477,8 @@ Actor Bronn : DnD_BaseHybridMonster_NoRes 21197 {
 			UE02 G 9 Fast
 		Goto See
 		LobbedMines:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE02 EEE 4 Fast A_FaceTarget
 			TNT1 A 0 A_PlaySound("Gant/Fire", CHAN_WEAPON)
 			UE02 F 4 Fast Bright A_CustomMissile("BronnLobbedMine", frandom(47, 49), 12, frandom(-4.25, 4.25), CMF_OFFSETPITCH, frandom(9, 18.0))
@@ -637,7 +663,7 @@ Actor Vaaj : DnD_BaseRangedMonster_NoRes 21198 {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE03 AABB 4 A_GiveInventory("DnD_SightChecker", 1)
+			UE03 AABB 4 A_Look
 		loop
 		SeeState:
 			UE03 AB 3 A_Chase
@@ -646,6 +672,8 @@ Actor Vaaj : DnD_BaseRangedMonster_NoRes 21198 {
 		MissileState:
 			TNT1 A 0 A_Jump(128, "BigCharge", "Kiss", "Kiss")
 		PinkBalls:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			UE03 G 3 A_FaceTarget
 			UE03 I 3
 			TNT1 A 0 A_PlaySound("Vaaj/Attack")
@@ -658,6 +686,8 @@ Actor Vaaj : DnD_BaseRangedMonster_NoRes 21198 {
 			UE03 J 5 A_FaceTarget
 		goto See
 		More:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			UE03 J 3
 			TNT1 A 0 A_CustomMissile ("PinkBall", 36, 0, -3.6)
 			TNT1 A 0 A_CustomMissile ("PinkBall", 36, 0, 3.6)
@@ -666,6 +696,8 @@ Actor Vaaj : DnD_BaseRangedMonster_NoRes 21198 {
 			TNT1 A 0 A_CustomMissile ("PinkBall", 36, 0, 8)
 		Goto Skip
 		Kiss:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			UE03 G 4 A_FaceTarget
 			TNT1 A 0 A_PlaySound("Vaaj/Kiss", CHAN_WEAPON)
 			UE03 I 4 A_FaceTarget
@@ -683,6 +715,8 @@ Actor Vaaj : DnD_BaseRangedMonster_NoRes 21198 {
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 		Loop
 		BigChargeFinish:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_PlaySound("weapons/deathstfire")
 			UE03 J 9 Bright A_CustomMissile("VaajBigBall", 36)
 		Goto See
@@ -922,7 +956,7 @@ Actor Remus : DnD_BaseHybridMonster_NoRes 21199 {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE04 AB 5 A_GiveInventory("DnD_SightChecker", 1)
+			UE04 AB 5 A_Look
 		Loop
 		SeeState:
 			UE04 A 0 A_JumpIfInventory("DnD_Boolean", 1, "FasterSee")
@@ -1016,6 +1050,8 @@ Actor Remus : DnD_BaseHybridMonster_NoRes 21199 {
 			UE04 B 2 A_Chase
 		Goto TeleportDecide
 		TeleportDecide:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			UE04 B 0 A_Jump(128, "TeleportA", "TeleportB", "TeleportC", "TeleportD")
 		Goto See
 		MeleeState:
@@ -1025,40 +1061,72 @@ Actor Remus : DnD_BaseHybridMonster_NoRes 21199 {
 			UE04 PQ 3 Bright A_FaceTarget
 		MeleeLoop:
 			TNT1 A 0 A_PlaySound("Enforcer/Hit")
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, 2)
 			TNT1 A 0 A_CustomMissile("RemusZapper", 36)
 			TNT1 A 0 A_FaceTarget
 			TNT1 AAA 0 A_SpawnItemEx("RemusFX", frandom(-radius / 2, radius / 2), frandom(-radius / 2, radius / 2), height / 2 + frandom(-16, 16), frandom(-2, 2), frandom(-2 ,2), frandom(-2 ,2))
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, 2)
 			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 0, CMF_AIMDIRECTION)
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, 2)
 			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 60, CMF_AIMDIRECTION)
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, 2)
 			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 120, CMF_AIMDIRECTION)
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, 2)
 			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 180, CMF_AIMDIRECTION)
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, 2)
 			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 240, CMF_AIMDIRECTION)
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, 2)
 			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 300, CMF_AIMDIRECTION)
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, 3)
 			UE04 R 2 bright A_CustomMeleeAttack(random(2, 5))
+			"####" "#" 0 A_Jump(256, 2)
+			UE04 R 2 bright
 			TNT1 A 0 A_FaceTarget
 			TNT1 AAA 0 A_SpawnItemEx("RemusFX", frandom(-radius / 2, radius / 2), frandom(-radius / 2, radius / 2), height / 2 + frandom(-16, 16), frandom(-2, 2), frandom(-2 ,2), frandom(-2 ,2))
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, 3)
 			UE04 S 2 bright A_CustomMeleeAttack(random(2, 5))
+			"####" "#" 0 A_Jump(256, 2)
+			UE04 S 2 bright
 			TNT1 A 0 A_FaceTarget
 			TNT1 AAA 0 A_SpawnItemEx("RemusFX", frandom(-radius / 2, radius / 2), frandom(-radius / 2, radius / 2), height / 2 + frandom(-16, 16), frandom(-2, 2), frandom(-2 ,2), frandom(-2 ,2))
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, 3)
 			UE04 T 2 bright A_CustomMeleeAttack(random(2, 5))
+			"####" "#" 0 A_Jump(256, 2)
+			UE04 T 2 bright
 			UE04 T 1 Bright A_JumpIf(!ACS_NamedExecuteWithResult("DnD Monster Melee Loop", 144), "MeleeFinish")
 			TNT1 A 0 A_PlaySound("Enforcer/Hit")
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, 2)
 			TNT1 A 0 A_CustomMissile("RemusZapper", 36)
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, 2)
 			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 0, CMF_AIMDIRECTION)
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, 2)
 			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 60, CMF_AIMDIRECTION)
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, 2)
 			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 120, CMF_AIMDIRECTION)
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, 2)
 			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 180, CMF_AIMDIRECTION)
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, 2)
 			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 240, CMF_AIMDIRECTION)
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, 2)
 			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 300, CMF_AIMDIRECTION)
 			TNT1 A 0 A_FaceTarget
 			TNT1 AAA 0 A_SpawnItemEx("RemusFX", frandom(-radius / 2, radius / 2), frandom(-radius / 2, radius / 2), height / 2 + frandom(-16, 16), frandom(-2, 2), frandom(-2 ,2), frandom(-2 ,2))
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, 3)
 			UE04 U 2 bright A_CustomMeleeAttack(random(2, 5))
+			"####" "#" 0 A_Jump(256, 2)
+			UE04 U 2 bright
 			TNT1 A 0 A_FaceTarget
 			TNT1 AAA 0 A_SpawnItemEx("RemusFX", frandom(-radius / 2, radius / 2), frandom(-radius / 2, radius / 2), height / 2 + frandom(-16, 16), frandom(-2, 2), frandom(-2 ,2), frandom(-2 ,2))
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, 3)
 			UE04 V 2 bright A_CustomMeleeAttack(random(2, 5))
+			"####" "#" 0 A_Jump(256, 2)
+			UE04 V 2 bright
 			TNT1 A 0 A_FaceTarget
 			TNT1 AAA 0 A_SpawnItemEx("RemusFX", frandom(-radius / 2, radius / 2), frandom(-radius / 2, radius / 2), height / 2 + frandom(-16, 16), frandom(-2, 2), frandom(-2 ,2), frandom(-2 ,2))
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, 3)
 			UE04 W 2 bright A_CustomMeleeAttack(random(2, 5))
+			"####" "#" 0 A_Jump(256, 2)
+			UE04 W 2 bright
 			UE04 W 1 Bright A_JumpIf(!ACS_NamedExecuteWithResult("DnD Monster Melee Loop", 144), "MeleeFinish")
 		Loop
 		AnnoyingMelee:
@@ -1229,7 +1297,7 @@ Actor Ssrath : DnD_BaseHybridMonster_NoRes 21200 {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE05 AB 5 Fast A_GiveInventory("DnD_SightChecker", 1)
+			UE05 AB 5 Fast A_Look
 		Loop
 		SeeState:
 			UE05 A 0 A_SetUserVar("user_ang", random(0, 360))
@@ -1258,6 +1326,8 @@ Actor Ssrath : DnD_BaseHybridMonster_NoRes 21200 {
 			UE05 D 2 Fast A_Chase
 		Goto See
 		MissileState:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			UE05 E 4 Fast A_FaceTarget
 			UE05 FFFFF 5 Fast A_FaceTarget
 			TNT1 A 0 A_CustomMissile("Ssrath_Screamer", 32)
@@ -1267,8 +1337,10 @@ Actor Ssrath : DnD_BaseHybridMonster_NoRes 21200 {
 			TNT1 A 0 A_SetTranslucent(1.0)
 			TNT1 A 0 A_PlaySound("SSrath/Attack")
 			UE05 E 10 Fast A_FaceTarget
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, 2)
 			TNT1 A 0 A_CustomMissile("SSrath_EyeBeam", 42)
 			UE05 F 5 Fast A_FaceTarget
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, 2)
 			TNT1 A 0 A_CustomMeleeAttack(32)
 			UE05 G 7 Fast A_FaceTarget
 		Goto See
@@ -1279,6 +1351,8 @@ Actor Ssrath : DnD_BaseHybridMonster_NoRes 21200 {
 			UE05 H 3 Fast
 		Goto See
 		Vanish:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_ChangeFlag("NOPAIN", 1)
 			TNT1 AAAAA 0 A_SpawnItemEx("RocketSmoke", frandom(-24, 24), frandom(-24, 24), frandom(24, 36), frandom(-3, 3), frandom(-3, 3), frandom(-1, 2))
 			TNT1 AAAAAAAA 0 A_SpawnItemEx("RocketSmoke", frandom(-36, 36), frandom(-36, 36), frandom(18, 44), frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
@@ -1292,6 +1366,8 @@ Actor Ssrath : DnD_BaseHybridMonster_NoRes 21200 {
 			UE05 HHHH 1 Fast A_FadeIn(0.24)
 		Goto See
 		MoreVanish:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 AAAAAAAAAAAAAAAAAAAAAAAA 2 A_Chase("", "")
 			TNT1 AAAAA 0 A_SpawnItemEx("RocketSmoke", frandom(-24, 24), frandom(-24, 24), frandom(24, 36), frandom(-3, 3), frandom(-3, 3), frandom(-1, 2))
 			TNT1 AAAAAAAA 0 A_SpawnItemEx("RocketSmoke", frandom(-36, 36), frandom(-36, 36), frandom(18, 444), frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
@@ -1553,7 +1629,7 @@ Actor HollowShell : DnD_BaseHybridMonster_NoRes 21201 {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE10 A 1 Bright A_GiveInventory("DnD_SightChecker", 1)
+			UE10 A 1 Bright A_Look
 			UE10 AA 2 Bright A_SpawnItemEx("HollowShellFlames", -12, 0, frandom(22, 28), frandom(-4, -1), frandom(-2.5, 2.5), frandom(0, 8))
 		Loop
 		SeeState:
@@ -1563,6 +1639,8 @@ Actor HollowShell : DnD_BaseHybridMonster_NoRes 21201 {
 		Loop
 		MissileState:
 			TNT1 A 0 A_Jump(160, "Charge")
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_SpawnItemEx("HollowShellFlames", -12, 0, frandom(22, 28), frandom(-4, -1), frandom(-2.5, 2.5), frandom(0, 8))
 			UE10 B 2 Fast Bright A_FaceTarget
 			TNT1 A 0 A_SpawnItemEx("HollowShellFlames", -12, 0, frandom(22, 28), frandom(-4, -1), frandom(-2.5, 2.5), frandom(0, 8))
@@ -1574,6 +1652,8 @@ Actor HollowShell : DnD_BaseHybridMonster_NoRes 21201 {
 		Again:
 			TNT1 A 0 A_SetUserVar("user_odds", 0)
 		AgainBegin:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_SetUserVar("user_ang", 22.5 * random(-2, 2))
 			TNT1 A 0 A_SetUserVar("user_pitch", 15 * random(-2, 2))
 			TNT1 A 0 A_SetAngle(user_ang + angle)
@@ -1590,15 +1670,21 @@ Actor HollowShell : DnD_BaseHybridMonster_NoRes 21201 {
 			UE10 B 2 A_Jump(208 - user_odds, "AgainBegin")
 		Goto See
 		Charge:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_FaceTarget
 			UE10 BBB 2 Fast Bright A_SpawnItemEx("HollowShellFlames", -12, 0, frandom(22, 28), frandom(-4, -1), frandom(-2.5, 2.5), frandom(0, 8))
 			TNT1 A 0 A_SkullAttack
 			UE10 BB 2 Fast Bright A_SpawnItemEx("HollowShellFlames", -12, 0, frandom(22, 28), frandom(-4, -1), frandom(-2.5, 2.5), frandom(0, 8))
 		ChargeLoop:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE10 BBBB 2 Fast Bright A_SpawnItemEx("HollowShellFlames", -12, 0, frandom(22, 28), frandom(-4, -1), frandom(-2.5, 2.5), frandom(0, 8))
 			UE10 B 0 A_SkullAttack
 		Loop
 		MeleeState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_FaceTarget
 			UE10 BBB 2 Fast Bright A_SpawnItemEx("HollowShellFlames", -12, 0, frandom(22, 28), frandom(-4, -1), frandom(-2.5, 2.5), frandom(0, 8))
 			TNT1 A 0 A_CustomMissile("HollowShellGas", 16, 0, frandom(-7, 7))
@@ -1888,13 +1974,15 @@ Actor Omnisight : DnD_BaseHybridMonster_NoRes 21202 {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE06 AABB 3 A_GiveInventory("DnD_SightChecker", 1)
+			UE06 AABB 3 A_Look
 		Loop
 		SeeState:
 			UE06 AABBAACC 3 A_Chase
 			UE06 A 0 A_Jump(32, "Teleport")
 		Goto See
 		MeleeState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_PlaySound("ChaosSerpent/Melee")
 			UE06 ADF 5 A_FaceTarget
 			UE06 E 5 A_CustomMeleeAttack(48)
@@ -1905,10 +1993,14 @@ Actor Omnisight : DnD_BaseHybridMonster_NoRes 21202 {
 		MissileState:
 			UE06 D 0 A_Jump(256, "Missile1", "Missile2", "Missile3", "Missile4")
 		Missile1:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			UE06 DE 8 A_FaceTarget
 			UE06 FFFFF 4 bright A_SpawnItemEx("HS_NoExp", 60, 0, 15, 0, 0, 0, 0, SXF_SETMASTER)
 		Goto See
 		Missile2:
+		    "####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+		    "####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 		    UE06 GH 8 Bright A_FaceTarget
 			TNT1 A 0 A_FaceTarget
 			UE06 H 5 Bright A_PlaySound("Omnisight/shock")
@@ -1918,6 +2010,8 @@ Actor Omnisight : DnD_BaseHybridMonster_NoRes 21202 {
 		Missile3:
 			UE06 JJJJJJJJ 1 A_FaceTarget
 		Missile3Loop:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_CustomMissile("HadesBall_Omni",92,-40,random(-3,3),0,random(-3,3))
 			TNT1 A 0 A_CustomMissile("HadesBall_Omni",8,-40,random(-3,3),0,random(-3,3))
 			TNT1 A 0 A_CustomMissile("HadesBall_Omni",92,40,random(-3,3),0,random(-3,3))
@@ -1929,6 +2023,8 @@ Actor Omnisight : DnD_BaseHybridMonster_NoRes 21202 {
 		Loop
 		Missile4:
 			TNT1 A 0 A_JumpIfInventory("OmniSight_Cooldown", 1, "Redecide")
+		    "####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+		    "####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 		    UE06 GH 8 Bright A_FaceTarget
 			TNT1 A 0 A_FaceTarget
 			TNT1 A 0 A_GiveInventory("OmniSight_Cooldown", 1)
@@ -1942,6 +2038,8 @@ Actor Omnisight : DnD_BaseHybridMonster_NoRes 21202 {
 			UE06 L 0 A_Jump(40, "Teleport")
 		Goto See
 		Teleport:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_SetInvulnerable
 			TNT1 A 0 A_UnsetShootable
 			UE06 F 1 A_PlaySound("monster/heltel")
@@ -2506,13 +2604,15 @@ Actor Chegovax : DnD_BaseRangedMonster_NoRes 21203 {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE07 A 5 A_GiveInventory("DnD_SightChecker", 1)
+			UE07 A 5 A_Look
 		Loop
 		SeeState:
 			UE07 ABCDEFGH 3 A_FastChase
 		Goto See
 		MissileState:
 			UE07 I 0 A_Jump(200, "Attacks")
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			UE07 LM 8 Bright A_FaceTarget
 			UE07 N 0 A_CustomMissile("GuardianSpawner",32,0,-120)	
 			UE07 N 0 A_CustomMissile("GuardianSpawner",32,0,120)	
@@ -2526,6 +2626,8 @@ Actor Chegovax : DnD_BaseRangedMonster_NoRes 21203 {
 			UE07 III 5 A_FaceTarget(0, 0)
 		FlameLoop:
 			TNT1 A 0 A_JumpIf(user_count > blaze_lim, "FlameFinish")
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_CustomMissile("ChegovaxFire", 56, -10, angle, CMF_ABSOLUTEANGLE | CMF_ABSOLUTEPITCH, pitch + pbase + user_count * f)
 			UE07 J 2 Bright A_CustomMissile("ChegovaxFire", 56, 10, angle, CMF_ABSOLUTEANGLE | CMF_ABSOLUTEPITCH, pitch + pbase + user_count * f)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
@@ -2534,6 +2636,8 @@ Actor Chegovax : DnD_BaseRangedMonster_NoRes 21203 {
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 		Loop
 		FlameFinish:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_CustomMissile("ChegovaxFire", 56, -10, angle, CMF_ABSOLUTEANGLE)
 			UE07 J 2 Bright A_CustomMissile("ChegovaxFire", 56, 10, angle, CMF_ABSOLUTEANGLE)
 			TNT1 A 0 A_CustomMissile("ChegovaxFire", 56, -10, angle, CMF_ABSOLUTEANGLE)
@@ -2545,6 +2649,8 @@ Actor Chegovax : DnD_BaseRangedMonster_NoRes 21203 {
 			UE07 I 4
 		Goto See
 		Meteor:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			UE07 LLL 4 Bright A_FaceTarget
 			UE07 MM 4 Bright A_FaceTarget
 			UE07 N 10 Bright A_CustomMissile("ChegovaxMeteor", 32)
@@ -2839,12 +2945,14 @@ Actor Onimuz : DnD_BaseHybridMonster_NoRes 21204 {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE08 AB 5 A_GiveInventory("DnD_SightChecker", 1)
+			UE08 AB 5 A_Look
 		Loop
 		SeeState:
 			UE08 ABCD 3 Fast A_Chase
 		Goto See
 		MeleeState:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE08 E 8 Fast A_FaceTarget
 			UE08 F 7 Fast A_FaceTarget
 			UE08 G 6 Fast A_CustomComboAttack("RedAxe2_Onimuz", 32, 4 * random(5, 8), "hknight/melee")
@@ -2859,9 +2967,14 @@ Actor Onimuz : DnD_BaseHybridMonster_NoRes 21204 {
 			TNT1 A 0 A_JumpIfCloser(1024, "Projection")
 		Goto ThrowAxe
 		Projection:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
+			TNT1 A 0 A_RearrangePointers(AAPTR_DEFAULT, AAPTR_DEFAULT, AAPTR_NULL)
 			TNT1 A 0 A_FaceTarget
 			UE08 G 5 Fast A_CustomMissile("OnimuzProjection_Missile")
 		ProjectionLoop:
+			// the tracer is the missile, then the projection it turns into: once neither is left, stop channeling
+			TNT1 A 0 A_JumpIf(IsPointerEqual(AAPTR_TRACER, AAPTR_NULL), "ProjectionFinish")
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "ProjectionFinish")
 			UE08 G 5 Fast A_FaceTarget
 		Loop
@@ -2871,6 +2984,8 @@ Actor Onimuz : DnD_BaseHybridMonster_NoRes 21204 {
 		ThrowAxe:
 			TNT1 A 0 A_Jump(128, "Multi_Left", "Multi_Right")
 			TNT1 A 0 A_JumpIfHealthLower (ACS_ExecuteWithResult(961, 7) / 2, "MoreAxe") 
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE08 E 7 Fast A_FaceTarget
 			UE08 F 6 Fast A_FaceTarget
 			UE08 G 5 Fast A_CustomMissile("RedAxe2_Onimuz", 32, -6)
@@ -2880,6 +2995,8 @@ Actor Onimuz : DnD_BaseHybridMonster_NoRes 21204 {
 			UE08 J 1 Fast A_Jump(64, "ThrowAxe")
 		Goto See
 		Multi_Left:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE08 EEEEE 5 Fast A_FaceTarget
 			UE08 F 5 Fast A_CustomMissile("RedAxe2_Onimuz", 32, -6, -20 + angle, CMF_ABSOLUTEANGLE)
 			UE08 F 5 Fast A_CustomMissile("RedAxe2_Onimuz", 32, -6, -12 + angle, CMF_ABSOLUTEANGLE)
@@ -2888,6 +3005,8 @@ Actor Onimuz : DnD_BaseHybridMonster_NoRes 21204 {
 			UE08 G 5 Fast A_CustomMissile("RedAxe2_Onimuz", 32, -6, 12 + angle, CMF_ABSOLUTEANGLE)
 		Goto See
 		Multi_Right:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE08 HHHHH 5 Fast A_FaceTarget
 			UE08 I 5 Fast A_CustomMissile("RedAxe2_Onimuz", 32, -6, 20 + angle, CMF_ABSOLUTEANGLE)
 			UE08 I 5 Fast A_CustomMissile("RedAxe2_Onimuz", 32, -6, 12 + angle, CMF_ABSOLUTEANGLE)
@@ -2896,6 +3015,8 @@ Actor Onimuz : DnD_BaseHybridMonster_NoRes 21204 {
 			UE08 J 5 Fast A_CustomMissile("RedAxe2_Onimuz", 32, -6, -12 + angle, CMF_ABSOLUTEANGLE)
 		Goto See
 		MoreAxe:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE08 E 7 Fast A_FaceTarget
 			UE08 F 6 Fast A_FaceTarget
 			TNT1 A 0 A_CustomMissile("RedAxe2_Onimuz", 32, -6, -9)
@@ -2983,7 +3104,7 @@ Actor OnimuzProjection : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Timed Monster", 0, 20, 0)
 			UE08 A 2
 		IdleLoop:
-			UE08 A 2 A_GiveInventory("DnD_SightChecker", 1)
+			UE08 A 2 A_Look
 		Loop
 		
 		SeeState:
@@ -3010,6 +3131,7 @@ Actor OnimuzProjection : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
 			UE08 F 4 Fast A_FaceTarget
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			"####" "#" 0 A_JumpIfInventory("DnD_AttackLock", 1, "MeleeStateLocked")
 			UE08 G 6 Fast A_CustomComboAttack("RedAxe2_Onimuz", 32, 4 * random(5, 8), "hknight/melee")
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
 			UE08 H 4 Fast A_FaceTarget
@@ -3025,6 +3147,8 @@ Actor OnimuzProjection : DnD_BaseHybridMonster_NoRes {
 		MissileState:
 			UE08 E 6 Fast A_FaceTarget
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			UE08 F 5 Fast A_FaceTarget
 			UE08 G 4 Fast A_CustomMissile("RedAxe2_Onimuz", 32, -6)
 			UE08 H 6 Fast A_FaceTarget
@@ -3043,6 +3167,39 @@ Actor OnimuzProjection : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 A_Scream
 			UE08 LLLLLLL 2 A_FadeOut(0.1125)
 		Stop
+		MeleeStateLocked:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "MeleeStateBall")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
+			"####" "#" 0 A_JumpIfTargetInsideMeleeRange("MeleeStateClaw")
+		Goto AttackReroll
+		MeleeStateClaw:
+			UE08 G 6 Fast A_CustomMeleeAttack(4 * random(5, 8), "hknight/melee")
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 H 4 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 H 4 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 I 3 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 I 4 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 J 6 Fast A_CustomMeleeAttack(4 * random(5, 8), "hknight/melee")
+		Goto See
+		MeleeStateBall:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
+			UE08 G 6 Fast A_CustomMissile("RedAxe2_Onimuz", 32)
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 H 4 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 H 4 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 I 3 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 I 4 Fast A_FaceTarget
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 J 6 Fast A_CustomMissile("RedAxe2_Onimuz", 32)
+		Goto See
 	}
 }
 
@@ -3065,6 +3222,9 @@ Actor OnimuzProjection_Missile {
 	+DONTBLAST
 	States {
 		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_TransferPointer(AAPTR_DEFAULT, AAPTR_TARGET, AAPTR_DEFAULT, AAPTR_TRACER)
+		SpawnLoop:
 			UE08 AA 2 A_SpawnItemEx("OnimuzProjection_TrailA")
 			TNT1 A 0 A_SeekerMissile(75, 75)
 			UE08 BB 2 A_SpawnItemEx("OnimuzProjection_TrailB")
@@ -3185,7 +3345,7 @@ Actor Harkimonde : DnD_BaseHybridMonster_NoRes 21205 {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE09 AB 5 A_GiveInventory("DnD_SightChecker", 1)
+			UE09 AB 5 A_Look
 		Loop
 		SeeState:
 			UE09 A 0 A_ChangeFlag("NOBLOOD", 0)
@@ -3215,6 +3375,8 @@ Actor Harkimonde : DnD_BaseHybridMonster_NoRes 21205 {
 			TNT1 A 0 A_TakeInventory("DND_Boolean", 1)
 			TNT1 A 0 A_JumpIfCloser(96, "ShieldBash")
 		IgnoreBash:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_PlaySound("weapons/hamswg", CHAN_WEAPON)
 			UE09 H 5 A_FaceTarget
 			UE09 I 4 A_FaceTarget
@@ -3222,11 +3384,15 @@ Actor Harkimonde : DnD_BaseHybridMonster_NoRes 21205 {
 			UE09 J 4 A_JumpIfCloser(80, "ConfirmedMelee")
 		Goto See
 		ConfirmedMelee:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE09 J 4 A_CustomMeleeAttack(random(40, 65))
 		Goto See
 		MissileState:
 			TNT1 A 0 A_Jump(108, "Leap")
 		MissileGo:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, -1, -1, -1)
 			UE09 EE 4 Fast A_FaceTarget
@@ -3240,6 +3406,8 @@ Actor Harkimonde : DnD_BaseHybridMonster_NoRes 21205 {
 			TNT1 A 0 A_JumpIfCloser(400, "LeapGo")
 		Goto MissileGo
 		LeapGo:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_PlaySound("Harkimonde/Leap")
 			TNT1 A 0 A_TakeInventory("MonsterLeapFinish", 1)
 			UE09 HHHH 4 Fast A_FaceTarget
@@ -3254,6 +3422,8 @@ Actor Harkimonde : DnD_BaseHybridMonster_NoRes 21205 {
 			UE09 J 2 Fast A_Jump(64, "MissileGo")
 		Goto See
 		OneMore:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			UE09 EE 4 Fast A_FaceTarget
 			UE09 F 10 Fast Bright A_CustomMissile("HarkimondeFlameTracer", 32)
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
@@ -3261,6 +3431,8 @@ Actor Harkimonde : DnD_BaseHybridMonster_NoRes 21205 {
 		Goto See
 		ShieldBash:
 			TNT1 A 0 A_Jump(128, "IgnoreBash")
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE09 E 5 Fast A_FaceTarget
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, -1, -1, -1)
@@ -3599,7 +3771,7 @@ Actor Leshrac : DnD_BaseHybridMonster_NoRes 21206 {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE11 AB 5 A_GiveInventory("DnD_SightChecker", 1)
+			UE11 AB 5 A_Look
 		Loop
 		SeeState:
 			UE11 ABCDEF 3 Fast A_Chase
@@ -3608,6 +3780,8 @@ Actor Leshrac : DnD_BaseHybridMonster_NoRes 21206 {
 		MeleeState:
 			UE11 H 0 A_Jump(64, "PoisonMine2")
 		MeleeCont:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE11 HHHH 4 Fast A_FaceTarget
 			TNT1 A 0 A_PlaySound("torturedsoul/poison")
 			UE11 IIIIIIIIII 1 Fast Bright A_CustomMissile("LeshracPoisonMelee", 56, frandom(-3.75, 3.75), frandom(-20, 20))
@@ -3615,6 +3789,8 @@ Actor Leshrac : DnD_BaseHybridMonster_NoRes 21206 {
 		MissileState:
 			TNT1 A 0 A_Jump(128, "LobbedMines")
 		BallAttack:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE11 HHH 3 Fast A_FaceTarget
 			TNT1 A 0 A_FaceTarget
 			UE11 I 4 Bright A_CustomMissile("Leshrac_Ball", fire_z, 0, frandom(-9, 9), CMF_OFFSETPITCH, frandom(-2.5, 2.5))
@@ -3632,6 +3808,8 @@ Actor Leshrac : DnD_BaseHybridMonster_NoRes 21206 {
 			TNT1 A 0 A_JumpIfCloser(640, "ContinueLob")
 		Goto BallAttack
 		ContinueLob:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			UE11 HH 8 Fast A_FaceTarget
 			TNT1 A 0 A_PlaySound("weapons/crabf2")
 			UE11 I 7 Bright ACS_NamedExecuteWithResult("DnD Leshrac Lob", 0, fire_z)
@@ -3644,6 +3822,8 @@ Actor Leshrac : DnD_BaseHybridMonster_NoRes 21206 {
 		PoisonMine:
 			UE11 "#" 0 A_JumpIfInventory("DnD_Info", mine_limit, "See")
 		ReallyMine:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			UE11 H 7 Fast
 			TNT1 A 0 A_GiveInventory("DnD_Info", 1)
 			UE11 I 9 Fast A_SpawnItemEx("LeshracPoisonMine", 40, 0, fire_z, ms * cos(angle), ms * sin(angle), 5, 0, SXF_ABSOLUTEVELOCITY | SXF_SETMASTER)
@@ -3654,7 +3834,10 @@ Actor Leshrac : DnD_BaseHybridMonster_NoRes 21206 {
 		Goto ReallyMine
 		PainState:
 			TNT1 A 0 A_GiveInventory("LeshracInterrupt", 1)
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "PainFlinch")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 AAA 0 A_CustomMissile("LeshracPoisonMelee", 56, frandom(-9, 9), frandom(-20, 20), frandom(0, 360), CMF_ABSOLUTEANGLE)
+		PainFlinch:
 			UE11 G 9 Fast A_Pain
 		Goto See
 		XDeathState:
@@ -3750,7 +3933,7 @@ Actor LeshracPoisonMine : DnD_BaseMeleeMonster_NoRes 21207 {
 		IdleState:
 			UP11 IJKLMNOP 3
 		IdleLoop:
-			UP11 A 10 A_GiveInventory("DnD_SightChecker", 1)
+			UP11 A 10 A_Look
 			UP11 "#" 0 A_SetUserVar("user_count", user_count + 1)
 			UP11 "#" 0 A_JumpIf(user_count == mine_timer, "TimesUp")
 		Loop
@@ -3769,6 +3952,8 @@ Actor LeshracPoisonMine : DnD_BaseMeleeMonster_NoRes 21207 {
 		Goto See
 		MeleeState:
 		BlowUp:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "BlowUpHeld")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_NoBlocking
 			UP11 C 5 Bright A_ChangeFlag("SHOOTABLE", 0)
 			TNT1 A 0 A_TakeInventory("DnD_Info", 1, AAPTR_MASTER)
@@ -3779,6 +3964,10 @@ Actor LeshracPoisonMine : DnD_BaseMeleeMonster_NoRes 21207 {
 			UP11 E 5 Bright A_CustomMissile("Leshrac_MineExplosion")
 			UP11 F 10 Bright
 		Stop
+		// Caution jumps here before its own tics run, so a pacified mine waits a frame instead of spinning on the check
+		BlowUpHeld:
+			UP11 Q 10
+		Goto See
 		TimesUp:
 			UP11 "#" 10 A_Die
 		Wait
@@ -3918,7 +4107,7 @@ Actor Krull : DnD_BaseRangedMonster_NoRes 21208 {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE12 AB 5 A_GiveInventory("DnD_SightChecker", 1)
+			UE12 AB 5 A_Look
 		Loop
 		SeeState:
 			UE12 A 0 A_JumpIfInventory("DnD_Boolean", 1, "MoreChase")
@@ -3948,6 +4137,8 @@ Actor Krull : DnD_BaseRangedMonster_NoRes 21208 {
 			UE12 I 6 Fast
 		Goto See
 		Spread:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_SetUserVar("user_a", random(1, 2))
 			TNT1 A 0 A_SetUserVar("user_b", random(4, 8))
 			TNT1 A 0 A_PlaySound("HellsMaw/Fire", CHAN_WEAPON)
@@ -3961,6 +4152,8 @@ Actor Krull : DnD_BaseRangedMonster_NoRes 21208 {
 			UE12 IG 6 Fast A_FaceTarget
 		Goto MissileLoop
 		Triangular:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_SetUserVar("user_a", ACS_NamedExecuteWithResult("DnD Krull Angle", 48) - angle)
 			TNT1 A 0 A_PlaySound("HellsMaw/Fire", CHAN_WEAPON)
 			TNT1 A 0 A_CustomMissile("KrullRocket", 34, -35.6, -user_a, CMF_AIMOFFSET)
@@ -4160,7 +4353,7 @@ Actor Thorax : DnD_BaseRangedMonster_NoRes 21209 {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE14 A 15 A_GiveInventory("DnD_SightChecker", 1)
+			UE14 A 15 A_Look
 			UE14 A 0 A_SetAngle(angle + random(0, 360))
 		Loop
 		SeeState:
@@ -4203,6 +4396,8 @@ Actor Thorax : DnD_BaseRangedMonster_NoRes 21209 {
 			UE14 EEE 5 Fast A_FaceTarget
 			UE14 E 0 A_Jump(96, "FastDash_Home")
 		HomingfireGo:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE14 E 0 A_PlaySound("weapons/heavyrlfire", CHAN_WEAPON)
 			UE14 F 6 Fast Bright A_CustomMissile("ThoraxMissile_Homing", 30, -19)
 			UE14 G 4 Fast
@@ -4224,6 +4419,8 @@ Actor Thorax : DnD_BaseRangedMonster_NoRes 21209 {
 			"####" "#" 2 A_FaceTarget
 		Goto LobFireGo
 		Combo:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE14 E 5 Fast A_FaceTarget
 			TNT1 A 0 A_PlaySound("weapons/heavyrlfire", CHAN_WEAPON)
 			UE14 F 6 Fast Bright A_CustomMissile("ThoraxMissile", 30, -19)
@@ -4231,6 +4428,8 @@ Actor Thorax : DnD_BaseRangedMonster_NoRes 21209 {
 			UE14 G 4 Fast A_FaceTarget
 			UE14 E 5 Fast A_FaceTarget
 		LobFireGo:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_PlaySound("weapons/basiliskfire2", CHAN_7)
 			UE14 H 6 Fast Bright ACS_NamedExecuteWithResult("DnD Thorax Lob", 15, 34)
 		Goto See
@@ -4487,7 +4686,7 @@ Actor Zravog : DnD_BaseRangedMonster_NoRes 21210 {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE15 AB 5 A_GiveInventory("DnD_SightChecker", 1)
+			UE15 AB 5 A_Look
 		Loop
 		SeeState:
 			UE15 AAABBB 2 Fast A_Chase
@@ -4500,6 +4699,8 @@ Actor Zravog : DnD_BaseRangedMonster_NoRes 21210 {
 			TNT1 A 0 A_Jump(192, "Fire1", "Fire2", "Fire3")
 		Goto Teleport
 		Fire1:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			UE15 DDDD 4 Fast A_FaceTarget
 			UE15 C 8 Fast Bright A_CustomMissile ("ZravogHomingBall", 48, 0, 0, 0)
 			UE15 D 4 Fast A_FaceTarget
@@ -4508,6 +4709,8 @@ Actor Zravog : DnD_BaseRangedMonster_NoRes 21210 {
 			UE15 A 0 A_Jump(128, "More")
 		Goto See
 		More:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			UE15 C 8 Fast Bright A_CustomMissile ("ZravogHomingBall", 48, 0, 0, 0)
 			UE15 D 4 Fast A_FaceTarget
 			UE15 C 8 Fast Bright A_CustomMissile ("ZravogHomingBall", 48, 0, 0, 0)
@@ -4516,6 +4719,8 @@ Actor Zravog : DnD_BaseRangedMonster_NoRes 21210 {
 			UE15 D 4 Fast A_FaceTarget
 		Goto See
 		Fire2:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Boolean Sync", true)
 			TNT1 A 0 A_ChangeFlag("QUICKTORETALIATE", 0)
 			UE15 D 1
@@ -4525,6 +4730,8 @@ Actor Zravog : DnD_BaseRangedMonster_NoRes 21210 {
 			UE15 C 9 Fast Bright
 		Goto See
 		Fire3:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			UE15 DDDD 4 Fast A_FaceTarget
 			UE15 C 8 Fast Bright
 			UE15 C 0 A_CustomMissile ("ZravogMissile", 48, 0, -6, 0)
@@ -4543,12 +4750,16 @@ Actor Zravog : DnD_BaseRangedMonster_NoRes 21210 {
 			UE15 D 4 Fast A_FaceTarget
 		Goto See
 		Fire4:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			UE15 D 4 Fast A_FaceTarget
 			TNT1 A 0 A_PlaySound("weapons/boltfi", CHAN_WEAPON)
 			UE15 C 8 Fast Bright A_CustomMissile ("ZravogCube", 48, 0, 0, 0)
 			UE15 D 4 Fast A_FaceTarget
 		Goto Redecide
 		Teleport:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			UE15 A 0 A_UnSetshootable
 			UE15 A 0 A_FaceTarget
 			UE15 A 1 A_PlaySound("misc/teleport")
@@ -4565,8 +4776,8 @@ Actor Zravog : DnD_BaseRangedMonster_NoRes 21210 {
 			TNT1 A 0 A_SetUserVar("user_count", 0)
 		TeleportLoop:
 			TNT1 A 0 A_JumpIf(user_count == ab_tele, "TeleportEnd")
-			TNT1 AA 0 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 2 A_GiveInventory("DnD_WanderChecker", 1)
+			TNT1 AA 0 A_Wander
+			TNT1 A 2 A_Wander
 			TNT1 A 0 A_SpawnItemEx("ZvarogTeleportFX", 32, 22, 5)
 			TNT1 A 0 A_SpawnItemEx("ZvarogTeleportFX", 32, 22, 14)
 			TNT1 A 0 A_SpawnItemEx("ZvarogTeleportFX", 32, 22, 22)
@@ -4854,7 +5065,7 @@ Actor Eryxia : DnD_BaseRangedBoss 21211 {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE13 AABB 5 A_GiveInventory("DnD_SightChecker", 1)
+			UE13 AABB 5 A_Look
 		Loop
 		SeeState:
 			UE13 A 0 A_Jump(32, "Rush")
@@ -4883,6 +5094,8 @@ Actor Eryxia : DnD_BaseRangedBoss 21211 {
 		MissileLoopDecide:
 			TNT1 A 0 A_JumpIfHealthLower (ACS_ExecuteWithResult(961, 7) / 2, "MissileLoop2")
 		MissileLoop:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_PlaySound("Weapons/NG2Fire", CHAN_WEAPON)
 			UE13 H 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, angle + frandom(-fr_max, -fr_min), CMF_ABSOLUTEANGLE)
 			UE13 H 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, angle + frandom(fr_min, fr_max), CMF_ABSOLUTEANGLE)
@@ -4897,6 +5110,8 @@ Actor Eryxia : DnD_BaseRangedBoss 21211 {
 			UE13 G 1 Bright Fast A_SpidRefire
 		Loop
 		MissileLoop2:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_PlaySound("Weapons/NG2Fire", CHAN_WEAPON)
 			TNT1 A 0 A_GiveInventory("EryxiaFreezerChecker", 1)
 			UE13 H 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, angle + frandom(-fr_max, -fr_min), CMF_ABSOLUTEANGLE)
@@ -4913,6 +5128,8 @@ Actor Eryxia : DnD_BaseRangedBoss 21211 {
 		Loop
 		Freezer:
 			TNT1 A 0 A_JumpIfHealthLower (ACS_ExecuteWithResult(961, 7) / 2, "Spikes")
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			UE13 A 10 Fast Bright A_FaceTarget
 			TNT1 A 0 A_PlaySound("Weapons/FreezerFire", CHAN_WEAPON)
 			UE13 H 6 Bright Fast A_CustomMissile("EryxiaFreezer", 54, 0, angle, CMF_ABSOLUTEANGLE)
@@ -4922,11 +5139,15 @@ Actor Eryxia : DnD_BaseRangedBoss 21211 {
 			UE13 G 1 Bright Fast A_JumpIfTargetInLOS("MissileLoopDecide")
 		Goto See
 		Spikes:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE13 A 5 Fast Bright A_FaceTarget
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Eryxia Lob", 0, 54)
 			UE13 HGHGHG 4 Bright Fast
 		Goto See
 		PainRetaliate:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_ChangeFlag("NOPAIN", 1)
 			UE13 I 15 Fast A_PlaySound("Eryxia/Retaliate", CHAN_7)
 			TNT1 A 0 A_GiveInventory("EryxiaRetaliationCD", 1)
@@ -5441,7 +5662,7 @@ Actor Abaxoth : DnD_BaseHybridBoss 21212 {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE16 AB 4 A_GiveInventory("DnD_SightChecker", 1)
+			UE16 AB 4 A_Look
 		Loop
 		SeeState:
 			UE16 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
@@ -5456,6 +5677,8 @@ Actor Abaxoth : DnD_BaseHybridBoss 21212 {
 		Goto See
 		MeleeState:
 			TNT1 A 0 A_Jump(144, "Fissures", "TectonicSlam")
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_PlaySound("Abaxoth/MeleeEffort")
 			UE16 L 5 Fast A_FaceTarget
 			TNT1 A 0 A_PlaySound("Abaxoth/HammerSwing", CHAN_WEAPON)
@@ -5469,6 +5692,8 @@ Actor Abaxoth : DnD_BaseHybridBoss 21212 {
 			TNT1 A 0 A_Jump(108, "Laser", "Fissures")
 			// homing rockets
 		Rockets:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE16 EEEEE 4 Fast A_FaceTarget
 			TNT1 A 0 A_CustomMissile("AbaxothRocketL", 140, -32, random(-r_a, r_a), 0, random(-r_a, r_a))
 			TNT1 A 0 A_CustomMissile("AbaxothRocketL", 120, -32, random(-r_a, r_a), 0, random(-r_a, r_a))
@@ -5518,6 +5743,8 @@ Actor Abaxoth : DnD_BaseHybridBoss 21212 {
 		Goto Fissures
 		Thunderbolt:
 			TNT1 A 0 A_JumpIfInventory("AbaxothThunderCooldown", 1, "DecideRange_NoThunder")
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			TNT1 A 0 A_GiveInventory("AbaxothThunderCooldown", 1)
 			UE16 L 1 Light("AbaxothThunderLight") A_FaceTarget
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Boolean Sync", true)
@@ -5548,6 +5775,8 @@ Actor Abaxoth : DnD_BaseHybridBoss 21212 {
 			TNT1 A 0 A_PlaySound("Abaxoth/LaserLoop", CHAN_WEAPON, 1.0, true)
 		LaserLoop:
 			TNT1 A 0 A_JumpIf(user_count == laser_t, "LaserFinish")
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Abaxoth Laser Adjust", -24)
 			UE16 J 2 Bright Fast A_CustomRailgun(random(24, 32), -24, none, none, RGF_SILENT | RGF_NOPIERCING, 0, 2, "AbaxothRailPuff", 0, 0, 4096, 0, 2.5, 0, "AbaxothRailTrail", 10)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
@@ -5558,6 +5787,8 @@ Actor Abaxoth : DnD_BaseHybridBoss 21212 {
 			UE16 K 8 Fast
 		Goto See
 		Charge:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 1)
 			TNT1 A 0 A_PlaySound("Abaxoth/Bullrush")
 			TNT1 A 0 A_SetUserVar("user_count", 0)
@@ -5569,6 +5800,8 @@ Actor Abaxoth : DnD_BaseHybridBoss 21212 {
 			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -16, -32, 0, frandom(-0.5, -2), frandom(-1, -2.5), frandom(0.5, 2))
 			TNT1 A 0 A_FaceTarget
 		ChargeLoop:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE16 H 3 Fast A_ChangeVelocity(vel_charge * cos(angle), vel_charge * sin(angle), velz, CVF_REPLACE)
 			TNT1 A 0 A_SpawnItem("AbaxothChargeExp", -8, 55)
 			TNT1 A 0 A_RadiusThrust(1024, 176, RTF_NOIMPACTDAMAGE | RTF_NOTMISSILE)
@@ -5589,6 +5822,8 @@ Actor Abaxoth : DnD_BaseHybridBoss 21212 {
 			UE16 D 2 Fast A_Jump(128, "DecideRanged")
 		Goto See
 		TectonicSlam:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			UE16 L 5 Fast A_FaceTarget
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Boolean Sync", true)
 			TNT1 A 0 A_PlaySound("Abaxoth/HammerSwing", CHAN_WEAPON)
@@ -5633,6 +5868,8 @@ Actor Abaxoth : DnD_BaseHybridBoss 21212 {
 		Goto See
 		Fissures:
 			TNT1 A 0 A_JumpIfInventory("AbaxothFissureCD", 1, "TectonicSlam")
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "AttackReroll")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
 			TNT1 A 0 A_GiveInventory("AbaxothFissureCD", 1)
 			TNT1 A 0 A_PlaySound("Abaxoth/MeleeEffort")
 			UE16 L 5 Fast A_FaceTarget

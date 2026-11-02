@@ -1,0 +1,36 @@
+// The walk's streak of shades, the puffs at either end, and rank 10's ring and burst; all client side.
+Actor Spell_NetherWalk_Shade : DnD_SpecialFX {
+	RenderStyle Translucent
+	Alpha 0.6
+	Scale 0.5
+	Translation "0:255=%[0.00,0.00,0.00]:[0.45,0.30,0.70]"
+	+NOGRAVITY
+	States {
+		Spawn:
+			TNT1 A 0
+			D5FX GHIJKL 3 A_FadeOut(0.08)
+		Stop
+	}
+}
+
+Actor Spell_NetherWalk_Puff : Spell_NetherWalk_Shade {
+	Scale 0.9
+	Alpha 0.8
+}
+
+Actor Spell_NetherWalk_Ring : NoxAreaMarkerFX {
+	Translation "80:111=%[0.00,0.00,0.00]:[0.90,0.40,1.60]"
+}
+
+Actor Spell_NetherWalk_Burst : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.9
+	Scale 1.2
+	Translation "0:255=%[0.00,0.00,0.00]:[0.90,0.40,1.60]"
+	States {
+		Spawn:
+			TNT1 A 0
+			D4FX GHIJKL 3 Bright
+		Stop
+	}
+}

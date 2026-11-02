@@ -104,7 +104,7 @@ enum {
 	DUN_ATTR_EXTRASPEED,
 	DUN_ATTR_AILMENTAVOID,
 	DUN_ATTR_INFLICTAILMENT,
-	DUN_ATTR_NOLIFESTEAL,
+	DUN_ATTR_NOLEECH,
 	DUN_ATTR_REDUCEDHEALING,
 	DUN_ATTR_REDUCEDESHIELDRECOVERYRATE,
 	DUN_ATTR_LESSDEFENCES,
@@ -273,13 +273,13 @@ void SetupDungeonModTable() {
 	DungeonModData.DungeonModTable[DUN_ATTR_INFLICTAILMENT].attrib_level_extra_modifier = -1;
 	DungeonModData.DungeonModTable[DUN_ATTR_INFLICTAILMENT].tags = INV_ATTR_TAG_ATTACK;
 
-	DungeonModData.DungeonModTable[DUN_ATTR_NOLIFESTEAL].attrib_low = 1;
-	DungeonModData.DungeonModTable[DUN_ATTR_NOLIFESTEAL].attrib_high = 1;
-	DungeonModData.DungeonModTable[DUN_ATTR_NOLIFESTEAL].attrib_extra_low = 10;
-	DungeonModData.DungeonModTable[DUN_ATTR_NOLIFESTEAL].attrib_extra_high = 40;
-	DungeonModData.DungeonModTable[DUN_ATTR_NOLIFESTEAL].attrib_level_modifier = -1;
-	DungeonModData.DungeonModTable[DUN_ATTR_NOLIFESTEAL].attrib_level_extra_modifier = -1;
-	DungeonModData.DungeonModTable[DUN_ATTR_NOLIFESTEAL].tags = INV_ATTR_TAG_ATTACK;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOLEECH].attrib_low = 1;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOLEECH].attrib_high = 1;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOLEECH].attrib_extra_low = 10;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOLEECH].attrib_extra_high = 40;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOLEECH].attrib_level_modifier = -1;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOLEECH].attrib_level_extra_modifier = -1;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOLEECH].tags = INV_ATTR_TAG_ATTACK;
 
 	DungeonModData.DungeonModTable[DUN_ATTR_REDUCEDHEALING].attrib_low = 5;
 	DungeonModData.DungeonModTable[DUN_ATTR_REDUCEDHEALING].attrib_high = 10;
@@ -363,7 +363,7 @@ bool IsDungeonAttributeQualityException(int attr) {
 		case DUN_ATTR_EXTRASPEED:
 		// not a magnitude at all -- scaling it would name a different ailment
 		case DUN_ATTR_INFLICTAILMENT:
-		case DUN_ATTR_NOLIFESTEAL:
+		case DUN_ATTR_NOLEECH:
 		return true;
 	}
 	return false;
@@ -643,7 +643,7 @@ str DungeonAttributeString(
 		case DUN_ATTR_EXTRAFAST:
 		case DUN_ATTR_GHOST:
 		case DUN_ATTR_EXTRASPEED:
-		case DUN_ATTR_NOLIFESTEAL:
+		case DUN_ATTR_NOLEECH:
 			text = StrParam(s:no_tag, l:text, s:"\n");
 		break;
 
@@ -845,10 +845,10 @@ int ApplyDungeonReduction(int attr, int val) {
 	return val * (100 - Min(less, 100)) / 100;
 }
 
-// "Players cannot lifesteal". A boolean rather than a magnitude -- which is why it rolls 1 to 1 and
+// "Players cannot leech": life and mana alike. A boolean rather than a magnitude -- which is why it rolls 1 to 1 and
 // sits in IsDungeonAttributeQualityException -- so presence is the whole answer.
-bool DungeonBlocksLifesteal() {
-	return HasDungeonAttributeVal(DUN_ATTR_NOLIFESTEAL) != -1;
+bool DungeonBlocksLeech() {
+	return HasDungeonAttributeVal(DUN_ATTR_NOLEECH) != -1;
 }
 
 // returns the value of extra when given the id that would be encoded here

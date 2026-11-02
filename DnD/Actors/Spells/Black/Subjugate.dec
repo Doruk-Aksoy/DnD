@@ -1,0 +1,18 @@
+// On one enemy: subjugated, its clock, and at rank 10 the curser + 1 it fights for until the curse ends.
+Actor DnD_Subjugated : DnD_Info {}
+Actor DnD_SubjugatedTimer : DnD_Info {}
+Actor DnD_SubjugatedOwner : DnD_Info {}
+
+// The curse marker over a subjugated enemy: frame O of the curse row (FlammabilityFXMarker).
+Actor SubjugateFXMarker : FlammabilityFXMarker {
+	States {
+		SpawnLoop:
+			CM1O O 0
+		Goto CurseJoin
+	}
+}
+
+// The ring drawn round the target from rank 5, in pale violet sparks.
+Actor SubjugateAreaMarkerFX : NoxAreaMarkerFX {
+	Translation "80:111=%[0.00,0.00,0.00]:[1.20,0.90,1.80]"
+}

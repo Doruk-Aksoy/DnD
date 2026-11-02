@@ -1,0 +1,18 @@
+// On one enemy: tapped, its clock, and the caster + 1 whose hits it heals.
+Actor DnD_LifeTapped : DnD_Info {}
+Actor DnD_LifeTappedTimer : DnD_Info {}
+Actor DnD_LifeTapOwner : DnD_Info {}
+
+// The curse marker over a tapped enemy: frame M of the curse row (FlammabilityFXMarker).
+Actor LifeTapFXMarker : FlammabilityFXMarker {
+	States {
+		SpawnLoop:
+			CM1O M 0
+		Goto CurseJoin
+	}
+}
+
+// The ring drawn where the ball bursts, in blood red sparks.
+Actor LifeTapAreaMarkerFX : NoxAreaMarkerFX {
+	Translation "80:111=%[0.00,0.00,0.00]:[1.90,0.15,0.20]"
+}

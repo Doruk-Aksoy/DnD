@@ -264,9 +264,11 @@ DND_MENU_ATTR_SHORT3 	=	"\c[INT]INT\c-";
 
 DND_MENU_ATTUNED		=	"Attuned";
 
-DND_MENU_ATTRTEXT1		=	"Increases \cqKnockback Resist\c- by 50 and \cgmaximum life\c- by 2.";
-DND_MENU_ATTRTEXT2		=	"Increases \cdMitigation Chance\c- by 0.2%.";
-DND_MENU_ATTRTEXT3		=	"Increases \cvEnergy Shield\c- by 1% per 2 points and improves spells.";
+DND_MENU_ATTRTEXT1		=	"Increases \cqKnockback Resist\c- by 50, \cgmaximum life\c- by 1.5 and stamina by 0.5, and grants \cgammo capacity\c-, special ammo included, up to 40%.";
+DND_MENU_ATTRTEXT2		=	"Increases \cdMitigation Chance\c- by 0.2%, and grants \cdspell haste\c- and a chance to \cdshake off homing projectiles\c-, each up to 25%.";
+DND_MENU_ATTRTEXT3		=	"Increases \cvEnergy Shield\c- by 0.5 and mana by 1.5, and grants \cvspell cooldown recovery rate\c- and \cvreduced curse effect\c- on you, each up to 20%.";
+DND_MENU_HOMINGAVOID	=	"chance to shake off homing projectiles";
+DND_MENU_ATTRKNEE		=	"Damage from an attribute past your level counts a quarter.";
 
 DND_MENU_PERKTEXT1		=	"more ranged damage.";
 DND_MENU_PERKTEXT2		=	"more melee damage.";			DND_MENU_PERKTEXT2_CONT 	=	"increased melee range.";
@@ -602,6 +604,7 @@ DND_MENU_MMOD_IMM11		=	"Monster is immune to fire damage.";
 DND_MENU_MMOD_IMM12		=	"Monster is immune to cold damage.";
 DND_MENU_MMOD_IMM13		=	"Monster is immune to poison damage.";
 DND_MENU_MMOD_IMM14		=	"Monster is immune to lightning damage.";
+DND_MENU_MMOD_IMM15		=	"Monster is unaffected by curses.";
 
 // agressive group
 DND_MENU_MMOD_AGG1		=	"Monster can enter rage mode under certain conditions.";
@@ -651,6 +654,7 @@ DND_MENU_MMOD_DEF19		=	"Monster takes 150% reduced damage from critical strikes.
 DND_MENU_MMOD_DEF20		=	"Monster phases in and out of reality, becoming ghostly randomly.";
 DND_MENU_MMOD_DEF21		=	"Monster has a bubble that negates damage from the first hit once every 20 seconds.";
 DND_MENU_MMOD_DEF22		=	"Monster creates a circle of flame on death, periodically erupting until disappearing after 9 seconds.";
+DND_MENU_MMOD_DEF23		=	"Monster wards the monsters around it, granting them +25% resistance to all damage.";
 
 // utility group
 DND_MENU_MMOD_UTI1		=	"Monster can curse the player.";
@@ -663,18 +667,19 @@ DND_MENU_MMOD_UTI7		=	"Monster feels no pain.";
 DND_MENU_MMOD_UTI8		=	"Monster belongs to a player and is friendly.";
 DND_MENU_MMOD_UTI9		=	"Monster is summoned by another and gives nothing on kill.";
 DND_MENU_MMOD_UTI10		=	"Monster is resurrected and doesn't give anything on kill.";
-DND_MENU_MMOD_UTI11		=	"Monster has 33% chance to steal 25% of current weapon's ammo from you with attacks.";
+DND_MENU_MMOD_UTI11		=	"Monster has 33% chance to steal 25% of current weapon's ammo from you with its attacks and spells.";
 DND_MENU_MMOD_UTI12		=	"Monster attacks have 33% chance to inflict a random curse.";
 DND_MENU_MMOD_UTI13		=	"Monster attacks will briefly stop your movement.";
 DND_MENU_MMOD_UTI14		=	"Monster has an aura that slows nearby players by 50%.";
 DND_MENU_MMOD_UTI15		=	"Monster makes no alert or active sound.";
-DND_MENU_MMOD_UTI16		=	"Monster's attacks cause blackouts, only letting players see a small area around for four seconds, fading out in two seconds.";
+DND_MENU_MMOD_UTI16		=	"Monster's attacks and spells cause blackouts, only letting players see a small area around for four seconds, fading out in two seconds.";
 DND_MENU_MMOD_UTI17		=	"Monster is shrouded in smoke and is harder to see.";
-DND_MENU_MMOD_UTI18		=	"Monster's attacks can inflict poison.";
-DND_MENU_MMOD_UTI19		=	"Monster's attacks can inflict chill and freeze.";
-DND_MENU_MMOD_UTI20		=	"Monster's attacks can inflict ignite.";
-DND_MENU_MMOD_UTI21		=	"Monster's attacks can inflict overload.";
+DND_MENU_MMOD_UTI18		=	"Monster's attacks and spells can inflict poison.";
+DND_MENU_MMOD_UTI19		=	"Monster's attacks and spells can inflict chill and freeze.";
+DND_MENU_MMOD_UTI20		=	"Monster's attacks and spells can inflict ignite.";
+DND_MENU_MMOD_UTI21		=	"Monster's attacks and spells can inflict overload.";
 DND_MENU_MMOD_UTI22		=	"Monster steals 5% of your energy shield on hits";
+DND_MENU_MMOD_UTI23		=	"Monster's attacks and spells have 33% chance on hit to silence you for 4 seconds, interrupting your spells and preventing you from casting. Damage over time does not.";
 
 DND_MENU_MMOD_CHAOS		=	"Monster has double health, 50% more damage, 50% more speed, extra aggressive and chaos imbued attacks.";
 DND_MENU_MMOD_ASMODEUS	=	"Monster has quadruple health (doubled on top if non-boss), +33% to all damage resistances, 100% more damage and special attacks depending on its type.";

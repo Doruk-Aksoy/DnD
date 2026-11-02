@@ -214,6 +214,13 @@ void ScaleVec3(Vec3_T* v, int f) {
 	v.z = FixedMul(v.z, f);
 }
 
+// v += add * f in place, with no temporary vector
+void AddScaledVec3(Vec3_T* v, Vec3_T* add, int f) {
+	v.x += FixedMul(add.x, f);
+	v.y += FixedMul(add.y, f);
+	v.z += FixedMul(add.z, f);
+}
+
 void MulVecVec3(Vec3_T* v1, Vec3_T* v2) {
 	v1.x = FixedMul(v1.x, v2.x);
 	v1.y = FixedMul(v1.y, v2.y);
@@ -267,15 +274,20 @@ bool IsUnitVec3(Vec3_T* v) {
 	return abs(LengthVec3(v) - 1.0) < F_EPSILON;
 }
 
-int LengthVec3(Vec3_T* v) {
+// the length from components, for a vector held in locals, which no function can be handed
+int LengthXYZ(int x, int y, int z) {
 	// we have to accept some accuracy loss, but it'll be extremely minimal (lack of fractional parts basically)
-	int vx_16 = v.x >> 16;
-	int vy_16 = v.y >> 16;
-	int vz_16 = v.z >> 16;
+	int vx_16 = x >> 16;
+	int vy_16 = y >> 16;
+	int vz_16 = z >> 16;
 	int vl = vx_16 * vx_16 + vy_16 * vy_16 + vz_16 * vz_16;
 	if(abs(vl) > FIXED_LIM)
 		return sqrt_z(vl) << 16;
-	return fsqrt(FixedMul(v.x, v.x) + FixedMul(v.y, v.y) + FixedMul(v.z, v.z));
+	return fsqrt(FixedMul(x, x) + FixedMul(y, y) + FixedMul(z, z));
+}
+
+int LengthVec3(Vec3_T* v) {
+	return LengthXYZ(v.x, v.y, v.z);
 }
 
 void ToUnitVec3(Vec3_T* v) {
@@ -391,31 +403,42 @@ void LoadDirectionVectorInto(Vec3_T* v, int tid, int a_offset = 0.0) {
 }
 
 Vec3_T* GetRightVector(Vec3_T* forward, Vec3_T* up) {
-	Vec3_T* res = CrossVector3C(forward, up);
-	ToUnitVec3(res);
+	Vec3_T* res = GetVec3();
+	LoadRightVectorInto(res, forward, up);
 	return res;
 }
 
+void LoadRightVectorInto(Vec3_T* res, Vec3_T* forward, Vec3_T* up) {
+	res.x = FixedMul(forward.y, up.z) - FixedMul(forward.z, up.y);
+	res.y = FixedMul(forward.z, up.x) - FixedMul(forward.x, up.z);
+	res.z = FixedMul(forward.x, up.y) - FixedMul(forward.y, up.x);
+	ToUnitVec3(res);
+}
+
 Vec3_T* GetUpVector(Vec3_T* forward) {
+	Vec3_T* res = GetVec3();
+	LoadUpVectorInto(res, forward);
+	return res;
+}
+
+void LoadUpVectorInto(Vec3_T* res, Vec3_T* forward) {
 	// we need to assure we never get the same vector here somehow as this up vector... things break otherwise!
-	Vec3_T* temp = GetVec3(0, 0, 1.0);
-	Vec3_T* res = CrossVector3C(forward, temp);
+	// forward x (0, 0, 1) is exactly (y, -x, 0), so the up axis needs no vector of its own
+	SetVec3XYZ(res, forward.y, -forward.x, 0);
 	CrossVector3(res, forward);
 	ToUnitVec3(res);
-	bcs::free(temp);
-	
-	return res;
 }
 
 // Modifies v1
 void CrossVector3(Vec3_T* v1, Vec3_T* v2) {
-	Vec3_T* temp = CopyVec3(v1);
-	
-	v1.x = FixedMul(temp.y, v2.z) - FixedMul(temp.z, v2.y);
-	v1.y = FixedMul(temp.z, v2.x) - FixedMul(temp.x, v2.z);
-	v1.z = FixedMul(temp.x, v2.y) - FixedMul(temp.y, v2.x);
+	Vec3_T old;
+	old.x = v1.x;
+	old.y = v1.y;
+	old.z = v1.z;
 
-	bcs::free(temp);
+	v1.x = FixedMul(old.y, v2.z) - FixedMul(old.z, v2.y);
+	v1.y = FixedMul(old.z, v2.x) - FixedMul(old.x, v2.z);
+	v1.z = FixedMul(old.x, v2.y) - FixedMul(old.y, v2.x);
 }
 
 Vec3_T* CrossVector3C(Vec3_T* v1, Vec3_T* v2) {
@@ -587,11 +610,14 @@ void SetBulletAngle(Vec2_T* res, int angle, int pitch, int rx, int ry = 0) {
 	if(ry == 0)
 		ry = rx;
 		
-	Vec3_T* v = GetVec3(0, 0, 0);
+	Vec3_T v;
+	v.x = 0;
+	v.y = 0;
+	v.z = 0;
 	rx = sin(rx);
 	ry = sin(ry);
 
-	while ((!v.x && !v.y && !v.z) || LengthVec3(v) > ((rx + ry) / 2)) {
+	while ((!v.x && !v.y && !v.z) || LengthXYZ(v.x, v.y, v.z) > ((rx + ry) / 2)) {
 		v.x = random(-rx, rx);
 		v.y = random(-rx, rx);
 		v.z = random(-ry, ry);
@@ -605,9 +631,6 @@ void SetBulletAngle(Vec2_T* res, int angle, int pitch, int rx, int ry = 0) {
 	// Extract angle and pitch from trajectory
 	res.x = VectorAngle(v.x, v.y);
 	res.y = -asin(FixedDiv(v.z, fsqrt(FixedMul(v.x, v.x) + FixedMul(v.y, v.y) + FixedMul(v.z, v.z))));
-
-	// free our temp vector v
-	bcs::free(v);
 }
 
 // returns the resulting offset vector with spread calculated to properly set velocities, one has to set angle from VectorAngle however

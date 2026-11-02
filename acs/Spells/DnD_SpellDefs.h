@@ -112,7 +112,41 @@ enum {
 	SPL_POISONNOVA,
 	SPL_UNLEASHEARTH,
 	SPL_GEYSER,
-	SPL_REJUVENATION
+	SPL_REJUVENATION,
+
+	// ---- Black ----
+	SPL_PLAGUE = DND_SKILLTREE_BLACK * DND_SPELLS_PER_TREE,
+	SPL_ZOMBIE,
+	SPL_NOX,
+	SPL_TEMPORALCHAINS,
+	SPL_DARKWIND,
+	SPL_ESSENCETHEFT,
+	SPL_SKELETON,
+	SPL_SKELETONMASTERY,
+	SPL_DELIRIUM,
+	SPL_ENFEEBLE,
+	SPL_FINGEROFDEATH,
+	SPL_CONTAGION,
+	SPL_IMPLOSION,
+	SPL_DARKPORTAL,
+	SPL_GHAST,
+	SPL_SUBJUGATE,
+	SPL_PENETRATE,
+	SPL_PAINAMP,
+	SPL_SOULSTORM,
+	SPL_CARRIONCROWS,
+	SPL_NETHERWALK,
+	SPL_SUMMONMASTERY,
+	SPL_SLAYERKNIGHT,
+	SPL_TRANSMOGRIFY,
+	SPL_REMOVERESIST,
+	SPL_LIFETAP,
+	SPL_DEATHANDDECAY,
+	SPL_DOOMGUARD,
+	SPL_BANISH,
+	SPL_BREAKIMMUNITY,
+	SPL_SILENCE,
+	SPL_MARKPREY
 };
 
 // Which numbers a spell carries. The DAMAGE, RADIUS and AMOUNT fields are plain integers; COST,
@@ -158,7 +192,8 @@ enum {
 	SPLF_TRAP			= 131072,	// placed, and goes off when an enemy comes near
 	SPLF_MOVE			= 262144,	// moves the caster
 	SPLF_CHAIN			= 524288,	// jumps from target to target
-	SPLF_NOCOST			= 1048576	// an active spell that costs nothing to cast
+	SPLF_NOCOST			= 1048576,	// an active spell that costs nothing to cast
+	SPLF_STRIKE			= 2097152	// lands a direct hit on an enemy (a projectile or bolt), so the hit can chain or fork
 };
 
 #define DND_SPELL_RANKCAP 10
@@ -365,6 +400,17 @@ enum {
 	GEMSTAT_RESERVE_ADD,		// percent of mana the spell reserves while active
 	GEMSTAT_LIFECOST,			// percent of the final mana cost paid in life instead; 0 pays mana
 	GEMSTAT_NECRO,				// percent chance a slain minion returns
+	GEMSTAT_HEXMASTER,			// non zero: the curse affects curse immune enemies
+	GEMSTAT_LINGER,				// tics the curse keeps cursing enemies that enter its area
+	GEMSTAT_LINGER_LESS,		// percent reduced curse effect that comes with the linger
+	GEMSTAT_CHAIN,				// extra enemies a hit chains to
+	GEMSTAT_CHAIN_LOSS,			// percent of the hit lost at each chain
+	GEMSTAT_CHAIN_FLOOR,		// percent a chain never drops below
+	GEMSTAT_FORK,				// extra enemies a hit forks to
+	GEMSTAT_FORK_LESS,			// percent less damage a fork deals
+	GEMSTAT_MINION_CRIT,		// percent added to its minions' critical strike chance
+	GEMSTAT_MINION_CRITMULT,	// percent added to its minions' critical strike multiplier
+	GEMSTAT_MANALEECH,			// tenths of a percent of damage dealt, as mana
 	MAX_GEMSTATS
 };
 #define LAST_GEMSTAT_MORE GEMSTAT_MORE_LOWLIFE
@@ -403,6 +449,8 @@ void AddSpellGemMod(int pnum, int spell, int stat, int val) {
 		cur += val;
 
 	SpellGemMods[pnum][spell][stat] = cur;
+	if(stat == GEMSTAT_RESERVE_ADD)
+		InvalidateManaReserveList(pnum);
 	int w = GEMSTAT_ROWMASK + (stat >> 5);
 	if(cur)
 		SpellGemMods[pnum][spell][w] |= 1 << (stat & 31);
@@ -414,6 +462,8 @@ void AddSpellGemMod(int pnum, int spell, int stat, int val) {
 void SetSpellGemMod(int pnum, int spell, int stat, int val) {
 	SpellGemMods[pnum][spell][stat] = val;
 	SpellGemMods[pnum][spell][GEMSTAT_ROWMASK + (stat >> 5)] |= 1 << (stat & 31);
+	if(stat == GEMSTAT_RESERVE_ADD)
+		InvalidateManaReserveList(pnum);
 }
 
 // For files ahead of this one in the include order, where the macro is not yet defined.
@@ -442,6 +492,7 @@ void BeginSpellGemRebuild(int pnum, int spell) {
 			SpellGemMods[pnum][spell][i] = 0;
 	SpellGemMods[pnum][spell][GEMSTAT_ROWMASK] = 0;
 	SpellGemMods[pnum][spell][GEMSTAT_ROWMASK + 1] = 0;
+	InvalidateManaReserveList(pnum);
 }
 
 // Sends the owner every stat the row held before or holds now: a global, so the client keeps its own copy.
@@ -590,8 +641,57 @@ int GetSpellThresholdBonus(int spell, int which, int rank) {
 			return which == SPELLVAL_AMOUNT && r10 ? 30 : which == SPELLVAL_RADIUS && r10 ? 106 : 0;
 		case SPL_CRUSHINGROCKS:
 			return which == SPELLVAL_AMOUNT && r10 ? 2 : 0;
+		case SPL_PLAGUE:
+			return which == SPELLVAL_AMOUNT && r5 ? 20 : which == SPELLVAL_AMOUNT2 && r10 ? 1 : 0;
+		case SPL_TEMPORALCHAINS:
+			return which == SPELLVAL_DAMAGE && r10 ? 20 : 0;
+		case SPL_ESSENCETHEFT:
+			return which == SPELLVAL_AMOUNT && r5 ? 13 : 0;
+		case SPL_DARKWIND:
+			return which == SPELLVAL_RADIUS && r10 ? 24 : 0;
+		case SPL_ENFEEBLE:
+			return which == SPELLVAL_RADIUS && r5 ? 128 : which == SPELLVAL_DURATION && r10 ? 4.0 : 0;
+		case SPL_PAINAMP:
+			return which == SPELLVAL_RADIUS && r5 ? 128 : which == SPELLVAL_DURATION && r10 ? 5.0 : 0;
+		case SPL_SILENCE:
+			return which == SPELLVAL_COST && r5 ? -100.0 : 0;
+		case SPL_SOULSTORM:
+		case SPL_LIFETAP:
+		case SPL_DEATHANDDECAY:
+			return GetBlackRankBonus(spell, which, r5, r10);
 	}
 	return 0;
+}
+
+// The rest of Black's rank 5 and 10 row changes, kept out of the switch above.
+int GetBlackRankBonus(int spell, int which, bool r5, bool r10) {
+	switch(spell) {
+		case SPL_SOULSTORM:
+			return which == SPELLVAL_AMOUNT2 && r10 ? -25 : 0;
+		case SPL_LIFETAP:
+			return which == SPELLVAL_DAMAGE2 && r5 ? 2.5 : which == SPELLVAL_RADIUS && r10 ? 160 : 0;
+		case SPL_DEATHANDDECAY:
+			return which == SPELLVAL_RADIUS && r5 ? 192 : 0;
+	}
+	return 0;
+}
+
+// Rank bonuses that scale a row rather than add to it, after the curve: Delirium's 20% less mana, Soulstorm's 50% more area
+// (radius by its square root, as area gear does), Contagion's 20% more and Penetrate's doubled radius, Death and Decay's halved cooldown.
+int ScaleSpellThresholdValue(int spell, int which, int rank, int res) {
+	if(rank >= DND_SPELL_THRESH_LOW) {
+		if(spell == SPL_DELIRIUM && which == SPELLVAL_COST)
+			return res - res / 5;
+		if(spell == SPL_CONTAGION && which == SPELLVAL_RADIUS)
+			return res + res / 5;
+		if(spell == SPL_SOULSTORM && which == SPELLVAL_RADIUS)
+			return res * 12247 / 10000;
+		if(spell == SPL_PENETRATE && which == SPELLVAL_RADIUS)
+			return res * 2;
+	}
+	if(rank >= DND_SPELL_THRESH_HIGH && spell == SPL_DEATHANDDECAY && which == SPELLVAL_COOLDOWN)
+		return res / 2;
+	return res;
 }
 
 int GetSpellValue(int pnum, int spell, int which, int rank_at = 0) {
@@ -614,6 +714,7 @@ int GetSpellValue(int pnum, int spell, int which, int rank_at = 0) {
 		res = ScaleSpellValue(res, GetSpellCostMult(spell, rank));
 
 	res += GetSpellThresholdBonus(spell, which, rank);
+	res = ScaleSpellThresholdValue(spell, which, rank, res);
 
 	// A range's low end takes the rows written for its high end, so "5% more damage" moves both.
 	int syn_field = which == SPELLVAL_DAMAGEMIN ? SPELLVAL_DAMAGE : which == SPELLVAL_DAMAGE2MIN ? SPELLVAL_DAMAGE2 : which;
@@ -814,7 +915,7 @@ void RebuildSpellGems(int pnum, int spell) {
 	int v;
 	for(int i = 0; i < GetSpellSocketCount(pnum, spell); ++i)
 		if((v = GetSpellSocket(pnum, spell, i)))
-			AddGemToSpellRow(pnum, spell, GetSocketGemSubtype(v), GetSocketGemRole(v));
+			AddGemToSpellRow(pnum, spell, GetSocketGemSubtype(v), GetGemRoleBlocker(pnum, spell, i, GetSocketGemRole(v)) < 0 ? GetSocketGemRole(v) : -1);
 	EndSpellGemRebuild(pnum, spell);
 }
 
@@ -977,6 +1078,11 @@ str GetSpellFieldLumpFor(int spell, int which) {
 		return "DND_SPLFIELD_CRASH";
 	if(spell == SPL_BLOCKADE)
 		return which == SPELLVAL_DAMAGE ? "DND_SPLFIELD_WALLHP" : which == SPELLVAL_AMOUNT ? "DND_SPLFIELD_WALLLEN" : GetSpellFieldLump(which);
+	// A summon's DAMAGE row is its minion's health.
+	if((SpellDefs[spell].flags & SPLF_SUMMON) && which == SPELLVAL_DAMAGE)
+		return "DND_SPLFIELD_MINIONHP";
+	if(spell == SPL_CARRIONCROWS && which == SPELLVAL_AMOUNT)
+		return "DND_SPLFIELD_CROWS";
 	return GetSpellFieldLump(which);
 }
 

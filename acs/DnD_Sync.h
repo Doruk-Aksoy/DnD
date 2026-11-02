@@ -691,6 +691,8 @@ Script "DnD Request Spell Gem Sync" (int pnum, int spell, int stat, int val) CLI
 	if(GameType() == GAME_SINGLE_PLAYER)
 		Terminate;
 	SpellGemMods[pnum][spell][stat] = val;
+	if(stat == GEMSTAT_RESERVE_ADD)
+		InvalidateManaReserveList(pnum);
 	SetResultValue(0);
 }
 

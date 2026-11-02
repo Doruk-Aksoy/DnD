@@ -1,0 +1,27 @@
+// A glowing bead of the red bolt, strung along it by "DnD Finger of Death FX".
+Actor Spell_FingerOfDeath_Spark : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.95
+	Scale 0.3
+	Translation "0:255=%[0.00,0.00,0.00]:[2.00,0.25,0.35]"
+	States {
+		Spawn:
+			TNT1 A 0
+			D5FX GHIJKL 2 Bright A_FadeOut(0.1)
+		Stop
+	}
+}
+
+// Where the bolt ends.
+Actor Spell_FingerOfDeath_Burst : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.95
+	Scale 0.8
+	Translation "0:255=%[0.00,0.00,0.00]:[2.00,0.25,0.35]"
+	States {
+		Spawn:
+			TNT1 A 0
+			D4FX GHIJKL 2 Bright
+		Stop
+	}
+}

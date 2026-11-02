@@ -38,6 +38,7 @@ enum {
 #define BLOODSEEKER_DISTANCE 1576.0
 
 #define WARMASTER_DIST 288.0
+#define DND_AVATARBALL_TOP 14.0 // the ball sprite's top over its origin, and a margin
 
 #define DRAUGR_FX_COUNT 16
 #define DRAUGR_R 96
@@ -258,11 +259,6 @@ void DrawPentagramPart(int fx, int fy, int fz, int size, int alpha, int ang1, in
 		int r = r1 * dstc / dstmax + r2 * rdstc / dstmax;
 		int g = g1 * dstc / dstmax + g2 * rdstc / dstmax;
 		int b = b1 * dstc / dstmax + b2 * rdstc / dstmax;
-		// this script is CLIENTSIDE. means we can do this.
-	    // I wonder what happens if you have vid_renderer at improper values in ZDoom...
-		// well, anyway, this is because particles arent displayed the same way in software and OpenGL.
-		if (!GetCVar("vid_renderer"))
-			partsize = 10;
         SpawnParticle((r << 16) | (g << 8) | b, true, 1, partsize, x1 + i * dx, y1 + i * dy, fz, 0, 0, 0, 0, 0, 0, alpha * rdstc / (dstmax / 2), 0);
     }*/
 }
@@ -338,7 +334,6 @@ Script "DnD Face Target (Pitch)" (void) {
 }
 
 Script "DnD Monster State Syncer" (int type) CLIENTSIDE {
-	int res = 0;
 	switch(type) {
 		case 0:
 			ACS_NamedExecuteAlways("DnD Zealot Shield", 0, ActivatorTID());
@@ -356,14 +351,6 @@ Script "DnD Monster State Syncer" (int type) CLIENTSIDE {
 		case 4:
 			TakeInventory("ArbiterFade", 1);
 		break;
-		case 5:
-			SetActivatorToTarget(0);
-			res = CheckInventory("ArbiterFade");
-		break;
-		case 6:
-			SetActivatorToTarget(0);
-			res = CheckInventory("Mo_Died");
-		break;
 		case 7:
 			GiveInventory("AvatarAttack", 1);
 		break;
@@ -380,7 +367,7 @@ Script "DnD Monster State Syncer" (int type) CLIENTSIDE {
 			GiveInventory("AvatarDead", 1);
 		break;
 	}
-	SetResultValue(res);
+	SetResultValue(0);
 }
 
 Script "DnD Avatar Ball Flare" (int type) CLIENTSIDE {
@@ -521,17 +508,27 @@ Script "DnD Avatar Ball Setup" (void) CLIENTSIDE {
     while(!SpawnForced("SorcBall1New", x, y, z, newtid));
 	while(!SpawnForced("SorcBall2New", x, y, z, newtid + 1));
 	while(!SpawnForced("SorcBall3New", x, y, z, newtid + 2));
-	SetActorProperty(newtid, APROP_HEALTH, tid);
-	SetActorProperty(newtid + 1, APROP_HEALTH, tid);
-	SetActorProperty(newtid + 2, APROP_HEALTH, tid);
+
+	// One loop orbits all three, a third of a turn apart; attacking speeds it up, the attack itself stops it.
+	int k, spin, ang[3] = { 0, 60, 120 };
+	while(!CheckInventory("AvatarDead") && IsActorAlive(tid)) {
+		spin = 4 * (1 + CheckInventory("AvatarAttack") - 2 * CheckInventory("AvatarOnAttack"));
+		for(k = 0; k < 3; ++k) {
+			PlaceAvatarBall(newtid + k, tid, ang[k]);
+			ang[k] += spin;
+		}
+		Delay(const:1);
+	}
+	for(k = 0; k < 3; ++k)
+		SetActorState(newtid + k, "Death");
 }
 
-Script "DnD Avatar Ball State Check" (void) CLIENTSIDE {
-	int tid = GetActorProperty(0, APROP_HEALTH);
-	int res = 1 + CheckActorInventory(tid, "AvatarAttack") - 2 * CheckActorInventory(tid, "AvatarOnAttack");
-	if(CheckActorInventory(tid, "AvatarDead"))
-		res = -2;
-	SetResultValue(res);
+// 32 out and 108 over the Avatar, but kept under the ceiling where the ball lands: in a hallway as low as the
+// Avatar, 108 is inside the ceiling, SetActorPosition refuses it and the ball would be left behind.
+void PlaceAvatarBall(int ball, int owner, int ang) {
+	ang = (ang * 360) % 1.0;
+	int x = 32 * cos(ang) + GetActorX(owner), y = 32 * sin(ang) + GetActorY(owner);
+	SetActorPosition(ball, x, y, Min(GetActorZ(owner) + 108.0, GetSectorCeilingZ(0, x >> 16, y >> 16) - DND_AVATARBALL_TOP), 0);
 }
 
 Script "DnD Vel Adjust" (int speed, int face_target) {
@@ -1329,7 +1326,10 @@ Script "DnD Onimuz Clone Spawn" (void) {
 		SetActivator(UNIQUE_MON_AUX_TID);
 		SetActorProperty(0, APROP_MASTERTID, owner);
 		SetPointer(AAPTR_MASTER, owner);
-		Thing_ChangeTID(0, 0);
+		// Onimuz channels for as long as its tracer lives: hand it from the missile to the projection
+		SetActivator(owner);
+		SetPointer(AAPTR_TRACER, UNIQUE_MON_AUX_TID);
+		Thing_ChangeTID(UNIQUE_MON_AUX_TID, 0);
 	}
 }
 

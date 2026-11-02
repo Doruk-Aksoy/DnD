@@ -115,6 +115,14 @@ void SetMonsterTrait(int m_id, int t, bool v) {
 		MonsterProperties[m_id].trait_bits[t >> 5] &= ~(1 << (t & 31));
 }
 
+// Sets a trait to v; true only if that changed it, so callers can skip syncing a no-op to clients.
+bool ChangeMonsterTrait(int m_id, int t, bool v) {
+	if(HasMonsterTrait(m_id, t) == v)
+		return false;
+	SetMonsterTrait(m_id, t, v);
+	return true;
+}
+
 // sets when true, leaves alone when false -- the |= form, for folding in a condition
 void AddMonsterTrait(int m_id, int t, bool v) {
 	if(v)
@@ -693,9 +701,15 @@ enum {
 	MONSTER_PET_ZOMBIE,
 	MONSTER_PET_FIREDEMON,
 	MONSTER_PET_ICEGOLEM,
-	MONSTER_PET_ROCKGOLEM
+	MONSTER_PET_ROCKGOLEM,
+	MONSTER_PET_SKELETON,
+	MONSTER_PET_SKELETONMAGE,
+	MONSTER_PET_GHAST,
+	MONSTER_PET_SLAYERKNIGHT,
+	MONSTER_PET_DOOMGUARD,
+	MONSTER_PET_DARKPORTAL
 };
-#define MAX_PET_TYPES (MONSTER_PET_ROCKGOLEM + 1)
+#define MAX_PET_TYPES (MONSTER_PET_DARKPORTAL + 1)
 
 enum {
 	DND_ZOMBIEMANID,
@@ -1051,14 +1065,11 @@ int ApplyHPScale(int base, int pct) {
 
 	int add;
 	if(base >= 100) {
-		// Divide FIRST. (base / 100) * pct keeps the product two orders of magnitude smaller, which
-		// is the whole difference between fitting and wrapping; the dropped remainder is under
-		// 99 * pct / 100, noise beside numbers this size. Only reachable with an absurd hp_mult, but
-		// saturate rather than hand back a negative health if even that would not fit.
+		// base * pct / 100 split so no product wraps; the remainder term keeps a 150 base from scaling as 100.
 		if(base / 100 > bcs::INT_MAX / pct)
 			add = DND_MAX_MONSTER_HP;
 		else
-			add = (base / 100) * pct;
+			add = (base / 100) * pct + (base % 100) * pct / 100;
 	}
 	else
 		add = base * pct / 100;
@@ -1085,13 +1096,13 @@ int GetBasicMonsterDMGScaling(int level, bool bonusScaling) {
 	return base;
 }
 
-int GetMonsterDMGScaling(int m_id, int level, bool forShow = false, int scaling_factor = 0, int scaling_ramp = 0) {
-	// over the old formula of 4x, this provides 500% damage at lvl 100 instead of 400%
-	// edit: iterating over the improvement on previous versions, making the game harder -- divisor was 25 instead of 10 -- 10 was too high, trying 20
-	//int res = level * level / 20 + level;
+// The level-only damage curve, percent increase: 0.0675x^2 - 0.2x + 5. Pets use it bare.
+int GetMonsterDMGScaleForLevel(int level) {
+	return level * level * 27 / 400 - level / 5 + 5;
+}
 
-	// new formula for lower values till 67 then higher -- 0.0675x^{2}-0.2x+5
-	int res = level * level * 27 / 400 - level / 5 + 5;
+int GetMonsterDMGScaling(int m_id, int level, bool forShow = false, int scaling_factor = 0, int scaling_ramp = 0) {
+	int res = GetMonsterDMGScaleForLevel(level);
 
 	// maybe add higher scaling factor to certain enemies in the future here
 	if(!scaling_ramp)
@@ -1144,6 +1155,294 @@ void CheckDoomguyExecuteReversal(int this) {
 		TakeActorInventory(this, "Doomguy_ValidExecute", 1);
 		ACS_NamedExecuteWithResult("DnD Doomguy Execute Translation", this, 1, MonsterProperties[this - DND_MONSTERTID_BEGIN].id);
 	}
+}
+
+// Kinds of move a dispatch can reach: pacify blocks attacks, silence spells, either one a fusion of both.
+enum {
+	DND_ATKKIND_ATTACK = 1,
+	DND_ATKKIND_SPELL = 2,
+	DND_ATKKIND_FUSION = 4,
+	DND_ATKKIND_MASK = 7,
+	DND_ATKKIND_MELEESHIFT = 4
+};
+
+// Missile dispatch kinds in the low bits, Melee in the high; -1 is a monster with no entry, never blocked.
+int GetMonsterAttackKinds(int id) {
+	switch(id) {
+		case MONSTER_UNDEADPRIESTGHOST:
+			return 0x00;
+		case MONSTER_SGLOS:
+		case MONSTER_SSGLOS:
+		case MONSTER_ZOMBIEMANGRAY:
+		case MONSTER_ZOMBIERANGER:
+		case MONSTER_ZOMBIESMG:
+		case MONSTER_ZOMBIERAPID:
+		case MONSTER_ZOMBIEMARINE:
+		case MONSTER_ZOMBIELOS:
+		case MONSTER_ZOMBIEPISTOL:
+		case MONSTER_ZOMBIEQUAKE1:
+		case MONSTER_ZOMBIEPROPHET:
+		case MONSTER_ZSPECSG:
+		case MONSTER_SAWEDOFF1:
+		case MONSTER_SAWEDOFF2:
+		case MONSTER_ZOMBIEQUAKE2:
+		case MONSTER_ZOMBIESSG:
+		case MONSTER_ZOMBIEQUAKE3:
+		case MONSTER_ZOMBIEMG:
+		case MONSTER_DOUBLEGUNNER:
+		case MONSTER_CGMAJOR:
+		case MONSTER_MRROBOT:
+		case MONSTER_ZSEC:
+		case MONSTER_ZSPECMG:
+		case MONSTER_PLASMAZOMBIE:
+		case MONSTER_BERSERKERGUY:
+		case MONSTER_FLESHSPAWN:
+		case MONSTER_FORGOTTENONE:
+		case MONSTER_TORTUREDSOUL:
+		case MONSTER_GRELL:
+		case MONSTER_TERON:
+		case MONSTER_THORAX:
+		case MONSTER_ZOMBIEMAN:
+		case MONSTER_SHOTGUNNER:
+		case MONSTER_CHAINGUNNER:
+		case MONSTER_LOSTSOUL:
+		case MONSTER_FATSO:
+		case MONSTER_SPIDER:
+		case MONSTER_MASTERMIND:
+		case MONSTER_CYBERDEMON:
+		case MONSTER_NAZI:
+		case MONSTER_SHADOWBEAST:
+		case MONSTER_CORPULENT:
+		case MONSTER_DAEDABUS:
+		case MONSTER_MEPHISTO:
+		case MONSTER_MAFIBUS:
+		case MONSTER_ICEFATSO:
+		case MONSTER_ABOMINATION:
+		case MONSTER_FUSIONSPIDER:
+		case MONSTER_RAILARACHNOTRON:
+		case MONSTER_BABYDEMOLISHER:
+		case MONSTER_CHAINGUNGENERAL:
+		case MONSTER_CHAINGUNCOMMANDO:
+		case MONSTER_MANTICORE:
+		case MONSTER_DEMOLISHER:
+		case MONSTER_ARACHNOPHYTE:
+		case MONSTER_ANGELOFDEATH:
+		case MONSTER_TERMINATOR:
+		case MONSTER_THAMUZ:
+		case MONSTER_THANATOS:
+		case MONSTER_CERBERUS:
+		case MONSTER_DEATHWYVERN:
+		case MONSTER_GODSLAYER:
+		case MONSTER_CHEX_ARMORED:
+		case MONSTER_CHEX_QUADWUMPUS:
+		case MONSTER_CHEX_SUPERCYCLOPS:
+		case MONSTER_CHEX_FLEMCARRIER:
+		case MONSTER_CHEX_FLEMBOMINATION:
+		case MONSTER_CHEX_SNOTFOLUS:
+		case MONSTER_ABYSS_ZOMBIEMAN:
+		case MONSTER_ABYSS_SHOTGUNNER:
+		case MONSTER_ABYSS_CHAINGUNNER:
+		case MONSTER_ABYSS_LOSTSOUL:
+		case MONSTER_ABYSS_MANCUBUS:
+		case MONSTER_ABYSS_ARACHNOTRON:
+		case MONSTER_ABYSS_SPIDERDEMON:
+		case MONSTER_ABYSS_CYBERDEMON:
+			return 0x01;
+		case MONSTER_ZRAVOG:
+		case MONSTER_FLESHWIZARD:
+		case MONSTER_UNDEADMAGE:
+		case MONSTER_SHADOW:
+		case MONSTER_GUARDIANCUBE:
+		case MONSTER_BLOODLICH:
+		case MONSTER_DEFILER:
+		case MONSTER_SHADOWDISCIPLE:
+		case MONSTER_SENTINEL:
+		case MONSTER_WEAKENER:
+		case MONSTER_SHADOWPRIEST:
+		case MONSTER_DEATHWHISPERER:
+		case MONSTER_GUARDIAN:
+		case MONSTER_WICKED:
+		case MONSTER_VAAJ:
+		case MONSTER_CHEGOVAX:
+		case MONSTER_PAINELEMENTAL:
+		case MONSTER_VILE:
+		case MONSTER_OPHIDIAN:
+		case MONSTER_DIABLOIST:
+		case MONSTER_DEATHVILE:
+		case MONSTER_IRONLICH:
+		case MONSTER_DARKLICH:
+		case MONSTER_AVATAR:
+		case MONSTER_DREAMINGGOD:
+		case MONSTER_ABYSS_PAINELEMENTAL:
+		case MONSTER_ABYSS_ARCHVILE:
+		case MONSTER_ABYSS_MOTHERDEMON:
+			return 0x02;
+		case MONSTER_SPIDEROVERLORD:
+		case MONSTER_ETHEREALSOUL:
+		case MONSTER_EARTHLICH:
+		case MONSTER_ERYXIA:
+		case MONSTER_WRAITH:
+		case MONSTER_CARDINAL:
+		case MONSTER_MORDECQAI:
+			return 0x03;
+		case MONSTER_HELLFORGESPIDER:
+			return 0x04;
+		case MONSTER_HADESSPHERE:
+		case MONSTER_BLOODDEMON:
+		case MONSTER_FLAMEDEMON:
+		case MONSTER_STONEIMP:
+		case MONSTER_BRUTY:
+		case MONSTER_SATYR:
+		case MONSTER_SABRECLAW:
+		case MONSTER_NHUMCIGN:
+		case MONSTER_GRAVEDIGGER:
+		case MONSTER_DEVOURER:
+		case MONSTER_NIGHTMAREDEMON:
+		case MONSTER_LESHRACPOD:
+		case MONSTER_DEMON:
+		case MONSTER_SPECTRE:
+		case MONSTER_CHEX_CYCLOPS:
+		case MONSTER_CHEX_LARVA:
+		case MONSTER_CHEX_STRIDICUS:
+		case MONSTER_ABYSS_DEMON:
+		case MONSTER_ABYSS_SPECTRE:
+			return 0x10;
+		case MONSTER_JUDICATOR:
+		case MONSTER_TORRASQUE:
+		case MONSTER_ZOMBIEHUNTER:
+		case MONSTER_ROGUE:
+		case MONSTER_INITIATE:
+		case MONSTER_BLOODFIEND:
+		case MONSTER_CYBERFIEND:
+		case MONSTER_STONEDEMON:
+		case MONSTER_EARTHGOLEM:
+		case MONSTER_PUREBREDDEMON:
+		case MONSTER_LURKER:
+		case MONSTER_PYROIMP:
+		case MONSTER_VULGAR:
+		case MONSTER_REAVER:
+		case MONSTER_ROACH:
+		case MONSTER_BABYCACO:
+		case MONSTER_WATCHER:
+		case MONSTER_INFERNO:
+		case MONSTER_ENHANCEDCACO:
+		case MONSTER_GANT:
+		case MONSTER_BRONN:
+		case MONSTER_KRULL:
+		case MONSTER_CACODEMON:
+		case MONSTER_REVENANT:
+		case MONSTER_BEAMREVENANT:
+		case MONSTER_WIDOWMAKER:
+		case MONSTER_SLUDGEGIANT:
+		case MONSTER_SLUDGEGIANT2:
+		case MONSTER_SLUDGEGIANT3:
+		case MONSTER_CADAVER:
+		case MONSTER_CRAWLER:
+		case MONSTER_CYBORGSOLDIER:
+		case MONSTER_CYBORGWARRIOR:
+		case MONSTER_CHAOSSERPENT:
+		case MONSTER_BARBATOS:
+		case MONSTER_BLOODSEEKER:
+		case MONSTER_CYBRUISER:
+		case MONSTER_REDEEMER:
+		case MONSTER_LEGIONNAIRE:
+		case MONSTER_UNDEADPRIEST:
+		case MONSTER_CHEX_COMMON:
+		case MONSTER_CHEX_BIPEDAL:
+		case MONSTER_CHEX_HEAVYARMORED:
+		case MONSTER_CHEX_FLEMMINE:
+		case MONSTER_CHEX_MAXIMUS:
+		case MONSTER_CHEX_FLEMOBIUS:
+		case MONSTER_CHEX_BERNABE:
+		case MONSTER_CHEX_METEOR:
+		case MONSTER_ABYSS_HOUND:
+		case MONSTER_ABYSS_REVENANT:
+		case MONSTER_DUNGEON_SHAMBLER:
+			return 0x11;
+		case MONSTER_OMNISIGHT:
+		case MONSTER_HADESELEMENTAL:
+		case MONSTER_DREADKNIGHT:
+		case MONSTER_DEATHKNIGHT:
+		case MONSTER_SCAVENGER:
+		case MONSTER_RAVAGER:
+		case MONSTER_INCARNATE:
+		case MONSTER_BLOODSATYR:
+		case MONSTER_BLACKKNIGHT:
+		case MONSTER_ARCHON:
+		case MONSTER_MOONSATYR:
+		case MONSTER_BORMERETH:
+		case MONSTER_KJAROCH:
+		case MONSTER_HIEROPHANT:
+		case MONSTER_GURU:
+		case MONSTER_ABYSS_IMP:
+			return 0x12;
+		case MONSTER_PUTREFIER:
+		case MONSTER_PALADIN:
+		case MONSTER_HOLLOWSHELL:
+		case MONSTER_ONIMUZ:
+		case MONSTER_HARKIMONDE:
+		case MONSTER_ABAXOTH:
+		case MONSTER_ICEGOLEM:
+		case MONSTER_MAGMASERPENT:
+		case MONSTER_MAGMAGOLEM:
+		case MONSTER_GOLDGOLEM:
+		case MONSTER_HELLSMITH:
+		case MONSTER_DUNGEON_BLOODGOLEM:
+			return 0x13;
+		case MONSTER_DARKZEALOT:
+		case MONSTER_SKULLWIZARD:
+		case MONSTER_SHADOWWIZARD:
+		case MONSTER_HELLARBITER:
+		case MONSTER_DARKSERVANT:
+		case MONSTER_SOULHARVESTER:
+		case MONSTER_CACOLICH:
+		case MONSTER_LAVADEMON:
+		case MONSTER_LORDOFHERESY:
+		case MONSTER_BRUISERDEMON:
+		case MONSTER_GAMON:
+		case MONSTER_YETI:
+		case MONSTER_VORE:
+		case MONSTER_GOLDLICH:
+		case MONSTER_AZAZEL:
+		case MONSTER_GOLGOTH:
+		case MONSTER_DUNGEON_DEMENTOR:
+			return 0x22;
+		case MONSTER_REMUS:
+		case MONSTER_SSRATH:
+		case MONSTER_HORSHACKER:
+		case MONSTER_WARMASTER:
+		case MONSTER_SOULEATER:
+		case MONSTER_DARKIMP1:
+		case MONSTER_VOIDDARKIMP:
+		case MONSTER_NETHERDARKIMP:
+		case MONSTER_DARKIMP2:
+		case MONSTER_IMPABOM:
+		case MONSTER_STIMP:
+		case MONSTER_VOIDIMP:
+		case MONSTER_DEVIL:
+		case MONSTER_DEVIL2:
+		case MONSTER_PHANTASM:
+		case MONSTER_IMP:
+		case MONSTER_HELLKNIGHT:
+		case MONSTER_BARON:
+		case MONSTER_HELLWARRIOR:
+		case MONSTER_HELLSFURY:
+		case MONSTER_WARLORD:
+		case MONSTER_GLADIATOR:
+		case MONSTER_ABYSS_NIGHTMAREIMP:
+		case MONSTER_ABYSS_CACODEMON:
+		case MONSTER_ABYSS_NIGHTMARECACO:
+		case MONSTER_ABYSS_HELLKNIGHT:
+		case MONSTER_ABYSS_BARON:
+			return 0x32;
+		case MONSTER_LESHRAC:
+		case MONSTER_AXEKNIGHT:
+		case MONSTER_PSIONICQUEEN:
+			return 0x33;
+		case MONSTER_DRAUGR:
+			return 0x76;
+	}
+	return -1;
 }
 
 #endif

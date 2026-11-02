@@ -1,0 +1,60 @@
+// Nox on one enemy: blinded, its clock, the caster + 1, and rank 5's wish for its aggression flags.
+Actor DnD_Blinded : DnD_Info {}
+Actor DnD_BlindedTimer : DnD_Info {}
+Actor DnD_BlindCaster : DnD_Info {}
+Actor DnD_NoxAggroWanted : DnD_Info {}
+
+// Rank 5's flags, on and back off; "DnD Nox Timer" only hands back the ones the enemy did not already have.
+Actor Nox_MissileMoreOn : DnD_Activator { States { Pickup: TNT1 A 0 A_ChangeFlag("MISSILEMORE", 1) Stop } }
+Actor Nox_MissileMoreOff : DnD_Activator { States { Pickup: TNT1 A 0 A_ChangeFlag("MISSILEMORE", 0) Stop } }
+Actor Nox_MissileEvenMoreOn : DnD_Activator { States { Pickup: TNT1 A 0 A_ChangeFlag("MISSILEEVENMORE", 1) Stop } }
+Actor Nox_MissileEvenMoreOff : DnD_Activator { States { Pickup: TNT1 A 0 A_ChangeFlag("MISSILEEVENMORE", 0) Stop } }
+
+// What a blinded enemy chases and attacks instead of you. Off the blockmap, so no shot, splash or autoaim finds it.
+Actor DnD_BlindDecoy {
+	Health 1000
+	Radius 4
+	Height 16
+	RenderStyle None
+	+SHOOTABLE
+	+NOBLOCKMAP
+	+NOGRAVITY
+	+INVULNERABLE
+	+NODAMAGE
+	+NORADIUSDMG
+	+NOTELEPORT
+	+DONTSPLASH
+	+SERVERSIDEONLY
+	States {
+		Spawn:
+			TNT1 A -1
+		Stop
+	}
+}
+
+// Nox's curse marker over a blinded enemy: frame F of the curse row (FlammabilityFXMarker).
+Actor NoxFXMarker : FlammabilityFXMarker {
+	States {
+		SpawnLoop:
+			CM1O F 0
+		Goto CurseJoin
+	}
+}
+
+// The ring drawn where the curse lands, in dark violet sparks.
+Actor NoxAreaMarkerFX : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.5
+	Translation "80:111=%[0.00,0.00,0.00]:[1.17,0.10,1.87]"
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	+NOGRAVITY
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+			SPFX A 1 Bright A_FadeOut(0.04)
+		Wait
+	}
+}

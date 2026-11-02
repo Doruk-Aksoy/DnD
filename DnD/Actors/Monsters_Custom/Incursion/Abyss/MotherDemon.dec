@@ -32,7 +32,7 @@ Actor AbyssalMotherDemon : DnD_BaseRangedBoss {
 		Goto SpawnSetup
 		
 		IdleState:
-			C034 AB 10 A_GiveInventory("DnD_SightChecker", 1)
+			C034 AB 10 A_Look
 		Loop
 		SeeState:
 			C034 AAABBBCCCDDD 3 A_Chase
@@ -40,6 +40,8 @@ Actor AbyssalMotherDemon : DnD_BaseRangedBoss {
 		MissileState:
 			C034 E 0 A_PlaySound("abyssal_mother/attack", CHAN_VOICE)
 			C034 E 0 A_Jump(128, "FireAttack", "FireAttack", "MeteorSwarm", "Seekers")
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			C034 E 8 A_GiveInventory("AbyssMotherDemonAimer", 1)
 			TNT1 A 0 A_CustomMissile("AbyssalMotherMeteor", 96, -25, angle, CMF_ABSOLUTEANGLE)
 			TNT1 A 0 A_CustomMissile("AbyssalMotherMeteor", 40, -50, angle, CMF_ABSOLUTEANGLE)
@@ -48,6 +50,8 @@ Actor AbyssalMotherDemon : DnD_BaseRangedBoss {
 			C034 E 8
 		Goto See
 		Seekers:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			C034 E 8 A_FaceTarget
 			TNT1 A 0 A_CustomMissile("AbyssalMotherMeteor2", 96, -25, 35 + angle, CMF_ABSOLUTEANGLE)
 			TNT1 A 0 A_CustomMissile("AbyssalMotherMeteor2", 40, -50, 35 + angle, CMF_ABSOLUTEANGLE)
@@ -55,6 +59,8 @@ Actor AbyssalMotherDemon : DnD_BaseRangedBoss {
 			C034 F 14 BRIGHT A_CustomMissile("AbyssalMotherMeteor2", 40, 50, -35 + angle, CMF_ABSOLUTEANGLE)
 		Goto See
 		FireAttack:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			C034 E 8 A_FaceTarget
 			TNT1 A 0 A_CustomMissile("AbyssalMotherFire", 0, 0, 0, 2, 0)
 			TNT1 A 0 A_CustomMissile("AbyssalMotherFire", 0, 0, 90, 2, 0)
@@ -62,6 +68,8 @@ Actor AbyssalMotherDemon : DnD_BaseRangedBoss {
 			C034 G 14 BRIGHT A_CustomMissile("AbyssalMotherFire", 0, 0, 180, 2, 0)
 		Goto See
 		MeteorSwarm:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			C034 E 1 A_ChangeFlag("NOPAIN", 1)
 			C034 EEEE 9 A_FaceTarget
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Mother Demon Meteors")

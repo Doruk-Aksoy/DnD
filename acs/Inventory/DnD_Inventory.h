@@ -2534,6 +2534,20 @@ bool IsSelfUsableItem(int itype, int isubtype) {
 	return false;
 }
 
+// Strength moved, or its effects switched on or off: the life cap (life is clamped when it drops; old_cap is the cap
+// before the change), what Strength feeds, the shield ceiling (Sanguine Covenant swaps it) and Unity's cache.
+void HandleStrengthChange(int pnum, bool remove, int old_cap) {
+	int cap = GetSpawnHealth();
+	SetActorProperty(0, APROP_SPAWNHEALTH, cap);
+	if(cap < old_cap && GetActorProperty(0, APROP_HEALTH) > cap)
+		SetActorProperty(0, APROP_HEALTH, cap);
+
+	UpdateStrengthDerivedStats();
+	UpdateStaminaCap(pnum);
+	HandleEShieldChange(pnum, remove);
+	CalculateUnity(pnum);
+}
+
 // standard attribute processing (not implicits)
 void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index, bool remove) {
 	int i, temp;
@@ -2610,7 +2624,7 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 		// whole reason this mod was not on the generic accumulate path to begin with.
 		case INV_EX_KNOCKBACK_IMMUNITY:
 			SetPlayerFlag(pnum, PFLAG_KNOCKBACK_IMMUNITY, remove);
-			UpdatePlayerKnockbackResist();
+			UpdateStrengthDerivedStats();
 		break;
 
 		case INV_EX_BEHAVIOR_PELLETSFIRECIRCLE:
@@ -2675,27 +2689,10 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 				IncPlayerModValue(pnum, atype, aval);
 		break;
 		case INV_EX_ALLSTATS:
+			temp = GetSpawnHealth();
 			for(i = INV_STAT_STRENGTH; i <= INV_STAT_INTELLECT; ++i)
 				IncPlayerModValue(pnum, i, aval);
-			
-			// for str
-			UpdatePlayerKnockbackResist();
-
-			// for vit
-			i = GetActorProperty(0, APROP_HEALTH) - GetSpawnHealth();
-			if(remove) {
-				temp = GetSpawnHealth();
-				if(GetActorProperty(0, APROP_HEALTH) > temp) {
-					// set health to new cap, add the extra to player
-					if(i > 0)
-						SetActorProperty(0, APROP_HEALTH, temp + i);
-					else
-						SetActorProperty(0, APROP_HEALTH, temp);
-				}
-			}
-
-			HandleEShieldChange(pnum, remove);
-			CalculateUnity(pnum);
+			HandleStrengthChange(pnum, remove, temp);
 		break;
 		case INV_EX_PHYSDAMAGEPER_FLATHEALTH:
 			// first check all sources, see if they contain this and are lower than this source
@@ -2766,25 +2763,11 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 				HandleCurseImmunityRemoval();
 		break;
 		case INV_STAT_STRENGTH:
-			IncPlayerModValue(pnum, atype, aval);
-			UpdatePlayerKnockbackResist();
-			UpdateStaminaCap(pnum);
-
+		// both switch Strength's effects off
+		case INV_EX_INTBONUSTOMELEE:
 			temp = GetSpawnHealth();
-			i = GetActorProperty(0, APROP_HEALTH) - temp;
-			if(remove) {
-				if(GetActorProperty(0, APROP_HEALTH) > temp) {
-					// set health to new cap, add the extra to player
-					if(i > 0)
-						SetActorProperty(0, APROP_HEALTH, temp + i);
-					else
-						SetActorProperty(0, APROP_HEALTH, temp);
-				}
-			}
-
-			// Sanguine Covenant. This is the SHIELD's ceiling under the swap.
-			HandleEShieldChange(pnum, remove);
-			CalculateUnity(pnum);
+			IncPlayerModValue(pnum, atype, aval);
+			HandleStrengthChange(pnum, remove, temp);
 		break;
 		case INV_STAT_DEXTERITY:
 			IncPlayerModValue(pnum, atype, aval);
@@ -2831,26 +2814,9 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 		break;
 
 		case INV_EX_UNITY:
+			temp = GetSpawnHealth();
 			IncPlayerModValue(pnum, atype, aval);
-
-			// for str
-			UpdatePlayerKnockbackResist();
-
-			// for str
-			i = GetActorProperty(0, APROP_HEALTH) - GetSpawnHealth();
-			if(remove) {
-				temp = GetSpawnHealth();
-				if(GetActorProperty(0, APROP_HEALTH) > temp) {
-					// set health to new cap, add the extra to player
-					if(i > 0)
-						SetActorProperty(0, APROP_HEALTH, temp + i);
-					else
-						SetActorProperty(0, APROP_HEALTH, temp);
-				}
-			}
-
-			// for int
-			HandleEShieldChange(pnum, remove);
+			HandleStrengthChange(pnum, remove, temp);
 		break;
 
 		case INV_INC_PLUSPROJ:
@@ -3176,6 +3142,11 @@ bool ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 
 	switch(atype) {
 		// standard implicits
+		case INV_IMP_PERCENTSTR:
+			temp = GetSpawnHealth();
+			IncPlayerModValue(pnum, atype, aval);
+			HandleStrengthChange(pnum, remove, temp);
+		break;
 		case INV_IMP_INCARMOR:
 			IncPlayerModValue(pnum, INV_ARMOR_INCREASE, aval);
 		break;
@@ -3283,27 +3254,9 @@ bool ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 			IncPlayerModValue(pnum, INV_DROPCHANCE_INCREASE, aval);
 		break;
 		case INV_CORR_PERCENTSTATS:
+			temp = GetSpawnHealth();
 			IncPlayerModValue(pnum, atype, aval);
-
-			// for str
-			UpdatePlayerKnockbackResist();
-
-			// for vit
-			i = GetActorProperty(0, APROP_HEALTH) - GetSpawnHealth();
-			if(remove) {
-				temp = GetSpawnHealth();
-				if(GetActorProperty(0, APROP_HEALTH) > temp) {
-					// set health to new cap, add the extra to player
-					if(i > 0)
-						SetActorProperty(0, APROP_HEALTH, temp + i);
-					else
-						SetActorProperty(0, APROP_HEALTH, temp);
-				}
-			}
-
-			// for int
-			HandleEShieldChange(pnum, remove);
-			CalculateUnity(pnum);
+			HandleStrengthChange(pnum, remove, temp);
 		break;
 
 		// weapon mods
@@ -4100,6 +4053,10 @@ void ResetPlayerItemsUsed(int pnum) {
 			SyncItemData_Null(pnum, i, DND_SYNC_ITEMSOURCE_ITEMSUSED, item.width, item.height);
 		ClearInventoryItem(item);
 	}
+
+	// The flask slots just emptied; the HUD and flask use read FlaskData and its tokens, not the slots.
+	for(int f = 0; f < MAX_FLASK_SLOTS; ++f)
+		UpdatePlayerFlaskData(pnum, f);
 }
 
 // underlying assumption that the item isn't null, as it's returned from crafting screen

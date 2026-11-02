@@ -3,6 +3,22 @@ enum {
 	DND_PET_FIREDEMONID,
 	DND_PET_ICEGOLEMID,
 	DND_PET_ROCKGOLEMID,
+	DND_PET_SKELETONID,
+	DND_PET_SKELETONMAGEID,
+	DND_PET_GHASTID,
+	DND_PET_SLAYERKNIGHTID,
+	DND_PET_DOOMGUARDID,
+	DND_PET_DARKPORTALID,
+};
+
+// Which row a Black minion's hit reads, for "DnD Spell Minion Hit". MUST match DND_MINIONHIT_* in acs/Spells/DnD_Spells.h.
+enum {
+	MINIONHIT_SKELETON,
+	MINIONHIT_SLAYERMELEE,
+	MINIONHIT_SLAYERFLAME,
+	MINIONHIT_DOOMMELEE,
+	MINIONHIT_METEOR,
+	MINIONHIT_METEORBLAST,
 };
 
 // Ids for "DnD Minion Cooldown". MUST match the DND_MINIONCD_* enum in acs/DnD_Skills.h, in
@@ -65,72 +81,7 @@ Actor PetMonsterBase {
 	// threshold runs out. "DnD Pet Reactivity" takes it off while the pet commits to a new target.
 	+QUICKTORETALIATE
 	
-	// No shared Death block here -- see the note in each pet's own Death state.
-}
-
-ACTOR ZombiePet : PetMonsterBase {
-	Health 125
-	GibHealth 20
-	Radius 20
-	Height 56
-	Speed 10
-	PainChance 192
-	Stamina 1
-	SeeSound "ZombieFodder/sight"
-	PainSound "ZombieFodder/pain"
-	DeathSound "ZombieFodder/death"
-	ActiveSound "ZombieFodder/active"
-	Obituary "%o joins the zombies."
-	Tag "Summoned Zombie"
-	MeleeRange 78
-	States {
-		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pet Monster Scale", 0, DND_PET_ZOMBIEID, DND_SILVER_WEAKNESS, -1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Timed Monster", ACS_NamedExecuteWithResult("DnD Master Skill Info", SKILLINFO_ZOMBIEPETTIMER), 1)
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pet Distance Move", 0)
-			ZFOD S 6
-			ZFOD RQPON 3
-		SpawnLoop:
-			ZFOD AB 8 A_Look
-		Goto See
-		See:
-			ZFOD AABBCCDD 2 A_Chase
-		Loop
-		Melee:
-			TNT1 A 0 A_AlertMonsters(0, AMF_TARGETNONPLAYER)
-			ZFOD E 6 A_FaceTarget
-			TNT1 A 0 A_PlaySound("ZombieFodder/MeleeBegin", 5)
-			ZFOD F 5 A_FaceTarget
-			ZFOD G 2 A_CustomMeleeAttack(ACS_NamedExecuteWithResult("DND Pet Monster Damage Scale", 8, 1 | (2 << 16), 0), "ZombieFodder/MeleeHit")
-			ZFOD G 3
-		Goto See
-		Pain:
-			ZFOD H 4
-			ZFOD H 4 A_Pain
-		Goto See
-		// The death script runs HERE, not in a shared PetMonsterBase block. That block ended a 0 tic
-		// state with A_Jump, and every A_Jump is a no-op on a client, so the state never left and the
-		// client spun it until the engine's loop breaker fired. A same class fall-through cannot: it is
-		// linked at load. A base block cannot be fixed this way either, because a parent Goto resolves
-		// to the PARENT's label, not to the child's override.
-		Death:
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Summon Death Check", 0, DND_PET_ZOMBIEID)
-			ZFOD I 7
-			ZFOD J 7 A_Scream
-			ZFOD K 5 A_NoBlocking
-			ZFOD L 5 A_SpawnItemEx("FodderSoul",0,0,10,0,0,1)
-			ZFOD M -1
-		Stop
-		XDeath:
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Summon Death Check", 0, DND_PET_ZOMBIEID)
-			ZFOD N 5
-			ZFOD O 5 A_XScream
-			ZFOD P 5 A_NoBlocking
-			ZFOD Q 5 A_SpawnItemEx("FodderSoul",0,0,10,0,0,1)
-			ZFOD R 5
-			ZFOD S -1
-		Stop
-	}
+	// No shared Death block here -- see the note in each pet's own Death state (Spell_Zombie in Spells/Black/Zombie.dec).
 }
 
 ACTOR FodderSoul {

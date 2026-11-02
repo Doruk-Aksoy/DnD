@@ -3390,7 +3390,7 @@ Script "DnD Homing Lock-on Draw" (int width, int height, int range) CLIENTSIDE {
 
 	int r = 1.0 * LOCKON_HUD_Y / LOCKON_HUD_X;
 	while(isAlive() && !CheckInventory("DnD_RemoveLockOn")) {
-		int w = Clamp_Between(((width / 2) * r) & 0xFFFF0000, 0, (GetHudRight(getcvar("vid_defwidth") - (LOCKON_LINE_LEN >> 16)) << 16) / 2);
+		int w = Clamp_Between(((width / 2) * r) & 0xFFFF0000, 0, (GetHudRight(GetScreenWidth() - (LOCKON_LINE_LEN >> 16)) << 16) / 2);
 		int h = Clamp_Between(((height / 2) * r) & 0xFFFF0000, 0, LOCKON_HUD_YF / 2 - (FixedMul(LOCKON_LINE_LEN, r) & 0xFFFF0000));
 	
 		SetHudSize(LOCKON_HUD_X, LOCKON_HUD_Y, 1);
@@ -3494,9 +3494,20 @@ void HandleStaminaBarDraw(int pnum) {
 #define STAMINA_BAR_LEN 192
 #define STAMINABAR_HOLDTIME 0.25
 
+// Clientside, one bar loop per client; every swing asks for one. Map scope, so a map change clears it.
+typedef struct {
+	bool running;
+} stamina_bar_T;
+
+stamina_bar_T module& GetStaminaBarState() {
+	static stamina_bar_T s;
+	return s;
+}
+
 Script "DnD Stamina Bar Draw" (int pnum) CLIENTSIDE {
-	if(ConsolePlayerNumber() != pnum)
+	if(ConsolePlayerNumber() != pnum || GetStaminaBarState().running)
 		Terminate;
+	GetStaminaBarState().running = true;
 
 	int xoff = 0;
 
@@ -3547,6 +3558,7 @@ Script "DnD Stamina Bar Draw" (int pnum) CLIENTSIDE {
 
 		Delay(const:1);
 	}
+	GetStaminaBarState().running = false;
 
 	if(!isAlive())
 		DeleteTextRange(HUD_STAMINA_FOREGROUND, HUD_STAMINA_ICON);

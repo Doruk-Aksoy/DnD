@@ -1,0 +1,22 @@
+// On one enemy: the slow (strongest wins), its clock, rank 5's shot slow and rank 10's hesitation.
+Actor DnD_ChainedSlow : DnD_Info {}
+Actor DnD_ChainedTimer : DnD_Info {}
+Actor DnD_ChainedShotSlow : DnD_Info {}
+Actor DnD_ChainedHesitate : DnD_Info {}
+
+// Rank 10: its next A_Chase skips the melee and missile checks, as it does right after any attack.
+Actor TemporalChains_Hesitate : DnD_Activator { States { Pickup: TNT1 A 0 A_ChangeFlag("JUSTATTACKED", 1) Stop } }
+
+// The curse marker over a chained enemy: frame G of the curse row (FlammabilityFXMarker).
+Actor TemporalChainsFXMarker : FlammabilityFXMarker {
+	States {
+		SpawnLoop:
+			CM1O G 0
+		Goto CurseJoin
+	}
+}
+
+// The ring drawn where the curse lands, in pale blue sparks.
+Actor TemporalChainsAreaMarkerFX : NoxAreaMarkerFX {
+	Translation "80:111=%[0.00,0.00,0.00]:[0.75,1.35,2.00]"
+}

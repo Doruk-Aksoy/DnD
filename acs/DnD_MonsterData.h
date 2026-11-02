@@ -685,6 +685,12 @@ void FillUnitResists(int id, int bonus, bool pet) {
 		break;
 	}
 
+	// the single element immunities, on top of whatever the element already had
+	fire += HasUnitTrait(id, DND_FIRE_IMMUNE, pet) * DND_IMMUNITY_FACTOR;
+	ice += HasUnitTrait(id, DND_ICE_IMMUNE, pet) * DND_IMMUNITY_FACTOR;
+	poison += HasUnitTrait(id, DND_POISON_IMMUNE, pet) * DND_IMMUNITY_FACTOR;
+	lightning += HasUnitTrait(id, DND_LIGHTNING_IMMUNE, pet) * DND_IMMUNITY_FACTOR;
+
 	// What is stored is the monster's TRUE resist, and it is deliberately NOT clamped -- it is allowed
 	// to sit above DND_IMMUNITY_FACTOR, and above 100. FactorResists caps it at the point of use
 	// instead, and that is the whole point: a resist reduction eats into the true number first, so an
@@ -820,6 +826,17 @@ bool CanHealMonster() {
 
 bool CanHealMonsterTID(int tid) {
 	return !CheckActorInventory(tid, "DnD_DeepCuts") && !CheckActorInventory(tid, "DnD_IgniteTimer") && !CheckActorInventory(tid, "MonsterRegenPause");
+}
+
+// A heal authored against the monster's table health, grown as far as its health was scaled: level, players, elite, Vital.
+int GetMonsterHealAmount(int mid, int base) {
+	int table = Max(1, MonsterData[MonsterProperties[mid].id].health);
+	int maxhp = MonsterProperties[mid].maxhp;
+	if(maxhp <= table || base <= 0)
+		return base;
+	if(maxhp / table >= bcs::INT_MAX / base)
+		return maxhp;
+	return maxhp / table * base + maxhp % table * base / table;
 }
 
 void HealMonster(int mid, int amount) {

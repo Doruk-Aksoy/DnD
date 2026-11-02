@@ -1,0 +1,36 @@
+// The storm's eye, drifting towards its caster ("DnD Soulstorm Cast" steers it); the souls round it are client side.
+Actor Spell_SoulstormAnchor {
+	Radius 8
+	Height 16
+	RenderStyle Translucent
+	Alpha 0.7
+	Scale 2.0
+	Translation "0:255=%[0.00,0.00,0.00]:[0.55,0.45,0.85]"
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOBLOCKMAP
+	+DONTSPLASH
+	States {
+		Spawn:
+			S019 ABCDEFGHIJKLMNOPQRST 2
+		Loop
+		Vanish:
+			S019 ABCDEFGHIJ 2 A_FadeOut(0.07)
+		Stop
+	}
+}
+
+Actor Spell_SoulstormSoul : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.8
+	Scale 0.5
+	Translation "0:255=%[0.00,0.00,0.00]:[0.75,0.70,1.40]"
+	+NOGRAVITY
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_ChangeVelocity(4, 0, 1, CVF_RELATIVE | CVF_REPLACE)
+			SPIR ABABAB 3 Bright A_FadeOut(0.12)
+		Stop
+	}
+}

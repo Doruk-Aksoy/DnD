@@ -317,7 +317,7 @@ int GetAmmoContainerValue(int ammo_slot, int ammo) {
 // gets you the percentage to increase by
 int GetAmmoCapIncrease(int pnum) {
 	int bpcount = CheckInventory("BackpackCounter");
-	bpcount = (((100 + bpcount * DND_BACKPACK_RATIO)) * (100 + (PlayerModData[PlayerNumber()].vals[PSTAT_AMMOCAP_INCREASE]))) / 100;
+	bpcount = (((100 + bpcount * DND_BACKPACK_RATIO)) * (100 + PlayerModData[pnum].vals[PSTAT_AMMOCAP_INCREASE] + GetStrengthAmmoCapPct(pnum))) / 100;
 
 	int temp = PlayerModData[pnum].vals[PSTAT_EX_REDUCEDAMMOCAP];
 	if(temp)
@@ -344,6 +344,8 @@ void SetAllAmmoCapacities(int pnum) {
 				SetAmmoCapacity(a_info.name, (a_info.initial_capacity * factor) / 100);
 		}
 	}
+
+	SetSpecialAmmoCapacities(pnum);
 }
 
 void SetAllAmmoCapacitiesToDefault() {

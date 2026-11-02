@@ -53,6 +53,15 @@ Actor P_CastSpell : Ammo {
 	+IGNORESKILL
 }
 
+// Silencer: the tic the player's silence ends, which the server casts against and the client's HUD draws from.
+Actor P_SilenceEnd : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
 // Hotbar mirrors. The bar draws clientside and SpellPlayerData is a global, so the binding and
 // the cooldown words have to cross as inventory.
 Actor P_Hotbar1 : Ammo {
@@ -93,6 +102,15 @@ Actor P_LanceStacks : Ammo {
 
 // Surgecast's seconds left while armed, for the hotbar to draw on its icon.
 Actor P_SurgecastTime : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+// Telekinesis rank 5's deflect seconds left, for the hotbar.
+Actor P_TelekinesisTime : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF
 	ammo.backpackamount 0

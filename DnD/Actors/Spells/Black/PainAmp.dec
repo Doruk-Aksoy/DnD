@@ -1,0 +1,17 @@
+// On one enemy: more damage taken in tenths of a percent, and the clock.
+Actor DnD_PainAmped : DnD_Info {}
+Actor DnD_PainAmpedTimer : DnD_Info {}
+
+// The curse marker over a pain amped enemy: frame I of the curse row (FlammabilityFXMarker).
+Actor PainAmpFXMarker : FlammabilityFXMarker {
+	States {
+		SpawnLoop:
+			CM1O I 0
+		Goto CurseJoin
+	}
+}
+
+// The ring drawn where the curse lands, in dark crimson sparks.
+Actor PainAmpAreaMarkerFX : NoxAreaMarkerFX {
+	Translation "80:111=%[0.00,0.00,0.00]:[1.60,0.20,0.60]"
+}

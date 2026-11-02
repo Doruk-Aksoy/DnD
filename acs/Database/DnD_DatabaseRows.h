@@ -38,6 +38,8 @@ enum {
 #define DND_DB_SPELLAURAS "DnD_PlayerSpellAuras_"
 #define DND_DB_SPELLHOTBAR "DnD_PlayerSpellHotbar_"
 #define DND_DB_SPELLSFROMLEVEL "DnD_PlayerSpellsFromLevel"
+// One row per carried pet record, 0..DND_PETCARRY_MAX - 1, in PetCarry's (kind + 1) | (health percent << 8) format.
+#define DND_DB_PETS "DnD_PlayerPets_"
 #define DND_DB_SPELLSFROMTOKEN "DnD_PlayerSpellsFromToken"
 // Gem sockets: only the filled ones, as a count and that many packed rows (see DB_SaveSpellData).
 #define DND_DB_SPELLSOCKETS "DnD_PlayerSpellSockets_"

@@ -1,9 +1,9 @@
-// Despair's curse marker over a cursed enemy, on Flammability's warp loop.
+// Despair's curse marker: frame E of the curse row (FlammabilityFXMarker).
 Actor DespairFXMarker : FlammabilityFXMarker {
 	States {
 		SpawnLoop:
-			S301 A 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass + 24.0, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
-		Loop
+			CM1O E 0
+		Goto CurseJoin
 	}
 }
 

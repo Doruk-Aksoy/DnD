@@ -45,6 +45,32 @@ hotbar_glint_T module& GetHotbarGlint() {
 	return s;
 }
 
+// Client side: what the spell HUD has on screen, so a layer is deleted once when it goes and an unchanged bar is not resent.
+#define DND_HUDL_SLOT 1                 // the icon and key label
+#define DND_HUDL_CD 2
+#define DND_HUDL_CD2 4
+#define DND_HUDL_GLINT 8
+#define DND_HUDL_CHG 16
+#define DND_HUDL_STACK 32
+
+typedef struct {
+	int shown[MAX_HOTBAR_SLOTS];
+	bool mana_drawn, cast_drawn;
+	int mana_cap, mana_usable, mana_cur, mana_a, mana_x, mana_y, mana_w, mana_h;
+} spell_hud_drawn_T;
+
+spell_hud_drawn_T module& GetSpellHudDrawn() {
+	static spell_hud_drawn_T s;
+	return s;
+}
+
+void HideHotbarLayer(int slot, int layer, int id) {
+	if(GetSpellHudDrawn().shown[slot] & layer) {
+		DeleteText(id + slot);
+		GetSpellHudDrawn().shown[slot] &= ~layer;
+	}
+}
+
 // Two anchors, neither of them a guess about the player's setup.
 //
 // ACROSS: GetHudRight, not the hud WIDTH. The hud space is 3:2, so on a 16:9 screen it is
@@ -180,10 +206,18 @@ void SyncHotbarForSpell(int pnum, int spell) {
 
 // ---- clientside ------------------------------------------------------------------------------
 
+// Silencer: the share of the silence still to run, 0 to 100, off its end tic and the client's own Timer().
+int GetSilencePercent() {
+	int left = CheckInventory("P_SilenceEnd") - Timer();
+	if(left <= 0)
+		return 0;
+	return Min(100, left * 100 / DND_SILENCER_TICS);
+}
+
 // 0 when ready, up to 100 the instant it starts. Read off the packed word so the client needs no
 // per tic traffic to animate the overlay.
-int GetHotbarCooldownPercent(int slot) {
-	int end = CheckInventory(GetHotbarCdItem(slot));
+int GetHotbarWordPercent(int slot, str word) {
+	int end = CheckInventory(word);
 	if(!end)
 		return 0;
 
@@ -198,21 +232,16 @@ int GetHotbarCooldownPercent(int slot) {
 	return Min(100, left * 100 / total);
 }
 
+// A silence shades every slot like a cooldown of its own, so the slot reads as ready only once both are over.
+int GetHotbarCooldownPercent(int slot) {
+	return Max(GetHotbarWordPercent(slot, GetHotbarCdItem(slot)), GetSilencePercent());
+}
+
 // The second charge, on the same arithmetic. Zero when the spell holds only one.
 int GetHotbarCooldownBPercent(int slot) {
-	int end = CheckInventory(GetHotbarCdBItem(slot));
-	if(!end)
+	if(CheckInventory(GetHotbarChgItem(slot)) < 2)
 		return 0;
-
-	int total = UnpackHotbarTotal(CheckInventory(GetHotbarTotItem(slot)));
-	if(total <= 0)
-		return 0;
-
-	int left = end - Timer();
-	if(left <= 0)
-		return 0;
-
-	return Min(100, left * 100 / total);
+	return Max(GetHotbarWordPercent(slot, GetHotbarCdBItem(slot)), GetSilencePercent());
 }
 
 // Charges still castable. Worked out from the same two words the squares are drawn from, so the
@@ -308,7 +337,7 @@ int GetHudCleanFactor(int w, int h, int r) {
 
 // Clientside, once per draw. VirtualToRealCoords maps a canvas onto a 4:3 box: 21:9 uses the 16:10 row, 5:4 letterboxes.
 void UpdateHudStack(void) {
-	int w = GetCVar("vid_defwidth"), h = GetCVar("vid_defheight");
+	int w = GetScreenWidth(), h = GetScreenHeight();
 	if(w <= 0 || h <= 0) {
 		w = 640;
 		h = 480;
@@ -348,6 +377,7 @@ int GetHotbarBadge(int spell) {
 		case SPL_SURGECAST: return CheckInventory("P_SurgecastTime");
 		case SPL_BALEFULINFUSION: return CheckInventory("P_BalefulTime");
 		case SPL_ROCKARMOR: return CheckInventory("P_RockArmor");
+		case SPL_TELEKINESIS: return CheckInventory("P_TelekinesisTime");
 	}
 	return 0;
 }
@@ -359,7 +389,6 @@ void DrawSpellHotbar(int pnum) {
 	int i, count = GetHotbarSlotCount(pnum), spell, x, pct;
 
 	int sc = DND_HOTBAR_SCALE;
-	UpdateHudStack();
 
 	for(i = 0; i < count; ++i) {
 		spell = CheckInventory(GetHotbarSlotItem(i)) - 1;
@@ -368,16 +397,20 @@ void DrawSpellHotbar(int pnum) {
 		// An unassigned slot draws NOTHING. It used to draw SPLBOX, a lump that does not exist,
 		// so SetFont fell back and the slot came out as a literal "A".
 		if(spell < 0) {
-			DeleteText(HOTBAR_SLOT_ID + i);
-			DeleteText(HOTBAR_ICON_ID + i);
-			DeleteText(HOTBAR_CD_ID + i);
-			DeleteText(HOTBAR_CD2_ID + i);
-			DeleteText(HOTBAR_CHG_ID + i);
-			DeleteText(HOTBAR_GLINT_ID + i);
-			DeleteText(HOTBAR_STACK_ID + i);
+			if(GetSpellHudDrawn().shown[i]) {
+				DeleteText(HOTBAR_SLOT_ID + i);
+				DeleteText(HOTBAR_ICON_ID + i);
+				DeleteText(HOTBAR_CD_ID + i);
+				DeleteText(HOTBAR_CD2_ID + i);
+				DeleteText(HOTBAR_CHG_ID + i);
+				DeleteText(HOTBAR_GLINT_ID + i);
+				DeleteText(HOTBAR_STACK_ID + i);
+				GetSpellHudDrawn().shown[i] = 0;
+			}
 			GetHotbarGlint().spell[i] = 0;
 			continue;
 		}
+		GetSpellHudDrawn().shown[i] |= DND_HUDL_SLOT;
 
 		SetHudSize(GetHudStack().w * sc, GetHudStack().h * sc, 0);
 		SetFont(GetSpellIcon(spell, false));
@@ -400,9 +433,10 @@ void DrawSpellHotbar(int pnum) {
 			HudMessage(s:"A"; HUDMSG_PLAIN, HOTBAR_CD_ID + i, CR_UNTRANSLATED,
 				((x * sc) << 16) + 0.1, ((GetHotbarSlotY() * sc) << 16) + 0.1, 0.1);
 			SetHudClipRect(0, 0, 0, 0);
+			GetSpellHudDrawn().shown[i] |= DND_HUDL_CD;
 		}
 		else
-			DeleteText(HOTBAR_CD_ID + i);
+			HideHotbarLayer(i, DND_HUDL_CD, HOTBAR_CD_ID);
 
 		// The second charge, as a square of its own laid over the first. Both down therefore reads as
 		// a visibly darker icon, and each drains on its own clock -- the two squares come back at
@@ -416,9 +450,10 @@ void DrawSpellHotbar(int pnum) {
 			HudMessage(s:"A"; HUDMSG_PLAIN, HOTBAR_CD2_ID + i, CR_UNTRANSLATED,
 				((x * sc) << 16) + 0.1, ((GetHotbarSlotY() * sc) << 16) + 0.1, 0.1);
 			SetHudClipRect(0, 0, 0, 0);
+			GetSpellHudDrawn().shown[i] |= DND_HUDL_CD2;
 		}
 		else
-			DeleteText(HOTBAR_CD2_ID + i);
+			HideHotbarLayer(i, DND_HUDL_CD2, HOTBAR_CD2_ID);
 
 		// The glint: the cooldown or a charge coming back starts it; a slot that just changed spell does not.
 		int ready = CheckInventory(GetHotbarChgItem(i)) > 1 ? GetHotbarChargesReady(i) :
@@ -433,27 +468,32 @@ void DrawSpellHotbar(int pnum) {
 			SetFont(StrParam(s:"SPLGLT", s:g < 9 ? "0" : "", d:g + 1));
 			HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ADDBLEND, HOTBAR_GLINT_ID + i, CR_UNTRANSLATED,
 				((x * sc) << 16) + 0.1, ((GetHotbarSlotY() * sc) << 16) + 0.1, 0.1);
+			GetSpellHudDrawn().shown[i] |= DND_HUDL_GLINT;
 		}
 		else
-			DeleteText(HOTBAR_GLINT_ID + i);
+			HideHotbarLayer(i, DND_HUDL_GLINT, HOTBAR_GLINT_ID);
 
 		// Charges left, top right of the icon. Only for a spell that holds more than one -- on
 		// everything else it would be a permanent "1" saying nothing.
 		SetHudSize(GetHudStack().w, GetHudStack().h, 0);
 		SetFont("SMALLFONT");
-		if(CheckInventory(GetHotbarChgItem(i)) > 1)
+		if(CheckInventory(GetHotbarChgItem(i)) > 1) {
 			HudMessage(s:"\c[Y5]", d:GetHotbarChargesReady(i); HUDMSG_PLAIN, HOTBAR_CHG_ID + i, CR_WHITE,
 				((x + DND_HOTBAR_ICON - 2) << 16) + 0.4, ((GetHotbarSlotY() + 1) << 16) + 0.1, 0.1);
+			GetSpellHudDrawn().shown[i] |= DND_HUDL_CHG;
+		}
 		else
-			DeleteText(HOTBAR_CHG_ID + i);
+			HideHotbarLayer(i, DND_HUDL_CHG, HOTBAR_CHG_ID);
 
 		// A count bottom right of the icon while above zero.
 		int badge = GetHotbarBadge(spell);
-		if(badge)
+		if(badge) {
 			HudMessage(s:"\cn", d:badge; HUDMSG_PLAIN, HOTBAR_STACK_ID + i, CR_WHITE,
 				((x + DND_HOTBAR_ICON - 2) << 16) + 0.4, ((GetHotbarSlotY() + DND_HOTBAR_ICON - 8) << 16) + 0.1, 0.1);
+			GetSpellHudDrawn().shown[i] |= DND_HUDL_STACK;
+		}
 		else
-			DeleteText(HOTBAR_STACK_ID + i);
+			HideHotbarLayer(i, DND_HUDL_STACK, HOTBAR_STACK_ID);
 
 		// Which key casts it, under the icon.
 		HudMessage(s:"\c[Y5]", d:i + 1; HUDMSG_PLAIN, HOTBAR_SLOT_ID + i, CR_WHITE,
@@ -506,19 +546,20 @@ int GetManaBarY() {
 // silently rescaling the bar under the player.
 void DrawManaBar(int pnum) {
 	// No pool (Blood Magic): its messages are persistent, so a bar drawn before has to be taken down.
+	spell_hud_drawn_T module& d = GetSpellHudDrawn();
 	int cap = CheckInventory("P_ManaCap");
 	if(cap <= 0) {
-		DeleteTextRange(MANABAR_TEXT_ID, MANABAR_BACK_ID);
+		if(d.mana_drawn) {
+			DeleteTextRange(MANABAR_TEXT_ID, MANABAR_BACK_ID);
+			d.mana_drawn = false;
+		}
 		return;
 	}
 
-	UpdateHudStack();
 	int usable = Min(CheckInventory("ManaVisual"), cap);
 	int cur = Min(CheckInventory("Mana"), usable);
 	int x = GetManaBarX(), y = GetManaBarY();
 
-	// The flow, edge, surge and low looks are shaders, so the software renderer keeps the plain bar.
-	bool fx = GetCVar("vid_renderer");
 	int surge = Clamp_Between(GetManaBarFx().surge + (IsManaFlaskRunning() ? 1 : -1), 0, DND_MANABAR_RAMP);
 	GetManaBarFx().surge = surge;
 	int low = DND_MANABAR_RAMP;
@@ -527,7 +568,21 @@ void DrawManaBar(int pnum) {
 			((DND_MANABAR_LOWFROM - DND_MANABAR_LOWFULL) * usable), 0, DND_MANABAR_RAMP);
 
 	// Both looks ride the alpha, which ManaFlow.fp and ManaEdge.fp decode: 1 - (surge * 8 + low) / 64.
-	int a = fx ? 1.0 - (surge * 8 + low) * 1024 : 1.0;
+	int a = 1.0 - (surge * 8 + low) * 1024;
+
+	// Every layer below is persistent, so a bar whose inputs did not change is left on screen as it is.
+	if(d.mana_drawn && d.mana_cap == cap && d.mana_usable == usable && d.mana_cur == cur && d.mana_a == a &&
+		d.mana_x == x && d.mana_y == y && d.mana_w == GetHudStack().w && d.mana_h == GetHudStack().h)
+		return;
+	d.mana_drawn = true;
+	d.mana_cap = cap;
+	d.mana_usable = usable;
+	d.mana_cur = cur;
+	d.mana_a = a;
+	d.mana_x = x;
+	d.mana_y = y;
+	d.mana_w = GetHudStack().w;
+	d.mana_h = GetHudStack().h;
 
 	// Laid out in stack units above, drawn in the bar's canvas where one unit is one art pixel, so
 	// the clips below are in art pixels too.
@@ -558,14 +613,10 @@ void DrawManaBar(int pnum) {
 		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, MANABAR_FILL_ID, CR_UNTRANSLATED,
 			(cx << 16) + 0.1, (cy << 16) + 0.1, 0.0, a);
 
-		if(fx) {
-			SetHudClipRect(cx + DND_MANABAR_LIQ0 - 1, cy, DND_MANABAR_LIQW + 2, DND_MANABAR_PXH);
-			SetFont("SPLMANAE");
-			HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_ADDBLEND, MANABAR_EDGE_ID, CR_UNTRANSLATED,
-				((cx + DND_MANABAR_LIQ0 + w - DND_MANABAR_EDGEW / 2) << 16) + 0.1, (cy << 16) + 0.1, 0.0, a);
-		}
-		else
-			DeleteText(MANABAR_EDGE_ID);
+		SetHudClipRect(cx + DND_MANABAR_LIQ0 - 1, cy, DND_MANABAR_LIQW + 2, DND_MANABAR_PXH);
+		SetFont("SPLMANAE");
+		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_ADDBLEND, MANABAR_EDGE_ID, CR_UNTRANSLATED,
+			((cx + DND_MANABAR_LIQ0 + w - DND_MANABAR_EDGEW / 2) << 16) + 0.1, (cy << 16) + 0.1, 0.0, a);
 		SetHudClipRect(0, 0, 0, 0);
 	}
 	else {
@@ -585,22 +636,19 @@ void DrawManaBar(int pnum) {
 
 // ---- cast bar --------------------------------------------------------------------------------
 
-// Bottom centre. Centred off the real screen edges rather than the hud width, since the hud space is
-// pillarboxed on a widescreen and its own midpoint is not the monitor's.
-//
-// As low as it can go without a clash. The bottom centre is already spoken for: "DnD Stamina Bar
-// Draw" puts its bar across the bottom 68 pixels and its parry readout at about 962 of 1080, so this
-// bar's lower edge stops just above that. Everything else down there is off to one side -- the EXP
-// row ends well left of it and the metronome glyph sits right of centre, over toward the ammo panel.
-// The mana bar and hotbar are bottom RIGHT and never reach this far in.
-#define DND_CASTBAR_W 160
-#define DND_CASTBAR_H 12
-#define DND_CASTBAR_BOTTOM 51
-#define DND_CASTBAR_LABEL 12
-
-int GetCastBarX() {
-	return (GetHudLeft(HUDMAX_X) + GetHudRight(HUDMAX_X) - DND_CASTBAR_W) / 2;
-}
+// Bottom centre, in the 480x320 layout at 27/16 so one unit is one art pixel. It scales with the screen height like
+// "DnD Stamina Bar Draw" under it, so the gap to that script's parry shield holds at every resolution.
+#define DND_CASTBAR_CNUM 27
+#define DND_CASTBAR_CDEN 16
+#define DND_CASTBAR_PXW 339         // SPLCSTB; its trough runs DND_CASTBAR_LIQW columns from DND_CASTBAR_LIQ0
+#define DND_CASTBAR_LIQ0 31
+#define DND_CASTBAR_LIQW 276
+#define DND_CASTBAR_TOP 434         // frame top; its lower crest stops just above the parry shield
+#define DND_CASTBAR_FILLY 7         // SPLCSTF covers frame rows 7..22, a lip pair either side of the trough
+#define DND_CASTBAR_FILLH 16
+#define DND_CASTBAR_BLEED 16        // shown past the front for the shader's glow
+#define DND_CASTBAR_CODES 220       // front steps in the alpha; FUA keeps alpha as a byte, so each sits on a byte bucket's centre
+#define DND_CASTBAR_LABEL 10        // the spell name's top, in 480x320 units above the frame
 
 // -1 when nothing is being cast, else how far ELAPSED the cast is, 0 to 100. Same packed word and the
 // same reasoning as GetHotbarCooldownPercent: the client animates it off its own Timer().
@@ -622,52 +670,86 @@ int GetSpellCastPercent() {
 
 void ClearSpellCastBar() {
 	DeleteTextRange(CASTBAR_TEXT_ID, CASTBAR_BACK_ID);
+	DeleteText(CASTBAR_ICON_ID);
 }
 
 // Clientside. Starts empty and fills to the right edge as the cast runs out, with the spell being cast
 // named over it; a channel's window (DND_CASTBAR_DRAIN) starts full and empties instead.
 void DrawSpellCastBar(int pnum) {
 	int pct = GetSpellCastPercent();
-	if(pct < 0) {
-		ClearSpellCastBar();
-		return;
+
+	// Silencer: with nothing being cast, the bar counts the silence down under its own label.
+	bool silenced = false;
+	if(pct < 0 && GetSilencePercent()) {
+		pct = GetSilencePercent();
+		silenced = true;
 	}
 
-	int x = GetCastBarX(), y = HUDMAX_Y - DND_CASTBAR_BOTTOM;
+	if(pct < 0) {
+		if(GetSpellHudDrawn().cast_drawn) {
+			ClearSpellCastBar();
+			GetSpellHudDrawn().cast_drawn = false;
+		}
+		return;
+	}
+	GetSpellHudDrawn().cast_drawn = true;
+
 	int spell = (CheckInventory("P_CastSpell") & DND_CASTBAR_SPELLMASK) - 1;
-	if(CheckInventory("P_CastSpell") & DND_CASTBAR_DRAIN)
+	if(!silenced && (CheckInventory("P_CastSpell") & DND_CASTBAR_DRAIN))
 		pct = 100 - pct;
 
-	SetHudSize(HUDMAX_X, HUDMAX_Y, 0);
+	int cw = HUDMAX_X * DND_CASTBAR_CNUM / DND_CASTBAR_CDEN;
+	int x = (cw - DND_CASTBAR_PXW) / 2, y = DND_CASTBAR_TOP;
+	SetHudSize(cw, HUDMAX_Y * DND_CASTBAR_CNUM / DND_CASTBAR_CDEN, 0);
 
 	SetFont("SPLCSTB");
 	HudMessage(s:"A"; HUDMSG_PLAIN, CASTBAR_BACK_ID, CR_UNTRANSLATED,
 		(x << 16) + 0.1, (y << 16) + 0.1, 0.0);
 
-	int w = DND_CASTBAR_W * pct / 100;
+	// The fill stays put on the trough and CastBar.fp finds the front in the alpha. SPLCSTS is the crimson silenced art.
+	int w = DND_CASTBAR_LIQW * pct / 100;
 	if(w > 0) {
-		SetHudClipRect(x, y, w, DND_CASTBAR_H);
-		SetFont("SPLCSTF");
-		HudMessage(s:"A"; HUDMSG_PLAIN, CASTBAR_FILL_ID, CR_UNTRANSLATED,
-			(x << 16) + 0.1, (y << 16) + 0.1, 0.0);
+		int code = w * DND_CASTBAR_CODES / DND_CASTBAR_LIQW;
+		SetHudClipRect(x + DND_CASTBAR_LIQ0, y + DND_CASTBAR_FILLY, Min(w + DND_CASTBAR_BLEED, DND_CASTBAR_LIQW), DND_CASTBAR_FILLH);
+		SetFont(silenced ? "SPLCSTS" : "SPLCSTF");
+		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, CASTBAR_FILL_ID, CR_UNTRANSLATED,
+			((x + DND_CASTBAR_LIQ0) << 16) + 0.1, ((y + DND_CASTBAR_FILLY) << 16) + 0.1, 0.0,
+			1.0 - ((2 * code + 1) << 16) / 510);
 		SetHudClipRect(0, 0, 0, 0);
 	}
 	else
 		DeleteText(CASTBAR_FILL_ID);
 
-	if(spell >= 0 && spell < MAX_SPELL_IDS) {
+	SetHudSize(HUDMAX_X, HUDMAX_Y, 0);
+	int label = y * DND_CASTBAR_CDEN / DND_CASTBAR_CNUM - DND_CASTBAR_LABEL;
+	if(silenced || (spell >= 0 && spell < MAX_SPELL_IDS)) {
 		SetFont("SMALLFONT");
-		HudMessage(s:"\c[Y5]", l:GetSpellNameLump(spell); HUDMSG_PLAIN, CASTBAR_TEXT_ID, CR_WHITE,
-			((x + DND_CASTBAR_W / 2) << 16) + 0.4, ((y - DND_CASTBAR_LABEL) << 16) + 0.1, 0.0);
+		HudMessage(s:silenced ? "\cg" : "\c[Y5]", l:silenced ? "DND_SPLHUD_SILENCED" : GetSpellNameLump(spell); HUDMSG_PLAIN, CASTBAR_TEXT_ID, CR_WHITE,
+			((HUDMAX_X / 2) << 16) + 0.4, (label << 16) + 0.1, 0.0);
 	}
 	else
 		DeleteText(CASTBAR_TEXT_ID);
+
+	// Silencer: SILENCED at half size in a doubled canvas, centred over the bar, its bottom just above the label.
+	if(silenced) {
+		SetHudSize(HUDMAX_X * 2, HUDMAX_Y * 2, 0);
+		SetFont("SILENCED");
+		HudMessage(s:"A"; HUDMSG_PLAIN, CASTBAR_ICON_ID, CR_UNTRANSLATED,
+			HUDMAX_X << 16, ((label * 2 - 4) << 16) + 0.2, 0.0);
+		SetHudSize(HUDMAX_X, HUDMAX_Y, 0);
+	}
+	else
+		DeleteText(CASTBAR_ICON_ID);
 }
 
 // Everything the spell HUD draws, in one sweep: the bars sit just under the hotbar's three runs and
 // nothing else lives in that stretch of ids.
 void ClearSpellHotbar() {
 	DeleteTextRange(MANABAR_TEXT_ID, HOTBAR_SLOT_ID + MAX_HOTBAR_SLOTS);
+	for(int i = 0; i < MAX_HOTBAR_SLOTS; ++i)
+		GetSpellHudDrawn().shown[i] = 0;
+	GetSpellHudDrawn().mana_drawn = false;
+	GetSpellHudDrawn().cast_drawn = false;
 }
 
 #endif

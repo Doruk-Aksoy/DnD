@@ -336,3 +336,8 @@ flickerlight GeyserVentLight {
 object Spell_Geyser_Vent {
 	frame GYSRA { light GeyserVentLight }
 }
+
+// Ice Bolt's gem chain and fork hop.
+object Spell_IceBolt_GemArc {
+	frame S012A { light IceBoltLight }
+}

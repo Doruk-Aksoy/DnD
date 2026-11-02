@@ -1,0 +1,24 @@
+// A crow, flown by "DnD Carrion Crows" through its velocity; it passes through everything.
+Actor Spell_CarrionCrow {
+	Radius 6
+	Height 8
+	Scale 0.6
+	RenderStyle Translucent
+	Alpha 0.9
+	Translation "0:255=%[0.00,0.00,0.00]:[0.45,0.40,0.50]"
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOBLOCKMAP
+	+DONTSPLASH
+	States {
+		Spawn:
+			SPIR AB 3
+		Loop
+		Vanish:
+			SPIR AB 2 A_FadeOut(0.15)
+		Loop
+	}
+}
+
+// On the caster: which cast's crows fly; a recast bumps it and the old flock stops.
+Actor DnD_CrowsCast : DnD_Info {}

@@ -33,6 +33,10 @@
 #define DND_ENERGYLEECH_PCT 5 // 5%
 #define DND_EXHAUSTING_STAMINATAKE 5
 
+// Silencer: the chance a hit silences, and for how long no spell can be cast
+#define DND_SILENCER_CHANCE 33
+#define DND_SILENCER_TICS (4 * TICRATE)
+
 enum {
 	DND_TRAITCODE_WEAKNESS,
 	DND_TRAITCODE_RESIST,
@@ -162,6 +166,9 @@ enum {
 
 	DND_AURA_WARD,
 
+	DND_CURSEIMMUNE,
+	DND_SILENCER,
+
 	// never add below these!!
 	DND_GUARDBROKEN,
 
@@ -208,6 +215,7 @@ int GetEliteModPower(int t) {
 		case DND_FROSTBLOOD:
 		case DND_MOLTENBLOOD:
 		case DND_INSULATED:
+		case DND_CURSEIMMUNE:
 		case DND_ENSHROUDED:
 		case DND_BLACKOUT:
 		case DND_TEMPORALBUBBLE:
@@ -260,6 +268,7 @@ int GetEliteModPower(int t) {
 		case DND_SCORCHED:
 		case DND_VOLTAIC:
 		case DND_HEXFUSION:
+		case DND_SILENCER:
 		case DND_ARMORPEN:
 		case DND_EXTRASTRONG:
 		case DND_HASTE:
@@ -540,6 +549,11 @@ str GetMonsterTraitLabel(int id) {
 		return "DND_EMOD_STORMTOUCH";
 		case DND_VILETOUCH:
 		return "DND_EMOD_VILETOUCH";
+
+		case DND_CURSEIMMUNE:
+		return "DND_EMOD_CURSEIMMUNE";
+		case DND_SILENCER:
+		return "DND_EMOD_SILENCER";
 
 		case DND_GUARDBROKEN:
 		return "DND_EMOD_GUARDBROKEN";

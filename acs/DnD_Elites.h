@@ -43,7 +43,7 @@ int GetMagicHealthScale(int level) {
 #define MAX_ELITE_TRIES 50
 #define DND_MAX_ELITEIMMUNITIES 2
 
-#define MAX_ROLLABLE_TRAITS 68
+#define MAX_ROLLABLE_TRAITS 72
 
 #include "DnD_EliteInfo.h"
 
@@ -117,6 +117,8 @@ typedef struct {
 typedef struct {
 	alias_table_T? alias_tables[MAX_ELITE_LEVEL_THRESHOLDS];
 	elite_trait_info_T info[MAX_ROLLABLE_TRAITS];
+	// a level's table holds only its eligible rows, so its column k is the k-th of those; this maps it back to the row
+	int rows[MAX_ELITE_LEVEL_THRESHOLDS][MAX_ROLLABLE_TRAITS];
 } elite_traits_data_T;
 
 global elite_traits_data_T 36: EliteTraitData;
@@ -144,6 +146,7 @@ void CreateEliteAliasTables(elite_unique_levels_T module& thresholds, int size) 
 		for(int j = 0; j < size; ++j) {
 			if(EliteTraitData.info[j].lvl_req <= lvl_to_compare) {
 				EliteTraitData.alias_tables[i].weights[index] = EliteTraitData.info[j].weight;
+				EliteTraitData.rows[i][index] = j;
 				++index;
 			}
 		}
@@ -242,6 +245,9 @@ void SetupEliteModWeights() {
 
 	INSERT_ELITEMODPOOL(DND_AURA_WARD, 36, 75);
 
+	INSERT_ELITEMODPOOL(DND_CURSEIMMUNE, 30, 125);
+	INSERT_ELITEMODPOOL(DND_SILENCER, 40, 150);
+
 	// build the tables off of this info
 	CreateEliteAliasTables(thresholds, i);
 }
@@ -337,11 +343,24 @@ void SetEliteFlag(int this, int f, bool updateCS) {
 					MonsterProperties[this].resists[i] = DND_IMMUNITY_FACTOR;
 		break;
 
+		// the resist floor, as Elemental Immune does, for a grant after the resists were built
 		case DND_FIRE_IMMUNE:
 			SetMonsterTrait(this, DND_FIRE_WEAKNESS, false);
+			if(MonsterProperties[this].resists[DND_DAMAGECATEGORY_FIRE] < DND_IMMUNITY_FACTOR)
+				MonsterProperties[this].resists[DND_DAMAGECATEGORY_FIRE] = DND_IMMUNITY_FACTOR;
 		break;
 		case DND_ICE_IMMUNE:
 			SetMonsterTrait(this, DND_ICE_WEAKNESS, false);
+			if(MonsterProperties[this].resists[DND_DAMAGECATEGORY_ICE] < DND_IMMUNITY_FACTOR)
+				MonsterProperties[this].resists[DND_DAMAGECATEGORY_ICE] = DND_IMMUNITY_FACTOR;
+		break;
+		case DND_POISON_IMMUNE:
+			if(MonsterProperties[this].resists[DND_DAMAGECATEGORY_POISON] < DND_IMMUNITY_FACTOR)
+				MonsterProperties[this].resists[DND_DAMAGECATEGORY_POISON] = DND_IMMUNITY_FACTOR;
+		break;
+		case DND_LIGHTNING_IMMUNE:
+			if(MonsterProperties[this].resists[DND_DAMAGECATEGORY_LIGHTNING] < DND_IMMUNITY_FACTOR)
+				MonsterProperties[this].resists[DND_DAMAGECATEGORY_LIGHTNING] = DND_IMMUNITY_FACTOR;
 		break;
 		
 		case DND_GHOST:
@@ -457,13 +476,8 @@ Script "DnD Aura Giver CS" (int trait, int extra) CLIENTSIDE {
 
 // check if the given flag conforms to the cvars we declared
 bool CheckEliteCvar(int t) {
-	bool res = 0;
-	if(GetCVar("dnd_no_immunity")) {
-		res = (t == DND_BULLET_IMMUNE) || (t == DND_ENERGY_IMMUNE) || (t == DND_MAGIC_IMMUNE) || (t == DND_ELEMENTAL_IMMUNE);
-	}
-	if(GetCVar("dnd_no_reflect"))
-		res = (t == DND_REFLECTIVE);
-	return res;
+	// either cvar bans its own traits, and with both on both sets stay banned
+	return (GetCVar("dnd_no_immunity") && IsImmunityFlag(t)) || (GetCVar("dnd_no_reflect") && t == DND_REFLECTIVE);
 }
 
 bool IsMagicMonsterModBanned(int trait) {
@@ -501,11 +515,14 @@ bool HasTraitExceptions(int m_id, int t) {
 bool HasMaxImmunes() {
 	int i = ActivatorTID() - DND_MONSTERTID_BEGIN;
 	return 	HasTrait(i, DND_BULLET_IMMUNE) + HasTrait(i, DND_ENERGY_IMMUNE) + 
-			HasTrait(i, DND_MAGIC_IMMUNE) + HasTrait(i, DND_ELEMENTAL_IMMUNE) >= DND_MAX_ELITEIMMUNITIES;
+			HasTrait(i, DND_MAGIC_IMMUNE) + HasTrait(i, DND_ELEMENTAL_IMMUNE) +
+			HasTrait(i, DND_FIRE_IMMUNE) + HasTrait(i, DND_ICE_IMMUNE) +
+			HasTrait(i, DND_POISON_IMMUNE) + HasTrait(i, DND_LIGHTNING_IMMUNE) >= DND_MAX_ELITEIMMUNITIES;
 }
 
 bool IsImmunityFlag(int flag) {
-	return flag == DND_BULLET_IMMUNE || flag == DND_ENERGY_IMMUNE || flag == DND_MAGIC_IMMUNE || flag == DND_ELEMENTAL_IMMUNE;
+	return flag == DND_BULLET_IMMUNE || flag == DND_ENERGY_IMMUNE || flag == DND_MAGIC_IMMUNE || flag == DND_ELEMENTAL_IMMUNE ||
+		flag == DND_FIRE_IMMUNE || flag == DND_ICE_IMMUNE || flag == DND_POISON_IMMUNE || flag == DND_LIGHTNING_IMMUNE;
 }
 
 bool CheckImmunityFlagStatus(int try_trait) {
@@ -528,10 +545,11 @@ void DecideEliteTraits(int tid, int m_id, int count) {
 	count += UltimatumBuffsElites();
 
 	int tries = 0;
-	alias_table_T? elite_alias_table = EliteTraitData.alias_tables[MapEliteLevelToThresholdID(MonsterProperties[m_id].level)];
+	int threshold = MapEliteLevelToThresholdID(MonsterProperties[m_id].level);
+	alias_table_T? elite_alias_table = EliteTraitData.alias_tables[threshold];
 
 	while(tries < MAX_ELITE_TRIES && count) {
-		int try_trait = PickFromAliasTable(elite_alias_table);
+		int try_trait = EliteTraitData.rows[threshold][PickFromAliasTable(elite_alias_table)];
 		int trait_id = EliteTraitData.info[try_trait].id;
 		//Log(s:"Alias index and trait index: ", d:try_trait, s:" vs ", d:trait_id);
 		if(!HasTrait(m_id, trait_id) && !HasTraitExceptions(m_id, trait_id) && CheckImmunityFlagStatus(trait_id)) {

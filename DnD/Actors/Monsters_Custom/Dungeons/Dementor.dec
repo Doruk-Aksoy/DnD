@@ -29,13 +29,15 @@ ACTOR Dementor : DnD_BaseHybridMonster 21216 {
 		Goto SpawnSetup
 	
 		IdleState:
-			UL02 A 1 A_GiveInventory("DnD_SightChecker", 1)
+			UL02 A 1 A_Look
 		Loop
 		SeeState:
 			UL02 AABB 4 Fast A_Chase
 		Goto See
 		MissileState:
 			TNT1 A 0 A_Jump(128, "Longer")
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			UL02 A 1 A_FaceTarget
 			TNT1 A 0 A_Playsound("monster/blur")
 			TNT1 A 0 A_ChangeFlag("GHOST", 1)
@@ -53,6 +55,8 @@ ACTOR Dementor : DnD_BaseHybridMonster 21216 {
 			UL02 AA 1 A_Chase("")
 			TNT1 A 0 A_ChangeFlag("GHOST", 0)
 		DoMissile:
+            "####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+            "####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
             UL02 C 5 A_FaceTarget
 			TNT1 A 0 A_PlaySound("Dementor/Attack", CHAN_VOICE)
 			TNT1 A 0 A_CustomMissile("DementorProj", 28, 8, 4.75, CMF_AIMOFFSET)
@@ -60,6 +64,8 @@ ACTOR Dementor : DnD_BaseHybridMonster 21216 {
             UL02 D 4 A_CustomMissile("DementorProj", 28, -8, -4.75, CMF_AIMOFFSET)
         Goto See
 		Longer:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			UL02 A 1 A_FaceTarget
 			TNT1 A 0 A_Playsound("monster/blur")
 			TNT1 A 0 A_ChangeFlag("GHOST", 1)
@@ -86,6 +92,8 @@ ACTOR Dementor : DnD_BaseHybridMonster 21216 {
 			TNT1 A 0 A_ChangeFlag("GHOST", 0)
 		Goto DoMissile
 		MeleeState:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
 			UL02 CC 8 A_FaceTarget
 			TNT1 A 0 A_PlaySound("Dementor/Attack", CHAN_VOICE)
 			TNT1 A 0 A_SpawnItemEx("DementorMeleeSpark", 16, 0, 28)

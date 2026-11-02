@@ -1,0 +1,17 @@
+// On one enemy: its resist traits stripped (2 at rank 10, more damage from the types it resisted) and the clock.
+Actor DnD_ResistStripped : DnD_Info {}
+Actor DnD_ResistStrippedTimer : DnD_Info {}
+
+// The curse marker over a stripped enemy: frame K of the curse row (FlammabilityFXMarker).
+Actor RemoveResistFXMarker : FlammabilityFXMarker {
+	States {
+		SpawnLoop:
+			CM1O K 0
+		Goto CurseJoin
+	}
+}
+
+// The ring drawn round the target from rank 5, in amber sparks.
+Actor RemoveResistAreaMarkerFX : NoxAreaMarkerFX {
+	Translation "80:111=%[0.00,0.00,0.00]:[1.70,1.10,0.30]"
+}

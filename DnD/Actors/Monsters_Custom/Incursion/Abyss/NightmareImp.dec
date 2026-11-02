@@ -25,17 +25,19 @@ Actor AbyssalNightmareImp : DnD_BaseHybridMonster {
 		Goto SpawnSetup
 
 		IdleState:
-			C018 AB 10 Fast A_GiveInventory("DnD_SightChecker", 1)
+			C018 AB 10 Fast A_Look
 		Loop
 		SeeState:
 			C018 AABBCCDD 2 Fast A_Chase
 		Goto See
 		MissileState:
+			"####" "#" 0 A_JumpIfInventory("DnD_AttackLock", 1, "MissileStateLocked")
 			C018 IJ 4 Fast A_FaceTarget
 			C018 K 5 Fast A_CustomComboAttack("AbyssNightmareImpBall", 32, 6 * random(5, 7), "imp/melee")
 			C018 K 2 Fast A_Jump(128, "MissileState")
 		Goto See
 		MeleeState:
+			"####" "#" 0 A_JumpIfInventory("DnD_AttackLock", 1, "MeleeStateLocked")
 			C018 EF 7 Fast A_FaceTarget
 			C018 G 6 Fast A_CustomComboAttack("AbyssNightmareImpBall", 32, 6 * random(5, 7), "imp/melee")
 		Goto See
@@ -65,6 +67,38 @@ Actor AbyssalNightmareImp : DnD_BaseHybridMonster {
 		Stop
 		RaiseState:
 			C018 ONML 8
+		Goto See
+		MeleeStateLocked:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "MeleeStateBall")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
+			"####" "#" 0 A_JumpIfTargetInsideMeleeRange("MeleeStateClaw")
+		Goto AttackReroll
+		MeleeStateClaw:
+			C018 EF 7 Fast A_FaceTarget
+			C018 G 6 Fast A_CustomMeleeAttack(6 * random(5, 7), "imp/melee")
+		Goto See
+		MeleeStateBall:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
+			C018 EF 7 Fast A_FaceTarget
+			C018 G 6 Fast A_CustomMissile("AbyssNightmareImpBall", 32)
+		Goto See
+		MissileStateLocked:
+			"####" "#" 0 A_JumpIfInventory("DnD_PacifyTimer", 1, "MissileStateBall")
+			"####" "#" 0 A_TakeInventory("DnD_CastingSpell")
+			"####" "#" 0 A_JumpIfTargetInsideMeleeRange("MissileStateClaw")
+		Goto AttackReroll
+		MissileStateClaw:
+			C018 IJ 4 Fast A_FaceTarget
+			C018 K 5 Fast A_CustomMeleeAttack(6 * random(5, 7), "imp/melee")
+			C018 K 2 Fast A_Jump(128, "MissileState")
+		Goto See
+		MissileStateBall:
+			"####" "#" 0 A_JumpIfInventory("DnD_SilenceTimer", 1, "AttackReroll")
+			"####" "#" 0 A_GiveInventory("DnD_CastingSpell", 1)
+			C018 IJ 4 Fast A_FaceTarget
+			C018 K 5 Fast A_CustomMissile("AbyssNightmareImpBall", 32)
+			C018 K 2 Fast A_Jump(128, "MissileState")
 		Goto See
 	}
 }
