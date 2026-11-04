@@ -16,6 +16,39 @@ Actor P_ShieldShown : Ammo {
 	+IGNORESKILL
 }
 
+// The two fills as drawn (a leech payout glides into place) and where the pending life leech ends; UpdateLeechBars.
+Actor P_HealthBar : Ammo {
+	inventory.amount 1
+	inventory.maxamount 65000
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor P_HealthGhost : Ammo {
+	inventory.amount 1
+	inventory.maxamount 65000
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor P_ShieldBar : Ammo {
+	inventory.amount 1
+	inventory.maxamount 65000
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor P_ShieldGhost : Ammo {
+	inventory.amount 1
+	inventory.maxamount 65000
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
 // PlayerModData is server side, so the clientside HUD script reads this instead.
 Actor DnD_CovenantActive : Inventory {
 	inventory.maxamount 1

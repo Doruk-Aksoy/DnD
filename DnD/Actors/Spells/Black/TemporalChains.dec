@@ -11,7 +11,7 @@ Actor TemporalChains_Hesitate : DnD_Activator { States { Pickup: TNT1 A 0 A_Chan
 Actor TemporalChainsFXMarker : FlammabilityFXMarker {
 	States {
 		SpawnLoop:
-			CM1O G 0
+			CM0S F 0
 		Goto CurseJoin
 	}
 }

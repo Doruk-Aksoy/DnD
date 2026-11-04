@@ -56,7 +56,7 @@ hotbar_glint_T module& GetHotbarGlint() {
 typedef struct {
 	int shown[MAX_HOTBAR_SLOTS];
 	bool mana_drawn, cast_drawn;
-	int mana_cap, mana_usable, mana_cur, mana_a, mana_x, mana_y, mana_w, mana_h;
+	int mana_cap, mana_usable, mana_cur, mana_fill, mana_ghost, mana_a, mana_x, mana_y, mana_w, mana_h;
 } spell_hud_drawn_T;
 
 spell_hud_drawn_T module& GetSpellHudDrawn() {
@@ -369,9 +369,10 @@ int GetHotbarSlotY() {
 		DND_HOTBAR_GAPY - DND_HOTBAR_LABELH - DND_HOTBAR_ICON;
 }
 
-// Crackling Lance's intensity, Overcharge's charges, Surgecast's seconds left.
+// Crackling Lance's intensity, Overcharge's charges, Surgecast's seconds left, the Souls Soulstorm feeds on.
 int GetHotbarBadge(int spell) {
 	switch(spell) {
+		case SPL_SOULSTORM: return CheckInventory("Souls");
 		case SPL_CRACKLINGLANCE: return CheckInventory("P_LanceStacks");
 		case SPL_OVERCHARGE: return CheckInventory("P_OverchargeCharges");
 		case SPL_SURGECAST: return CheckInventory("P_SurgecastTime");
@@ -513,9 +514,14 @@ void DrawSpellHotbar(int pnum) {
 #define DND_MANABAR_LOWFULL 20      // ...and is full from here down
 #define DND_MANABAR_RAMP 7          // steps the surge and low looks ramp through; the shaders decode 0..7
 
-// Clientside: how far the surge look has ramped in.
+#define DND_LEECHGLIDE_PCT 15       // while leeching, a bar's rise closes this percent of the gap a tic...
+#define DND_LEECHGLIDE_HOLD 35      // ...until this long after the pool emptied, so its last pulse glides too
+
+// Clientside: how far the surge look has ramped in, the fill as drawn (16.16 liquid columns) and the leech glide.
 typedef struct {
 	int surge;
+	int fill;
+	int leech;
 } manabar_fx_T;
 
 manabar_fx_T module& GetManaBarFx() {
@@ -529,6 +535,18 @@ bool IsManaFlaskRunning(void) {
 		if(IsManaFlask(CheckInventory(StrParam(s:"Flask", d:i, s:"_Type")) - 1) && CheckInventory(StrParam(s:"Flask", d:i, s:"_TicCounter")))
 			return true;
 	return false;
+}
+
+// Tics a leeching bar's rise still glides: refilled while the pool holds anything.
+int TickLeechGlide(int tics, int pool) {
+	return pool ? DND_LEECHGLIDE_HOLD : Max(tics - 1, 0);
+}
+
+// The drawn value catches up to the true one: a rise glides while leeching, anything else lands at once.
+int GlideLeechFill(int shown, int target, bool leeching, int least) {
+	if(!leeching || target <= shown)
+		return target;
+	return Min(shown + Max((target - shown) * DND_LEECHGLIDE_PCT / 100, least), target);
 }
 
 int GetManaBarX() {
@@ -570,14 +588,26 @@ void DrawManaBar(int pnum) {
 	// Both looks ride the alpha, which ManaFlow.fp and ManaEdge.fp decode: 1 - (surge * 8 + low) / 64.
 	int a = 1.0 - (surge * 8 + low) * 1024;
 
+	// A pending leech or mana flask: the ghost reaches as far as they will fill the pool (full mana ends it), and the
+	// fill glides up into it as they pay. Both in liquid columns.
+	manabar_fx_T module& fx = GetManaBarFx();
+	int pool = CheckInventory("ManaLeechAmount") + CheckInventory("FlaskManaPending");
+	fx.leech = TickLeechGlide(fx.leech, pool);
+	fx.fill = GlideLeechFill(fx.fill, FixedDiv(DND_MANABAR_LIQW * cur, cap), fx.leech, 0.25);
+	int fill = fx.fill >> 16;
+	int ghost = DND_MANABAR_LIQW * Min(cur + pool, usable) / cap;
+
 	// Every layer below is persistent, so a bar whose inputs did not change is left on screen as it is.
-	if(d.mana_drawn && d.mana_cap == cap && d.mana_usable == usable && d.mana_cur == cur && d.mana_a == a &&
-		d.mana_x == x && d.mana_y == y && d.mana_w == GetHudStack().w && d.mana_h == GetHudStack().h)
+	if(d.mana_drawn && d.mana_cap == cap && d.mana_usable == usable && d.mana_cur == cur && d.mana_fill == fill &&
+		d.mana_ghost == ghost && d.mana_a == a && d.mana_x == x && d.mana_y == y && d.mana_w == GetHudStack().w &&
+		d.mana_h == GetHudStack().h)
 		return;
 	d.mana_drawn = true;
 	d.mana_cap = cap;
 	d.mana_usable = usable;
 	d.mana_cur = cur;
+	d.mana_fill = fill;
+	d.mana_ghost = ghost;
 	d.mana_a = a;
 	d.mana_x = x;
 	d.mana_y = y;
@@ -606,7 +636,18 @@ void DrawManaBar(int pnum) {
 	else
 		DeleteText(MANABAR_RESERVED_ID);
 
-	w = DND_MANABAR_LIQW * cur / cap;
+	// The leech ghost, from the fill's drawn end to the ghost's.
+	if(ghost > fill) {
+		SetHudClipRect(cx + DND_MANABAR_LIQ0 + fill, cy, ghost - fill, DND_MANABAR_PXH);
+		SetFont("SPLMANAG");
+		HudMessage(s:"A"; HUDMSG_PLAIN, MANABAR_GHOST_ID, CR_UNTRANSLATED,
+			(cx << 16) + 0.1, (cy << 16) + 0.1, 0.0);
+		SetHudClipRect(0, 0, 0, 0);
+	}
+	else
+		DeleteText(MANABAR_GHOST_ID);
+
+	w = fill;
 	if(w > 0) {
 		SetHudClipRect(cx, cy, DND_MANABAR_LIQ0 + w, DND_MANABAR_PXH);
 		SetFont("SPLMANAF");
@@ -632,6 +673,62 @@ void DrawManaBar(int pnum) {
 	// midline instead of centring it on the bar.
 	HudMessage(d:cur, s:"\c[D4]/\c-", d:usable; HUDMSG_PLAIN, MANABAR_TEXT_ID, CR_WHITE,
 		((x + DND_MANABAR_W / 2) << 16) + 0.4, ((y + DND_MANABAR_H / 2) << 16) + 0.4, 0.0);
+}
+
+// ---- life and shield bars --------------------------------------------------------------------
+
+// Clientside: the status bar's health and shield fills as drawn, the life leech and heal glides, the leech pool last
+// seen and whether its payout fills the shield (chosen when it starts, as "DnD Lifesteal Script" does).
+typedef struct {
+	int hp, es;
+	int leech, flask, pool;
+	bool to_shield;
+} leech_bars_T;
+
+leech_bars_T module& GetLeechBars() {
+	static leech_bars_T s;
+	return s;
+}
+
+// Capacity first, or the amount is cut to the old one; nothing is sent when both already match.
+void SetBarAmmo(str item, int amt, int cap) {
+	amt = Min(amt, cap);
+	if(GetAmmoCapacity(item) != cap)
+		SetAmmoCapacity(item, cap);
+	if(CheckInventory(item) != amt)
+		SetInventory(item, amt);
+}
+
+// Clientside, every tic: the fills SBARINFO draws for the health and shield slots, and the ghosts of the pending life
+// leech, life flasks and Essence Theft under the ones they fill. Their numbers stay on P_HealthShown and P_ShieldShown from DnD SBAR.
+void UpdateLeechBars(void) {
+	leech_bars_T module& s = GetLeechBars();
+	// Sanguine Covenant and Cyborg's 5th perk send the leech to the shield, and the Covenant shows the shield in the
+	// health slot, so the slot under the ghost follows the Covenant while the payout keeps its pool.
+	bool covenant = CheckInventory("DnD_CovenantActive");
+	int pool = CheckInventory("LifeStealAmount"), flask = CheckInventory("FlaskLifePending") + CheckInventory("EssenceHealPending");
+	if(pool && !s.pool)
+		s.to_shield = covenant || CheckInventory(GetClassPerk(DND_PLAYER_CYBORG, 5));
+	s.pool = pool;
+	s.leech = TickLeechGlide(s.leech, pool);
+	s.flask = TickLeechGlide(s.flask, flask);
+
+	// A flask or Essence Theft fills the heal pool, the shield under the Covenant, so it always lands in the health slot.
+	int hp = Max(GetActorProperty(0, APROP_HEALTH), 0), es = CheckInventory("EShieldAmount");
+	int hval = covenant ? es : hp, sval = covenant ? hp : es;
+	bool leech_health = !s.to_shield == !covenant;
+	int hpool = flask + (leech_health ? pool : 0), spool = leech_health ? 0 : pool;
+	s.hp = GlideLeechFill(s.hp, hval, (s.leech && leech_health) || s.flask, 1);
+	s.es = GlideLeechFill(s.es, sval, s.leech && !leech_health, 1);
+
+	// The health slot's capacity grows with overhealth, as P_HealthShown's does; the ghost stops at the true cap.
+	int hcap = CheckInventory("P_HealthCap"), cap = Max(hcap, hval);
+	SetBarAmmo("P_HealthBar", s.hp, cap);
+	SetBarAmmo("P_HealthGhost", Max(s.hp, Min(hval + hpool, cap)), cap);
+
+	cap = GetAmmoCapacity("P_ShieldShown");
+	SetBarAmmo("P_ShieldBar", s.es, cap);
+	SetBarAmmo("P_ShieldGhost", Max(s.es, Min(sval + spool, cap)), cap);
 }
 
 // ---- cast bar --------------------------------------------------------------------------------

@@ -238,12 +238,12 @@ FIRE
  
 * Annihilus
  
-	Channel for the cast time to create an immense explosion at target location, up to 512 units away. Can cast again to terminate early for less damage.
+	Channel for the cast time to create an immense explosion at target location, up to 512 units away. Can cast again to terminate early for less damage. Its cooldown then recovers 8% faster per charge not built, up to 32%.
 	250 damage in a +96 radius per 0.5 seconds channeled. You are slowed down by 50% while channeling. Maximum of 2.5 seconds of channel.
 	Cost: 50 mana per 0.5 seconds channeled.
 	Cooldown: 50 seconds.
 	Cast Time: Minimum of 0.5 seconds.
-	Per Rank: +25 damage per 0.5 seconds channeled, +5 mana cost.
+	Per Rank: +30 damage per 0.5 seconds channeled, +5 mana cost.
 	Rank 5: No longer hurts the caster.
 	Rank 10: Max target range doubled to 1024.
 	Requires: Molten Boulder (Rank 4). Player level 52.

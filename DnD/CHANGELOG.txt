@@ -21,6 +21,10 @@
 	- The instant leech modifiers now read "of leech is instant" and pay that share of mana leech at once as well. The incursion one's downside is now "reduced leech recovery rate", and slows mana leech too.
 	- "More damage while leeching" now also holds while leeching mana.
 * The dungeon modifier "Players cannot lifesteal" is now "Players cannot leech", and blocks mana leech too.
+* Pending leech now shows on the bars it fills: a faint, darker stretch of the bar marks how far the leech still to be paid will fill it, and the bar glides up into it as the leech pays out.
+	- On the mana bar for mana leech, and on the health bar for life leech, or the energy shield bar when life leech fills your shield.
+	- The life leech counter on the status bar is removed.
+	- Life and mana flasks show the same: while one is drinking, the bar it fills marks how far the rest of the drink will take it. Flasks with instant recovery show none.
 * New elite property "Silencer": hits from the monster's attacks and spells have a 33% chance to silence you for 4 seconds; its damage over time does not. A new silence restarts the timer.
 	- While silenced you cannot cast spells. A spell being cast never comes out, channelled spells end as if you let go ("Annihilus" releases what it has charged so far) and toggled spells switch off. Auras and passives keep running.
 	- Can roll on Elite and Tough monsters from monster level 40.
@@ -59,6 +63,7 @@
 
 ==== BUG FIXES / TWEAKS ====
 
+* The mana bar and monster health bars no longer break into blocky patches on Vulkan renderers the longer a game runs. Their flowing patterns are laid out a little differently.
 * Elite and Tough monster properties now respect their level requirements. Below monster level 50, monsters could roll properties meant for higher levels, and some low level properties never appeared.
 * "Fire Immune", "Ice Immune", "Poison Immune" and "Lightning Immune" elite properties now actually make the monster immune to that element.
 	- They count towards the limit of 2 immunities per monster, and "dnd_no_immunity" disables them like the other immunities.
@@ -90,6 +95,8 @@
 * A new character no longer shows the flasks of your previous character on the HUD. They could not be drunk. The same applied after losing a hardcore character.
 * Attribute descriptions show the right numbers: Strength gives 1.5 maximum life and 0.5 stamina per point, Intellect 0.5 energy shield and 1.5 mana.
 * "Rally" reaches further with its own level instead of with Intellect: 128 units at level 1, up to 344 at level 10.
+* "Annihilus" damage per rank increased from 25 to 30.
+	- Releasing it early now shortens its cooldown: it recovers 8% faster for each charge not built, up to 32%. Releasing after 1 second recovers 24% faster.
 * The cast bar and the silence bar no longer glow a few pixels past the front of the fill along their top and bottom edges.
 * Items with percent Strength, or that turn Strength's effects off, now update stamina, knockback resistance and ammo capacity as soon as they are equipped or removed. Items granting all attributes, percent attributes or "Unity" now update stamina too.
 * Losing Strength from an item or an attribute refund now lowers your life to the new maximum, and healing respects a Strength item's new maximum right away instead of after a map change.
@@ -97,6 +104,10 @@
 * Weapon Wheel now opens while its key is held and switches to the weapon under the cursor when you let go. Your view stays put while it is open and you keep moving. Rebind it under Controls, "DnD Keys".
 * While choosing your class, the DnD menu, inventory, stash, weapon and skill wheels, current weapon tip and NPC conversations no longer open over the class screen.
 * The software renderer is no longer supported: the mana bar, cast bar, monster health bar and wheels only draw their OpenGL look.
+* Minion modifiers (minion damage, health, cooldown recovery, critical strike chance and multiplier, resistances) now show on the Utility stats page.
+* Modifiers with 6 to 8 tiers no longer fall as far below the tier their item level offers when a roll comes out low. The chance of rolling the best tiers is unchanged.
+	- Example: a 6 tier modifier on a level 83 item used to roll its lowest tier 16% of the time; its lowest possible roll is now 2 tiers higher.
+* Monsters on a map played after a dungeon could still count as that dungeon's boss, which made them harder to knock back and let effects that skip dungeon bosses skip them too. Fixed.
 
 ==== MONSTER CHANGES ====
 

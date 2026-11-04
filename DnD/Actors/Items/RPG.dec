@@ -719,6 +719,18 @@ Actor LifeStealAmount : Inventory {
 Actor ManaLeechAmount : Inventory {
 	inventory.maxamount 0x7FFFFFFF
 }
+
+// What the life and mana flasks being drunk still have to pay, as their pools will take it; the HUD's ghost reads it.
+Actor FlaskLifePending : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+Actor FlaskManaPending : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+// What Essence Theft's drained enemies should still heal, at their last tick's rate; the same ghost reads it.
+Actor EssenceHealPending : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
 Actor ManaLeechScriptRunning : DnD_Boolean { }
 
 Actor DnD_EliteException : DnD_Boolean { }

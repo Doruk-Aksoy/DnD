@@ -140,6 +140,24 @@ void GiveFlaskPool(int pnum, int subtype, int amt) {
 		GiveHealPool(pnum, amt);
 }
 
+str GetFlaskPendingItem(int subtype) {
+	return IsManaFlask(subtype) ? "FlaskManaPending" : "FlaskLifePending";
+}
+
+// What a drink's remaining amount will add to its pool: GiveHealPool's less healing cuts life, mana arrives whole.
+int GetFlaskPendingShown(int pnum, int subtype, int amt) {
+	if(amt <= 0)
+		return 0;
+	if(IsManaFlask(subtype))
+		return amt;
+	return GetHealPendingShown(pnum, amt);
+}
+
+// A heal still to come as the HUD's ghost shows it: after "less healing", as it will land.
+int GetHealPendingShown(int pnum, int amt) {
+	return amt * Clamp_Between(100 - PlayerModData[pnum].vals[PSTAT_EX_LESSHEALING], 0, 100) / 100;
+}
+
 // the "on low life" flask mods read low mana on a mana flask
 bool IsFlaskPoolLow(int pnum, int subtype) {
 	if(IsManaFlask(subtype))
@@ -695,6 +713,14 @@ Script "DnD Flask Use" (int flask_id) NET {
 		// sbarinfo hook for current tics
 		SetInventory(flask_tics_item, total_time * FLASK_RECOVERY_TICRATE);
 
+		// the HUD's ghost of what is still to come; an instant drink pays at once and shows none
+		str pending_item = GetFlaskPendingItem(flask_type);
+		int pending = 0, left;
+		if(total_time > 1) {
+			pending = GetFlaskPendingShown(pnum, flask_type, toGive_total);
+			GiveInventory(pending_item, pending);
+		}
+
 		int error = 0;
 
 		while(!CheckFlaskScriptConditions(pnum) && GetFlaskPoolCur(pnum, flask_type) < (cap = GetFlaskPoolCap(pnum, flask_type)) && FlaskData[pnum][flask_id].curr_tics < total_time) {
@@ -721,12 +747,20 @@ Script "DnD Flask Use" (int flask_id) NET {
 			if(currGiven >= toGive_total)
 				break;
 
+			if(pending) {
+				left = GetFlaskPendingShown(pnum, flask_type, toGive_total - currGiven);
+				TakeInventory(pending_item, pending - left);
+				pending = left;
+			}
+
 			++FlaskData[pnum][flask_id].curr_tics;
 			TakeInventory(flask_tics_item, 1);
 			delay(const:FLASK_RECOVERY_TICRATE);
 		}
-		
+
 		FlaskData[pnum][flask_id].curr_tics = 0;
+		if(pending)
+			TakeInventory(pending_item, pending);
 
 		if(CheckFlaskScriptConditions(pnum))
 			Terminate;

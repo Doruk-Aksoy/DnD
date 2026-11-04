@@ -2,6 +2,20 @@
 Actor DnD_TransmogWeakened : DnD_Info {}
 Actor DnD_TransmogWeakenedTimer : DnD_Info {}
 
+// "A cursed fireball": its own purple fireball, which carries its tail, so no trail and no translation.
+Actor Spell_TransmogrifyBall : Spell_CurseBall {
+	Scale 1.0
+	States {
+		SpawnState:
+			S036 AB 4 Bright
+		Loop
+		Death:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Curse Ball Hit")
+			S036 CDE 4 Bright
+		Stop
+	}
+}
+
 // Where an enemy became a pickup.
 Actor Spell_Transmogrify_Poof : DnD_SpecialFX {
 	RenderStyle Add

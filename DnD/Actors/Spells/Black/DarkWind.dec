@@ -15,9 +15,10 @@ Actor Spell_DarkWind : DnD_Spell {
 	Height 16
 	Damage 0
 	DamageType "Magic"
+	// Drawn as DWIND.md3's fog (DarkWind.fp): the alpha only sets the model's alpha test, and fading it fades the fog.
 	RenderStyle Translucent
-	Translation "0:255=%[0.00,0.00,0.00]:[0.65,0.70,0.95]"
-	SeeSound "Ambience/Windgust"
+	Alpha 0.02
+	SeeSound "DarkWind/Cast"
 
 	// Written by "DnD Spell Explosion Setup", read by A_Explode below.
 	var int user_expdmg;
@@ -32,17 +33,17 @@ Actor Spell_DarkWind : DnD_Spell {
 			// Once, not per pulse; flat over the whole radius.
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Spell Explosion Setup", SPELLVAL_DAMAGE, 0, 0)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
-			TNT1 A 0 A_PlaySound("Ambience/Wind1", CHAN_BODY, 0.6, true)
+			// Its fog's look, one of eight, read back from the scale by DarkWind.fp.
+			TNT1 A 0 A_SetScale(1.0 + random(0, 7) * 0.004)
 		Blow:
-			TNT1 A 0 A_SpawnItemEx("Spell_DarkWind_Puff", 0, random (-4, 4), random (-4, 4), 0, random (-2, 2), random (-2, 2), 0, 160)
+			TNT1 A 0 A_SpawnItemEx("Spell_DarkWind_Bat", 0, random(-12, 12), random(-4, 12), frandom(10, 15), 0, frandom(-0.3, 0.5), frandom(-10, 10), 0, 170)
 			D5FX G 1 A_Explode(100, user_expradius, 1, 0, user_fullexpradius)
-			D5FX GGGG 1 A_SpawnItemEx("Spell_DarkWind_Puff", 0, random (-4, 4), random (-4, 4), 0, random (-2, 2), random (-2, 2), 0, 160)
+			D5FX G 4
 			TNT1 A 0 A_CountDown
 		Loop
 		Death:
-			TNT1 A 0 A_StopSound(CHAN_BODY)
 			TNT1 AAAAA 0 A_SpawnItemEx("Spell_DarkWind_Puff", 0, random (-4, 4), random (-4, 4), 0, random (-8, 8), random (-8, 8), frandom(-4, 4), 160)
-			TNT1 A 5
+			D5FX GGGGGGGGGG 1 A_FadeOut(0.002)
 		Stop
 	}
 }
@@ -52,6 +53,32 @@ Actor Spell_DarkWind_Bounce : Spell_DarkWind {
 	BounceType "Hexen"
 	BounceFactor 1.0
 	WallBounceFactor 1.0
+}
+
+// A bat flying with the wind, a little off its line; cosmetic, through enemies, gone soon after the first wall.
+Actor Spell_DarkWind_Bat {
+	PROJECTILE
+	+CLIENTSIDEONLY
+	+NOTONAUTOMAP
+	+THRUACTORS
+	+DONTSPLASH
+	Radius 4
+	Height 8
+	Damage 0
+	RenderStyle Translucent
+	Alpha 1.0
+	States {
+		Spawn:
+			TNT1 A 0
+			S024 ABCABCABCABCABCABCABCABC 3
+		Fade:
+			S024 ABC 2 A_FadeOut(0.1)
+		Loop
+		Death:
+			S024 A 0 A_PlaySound("DarkWind/Damage", CHAN_BODY, 0.6)
+			S024 A 1 A_FadeOut(0.2)
+		Wait
+	}
 }
 
 // A wisp of the dark cloud it leaves as it goes.
@@ -69,32 +96,32 @@ Actor Spell_DarkWind_Puff : DnD_SpecialFX {
 			TNT1 A 0
 			TNT1 A 0 A_Jump (256, "Blot1", "Blot2", "Blot3", "Blot4")
 		Blot1:
-			BLOT A 2 
-			BLOT B 2 A_SetTranslucent (0.4, 0)
-			BLOT C 2 A_SetTranslucent (0.3, 0)
-			BLOT D 2 A_SetTranslucent (0.2, 0)
-			BLOT E 2 A_SetTranslucent (0.1, 0)
+			S019 A 2 
+			S019 B 2 A_SetTranslucent (0.4, 0)
+			S019 C 2 A_SetTranslucent (0.3, 0)
+			S019 D 2 A_SetTranslucent (0.2, 0)
+			S019 E 2 A_SetTranslucent (0.1, 0)
 		stop
 		Blot2:
-			BLOT F 2 
-			BLOT G 2 A_SetTranslucent (0.4, 0)
-			BLOT H 2 A_SetTranslucent (0.3, 0)
-			BLOT I 2 A_SetTranslucent (0.2, 0)
-			BLOT J 2 A_SetTranslucent (0.1, 0)
+			S019 F 2 
+			S019 G 2 A_SetTranslucent (0.4, 0)
+			S019 H 2 A_SetTranslucent (0.3, 0)
+			S019 I 2 A_SetTranslucent (0.2, 0)
+			S019 J 2 A_SetTranslucent (0.1, 0)
 		stop
 		Blot3:
-			BLOT K 2 
-			BLOT L 2 A_SetTranslucent (0.4, 0)
-			BLOT M 2 A_SetTranslucent (0.3, 0)
-			BLOT N 2 A_SetTranslucent (0.2, 0)
-			BLOT O 2 A_SetTranslucent (0.1, 0)
+			S019 K 2 
+			S019 L 2 A_SetTranslucent (0.4, 0)
+			S019 M 2 A_SetTranslucent (0.3, 0)
+			S019 N 2 A_SetTranslucent (0.2, 0)
+			S019 O 2 A_SetTranslucent (0.1, 0)
 		stop
 		Blot4:
-			BLOT P 2 
-			BLOT Q 2 A_SetTranslucent (0.4, 0)
-			BLOT R 2 A_SetTranslucent (0.3, 0)
-			BLOT S 2 A_SetTranslucent (0.2, 0)
-			BLOT T 2 A_SetTranslucent (0.1, 0)
+			S019 P 2 
+			S019 Q 2 A_SetTranslucent (0.4, 0)
+			S019 R 2 A_SetTranslucent (0.3, 0)
+			S019 S 2 A_SetTranslucent (0.2, 0)
+			S019 T 2 A_SetTranslucent (0.1, 0)
 		stop
 	}
 }

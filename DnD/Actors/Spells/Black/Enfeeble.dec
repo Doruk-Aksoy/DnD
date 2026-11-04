@@ -6,7 +6,7 @@ Actor DnD_EnfeebledTimer : DnD_Info {}
 Actor EnfeebleFXMarker : FlammabilityFXMarker {
 	States {
 		SpawnLoop:
-			CM1O H 0
+			CM0S G 0
 		Goto CurseJoin
 	}
 }

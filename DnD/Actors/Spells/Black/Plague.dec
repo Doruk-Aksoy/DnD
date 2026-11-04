@@ -25,13 +25,17 @@ Actor Spell_Plague_Mote : DnD_SpecialFX {
 // The puff of plague as it takes hold.
 Actor Spell_Plague_Burst : DnD_SpecialFX {
 	RenderStyle Add
-	Alpha 0.8
-	Scale 0.6
+	Alpha 0.15
+	Scale 0.75
 	States {
 		Spawn:
 			TNT1 A 0
-			D5FX GGHHIIJJKKLL 1 Bright A_FadeOut(0.05)
-			D5FX L 1 Bright A_FadeOut(0.1)
+			TNT1 A 0 A_ChangeVelocity(0, 0, frandom(0.2, 0.85), CVF_REPLACE)
+			TNT1 A 0 A_PlaySound("Zravog/SpellBegin")
+			S022 AAAABB 1 Bright A_FadeIn(0.15)
+			S022 B 2 Bright
+			S022 CD 4 Bright
+			S022 EEEEFFFF 1 Bright A_FadeOut(0.05)
 		Wait
 	}
 }

@@ -6,9 +6,14 @@ uniform float timer;
 #define EH 30.0
 #define TOP 9.0
 #define BOT 20.0
+#define TAU 6.2831853
 
+// wrapped to 256 and sin-free
 float me_hash(float n) {
-	return fract(sin(n * 91.7) * 43758.5453);
+	n = fract(mod(n, 256.0) * 0.1031);
+	n *= n + 33.33;
+	n *= n + n;
+	return fract(n);
 }
 
 vec4 Process(vec4 color) {
@@ -17,26 +22,27 @@ vec4 Process(vec4 color) {
 	if(px.y < TOP || px.y > BOT + 1.0)
 		return vec4(0.0, 0.0, 0.0, 1.0);
 
+	float t = mod(timer, 512.0);
 	float code = floor((1.0 - color.a) * 64.0 + 0.5);
 	float surge = floor(code / 8.0) / 7.0;
 	float low = mod(code, 8.0) / 7.0 * (1.0 - surge);
 	float v = (px.y - TOP) / (BOT - TOP + 1.0);
 	float agit = 1.0 + 1.8 * surge - 0.5 * low;
 
-	// the meniscus wobbles a texel or two
-	float wob = 0.9 * sin(v * 5.3 + timer * 3.1 * agit) + 0.6 * sin(v * 11.7 - timer * 4.7 * agit + 1.3);
+	// the meniscus wobbles a texel or two; every phase of time stays within a turn
+	float wob = 0.9 * sin(v * 5.3 + TAU * fract(t * 0.4934 * agit)) + 0.6 * sin(v * 11.7 - TAU * fract(t * 0.7480 * agit) + 1.3);
 	float cx = EW * 0.5 - 0.5 + wob * (0.6 + 0.5 * surge);
 	float dx = px.x - cx;
 	float core = exp(-dx * dx / 0.9);
 	float halo = exp(-dx * dx / 12.0) * (dx < 0.0 ? 0.8 : 0.3);
-	float flick = 0.85 + 0.15 * sin(timer * 9.0 + v * 7.0);
+	float flick = 0.85 + 0.15 * sin(TAU * fract(t * 1.4324) + v * 7.0);
 	float rows = smoothstep(0.0, 0.2, v) * (1.0 - smoothstep(0.85, 1.05, v));
 	float gain = flick * rows * (1.3 + 0.9 * surge) * (1.0 - 0.55 * low);
 
 	// droplets flung ahead of the edge while surging
 	float drops = 0.0;
 	for(int k = 0; k < 3; ++k) {
-		float tk = timer * 1.9 + float(k) * 0.37;
+		float tk = t * 1.9 + float(k) * 0.37;
 		float id = floor(tk) + float(k) * 17.0;
 		float ph = fract(tk);
 		float sy = TOP + 1.0 + floor(me_hash(id) * (BOT - TOP - 1.0));

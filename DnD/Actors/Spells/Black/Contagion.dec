@@ -3,9 +3,40 @@ Actor DnD_ContagionBase : DnD_Info {}
 Actor DnD_ContagionOwner : DnD_Info {}
 Actor DnD_ContagionTimer : DnD_Info {}
 
-// The zone's edge, and a spread's ring round the dead host, in sickly green sparks.
-Actor ContagionRingFX : NoxAreaMarkerFX {
-	Translation "80:111=%[0.00,0.00,0.00]:[0.70,1.60,0.40]"
+// The rune circle under the zone and round a dead host: flat2.md3 under CONTAGRN (Contagion.fp). ACS sizes it by ScaleX
+// and spreads it by its alpha (0.1 whole).
+Actor ContagionRuneCircle {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Translucent
+	Alpha 0
+	States {
+		Spawn:
+			CTGR A -1 Bright
+		Stop
+	}
+}
+
+// Client side, on an enemy under Contagion or Essence Theft: how long its purple smoke still rises.
+Actor DnD_DotSmokeTimer : DnD_Info {}
+
+// Purple smoke seeping off an enemy wasting under Contagion or Essence Theft.
+Actor DnD_DotSmokeFX : DnD_SpecialFX {
+	RenderStyle Translucent
+	Alpha 0
+	Scale 0.3
+	+FORCEXYBILLBOARD
+	Translation "0:255=%[0.00,0.00,0.00]:[1.10,0.30,1.70]"
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_ChangeVelocity(frandom(-0.3, 0.3), frandom(-0.3, 0.3), frandom(0.6, 1.2), CVF_REPLACE)
+			SMOK ABC 2 A_FadeIn(0.16)
+			SMOK DEFGHIJKLNOPQ 2 A_FadeOut(0.036)
+		Stop
+	}
 }
 
 // Motes rising off the zone's floor.
@@ -13,7 +44,7 @@ Actor ContagionMoteFX : DnD_SpecialFX {
 	RenderStyle Add
 	Alpha 0.7
 	Scale 0.3
-	Translation "0:255=%[0.00,0.00,0.00]:[0.70,1.60,0.40]"
+	Translation "0:255=%[0.00,0.00,0.00]:[1.17,0.10,1.87]"
 	+NOGRAVITY
 	States {
 		Spawn:

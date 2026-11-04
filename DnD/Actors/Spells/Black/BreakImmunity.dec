@@ -11,12 +11,16 @@ Actor DnD_TakeExplosiveImmunity : DnD_Activator {
 	}
 }
 
-// The curse marker over a broken enemy: frame L of the curse row (FlammabilityFXMarker).
-Actor BreakImmunityFXMarker : FlammabilityFXMarker {
+// Break Immunity's sparks near a broken enemy's chest, off the curse row: score units ahead along its facing, mass up.
+Actor BreakImmunityFXMarker : DnD_AttachedFXBase {
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.35
 	States {
 		SpawnLoop:
-			CM1O L 0
-		Goto CurseJoin
+			S035 AABBCCDDEEFFGGHHIIJJKKLL 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			S035 MMNNOOPPQQRRSSTTUUVVWWXX 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+		Loop
 	}
 }
 

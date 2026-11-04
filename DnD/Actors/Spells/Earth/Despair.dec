@@ -2,7 +2,7 @@
 Actor DespairFXMarker : FlammabilityFXMarker {
 	States {
 		SpawnLoop:
-			CM1O E 0
+			CM0S E 0
 		Goto CurseJoin
 	}
 }

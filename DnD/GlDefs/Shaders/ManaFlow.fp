@@ -9,9 +9,13 @@ uniform float timer;
 #define SPEED 14.0      // texels a second, calm flow
 #define SLOW 0.3        // low mana flow, share of SPEED
 #define FAST 3.4        // surge flow, share of SPEED
+#define TAU 6.2831853
 
+// wrapped to 256 and sin-free, so neighbouring cells agree on every renderer
 float mb_hash(vec2 i) {
-	return fract(sin(dot(i, vec2(127.1, 311.7))) * 43758.5453);
+	vec3 p3 = fract(vec3(mod(i, 256.0).xyx) * 0.1031);
+	p3 += dot(p3, p3.yzx + 33.33);
+	return fract((p3.x + p3.y) * p3.z);
 }
 
 // value noise on an integer lattice, so the hash only ever sees exact cell ids
@@ -23,23 +27,22 @@ float mb_noise(vec2 p) {
 }
 
 // one current at s texels a second: x = broad swell, y = thin filaments
-vec2 mb_current(vec2 px, float v, float s, float seed) {
-	float t = timer;
+vec2 mb_current(vec2 px, float v, float s, float seed, float t) {
 	float swell = mb_noise(vec2((px.x - t * s * 0.55) / 26.0 + seed, v * 1.2 + t * 0.11));
 	float f1 = mb_noise(vec2((px.x - t * s) / 11.0 + seed * 3.0, v * 3.2 - t * 0.23));
 	float f2 = mb_noise(vec2((px.x - t * s * 1.3) / 7.0 + 31.0 + seed, v * 4.5 + t * 0.31));
 	return vec2(swell, pow(1.0 - abs(f1 * 2.0 - 1.0), 6.0) + 0.6 * pow(1.0 - abs(f2 * 2.0 - 1.0), 8.0));
 }
 
-// one-texel sparkles in hashed cells, carried at s texels a second
-float mb_motes(vec2 px, float s, float cw, float keep, float seed) {
-	float mx = (px.x - timer * s) / cw;
+// one-texel sparkles in hashed cells, carried at s texels a second; the twinkle's phase stays within a turn
+float mb_motes(vec2 px, float s, float cw, float keep, float seed, float t) {
+	float mx = (px.x - t * s) / cw;
 	float cell = floor(mx);
 	float roll = mb_hash(vec2(cell, 7.0 + seed));
 	float row = TOP + 1.0 + floor(mb_hash(vec2(cell, 13.0 + seed)) * (BOT - TOP - 1.0));
 	float at = floor(mb_hash(vec2(cell, 29.0 + seed)) * cw);
 	float lx = floor(fract(mx) * cw);
-	float tw = 0.5 + 0.5 * sin(timer * (5.0 + roll * 6.0) + roll * 40.0);
+	float tw = 0.5 + 0.5 * sin(TAU * fract(t * (0.7958 + roll * 0.9549) + roll * 6.3662));
 	return step(1.0 - keep, roll) * step(abs(lx - at), 0.5) * step(abs(px.y - 0.5 - row), 0.5) * tw;
 }
 
@@ -50,6 +53,7 @@ vec4 Process(vec4 color) {
 	if(liquid <= 0.0)
 		return vec4(tex.rgb * color.rgb, tex.a);
 
+	float t = mod(timer, 512.0);
 	float code = floor((1.0 - color.a) * 64.0 + 0.5);
 	float surge = floor(code / 8.0) / 7.0;
 	float low = mod(code, 8.0) / 7.0 * (1.0 - surge);
@@ -60,14 +64,14 @@ vec4 Process(vec4 color) {
 	float v = clamp((px.y - TOP) / (BOT - TOP + 1.0), 0.0, 1.0);
 	float depth = 1.0 - 0.55 * abs(v - 0.4) * 2.0;
 
-	vec2 cn = mb_current(px, v, SPEED, 0.0);
-	vec2 cs = mb_current(px, v, SPEED * FAST, 5.0);
-	vec2 cl = mb_current(px, v, SPEED * SLOW, 9.0);
+	vec2 cn = mb_current(px, v, SPEED, 0.0, t);
+	vec2 cs = mb_current(px, v, SPEED * FAST, 5.0, t);
+	vec2 cl = mb_current(px, v, SPEED * SLOW, 9.0, t);
 	float swell = (cn.x * calm + cs.x * surge + cl.x * low) / sum;
 	float ridge = (cn.y * calm + cs.y * surge * 1.6 + cl.y * low * 0.6) / sum;
 
 	// surge: bright waves rushing right, spaced unevenly by noise
-	float ph = fract((px.x - timer * SPEED * FAST * 1.5) / 85.0 + 0.25 * mb_noise(vec2(px.x / 40.0, v * 2.0)));
+	float ph = fract((px.x - t * SPEED * FAST * 1.5) / 85.0 + 0.25 * mb_noise(vec2(px.x / 40.0, v * 2.0)));
 	float rush = smoothstep(0.0, 0.12, ph) * (1.0 - smoothstep(0.12, 0.45, ph));
 
 	vec3 col = tex.rgb * (0.78 + 0.5 * swell);
@@ -76,11 +80,11 @@ vec4 Process(vec4 color) {
 	col *= 1.0 + 0.25 * surge;
 
 	// low mana: dimmer, greyer, breathing slowly
-	float breath = 0.5 + 0.5 * sin(timer * 6.2832 / 1.8);
+	float breath = 0.5 + 0.5 * sin(TAU * fract(t * 0.5556));
 	vec3 grey = vec3(dot(col, vec3(0.3, 0.59, 0.11)));
 	col = mix(col, mix(col, grey, 0.35) * (0.58 + 0.14 * breath), low);
 
-	float m = mb_motes(px, 30.0, 9.0, 0.55, 0.0) * (calm + 0.35 * low) + mb_motes(px, 105.0, 5.0, 0.7, 50.0) * surge;
+	float m = mb_motes(px, 30.0, 9.0, 0.55, 0.0, t) * (calm + 0.35 * low) + mb_motes(px, 105.0, 5.0, 0.7, 50.0, t) * surge;
 	col += vec3(0.75, 0.9, 1.0) * m * 0.85;
 
 	col = mix(tex.rgb, col, liquid);

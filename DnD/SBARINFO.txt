@@ -568,11 +568,6 @@ statusbar normal, fullscreenoffsets {
 		drawimage "ARICO15", 216, -84;
 	}
 	
-  InInventory LifeStealAmount, 1 {
-	drawimage "H_LFSTL", 188, -68;
-	drawnumber 5, HUDFONT2_DOOM, NCRed, LifeStealAmount, alignment(center), 206, -78;
-  }
-  
   InInventory SoulPickupInfinityTimer, 1 {
 	drawimage "AMM3A0", 208, -38;
 	drawnumber 4, HUDFONT2_DOOM, NCWhiteC, SoulPickupInfinityTimer, alignment(center), 206, -38;
@@ -605,21 +600,24 @@ statusbar normal, fullscreenoffsets {
     InInventory HPNormal
     {
       drawimage "H_BRFRMX", 31, -48;
-      drawbar "H_BRFILG", "H_BRFBGG", ammo P_HealthShown, horizontal, 34, -45;
+      drawbar "H_BRGSTG", "H_BRFBGG", ammo P_HealthGhost, horizontal, 34, -45;
+      drawbar "H_BRFILG", "H_BRFCLR", ammo P_HealthBar, horizontal, 34, -45;
       drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo P_HealthShown, alignment(left), 127, -47;
     }
 
     InInventory HPBelow50
     {
       drawimage "H_HPWG01", 31, -48;
-      drawbar "H_BRFILY", "H_BRFBGY", ammo P_HealthShown, horizontal, 34, -45;
+      drawbar "H_BRGSTY", "H_BRFBGY", ammo P_HealthGhost, horizontal, 34, -45;
+      drawbar "H_BRFILY", "H_BRFCLR", ammo P_HealthBar, horizontal, 34, -45;
       drawnumber 5, HUDFONT2_DOOM, NCYellow, ammo P_HealthShown, alignment(left), 127, -47;
     }
 
     InInventory HPBelow25
     {
       drawimage "H_HPFC01", 31, -48;
-      drawbar "H_BRFILR", "H_BRFBGR", ammo P_HealthShown, horizontal, 34, -45;
+      drawbar "H_BRGSTR", "H_BRFBGR", ammo P_HealthGhost, horizontal, 34, -45;
+      drawbar "H_BRFILR", "H_BRFCLR", ammo P_HealthBar, horizontal, 34, -45;
       drawnumber 5, HUDFONT2_DOOM, NCRed, ammo P_HealthShown, alignment(left), 127, -47;
     }
 
@@ -642,7 +640,8 @@ statusbar normal, fullscreenoffsets {
     InInventory ARMNormal
     {
       drawimage "H_BRFRMX", 31, -79;
-      drawbar "H_BRFILG", "H_BRFBGG", ammo P_ShieldShown, horizontal, 34, -76;
+      drawbar "H_BRGSTG", "H_BRFBGG", ammo P_ShieldGhost, horizontal, 34, -76;
+      drawbar "H_BRFILG", "H_BRFCLR", ammo P_ShieldBar, horizontal, 34, -76;
       drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo P_ShieldShown, alignment(left), 127, -78;
     }
 
@@ -650,7 +649,8 @@ statusbar normal, fullscreenoffsets {
     InInventory ARMBelow50
     {
       drawimage "H_BRFRMX", 31, -79;
-      drawbar "H_BRFILY", "H_BRFBGY", ammo P_ShieldShown, horizontal, 34, -76;
+      drawbar "H_BRGSTY", "H_BRFBGY", ammo P_ShieldGhost, horizontal, 34, -76;
+      drawbar "H_BRFILY", "H_BRFCLR", ammo P_ShieldBar, horizontal, 34, -76;
       drawnumber 5, HUDFONT2_DOOM, NCYellow, ammo P_ShieldShown, alignment(left), 127, -78;
     }
 
@@ -659,7 +659,8 @@ statusbar normal, fullscreenoffsets {
     InInventory ARMBelow25
     {
       drawimage "H_ARFW01", 31, -79;
-      drawbar "H_BRFILR", "H_BRFBGR", ammo P_ShieldShown, horizontal, 34, -76;
+      drawbar "H_BRGSTR", "H_BRFBGR", ammo P_ShieldGhost, horizontal, 34, -76;
+      drawbar "H_BRFILR", "H_BRFCLR", ammo P_ShieldBar, horizontal, 34, -76;
       drawnumber 5, HUDFONT2_DOOM, NCRed, ammo P_ShieldShown, alignment(left), 127, -78;
     }
   }
@@ -681,21 +682,24 @@ statusbar normal, fullscreenoffsets {
     InInventory HPNormal
     {
       drawimage "H_BRFRMX", 31, -79;
-      drawbar "H_BRFILG", "H_BRFBGG", ammo P_HealthShown, horizontal, 34, -76;
+      drawbar "H_BRGSTG", "H_BRFBGG", ammo P_HealthGhost, horizontal, 34, -76;
+      drawbar "H_BRFILG", "H_BRFCLR", ammo P_HealthBar, horizontal, 34, -76;
       drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo P_HealthShown, alignment(left), 127, -78;
     }
 
     InInventory HPBelow50
     {
       drawimage "H_HPWG01", 31, -79;
-      drawbar "H_BRFILY", "H_BRFBGY", ammo P_HealthShown, horizontal, 34, -76;
+      drawbar "H_BRGSTY", "H_BRFBGY", ammo P_HealthGhost, horizontal, 34, -76;
+      drawbar "H_BRFILY", "H_BRFCLR", ammo P_HealthBar, horizontal, 34, -76;
       drawnumber 5, HUDFONT2_DOOM, NCYellow, ammo P_HealthShown, alignment(left), 127, -78;
     }
 
     InInventory HPBelow25
     {
       drawimage "H_HPFC01", 31, -79;
-      drawbar "H_BRFILR", "H_BRFBGR", ammo P_HealthShown, horizontal, 34, -76;
+      drawbar "H_BRGSTR", "H_BRFBGR", ammo P_HealthGhost, horizontal, 34, -76;
+      drawbar "H_BRFILR", "H_BRFCLR", ammo P_HealthBar, horizontal, 34, -76;
       drawnumber 5, HUDFONT2_DOOM, NCRed, ammo P_HealthShown, alignment(left), 127, -78;
     }
   }

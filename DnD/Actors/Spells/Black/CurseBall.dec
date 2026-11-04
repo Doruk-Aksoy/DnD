@@ -35,19 +35,38 @@ Actor Spell_CurseBall_Trail : DnD_SpecialFX {
 	}
 }
 
+// The Arch-Vile's curse orb, tinted red.
 Actor Spell_LifeTapBall : Spell_CurseBall {
 	Translation "0:255=%[0.00,0.00,0.00]:[1.80,0.20,0.30]"
+	Scale 0.75
+	DeathSound "LifeTap/Hit"
+	States {
+		SpawnState:
+			HCRS ABCD 2 Bright A_SpawnItemEx("Spell_CurseBall_Trail", -8, 0, 0, 0, 0, 0, 0, 129)
+		Loop
+		Death:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Curse Ball Hit")
+			HCRS EFGHI 3 Bright
+		Stop
+	}
 }
 
 Actor Spell_SubjugateBall : Spell_CurseBall {
 	Translation "0:255=%[0.00,0.00,0.00]:[1.20,0.90,1.80]"
 }
 
-// "A cursed fireball".
-Actor Spell_TransmogrifyBall : Spell_CurseBall {
-	Translation "0:255=%[0.00,0.00,0.00]:[1.40,1.80,0.30]"
-}
-
+// The Blood Lich's curse orb, tinted purple.
 Actor Spell_BanishBall : Spell_CurseBall {
-	Translation "0:255=%[0.00,0.00,0.00]:[0.30,0.50,1.90]"
+	Translation "0:255=%[0.00,0.00,0.00]:[1.25,0.35,1.90]"
+	Scale 0.6
+	DeathSound "Banish/Hit"
+	States {
+		SpawnState:
+			CURS ABCDEF 2 Bright A_SpawnItemEx("Spell_CurseBall_Trail", -8, 0, 0, 0, 0, 0, 0, 129)
+		Loop
+		Death:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Curse Ball Hit")
+			CURS GHIJKL 3 Bright
+		Stop
+	}
 }

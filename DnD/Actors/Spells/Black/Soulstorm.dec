@@ -1,21 +1,41 @@
-// The storm's eye, drifting towards its caster ("DnD Soulstorm Cast" steers it); the souls round it are client side.
+// The storm, drifting or steered ("DnD Soulstorm Cast" moves it): SSTORM.md3 (Soulstorm.fp), whole at alpha 0.1. It forms
+// over the cast's 26 tic delay and fades when it vanishes; its souls and bolts are client side.
 Actor Spell_SoulstormAnchor {
 	Radius 8
 	Height 16
 	RenderStyle Translucent
-	Alpha 0.7
-	Scale 2.0
-	Translation "0:255=%[0.00,0.00,0.00]:[0.55,0.45,0.85]"
+	Alpha 0
 	+NOINTERACTION
 	+NOGRAVITY
 	+NOBLOCKMAP
 	+DONTSPLASH
 	States {
 		Spawn:
-			S019 ABCDEFGHIJKLMNOPQRST 2
-		Loop
+			SSTM AAAAAAAAAAAAAAAAAAAAAAAAAA 1 A_FadeIn(0.00385)
+			SSTM A -1
+		Stop
 		Vanish:
-			S019 ABCDEFGHIJ 2 A_FadeOut(0.07)
+			SSTM AAAAAAAAAAAAAAAAAAAA 1 A_FadeOut(0.005)
+		Stop
+	}
+}
+
+// A bolt thrown off the storm: ACS aims and stretches it, SoulBolt.fp draws the lightning; its alpha strobes it.
+Actor Spell_Soulstorm_Bolt {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 0.5
+	States {
+		Spawn:
+			SSBT A 1 Bright
+			SSBT A 2 Bright A_SetTranslucent(1.0, 1)
+			SSBT A 1 Bright A_SetTranslucent(0.35, 1)
+			SSBT A 1 Bright A_SetTranslucent(0.9, 1)
+			SSBT A 1 Bright A_SetTranslucent(0.4, 1)
+			SSBT A 1 Bright A_SetTranslucent(0.12, 1)
 		Stop
 	}
 }
@@ -24,7 +44,7 @@ Actor Spell_SoulstormSoul : DnD_SpecialFX {
 	RenderStyle Add
 	Alpha 0.8
 	Scale 0.5
-	Translation "0:255=%[0.00,0.00,0.00]:[0.75,0.70,1.40]"
+	Translation "0:255=%[0.00,0.00,0.00]:[1.30,0.55,1.15]"
 	+NOGRAVITY
 	States {
 		Spawn:

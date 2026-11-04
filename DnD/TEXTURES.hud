@@ -3,3 +3,8 @@ Graphic "H_BGLEFW", 239, 80
 {
 	Patch "H_BGLEFT", 0, 0
 }
+
+// Clear, the size of the health and shield fills: their drawbar's background, so the leech ghost under them shows.
+Graphic "H_BRFCLR", 86, 8
+{
+}

@@ -2,7 +2,7 @@
 Actor FrostbiteFXMarker : FlammabilityFXMarker {
 	States {
 		SpawnLoop:
-			CM1O B 0
+			CM0S B 0
 		Goto CurseJoin
 	}
 }

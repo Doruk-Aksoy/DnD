@@ -6,7 +6,7 @@ Actor DnD_SilenceCursedTimer : DnD_Info {}
 Actor SilenceFXMarker : FlammabilityFXMarker {
 	States {
 		SpawnLoop:
-			CM1O J 0
+			CM0S H 0
 		Goto CurseJoin
 	}
 }

@@ -2,12 +2,15 @@
 Actor DnD_ResistStripped : DnD_Info {}
 Actor DnD_ResistStrippedTimer : DnD_Info {}
 
-// The curse marker over a stripped enemy: frame K of the curse row (FlammabilityFXMarker).
-Actor RemoveResistFXMarker : FlammabilityFXMarker {
+// Remove Resist's swirl round a stripped enemy's feet (S028), off the curse row: score units ahead, mass up.
+Actor RemoveResistFXMarker : DnD_AttachedFXBase {
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.7
 	States {
 		SpawnLoop:
-			CM1O K 0
-		Goto CurseJoin
+			S028 AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPP 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+		Loop
 	}
 }
 

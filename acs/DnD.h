@@ -1490,9 +1490,6 @@ int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned, int
 	int base = realhp * hp_mult;
 	int add = 0, level = 1, low, high, temp;
 
-	if(hp_mult > 1)
-		MonsterProperties[m_id].flags |= DND_MONFLAG_ISDUNGEONBOSS;
-
 	// if we are in a dungeon of specific level, apply it to the monsters
 	if(DungeonInformation.level == -1)
 		level = InformationInLevel[LEVELINFO_PLAYERLEVELATSTART] / pcount;
@@ -1805,6 +1802,9 @@ void ClearLingeringBuffs(int pnum) {
 	SetInventory("LifestealScriptRunning", 0);
 	SetInventory("ManaLeechAmount", 0);
 	SetInventory("ManaLeechScriptRunning", 0);
+	SetInventory("FlaskLifePending", 0);
+	SetInventory("FlaskManaPending", 0);
+	SetInventory("EssenceHealPending", 0);
 
 	SetInventory("Hobo_ShotgunFrenzyTimer", 0);
 

@@ -1,6 +1,10 @@
 // compiler note: requires zt-bcc to compile
 #library "MISC"
 
+// Misc never allocates, so no 64K module heap; the #ifdef makes it a macro, as libbcs does
+#ifdef __LINE__
+#define __LIBBCS_NO_LOCAL_HEAP
+#endif
 #include "libbcs.bcs"
 
 #pragma raw define on

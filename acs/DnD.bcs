@@ -226,6 +226,7 @@ Script "DnD Player HUD" ENTER CLIENTSIDE {
 			UpdateHudStack();
 			DrawSpellHotbar(pnum);
 			DrawManaBar(pnum);
+			UpdateLeechBars();
 			DrawSpellCastBar(pnum);
 			drawn = true;
 		}
@@ -1859,6 +1860,12 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite, int
 		pcount = 1;
 	
 	MonsterProperties[m_id].id = monsterid;
+	// Set or cleared for every monster, scaled or not: MonsterProperties outlives the map, so the slot may still carry a
+	// previous map's dungeon boss.
+	if(hp_mult > 1)
+		MonsterProperties[m_id].flags |= DND_MONFLAG_ISDUNGEONBOSS;
+	else
+		MonsterProperties[m_id].flags &= ~DND_MONFLAG_ISDUNGEONBOSS;
 
 	// prevent divide by 0 error in monster scaler due to rarity not being setup yet
 	// Read the table directly in the condition. realhp is a local filled in before this wait, so
@@ -2036,6 +2043,8 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 		pcount = 1;
 		
 	MonsterProperties[m_id].id = properties & 0x1FF;
+	// never a dungeon boss, whatever this slot held on an earlier map
+	MonsterProperties[m_id].flags &= ~DND_MONFLAG_ISDUNGEONBOSS;
 	MonsterProperties[m_id].class = (properties >> 9) & 0x1F;
 
 	// per instance so modifiers can move it without touching the type

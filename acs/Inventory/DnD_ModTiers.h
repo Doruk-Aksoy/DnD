@@ -187,18 +187,19 @@ int GetModPotencyCeiling(int attr, int item_type, int ilvl) {
     return nat < top ? nat : top;
 }
 
-// The +1/-N shuffle around what the item level grants. Same numbers as the old GetItemTierRoll; the
-// only change is that the ceiling is the mod's own ladder instead of a constant.
+// The +1/-N shuffle around what the item level grants, its drop shrunk to the mod's own ladder.
 int RollModTier(int attr, int item_type, int lvl, bool isWellRolled) {
     bool revered = CheckInventory("ReveranceUsed");
+    int top = GetModTierCount(attr, item_type) - 1;
 
     // 10% chance to roll a tier up -- if well rolled 20%
     if(!random(0, 9 - 5 * isWellRolled) || revered)
         ++lvl;
-    else // 0-1 do nothing, 2-3 is -1, 4-5 is -2 => well rolled has only 33% chance to downgrade
-        lvl -= random(0, 9 - 3 * isWellRolled) / 2;
+    // 0-4 tiers down (well rolled 0-3) on the 11 tier ladder, scaled to this ladder's length, rounded half up
+    else
+        lvl -= (random(0, 9 - 3 * isWellRolled) / 2 * top + MAX_CHARM_AFFIXTIERS / 2) / MAX_CHARM_AFFIXTIERS;
 
-    lvl = Clamp_Between(lvl, 0, GetModTierCount(attr, item_type) - 1);
+    lvl = Clamp_Between(lvl, 0, top);
 
     // A rare tier has to earn its place and drops one step when it does not, so the walk compounds:
     // weights 100/400/1000 on the top three give 10% / 36% / 54%. Tier 0 always sticks. Reverance

@@ -1,5 +1,5 @@
 // Mana bar fill (SPLMANAF) and edge (SPLMANAE), monster bar fills (FILLCRIT, FILLNORM) and tips (HPEDGER, HPEDGEG),
-// cast bar fill (SPLCSTF, SPLCSTS), skill wheel border (WHEELSEP).
+// cast bar fill (SPLCSTF, SPLCSTS), skill wheel border (WHEELSEP), leech ghosts (SPLMANAG, H_BRGSTG/Y/R).
 
 uniform float timer;
 
@@ -10,9 +10,12 @@ uniform float timer;
 #define mf_SPEED 14.0
 #define mf_SLOW 0.3
 #define mf_FAST 3.4
+#define mf_TAU 6.2831853
 
 float mf_mb_hash(vec2 i) {
-	return fract(sin(dot(i, vec2(127.1, 311.7))) * 43758.5453);
+	vec3 p3 = fract(vec3(mod(i, 256.0).xyx) * 0.1031);
+	p3 += dot(p3, p3.yzx + 33.33);
+	return fract((p3.x + p3.y) * p3.z);
 }
 
 float mf_mb_noise(vec2 p) {
@@ -22,22 +25,21 @@ float mf_mb_noise(vec2 p) {
 	return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
 }
 
-vec2 mf_mb_current(vec2 px, float v, float s, float seed) {
-	float t = timer;
+vec2 mf_mb_current(vec2 px, float v, float s, float seed, float t) {
 	float swell = mf_mb_noise(vec2((px.x - t * s * 0.55) / 26.0 + seed, v * 1.2 + t * 0.11));
 	float f1 = mf_mb_noise(vec2((px.x - t * s) / 11.0 + seed * 3.0, v * 3.2 - t * 0.23));
 	float f2 = mf_mb_noise(vec2((px.x - t * s * 1.3) / 7.0 + 31.0 + seed, v * 4.5 + t * 0.31));
 	return vec2(swell, pow(1.0 - abs(f1 * 2.0 - 1.0), 6.0) + 0.6 * pow(1.0 - abs(f2 * 2.0 - 1.0), 8.0));
 }
 
-float mf_mb_motes(vec2 px, float s, float cw, float keep, float seed) {
-	float mx = (px.x - timer * s) / cw;
+float mf_mb_motes(vec2 px, float s, float cw, float keep, float seed, float t) {
+	float mx = (px.x - t * s) / cw;
 	float cell = floor(mx);
 	float roll = mf_mb_hash(vec2(cell, 7.0 + seed));
 	float row = mf_TOP + 1.0 + floor(mf_mb_hash(vec2(cell, 13.0 + seed)) * (mf_BOT - mf_TOP - 1.0));
 	float at = floor(mf_mb_hash(vec2(cell, 29.0 + seed)) * cw);
 	float lx = floor(fract(mx) * cw);
-	float tw = 0.5 + 0.5 * sin(timer * (5.0 + roll * 6.0) + roll * 40.0);
+	float tw = 0.5 + 0.5 * sin(mf_TAU * fract(t * (0.7958 + roll * 0.9549) + roll * 6.3662));
 	return step(1.0 - keep, roll) * step(abs(lx - at), 0.5) * step(abs(px.y - 0.5 - row), 0.5) * tw;
 }
 
@@ -48,6 +50,7 @@ vec4 mf_process(vec4 color) {
 	if(liquid <= 0.0)
 		return vec4(tex.rgb * color.rgb, tex.a);
 
+	float t = mod(timer, 512.0);
 	float code = floor((1.0 - color.a) * 64.0 + 0.5);
 	float surge = floor(code / 8.0) / 7.0;
 	float low = mod(code, 8.0) / 7.0 * (1.0 - surge);
@@ -58,13 +61,13 @@ vec4 mf_process(vec4 color) {
 	float v = clamp((px.y - mf_TOP) / (mf_BOT - mf_TOP + 1.0), 0.0, 1.0);
 	float depth = 1.0 - 0.55 * abs(v - 0.4) * 2.0;
 
-	vec2 cn = mf_mb_current(px, v, mf_SPEED, 0.0);
-	vec2 cs = mf_mb_current(px, v, mf_SPEED * mf_FAST, 5.0);
-	vec2 cl = mf_mb_current(px, v, mf_SPEED * mf_SLOW, 9.0);
+	vec2 cn = mf_mb_current(px, v, mf_SPEED, 0.0, t);
+	vec2 cs = mf_mb_current(px, v, mf_SPEED * mf_FAST, 5.0, t);
+	vec2 cl = mf_mb_current(px, v, mf_SPEED * mf_SLOW, 9.0, t);
 	float swell = (cn.x * calm + cs.x * surge + cl.x * low) / sum;
 	float ridge = (cn.y * calm + cs.y * surge * 1.6 + cl.y * low * 0.6) / sum;
 
-	float ph = fract((px.x - timer * mf_SPEED * mf_FAST * 1.5) / 85.0 + 0.25 * mf_mb_noise(vec2(px.x / 40.0, v * 2.0)));
+	float ph = fract((px.x - t * mf_SPEED * mf_FAST * 1.5) / 85.0 + 0.25 * mf_mb_noise(vec2(px.x / 40.0, v * 2.0)));
 	float rush = smoothstep(0.0, 0.12, ph) * (1.0 - smoothstep(0.12, 0.45, ph));
 
 	vec3 col = tex.rgb * (0.78 + 0.5 * swell);
@@ -72,11 +75,11 @@ vec4 mf_process(vec4 color) {
 	col += vec3(0.50, 0.78, 1.0) * rush * surge * 0.5 * depth;
 	col *= 1.0 + 0.25 * surge;
 
-	float breath = 0.5 + 0.5 * sin(timer * 6.2832 / 1.8);
+	float breath = 0.5 + 0.5 * sin(mf_TAU * fract(t * 0.5556));
 	vec3 grey = vec3(dot(col, vec3(0.3, 0.59, 0.11)));
 	col = mix(col, mix(col, grey, 0.35) * (0.58 + 0.14 * breath), low);
 
-	float m = mf_mb_motes(px, 30.0, 9.0, 0.55, 0.0) * (calm + 0.35 * low) + mf_mb_motes(px, 105.0, 5.0, 0.7, 50.0) * surge;
+	float m = mf_mb_motes(px, 30.0, 9.0, 0.55, 0.0, t) * (calm + 0.35 * low) + mf_mb_motes(px, 105.0, 5.0, 0.7, 50.0, t) * surge;
 	col += vec3(0.75, 0.9, 1.0) * m * 0.85;
 
 	col = mix(tex.rgb, col, liquid);
@@ -87,9 +90,13 @@ vec4 mf_process(vec4 color) {
 #define me_EH 30.0
 #define me_TOP 9.0
 #define me_BOT 20.0
+#define me_TAU 6.2831853
 
 float me_me_hash(float n) {
-	return fract(sin(n * 91.7) * 43758.5453);
+	n = fract(mod(n, 256.0) * 0.1031);
+	n *= n + 33.33;
+	n *= n + n;
+	return fract(n);
 }
 
 vec4 me_process(vec4 color) {
@@ -98,24 +105,25 @@ vec4 me_process(vec4 color) {
 	if(px.y < me_TOP || px.y > me_BOT + 1.0)
 		return vec4(0.0, 0.0, 0.0, 1.0);
 
+	float t = mod(timer, 512.0);
 	float code = floor((1.0 - color.a) * 64.0 + 0.5);
 	float surge = floor(code / 8.0) / 7.0;
 	float low = mod(code, 8.0) / 7.0 * (1.0 - surge);
 	float v = (px.y - me_TOP) / (me_BOT - me_TOP + 1.0);
 	float agit = 1.0 + 1.8 * surge - 0.5 * low;
 
-	float wob = 0.9 * sin(v * 5.3 + timer * 3.1 * agit) + 0.6 * sin(v * 11.7 - timer * 4.7 * agit + 1.3);
+	float wob = 0.9 * sin(v * 5.3 + me_TAU * fract(t * 0.4934 * agit)) + 0.6 * sin(v * 11.7 - me_TAU * fract(t * 0.7480 * agit) + 1.3);
 	float cx = me_EW * 0.5 - 0.5 + wob * (0.6 + 0.5 * surge);
 	float dx = px.x - cx;
 	float core = exp(-dx * dx / 0.9);
 	float halo = exp(-dx * dx / 12.0) * (dx < 0.0 ? 0.8 : 0.3);
-	float flick = 0.85 + 0.15 * sin(timer * 9.0 + v * 7.0);
+	float flick = 0.85 + 0.15 * sin(me_TAU * fract(t * 1.4324) + v * 7.0);
 	float rows = smoothstep(0.0, 0.2, v) * (1.0 - smoothstep(0.85, 1.05, v));
 	float gain = flick * rows * (1.3 + 0.9 * surge) * (1.0 - 0.55 * low);
 
 	float drops = 0.0;
 	for(int k = 0; k < 3; ++k) {
-		float tk = timer * 1.9 + float(k) * 0.37;
+		float tk = t * 1.9 + float(k) * 0.37;
 		float id = floor(tk) + float(k) * 17.0;
 		float ph = fract(tk);
 		float sy = me_TOP + 1.0 + floor(me_me_hash(id) * (me_BOT - me_TOP - 1.0));
@@ -135,9 +143,12 @@ vec4 me_process(vec4 color) {
 #define mb_hf_BEAT 2.0
 #define mb_he_EW 16.0
 #define mb_he_EH 18.0
+#define mb_TAU 6.2831853
 
 float mb_hf_hash(vec2 i) {
-	return fract(sin(dot(i, vec2(127.1, 311.7))) * 43758.5453);
+	vec3 p3 = fract(vec3(mod(i, 256.0).xyx) * 0.1031);
+	p3 += dot(p3, p3.yzx + 33.33);
+	return fract((p3.x + p3.y) * p3.z);
 }
 
 float mb_hf_noise(vec2 p) {
@@ -151,19 +162,19 @@ vec3 mb_hf_tint(vec3 c, float lift) {
 	return mix(c / max(max(c.r, c.g), max(c.b, 0.001)), vec3(1.0), lift);
 }
 
-float mb_hf_bubbles(vec2 px) {
+float mb_hf_bubbles(vec2 px, float t) {
 	float cw = 13.0;
-	float mx = (px.x - timer * mb_hf_SPEED) / cw;
+	float mx = (px.x - t * mb_hf_SPEED) / cw;
 	float cell = floor(mx);
-	float ph = fract(timer * (0.3 + 0.3 * mb_hf_hash(vec2(cell, 11.0))) + mb_hf_hash(vec2(cell, 19.0)));
+	float ph = fract(t * (0.3 + 0.3 * mb_hf_hash(vec2(cell, 11.0))) + mb_hf_hash(vec2(cell, 19.0)));
 	float row = mb_hf_ROWS - 1.0 - floor(ph * (mb_hf_ROWS - 1.0));
-	float at = 2.0 + floor(mb_hf_hash(vec2(cell, 29.0)) * (cw - 4.0) + 0.8 * sin(ph * 9.0 + cell) + 0.5);
+	float at = 2.0 + floor(mb_hf_hash(vec2(cell, 29.0)) * (cw - 4.0) + 0.8 * sin(mb_TAU * fract(ph * 1.4324 + cell * 0.1592)) + 0.5);
 	float life = smoothstep(0.0, 0.1, ph) * (1.0 - smoothstep(0.7, 1.0, ph));
 	return step(0.5, mb_hf_hash(vec2(cell, 7.0))) * step(abs(floor(fract(mx) * cw) - at), 0.5) * step(abs(px.y - 0.5 - row), 0.5) * life;
 }
 
-float mb_hf_beat(float x) {
-	float ph = fract(timer / mb_hf_BEAT - x / 400.0);
+float mb_hf_beat(float x, float t) {
+	float ph = fract(t / mb_hf_BEAT - x / 400.0);
 	float a = (ph - 0.06) / 0.03, b = (ph - 0.16) / 0.03;
 	return exp(-a * a) + 0.6 * exp(-b * b);
 }
@@ -174,16 +185,16 @@ vec4 mb_hf_fill(vec4 color) {
 	vec2 px = floor(uv * vec2(mb_hf_TEXW, mb_hf_TEXH)) + 0.5;
 	float v = px.y / mb_hf_ROWS;
 	float depth = 1.0 - 0.6 * abs(v - 0.5) * 2.0;
-	float t = timer;
+	float t = mod(timer, 512.0);
 
 	float w = mb_hf_noise(vec2((px.x - t * mb_hf_SPEED * 0.6) / 30.0, v * 1.5 + t * 0.07));
 	float n = mb_hf_noise(vec2((px.x - t * mb_hf_SPEED) / 16.0 + w * 1.8, v * 4.0 + w * 2.0 - t * 0.12));
 	float sheen = smoothstep(0.55, 0.92, n);
-	float beat = mb_hf_beat(px.x);
+	float beat = mb_hf_beat(px.x, t);
 
 	vec3 col = tex.rgb * (0.82 + 0.36 * w + 0.22 * beat);
 	col += mb_hf_tint(tex.rgb, 0.25) * (sheen * 0.3 + beat * 0.08) * depth;
-	col += mb_hf_tint(tex.rgb, 0.6) * mb_hf_bubbles(px) * 0.7;
+	col += mb_hf_tint(tex.rgb, 0.6) * mb_hf_bubbles(px, t) * 0.7;
 	return vec4(col * color.rgb, tex.a * color.a);
 }
 
@@ -194,15 +205,15 @@ vec4 mb_he_edge(vec4 color) {
 	float s = clamp(px.y / mb_hf_ROWS, 0.0, 1.0) * 2.0 - 1.0;
 	float bow = 1.0 - s * s;
 
-	float t = timer;
-	float surge = 2.0 + 0.9 * sin(t * 2.6) + 0.4 * sin(t * 4.1 + 1.7);
-	float waves = 0.55 * sin(s * 7.0 - t * 6.0) + 0.3 * sin(s * 13.0 + t * 8.5);
-	float dx = px.x - (mb_he_EW * 0.5 - 0.5 + (surge + waves) * bow + 0.7 * sin(t * 1.3 + 0.8) * s);
+	float t = mod(timer, 512.0);
+	float surge = 2.0 + 0.9 * sin(mb_TAU * fract(t * 0.4138)) + 0.4 * sin(mb_TAU * fract(t * 0.6525) + 1.7);
+	float waves = 0.55 * sin(s * 7.0 - mb_TAU * fract(t * 0.9549)) + 0.3 * sin(s * 13.0 + mb_TAU * fract(t * 1.3528));
+	float dx = px.x - (mb_he_EW * 0.5 - 0.5 + (surge + waves) * bow + 0.7 * sin(mb_TAU * fract(t * 0.2069) + 0.8) * s);
 	float liquid = step(mb_he_EW * 0.5, px.x) * step(dx, 0.0);
 	float glow = exp(-dx * dx / 8.0) * (dx < 0.0 ? 0.55 : 0.3);
 	float rim = exp(-dx * dx / 0.7);
 
-	float gs = s - 0.75 * sin(t * 1.9);
+	float gs = s - 0.75 * sin(mb_TAU * fract(t * 0.3024));
 	float glint = exp(-gs * gs / 0.06);
 
 	vec4 p = vec4(art * (0.62 + 0.45 * bow) * liquid, liquid);
@@ -360,10 +371,57 @@ vec4 wl_process(vec4 color) {
 	return vec4(texel.rgb * color.rgb, texel.a);
 }
 
-// The cast fill is gold or crimson with clear lip rows, the mana edge plain white, the monster bar arts red or green
-// with next to no blue, the mana liquid blue; only the wheel border is clear at both probes.
+#define lg_MW 299.0
+#define lg_MH 30.0
+#define lg_TOP 9.0
+#define lg_BOT 20.0
+#define lg_LW 86.0
+
+float lg_hash(vec2 i) {
+	vec3 p = fract(vec3(mod(i, 256.0).xyx) * 0.1031);
+	p += dot(p, p.yzx + 33.33);
+	return fract((p.x + p.y) * p.z);
+}
+
+float lg_noise(vec2 p) {
+	vec2 i = floor(p), f = fract(p);
+	f = f * f * (3.0 - 2.0 * f);
+	float a = lg_hash(i), b = lg_hash(i + vec2(1.0, 0.0)), c = lg_hash(i + vec2(0.0, 1.0)), d = lg_hash(i + vec2(1.0, 1.0));
+	return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+
+float lg_inflow(float x, float t, float v, float period) {
+	float ph = fract((x - t * v) / period + 0.35 * lg_noise(vec2(x / (period * 0.6), 3.0)));
+	return smoothstep(0.0, 0.2, ph) * (1.0 - smoothstep(0.2, 0.55, ph));
+}
+
+vec3 lg_managhost(vec3 c, vec2 uv, float t) {
+	vec2 px = floor(uv * vec2(lg_MW, lg_MH)) + 0.5;
+	float v = clamp((px.y - lg_TOP) / (lg_BOT - lg_TOP + 1.0), 0.0, 1.0);
+	float depth = 1.0 - 0.55 * abs(v - 0.4) * 2.0;
+	float swell = lg_noise(vec2((px.x - t * 6.0) / 26.0, v * 1.2 + t * 0.08));
+	return c * (0.8 + 0.4 * swell) + vec3(0.14, 0.3, 0.6) * lg_inflow(px.x, t, 42.0, 70.0) * depth;
+}
+
+vec3 lg_lifeghost(vec3 c, vec2 uv, float t) {
+	return c * (1.0 + 0.6 * lg_inflow(floor(uv.x * lg_LW) + 0.5, t, 17.0, 28.0));
+}
+
+vec4 lg_process(vec4 color) {
+	vec2 uv = gl_TexCoord[0].st;
+	vec4 texel = getTexel(uv);
+	float t = mod(timer, 512.0);
+	vec3 c = texture2D(tex, vec2(0.5, 0.03)).a < 0.5 ? lg_managhost(texel.rgb, uv, t) : lg_lifeghost(texel.rgb, uv, t);
+	return vec4(c * color.rgb, texel.a * color.a);
+}
+
+// The leech ghosts alone are 0.85 alpha at the centre. The cast fill is gold or crimson with clear lip rows, the mana
+// edge plain white, the monster bar arts red or green with next to no blue, the mana liquid blue; only the wheel
+// border is clear at both probes.
 vec4 Process(vec4 color) {
 	vec4 a = texture2D(tex, vec2(0.5, 0.5)), b = texture2D(tex, vec2(0.3, 0.7));
+	if(a.a > 0.78 && a.a < 0.92)
+		return lg_process(color);
 	if(a.a + b.a < 0.02)
 		return wl_process(color);
 	if(a.r > 0.4 && a.b < 0.3 && texture2D(tex, vec2(0.5, 0.03)).a < 0.1)

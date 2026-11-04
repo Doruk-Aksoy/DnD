@@ -75,7 +75,7 @@ DARK MAGIC
 	Cost: 20 mana.
 	Cooldown: 18 seconds.
 	Cast Time: 0.75 seconds.
-	Per Rank: +50 damage.
+	Per Rank: +50 damage, -1.5 seconds cooldown.
 	Rank 5: Health ratio increased to 33%.
 	Rank 10: Enemy hit is pacified for 3 seconds. (Pacified enemies cannot attack)
 	Unlocks: Implosion.
@@ -138,9 +138,9 @@ DARK MAGIC
  
 	Project a deadly bolt of red lightning towards your direction to deal 600 magic damage.
 	Cost: 75 mana.
-	Cooldown: 30 seconds.
-	Cast Time: 3 seconds.
-	Per Rank: +300 damage.
+	Cooldown: 16 seconds.
+	Cast Time: 2 seconds.
+	Per Rank: +300 damage, -1 second cooldown.
 	Rank 5: Lightning projected damages all enemies in a line instead of only one enemy.
 	Rank 10: Ignores enemy resists and immunities.
 	Unlocks: Soulstorm, Carrion Crows.
@@ -177,12 +177,12 @@ DARK MAGIC
 * Summon: Dark Portal
  
 	A portal to aid summoning actions. It will increase the potency of your summons created when you cast them near the portal.
-	Portal lasts 8 seconds. Portal has 300 health but does not count towards pet cap, however it still benefits from minion modifiers.
+	Portal lasts 10 seconds. Portal has 300 health but does not count towards pet cap, however it still benefits from minion modifiers.
 	Minions summoned within 256 unit radius of the portal gain 10% more health, duration and damage.
-	Cost: 80 mana.
+	Cost: 64 mana.
 	Cooldown: 120 seconds.
 	Cast Time: 2.5 seconds.
-	Per Rank: Minions have +10% more health and damage.
+	Per Rank: Minions have +10% more health and damage, +1 second duration.
 	Rank 5: Minions gain 25% extra movement speed as well.
 	Rank 10: Minions gain 25% to all resistances as well.
 	Unlocks: Summon Mastery.
@@ -245,15 +245,16 @@ DARK MAGIC
  
 * Soulstorm
  
-	After a brief delay, create a storm that deals 25 damage per Soul you have every 0.35 seconds for 5 seconds.
-	Consumes half the souls after dealing the damage. The storm travels towards you from the target location.
+	After a brief delay, create a storm that deals 100 damage, plus 2 per Soul you have, every 0.35 seconds for 8 seconds.
+	Each blast drains 5 Souls, and the next blast counts the Souls left. The storm travels towards you from the target location.
+	Recast while it rages (free, past its cooldown, not while silenced) to send it slowly towards where you point.
 	Damage is most in the center in a 160 unit radius, lowest at 320 unit radius.
 	Cost: 125 mana.
 	Cooldown: 75 seconds.
 	Cast Time: 4 seconds.
-	Per Rank: +10 damage per soul.
+	Per Rank: +25 damage, +1 damage per soul every 2 ranks, +0.5 seconds duration (damage on the rank curve).
 	Rank 5: Soulstorm area of effect increased by 50%.
-	Rank 10: Soulstorm soul consumption reduced to 25%.
+	Rank 10: Each blast drains only 3 Souls.
 	Requires: Finger of Death (Rank 2).
 	Unlocks: Death and Decay.
 	Synergy - Dark Wind: +8 radius per rank of Dark Wind.

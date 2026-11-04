@@ -843,3 +843,107 @@ $random UnleashEarth/Retract { UnleashEarth/Retract1 UnleashEarth/Retract2 Unlea
 
 $alias Blockade/Break UnleashEarth/Retract
 $alias Blockade/Sink UnleashEarth/Retract
+
+/*
+**************************
+****** BLACK SPELLS ******
+**************************
+*/
+
+Nox/Cast                    NOXCAST
+
+TemporalChains/Cast1        TEMPCAS1
+TemporalChains/Cast2        TEMPCAS2
+TemporalChains/Cast3        TEMPCAS3
+TemporalChains/Cast4        TEMPCAS4
+$random TemporalChains/Cast { TemporalChains/Cast1 TemporalChains/Cast2 TemporalChains/Cast3 TemporalChains/Cast4 }
+
+DarkWind/Cast               DARKWINC
+
+DarkWind/Damage1            DARKWID1
+DarkWind/Damage2            DARKWID2
+DarkWind/Damage3            DARKWID3
+$random DarkWind/Damage { DarkWind/Damage1 DarkWind/Damage2 DarkWind/Damage3 }
+
+EssenceTheft/Cast1          ESSTHIC1
+EssenceTheft/Cast2          ESSTHIC2
+EssenceTheft/Cast3          ESSTHIC3
+EssenceTheft/Cast4          ESSTHIC4
+$random EssenceTheft/Cast { EssenceTheft/Cast1 EssenceTheft/Cast2 EssenceTheft/Cast3 EssenceTheft/Cast4 }
+
+EssenceTheft/Fly1           ESSTHIF1
+EssenceTheft/Fly2           ESSTHIF2
+EssenceTheft/Fly3           ESSTHIF3
+$random EssenceTheft/Fly { EssenceTheft/Fly1 EssenceTheft/Fly2 EssenceTheft/Fly3 }
+
+EssenceTheft/Hit1           ESSTHIH1
+EssenceTheft/Hit2           ESSTHIH2
+EssenceTheft/Hit3           ESSTHIH3
+EssenceTheft/Hit4           ESSTHIH4
+$random EssenceTheft/Hit { EssenceTheft/Hit1 EssenceTheft/Hit2 EssenceTheft/Hit3 EssenceTheft/Hit4 }
+
+Delirium/Cast               DELIRIUC
+
+Enfeeble/Cast1              ENFEEBC1
+Enfeeble/Cast2              ENFEEBC2
+Enfeeble/Cast3              ENFEEBC3
+Enfeeble/Cast4              ENFEEBC4
+$random Enfeeble/Cast { Enfeeble/Cast1 Enfeeble/Cast2 Enfeeble/Cast3 Enfeeble/Cast4 }
+
+Contagion/AoE1              CONTAGA1
+Contagion/AoE2              CONTAGA2
+Contagion/AoE3              CONTAGA3
+Contagion/AoE4              CONTAGA4
+$random Contagion/AoE { Contagion/AoE1 Contagion/AoE2 Contagion/AoE3 Contagion/AoE4 }
+
+Contagion/Cast1             CONTAGC1
+Contagion/Cast2             CONTAGC2
+Contagion/Cast3             CONTAGC3
+Contagion/Cast4             CONTAGC4
+Contagion/Cast5             CONTAGC5
+$random Contagion/Cast { Contagion/Cast1 Contagion/Cast2 Contagion/Cast3 Contagion/Cast4 Contagion/Cast5 }
+
+Implosion/Cast              IMPLOSC
+
+Implosion/Fly1              IMPLOSF1
+Implosion/Fly2              IMPLOSF2
+Implosion/Fly3              IMPLOSF3
+$random Implosion/Fly { Implosion/Fly1 Implosion/Fly2 Implosion/Fly3 }
+
+Implosion/Hit1              IMPLOSH1
+Implosion/Hit2              IMPLOSH2
+Implosion/Hit3              IMPLOSH3
+$random Implosion/Hit { Implosion/Hit1 Implosion/Hit2 Implosion/Hit3 }
+
+NightShade/See1             DSNSHSI1
+NightShade/See2             DSNSHSI2
+$random NightShade/See { NightShade/See1 NightShade/See2 }
+
+NightShade/Act              DSNSHACT
+NightShade/Pain             DSNSHPAI
+NightShade/Die              DSNSHDTH
+
+Subjugate/Cast              SUBJUGC
+
+LifeTap/Cast                LIFETAPC
+LifeTap/Hit                 LIFETAPH
+
+DarkPortal/Cast             DARKPORT
+DarkPortal/Loop             DARKPORL
+
+SoulStorm/Loop              SOULSTOL
+SoulStorm/End               SOULSTOE
+SoulStorm/Lightning         SOULSTOX
+
+Transmogrify/Cast           TRANSMGC
+
+RemoveResist/Cast           REMRESIC
+
+BreakImmunity/Cast          BREAKIMC
+
+Banish/Cast                 BANISHC
+Banish/Hit                  BANISHH
+
+Silence/Cast                SILENCEC
+
+MarkPrey/Cast               MARKPRYC

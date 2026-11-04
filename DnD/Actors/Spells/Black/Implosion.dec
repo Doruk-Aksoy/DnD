@@ -8,9 +8,9 @@ Actor Spell_Implosion : DnD_Spell {
 	RenderStyle Add
 	Alpha 1.0
 	Scale 0.35
-	Translation "0:255=%[0.00,0.00,0.00]:[0.90,0.25,1.70]"
-	SeeSound "UndeadSoul/See"
-	DeathSound "UndeadSoul/Die"
+	Translation "0:255=%[0.00,0.00,0.00]:[1.60,0.08,0.30]"
+	SeeSound "Implosion/Fly"
+	DeathSound "Implosion/Hit"
 	States {
 		SpawnState:
 			D5FX G 1 Bright A_SpawnItemEx("Spell_Implosion_Trail", -6, 0, 0, 0, 0, 0, 0, 128)
@@ -22,11 +22,12 @@ Actor Spell_Implosion : DnD_Spell {
 	}
 }
 
+// The needle's crimson glow trail.
 Actor Spell_Implosion_Trail : DnD_SpecialFX {
 	RenderStyle Add
-	Alpha 0.5
-	Scale 0.1
-	Translation "0:255=%[0.00,0.00,0.00]:[0.90,0.25,1.70]"
+	Alpha 0.6
+	Scale 0.16
+	Translation "0:255=%[0.00,0.00,0.00]:[1.60,0.08,0.30]"
 	States {
 		Spawn:
 			TNT1 A 0

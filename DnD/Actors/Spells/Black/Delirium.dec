@@ -3,12 +3,15 @@ Actor DnD_Delirious : DnD_Info {}
 Actor DnD_DeliriousTimer : DnD_Info {}
 Actor DnD_DeliriumOwner : DnD_Info {}
 
-// The curse marker over a delirious enemy: frame N of the curse row (FlammabilityFXMarker).
-Actor DeliriumFXMarker : FlammabilityFXMarker {
+// Delirium's wisps on a delirious enemy, off the curse row: rising from score units ahead along its facing, mass up.
+Actor DeliriumFXMarker : DnD_AttachedFXBase {
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.35
 	States {
 		SpawnLoop:
-			CM1O N 0
-		Goto CurseJoin
+			S025 AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTT 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+		Loop
 	}
 }
 

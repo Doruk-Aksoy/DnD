@@ -2,12 +2,17 @@
 Actor DnD_PainAmped : DnD_Info {}
 Actor DnD_PainAmpedTimer : DnD_Info {}
 
-// The curse marker over a pain amped enemy: frame I of the curse row (FlammabilityFXMarker).
-Actor PainAmpFXMarker : FlammabilityFXMarker {
+// Pain Amp's sparks on a pain amped enemy's chest, off the curse row: score units ahead along its facing, mass up.
+Actor PainAmpFXMarker : DnD_AttachedFXBase {
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.36
 	States {
 		SpawnLoop:
-			CM1O I 0
-		Goto CurseJoin
+			S033 AABBCCDDEEFFGGHHIIJJKKLLMM 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			S033 NNOOPPQQRRSSTTUUVVWWXXYYZZ 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			S034 AABBCC 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+		Loop
 	}
 }
 

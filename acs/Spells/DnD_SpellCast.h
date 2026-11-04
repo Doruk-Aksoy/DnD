@@ -202,6 +202,15 @@ void StartSpellCooldown(int pnum, int spell, int extra_rate = 0) {
 	SyncHotbarForSpell(pnum, spell);
 }
 
+// A single charge cooldown already running, cut to what extra_rate percent more recovery would have made it.
+void HastenSpellCooldown(int pnum, int spell, int extra_rate) {
+	int cut = GetSpellCooldownTics(pnum, spell) - GetSpellCooldownTics(pnum, spell, extra_rate);
+	if(cut <= 0)
+		return;
+	GetSpellCooldowns().at[pnum][spell] -= cut;
+	SyncHotbarForSpell(pnum, spell);
+}
+
 void ResetAllSpellCooldownsNew(int pnum) {
 	auto cd = GetSpellCooldowns();
 	for(int i = 0; i < MAX_SPELL_IDS; ++i) {
@@ -1023,6 +1032,14 @@ void AddVolleyArea(int pnum, int x, int y, int z, int r, int tics) {
 // The one entry point. Mana is spent and the cooldown started here rather than inside each spell,
 // so no spell can forget either, and a spell that fails to spend never reaches its effect.
 int TryCastSpell(int pnum, int spell) {
+	// A Soulstorm still raging takes the press as a new heading: free and past its own cooldown, but not past a silence.
+	if(spell == SPL_SOULSTORM && GetSoulstormTid(pnum)) {
+		if(IsPlayerSilenced(pnum))
+			return CAST_SILENCED;
+		ACS_NamedExecuteAlways("DnD Soulstorm Steer", 0, pnum);
+		return CAST_OK;
+	}
+
 	// A real time toggle answers its second press by STOPPING, before any gate is consulted. Turning
 	// something off cannot be blocked by its own cooldown and must not be charged for, so this sits
 	// ahead of CanCastSpell and the mana spend rather than inside them. The running spell's own loop

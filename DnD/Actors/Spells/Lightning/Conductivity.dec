@@ -2,7 +2,7 @@
 Actor ConductivityFXMarker : FlammabilityFXMarker {
 	States {
 		SpawnLoop:
-			CM1O C 0
+			CM0S C 0
 		Goto CurseJoin
 	}
 }

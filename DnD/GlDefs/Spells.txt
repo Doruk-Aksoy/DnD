@@ -9,6 +9,29 @@ object Spell_PoisonNova {
 	frame S001 { light PoisonNovaLight }
 }
 
+// Soulstorm: a pink glow round the storm's heart, beating slowly.
+pulselight SoulstormLight {
+	color 0.7 0.2 0.55
+	size 80
+	secondarysize 128
+	interval 1.8
+	offset 0 60 0
+}
+
+object Spell_SoulstormAnchor {
+	frame SSTM { light SoulstormLight }
+}
+
+// Implosion's needle: a small crimson glow round the shard.
+pointlight ImplosionNeedleLight {
+	color 0.75 0.03 0.12
+	size 32
+}
+
+object Spell_Implosion {
+	frame D5FX { light ImplosionNeedleLight }
+}
+
 flickerlight MoltenBoulderLight {
 	color 0.825 0.275 0.0
     size 48

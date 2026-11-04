@@ -57,19 +57,13 @@ enum {
 str GetCurseMarkerClass(int which) {
 	switch(which) {
 		case DND_ATTACHMENT_SILENCE:		return "SilenceFXMarker";
-		case DND_ATTACHMENT_REMOVERESIST:	return "RemoveResistFXMarker";
-		case DND_ATTACHMENT_BREAKIMMUNITY:	return "BreakImmunityFXMarker";
-		case DND_ATTACHMENT_LIFETAP:		return "LifeTapFXMarker";
-		case DND_ATTACHMENT_DELIRIUM:		return "DeliriumFXMarker";
-		case DND_ATTACHMENT_SUBJUGATE:		return "SubjugateFXMarker";
-		case DND_ATTACHMENT_PENETRATE:		return "PenetrateFXMarker";
 	}
 	return "";
 }
 
 // Mirror the position states in Flammability.dec: positions to a half slot, and the middle one.
 #define DND_CURSEROW_SUB 4
-#define DND_CURSEROW_MID 60
+#define DND_CURSEROW_MID 28
 
 // Client side, from a curse marker joining or leaving: its monster's curse markers in a row, slot order, centred.
 // Each gets the position it slides to; n markers sit n - 1 half slots either side of the middle.
@@ -88,6 +82,15 @@ Script "DnD Curse Row" (void) CLIENTSIDE {
 		if(GetUserVariable(base + i, "user_cursemark"))
 			SetUserVariable(base + i, "user_target", DND_CURSEROW_MID + (2 * k++ - (n - 1)) * DND_CURSEROW_SUB);
 	SetResultValue(0);
+}
+
+// Attachment res of tid sized to sc, when it is cls (a failed spawn leaves another one in that slot).
+void SizeAttachment(int tid, int res, str cls, int sc) {
+	int mark = DND_MONSTER_ATTACHMENT_TID_BEGIN + GetAttachmentSlot(tid) * DND_MAX_MONSTER_ATTACHMENTS + res;
+	if(CheckActorClass(mark, cls)) {
+		SetActorProperty(mark, APROP_SCALEX, sc);
+		SetActorProperty(mark, APROP_SCALEY, sc);
+	}
 }
 
 Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
@@ -165,9 +168,39 @@ Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 				res = CreateMonsterAttachment(tid, "DespairFXMarker", 0, 0, zoff);
 			break;
 			case DND_ATTACHMENT_NOX:
-				zoff <<= 1;
-				zoff += 4.0;
-				res = CreateMonsterAttachment(tid, "NoxFXMarker", 0, 0, zoff);
+				// face height, just ahead of its front
+				res = CreateMonsterAttachment(tid, "NoxFXMarker", GetActorProperty(tid, APROP_RADIUS) + 2.0, 0, zoff + zoff / 2);
+			break;
+			case DND_ATTACHMENT_DELIRIUM: {
+				// its plume (160 tall at scale 1) sized to rise from the legs, a tenth up, through the chest to 95% of its height
+				int sc = Clamp_Between(FixedMul(zoff * 2, 0.85) / 160, 0.25, 1.0);
+				res = CreateMonsterAttachment(tid, "DeliriumFXMarker", GetActorProperty(tid, APROP_RADIUS) + 2.0, 0, zoff / 5);
+				SizeAttachment(tid, res, "DeliriumFXMarker", sc);
+			}
+			break;
+			case DND_ATTACHMENT_LIFETAP: {
+				// sized to its width (a zombie takes 0.88), its drops riding at about head height, a little ahead
+				int ls = Clamp_Between(GetActorProperty(tid, APROP_RADIUS) * 22 / 500, 0.25, 2.0);
+				res = CreateMonsterAttachment(tid, "LifeTapFXMarker", GetActorProperty(tid, APROP_RADIUS) / 2, 0,
+					Max(0, zoff * 6 / 5 - FixedMul(74.0, ls)));
+				SizeAttachment(tid, res, "LifeTapFXMarker", ls);
+			}
+			break;
+			case DND_ATTACHMENT_SUBJUGATE: {
+				// sized to its height, its embers (98 up the sprite at scale 1, drawn 1.2 tall) over the chest, 2 ahead
+				int ss = Clamp_Between(FixedMul(zoff * 2, 0.0065), 0.2, 2.0);
+				res = CreateMonsterAttachment(tid, "SubjugateFXMarker", 2.0, 0, Max(0, zoff * 6 / 5 - FixedMul(98.0, ss)));
+				SizeAttachment(tid, res, "SubjugateFXMarker", ss);
+			}
+			break;
+			case DND_ATTACHMENT_REMOVERESIST:
+			case DND_ATTACHMENT_PENETRATE: {
+				// a swirl round the feet as wide as the monster (its art ~75 across at scale 1), 2 ahead, sunk a little in the floor
+				int fs = Clamp_Between(GetActorProperty(tid, APROP_RADIUS) * 26 / 750, 0.3, 2.0);
+				str feet = which == DND_ATTACHMENT_REMOVERESIST ? "RemoveResistFXMarker" : "PenetrateFXMarker";
+				res = CreateMonsterAttachment(tid, feet, 2.0, 0, FixedMul(6.0, fs));
+				SizeAttachment(tid, res, feet, fs);
+			}
 			break;
 			case DND_ATTACHMENT_TEMPORALCHAINS:
 				zoff <<= 1;
@@ -184,18 +217,21 @@ Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 				zoff += 4.0;
 				res = CreateMonsterAttachment(tid, "EnfeebleFXMarker", 0, 0, zoff);
 			break;
-			case DND_ATTACHMENT_PAINAMP:
-				zoff <<= 1;
-				zoff += 4.0;
-				res = CreateMonsterAttachment(tid, "PainAmpFXMarker", 0, 0, zoff);
+			case DND_ATTACHMENT_BREAKIMMUNITY: {
+				// sized to its height, its sparks (103 up the sprite at scale 1, drawn 1.2 tall) near the chest, 2 ahead
+				int bs = Clamp_Between(FixedMul(zoff * 2, 0.0062), 0.2, 2.0);
+				res = CreateMonsterAttachment(tid, "BreakImmunityFXMarker", 2.0, 0, Max(0, FixedMul(zoff * 2, 0.6) - FixedMul(103.0, bs)));
+				SizeAttachment(tid, res, "BreakImmunityFXMarker", bs);
+			}
+			break;
+			case DND_ATTACHMENT_PAINAMP: {
+				// sized to its height, its sparks (100 up the sprite at scale 1, drawn 1.2 tall) at 0.65 of it, 2 ahead
+				int ps = Clamp_Between(FixedMul(zoff * 2, 0.0065), 0.2, 2.0);
+				res = CreateMonsterAttachment(tid, "PainAmpFXMarker", 2.0, 0, Max(0, FixedMul(zoff * 2, 0.65) - FixedMul(100.0, ps)));
+				SizeAttachment(tid, res, "PainAmpFXMarker", ps);
+			}
 			break;
 			case DND_ATTACHMENT_SILENCE:
-			case DND_ATTACHMENT_REMOVERESIST:
-			case DND_ATTACHMENT_BREAKIMMUNITY:
-			case DND_ATTACHMENT_LIFETAP:
-			case DND_ATTACHMENT_DELIRIUM:
-			case DND_ATTACHMENT_SUBJUGATE:
-			case DND_ATTACHMENT_PENETRATE:
 				zoff <<= 1;
 				zoff += 4.0;
 				res = CreateMonsterAttachment(tid, GetCurseMarkerClass(which), 0, 0, zoff);

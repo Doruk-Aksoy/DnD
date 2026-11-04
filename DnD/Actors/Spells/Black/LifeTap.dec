@@ -3,12 +3,17 @@ Actor DnD_LifeTapped : DnD_Info {}
 Actor DnD_LifeTappedTimer : DnD_Info {}
 Actor DnD_LifeTapOwner : DnD_Info {}
 
-// The curse marker over a tapped enemy: frame M of the curse row (FlammabilityFXMarker).
-Actor LifeTapFXMarker : FlammabilityFXMarker {
+// Life Tap's drops on a tapped enemy, off the curse row: score units ahead along its facing, mass up.
+Actor LifeTapFXMarker : DnD_AttachedFXBase {
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.45
 	States {
 		SpawnLoop:
-			CM1O M 0
-		Goto CurseJoin
+			S030 AABBCCDDEEFFGGHHIIJJKKLLMM 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			S030 NNOOPPQQRRSSTTUUVVWWXXYYZZ 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			S031 AABBCC 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+		Loop
 	}
 }
 

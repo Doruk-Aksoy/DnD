@@ -667,7 +667,7 @@ int GetSpellThresholdBonus(int spell, int which, int rank) {
 int GetBlackRankBonus(int spell, int which, bool r5, bool r10) {
 	switch(spell) {
 		case SPL_SOULSTORM:
-			return which == SPELLVAL_AMOUNT2 && r10 ? -25 : 0;
+			return which == SPELLVAL_AMOUNT2 && r10 ? -2 : 0;
 		case SPL_LIFETAP:
 			return which == SPELLVAL_DAMAGE2 && r5 ? 2.5 : which == SPELLVAL_RADIUS && r10 ? 160 : 0;
 		case SPL_DEATHANDDECAY:
@@ -1083,6 +1083,8 @@ str GetSpellFieldLumpFor(int spell, int which) {
 		return "DND_SPLFIELD_MINIONHP";
 	if(spell == SPL_CARRIONCROWS && which == SPELLVAL_AMOUNT)
 		return "DND_SPLFIELD_CROWS";
+	if(spell == SPL_SOULSTORM && which == SPELLVAL_DAMAGE2)
+		return "DND_SPLFIELD_PERSOUL";
 	return GetSpellFieldLump(which);
 }
 

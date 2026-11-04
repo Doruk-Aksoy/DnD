@@ -12,18 +12,24 @@ Actor Spell_EssenceTheft : DnD_Spell {
 	Radius 6
 	Height 10
 	Damage 0
-	RenderStyle Add
-	Alpha 0.9
-	Scale 0.6
+	// Flies as ETHEFT.md3's smoke (EssenceTheft.fp): alpha 0.02 is the shader's reference, scale 1 + k x 0.004 its look.
+	RenderStyle Translucent
+	Alpha 0.02
 	Translation "0:255=%[0.00,0.00,0.00]:[1.17,0.10,1.87]"
-	SeeSound "UndeadSoul/See"
-	DeathSound "UndeadSoul/Die"
+	DeathSound "EssenceTheft/Hit"
 	States {
 		SpawnState:
-			RFX0 AB 3 Bright A_SpawnItemEx("Spell_Essence_Trail", -8, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 A 0 A_SetScale(1.0 + random(0, 7) * 0.004)
+			TNT1 A 0 A_PlaySound("EssenceTheft/Fly", CHAN_5, 1.0, true)
+		Fly:
+			RFX0 AB 3 Bright
 		Loop
 		Death:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Essence Theft Hit")
+			// The burst is the old additive sprite.
+			TNT1 A 0 A_SetScale(0.6)
+			TNT1 A 0 A_SetTranslucent(0.9, 1)
+			TNT1 A 0 A_StopSound(CHAN_5)
 			RFX0 GHI 3 Bright
 			RFX0 JJJ 2 Bright A_FadeOut(0.25)
 		Stop

@@ -275,7 +275,7 @@ DND_SPLR5_18    = "You gain 25% additional fire resistance against this spell.";
 DND_SPLR10_18   = "You cannot be chilled, frozen or ignited while burning.";
 
 // Annihilus
-DND_SPLDESC19   = "Channel to build an explosion at a location up to 512 units away, for up to 2.5 seconds. Every 0.5 seconds adds a charge, starting at 250 damage and growing 30% each time, while the blast widens from 96 units to 512. Cast again to release it early for less damage. You are slowed by 50% while channeling.";
+DND_SPLDESC19   = "Channel to build an explosion at a location up to 512 units away, for up to 2.5 seconds. Every 0.5 seconds adds a charge, starting at 250 damage and growing 30% each time, while the blast widens from 96 units to 512. Cast again to release it early for less damage, and its cooldown recovers 8% faster for each charge not built, up to 32%. You are slowed by 50% while channeling.";
 DND_SPLPER19    = "";
 DND_SPLR5_19    = "No longer harms you, and maximum range becomes 768 units.";
 DND_SPLR10_19   = "Has a 20% chance to trigger explosions at each charge.";
@@ -692,7 +692,7 @@ DND_SPLR10_164  = "The damage radius is 30% larger.";
 
 // Essence Theft
 DND_SPLDESC165  = "Launch a fast unholy missile that deals 450 magic damage over 3 seconds and returns 20% of the damage dealt to you as health. Contagion can spread it to more enemies.";
-DND_SPLPER165   = "";
+DND_SPLPER165   = "-1.5 seconds cooldown.";
 DND_SPLR5_165   = "Returns 33% of the damage as health.";
 DND_SPLR10_165  = "The enemy hit is pacified for 3 seconds, unable to attack.";
 
@@ -722,7 +722,7 @@ DND_SPLR10_169  = "Lasts 4 seconds longer.";
 
 // Finger of Death
 DND_SPLDESC170  = "Project a bolt of red lightning ahead of you that deals 600 magic damage to the first enemy it hits.";
-DND_SPLPER170   = "";
+DND_SPLPER170   = "-1 second cooldown.";
 DND_SPLR5_170   = "The bolt damages every enemy in its line instead of only one.";
 DND_SPLR10_170  = "Ignores enemy resistances and immunities.";
 
@@ -739,8 +739,8 @@ DND_SPLR5_172   = "The needle travels 50% faster.";
 DND_SPLR10_172  = "Leeches 2% of the damage dealt as mana.";
 
 // Summon: Dark Portal
-DND_SPLDESC173  = "Open a portal for 8 seconds that empowers your summoning. Minions you summon or raise within 256 units of it have 10% more health, duration and damage. The portal has 300 health and benefits from minion modifiers, but does not count against your pet cap.";
-DND_SPLPER173   = "+10% more minion health and damage.";
+DND_SPLDESC173  = "Open a portal for 10 seconds that empowers your summoning. Minions you summon or raise within 256 units of it have 10% more health, duration and damage. The portal has 300 health and benefits from minion modifiers, but does not count against your pet cap.";
+DND_SPLPER173   = "+10% more minion health and damage, +1 second duration.";
 DND_SPLR5_173   = "Minions summoned near it also gain 25% increased movement speed.";
 DND_SPLR10_173  = "Minions summoned near it also gain 25% to all resistances.";
 
@@ -769,10 +769,10 @@ DND_SPLR5_177   = "The radius is doubled.";
 DND_SPLR10_177  = "Lasts 5 seconds longer.";
 
 // Soulstorm
-DND_SPLDESC178  = "After a brief delay, raise a storm at the target spot that drifts towards you, dealing 25 magic damage per Soul you carry every 0.35 seconds for 5 seconds. Damage is highest within 160 units of its centre and lowest at its 320 unit edge. Consumes half your Souls once it ends.";
-DND_SPLPER178   = "";
+DND_SPLDESC178  = "After a brief delay, raise a storm at the target spot that drifts towards you, blasting enemies with magic damage every 0.35 seconds for 8 seconds, plus more for each Soul you carry. Each blast drains 5 of your Souls. Damage is highest within 160 units of its centre and lowest at its 320 unit edge. Recast while it rages to send it slowly towards where you point, at no cost.";
+DND_SPLPER178   = "+0.5 seconds duration.";
 DND_SPLR5_178   = "The area is 50% larger.";
-DND_SPLR10_178  = "Consumes only 25% of your Souls.";
+DND_SPLR10_178  = "Each blast drains only 3 Souls.";
 
 // Carrion Crows
 DND_SPLDESC179  = "Summon a whirl of 5 flesh eating undead crows that circle you for 10 seconds, darting out to tear at enemies within 256 units for 25 damage in very short intervals.";
@@ -829,7 +829,7 @@ DND_SPLR5_187   = "Can cast War Stomp, stunning nearby enemies for 2.5 seconds a
 DND_SPLR10_187  = "Casts a random curse you have learned once every 30 seconds.";
 
 // Banish
-DND_SPLDESC188  = "Curse. Fire a cursed ball that removes the enemy it hits from this realm for 3 seconds.";
+DND_SPLDESC188  = "Curse. Fire a cursed ball that removes the enemy it hits from this realm for 3 seconds. Does not work on Dungeon Bosses.";
 DND_SPLPER188   = "+1 second duration.";
 DND_SPLR5_188   = "When the enemy returns, it is afflicted by a random curse you have learned.";
 DND_SPLR10_188  = "When the enemy returns, you gain one of its properties, if it has any, for half the duration.";
@@ -879,6 +879,7 @@ DND_SPLFIELD_WALLLEN = "wall length";
 DND_SPLFIELD_CRASH = "crash landing cap";
 DND_SPLFIELD_MINIONHP = "minion health";
 DND_SPLFIELD_CROWS = "crow";
+DND_SPLFIELD_PERSOUL = "damage per soul";
 
 DND_SPLPANEL_PERRANK   = "Per Rank:";
 DND_SPLPANEL_RANK5     = "Rank 5:";

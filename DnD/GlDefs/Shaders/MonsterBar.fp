@@ -10,9 +10,13 @@ uniform float timer;
 #define hf_BEAT 2.0
 #define he_EW 16.0
 #define he_EH 18.0
+#define TAU 6.2831853
 
+// wrapped to 256 and sin-free, so neighbouring cells agree on every renderer
 float hf_hash(vec2 i) {
-	return fract(sin(dot(i, vec2(127.1, 311.7))) * 43758.5453);
+	vec3 p3 = fract(vec3(mod(i, 256.0).xyx) * 0.1031);
+	p3 += dot(p3, p3.yzx + 33.33);
+	return fract((p3.x + p3.y) * p3.z);
 }
 
 float hf_noise(vec2 p) {
@@ -27,20 +31,20 @@ vec3 hf_tint(vec3 c, float lift) {
 	return mix(c / max(max(c.r, c.g), max(c.b, 0.001)), vec3(1.0), lift);
 }
 
-float hf_bubbles(vec2 px) {
+float hf_bubbles(vec2 px, float t) {
 	float cw = 13.0;
-	float mx = (px.x - timer * hf_SPEED) / cw;
+	float mx = (px.x - t * hf_SPEED) / cw;
 	float cell = floor(mx);
-	float ph = fract(timer * (0.3 + 0.3 * hf_hash(vec2(cell, 11.0))) + hf_hash(vec2(cell, 19.0)));
+	float ph = fract(t * (0.3 + 0.3 * hf_hash(vec2(cell, 11.0))) + hf_hash(vec2(cell, 19.0)));
 	float row = hf_ROWS - 1.0 - floor(ph * (hf_ROWS - 1.0));
-	float at = 2.0 + floor(hf_hash(vec2(cell, 29.0)) * (cw - 4.0) + 0.8 * sin(ph * 9.0 + cell) + 0.5);
+	float at = 2.0 + floor(hf_hash(vec2(cell, 29.0)) * (cw - 4.0) + 0.8 * sin(TAU * fract(ph * 1.4324 + cell * 0.1592)) + 0.5);
 	float life = smoothstep(0.0, 0.1, ph) * (1.0 - smoothstep(0.7, 1.0, ph));
 	return step(0.5, hf_hash(vec2(cell, 7.0))) * step(abs(floor(fract(mx) * cw) - at), 0.5) * step(abs(px.y - 0.5 - row), 0.5) * life;
 }
 
 // Two close pulses travelling toward the fill's end.
-float hf_beat(float x) {
-	float ph = fract(timer / hf_BEAT - x / 400.0);
+float hf_beat(float x, float t) {
+	float ph = fract(t / hf_BEAT - x / 400.0);
 	float a = (ph - 0.06) / 0.03, b = (ph - 0.16) / 0.03;
 	return exp(-a * a) + 0.6 * exp(-b * b);
 }
@@ -51,16 +55,16 @@ vec4 hf_fill(vec4 color) {
 	vec2 px = floor(uv * vec2(hf_TEXW, hf_TEXH)) + 0.5;
 	float v = px.y / hf_ROWS;
 	float depth = 1.0 - 0.6 * abs(v - 0.5) * 2.0;
-	float t = timer;
+	float t = mod(timer, 512.0);
 
 	float w = hf_noise(vec2((px.x - t * hf_SPEED * 0.6) / 30.0, v * 1.5 + t * 0.07));
 	float n = hf_noise(vec2((px.x - t * hf_SPEED) / 16.0 + w * 1.8, v * 4.0 + w * 2.0 - t * 0.12));
 	float sheen = smoothstep(0.55, 0.92, n);
-	float beat = hf_beat(px.x);
+	float beat = hf_beat(px.x, t);
 
 	vec3 col = tex.rgb * (0.82 + 0.36 * w + 0.22 * beat);
 	col += hf_tint(tex.rgb, 0.25) * (sheen * 0.3 + beat * 0.08) * depth;
-	col += hf_tint(tex.rgb, 0.6) * hf_bubbles(px) * 0.7;
+	col += hf_tint(tex.rgb, 0.6) * hf_bubbles(px, t) * 0.7;
 	return vec4(col * color.rgb, tex.a * color.a);
 }
 
@@ -72,17 +76,17 @@ vec4 he_edge(vec4 color) {
 	float s = clamp(px.y / hf_ROWS, 0.0, 1.0) * 2.0 - 1.0;
 	float bow = 1.0 - s * s;
 
-	// the front surges out and back, waves run along it, and it rocks
-	float t = timer;
-	float surge = 2.0 + 0.9 * sin(t * 2.6) + 0.4 * sin(t * 4.1 + 1.7);
-	float waves = 0.55 * sin(s * 7.0 - t * 6.0) + 0.3 * sin(s * 13.0 + t * 8.5);
-	float dx = px.x - (he_EW * 0.5 - 0.5 + (surge + waves) * bow + 0.7 * sin(t * 1.3 + 0.8) * s);
+	// the front surges out and back, waves run along it, and it rocks; every phase of time stays within a turn
+	float t = mod(timer, 512.0);
+	float surge = 2.0 + 0.9 * sin(TAU * fract(t * 0.4138)) + 0.4 * sin(TAU * fract(t * 0.6525) + 1.7);
+	float waves = 0.55 * sin(s * 7.0 - TAU * fract(t * 0.9549)) + 0.3 * sin(s * 13.0 + TAU * fract(t * 1.3528));
+	float dx = px.x - (he_EW * 0.5 - 0.5 + (surge + waves) * bow + 0.7 * sin(TAU * fract(t * 0.2069) + 0.8) * s);
 	float liquid = step(he_EW * 0.5, px.x) * step(dx, 0.0);
 	float glow = exp(-dx * dx / 8.0) * (dx < 0.0 ? 0.55 : 0.3);
 	float rim = exp(-dx * dx / 0.7);
 
 	// a glint sliding up and down the rim
-	float gs = s - 0.75 * sin(t * 1.9);
+	float gs = s - 0.75 * sin(TAU * fract(t * 0.3024));
 	float glint = exp(-gs * gs / 0.06);
 
 	// premultiplied, back to front: the pushed-out liquid, the glow, the rim

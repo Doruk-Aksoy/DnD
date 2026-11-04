@@ -37,18 +37,19 @@ enum : fixed
 };
 
 #ifndef __LIBBCS_NO_LOCAL_HEAP
-internal raw _Heap[HEAP_SIZE];
-
-internal enum
-{
-    HEAP_START = (HEAP_SIZE - 1) + (int)_Heap // Don't touch this.
-};
+internal raw _Heap[HEAP_SIZE]; // Its address is only known at run time, so heapHead() places the header.
 #else
 internal enum
 {
 	HEAP_START = 0xFFFEFFFF
 };
 #endif
+
+internal enum
+{
+    HEAP_FORMAT = 0x6C626631, // Bump on any change to the heap layout.
+    LIBBCS_MIN_BLOCK = 2 // A free block is on the free list exactly when it is this big.
+};
 
 internal struct AllocBlock
 {
@@ -57,103 +58,155 @@ internal struct AllocBlock
     bool used;
 };
 
+// A block header plus the first two payload cells, which hold the free list links.
+// Take header offsets from an AllocBlock: lengthof() of a FreeBlock is 5.
+internal struct FreeBlock
+{
+    struct FreeBlock* next;
+    int size;
+    bool used;
+    struct FreeBlock* freeNext, freePrev;
+};
+
 internal struct HeapHead
 {
     bool init;
 #ifdef __LIBBCS_NO_LOCAL_HEAP
     int allocTime; // only needed for safe-malloc compat, which isn't an issue with a local heap
 #endif
-    struct AllocBlock* tail, lastFreed;
-    int noFit; // every free block is smaller than this (true from the start: none is free)
+    struct AllocBlock* tail;
+    struct FreeBlock* freeHead;
+    int format; // the header's top cell, which older versions never wrote
 };
 
-// Cuts what a block does not need into a free block above it, when that leftover holds minRest words or more.
-// Returns the leftover, or null when the block stays whole.
-internal struct AllocBlock* splitBlock (struct AllocBlock* block, int size, int minRest)
+// Returns the heap header, first building the free list of a heap left by an older version.
+internal struct HeapHead* heapHead ()
 {
-    if((block.size - size) < (lengthof(block) + minRest))
-        return null;
+    struct HeapHead* head;
+    struct AllocBlock* hdr;
+    struct FreeBlock* block;
 
-    struct AllocBlock* rest = (int)block + size + lengthof(block);
+#ifndef __LIBBCS_NO_LOCAL_HEAP
+    // Where older versions put it, as if _Heap sat at address 0, which keeps their saves working.
+    // Below the heap that was other module data, so there the header goes to the heap's real top.
+    head = (HEAP_SIZE - lengthof(head));
+    if((int)head < (int)_Heap)
+        head = ((int)_Heap + (HEAP_SIZE - lengthof(head)));
+#else
+    head = (HEAP_START + 1 - lengthof(head));
+#endif
 
-    rest.used = false;
-    rest.size = block.size - lengthof(block) - size;
-    rest.next = block.next;
+    if(head.format == HEAP_FORMAT)
+        return head;
 
-    block.next = rest;
-    block.size = size;
+    head.freeHead = null;
+    block = (int)head.tail;
 
-    return rest;
+    // Older first blocks end on init, so only an empty heap may write it.
+    if(!block)
+        head.init = true;
+
+    // Skip blocks an older version's overflow left outside the heap, if they still lead back into it.
+    while(block)
+    {
+        #ifndef __LIBBCS_NO_LOCAL_HEAP
+        if(((int)block >= (int)_Heap) && ((int)block < (int)head))
+        #else
+        if(((int)block <= HEAP_START) || ((int)block >= 0))
+        #endif
+            break;
+
+        // Follow a link only up to the block that starts where this one ends.
+        if(((int)block.next > (int)block) && ((int)block + lengthof(hdr) + block.size == (int)block.next))
+            block = block.next;
+        else
+            block = null;
+    }
+
+    if((int)block != (int)head.tail)
+    {
+        if(block)
+        {
+            Log(s:"\cglibbcs heap WARNING: dropped blocks an earlier overflow left outside the heap");
+            head.tail = (int)block;
+        }
+        else
+            Log(s:"\cglibbcs heap ERROR: no blocks left inside the heap, so it stays full");
+    }
+
+    for(; block; block = block.next)
+    {
+        if(block.next && (((int)block.next <= (int)block) || ((int)block + lengthof(hdr) + block.size != (int)block.next)))
+        {
+            Log(s:"\cglibbcs heap ERROR: damaged block chain, so free blocks from here up stay unused");
+            break;
+        }
+
+        if(!block.used && (block.size >= LIBBCS_MIN_BLOCK))
+        {
+            block.freePrev = null;
+            block.freeNext = head.freeHead;
+            if(head.freeHead)
+                head.freeHead.freePrev = block;
+            head.freeHead = block;
+        }
+    }
+
+    // Written last, so a conversion cut short by the runaway limit runs again.
+    head.format = HEAP_FORMAT;
+    return head;
 }
 
 // Main memory allocation function. Returns a pointer to a buffer of the requested size.
 __LIBBCS_PTR_VIS void[]* malloc (int size)
 {
-    struct HeapHead* head;
+    struct HeapHead* head = heapHead();
     struct AllocBlock* block;
+    struct FreeBlock* fit, rest;
 
-    head = (HEAP_START - lengthof(head));
+    // Every block must be able to hold the free list links later.
+    if(size < LIBBCS_MIN_BLOCK)
+        size = LIBBCS_MIN_BLOCK;
 
-    if(!head.init)
+    // First fit, most recently freed block first.
+    for(fit = head.freeHead; fit; fit = fit.freeNext)
     {
-        head.init = true;
-
-        // ends right under the head (with "- 1" its last word was head.init)
-        block = ((int)head - (size + lengthof(block)));
-
-        block.used = true;
-        block.size = size;
-        block.next = null;
-
-        head.tail = (int)block;
-
-        return (int)block + lengthof(block);
-    }
-
-    block = head.lastFreed;
-
-    if( block && (block.size >= size) )
-    {
-        // Handed out whole, a merged block left nothing free and the next request walked every block.
-        head.lastFreed = splitBlock(block, size, 2);
-        block.used = true;
-        return (int)block + lengthof(block);
-    }
-
-    // Nothing free is as big as noFit, so a request that size or bigger skips the walk.
-    if(size >= head.noFit)
-        block = null;
-    else
-        block = head.tail;
-
-    while(block)
-    {
-        if(block.used || (size > block.size))
-        {
-            block = block.next;
+        if(fit.size < size)
             continue;
+
+        if(fit.freePrev)
+            fit.freePrev.freeNext = fit.freeNext;
+        else
+            head.freeHead = fit.freeNext;
+        if(fit.freeNext)
+            fit.freeNext.freePrev = fit.freePrev;
+
+        if((fit.size - size) >= (lengthof(block) + 4))
+        {
+            rest = (int)fit + size + lengthof(block);
+
+            rest.used = false;
+            rest.size = fit.size - lengthof(block) - size;
+            rest.next = fit.next;
+
+            fit.next = rest;
+            fit.size = size;
+
+            rest.freePrev = null;
+            rest.freeNext = head.freeHead;
+            if(head.freeHead)
+                head.freeHead.freePrev = rest;
+            head.freeHead = rest;
         }
 
-        // the leftover stays out of lastFreed here: steering later requests into it grew the heap ~13% in the model
-        splitBlock(block, size, 4);
+        fit.used = true;
 
-        block.used = true;
-
-        return (int)block + lengthof(block);
+        return (int)fit + lengthof(block);
     }
 
-    // No free block fits this size, so none fits a bigger one either.
-    if(size < head.noFit)
-        head.noFit = size;
-
-    // No acceptable blocks found, so let's "grow" the heap.
-    block = ((int)head.tail - (lengthof(block) + size));
-
-    block.used = true;
-    block.size = size;
-    block.next = head.tail;
-
-    head.tail = block;
+    // No acceptable blocks found, so let's "grow" the heap, checking before anything is written.
+    block = head.tail ? (int)head.tail : (int)head;
+    block = ((int)block - (lengthof(block) + size));
 
     #ifndef __LIBBCS_NO_LOCAL_HEAP
     if((int)block < (int)_Heap)
@@ -174,6 +227,12 @@ __LIBBCS_PTR_VIS void[]* malloc (int size)
 		return null;
 	}
 
+    block.used = true;
+    block.size = size;
+    block.next = head.tail;
+
+    head.tail = block;
+
     return (int)block + lengthof(block);
 }
 
@@ -183,27 +242,44 @@ __LIBBCS_PTR_VIS void free (void[]* ptr)
     if(!ptr)
         return;
 
-    struct HeapHead* head;
-    struct AllocBlock* block, nextBlock;
+    struct HeapHead* head = heapHead();
+    struct AllocBlock* hdr;
+    struct FreeBlock* block, nextBlock;
 
-    block = (int)ptr - lengthof(block);
+    block = (int)ptr - lengthof(hdr);
+
+    // Already free: pushing it again would corrupt the free list.
+    if(!block.used)
+        return;
+
     nextBlock = block.next;
 
-    // Should merge blocks here.
     if( (nextBlock) && (!nextBlock.used) )
     {
-        block.size += nextBlock.size + lengthof(block);
+        if(nextBlock.size >= LIBBCS_MIN_BLOCK)
+        {
+            if(nextBlock.freePrev)
+                nextBlock.freePrev.freeNext = nextBlock.freeNext;
+            else
+                head.freeHead = nextBlock.freeNext;
+            if(nextBlock.freeNext)
+                nextBlock.freeNext.freePrev = nextBlock.freePrev;
+        }
+
+        block.size += nextBlock.size + lengthof(hdr);
         block.next = nextBlock.next;
     }
 
     block.used = false;
 
-    head = (HEAP_START - lengthof(head));
-    head.lastFreed = block;
-
-    // This block may be the biggest free one now.
-    if(block.size >= head.noFit)
-        head.noFit = block.size + 1;
+    if(block.size >= LIBBCS_MIN_BLOCK)
+    {
+        block.freePrev = null;
+        block.freeNext = head.freeHead;
+        if(head.freeHead)
+            head.freeHead.freePrev = block;
+        head.freeHead = block;
+    }
 }
 
 __LIBBCS_PTR_VIS void memmove (void[]* dstIn, void[]* srcIn, int size)
@@ -221,7 +297,6 @@ __LIBBCS_PTR_VIS void memmove (void[]* dstIn, void[]* srcIn, int size)
 	}
 	else if((int)dstIn > (int)srcIn)
 	{
-		// from size, so i runs size - 1 down to 0 (from size - 1 it skipped the last word)
 		for(int i = size; i --> 0;)
 			dst[i] = src[i];
 	}
@@ -262,6 +337,10 @@ __LIBBCS_PTR_VIS void[]* realloc (void[]* oldPtr, int size)
 
     void[]* ptr = malloc(size);
 
+    // Keep the old block when there is no room for the new one.
+    if(!ptr)
+        return null;
+
 	memmove(ptr, oldPtr, oldBlock.size);
 
     free(oldPtr);
@@ -289,10 +368,11 @@ __LIBBCS_PTR_VIS void[]* alloca (int size)
 // Debug print function.
 void allocDump ()
 {
-    struct HeapHead* head;
+    struct HeapHead* head = heapHead();
     struct AllocBlock* block;
+    struct FreeBlock* listed;
+    int listLength = 0;
 
-    head = (HEAP_START - lengthof(head));
     block = head.tail;
 
     Print(s:"=libbcs allocDump=");
@@ -302,6 +382,11 @@ void allocDump ()
 
         block = block.next;
 	}
+
+    for(listed = head.freeHead; listed; listed = listed.freeNext)
+        listLength++;
+
+    Print(s:"free list length: ", i:listLength);
 }
 
 // BCC array references are fat pointers:
@@ -347,7 +432,8 @@ __LIBBCS_PTR_VIS void[]? arrNew (int len, int elementSize = 1)
     if(!ptr)
 		return null;
 
-    return makeArrPtr(ptr, len);
+    // The length word counts cells, as arrResize() writes it.
+    return makeArrPtr(ptr, len * elementSize);
 }
 
 __LIBBCS_PTR_VIS void arrDelete (void[]? arr)
@@ -422,7 +508,7 @@ void exit ()
 	extern LIBBCS_T_MAP_DECL_ITERATOR_GETVAL(name, keyType, valType)
 
 #define LIBBCS_T_MAP_DEFN_BSEARCH(name, keyType, valType, cmpfunc) \
-	Script #name "-bsearch_" (int a_In, int right, int key) \
+	Script #name "-bsearch2_" (int a_In, int right, int key) \
 	{ \
 		/*Log(s:"currently at: ", s:__SCRIPT__);*/ \
 		int left = 0; \
@@ -430,22 +516,23 @@ void exit ()
 		{ \
 			int[]* arr = a_In; \
 			int mid = left + (right - left) / 2; \
+			int c = cmpfunc((raw)arr[mid], (raw)key); \
 			/* Check if key is present at mid */ \
-			if(cmpfunc((raw)arr[mid], (raw)key) == 0) \
+			if(c == 0) \
 			{ \
 				SetResultValue(mid); \
 				terminate; \
 			} \
 			/* If key greater than arr[mid], ignore left half */ \
-			if(cmpfunc((raw)arr[mid], (raw)key) < 0) \
+			if(c < 0) \
 				left = mid + 1; \
 			/* If key is smaller than or equal to arr[mid], */ \
 			/* ignore right half */ \
 			else \
 				right = mid - 1; \
 		} \
-		/* If we get here, then element was not present */ \
-		SetResultValue(-1); \
+		/* Not present: left is where the key belongs, returned as -(left + 1) */ \
+		SetResultValue(-(left + 1)); \
 	}
 
 #define LIBBCS_T_MAP_DEFN(name, keyType, valType, cmpfunc) \
@@ -454,7 +541,7 @@ void exit ()
 	internal int name##_indexOfKey_ (struct name* ptr, keyType key) \
 	{ \
 		/*Log(s:"currently at: ", s:__FUNCTION__);*/ \
-		return ACS_NamedExecuteWithResult( #name "-bsearch_", (int)ptr.keys, lengthof(ptr.keys) - 1, (int)key); \
+		return ACS_NamedExecuteWithResult( #name "-bsearch2_", (int)ptr.keys, lengthof(ptr.keys) - 1, (int)key); \
 	} \
 	LIBBCS_T_MAP_DECL_NEW(name, keyType, valType) \
 	{ \
@@ -476,26 +563,27 @@ void exit ()
 	{ \
 		/*Log(s:"currently at: ", s:__FUNCTION__);*/ \
 		int idx = name##_indexOfKey_(ptr, key); \
-		return (idx != -1) ? ptr.vals[idx] : (raw)0; \
+		return (idx >= 0) ? ptr.vals[idx] : (raw)0; \
 	} \
 	LIBBCS_T_MAP_DECL_PUT(name, keyType, valType) \
 	{ \
 		/*Log(s:"currently at: ", s:__FUNCTION__);*/ \
 		int idx = name##_indexOfKey_(ptr, key); \
-		if(idx == -1) \
+		if(idx < 0) \
 		{ \
 			int len = lengthof(ptr.keys); \
 			ptr.keys = bcs::arrResize(ptr.keys, len + 1); \
 			ptr.vals = bcs::arrResize(ptr.vals, len + 1); \
 			int k = len; \
-			while( (k > 0) && (cmpfunc(ptr.keys[k - 1], key) > 0) ) \
+			int ins = -idx - 1; \
+			while(k > ins) \
 			{ \
 				ptr.keys[k] = ptr.keys[k - 1]; \
 				ptr.vals[k] = ptr.vals[k - 1]; \
 				k--; \
 			} \
-			ptr.keys[k] = key; \
-			ptr.vals[k] = val; \
+			ptr.keys[ins] = key; \
+			ptr.vals[ins] = val; \
 			return; \
 		} \
 		ptr.keys[idx] = key; \
@@ -505,7 +593,7 @@ void exit ()
 	{ \
 		/*Log(s:"currently at: ", s:__FUNCTION__);*/ \
 		int idx = name##_indexOfKey_(ptr, key); \
-		if(idx != -1) \
+		if(idx >= 0) \
 		{ \
 			int len = lengthof(ptr.keys) - 1; \
 			for(; idx < len; idx++) \
@@ -519,7 +607,7 @@ void exit ()
 	} \
 	LIBBCS_T_MAP_DECL_CHECK(name, keyType, valType) \
 	{ \
-		return name##_indexOfKey_(ptr, key) != -1; \
+		return name##_indexOfKey_(ptr, key) >= 0; \
 	} \
 	LIBBCS_T_MAP_DECL_ITERATOR_NEW(name, keyType, valType) \
 	{ \

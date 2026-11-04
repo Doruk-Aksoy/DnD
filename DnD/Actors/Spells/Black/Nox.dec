@@ -11,11 +11,11 @@ Actor Nox_MissileEvenMoreOn : DnD_Activator { States { Pickup: TNT1 A 0 A_Change
 Actor Nox_MissileEvenMoreOff : DnD_Activator { States { Pickup: TNT1 A 0 A_ChangeFlag("MISSILEEVENMORE", 0) Stop } }
 
 // What a blinded enemy chases and attacks instead of you. Off the blockmap, so no shot, splash or autoaim finds it.
+// No RenderStyle None: sight checks miss an unseeable target 80% of the time, and online A_Chase then halts.
 Actor DnD_BlindDecoy {
 	Health 1000
 	Radius 4
 	Height 16
-	RenderStyle None
 	+SHOOTABLE
 	+NOBLOCKMAP
 	+NOGRAVITY
@@ -32,12 +32,15 @@ Actor DnD_BlindDecoy {
 	}
 }
 
-// Nox's curse marker over a blinded enemy: frame F of the curse row (FlammabilityFXMarker).
-Actor NoxFXMarker : FlammabilityFXMarker {
+// Nox's mark on a blinded enemy's face, off the curse row: score units ahead of it along its facing, mass up.
+Actor NoxFXMarker : DnD_AttachedFXBase {
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.5
 	States {
 		SpawnLoop:
-			CM1O F 0
-		Goto CurseJoin
+			S023 AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXX 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+		Loop
 	}
 }
 

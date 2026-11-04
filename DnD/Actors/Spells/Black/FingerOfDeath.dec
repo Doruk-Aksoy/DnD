@@ -1,13 +1,21 @@
-// A glowing bead of the red bolt, strung along it by "DnD Finger of Death FX".
-Actor Spell_FingerOfDeath_Spark : DnD_SpecialFX {
+// The bolt: ACS aims and stretches it, FingerBolt.fp draws the crackling red lightning; its alpha strobes it in and out.
+Actor Spell_FingerOfDeath_Beam {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOTONAUTOMAP
 	RenderStyle Add
-	Alpha 0.95
-	Scale 0.3
-	Translation "0:255=%[0.00,0.00,0.00]:[2.00,0.25,0.35]"
+	Alpha 0.5
 	States {
 		Spawn:
-			TNT1 A 0
-			D5FX GHIJKL 2 Bright A_FadeOut(0.1)
+			FDBM A 1 Bright
+			FDBM A 2 Bright A_SetTranslucent(1.0, 1)
+			FDBM A 1 Bright A_SetTranslucent(0.3, 1)
+			FDBM A 1 Bright A_SetTranslucent(0.95, 1)
+			FDBM A 1 Bright A_SetTranslucent(0.55, 1)
+			FDBM A 1 Bright A_SetTranslucent(0.15, 1)
+			FDBM A 1 Bright A_SetTranslucent(0.45, 1)
+			FDBM A 1 Bright A_SetTranslucent(0.08, 1)
 		Stop
 	}
 }
@@ -17,11 +25,10 @@ Actor Spell_FingerOfDeath_Burst : DnD_SpecialFX {
 	RenderStyle Add
 	Alpha 0.95
 	Scale 0.8
-	Translation "0:255=%[0.00,0.00,0.00]:[2.00,0.25,0.35]"
 	States {
 		Spawn:
 			TNT1 A 0
-			D4FX GHIJKL 2 Bright
+			FXPR ABCDEFGHIJKLM 2 Bright
 		Stop
 	}
 }

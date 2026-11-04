@@ -5,17 +5,16 @@ Actor Spell_CarrionCrow {
 	Scale 0.6
 	RenderStyle Translucent
 	Alpha 0.9
-	Translation "0:255=%[0.00,0.00,0.00]:[0.45,0.40,0.50]"
 	+NOINTERACTION
 	+NOGRAVITY
 	+NOBLOCKMAP
 	+DONTSPLASH
 	States {
 		Spawn:
-			SPIR AB 3
+			S026 AB 3
 		Loop
 		Vanish:
-			SPIR AB 2 A_FadeOut(0.15)
+			S026 AB 2 A_FadeOut(0.15)
 		Loop
 	}
 }

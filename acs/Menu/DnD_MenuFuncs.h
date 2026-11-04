@@ -7182,6 +7182,15 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 
+			// minion block: the eight minion mods, printed as their tooltips print them
+			for(i = INV_MINION_DAMAGE; i <= INV_MINION_RES_MAGIC; ++i) {
+				val = ReadPlayerModValue(pnum, i);
+				if(val) {
+					pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(i, 0, 0, val), s:"\n");
+					++k;
+				}
+			}
+
 			// ripper block
 			val = PlayerModData[pnum].vals[PSTAT_RIPCOUNT];
 			if(val) {

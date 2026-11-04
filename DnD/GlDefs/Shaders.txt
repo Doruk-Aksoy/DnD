@@ -207,6 +207,42 @@ HardwareShader FORKBEAM {
 	Speed 1.0
 }
 
+// Contagion's rune circle on flat2.md3: a dark smoky disc, glowing lines and a turning band of eldritch runes (masks in CONTAGRN).
+HardwareShader CONTAGRN {
+	Shader "GLDefs/Shaders/Contagion.fp"
+	Speed 1.0
+}
+
+// Dark Portal on PORTAL.md3: a scratched golden basin round a void of turning smoke (the lathe's normal rides in the UVs).
+HardwareShader PORTAL {
+	Shader "GLDefs/Shaders/DarkPortal.fp"
+	Speed 1.0
+}
+
+// Soulstorm on SSTORM.md3: a smoky, starry pink cloud swirling round a small black hole and its nearly level disc.
+HardwareShader SSTORM {
+	Shader "GLDefs/Shaders/Soulstorm.fp"
+	Speed 1.0
+}
+
+// Soulstorm's bolts on FORKBEAM.md3 under their own skin: FingerBolt.fp's crackling lightning in pink and violet.
+HardwareShader SSBOLT {
+	Shader "GLDefs/Shaders/SoulBolt.fp"
+	Speed 1.0
+}
+
+// Implosion's needle on IMPLOSN.md3: a crimson shard, per-facet light, ember veins, a glowing rim and tip.
+HardwareShader IMPLOSN {
+	Shader "GLDefs/Shaders/Implosion.fp"
+	Speed 1.0
+}
+
+// Finger of Death on FORKBEAM.md3 under its own skin: crackling, jagged red lightning with forks, re-dealt every tic.
+HardwareShader FDBOLT {
+	Shader "GLDefs/Shaders/FingerBolt.fp"
+	Speed 1.0
+}
+
 // Crackling Lance's skin: the branching fan on the planes, the laser as a volume in the hull, from the UV packing of CLANCE.md3.
 HardwareShader CLANCE {
 	Shader "GLDefs/Shaders/CracklingLance.fp"
@@ -907,6 +943,18 @@ HardwareShader PNOVA {
 	Speed 1.0
 }
 
+// Dark Wind: a thick dark fog rolling along its flight, ray-marched inside DWIND.md3's hull.
+HardwareShader DWIND {
+	Shader "GLDefs/Shaders/DarkWind.fp"
+	Speed 1.0
+}
+
+// Essence Theft's missile: a purple smoke ball with a pulsing light at its tip and a smoky tail, in ETHEFT.md3's hull.
+HardwareShader ETHEFT {
+	Shader "GLDefs/Shaders/EssenceTheft.fp"
+	Speed 1.0
+}
+
 // Mana bar fill and edge share ManaBar.fp; DrawManaBar packs the surge and low-mana looks into the HudMessage alpha.
 HardwareShader SPLMANAF {
 	Shader "GLDefs/Shaders/ManaBar.fp"
@@ -956,6 +1004,27 @@ HardwareShader HPEDGER {
 }
 
 HardwareShader HPEDGEG {
+	Shader "GLDefs/Shaders/ManaBar.fp"
+	Speed 1.0
+}
+
+// Leech ghosts on the mana, life and shield bars, in ManaBar.fp too; their arts are 0.85 alpha, the dispatch's tell.
+HardwareShader SPLMANAG {
+	Shader "GLDefs/Shaders/ManaBar.fp"
+	Speed 1.0
+}
+
+HardwareShader H_BRGSTG {
+	Shader "GLDefs/Shaders/ManaBar.fp"
+	Speed 1.0
+}
+
+HardwareShader H_BRGSTY {
+	Shader "GLDefs/Shaders/ManaBar.fp"
+	Speed 1.0
+}
+
+HardwareShader H_BRGSTR {
 	Shader "GLDefs/Shaders/ManaBar.fp"
 	Speed 1.0
 }

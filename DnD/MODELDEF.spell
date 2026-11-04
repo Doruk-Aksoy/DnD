@@ -673,6 +673,20 @@ Model Spell_ChainLightning_Beam {
 	FrameIndex FKBM A 0 0
 }
 
+// Finger of Death's bolt: Forked Lightning's crossed quads under FDBOLT.png; ACS aims and stretches it, FingerBolt.fp draws it.
+Model Spell_FingerOfDeath_Beam {
+	Path "Models/Proj"
+	Model 0 "FORKBEAM.md3"
+
+	Path "Graphics/ShaderTex"
+	Skin 0 "FDBOLT.png"
+	Scale 1.0 1.0 1.0
+
+	PITCHFROMMOMENTUM
+
+	FrameIndex FDBM A 0 0
+}
+
 // Crackling Lance: three crossed planes for the fan and a hull for the laser; ACS stretches it, the shader draws both.
 Model Spell_CracklingLance_Beam {
 	Path "Models/Proj"
@@ -1117,6 +1131,104 @@ Model Spell_PoisonNova {
 	// Flight only: the death burst, S001 C to E, stays a sprite.
 	FrameIndex S001 A 0 0
 	FrameIndex S001 B 0 0
+}
+
+// Dark Wind and rank 5's bouncing copy: the mesh is only a hull; DarkWind.fp draws the fog in it, along the flight.
+Model Spell_DarkWind {
+	Path "Models/Proj"
+	Model 0 "DWIND.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "DWIND.png"
+	Scale 1.0 1.0 1.0
+	ZOffset 8
+	PITCHFROMMOMENTUM
+	FrameIndex D5FX G 0 0
+}
+
+Model Spell_DarkWind_Bounce {
+	Path "Models/Proj"
+	Model 0 "DWIND.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "DWIND.png"
+	Scale 1.0 1.0 1.0
+	ZOffset 8
+	PITCHFROMMOMENTUM
+	FrameIndex D5FX G 0 0
+}
+
+// Essence Theft's missile: the mesh is only a hull; EssenceTheft.fp draws the smoke in it, the tail along the flight.
+// Flight only: the death burst, RFX0 G to J, stays a sprite.
+Model Spell_EssenceTheft {
+	Path "Models/Proj"
+	Model 0 "ETHEFT.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "ETHEFT.png"
+	Scale 1.0 1.0 1.0
+	ZOffset 5
+	PITCHFROMMOMENTUM
+	FrameIndex RFX0 A 0 0
+	FrameIndex RFX0 B 0 0
+}
+
+// Contagion's rune circle: flat2.md3 (both faces) under CONTAGRN.png; ACS sizes it by ScaleX and spreads it by its alpha.
+Model ContagionRuneCircle {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "CONTAGRN.png"
+	Scale 1.0 -1.0 1.0
+	Zoffset 0.5
+	FrameIndex CTGR A 0 0
+}
+
+// Implosion's needle: a crimson shard spinning on its length; Scale cancels the actor's 0.35, kept for the D4FX death sprite.
+Model Spell_Implosion {
+	Path "Models/Proj"
+	Model 0 "IMPLOSN.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "IMPLOSN.png"
+	Scale 2.857 2.857 2.857
+	ZOffset 11.4
+	PITCHFROMMOMENTUM
+	ROTATING
+	rotation-vector 1.0 0.0 0.0
+	rotation-speed 4.0
+	FrameIndex D5FX G 0 0
+}
+
+// Dark Portal: a golden basin with a smoke void, PORTAL.md3 under PORTAL.png (DarkPortal.fp), on every frame it shows.
+Model Spell_DarkPortal {
+	Path "Models/Proj"
+	Model 0 "PORTAL.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "PORTAL.png"
+	Scale 1.0 1.0 1.0
+	FrameIndex PRTL A 0 0
+	FrameIndex PRTL B 0 0
+	FrameIndex PRTL C 0 0
+	FrameIndex PRTL D 0 0
+	FrameIndex PRTL E 0 0
+}
+
+// Soulstorm's storm: the mesh is only a hull; Soulstorm.fp draws the cloud, the disc and the hole in it.
+Model Spell_SoulstormAnchor {
+	Path "Models/Proj"
+	Model 0 "SSTORM.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "SSTORM.png"
+	Scale 1.0 1.0 1.0
+	FrameIndex SSTM A 0 0
+}
+
+// Soulstorm's bolts: Forked Lightning's crossed quads under SSBOLT.png; ACS aims and stretches them.
+Model Spell_Soulstorm_Bolt {
+	Path "Models/Proj"
+	Model 0 "FORKBEAM.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "SSBOLT.png"
+	Scale 1.0 1.0 1.0
+	PITCHFROMMOMENTUM
+	FrameIndex SSBT A 0 0
 }
 
 // Gem chain and fork hops (DnD_GemStrikeFX): copies of the projectiles' blocks, as models bind per class.

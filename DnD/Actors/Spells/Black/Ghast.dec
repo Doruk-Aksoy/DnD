@@ -7,9 +7,10 @@ ACTOR Spell_Ghast : PetMonsterBase {
 	Speed 9
 	PainChance 64
 	Stamina 1
-	SeeSound "UndeadSoul/See"
-	PainSound "UndeadSoul/See"
-	DeathSound "UndeadSoul/Die"
+	SeeSound "NightShade/See"
+	PainSound "NightShade/Pain"
+	ActiveSound "NightShade/Act"
+	DeathSound "NightShade/Die"
 	Obituary "%o was swept away by a Ghast."
 	Tag "Ghast"
 	RenderStyle Translucent
