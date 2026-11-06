@@ -96,7 +96,17 @@
 * Attribute descriptions show the right numbers: Strength gives 1.5 maximum life and 0.5 stamina per point, Intellect 0.5 energy shield and 1.5 mana.
 * "Rally" reaches further with its own level instead of with Intellect: 128 units at level 1, up to 344 at level 10.
 * "Annihilus" damage per rank increased from 25 to 30.
+* "Volcano" lava damage increased from 60 to 80, and now grows by 20 per rank (it did not grow before).
+	- Lava bounces off ceilings instead of bursting on them, so low rooms no longer cut its throws short.
+	- Lava is thrown at a much wider range of distances, and some of it always lands close to the volcano.
 	- Releasing it early now shortens its cooldown: it recovers 8% faster for each charge not built, up to 32%. Releasing after 1 second recovers 24% faster.
+	- The volcano is now a 3D model with lava flowing down its sides. It rises out of the ground, each eruption bursts out of the crater with flames, embers and a plume of ash, and it sinks back into the ground when it ends.
+* "Fire Jet" is now drawn as a 3D flame: a white-hot head whose fire splits into tongues streaming out behind it, shedding embers as it flies.
+	- The side flames are now small 3D flames like the jet, diving to the floor and flaring up where they land.
+	- Each side flame now bursts where it lands, damaging enemies within 48 units of it, so the flames no longer have to touch an enemy to hurt it. Below rank 10 a side flame only damages through this burst.
+	- The side flames now gain the same "Blaze", "Fireball" and "Pyroblast" synergies as the direct hit.
+	- Rank 10's ripping side flames now hit each enemy they pass through once, instead of again on every tic they are inside it.
+	- Rank 5's explosion now deals full damage instead of half.
 * The cast bar and the silence bar no longer glow a few pixels past the front of the fill along their top and bottom edges.
 * Items with percent Strength, or that turn Strength's effects off, now update stamina, knockback resistance and ammo capacity as soon as they are equipped or removed. Items granting all attributes, percent attributes or "Unity" now update stamina too.
 * Losing Strength from an item or an attribute refund now lowers your life to the new maximum, and healing respects a Strength item's new maximum right away instead of after a map change.

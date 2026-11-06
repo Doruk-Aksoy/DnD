@@ -3,14 +3,15 @@ Actor DnD_Delirious : DnD_Info {}
 Actor DnD_DeliriousTimer : DnD_Info {}
 Actor DnD_DeliriumOwner : DnD_Info {}
 
-// Delirium's wisps on a delirious enemy, off the curse row: rising from score units ahead along its facing, mass up.
+// Delirium's wisps on a delirious enemy, off the curse row: rising from score units toward this client's player, mass up.
+// "DnD Attachment Face Viewer" keeps its angle on that player; it warps along its own angle.
 Actor DeliriumFXMarker : DnD_AttachedFXBase {
 	RenderStyle Add
 	Alpha 0.9
 	Scale 0.35
 	States {
 		SpawnLoop:
-			S025 AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTT 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			S025 AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTT 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION)
 		Loop
 	}
 }

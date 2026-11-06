@@ -2,16 +2,17 @@
 Actor DnD_PainAmped : DnD_Info {}
 Actor DnD_PainAmpedTimer : DnD_Info {}
 
-// Pain Amp's sparks on a pain amped enemy's chest, off the curse row: score units ahead along its facing, mass up.
+// Pain Amp's sparks on a pain amped enemy's chest, off the curse row: score units toward this client's player, mass up.
+// "DnD Attachment Face Viewer" keeps its angle on that player; it warps along its own angle.
 Actor PainAmpFXMarker : DnD_AttachedFXBase {
 	RenderStyle Add
 	Alpha 0.9
 	Scale 0.36
 	States {
 		SpawnLoop:
-			S033 AABBCCDDEEFFGGHHIIJJKKLLMM 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
-			S033 NNOOPPQQRRSSTTUUVVWWXXYYZZ 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
-			S034 AABBCC 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			S033 AABBCCDDEEFFGGHHIIJJKKLLMM 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION)
+			S033 NNOOPPQQRRSSTTUUVVWWXXYYZZ 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION)
+			S034 AABBCC 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION)
 		Loop
 	}
 }

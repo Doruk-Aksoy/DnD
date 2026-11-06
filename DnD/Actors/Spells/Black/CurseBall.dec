@@ -51,8 +51,18 @@ Actor Spell_LifeTapBall : Spell_CurseBall {
 	}
 }
 
+// The Arch-Vile's fireball in its own orange (its mark's embers are orange too); it carries its tail, so no trail.
 Actor Spell_SubjugateBall : Spell_CurseBall {
-	Translation "0:255=%[0.00,0.00,0.00]:[1.20,0.90,1.80]"
+	Scale 1.0
+	States {
+		SpawnState:
+			GURP AB 3 Bright
+		Loop
+		Death:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Curse Ball Hit")
+			GURP CDEF 3 Bright
+		Stop
+	}
 }
 
 // The Blood Lich's curse orb, tinted purple.

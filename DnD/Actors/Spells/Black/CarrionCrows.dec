@@ -10,11 +10,12 @@ Actor Spell_CarrionCrow {
 	+NOBLOCKMAP
 	+DONTSPLASH
 	States {
+		// a full wingbeat: up, rising, level, down, level, rising
 		Spawn:
-			S026 AB 3
+			S026 ABDCDB 2
 		Loop
 		Vanish:
-			S026 AB 2 A_FadeOut(0.15)
+			S026 ABDCDB 2 A_FadeOut(0.08)
 		Loop
 	}
 }

@@ -923,6 +923,27 @@ NightShade/Act              DSNSHACT
 NightShade/Pain             DSNSHPAI
 NightShade/Die              DSNSHDTH
 
+CarrionCrows/Cast           CROWADD
+CarrionCrows/Fly            CROWFLY
+CarrionCrows/Loop           CROWFLCK
+
+CarrionCrows/Disappear1     CROWDIS1
+CarrionCrows/Disappear2     CROWDIS2
+CarrionCrows/Disappear3     CROWDIS3
+$random CarrionCrows/Disappear { CarrionCrows/Disappear1 CarrionCrows/Disappear2 CarrionCrows/Disappear3 }
+
+CarrionCrows/Attack1        CROWFIR1
+CarrionCrows/Attack2        CROWFIR2
+CarrionCrows/Attack3        CROWFIR3
+$random CarrionCrows/Attack { CarrionCrows/Attack1 CarrionCrows/Attack2 CarrionCrows/Attack3 }
+
+CarrionCrows/Idle1          CROWIDL1
+CarrionCrows/Idle2          CROWIDL2
+CarrionCrows/Idle3          CROWIDL3
+CarrionCrows/Idle4          CROWIDL4
+CarrionCrows/Idle5          CROWIDL5
+$random CarrionCrows/Idle { CarrionCrows/Idle1 CarrionCrows/Idle2 CarrionCrows/Idle3 CarrionCrows/Idle4 CarrionCrows/Idle5 }
+
 Subjugate/Cast              SUBJUGC
 
 LifeTap/Cast                LIFETAPC
@@ -934,6 +955,9 @@ DarkPortal/Loop             DARKPORL
 SoulStorm/Loop              SOULSTOL
 SoulStorm/End               SOULSTOE
 SoulStorm/Lightning         SOULSTOX
+
+DeathAndDecay/Hit           DNDSPH
+DeathAndDecay/Loop          DNDLOOP
 
 Transmogrify/Cast           TRANSMGC
 

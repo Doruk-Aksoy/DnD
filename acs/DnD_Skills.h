@@ -96,6 +96,11 @@ void CleanPetStuff() {
 		TakeInventory(StrParam(s:"PetDamageReduction_", d:i + 1), 1);
 }
 
+// Knights, Death Knights and Slayer Knights: every kind Legion Mastery empowers.
+bool IsKnightPet(int petid) {
+	return petid == MONSTER_PET_KNIGHT || petid == MONSTER_PET_DEATHKNIGHT || petid == MONSTER_PET_SLAYERKNIGHT;
+}
+
 // The summoning spell's "more minion damage", looked up by pet kind. Carried on the pet at spawn
 // so the damage scale can apply it without knowing which spell produced the thing it is scaling.
 // rank 0 reads the spell's own rank; the spell panel passes the rank it previews.
@@ -103,12 +108,9 @@ int GetPetSpellDamageBonus(int pnum, int petid, int rank = 0) {
 	int bonus = 0, spell = GetPetSummonSpell(petid);
 	if(petid == MONSTER_PET_FIREDEMON)
 		bonus = GetSpellValue(pnum, SPL_FIREDEMON, SPELLVAL_DAMAGE2, rank);
-	// Skeleton Mastery's more damage, and a mage's own more on top.
-	else if(petid == MONSTER_PET_SKELETON || petid == MONSTER_PET_SKELETONMAGE) {
-		bonus = GetSpellValue(pnum, SPL_SKELETONMASTERY, SPELLVAL_DAMAGE);
-		if(petid == MONSTER_PET_SKELETONMAGE)
-			bonus = (100 + bonus) * (100 + DND_SKELETONMAGE_MORE) / 100 - 100;
-	}
+	// Legion Mastery's more damage, on every knight.
+	else if(IsKnightPet(petid))
+		bonus = GetSpellValue(pnum, SPL_LEGIONMASTERY, SPELLVAL_DAMAGE);
 
 	// Commander: the summoning spell's gems, MORE on top of the row's own bonus.
 	if(spell != -1)
@@ -122,8 +124,8 @@ int GetPetSummonSpell(int petid) {
 		case MONSTER_PET_ICEGOLEM:		return SPL_ICEGOLEM;
 		case MONSTER_PET_ROCKGOLEM:		return SPL_ROCKGOLEM;
 		case MONSTER_PET_ZOMBIE:		return SPL_ZOMBIE;
-		case MONSTER_PET_SKELETON:
-		case MONSTER_PET_SKELETONMAGE:	return SPL_SKELETON;
+		case MONSTER_PET_KNIGHT:		return SPL_KNIGHT;
+		case MONSTER_PET_DEATHKNIGHT:	return SPL_DEATHKNIGHT;
 		case MONSTER_PET_GHAST:			return SPL_GHAST;
 		case MONSTER_PET_SLAYERKNIGHT:	return SPL_SLAYERKNIGHT;
 		case MONSTER_PET_DOOMGUARD:		return SPL_DOOMGUARD;
@@ -132,14 +134,15 @@ int GetPetSummonSpell(int petid) {
 	return -1;
 }
 
-// The pet kind a summon spell makes, or -1. Skeleton's mage is its own kind, decided at the summon.
+// The pet kind a summon spell makes, or -1.
 int GetSummonPetKind(int spell) {
 	switch(spell) {
 		case SPL_FIREDEMON:		return MONSTER_PET_FIREDEMON;
 		case SPL_ICEGOLEM:		return MONSTER_PET_ICEGOLEM;
 		case SPL_ROCKGOLEM:		return MONSTER_PET_ROCKGOLEM;
 		case SPL_ZOMBIE:		return MONSTER_PET_ZOMBIE;
-		case SPL_SKELETON:		return MONSTER_PET_SKELETON;
+		case SPL_KNIGHT:		return MONSTER_PET_KNIGHT;
+		case SPL_DEATHKNIGHT:	return MONSTER_PET_DEATHKNIGHT;
 		case SPL_GHAST:			return MONSTER_PET_GHAST;
 		case SPL_SLAYERKNIGHT:	return MONSTER_PET_SLAYERKNIGHT;
 		case SPL_DOOMGUARD:		return MONSTER_PET_DOOMGUARD;
@@ -151,7 +154,8 @@ int GetSummonPetKind(int spell) {
 // Pet cap points a pet takes: the heavier minions more, the Dark Portal none.
 int GetPetCapWeight(int petid) {
 	switch(petid) {
-		case MONSTER_PET_GHAST:			return 2;
+		case MONSTER_PET_GHAST:
+		case MONSTER_PET_DEATHKNIGHT:	return 2;
 		case MONSTER_PET_SLAYERKNIGHT:	return 3;
 		case MONSTER_PET_DOOMGUARD:		return 5;
 		case MONSTER_PET_DARKPORTAL:	return 0;
@@ -159,7 +163,7 @@ int GetPetCapWeight(int petid) {
 	return 1;
 }
 
-// Pets that follow their master through a regular map exit: the untimed ones. Zombies and skeletons once a mastery
+// Pets that follow their master through a regular map exit: the untimed ones. Zombies and knights once a mastery
 // takes their duration away; never the Dark Portal.
 bool IsPetCarried(int pnum, int petid) {
 	switch(petid) {
@@ -168,24 +172,25 @@ bool IsPetCarried(int pnum, int petid) {
 		case MONSTER_PET_FIREDEMON:
 		case MONSTER_PET_GHAST:
 		case MONSTER_PET_SLAYERKNIGHT:
+		case MONSTER_PET_DEATHKNIGHT:
 		case MONSTER_PET_DOOMGUARD:
 		return true;
 		case MONSTER_PET_ZOMBIE:
-		case MONSTER_PET_SKELETON:
-		case MONSTER_PET_SKELETONMAGE:
+		case MONSTER_PET_KNIGHT:
 		return GetMinionLifeTics(pnum, GetPetSummonSpell(petid), 0) == 0;
 	}
 	return false;
 }
 
 // How many of a summon's pets may stand at once. The rows that say so (AMOUNT on the golems and the demon); zombies,
-// skeletons and the heavy minions only the pet cap; one Dark Portal.
+// knights and the heavy minions only the pet cap; one Dark Portal.
 int GetSummonKindCap(int pnum, int spell) {
 	switch(spell) {
 		case SPL_ZOMBIE:
-		case SPL_SKELETON:
+		case SPL_KNIGHT:
 		case SPL_GHAST:
 		case SPL_SLAYERKNIGHT:
+		case SPL_DEATHKNIGHT:
 		case SPL_DOOMGUARD:
 		return DND_MAX_PETS_PER_PLAYER;
 		case SPL_DARKPORTAL:
@@ -224,7 +229,8 @@ str GetSpellSummonScript(int spell) {
 		case SPL_FIREDEMON:		return "DnD Summon Fire Demon";
 		case SPL_ROCKGOLEM:		return "DnD Summon Rock Golem";
 		case SPL_ZOMBIE:		return "DnD Summon Zombie";
-		case SPL_SKELETON:		return "DnD Summon Skeleton";
+		case SPL_KNIGHT:		return "DnD Summon Knight";
+		case SPL_DEATHKNIGHT:	return "DnD Summon Death Knight";
 		case SPL_GHAST:			return "DnD Summon Ghast";
 		case SPL_SLAYERKNIGHT:	return "DnD Summon Slayer Knight";
 		case SPL_DOOMGUARD:		return "DnD Summon Doomguard";

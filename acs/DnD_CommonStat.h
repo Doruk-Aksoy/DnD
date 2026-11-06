@@ -926,7 +926,7 @@ void RestoreCarriedPets(int pnum) {
 		spell = mine && v ? GetPetSummonSpell((v & 0xFF) - 1) : -1;
 		if(spell == -1 || !GetSpellAllocatedRank(pnum, spell))
 			continue;
-		// The kind + 1 too, so a carried Skeleton Mage comes back a mage.
+		// The kind + 1 too, for a summon whose script picks among kinds.
 		tid = ACS_NamedExecuteWithResult(GetSpellSummonScript(spell), pnum, 1, v & 0xFF);
 		if(tid)
 			ACS_NamedExecuteAlways("DnD Carried Pet Health", 0, tid, v >> 8);

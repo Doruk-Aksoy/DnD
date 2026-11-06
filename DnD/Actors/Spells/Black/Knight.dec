@@ -1,0 +1,139 @@
+// Summon: Knight, an undead axe knight (S041); health, melee and its clock come off the spell row.
+ACTOR Spell_Knight : PetMonsterBase {
+	Health 300
+	GibHealth 20
+	Radius 20
+	Height 56
+	Speed 10
+	PainChance 96
+	Mass 384
+	Scale 0.45
+	Stamina 1
+	SeeSound "hknight/sight"
+	PainSound "hknight/pain"
+	DeathSound "hknight/death"
+	ActiveSound "hknight/active"
+	Obituary "%o was cut down by a knight."
+	Tag "Knight"
+	MeleeRange 72
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pet Monster Scale", 0, DND_PET_KNIGHTID, DND_SILVER_WEAKNESS, -1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Minion Life", 0, DND_PET_KNIGHTID)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pet Distance Move", 0)
+			S041 ONMLKJI 3
+		SpawnLoop:
+			S041 AB 10 A_Look
+		Goto See
+		See:
+			S041 AABBCCDD 2 A_Chase
+		Loop
+		Melee:
+			TNT1 A 0 A_AlertMonsters(0, AMF_TARGETNONPLAYER)
+			S041 E 5 A_FaceTarget
+			S041 F 4 A_FaceTarget
+			S041 G 4 A_CustomMeleeAttack(ACS_NamedExecuteWithResult("DnD Spell Minion Hit", MINIONHIT_KNIGHT, 0), "hknight/melee")
+			S041 G 3
+		Goto See
+		Pain:
+			S041 H 4
+			S041 H 4 A_Pain
+		Goto See
+		Death:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Summon Death Check", 0, DND_PET_KNIGHTID)
+			S041 I 5 A_Scream
+			S041 J 5
+			S041 K 6
+			S041 L 6 A_NoBlocking
+			S041 MN 6
+			S041 O 35
+			S041 O 1 A_FadeOut(0.05)
+		Wait
+	}
+}
+
+// Rank 5's knight: it also throws a spectral axe; rank 10 a red axe a quarter of the time. "DnD Knight Throw Kind" picks.
+ACTOR Spell_KnightThrower : Spell_Knight {
+	var int user_throw;
+	States {
+		Missile:
+			TNT1 A 0 A_AlertMonsters(0, AMF_TARGETNONPLAYER)
+			S041 E 6 A_FaceTarget
+			TNT1 A 0 A_PlaySound("hknight/attack", CHAN_WEAPON)
+			TNT1 A 0 A_SetUserVar("user_throw", ACS_NamedExecuteWithResult("DnD Knight Throw Kind"))
+			TNT1 A 0 A_JumpIf((user_throw & 1) && random(1, 100) <= 25, "ThrowRed")
+			TNT1 A 0 A_JumpIf(user_throw & 2, "ThrowLegion")
+			// Thrown from the axe hand as frame F shows it: 51 up, 11 to its right.
+			S041 F 4 A_CustomMissile("Spell_Knight_Axe", 51, 11)
+			S041 G 4
+		Goto See
+		ThrowLegion:
+			S041 F 4 A_CustomMissile("Spell_Knight_AxeLegion", 51, 11)
+			S041 G 4
+		Goto See
+		ThrowRed:
+			TNT1 A 0 A_JumpIf(user_throw & 2, "ThrowRedLegion")
+			S041 F 4 A_CustomMissile("Spell_Knight_RedAxe", 51, 11)
+			S041 G 4
+		Goto See
+		ThrowRedLegion:
+			S041 F 4 A_CustomMissile("Spell_Knight_RedAxeLegion", 51, 11)
+			S041 G 4
+		Goto See
+	}
+}
+
+// Rank 5: the spectral axe, 75% of its melee as magic. It passes through ghosts; Legion Mastery rank 10 throws the one that does not.
+Actor Spell_Knight_Axe : DnD_BaseProjectile_ForPets {
+	Speed 22
+	Radius 8
+	Height 8
+	Damage(ACS_NamedExecuteWithResult("DnD Spell Minion Hit", MINIONHIT_KNIGHTAXE, DND_USETARGET))
+	DamageType "Magic"
+	RenderStyle Add
+	Alpha 0.9
+	DeathSound "hknight/hit"
+	+THRUGHOST
+	States {
+		SpawnState:
+			SPAX AAA 1 Bright A_SpawnItemEx("KnightAxeTrailA")
+			TNT1 A 0 A_PlaySound("hknight/axewhoosh")
+			SPAX BBB 1 Bright A_SpawnItemEx("KnightAxeTrailB")
+			SPAX CCC 1 Bright A_SpawnItemEx("KnightAxeTrailC")
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			SPAX DEF 4 Bright
+		Stop
+	}
+}
+
+Actor Spell_Knight_AxeLegion : Spell_Knight_Axe {
+	-THRUGHOST
+}
+
+// Rank 10: the red axe, 150% of its melee, physical.
+Actor Spell_Knight_RedAxe : DnD_BaseProjectile_ForPets {
+	Speed 26
+	Radius 8
+	Height 8
+	Damage(ACS_NamedExecuteWithResult("DnD Spell Minion Hit", MINIONHIT_KNIGHTREDAXE, DND_USETARGET))
+	DamageType "Melee"
+	DeathSound "hknight/hit"
+	+THRUGHOST
+	States {
+		SpawnState:
+			RAXE AAAAA 1 Bright A_SpawnItemEx("KnightRedAxeTrail")
+			RAXE BBBBB 1 Bright A_SpawnItemEx("KnightRedAxeTrail")
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			RAXE CDE 4 Bright
+		Stop
+	}
+}
+
+Actor Spell_Knight_RedAxeLegion : Spell_Knight_RedAxe {
+	-THRUGHOST
+}

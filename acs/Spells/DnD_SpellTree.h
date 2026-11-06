@@ -58,10 +58,10 @@
 // MAXH must COVER the widest edge in any tree or the crossbar stops in mid air with its legs left
 // hanging -- the widest is 108 units, which is 8 tiles, and the old cap of 6 cut it by two.
 //
-// Black is the busiest tree at 30 edges: 1150 + 30*20 = 1750 is RPGMENUID, the page backdrop, so the band is full.
-#define DND_SPELLLINE_IDS 20
+// Black is the busiest tree at 32 edges: 1150 + 32*18 = 1726, under RPGMENUID (1750), the page backdrop.
+#define DND_SPELLLINE_IDS 18
 #define DND_SPELLLINE_MAXV 4
-#define DND_SPELLLINE_MAXH 10
+#define DND_SPELLLINE_MAXH 8
 
 // How far the tree reaches, so it can be centred. Authored positions, so this is the tree's shape
 // and not the player's progress.
@@ -150,9 +150,9 @@ void AddSpellNodeBox(menu_pane_T module& p, int spell) {
 // other's core. Nothing about one edge can know that, so each edge logs the segments it drew and a
 // second pass over the log places the crosses.
 //
-// Map arrays, so they cost nothing between maps. Black is the busiest tree at 30 edges, which is at
-// most 60 verticals and 30 horizontals.
-#define DND_SPELLTREE_MAXSEG 64
+// Map arrays, so they cost nothing between maps. Black is the busiest tree at 32 edges, which is at
+// most 64 verticals and 32 horizontals.
+#define DND_SPELLTREE_MAXSEG 72
 #define DND_SPELLTREE_MAXCROSS 48
 #define DND_SPELLTREE_MAXJOINT 96
 

@@ -121,8 +121,8 @@ enum {
 	SPL_TEMPORALCHAINS,
 	SPL_DARKWIND,
 	SPL_ESSENCETHEFT,
-	SPL_SKELETON,
-	SPL_SKELETONMASTERY,
+	SPL_KNIGHT,
+	SPL_LEGIONMASTERY,
 	SPL_DELIRIUM,
 	SPL_ENFEEBLE,
 	SPL_FINGEROFDEATH,
@@ -146,7 +146,8 @@ enum {
 	SPL_BANISH,
 	SPL_BREAKIMMUNITY,
 	SPL_SILENCE,
-	SPL_MARKPREY
+	SPL_MARKPREY,
+	SPL_DEATHKNIGHT
 };
 
 // Which numbers a spell carries. The DAMAGE, RADIUS and AMOUNT fields are plain integers; COST,
@@ -655,7 +656,6 @@ int GetSpellThresholdBonus(int spell, int which, int rank) {
 			return which == SPELLVAL_RADIUS && r5 ? 128 : which == SPELLVAL_DURATION && r10 ? 5.0 : 0;
 		case SPL_SILENCE:
 			return which == SPELLVAL_COST && r5 ? -100.0 : 0;
-		case SPL_SOULSTORM:
 		case SPL_LIFETAP:
 		case SPL_DEATHANDDECAY:
 			return GetBlackRankBonus(spell, which, r5, r10);
@@ -666,8 +666,6 @@ int GetSpellThresholdBonus(int spell, int which, int rank) {
 // The rest of Black's rank 5 and 10 row changes, kept out of the switch above.
 int GetBlackRankBonus(int spell, int which, bool r5, bool r10) {
 	switch(spell) {
-		case SPL_SOULSTORM:
-			return which == SPELLVAL_AMOUNT2 && r10 ? -2 : 0;
 		case SPL_LIFETAP:
 			return which == SPELLVAL_DAMAGE2 && r5 ? 2.5 : which == SPELLVAL_RADIUS && r10 ? 160 : 0;
 		case SPL_DEATHANDDECAY:
@@ -676,16 +674,14 @@ int GetBlackRankBonus(int spell, int which, bool r5, bool r10) {
 	return 0;
 }
 
-// Rank bonuses that scale a row rather than add to it, after the curve: Delirium's 20% less mana, Soulstorm's 50% more area
-// (radius by its square root, as area gear does), Contagion's 20% more and Penetrate's doubled radius, Death and Decay's halved cooldown.
+// Rank bonuses that scale a row rather than add to it, after the curve: Delirium's 20% less mana, Contagion's 20% more and
+// Penetrate's doubled radius, Death and Decay's halved cooldown. Soulstorm's 25% slower drain is in its cast (a fraction of a Soul).
 int ScaleSpellThresholdValue(int spell, int which, int rank, int res) {
 	if(rank >= DND_SPELL_THRESH_LOW) {
 		if(spell == SPL_DELIRIUM && which == SPELLVAL_COST)
 			return res - res / 5;
 		if(spell == SPL_CONTAGION && which == SPELLVAL_RADIUS)
 			return res + res / 5;
-		if(spell == SPL_SOULSTORM && which == SPELLVAL_RADIUS)
-			return res * 12247 / 10000;
 		if(spell == SPL_PENETRATE && which == SPELLVAL_RADIUS)
 			return res * 2;
 	}
@@ -1085,6 +1081,8 @@ str GetSpellFieldLumpFor(int spell, int which) {
 		return "DND_SPLFIELD_CROWS";
 	if(spell == SPL_SOULSTORM && which == SPELLVAL_DAMAGE2)
 		return "DND_SPLFIELD_PERSOUL";
+	if(spell == SPL_FIREJET && which == SPELLVAL_DAMAGE2)
+		return "DND_SPLFIELD_SIDES";
 	return GetSpellFieldLump(which);
 }
 

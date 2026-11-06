@@ -2,16 +2,19 @@
 Actor DnD_Subjugated : DnD_Info {}
 Actor DnD_SubjugatedTimer : DnD_Info {}
 Actor DnD_SubjugatedOwner : DnD_Info {}
+// While it kneels in submission: the level tic from which damage breaks it (0 when not kneeling).
+Actor DnD_SubmitAt : DnD_Info {}
 
-// Subjugate's embers on a subjugated enemy's chest, off the curse row: score units ahead along its facing, mass up.
+// Subjugate's embers on a subjugated enemy's chest, off the curse row: score units toward this client's player, mass up.
+// "DnD Attachment Face Viewer" keeps its angle on that player; it warps along its own angle.
 Actor SubjugateFXMarker : DnD_AttachedFXBase {
 	RenderStyle Add
 	Alpha 0.9
 	Scale 0.36
 	States {
 		SpawnLoop:
-			S032 AABBCCDDEEFFGGHHIIJJKKLL 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
-			S032 MMNNOOPPQQRRSSTTUUVVWWXX 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			S032 AABBCCDDEEFFGGHHIIJJKKLL 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION)
+			S032 MMNNOOPPQQRRSSTTUUVVWWXX 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION)
 		Loop
 	}
 }

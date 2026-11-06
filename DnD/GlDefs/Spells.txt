@@ -364,3 +364,21 @@ object Spell_Geyser_Vent {
 object Spell_IceBolt_GemArc {
 	frame S012A { light IceBoltLight }
 }
+
+// Volcano's crater glow, flaring as it erupts; none while it rises or sinks.
+pointlight VolcanoCraterLight {
+	color 1.0 0.45 0.1
+	size 72
+	offset 0 60 0
+}
+
+pointlight VolcanoEruptLight {
+	color 1.0 0.55 0.15
+	size 120
+	offset 0 66 0
+}
+
+object Spell_Volcano {
+	frame VLCNA { light VolcanoCraterLight }
+	frame VLCNB { light VolcanoEruptLight }
+}

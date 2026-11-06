@@ -2,14 +2,15 @@
 Actor DnD_ResistStripped : DnD_Info {}
 Actor DnD_ResistStrippedTimer : DnD_Info {}
 
-// Remove Resist's swirl round a stripped enemy's feet (S028), off the curse row: score units ahead, mass up.
+// Remove Resist's swirl round a stripped enemy's feet (S028), off the curse row: score units toward this client's player, mass up.
+// "DnD Attachment Face Viewer" keeps its angle on that player; it warps along its own angle.
 Actor RemoveResistFXMarker : DnD_AttachedFXBase {
 	RenderStyle Add
 	Alpha 0.9
 	Scale 0.7
 	States {
 		SpawnLoop:
-			S028 AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPP 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			S028 AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPP 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION)
 		Loop
 	}
 }

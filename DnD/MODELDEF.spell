@@ -1181,6 +1181,17 @@ Model ContagionRuneCircle {
 	FrameIndex CTGR A 0 0
 }
 
+// Death and Decay's rotting ground: flat2.md3 (both faces) under DDROT.png; ACS sizes it by ScaleX and spreads it by its alpha.
+Model Spell_DeathAndDecayRot {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "DDROT.png"
+	Scale 1.0 -1.0 1.0
+	Zoffset 0.5
+	FrameIndex DDRT A 0 0
+}
+
 // Implosion's needle: a crimson shard spinning on its length; Scale cancels the actor's 0.35, kept for the D4FX death sprite.
 Model Spell_Implosion {
 	Path "Models/Proj"
@@ -1281,4 +1292,84 @@ Model Spell_Pyroblast_GemArc {
 	FrameIndex PYRB J 0 0
 	FrameIndex PYRB K 0 0
 	FrameIndex PYRB L 0 0
+}
+
+// Volcano: a cone with lava flows; frame B erupting, C-T the rise from under the floor. Skins from Graphics/ for the shaders.
+Model Spell_Volcano {
+	Path "Models/Proj"
+	Model 0 "VOLCANO.md3"
+	Path "Graphics/ShaderTex"
+	SurfaceSkin 0 0 "VLROCK.png"
+	SurfaceSkin 0 1 "VLLAVA.png"
+	Scale 1.0 1.0 1.0
+	FrameIndex VLCN A 0 0
+	FrameIndex VLCN B 0 1
+	FrameIndex VLCN C 0 2
+	FrameIndex VLCN D 0 3
+	FrameIndex VLCN E 0 4
+	FrameIndex VLCN F 0 5
+	FrameIndex VLCN G 0 6
+	FrameIndex VLCN H 0 7
+	FrameIndex VLCN I 0 8
+	FrameIndex VLCN J 0 9
+	FrameIndex VLCN K 0 10
+	FrameIndex VLCN L 0 11
+	FrameIndex VLCN M 0 12
+	FrameIndex VLCN N 0 13
+	FrameIndex VLCN O 0 14
+	FrameIndex VLCN P 0 15
+	FrameIndex VLCN Q 0 16
+	FrameIndex VLCN R 0 17
+	FrameIndex VLCN S 0 18
+	FrameIndex VLCN T 0 19
+}
+
+// Fire Jet: FireJet.fp draws the flame dart in the hull; Scale undoes the actor's 1.35, kept for the S008 burst.
+Model Spell_FireJet {
+	Path "Models/Proj"
+	Model 0 "FIREJET.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "FIREJET.png"
+	Scale 0.7407 0.7407 0.7407
+	ZOffset 3
+	PITCHFROMMOMENTUM
+	FrameIndex S008 N 0 0
+}
+
+// Fire Jet's side flames and their landing flares: the jet's own model and shader, scaled length then width.
+Model Spell_FireJetSide {
+	Path "Models/Proj"
+	Model 0 "FIREJET.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "FIREJET.png"
+	Scale 0.7500 0.9500 0.9500
+	ZOffset 2
+	PITCHFROMMOMENTUM
+	FrameIndex S009 A 0 0
+	FrameIndex S009 B 0 0
+	FrameIndex S009 C 0 0
+	FrameIndex S009 D 0 0
+	FrameIndex S009 E 0 0
+	FrameIndex S009 F 0 0
+	FrameIndex S009 G 0 0
+	FrameIndex S009 H 0 0
+	FrameIndex S009 I 0 0
+	FrameIndex S009 J 0 0
+	FrameIndex S009 K 0 0
+	FrameIndex S009 L 0 0
+	FrameIndex S009 M 0 0
+	FrameIndex S009 N 0 0
+	FrameIndex S009 O 0 0
+	FrameIndex S009 P 0 0
+}
+
+Model Spell_FireJet_SideFlare {
+	Path "Models/Proj"
+	Model 0 "FIREJET.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "FIREJET.png"
+	Scale 0.5000 1.0000 1.0000
+	ZOffset 2
+	PITCHFROMMOMENTUM
+	FrameIndex S009 A 0 0
 }

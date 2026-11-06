@@ -1,3 +1,4 @@
+// Fire Jet's bolt, drawn as a model (MODELDEF Spell_FireJet, FireJet.fp) shedding embers as it flies.
 Actor Spell_FireJet : DnD_SpellExplosive {
 	PROJECTILE
 	+PUFFGETSOWNER
@@ -8,22 +9,29 @@ Actor Spell_FireJet : DnD_SpellExplosive {
 	DamageType "Fire"
 	Speed 36
 	Renderstyle Add
-	Alpha 0.85
+	Alpha 1.0
 	Scale 1.35
 	// Counts the flight down. Set once on spawn from the spell's DURATION row.
 	var int user_jetframes;
+	var int user_flown;
 	SeeSound "FireJet/Shoot"
     DeathSound "weapons/phoenixhit"
 	States {
         SpawnState:
             TNT1 A 0 A_SetUserVar("user_jetframes",
                 ACS_NamedExecuteWithResult("DnD Fire Jet Lifetime"))
+            // FireJet.fp's per-bolt flicker, read back from the scale (MODELDEF 0.7407 makes it 1 + k x 0.004).
+            TNT1 A 0 A_SetScale(1.35 + random(0, 7) * 0.0054)
         Flight:
             TNT1 A 0 A_JumpIf(user_jetframes <= 0, "Expire")
-            S008 N 2 Bright A_SpawnItemEx("Spell_FireJetTrail")
+            // Embers over the stretch just flown, from the second frame so none spawn at the caster's eye.
+            TNT1 A 0 A_JumpIf(user_flown == 0, "JetFly")
+            TNT1 AAA 0 A_SpawnItemEx("Spell_FireJet_Ember", frandom(-70, -12), frandom(-4, 4), frandom(-2, 8), frandom(-1.2, 0.0), frandom(-0.5, 0.5), frandom(-0.2, 0.6), 0, SXF_CLIENTSIDE)
+        JetFly:
+            S008 N 2 Bright A_SetUserVar("user_flown", 1)
             TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Jet Sides")
             TNT1 A 0 A_SetUserVar("user_jetframes", user_jetframes - 1)
-        Loop
+        Goto Flight
         Death:
         Expire:
             TNT1 A 0 A_Stop
@@ -39,17 +47,15 @@ Actor Spell_FireJet : DnD_SpellExplosive {
 	}
 }
 
-Actor Spell_FireJetSide : DnD_Spell {
-	PROJECTILE
+// A side flame bursts (DAMAGE2) where it lands or touches; only the rank 10 ripper also deals its touch.
+Actor Spell_FireJetSide : DnD_SpellExplosive {
 	-NOGRAVITY
 	+SKYEXPLODE
 	+BLOODLESSIMPACT
-	+DONTBLAST
-	Alpha 0.8
+	RenderStyle Add
+	Alpha 1.0
 	Gravity 1.5
-	// DAMAGE2, not DAMAGE: "160 damage on a direct hit and 24 to the sides" are two rows, and this
-	// is the second one.
-	Damage (ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE2))
+	Damage (ACS_NamedExecuteWithResult("DnD Fire Jet Side Hit"))
 	DamageType "Fire"
     DeathSound "weapons/phoenixhit"
 	Height 6
@@ -58,12 +64,11 @@ Actor Spell_FireJetSide : DnD_Spell {
     const int v = 12;
 	States {
         SpawnState:
-            // "The sideways flames rip through enemies" at rank 10. A_ChangeFlag rather than
-            // ACS: this Zandronum has no SetActorFlag. Safe on the first tick because the
-            // spawner stamps the spell id before this ever runs.
-            TNT1 A 0 A_ChangeFlag("RIPPER",
-                ACS_NamedExecuteWithResult("DnD Spell Threshold", SPELLTHRESH_HIGH))
-            TNT1 A 1
+            // Rank 10's ripping side flames; A_ChangeFlag as 3.3 has no SetActorFlag. Safe on the first
+            // tic: the spawner stamps the spell id before this runs.
+            TNT1 A 0 A_ChangeFlag("RIPPER", ACS_NamedExecuteWithResult("DnD Spell Threshold", SPELLTHRESH_HIGH))
+            // FireJet.fp's per-flame flicker, read back from the scale (MODELDEF length 0.75).
+            TNT1 A 0 A_SetScale(1.0 + random(0, 7) * 0.0053)
             S009 A 4 A_ChangeVelocity(v * cos(angle), v * sin(angle), velz, CVF_REPLACE)
             S009 BC 2 Bright 
             S009 D 1 Bright
@@ -78,24 +83,40 @@ Actor Spell_FireJetSide : DnD_Spell {
             S009 O 3 Bright
             S009 P 2 Bright
         Stop
+        // 38% of the 128 RADIUS row: a 48 burst that still takes area gear.
         Death:
-            "####" "######" 1 Bright A_FadeOut(0.09)
-        Stop
+            "####" "#" 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Spell Explosion Setup", SPELLVAL_DAMAGE2, 38), "DoExplosionDamage")
+        Goto ContinueFromExplosion
+        ContinueFromExplosion:
+            "####" "#" 0 A_SpawnItemEx("Spell_FireJet_SideFlare", 0, 0, 6, 0, 0, 2.5, 0, SXF_CLIENTSIDE)
+            "####" "####" 0 A_SpawnItemEx("Spell_FireJet_Ember", frandom(-4, 4), frandom(-4, 4), 2, frandom(-1.5, 1.5), frandom(-1.5, 1.5), frandom(1.0, 3.0), 0, SXF_CLIENTSIDE)
+            "####" "###" 1 Bright A_FadeOut(0.3)
+        Goto FinishExplosion
 	}
 }
 
-Actor Spell_FireJetTrail {
-	Height 1
-	Radius 1
-    +NOINTERACTION
-	+CLIENTSIDEONLY
-	Renderstyle Add
-	Alpha 0.85
-	Scale 1.2
+// An ember shed behind the jet, left behind as it flies on: Venom's spark recoloured by brightness onto the fire.
+Actor Spell_FireJet_Ember : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 1.0
+	Translation "0:255=%[0.25,0.04,0.0]:[2.0,1.25,0.4]"
 	States {
-        Spawn:
-            TNT1 A 1
-            S008 OOOPPP 1 Bright A_FadeOut(0.1)
-        Stop
+		Spawn:
+			ACFX A 0 Bright NoDelay A_SetScale(frandom(0.3, 0.55))
+			ACFX ABCDE 3 Bright
+		Stop
+	}
+}
+
+// The side flame's landing burst: the same flame model licking up from the floor as it fades.
+Actor Spell_FireJet_SideFlare : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 1.0
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_SetScale(1.0 + random(0, 7) * 0.0080)
+			S009 AAAAAAAAA 1 Bright A_FadeOut(0.11)
+		Stop
 	}
 }

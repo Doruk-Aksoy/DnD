@@ -213,6 +213,12 @@ HardwareShader CONTAGRN {
 	Speed 1.0
 }
 
+// Death and Decay's rotting ground on flat2.md3: brown-black rot creeping out, veins from the DDROT mask, wet pocks.
+HardwareShader DDROT {
+	Shader "GLDefs/Shaders/DeathRot.fp"
+	Speed 1.0
+}
+
 // Dark Portal on PORTAL.md3: a scratched golden basin round a void of turning smoke (the lathe's normal rides in the UVs).
 HardwareShader PORTAL {
 	Shader "GLDefs/Shaders/DarkPortal.fp"
@@ -1026,5 +1032,22 @@ HardwareShader H_BRGSTY {
 
 HardwareShader H_BRGSTR {
 	Shader "GLDefs/Shaders/ManaBar.fp"
+	Speed 1.0
+}
+
+// Volcano's cone and its lava (model skins in Graphics/ShaderTex).
+HardwareShader VLROCK {
+	Shader "GLDefs/Shaders/VolcanoRock.fp"
+	Speed 1.0
+}
+
+HardwareShader VLLAVA {
+	Shader "GLDefs/Shaders/VolcanoLava.fp"
+	Speed 1.0
+}
+
+// Fire Jet's bolt: the model is only a hull, the fire is ray-marched in it.
+HardwareShader FIREJET {
+	Shader "GLDefs/Shaders/FireJet.fp"
 	Speed 1.0
 }

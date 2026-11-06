@@ -114,8 +114,8 @@ DND_SPLNAME162		=	"Nox";
 DND_SPLNAME163		=	"Temporal Chains";
 DND_SPLNAME164		=	"Dark Wind";
 DND_SPLNAME165		=	"Essence Theft";
-DND_SPLNAME166		=	"Summon: Skeleton";
-DND_SPLNAME167		=	"Skeleton Mastery";
+DND_SPLNAME166		=	"Summon: Knight";
+DND_SPLNAME167		=	"Legion Mastery";
 DND_SPLNAME168		=	"Delirium";
 DND_SPLNAME169		=	"Enfeeble";
 DND_SPLNAME170		=	"Finger of Death";
@@ -140,6 +140,7 @@ DND_SPLNAME188		=	"Banish";
 DND_SPLNAME189		=	"Break Immunity";
 DND_SPLNAME190		=	"Silence";
 DND_SPLNAME191		=	"Mark Prey";
+DND_SPLNAME192		=	"Summon: Death Knight";
 
 
 // Hover text, straight from the design docs. Positional like the names above.
@@ -251,10 +252,10 @@ DND_SPLR5_14    = "Ignores shields.";
 DND_SPLR10_14   = "Creates two pillars side by side.";
 
 // Fire Jet
-DND_SPLDESC15   = "Shoot a jet of fire that spreads sideways, dealing 180 damage on a direct hit and 36 to the sides.";
+DND_SPLDESC15   = "Cast a jet of fire that throws flames to both sides as it flies, dealing 180 damage on a direct hit. Each side flame bursts for 36 damage in a 48 unit radius on impact.";
 DND_SPLPER15    = "";
-DND_SPLR5_15    = "A direct hit explodes for half its damage within 128 units.";
-DND_SPLR10_15   = "The sideways flames rip through enemies.";
+DND_SPLR5_15    = "The jet itself also explodes on hit for the same hit damage within 128 units.";
+DND_SPLR10_15   = "The side flames rip through enemies once.";
 
 // Summon: Fire Demon
 DND_SPLDESC16   = "Summon a fire demon to fight for you. It throws fireballs and sets the ground alight. Can have up to 1 Fire Demon active at a time.";
@@ -281,7 +282,7 @@ DND_SPLR5_19    = "No longer harms you, and maximum range becomes 768 units.";
 DND_SPLR10_19   = "Has a 20% chance to trigger explosions at each charge.";
 
 // Volcano
-DND_SPLDESC20   = "Conjure a volcano at a location that hurls lava for 10 seconds, each piece dealing 60 damage in an 80 unit area.";
+DND_SPLDESC20   = "Conjure a volcano at a location that hurls lava for 10 seconds, each piece dealing 80 damage in an 80 unit area.";
 DND_SPLPER20    = "+0.5 seconds duration.";
 DND_SPLR5_20    = "Bursting lava deals 30% increased damage.";
 DND_SPLR10_20   = "Produces 25% more lava.";
@@ -694,22 +695,22 @@ DND_SPLR10_164  = "The damage radius is 30% larger.";
 DND_SPLDESC165  = "Launch a fast unholy missile that deals 450 magic damage over 3 seconds and returns 20% of the damage dealt to you as health. Contagion can spread it to more enemies.";
 DND_SPLPER165   = "-1.5 seconds cooldown.";
 DND_SPLR5_165   = "Returns 33% of the damage as health.";
-DND_SPLR10_165  = "The enemy hit is pacified for 3 seconds, unable to attack.";
+DND_SPLR10_165  = "The enemy hit is pacified for 3 seconds, unable to attack. Does not work on dungeon bosses.";
 
-// Summon: Skeleton
-DND_SPLDESC166  = "Summon an undead melee warrior to do your bidding for 16 seconds. Skeletons have 300 health and hit for 52-64 melee damage.";
-DND_SPLPER166   = "+150 health, +32 melee damage.";
-DND_SPLR5_166   = "After being hurt, skeletons have a 25% chance to block the next attack.";
-DND_SPLR10_166  = "Risen skeletons have a 30% chance to be Skeleton Mages, casting ranged spells for 10% more damage. Mages have 25% less health and cannot block.";
+// Summon: Knight
+DND_SPLDESC166  = "Summon an undead knight to do your bidding for 20 seconds. Knights have 300 health and hit for 52-64 melee damage.";
+DND_SPLPER166   = "+150 health, +32 melee damage, +2.5 seconds duration.";
+DND_SPLR5_166   = "Knights also throw a spectral axe for 75% of their melee damage as magic. It cannot hit ghosts.";
+DND_SPLR10_166  = "Knights have a 25% chance to throw a red axe instead, dealing 50% more than their melee damage.";
 
-// Skeleton Mastery
-DND_SPLDESC167  = "Passive. Your skeletons have 5% more health and deal 10% more damage.";
-DND_SPLPER167   = "+5% more skeleton health, +10% more skeleton damage.";
-DND_SPLR5_167   = "Skeletons no longer have a duration.";
-DND_SPLR10_167  = "Skeleton Mages can cast a random tier 1 elemental spell you have learned.";
+// Legion Mastery
+DND_SPLDESC167  = "Passive. Your Knights, Death Knights and Slayer Knights have 5% more health and deal 10% more damage.";
+DND_SPLPER167   = "+5% more knight health, +10% more knight damage.";
+DND_SPLR5_167   = "Knights no longer have a duration. Death Knights leech 5% of the melee damage they deal as life.";
+DND_SPLR10_167  = "Every knight attack can hit ghosts, and Slayer Knight flames ignore immunity to radius damage.";
 
 // Delirium
-DND_SPLDESC168  = "Curse. The target enemy falls into psychosis for 5 seconds, attacking a random enemy nearby, even its own kind.";
+DND_SPLDESC168  = "Curse. The target enemy falls into psychosis for 5 seconds, attacking a random enemy nearby, even its own kind. Does not work on dungeon bosses.";
 DND_SPLPER168   = "+1 second duration.";
 DND_SPLR5_168   = "Costs 20% less mana.";
 DND_SPLR10_168  = "The cursed enemy deals 100% more damage while it lasts.";
@@ -733,7 +734,7 @@ DND_SPLR5_171   = "The radius is 20% larger.";
 DND_SPLR10_171  = "Damage over time it carries ignores shields and fortification.";
 
 // Implosion
-DND_SPLDESC172  = "Launch a sharp needle ahead of you. The enemy it touches takes 10% of its current health as magic damage; spell damage modifiers help it past resistances, up to that 10%. It cannot kill, and always leaves the enemy at least 1% of its health.";
+DND_SPLDESC172  = "Launch a sharp needle ahead of you. The enemy it touches takes 10% of its current health as magic damage. Spell damage modifiers first make up for the enemy's resistances; anything beyond only adds a quarter of its usual effect, up to 1.5 times. It cannot kill, and always leaves the enemy at least 1% of its health.";
 DND_SPLPER172   = "+1.5% of current health.";
 DND_SPLR5_172   = "The needle travels 50% faster.";
 DND_SPLR10_172  = "Leeches 2% of the damage dealt as mana.";
@@ -751,10 +752,10 @@ DND_SPLR5_174   = "When hurt, the Ghast shifts out of existence and cannot be ta
 DND_SPLR10_174  = "Rests only 5 seconds between attacks.";
 
 // Subjugate
-DND_SPLDESC175  = "Curse. Launch a ball that pacifies the enemy it hits for 8 seconds, so it will not retaliate. Lasts half as long on bosses, and does not work on dungeon bosses.";
+DND_SPLDESC175  = "Curse. Launch a ball that forces the enemy it hits to kneel in submission for 8 seconds: it cannot move, attack or cast spells. Any damage it takes breaks the submission early. Lasts half as long on bosses, and does not work on dungeon bosses.";
 DND_SPLPER175   = "+1 second duration.";
 DND_SPLR5_175   = "Also curses enemies within 128 units of the target.";
-DND_SPLR10_175  = "50% chance to turn cursed enemies to your side as temporary minions while it lasts.";
+DND_SPLR10_175  = "50% chance to turn cursed enemies to your side as temporary minions while it lasts, instead of making them kneel.";
 
 // Penetrate
 DND_SPLDESC176  = "Curse. Pierce the imbued skin of enemies in a 160 unit area for 5 seconds, so projectiles rip through them, Hardened Skin included.";
@@ -771,11 +772,11 @@ DND_SPLR10_177  = "Lasts 5 seconds longer.";
 // Soulstorm
 DND_SPLDESC178  = "After a brief delay, raise a storm at the target spot that drifts towards you, blasting enemies with magic damage every 0.35 seconds for 8 seconds, plus more for each Soul you carry. Each blast drains 5 of your Souls. Damage is highest within 160 units of its centre and lowest at its 320 unit edge. Recast while it rages to send it slowly towards where you point, at no cost.";
 DND_SPLPER178   = "+0.5 seconds duration.";
-DND_SPLR5_178   = "The area is 50% larger.";
-DND_SPLR10_178  = "Each blast drains only 3 Souls.";
+DND_SPLR5_178   = "Each blast drains 25% fewer Souls.";
+DND_SPLR10_178  = "Pulls enemies towards its centre as it blasts them. Enemies it kills are swallowed, leaving no corpse.";
 
 // Carrion Crows
-DND_SPLDESC179  = "Summon a whirl of 5 flesh eating undead crows that circle you for 10 seconds, darting out to tear at enemies within 256 units for 25 damage in very short intervals.";
+DND_SPLDESC179  = "Summon a whirl of 5 flesh eating undead crows that circle you for 10 seconds, darting out to tear at enemies within 256 units for 40 damage in very short intervals.";
 DND_SPLPER179   = "";
 DND_SPLR5_179   = "Crows fly 25% faster.";
 DND_SPLR10_179  = "Crows heal you for 5% of the damage they deal.";
@@ -793,7 +794,7 @@ DND_SPLR5_181   = "Your minions no longer have a duration.";
 DND_SPLR10_181  = "Your minions gain Hardened Skin.";
 
 // Summon: Slayer Knight
-DND_SPLDESC182  = "Summon an undead slayer knight with 1000 health to do your bidding. It strikes for 72-96 physical melee damage, or hurls a spread of 6 dark flames that each deal 60 fire damage in a 96 unit radius. Counts as 3 against your pet cap.";
+DND_SPLDESC182  = "Summon an undead slayer knight with 1000 health to do your bidding. It strikes for 72-96 physical melee damage, or hurls a diagonal slash of 6 dark flames that each deal 60 fire damage in a 96 unit radius. The flames pass through ghosts. Counts as 3 against your pet cap.";
 DND_SPLPER182   = "+350 health, +40 melee damage, +30 flame damage.";
 DND_SPLR5_182   = "Gains Counter Attack: when hurt, it retaliates at once and is briefly invulnerable.";
 DND_SPLR10_182  = "Its melee becomes a slashing wave that hits an area.";
@@ -817,7 +818,7 @@ DND_SPLR5_185   = "A cursed death heals 5% of your missing health instead.";
 DND_SPLR10_185  = "The radius is doubled.";
 
 // Death and Decay
-DND_SPLDESC186  = "Channel at a target spot for up to 10 seconds, creating a 192 unit zone of pure death. Enemies inside lose 5% of their life as magic damage every second, bosses half as much; spell and damage over time modifiers help it past resistances, up to that share. You are slowed by 33% while channeling. Costs mana every second it runs.";
+DND_SPLDESC186  = "Channel at a target spot for up to 10 seconds, creating a 192 unit zone of pure death. Enemies inside lose 5% of their life as magic damage every second, bosses half as much. Spell and damage over time modifiers first make up for the enemy's resistances; anything beyond only adds half its usual effect, up to 2.5 times. You are slowed by 33% while channeling. Costs mana every second it runs.";
 DND_SPLPER186   = "+0.25% of life lost a second.";
 DND_SPLR5_186   = "The radius is doubled.";
 DND_SPLR10_186  = "The cooldown is halved.";
@@ -841,7 +842,7 @@ DND_SPLR5_189   = "Affects enemies in a 192 unit radius.";
 DND_SPLR10_189  = "Removes all of its immunities instead of one.";
 
 // Silence
-DND_SPLDESC190  = "Curse. The target monster cannot cast its spells for 3 seconds.";
+DND_SPLDESC190  = "Curse. The target monster cannot cast its spells for 4 seconds. Does not work on dungeon bosses.";
 DND_SPLPER190   = "+0.5 seconds duration, -5 seconds cooldown.";
 DND_SPLR5_190   = "Costs 100 less mana.";
 DND_SPLR10_190  = "Affects enemies in a 192 unit radius.";
@@ -851,6 +852,12 @@ DND_SPLDESC191  = "Mark the target enemy for 10 seconds. Every one of your minio
 DND_SPLPER191   = "+0.5 seconds duration, -1 mana cost.";
 DND_SPLR5_191   = "The marked enemy deals 10% less damage to your minions.";
 DND_SPLR10_191  = "Your minions leech 2% of the damage they deal to the marked enemy as life over 4 seconds.";
+
+// Summon: Death Knight
+DND_SPLDESC192  = "Summon an undead death knight with 800 health to protect you. It throws homing skulls that deal 125 fire damage and may set enemies on fire, and strikes slowly for 60-80 magic melee damage. When hurt, it has a 25% chance to raise its shield and block every attack for 2 seconds. Counts as 2 against your pet cap.";
+DND_SPLPER192   = "+275 health, +40 melee damage, +50 skull damage.";
+DND_SPLR5_192   = "Its raised shield also reflects projectiles.";
+DND_SPLR10_192  = "Its melee becomes a slashing wave that hits an area.";
 
 
 // Field names for the synergy lines the panel builds from SpellSynergies. Positional on SPELLVAL_*.
@@ -880,6 +887,7 @@ DND_SPLFIELD_CRASH = "crash landing cap";
 DND_SPLFIELD_MINIONHP = "minion health";
 DND_SPLFIELD_CROWS = "crow";
 DND_SPLFIELD_PERSOUL = "damage per soul";
+DND_SPLFIELD_SIDES = "side flame damage";
 
 DND_SPLPANEL_PERRANK   = "Per Rank:";
 DND_SPLPANEL_RANK5     = "Rank 5:";

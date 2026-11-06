@@ -251,12 +251,12 @@ FIRE
 	
 * Volcano
 
-	Conjure a miniature volcano at a target location, bursting with molten rocks and lava periodically for 10 seconds. Each bit deals 40 damage in 80
-	unit radius.
+	Conjure a miniature volcano at a target location, bursting with molten rocks and lava periodically for 10 seconds. Each bit deals 80 damage in 80
+	unit radius. Bits bounce off ceilings.
 	Cost: 100 mana.
 	Cooldown: 35 seconds.
 	Cast Time: 2 seconds.
-	Per Rank: +0.5 duration, +15 mana cost.
+	Per Rank: +20 damage, +0.5 duration, +15 mana cost.
 	Rank 5: Bursting bits deal 30% increased damage.
 	Rank 10: Creates 25% more lava and rocks.
 	Requires: Immolation or Righteous Fire. Player level 52.

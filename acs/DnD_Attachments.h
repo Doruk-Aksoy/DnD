@@ -61,6 +61,8 @@ str GetCurseMarkerClass(int which) {
 	return "";
 }
 
+#define DND_ATTACHMENT_FACERATE 2         // tics between a front mark's turns toward the viewer
+
 // Mirror the position states in Flammability.dec: positions to a half slot, and the middle one.
 #define DND_CURSEROW_SUB 4
 #define DND_CURSEROW_MID 28
@@ -91,6 +93,25 @@ void SizeAttachment(int tid, int res, str cls, int sc) {
 		SetActorProperty(mark, APROP_SCALEX, sc);
 		SetActorProperty(mark, APROP_SCALEY, sc);
 	}
+}
+
+// Client side: attachment res of tid kept turned toward this client's player, so its DECORATE (A_Warp with
+// WARPF_USECALLERANGLE) puts it on the viewer's side of the monster whichever way either faces.
+void FaceAttachmentToViewer(int tid, int res, str cls) {
+	int mark = DND_MONSTER_ATTACHMENT_TID_BEGIN + GetAttachmentSlot(tid) * DND_MAX_MONSTER_ATTACHMENTS + res;
+	if(CheckActorClass(mark, cls))
+		ACS_NamedExecuteAlways("DnD Attachment Face Viewer", 0, mark, tid);
+}
+
+// Client side, while the mark lives: its angle from the monster to this client's player, every other tic.
+Script "DnD Attachment Face Viewer" (int mark, int tid) CLIENTSIDE {
+	str cls = GetActorClass(mark);
+	while(ClassifyActor(mark) != ACTOR_NONE && !StrCmp(GetActorClass(mark), cls) && ClassifyActor(tid) != ACTOR_NONE) {
+		if(SetActivatorToPlayer(ConsolePlayerNumber()))
+			SetActorAngle(mark, VectorAngle(GetActorX(0) - GetActorX(tid), GetActorY(0) - GetActorY(tid)));
+		Delay(const:DND_ATTACHMENT_FACERATE);
+	}
+	SetResultValue(0);
 }
 
 Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
@@ -170,12 +191,14 @@ Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 			case DND_ATTACHMENT_NOX:
 				// face height, just ahead of its front
 				res = CreateMonsterAttachment(tid, "NoxFXMarker", GetActorProperty(tid, APROP_RADIUS) + 2.0, 0, zoff + zoff / 2);
+				FaceAttachmentToViewer(tid, res, "NoxFXMarker");
 			break;
 			case DND_ATTACHMENT_DELIRIUM: {
 				// its plume (160 tall at scale 1) sized to rise from the legs, a tenth up, through the chest to 95% of its height
 				int sc = Clamp_Between(FixedMul(zoff * 2, 0.85) / 160, 0.25, 1.0);
 				res = CreateMonsterAttachment(tid, "DeliriumFXMarker", GetActorProperty(tid, APROP_RADIUS) + 2.0, 0, zoff / 5);
 				SizeAttachment(tid, res, "DeliriumFXMarker", sc);
+				FaceAttachmentToViewer(tid, res, "DeliriumFXMarker");
 			}
 			break;
 			case DND_ATTACHMENT_LIFETAP: {
@@ -184,13 +207,15 @@ Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 				res = CreateMonsterAttachment(tid, "LifeTapFXMarker", GetActorProperty(tid, APROP_RADIUS) / 2, 0,
 					Max(0, zoff * 6 / 5 - FixedMul(74.0, ls)));
 				SizeAttachment(tid, res, "LifeTapFXMarker", ls);
+				FaceAttachmentToViewer(tid, res, "LifeTapFXMarker");
 			}
 			break;
 			case DND_ATTACHMENT_SUBJUGATE: {
-				// sized to its height, its embers (98 up the sprite at scale 1, drawn 1.2 tall) over the chest, 2 ahead
-				int ss = Clamp_Between(FixedMul(zoff * 2, 0.0065), 0.2, 2.0);
-				res = CreateMonsterAttachment(tid, "SubjugateFXMarker", 2.0, 0, Max(0, zoff * 6 / 5 - FixedMul(98.0, ss)));
+				// sized to its height, its embers (39 up the sprite at scale 1) at 0.75 of it (about the drawn chest), 2 toward the viewer
+				int ss = Clamp_Between(FixedMul(zoff * 2, 0.013), 0.4, 2.5);
+				res = CreateMonsterAttachment(tid, "SubjugateFXMarker", 2.0, 0, Max(0, FixedMul(zoff * 2, 0.75) - FixedMul(39.0, ss)));
 				SizeAttachment(tid, res, "SubjugateFXMarker", ss);
+				FaceAttachmentToViewer(tid, res, "SubjugateFXMarker");
 			}
 			break;
 			case DND_ATTACHMENT_REMOVERESIST:
@@ -200,6 +225,7 @@ Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 				str feet = which == DND_ATTACHMENT_REMOVERESIST ? "RemoveResistFXMarker" : "PenetrateFXMarker";
 				res = CreateMonsterAttachment(tid, feet, 2.0, 0, FixedMul(6.0, fs));
 				SizeAttachment(tid, res, feet, fs);
+				FaceAttachmentToViewer(tid, res, feet);
 			}
 			break;
 			case DND_ATTACHMENT_TEMPORALCHAINS:
@@ -222,6 +248,7 @@ Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 				int bs = Clamp_Between(FixedMul(zoff * 2, 0.0062), 0.2, 2.0);
 				res = CreateMonsterAttachment(tid, "BreakImmunityFXMarker", 2.0, 0, Max(0, FixedMul(zoff * 2, 0.6) - FixedMul(103.0, bs)));
 				SizeAttachment(tid, res, "BreakImmunityFXMarker", bs);
+				FaceAttachmentToViewer(tid, res, "BreakImmunityFXMarker");
 			}
 			break;
 			case DND_ATTACHMENT_PAINAMP: {
@@ -229,6 +256,7 @@ Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 				int ps = Clamp_Between(FixedMul(zoff * 2, 0.0065), 0.2, 2.0);
 				res = CreateMonsterAttachment(tid, "PainAmpFXMarker", 2.0, 0, Max(0, FixedMul(zoff * 2, 0.65) - FixedMul(100.0, ps)));
 				SizeAttachment(tid, res, "PainAmpFXMarker", ps);
+				FaceAttachmentToViewer(tid, res, "PainAmpFXMarker");
 			}
 			break;
 			case DND_ATTACHMENT_SILENCE:

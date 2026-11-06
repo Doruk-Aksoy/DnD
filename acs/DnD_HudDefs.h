@@ -417,7 +417,7 @@ enum {
 
 	SPELLTREE_LINE_ID = 1150,		// DND_SPELLLINE_IDS per requirement edge
 
-	// Up to the backdrop: Black's 30 connectors fill 1150..1749, and 1700 left its last ones on screen.
+	// Up to the backdrop: Black's 32 connectors fill 1150..1725, and 1700 left its last ones on screen.
 	SPELLPAGE_ID_LAST = RPGMENUID - 1
 };
 

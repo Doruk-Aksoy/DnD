@@ -4,7 +4,7 @@ ARCANE MAGIC
 * Arcane Bolt
  
 	Fire a bolt of arcane energy to the nearest enemy, dealing 30 (+3/INT) damage.
-	For the next 2.5 seconds, they take 15% increased damage from arcane spells.
+	For the next 5 seconds, they take 15% increased damage from arcane spells.
 	Cost: 7 mana.
 	Cooldown: 3 seconds.
 	Cast Time: 1.5 second.
@@ -42,7 +42,7 @@ ARCANE MAGIC
  
 * Power Globe
  
-	Hurl a globe of pure energy towards where you're facing. Cast again to detonate at will. It expires after 3 seconds.
+	Hurl a globe of pure energy towards where you're facing, able to pass through objects. Cast again to detonate at will. It expires after 3 seconds.
 	Deals 100 (+10/INT) damage in a 160 unit radius if detonated.
 	Cost: 27 mana.
 	Cooldown: 24 seconds.

@@ -1,0 +1,154 @@
+// Summon: Death Knight (S042): homing fire skulls, a slower magic strike, a shield raised when hurt ("DnD Death Knight Block").
+ACTOR Spell_DeathKnight : PetMonsterBase {
+	Health 800
+	GibHealth -100
+	Radius 20
+	Height 56
+	Speed 8
+	PainChance 32
+	Mass 600
+	Scale 0.57
+	Stamina 1
+	SeeSound "dknight/sight"
+	PainSound "dknight/pain"
+	DeathSound "dknight/death"
+	ActiveSound "dknight/active"
+	Obituary "%o was struck down by a Death Knight."
+	Tag "Death Knight"
+	MeleeRange 80
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pet Monster Scale", 0, DND_PET_DEATHKNIGHTID, DND_SILVER_WEAKNESS, -1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pet Distance Move", 0)
+			S042 MLKJI 3
+		SpawnLoop:
+			S042 A 10 A_Look
+		Goto See
+		See:
+			S042 AABBCCDD 3 A_Chase
+		Loop
+		Melee:
+			TNT1 A 0 A_AlertMonsters(0, AMF_TARGETNONPLAYER)
+			S042 E 7 A_FaceTarget
+			S042 F 6 A_FaceTarget
+			TNT1 A 0 A_PlaySound("dknight/swing", CHAN_WEAPON)
+			S042 G 4 ACS_NamedExecuteWithResult("DnD Death Knight Strike")
+			S042 G 8
+		Goto See
+		Missile:
+			TNT1 A 0 A_AlertMonsters(0, AMF_TARGETNONPLAYER)
+			S042 E 8 A_FaceTarget
+			TNT1 A 0 A_PlaySound("dknight/attack", CHAN_WEAPON)
+			// Off the sword as frame F shows it: 56 up, 14 to its right.
+			S042 F 5 A_CustomMissile("Spell_DeathKnight_Skull", 56, 14)
+			S042 G 6
+		Goto See
+		// Shield up: it stands its ground for the block's 2 seconds.
+		Block:
+			S042 T 70
+		Goto See
+		Pain:
+			S042 H 3
+			S042 H 3 A_Pain
+		Goto See
+		Death:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Summon Death Check", 0, DND_PET_DEATHKNIGHTID)
+			S042 I 0 A_CustomMissile("Spell_DeathKnight_Sword", 30, 16, -90, 0)
+			S042 I 6 A_CustomMissile("Spell_DeathKnight_Shield", 30, -16, 90, 0)
+			"####" "#" 0 A_Scream
+			S042 J 6 A_NoBlocking
+			S042 KL 6
+			S042 M 35
+			S042 M 1 A_FadeOut(0.05)
+		Wait
+	}
+}
+
+// A homing skull: AMOUNT2 fire damage on hit and a chance to set the enemy alight.
+Actor Spell_DeathKnight_Skull : DnD_BaseProjectile_ForPets {
+	Speed 14
+	Radius 8
+	Height 10
+	Scale 0.5
+	Damage(ACS_NamedExecuteWithResult("DnD Spell Minion Hit", MINIONHIT_DKSKULL, DND_USETARGET))
+	DamageType "Fire"
+	RenderStyle Add
+	DeathSound "H2SkullWizard/Hit"
+	+SEEKERMISSILE
+	States {
+		SpawnState:
+			SKUL A 2 Bright A_SeekerMissile(4, 8)
+			SKUL B 2 Bright A_SeekerMissile(4, 8)
+		Loop
+		Death:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Death Knight Skull Hit")
+			SKUL FGHIJK 3 Bright
+		Stop
+	}
+}
+
+// Its sword and shield, flung off its sides as it falls (the enemy Deathknight's DKSword and DKShield, on S043); they fade after a while.
+Actor Spell_DeathKnight_Sword {
+	Radius 8
+	Height 8
+	Speed 1
+	PROJECTILE
+	-NOGRAVITY
+	+LOWGRAVITY
+	+CLIENTSIDEONLY
+	+MOVEWITHSECTOR
+	States {
+		Spawn:
+			S043 IJKLMNO 3
+		Goto Death
+		Death:
+			S043 P 140
+			S043 P 1 A_FadeOut(0.05)
+		Wait
+	}
+}
+
+Actor Spell_DeathKnight_Shield : Spell_DeathKnight_Sword {
+	States {
+		Spawn:
+			S043 ABCDEFG 3
+		Goto Death
+		Death:
+			S043 H 140
+			S043 H 1 A_FadeOut(0.05)
+		Wait
+	}
+}
+
+Actor Spell_DeathKnight_BlockFX : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.45
+	Translation "0:255=%[0.00,0.00,0.00]:[1.40,1.20,1.00]"
+	States {
+		Spawn:
+			TNT1 A 0
+			D4FX GHIJKL 2 Bright
+		Stop
+	}
+}
+
+// While its shield is up. Rank 5's reflection is a flag, set by item: ACS cannot set flags in Zandronum.
+Actor DnD_DeathKnightBlocking : DnD_Boolean {}
+
+Actor DnD_DeathKnightShieldReflect : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("REFLECTIVE", 1)
+		Stop
+	}
+}
+
+Actor DnD_DeathKnightShieldDown : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("REFLECTIVE", 0)
+		Stop
+	}
+}

@@ -72,8 +72,9 @@ int GetSpellAttunementOverride(int spell) {
 		case SPL_ICENOVA:
 		// the undead that fight up close
 		case SPL_ZOMBIE:
-		case SPL_SKELETON:
+		case SPL_KNIGHT:
 		case SPL_SLAYERKNIGHT:
+		case SPL_DEATHKNIGHT:
 		case SPL_DOOMGUARD:
 		return PACK_SPELL_ATTUNE(DND_SPELL_ATTUNE_MINOR, 0, DND_SPELL_ATTUNE_MAJOR);
 
@@ -286,6 +287,14 @@ int PriceSpellDamage(int pnum, int spell, int dmg, int scale_flags = 0, bool isD
 	return FinishSpellDamage(pnum, spell, dmg, isDot, noMore);
 }
 
+// A share-of-life spell's damage after resists: whole up to the share, then keep_pct of what gear adds past it, up to cap_pct of it.
+int ScaleCappedShare(int dmg, int share, int keep_pct, int cap_pct) {
+	if(dmg <= share)
+		return dmg;
+	int over = dmg - share;
+	return Min(share + over / 100 * keep_pct + over % 100 * keep_pct / 100, share / 100 * cap_pct + share % 100 * cap_pct / 100);
+}
+
 // A flat a spell hit adds in another type (Sightless Vigil's physical): priced as the spell's hit, in that category.
 int PriceSpellAddedDamage(int pnum, int spell, int dmg, int category, int scale_flags) {
 	dmg = HandleNonWeaponDamageScale(dmg, category, DND_WDMG_ISSPELL | scale_flags,
@@ -466,6 +475,7 @@ Script "DnD Fire Jet Sides" (void) {
 	int a = GetActorAngle(0);
 	int tid = TEMPORARY_SPELL_TID + pnum;
 	int i;
+	bool rip = SpellThresholdMet(pnum, spell, DND_SPELL_THRESH_HIGH);
 
 	// One to each side. Angle is set after the spawn rather than through SpawnForced's own argument,
 	// which takes byte angles and would wrap a 16.16 one into nonsense.
@@ -475,10 +485,25 @@ Script "DnD Fire Jet Sides" (void) {
 
 		SetActorAngle(tid, a + (i ? -0.25 : 0.25));
 		SetupSpellActor(tid, pnum, spell);
+		// Rank 10's ripping flames: through everything, each enemy once per flame.
+		if(rip) {
+			SetSpellRipLimit(pnum, tid, MAX_RIPCOUNT);
+			SetActorProperty(tid, APROP_STAMINA, GetActorProperty(tid, APROP_STAMINA) | DND_DAMAGEFLAG_RIPSONCE);
+		}
 		Thing_ChangeTID(tid, 0);
 	}
 
 	SetResultValue(0);
+}
+
+// A side flame's touch: only the rank 10 ripper deals damage by touch, below that its landing burst does.
+Script "DnD Fire Jet Side Hit" (void) {
+	int pnum = GetSpellActorOwner();
+	if(pnum == -1 || !SpellThresholdMet(pnum, SPL_FIREJET, DND_SPELL_THRESH_HIGH)) {
+		SetResultValue(0);
+		Terminate;
+	}
+	SetResultValue(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE2));
 }
 
 // Flame Pillar's standing flame, dropped as the advancing projectile travels. Spawned from ACS
@@ -552,18 +577,13 @@ Script "DnD Spell Explosion Setup" (int which, int radius_pct, int div) {
 	if(spell == SPL_PYROBLAST && !SpellThresholdMet(pnum, spell, DND_SPELL_THRESH_LOW))
 		flags = DND_DAMAGEFLAG_BLASTSELF;
 
-	// Fire Jet only bursts at all from rank 5. The caller branches on what this returns.
-	if(spell == SPL_FIREJET && !SpellThresholdMet(pnum, spell, DND_SPELL_THRESH_LOW)) {
+	// Fire Jet's bolt only bursts at all from rank 5; its side flames (DAMAGE2) always do. The caller branches on this.
+	if(spell == SPL_FIREJET && which == SPELLVAL_DAMAGE && !SpellThresholdMet(pnum, spell, DND_SPELL_THRESH_LOW)) {
 		if(!had)
 			Thing_ChangeTID(me, 0);
 		SetResultValue(0);
 		Terminate;
 	}
-
-	// "A direct hit explodes for HALF its damage." Only when the caller named no divisor of its
-	// own, so an explicit one always wins.
-	if(!div && spell == SPL_FIREJET)
-		div = 2;
 
 	int radius = ACS_NamedExecuteWithResult("DnD Spell Radius", SPELLVAL_RADIUS);
 	if(radius_pct > 0)

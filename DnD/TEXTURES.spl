@@ -913,6 +913,14 @@ Graphic "SP431G", 64, 64
 	}
 }
 
+Graphic "SP432G", 64, 64
+{
+	Patch "SP432", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
 // The cast bar fill tinted crimson for a silence; CastBar.fp reads the tint as the silenced look.
 Graphic "SPLCSTS", 276, 16
 {

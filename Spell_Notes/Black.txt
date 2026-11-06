@@ -5,10 +5,11 @@ DARK MAGIC
  
 	Unleash a plague on the target enemy that does 50 damage every 0.5 seconds for 2.5 seconds.
 	If the target dies, the plague spreads to the nearest enemy within 128 units with 10% more damage potency. This can spread to more enemies with Contagion.
-	Cost: 10 mana.
+	Level: 1.
+	Cost: 10 mana (+1 per rank).
 	Cooldown: 3 seconds.
 	Cast Time: 1 second.
-	Per Rank: +10 damage.
+	Per Rank: +25 damage.
 	Rank 5: Spread potency becomes 30%.
 	Rank 10: Plague can spread up to two enemies at once.
 	Unlocks: Dark Wind, Essence Theft.
@@ -17,14 +18,15 @@ DARK MAGIC
  
 * Summon: Zombie
  
-	Summons a zombie to do your bidding. Has 150 health, 20 - 32 melee damage and last 8 seconds.
-	Cost: 8 mana.
+	Summons a zombie to do your bidding. Has 150 health, 20 - 32 melee damage and last 10 seconds.
+	Level: 1.
+	Cost: 8 mana (+0.8 per rank).
 	Cooldown: 1 second.
-	Cast Time: 1 second.
-	Per Rank: +100 health, +16 damage.
+	Cast Time: 0.65 seconds.
+	Per Rank: +100 health, +16 damage, +1 second to duration.
 	Rank 5: Zombies attack 50% faster.
 	Rank 10: Zombies gain 15% to all resistances.
-	Unlocks: Summon: Skeleton.
+	Unlocks: Summon: Knight, Mark Prey.
 	Synergy - Summon: Slayer Knight: 5% more minion health per rank of Summon: Slayer Knight.
  
 * Nox
@@ -32,7 +34,8 @@ DARK MAGIC
 	CURSE
 	When cast, all enemies in 128 radius are blinded. They will be attacking in random directions instead of directly towards you.
 	Curse lasts 5 seconds.
-	Cost: 16 mana.
+	Level: 1.
+	Cost: 16 mana (+1.6 per rank).
 	Cooldown: 20 seconds.
 	Cast Time: 1 second.
 	Per Rank: Duration +1 second, +8 radius.
@@ -44,20 +47,22 @@ DARK MAGIC
  
 	CURSE
 	Slows down enemies in 160 unit radius area by 30% for 5 seconds.
-	Cost: 24 mana.
+	Level: 8.
+	Cost: 24 mana (+2.4 per rank).
 	Cooldown: 25 seconds.
 	Cast Time: 2 seconds.
 	Per Rank: Duration +1 second, +8 radius.
 	Rank 5: Projectiles of affected enemies are also slowed by half the effect.
 	Rank 10: Slow becomes 50% and enemies in the area will be less likely to attack.
-	Requires: Nox.
-	Unlocks: Weaken.
+	Requires: Nox (Rank 1).
+	Unlocks: Enfeeble.
  
 * Dark Wind
  
 	Unleash a wind of darkness, doing 64 damage in 80 unit radius as it travels every 0.15 seconds.
 	Lasts 4 seconds or until it hits a wall.
-	Cost: 15 mana.
+	Level: 8.
+	Cost: 15 mana (+1.5 per rank).
 	Cooldown: 3 seconds.
 	Cast Time: 0.65 seconds.
 	Per Rank: +32 damage, +0.5 second duration.
@@ -72,47 +77,63 @@ DARK MAGIC
  
 	Launch a fast unholy missile that deals 450 magic damage over 3 seconds, and returns 20% of the damage enemy takes as health.
 	This can spread to more enemies with Contagion.
-	Cost: 20 mana.
+	Level: 12.
+	Cost: 20 mana (+2 per rank).
 	Cooldown: 18 seconds.
 	Cast Time: 0.75 seconds.
 	Per Rank: +50 damage, -1.5 seconds cooldown.
 	Rank 5: Health ratio increased to 33%.
-	Rank 10: Enemy hit is pacified for 3 seconds. (Pacified enemies cannot attack)
+	Rank 10: Enemy hit is pacified for 3 seconds. (Pacified enemies cannot attack; does not work on Dungeon Bosses)
 	Unlocks: Implosion.
 	Requires: Plague (Rank 3).
 	Synergy - Finger of Death: 10% more damage per rank of Finger of Death.
  
-* Summon: Skeleton
+* Summon: Knight
  
-	Summon an undead melee warrior to do your bidding. Skeletons have 300 health and do 52 - 64 melee damage.
-	They last 16 seconds.
-	Cost: 25 mana.
-	Cooldown: 4 seconds.
-	Cast Time: 1 second.
-	Per rank: +150 health, +32 damage.
-	Rank 5: Skeletons have 25% chance to block the next attack after being hurt.
-	Rank 10: Risen skeletons have 30% chance to become Skeleton Mages, doing 10% more damage but with ranged spells instead. They cannot block attacks and have 25% less health.
-	Unlocks: Summon: Ghast, Summon: Dark Portal, Skeleton Mastery.
+	Summon an undead knight to do your bidding. Knights have 300 health and do 52 - 64 melee damage.
+	They last 20 seconds.
+	Level: 10.
+	Cost: 20 mana (+2.5 per rank).
+	Cooldown: 3 seconds.
+	Cast Time: 0.8 seconds.
+	Per Rank: +150 health, +32 damage, +2.5 seconds duration.
+	Rank 5: Knights gain a ranged attack, doing 75% of their melee damage as magic. Cannot hit ghosts this way.
+	Rank 10: Knights have a 25% chance to throw a red axe doing 50% more damage.
+	Unlocks: Summon: Ghast, Summon: Dark Portal, Legion Mastery.
 	Requires: Summon: Zombie (Rank 3).
+	
+* Mark Prey
+
+	Mark a target enemy for 10 seconds, making every minion specifically target it for the duration no matter what.
+	Level: 6.
+	Cost: 16 mana.
+	Cooldown: 3 seconds.
+	Cast Time: 0.65 seconds.
+	Per Rank: +0.5 seconds to duration, -1 mana cost.
+	Rank 5: Marked enemy deals 10% less damage to your minions.
+	Rank 10: Minions leech 2% of the damage they deal as life over 4 seconds.
+	Requires: Summon Zombie (Rank 2).
  
-* Skeleton Mastery
+* Legion Mastery
  
 	PASSIVE SKILL
-	Skeletons risen are more potent, they become more powerful with each rank.
+	Summoned Knights are more potent, becoming more powerful with each rank.
+	Level: 16.
 	Cost: NA.
 	Cooldown: NA.
 	Cast Time: NA.
-	Per Rank: 5% more health and 10% more damage on skeletons.
-	Rank 5: Skeletons last 50% longer.
-	Rank 10: Skeleton Mages can cast a random tier 1 elemental spell you've learned.
-	Requires: Summon: Skeleton (Rank 1).
+	Per Rank: 5% more health and 10% more damage on knights.
+	Rank 5: Knights no longer have a duration. Death Knights can leech 5% of the melee damage they deal as life.
+	Rank 10: All knight attacks can hit ghosts. Slayer Knights projectile attack ignores radius damage immunity.
+	Requires: Summon: Knight (Rank 1).
  
 * Delirium
  
 	CURSE
-	Target enemy falls under the influence of psychosis, targeting a random enemy nearby.
-	Curse lasts 5 seconds.
-	Cost: 36 mana.
+	Target enemy falls under the influence of psychosis, targeting a random enemy nearby, even one of its own kind.
+	Curse lasts 5 seconds. Does not work on Dungeon Bosses.
+	Level: 14.
+	Cost: 36 mana (+3.6 per rank).
 	Cooldown: 30 seconds.
 	Cast Time: 2 seconds.
 	Per Rank: Duration +1 second.
@@ -121,11 +142,12 @@ DARK MAGIC
 	Unlocks: Subjugate.
 	Requires: Nox (Rank 2).
  
-* Weaken
+* Enfeeble
  
 	CURSE
 	Reduces the damage of enemies in 128 unit radius by 30%. Curse lasts 8 seconds.
-	Cost: 48 mana.
+	Level: 18.
+	Cost: 48 mana (+4.8 per rank).
 	Cooldown: 40 seconds.
 	Cast Time: 2 seconds.
 	Per Rank: +1% damage reduction.
@@ -137,7 +159,8 @@ DARK MAGIC
 * Finger of Death
  
 	Project a deadly bolt of red lightning towards your direction to deal 600 magic damage.
-	Cost: 75 mana.
+	Level: 24.
+	Cost: 60 mana (+7.5 per rank).
 	Cooldown: 16 seconds.
 	Cast Time: 2 seconds.
 	Per Rank: +300 damage, -1 second cooldown.
@@ -152,7 +175,8 @@ DARK MAGIC
 
 	Mark a 192 unit area, causing enemies within it to take 240 magic damage over 5 seconds. If an enemy dies with magic damage over time effects on it, it
 	will spread to enemies in the same radius, carrying along the full damage over time effect to them as well.
-	Cost: 40 mana.
+	Level: 20.
+	Cost: 40 mana (+4 per rank).
 	Cooldown: 27 seconds.
 	Cast Time: 0.6 seconds.
 	Per Rank: +80 magic damage.
@@ -165,7 +189,9 @@ DARK MAGIC
  
 	Launches a sharp needle in front of you. Enemy that comes into contact with it takes 10% of their current health as magic damage.
 	This spell cannot kill enemies and will leave them with a minimum of 1% of their health.
-	Cost: 125 mana.
+	Spell damage modifiers first make up for resistances; beyond that they add a quarter of their usual effect, up to 1.5 times the share.
+	Level: 32.
+	Cost: 125 mana (+12.5 per rank).
 	Cooldown: 50 seconds.
 	Cast Time: 3 seconds.
 	Per Rank: +1.5% health loss.
@@ -178,70 +204,76 @@ DARK MAGIC
  
 	A portal to aid summoning actions. It will increase the potency of your summons created when you cast them near the portal.
 	Portal lasts 10 seconds. Portal has 300 health but does not count towards pet cap, however it still benefits from minion modifiers.
-	Minions summoned within 256 unit radius of the portal gain 10% more health, duration and damage.
-	Cost: 64 mana.
+	Minions summoned or raised within 256 unit radius of the portal gain 10% more health, duration and damage.
+	Level: 24.
+	Cost: 64 mana (+8 per rank).
 	Cooldown: 120 seconds.
 	Cast Time: 2.5 seconds.
-	Per Rank: Minions have +10% more health and damage, +1 second duration.
+	Per Rank: Minions have +10% more health and damage, +1 second portal duration.
 	Rank 5: Minions gain 25% extra movement speed as well.
 	Rank 10: Minions gain 25% to all resistances as well.
-	Unlocks: Summon Mastery.
-	Requires: Summon: Skeleton (Rank 2).
+	Unlocks: Summon Mastery, Summon: Death Knight.
+	Requires: Summon: Knight (Rank 2).
  
 * Summon: Ghast
  
-	Summons a ghostly minion to cast Dark Wind for you at the same level as your rank. 
+	Summons a ghostly minion that casts your Dark Wind (at rank 1 if you have not learned it).
 	Can shoot maximum of two Dark Winds before having to wait 8 seconds.
 	Ghast takes two pet cap. Ghast has 100 health.
-	Cost: 65 mana.
+	Level: 22.
+	Cost: 65 mana (+6.5 per rank).
 	Cooldown: 40 seconds.
 	Cast Time: 3 seconds.
 	Per Rank: +100 health.
 	Rank 5: Ghast gains the ability to shift in and out of existence when hurt, becoming untargetable for 0.5 seconds, with a cooldown of 3 seconds.
 	Rank 10: Ghast wait time between attacks reduced to 5 seconds.
 	Unlocks: Summon: Slayer Knight.
-	Requires: Summon: Skeleton (Rank 3).
+	Requires: Summon: Knight (Rank 3).
  
 * Subjugate
  
 	CURSE
-	Launch a ball to curse an enemy on impact, completely pacifying them. They will not retaliate for 8 seconds.
+	Launch a ball to curse an enemy on impact, forcing it to kneel in submission for 8 seconds: it cannot move, attack or cast.
+	Any damage it takes breaks the submission early.
 	Duration is halved on bosses. Does not work against Dungeon Bosses.
-	Cost: 80 mana.
+	Level: 26.
+	Cost: 80 mana (+8 per rank).
 	Cooldown: 25 seconds.
 	Cast Time: 2 seconds.
 	Per Rank: Duration +1 second.
 	Rank 5: Affects 128 units around the target as well.
-	Rank 10: Has 50% chance to convert the affected enemies to your side as temporary minions for the duration.
+	Rank 10: Has 50% chance to convert the affected enemies to your side as temporary minions for the duration, instead of making them kneel.
 	Unlocks: Transmogrify.
 	Requires: Delirium (Rank 3).
  
 * Penetrate
  
 	CURSE
-	Allows one to magically penetrate imbued skin of monsters, allowing projectiles to rip through them.
+	Allows one to magically penetrate imbued skin of monsters, allowing projectiles to rip through them. Hardened Skin is removed for the duration.
 	Curse lasts 5 seconds. Affects enemies in a 160 unit radius.
-	Cost: 60 mana.
+	Level: 26.
+	Cost: 60 mana (+6 per rank).
 	Cooldown: 25 seconds.
 	Cast Time: 2 seconds.
 	Per Rank: Duration +1 second, +8 radius.
 	Rank 5: Radius is doubled.
 	Rank 10: Attacks or spells that go through afflicted enemies do 25% more damage.
 	Unlocks: Remove Resist.
-	Requires: Weaken (Rank 2).
+	Requires: Enfeeble (Rank 2).
  
 * Pain Amp
  
 	CURSE
 	Curse enemies in a 128 unit radius to take 25% more damage for 5 seconds.
-	Cost: 90 mana.
+	Level: 28.
+	Cost: 81 mana (+9 per rank).
 	Cooldown: 30 seconds.
 	Cast Time: 2 seconds.
 	Per Rank: +2.5% more damage taken.
 	Rank 5: Radius is doubled.
 	Rank 10: +5 seconds to duration.
 	Unlocks: Life Tap.
-	Requires: Weaken (Rank 1).
+	Requires: Enfeeble (Rank 1).
  
 * Soulstorm
  
@@ -249,12 +281,13 @@ DARK MAGIC
 	Each blast drains 5 Souls, and the next blast counts the Souls left. The storm travels towards you from the target location.
 	Recast while it rages (free, past its cooldown, not while silenced) to send it slowly towards where you point.
 	Damage is most in the center in a 160 unit radius, lowest at 320 unit radius.
-	Cost: 125 mana.
+	Level: 40.
+	Cost: 100 mana (+12.5 per rank).
 	Cooldown: 75 seconds.
 	Cast Time: 4 seconds.
 	Per Rank: +25 damage, +1 damage per soul every 2 ranks, +0.5 seconds duration (damage on the rank curve).
-	Rank 5: Soulstorm area of effect increased by 50%.
-	Rank 10: Each blast drains only 3 Souls.
+	Rank 5: Soulstorm soul consumption rate reduced by 25%.
+	Rank 10: Pulls in enemies toward the center as it deals damage. Enemies dying to it are swallowed and their corpses disappear.
 	Requires: Finger of Death (Rank 2).
 	Unlocks: Death and Decay.
 	Synergy - Dark Wind: +8 radius per rank of Dark Wind.
@@ -262,11 +295,12 @@ DARK MAGIC
 * Carrion Crows
  
 	Summon a tornado of 5 flesh eating undead crows around you that follow you around, occasionally leaving you to tear nearby enemies to shreds.
-	Crows do 25 damage in very short intervals.
-	Cost: 100 mana.
+	Crows do 40 damage in very short intervals. They last 10 seconds and go after enemies within 256 units of you.
+	Level: 36.
+	Cost: 75 mana (+5 per rank).
 	Cooldown: 40 seconds.
-	Cast Time: 3 seconds.
-	Per Rank: +10 damage.
+	Cast Time: 1.5 seconds.
+	Per Rank: +20 damage.
 	Rank 5: Crow speed increased by 25%.
 	Rank 10: Crows heal you for 5% of the damage they do.
 	Requires: Finger of Death (Rank 3), Implosion (Rank 2).
@@ -274,9 +308,10 @@ DARK MAGIC
  
 * Nether Walk
  
-	Travel towards where you're looking, becoming unhittable for the duration.
+	Travel 384 units towards where you're looking, becoming unhittable for the duration.
 	While moving through, deal 225 damage to enemies.
-	Cost: 75 mana.
+	Level: 34.
+	Cost: 60 mana (+7.5 per rank).
 	Cooldown: 20 seconds.
 	Cast Time: 1 second.
 	Per Rank: +125 damage.
@@ -287,21 +322,40 @@ DARK MAGIC
 * Summon Mastery
  
 	PASSIVE SKILL
-	Your summons gain increased durability.
+	Your minions gain increased durability and damage.
+	Level: 32.
 	Cost: NA.
 	Cooldown: NA.
 	Cast Time: NA.
-	Per Rank: Duration +1 second, health +2.5%, damage +2.5% to all summons.
-	Rank 5: Pets gain 10% to all resistances.
-	Rank 10: Pets gain "Hardened Skin" property.
+	Per Rank: Duration +1 second, health and damage +2.5% to all summons.
+	Rank 5: Minions no longer have a duration.
+	Rank 10: Minions gain "Hardened Skin" property.
 	Requires: Summon: Dark Portal (Rank 1).
+	
+* Summon: Death Knight
+
+	Summons an undead death knight to protect you. Death Knights have 800 health.
+	Death Knights throw homing skulls that can set enemies on fire, doing 125 fire damage on hit. They have a slower melee attack dealing 60 - 80 magic damage.
+	They have a 25% chance to block attacks for 2 seconds when hurt.
+	Death Knights take two pet cap each.
+	Level: 32.
+	Cost: 90 mana (+10 per rank).
+	Cooldown: 30 seconds.
+	Cast Time: 2.5 seconds.
+	Per Rank: +275 health, +40 melee damage, +50 ranged damage.
+	Rank 5: Death Knight shields become reflective.
+	Rank 10: Death Knights melee becomes an AoE slashing wave attack.
+	Unlocks: Summon: Doomguard.
+	Requires: Summon: Dark Portal (Rank 2).
  
 * Summon: Slayer Knight
  
 	Summons an undead slayer knight to do your bidding. Slayer Knights have 1000 health.
-	Slayer Knights have two attacks: Melee with 72 - 96 physical damage or ranged with spread of 6 dark flames to deal 60 fire damage per projectile in a 96 unit radius.
+	Slayer Knights have two attacks: Melee with 72 - 96 physical damage or ranged with a diagonal spread of 6 dark flames to deal 60 fire damage per projectile in a 96 unit radius.
+	Projectile attack cannot hit ghosts.
 	Slayer Knights take three pet cap each.
-	Cost: 100 mana.
+	Level: 35.
+	Cost: 100 mana (+10 per rank).
 	Cooldown: 36 seconds.
 	Cast Time: 3 seconds.
 	Per Rank: +350 health, +40 melee damage, +30 ranged damage.
@@ -314,6 +368,7 @@ DARK MAGIC
  
 	CURSE
 	Launch a cursed fireball to reduce any monster class lower than a Baron to a random pickup.
+	Level: 38.
 	Cost: 200 mana.
 	Cooldown: 90 seconds.
 	Cast Time: 1 second.
@@ -327,22 +382,24 @@ DARK MAGIC
  
 	CURSE
 	Target a nearby monster to remove any resist traits they have for 3 seconds.
-	Cost: 90 mana.
+	Level: 34.
+	Cost: 90 mana (+9 per rank).
 	Cooldown: 30 seconds.
 	Cast Time: 1.5 seconds.
 	Per Rank: +1 duration.
 	Rank 5: Can affect enemies in a 128 unit radius of the primary target as well.
 	Rank 10: Curse also makes the monster take 25% extra damage from the damage types they have resistances to for the duration.
 	Unlocks: Break Immunity.
-	Requires: Penetrate.
+	Requires: Penetrate (Rank 1).
  
 * Life Tap
  
 	CURSE
 	Launch a ball of curse to affect enemies in a 160 unit radius.
-	These enemies have a chance to heal you for 10 health when you hit them.
+	These enemies have a 25% chance to heal you for 10 health when you hit them.
 	They will heal for 2.5% of missing health when they die. Curse lasts 10 seconds.
-	Cost: 100 mana.
+	Level: 36.
+	Cost: 100 mana (+10 per rank).
 	Cooldown: 60 seconds.
 	Cast Time: 1 second.
 	Per Rank: +10 heal on hit.
@@ -356,31 +413,36 @@ DARK MAGIC
 	Channel for up to 10 seconds in a target location to create a zone of pure death.
 	Enemies take 5% of their life as magic damage every second. You are slowed by 33% while channeling.
 	Zone radius is 192 unit radius. Bosses take half damage.
-	Cost: 125 mana every second until the duration.
+	Spell and damage over time modifiers first make up for resistances; beyond that they add half their usual effect, up to 2.5 times the share.
+	Level: 52.
+	Cost: 100 mana (+12.5 per rank) every second until the duration.
 	Cooldown: 90 seconds.
 	Cast Time: 1 second.
 	Per Rank: +0.25% more life lost.
 	Rank 5: Radius is doubled.
 	Rank 10: Cooldown is halved.
+	Requires: Soulstorm (Rank 2).
  
 * Summon: Doomguard
  
 	Summon a mighty demon from the deepest pits of hell. Doomguard has 2000 health.
 	Doomguard can melee for 250 damage in an arc, has a ranged meteor attack for 200 on hit and 300 damage in a 160 unit radius.
 	Doomguard takes five pet cap instead of the regular one cap.
-	Cost: 275 mana.
+	Level: 50.
+	Cost: 275 mana (+27.5 per rank).
 	Cooldown: 120 seconds.
 	Cast Time: 4 seconds.
 	Per Rank: Health +1250, melee damage +100, ranged damage +80 on direct and 100 on radius.
 	Rank 5: Doomguard can cast War Stomp, stunning nearby enemies for 2.5 seconds and dealing its melee damage to enemies.
 	Rank 10: Doomguard can cast a random curse you've learned once every 30 seconds.
-	Requires: Summon: Slayer (Rank 1).
+	Requires: Summon: Slayer Knight (Rank 1) or Summon: Death Knight (Rank 1).
  
 * Banish
  
 	CURSE
 	Fires a cursed ball which temporarily removes the enemy hit from this realm for 3 seconds.
-	Cost: 200 mana.
+	Level: 46.
+	Cost: 180 mana (+10 per rank).
 	Cooldown: 60 seconds.
 	Cast Time: 1 second.
 	Per Rank: +1 duration.
@@ -392,7 +454,8 @@ DARK MAGIC
  
 	CURSE
 	Completely removes a random immunity from the target enemy for 15 seconds, if applicable. Otherwise does nothing.
-	Cost: 300 mana.
+	Level: 50.
+	Cost: 200 mana (+20 per rank).
 	Cooldown: 160 seconds.
 	Cast Time: 4 seconds.
 	Per Rank: -4 second cooldown.
@@ -403,8 +466,9 @@ DARK MAGIC
 * Silence
  
 	CURSE
-	Renders a target monster unable to use their spells for 3 seconds.
-	Cost: 360 mana.
+	Renders a target monster unable to use their spells for 4 seconds. Does not work on Dungeon Bosses.
+	Level: 48.
+	Cost: 240 mana (+24 per rank).
 	Cooldown: 150 seconds.
 	Cast Time: 3 seconds.
 	Per Rank: Duration +0.5 seconds, cooldown -5 seconds.

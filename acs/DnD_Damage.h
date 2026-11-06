@@ -1925,6 +1925,13 @@ bool StunMonster(int victim, int tics) {
 	return true;
 }
 
+// Subjugate's submission broken: the hold and its curse end at once (the curse timer clears the rest).
+void EndMonsterSubmission(int victim) {
+	SetActorInventory(victim, "DnD_SubmitAt", 0);
+	SetActorInventory(victim, "StunDurationCounter", 0);
+	SetActorInventory(victim, "DnD_SubjugatedTimer", 0);
+}
+
 // gem_flat is a spell gem's chance, joining the flat roll. True when a chill stack landed (a freeze needs one).
 bool HandleChillEffects(int pnum, int victim, int gem_flat = 0, bool isSpell = false) {
 	// Ultimatum / Unstoppable Tide. Chill IS the monster slow, and freeze hangs off it below.
@@ -4631,8 +4638,13 @@ void SilenceMonster(int victim, int tics) {
 	LockoutMonster(victim, "DnD_SilenceTimer", tics);
 }
 
+// A dungeon boss: no attack or spell lockout (pacify, silence, Subjugate's kneel, Delirium) ever lands on one.
+bool IsDungeonBossMonster(int m) {
+	return m >= DND_MONSTERTID_BEGIN && IsMonster(m) && (MonsterProperties[m - DND_MONSTERTID_BEGIN].flags & DND_MONFLAG_ISDUNGEONBOSS);
+}
+
 void LockoutMonster(int victim, str timer, int tics) {
-	if(!victim || tics <= 0)
+	if(!victim || tics <= 0 || IsDungeonBossMonster(victim))
 		return;
 
 	if(CheckActorInventory(victim, timer) < tics)
@@ -7004,6 +7016,13 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 #ifdef ISDEBUGBUILD
 		++damage_script_count;
 #endif
+		// Subjugate's submission breaks on any damage once its grace is over, whatever dealt it.
+		if(arg1 > 0) {
+			SetActivator(0, AAPTR_DAMAGE_TARGET);
+			temp = CheckInventory("DnD_SubmitAt");
+			if(temp && Timer() >= temp)
+				EndMonsterSubmission(ActivatorTID());
+		}
 		//printbold(s:"dmg type: ", s:arg2);
 		// arg1 contains damage, arg2 contains damage type as a string
 		// this causes A_KillChildren etc. to actually work...
@@ -7418,7 +7437,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				// A monster hitting one of a player's minions.
 				else if(IsPlayerAlly(victim) && IsPlayer(temp = GetActorProperty(victim, APROP_MASTERTID))) {
 					dmg = ReduceEnfeebledHit(shooter, ReduceMarkedPreyHit(temp - P_TIDSTART, shooter, ReduceMinionDamageTaken(temp - P_TIDSTART, victim, dmg, dmg_data)));
-					dmg = HandleMinionHurt(temp - P_TIDSTART, victim, shooter, dmg);
+					dmg = HandleMinionHurt(temp - P_TIDSTART, victim, shooter, dmg, actor_flags & DND_ACTORFLAG_FOILINVUL);
 				}
 				// Monster on monster: Delirium rank 10.
 				else

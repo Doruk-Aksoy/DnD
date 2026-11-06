@@ -10017,6 +10017,8 @@ int CastTargetedCurse(int pnum, int spell, int pct, int area_rank) {
 
 // The monster's spells locked (the lockout's own clock), and the curse's marker on a clock of its own.
 void SilenceCurseMonster(int m, int tics) {
+	if(IsDungeonBossMonster(m))
+		return;
 	SilenceMonster(m, tics);
 	CurseMonster(m, "DnD_SilenceCursed", "DnD_SilenceCursedTimer", "DnD Silence Timer", 1, tics);
 }
@@ -10233,8 +10235,10 @@ Script "DnD Area Curse Cast" (int pnum, int spell, int pct) {
 #define DND_DELIRIUM_REACH 768.0         // how far a delirious enemy looks for another to attack
 #define DND_DELIRIUM_LOOK 17             // tics between looks while it has none
 
-// rank: 2 at rank 10, whose delirious enemy deals double damage to other monsters (in the damage event).
+// rank: 2 at rank 10, whose delirious enemy deals double damage to other monsters (in the damage event). Never a dungeon boss.
 void DeliriumMonster(int pnum, int m, int tics) {
+	if(IsDungeonBossMonster(m))
+		return;
 	if(!CheckActorInventory(m, "DnD_DeliriousTimer"))
 		SetActorInventory(m, "DnD_DeliriumOwner", pnum + 1);
 	BlackCurseMonster(m, DND_ATTACHMENT_DELIRIUM, 1 + SpellThresholdMet(pnum, SPL_DELIRIUM, DND_SPELL_THRESH_HIGH), tics);
@@ -10302,12 +10306,13 @@ int AmplifyDeliriousHit(int shooter, int dmg) {
 // ---- Subjugate ----
 
 #define DND_SUBJUGATE_R10_CHANCE 50
+#define DND_SUBJUGATE_GRACE 18           // tics after it kneels before damage can break the submission
 
-// Pacified for the curse's length, half on a boss and never on a dungeon boss. Rank 10: a chance to fight for its subjugator
-// instead, as a raised monster does, until the curse ends; never a boss.
+// Kneels in submission for the curse's length (half on a boss, never a dungeon boss): held in the stun state, it cannot
+// move, attack or cast until damage breaks it. Rank 10: a chance to fight for its subjugator instead; never a boss.
 void SubjugateMonster(int pnum, int m, int tics) {
 	int id = m - DND_MONSTERTID_BEGIN;
-	if(MonsterProperties[id].flags & DND_MONFLAG_ISDUNGEONBOSS)
+	if(IsDungeonBossMonster(m))
 		return;
 	bool boss = IsMonsterIdBoss(MonsterProperties[id].id);
 	if(boss)
@@ -10319,13 +10324,24 @@ void SubjugateMonster(int pnum, int m, int tics) {
 		SetActorProperty(m, APROP_FRIENDLY, true);
 		GiveActorInventory(m, "PetTargetClear", 1);
 	}
+	else if(CheckActorInventory(m, "DnD_SubmitAt") || CanStunMonster(m)) {
+		if(!CheckActorInventory(m, "DnD_SubmitAt"))
+			SetActorInventory(m, "DnD_SubmitAt", Timer() + DND_SUBJUGATE_GRACE);
+		SetActorInventory(m, "StunDurationCounter", tics);
+		SetActorState(m, "Stunned");
+	}
+	// already stunned by something else, or unstoppable: it is at least pacified
 	else
 		PacifyMonster(m, tics);
 	BlackCurseMonster(m, DND_ATTACHMENT_SUBJUGATE, 1, tics);
 }
 
-// A converted enemy goes back to its own side when the curse ends, after its curser.
+// The curse's end: a kneeling enemy rises; a converted one goes back to its own side, after its curser.
 void EndSubjugation(int m) {
+	if(CheckActorInventory(m, "DnD_SubmitAt")) {
+		SetActorInventory(m, "DnD_SubmitAt", 0);
+		SetActorInventory(m, "StunDurationCounter", 0);
+	}
 	int c = CheckActorInventory(m, "DnD_SubjugatedOwner") - 1;
 	if(c < 0)
 		return;
@@ -10825,7 +10841,7 @@ void ContagionOnDeath(int m) {
 	int thief = CheckActorInventory(m, "DnD_EssenceTimer") ? CheckActorInventory(m, "DnD_EssenceOwner") - 1 : -1;
 	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
 		t = UsedMonsterTIDs[i];
-		if(t == m || !IsActorAlive(t) || !IsSpellEnemy(t) || fdistance(m, t) > r)
+		if(t == m || !IsActorAlive(t) || !IsSpellEnemy(t) || fdistance(m, t) > r || !CheckSight(m, t, CSF_NOBLOCKALL))
 			continue;
 		ApplyContagion(pnum, t, tick);
 		if(thief >= 0 && PlayerInGame(thief))
@@ -10881,15 +10897,20 @@ Script "DnD Contagion Cast" (int pnum) {
 	int cx = aim.x[pnum], cy = aim.y[pnum], cz = aim.z[pnum];
 	int r = GetContagionRadius(pnum), tick = GetContagionTick(pnum), tics = GetSpellDurationTics(pnum, SPL_CONTAGION);
 	ACS_NamedExecuteAlways("DnD Contagion Circle FX", 0, PackMapPair(cx, cy), cz, (r >> 16) | (tics << 16));
-	for(int t = 0, k = 0; t < tics && PlayerInGame(pnum); t += DND_CONTAGION_TICK + (k++ & 1)) {
+	// only what the zone's middle can see catches it, never an enemy behind a wall
+	int probe = SpawnSpellProbe(cx, cy, cz + 32.0);
+	for(int t = 0, k = 0; probe && t < tics && PlayerInGame(pnum); t += DND_CONTAGION_TICK + (k++ & 1)) {
 		for(int i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
 			int m = UsedMonsterTIDs[i];
-			if(!IsActorAlive(m) || !IsSpellEnemy(m) || VectorLength(GetActorX(m) - cx, GetActorY(m) - cy) > r || abs(GetActorZ(m) - cz) > DND_CONTAGION_ZONEZ)
+			if(!IsActorAlive(m) || !IsSpellEnemy(m) || VectorLength(GetActorX(m) - cx, GetActorY(m) - cy) > r || abs(GetActorZ(m) - cz) > DND_CONTAGION_ZONEZ ||
+				!CheckSight(probe, m, CSF_NOBLOCKALL))
 				continue;
 			ApplyContagion(pnum, m, tick);
 		}
 		Delay(DND_CONTAGION_TICK + (k & 1));
 	}
+	if(probe)
+		Thing_Remove(probe);
 }
 
 // ---- Soulstorm ----
@@ -10905,6 +10926,9 @@ Script "DnD Contagion Cast" (int pnum) {
 #define DND_SOULSTORM_ENDLEAD 35         // client side: tics before the end its closing sound takes over from the loop
 #define DND_SOULSTORM_THUNDERMIN 35      // client side: tics between its lightning sounds, at least...
 #define DND_SOULSTORM_THUNDERMAX 87      // ...and at most
+#define DND_SOULSTORM_R5_DRAIN 75        // rank 5: percent of the usual Souls each blast drains
+#define DND_SOULSTORM_PULL 6.0           // rank 10: units a tic each blast hurls an enemy towards its centre
+#define DND_SOULSTORM_PULLNEAR 48.0      // and how close in it stops pulling
 
 typedef struct {
 	int tid[MAXPLAYERS];
@@ -10925,15 +10949,46 @@ int GetSoulstormTid(int pnum) {
 }
 
 // Every enemy in reach and in sight takes DAMAGE plus DAMAGE2 per Soul held, full in the core, falling off to the edge share.
+// Rank 10: the survivors are hurled towards its centre and the dead are swallowed, bodies and all.
 void SoulstormPulse(int pnum, int storm, int r, int core, int souls) {
-	int base = RollSpellValue(pnum, SPL_SOULSTORM, SPELLVAL_DAMAGE) + RollSpellValue(pnum, SPL_SOULSTORM, SPELLVAL_DAMAGE2) * souls, i, m, d, pct;
+	int base = RollSpellValue(pnum, SPL_SOULSTORM, SPELLVAL_DAMAGE) + RollSpellValue(pnum, SPL_SOULSTORM, SPELLVAL_DAMAGE2) * souls, i, m, d, pct, dx, dy;
+	bool r10 = SpellThresholdMet(pnum, SPL_SOULSTORM, DND_SPELL_THRESH_HIGH);
+	if(base <= 0)
+		return;
 	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
 		m = UsedMonsterTIDs[i];
 		if(!IsActorAlive(m) || !IsSpellEnemy(m) || (d = fdistance(storm, m)) > r || !CheckSight(storm, m, CSF_NOBLOCKALL))
 			continue;
 		pct = d <= core ? 100 : 100 - (100 - DND_SOULSTORM_EDGE) * ((d - core) >> 8) / Max(1, (r - core) >> 8);
 		DealSpellAmount(pnum, SPL_SOULSTORM, m, base * pct / 100, true);
+		if(!r10)
+			continue;
+		if(!IsActorAlive(m))
+			ACS_NamedExecuteAlways("DnD Soulstorm Swallow", 0, m, storm);
+		else if(d > DND_SOULSTORM_PULLNEAR && !IsBossTID(m)) {
+			dx = GetActorX(storm) - GetActorX(m);
+			dy = GetActorY(storm) - GetActorY(m);
+			SetActorVelocity(m, FixedMul(FixedDiv(dx, d), DND_SOULSTORM_PULL), FixedMul(FixedDiv(dy, d), DND_SOULSTORM_PULL), 0, false, false);
+		}
 	}
+}
+
+// Rank 10: a body it killed is gone a tic later, once its own death scripts have had it, its soul streaking into the storm.
+Script "DnD Soulstorm Swallow" (int m, int storm) {
+	Delay(const:1);
+	if(IsActorAlive(m) || (ClassifyActor(m) & ACTOR_WORLD))
+		Terminate;
+	ACS_NamedExecuteAlways("DnD Soulstorm Swallow FX", 0, m, storm);
+	Delay(const:1);
+	Thing_Remove(m);
+}
+
+Script "DnD Soulstorm Swallow FX" (int m, int storm) CLIENTSIDE {
+	int x = GetActorX(m), y = GetActorY(m), z = GetActorZ(m), h = GetActorProperty(m, APROP_HEIGHT);
+	int a = VectorAngle(GetActorX(storm) - x, GetActorY(storm) - y);
+	for(int i = 0; i < 6; ++i)
+		Spawn("Spell_SoulstormSoul", x + random(-12.0, 12.0), y + random(-12.0, 12.0), z + FixedMul(h, random(0.1, 0.9)), 0, a >> 8);
+	SetResultValue(0);
 }
 
 Script "DnD Soulstorm Cast" (int pnum) {
@@ -10958,13 +11013,17 @@ Script "DnD Soulstorm Cast" (int pnum) {
 
 	int r = ScaleSpellArea(pnum, SPL_SOULSTORM, GetSpellValue(pnum, SPL_SOULSTORM, SPELLVAL_RADIUS) << 16);
 	int core = r * GetSpellValue(pnum, SPL_SOULSTORM, SPELLVAL_AMOUNT) / 100;
-	int tics = GetSpellDurationTics(pnum, SPL_SOULSTORM), drain = GetSpellValue(pnum, SPL_SOULSTORM, SPELLVAL_AMOUNT2), dx, dy, len;
+	int tics = GetSpellDurationTics(pnum, SPL_SOULSTORM), dx, dy, len, owed = 0;
+	// Drained in hundredths of a Soul, so rank 5's 25% less carries over from blast to blast.
+	int drain = GetSpellValue(pnum, SPL_SOULSTORM, SPELLVAL_AMOUNT2) * (SpellThresholdMet(pnum, SPL_SOULSTORM, DND_SPELL_THRESH_LOW) ? DND_SOULSTORM_R5_DRAIN : 100);
 	ACS_NamedExecuteAlways("DnD Soulstorm FX", 0, tid, (r >> 16) | (tics << 16));
 	for(int t = 0; t < tics && PlayerInGame(pnum); ++t) {
 		// Each blast reads the Souls held now, then drains some.
 		if(!(t % DND_SOULSTORM_PULSE)) {
 			SoulstormPulse(pnum, tid, r, core, CheckActorInventory(caster, "Souls"));
-			TakeActorInventory(caster, "Souls", drain);
+			owed += drain;
+			TakeActorInventory(caster, "Souls", owed / 100);
+			owed %= 100;
 		}
 		// Drifts along the floor towards the caster, stopping short of them; after a recast, towards the spot it pointed at.
 		int speed = ss.steer[pnum] ? DND_SOULSTORM_STEER : DND_SOULSTORM_DRIFT;
@@ -11056,6 +11115,10 @@ Script "DnD Soulstorm FX" (int tid, int rt) CLIENTSIDE {
 #define DND_CROWS_REST 6                 // tics a crow pulls back after a bite before it darts again
 #define DND_CROWS_R10_LEECH 5            // rank 10: percent of what they deal back as life
 #define DND_CROWS_MAX 16                 // crows one cast keeps track of
+#define DND_CROWS_CALLCD 35              // tics between the flock's take-off cries
+#define DND_CROWS_TURNSTEP 0.03125       // a crow's facing is resent only past this much of a turn
+#define DND_CROWS_IDLECD 105             // tics between idle caws while settled, at least...
+#define DND_CROWS_IDLECHANCE 2           // ...then percent chance a tic
 
 typedef struct {
 	int tid[DND_CROWS_MAX];
@@ -11071,12 +11134,15 @@ crows_T module& GetCrows(int pnum) {
 // Moves a crow up to speed towards a point by its velocity; true once it is there.
 bool SteerCrow(int crow, int x, int y, int z, int speed) {
 	int dx = x - GetActorX(crow), dy = y - GetActorY(crow), dz = z - GetActorZ(crow), len = fdistance_delta(dx, dy, dz);
+	// it faces where it is going, circling included, so it never slides along sideways; turns under 1/32 are not sent
+	int a = VectorAngle(dx, dy), da = (a - GetActorAngle(crow)) & 0xFFFF;
+	if(abs(dx) + abs(dy) > 0.5 && da > DND_CROWS_TURNSTEP && da < 1.0 - DND_CROWS_TURNSTEP)
+		SetActorAngle(crow, a);
 	if(len <= speed) {
 		SetActorVelocity(crow, dx, dy, dz, false, false);
 		return true;
 	}
 	SetActorVelocity(crow, FixedMul(FixedDiv(dx, len), speed), FixedMul(FixedDiv(dy, len), speed), FixedMul(FixedDiv(dz, len), speed), false, false);
-	SetActorAngle(crow, VectorAngle(dx, dy));
 	return false;
 }
 
@@ -11106,17 +11172,23 @@ Script "DnD Carrion Crows" (int pnum) {
 	crows_T module& c = GetCrows(pnum);
 	gen = CheckActorInventory(caster, "DnD_CrowsCast") + 1;
 	SetActorInventory(caster, "DnD_CrowsCast", gen);
+	bool settled = false, calm, replaced = false;
 	for(i = 0; i < DND_CROWS_MAX; ++i) {
-		if(c.tid[i])
+		if(c.tid[i]) {
 			Thing_Remove(c.tid[i]);
+			replaced = true;
+		}
 		c.tid[i] = 0;
 		c.prey[i] = 0;
 		c.rest[i] = 0;
 	}
+	// the replaced flock may have left its settle loop on
+	if(replaced)
+		StopSound(caster, CHAN_7);
 	int n = Clamp_Between(GetSpellValue(pnum, SPL_CARRIONCROWS, SPELLVAL_AMOUNT) + GetSpellExtraProjectiles(pnum, SPL_CARRIONCROWS), 1, DND_CROWS_MAX);
 	int r = ScaleSpellArea(pnum, SPL_CARRIONCROWS, GetSpellValue(pnum, SPL_CARRIONCROWS, SPELLVAL_RADIUS) << 16);
 	int speed = SpellThresholdMet(pnum, SPL_CARRIONCROWS, DND_SPELL_THRESH_LOW) ? DND_CROWS_SPEED * DND_CROWS_R5_SPEED / 100 : DND_CROWS_SPEED;
-	int tics = GetSpellDurationTics(pnum, SPL_CARRIONCROWS), spin = 0, leech = 0, dealt;
+	int tics = GetSpellDurationTics(pnum, SPL_CARRIONCROWS), spin = 0, leech = 0, dealt, callcd = DND_CROWS_CALLCD, idlecd = 0;
 	bool heal = SpellThresholdMet(pnum, SPL_CARRIONCROWS, DND_SPELL_THRESH_HIGH);
 	for(i = 0; i < n; ++i) {
 		crow = ScratchTID();
@@ -11125,10 +11197,13 @@ Script "DnD Carrion Crows" (int pnum) {
 			GetActorZ(caster) + DND_CROWS_LIFT, crow, a >> 8))
 			c.tid[i] = crow;
 	}
-	PlaySound(caster, "UndeadSoul/See", CHAN_6);
+	PlaySound(caster, "CarrionCrows/Cast", CHAN_6);
 
 	for(int t = 0; t < tics && PlayerInGame(pnum) && IsActorAlive(caster) && CheckActorInventory(caster, "DnD_CrowsCast") == gen; ++t) {
 		spin = (spin + DND_CROWS_SPIN) % 1.0;
+		calm = true;
+		if(callcd > 0)
+			--callcd;
 		for(i = 0; i < n; ++i) {
 			crow = c.tid[i];
 			if(!crow)
@@ -11140,8 +11215,16 @@ Script "DnD Carrion Crows" (int pnum) {
 				--c.rest[i];
 				m = 0;
 			}
-			else if(!m && !(t % 4))
+			else if(!m && !(t % 4)) {
 				m = c.prey[i] = PickCrowPrey(pnum, r, n);
+				if(m && !callcd) {
+					PlaySound(crow, "CarrionCrows/Cast", CHAN_VOICE);
+					PlaySound(crow, "CarrionCrows/Fly", CHAN_ITEM);
+					callcd = DND_CROWS_CALLCD;
+				}
+			}
+			if(c.prey[i])
+				calm = false;
 
 			if(m) {
 				if(fdistance(crow, m) - GetActorProperty(m, APROP_RADIUS) <= DND_CROWS_BITE) {
@@ -11153,7 +11236,7 @@ Script "DnD Carrion Crows" (int pnum) {
 							leech %= 100;
 						}
 					}
-					PlaySound(crow, "imp/melee", CHAN_BODY);
+					PlaySound(crow, "CarrionCrows/Attack", CHAN_WEAPON);
 					c.rest[i] = DND_CROWS_REST;
 				}
 				else
@@ -11161,16 +11244,37 @@ Script "DnD Carrion Crows" (int pnum) {
 			}
 			else {
 				a = (spin + (i * 1.0) / n) % 1.0;
-				SteerCrow(crow, GetActorX(caster) + FixedMul(cos(a), DND_CROWS_ORBIT), GetActorY(caster) + FixedMul(sin(a), DND_CROWS_ORBIT),
-					GetActorZ(caster) + DND_CROWS_LIFT + random(-4.0, 4.0), speed);
+				if(!SteerCrow(crow, GetActorX(caster) + FixedMul(cos(a), DND_CROWS_ORBIT), GetActorY(caster) + FixedMul(sin(a), DND_CROWS_ORBIT),
+					GetActorZ(caster) + DND_CROWS_LIFT + random(-4.0, 4.0), speed))
+					calm = false;
 			}
+		}
+
+		// the flock flutters on the caster while every crow is back on its circle, cawing now and then
+		if(calm != settled) {
+			settled = calm;
+			if(settled) {
+				PlaySound(caster, "CarrionCrows/Loop", CHAN_7, 1.0, true);
+				idlecd = DND_CROWS_IDLECD;
+			}
+			else
+				StopSound(caster, CHAN_7);
+		}
+		else if(settled && --idlecd <= 0 && random(1, 100) <= DND_CROWS_IDLECHANCE) {
+			crow = c.tid[random(0, n - 1)];
+			if(crow)
+				PlaySound(crow, "CarrionCrows/Idle", CHAN_VOICE);
+			idlecd = DND_CROWS_IDLECD;
 		}
 		Delay(const:1);
 	}
 	if(CheckActorInventory(caster, "DnD_CrowsCast") != gen)
 		Terminate;
+	if(settled)
+		StopSound(caster, CHAN_7);
 	for(i = 0; i < n; ++i) {
 		if(c.tid[i]) {
+			PlaySound(c.tid[i], "CarrionCrows/Disappear", CHAN_VOICE);
 			SetActorState(c.tid[i], "Vanish");
 			Thing_ChangeTID(c.tid[i], 0);
 		}
@@ -11290,14 +11394,27 @@ Script "DnD Nether Walk Blast FX" (int xy, int z, int r) CLIENTSIDE {
 #define DND_DEATHDECAY_SLOW 33           // percent slower while channeling
 #define DND_DEATHDECAY_BUFFTICS 8        // the slow is refreshed for this long each tic
 #define DND_DEATHDECAY_ZONEZ 96.0        // how far above or below the zone an enemy still counts as in it
+#define DND_DEATHDECAY_GEARKEEP 50       // percent of what gear adds past the share that counts...
+#define DND_DEATHDECAY_GEARCAP 250       // ...up to this percent of the share
+#define DND_DEATHDECAY_FIRERATE 0.6      // client side: flames per 3 tics on a zone of FXRADIUS...
+#define DND_DEATHDECAY_SMOKERATE 0.5     // ...and smoke puffs
+#define DND_DEATHDECAY_FXRADIUS 192.0    // more on a wider zone, by its area...
+#define DND_DEATHDECAY_FXCAP 2.5         // ...up to this many times
+#define DND_DEATHDECAY_FXCLEAR 96.0     // no flame or smoke this close to the local player, to keep their view clear
+#define DND_DEATHDECAY_ROTALPHA 0.1      // the rotting ground spread whole (DeathRot.fp's ALPHA_REF)...
+#define DND_DEATHDECAY_ROTGROW 70        // ...after this many tics of creeping out...
+#define DND_DEATHDECAY_ROTRECEDE 25      // ...and drawn back in over this many once let go
+#define DND_DEATHDECAY_LOOPVOL 1.0       // the boiling sludge loop on the rot, at full...
+#define DND_DEATHDECAY_LOOPIN 15         // ...after fading in over this many tics; it fades out as the rot recedes
 
 // One second of the zone: every enemy inside loses DAMAGE percent (16.16) of its maximum life, bosses half, as magic
-// damage over time; priced, resisted, then capped at that share, as Implosion's is.
-void DeathAndDecayTick(int pnum, int cx, int cy, int cz, int r) {
+// damage over time; priced and resisted, then gear past that share counts at GEARKEEP up to GEARCAP of it.
+void DeathAndDecayTick(int pnum, int cx, int cy, int cz, int r, int probe) {
 	int pct = GetSpellValue(pnum, SPL_DEATHANDDECAY, SPELLVAL_DAMAGE), i, m, m_id, dmg, share;
 	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
 		m = UsedMonsterTIDs[i];
-		if(!IsActorAlive(m) || !IsSpellEnemy(m) || VectorLength(GetActorX(m) - cx, GetActorY(m) - cy) > r || abs(GetActorZ(m) - cz) > DND_DEATHDECAY_ZONEZ)
+		if(!IsActorAlive(m) || !IsSpellEnemy(m) || VectorLength(GetActorX(m) - cx, GetActorY(m) - cy) > r || abs(GetActorZ(m) - cz) > DND_DEATHDECAY_ZONEZ ||
+			!probe || !CheckSight(probe, m, CSF_NOBLOCKALL))
 			continue;
 		m_id = m - DND_MONSTERTID_BEGIN;
 		share = FixedMul(MonsterProperties[m_id].maxhp, pct) / 100;
@@ -11306,9 +11423,11 @@ void DeathAndDecayTick(int pnum, int cx, int cy, int cz, int r) {
 		share = Max(1, share);
 		dmg = HandleDamageDeal(pnum + P_TIDSTART, m, PriceSpellDamage(pnum, SPL_DEATHANDDECAY, share, 0, true, m), DND_DAMAGETYPE_OCCULT, SPL_DEATHANDDECAY,
 			DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_ISDAMAGEOVERTIME | DND_ACTORFLAG_PAINLESS, true);
-		dmg = Min(dmg, share);
-		if(dmg > 0)
+		dmg = ScaleCappedShare(dmg, share, DND_DEATHDECAY_GEARKEEP, DND_DEATHDECAY_GEARCAP);
+		if(dmg > 0) {
 			Thing_Damage2(m, dmg, "Special_NoPain");
+			PlaySound(m, "DeathAndDecay/Hit", CHAN_7);
+		}
 	}
 }
 
@@ -11332,6 +11451,8 @@ Script "DnD Death And Decay" (int pnum) {
 	if(tid)
 		SetActorProperty(tid, APROP_SCALEX, FixedDiv(r, 64.0));
 	ACS_NamedExecuteAlways("DnD Death And Decay FX", 0, tid, r >> 16);
+	// only what the zone's middle can see rots, never an enemy behind a wall
+	int probe = SpawnSpellProbe(cx, cy, cz + 32.0);
 	BeginSpellBusy(pnum);
 	bool held = false;
 	for(int t = 0; t < tics; ++t) {
@@ -11344,27 +11465,68 @@ Script "DnD Death And Decay" (int pnum) {
 		if(!(t % DND_DEATHDECAY_PERIOD)) {
 			if(!PayChannelTick(pnum, SPL_DEATHANDDECAY, !t))
 				break;
-			DeathAndDecayTick(pnum, cx, cy, cz, r);
+			DeathAndDecayTick(pnum, cx, cy, cz, r, probe);
 		}
 		HandlePlayerBuffAssignment(pnum, caster, BTI_SPELL_ANNIHILUS_SLOW, 0, 0, DND_DEATHDECAY_BUFFTICS, DND_DEATHDECAY_SLOW);
 		Delay(const:1);
 	}
 	EndSpellBusy(pnum);
+	if(probe)
+		Thing_Remove(probe);
 	if(tid) {
 		SetActorState(tid, "Vanish");
 		Thing_ChangeTID(tid, 0);
 	}
 }
 
-// Client side: rising wisps of death across the zone while it stands.
+// Client side: the ground rotting out from the middle, flames and thick dark smoke breaking out at random while it stands.
 Script "DnD Death And Decay FX" (int tid, int r) CLIENTSIDE {
 	r <<= 16;
-	while(tid && !(ClassifyActor(tid) & ACTOR_WORLD) && GetActorProperty(tid, APROP_ALPHA) > 0.2) {
-		for(int i = 0; i < 3; ++i) {
-			int a = random(0, 1.0), d = FixedMul(r, fsqrt(random(0, 1.0)));
-			Spawn("Spell_DeathAndDecayWisp", GetActorX(tid) + FixedMul(cos(a), d), GetActorY(tid) + FixedMul(sin(a), d), GetActorZ(tid) + 4.0);
+	int f = FixedDiv(r, DND_DEATHDECAY_FXRADIUS), fire = 0, smoke = 0, a, d, x, y, me = ConsolePlayerNumber() + P_TIDSTART, grow = 0, t;
+	f = Min(FixedMul(f, f), DND_DEATHDECAY_FXCAP);
+	int rot = ScratchTID();
+	if(!tid || !rot || !SpawnForced("Spell_DeathAndDecayRot", GetActorX(tid), GetActorY(tid), GetActorZ(tid), rot))
+		rot = 0;
+	else {
+		SetActorProperty(rot, APROP_SCALEX, FixedDiv(r, DND_CONTAGION_DISC));
+		PlaySound(rot, "DeathAndDecay/Loop", CHAN_5, DND_DEATHDECAY_LOOPVOL / DND_DEATHDECAY_LOOPIN, true);
+	}
+	for(t = 0; tid && !(ClassifyActor(tid) & ACTOR_WORLD) && GetActorProperty(tid, APROP_ALPHA) > 0.2; ++t) {
+		if(rot && grow < DND_DEATHDECAY_ROTGROW)
+			SetActorProperty(rot, APROP_ALPHA, DND_DEATHDECAY_ROTALPHA * ++grow / DND_DEATHDECAY_ROTGROW);
+		if(rot && t < DND_DEATHDECAY_LOOPIN)
+			SoundVolume(rot, CHAN_5, DND_DEATHDECAY_LOOPVOL * (t + 1) / DND_DEATHDECAY_LOOPIN);
+		if(t % 3) {
+			Delay(const:1);
+			continue;
 		}
-		Delay(const:3);
+		for(fire += FixedMul(DND_DEATHDECAY_FIRERATE, f); fire >= 1.0; fire -= 1.0) {
+			a = random(0, 1.0);
+			d = FixedMul(r, fsqrt(random(0, 0.85)));
+			x = GetActorX(tid) + FixedMul(cos(a), d);
+			y = GetActorY(tid) + FixedMul(sin(a), d);
+			if(VectorLength(x - GetActorX(me), y - GetActorY(me)) > DND_DEATHDECAY_FXCLEAR)
+				Spawn("Spell_DeathAndDecayFlame", x, y, GetActorZ(tid));
+		}
+		for(smoke += FixedMul(DND_DEATHDECAY_SMOKERATE, f); smoke >= 1.0; smoke -= 1.0) {
+			a = random(0, 1.0);
+			d = FixedMul(r, fsqrt(random(0, 0.8)));
+			x = GetActorX(tid) + FixedMul(cos(a), d);
+			y = GetActorY(tid) + FixedMul(sin(a), d);
+			if(VectorLength(x - GetActorX(me), y - GetActorY(me)) > DND_DEATHDECAY_FXCLEAR)
+				Spawn("Spell_DeathAndDecaySmoke", x, y, GetActorZ(tid) + 24.0);
+		}
+		Delay(const:1);
+	}
+	// the rot draws back in from wherever it had spread to, its sludge fading with it
+	for(grow = grow * DND_DEATHDECAY_ROTRECEDE / DND_DEATHDECAY_ROTGROW; rot && grow > 0; --grow) {
+		SetActorProperty(rot, APROP_ALPHA, DND_DEATHDECAY_ROTALPHA * grow / DND_DEATHDECAY_ROTRECEDE);
+		SoundVolume(rot, CHAN_5, Min(DND_DEATHDECAY_LOOPVOL * grow / DND_DEATHDECAY_ROTRECEDE, DND_DEATHDECAY_LOOPVOL * (t + 1) / DND_DEATHDECAY_LOOPIN));
+		Delay(const:1);
+	}
+	if(rot) {
+		StopSound(rot, CHAN_5);
+		Thing_Remove(rot);
 	}
 	SetResultValue(0);
 }
@@ -11742,6 +11904,8 @@ Script "DnD Finger of Death FX" (int from_xy, int to_xy, int zz) CLIENTSIDE {
 #define DND_IMPLOSION_SPEED 30
 #define DND_IMPLOSION_R5_SPEED 45       // rank 5: 50% faster
 #define DND_IMPLOSION_R10_MANA 2        // rank 10: percent of the damage dealt returned as mana
+#define DND_IMPLOSION_GEARKEEP 25       // percent of what gear adds past the share that counts...
+#define DND_IMPLOSION_GEARCAP 150       // ...up to this percent of the share
 
 void CastImplosion(int pnum) {
 	PlaySound(pnum + P_TIDSTART, "Implosion/Cast", CHAN_6);
@@ -11749,8 +11913,8 @@ void CastImplosion(int pnum) {
 		SpellThresholdMet(pnum, SPL_IMPLOSION, DND_SPELL_THRESH_LOW) ? DND_IMPLOSION_R5_SPEED : DND_IMPLOSION_SPEED);
 }
 
-// The needle's tracer is what it struck. A share of the CURRENT health, through magic resistance but none of the spell
-// damage increases, and never below 1% of its maximum.
+// The needle's tracer is what it struck. A share of the CURRENT health, priced and resisted, gear past the share counting
+// at GEARKEEP up to GEARCAP of it, and never below 1% of its maximum.
 Script "DnD Implosion Hit" (void) {
 	int pnum = GetSpellActorOwner();
 	if(pnum == -1 || !SetActivator(0, AAPTR_TRACER)) {
@@ -11764,8 +11928,8 @@ Script "DnD Implosion Hit" (void) {
 		int share = FixedMul(hp, GetSpellValue(pnum, SPL_IMPLOSION, SPELLVAL_DAMAGE)) / 100;
 		int dmg = HandleDamageDeal(pnum + P_TIDSTART, victim, PriceSpellDamage(pnum, SPL_IMPLOSION, share, 0, false, victim), DND_DAMAGETYPE_OCCULT,
 			SPL_IMPLOSION, DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, 0, true);
-		// Spell damage gear only wins back what resistance took: never past the share, never below the floor.
-		dmg = Min(Min(dmg, share), hp - floor);
+		// Gear wins back what resistance took, then a part of what it adds past the share counts; never below the floor.
+		dmg = Min(ScaleCappedShare(dmg, share, DND_IMPLOSION_GEARKEEP, DND_IMPLOSION_GEARCAP), hp - floor);
 		if(dmg > 0) {
 			Thing_Damage2(victim, dmg, "SkipHandle");
 			if(SpellThresholdMet(pnum, SPL_IMPLOSION, DND_SPELL_THRESH_HIGH))
@@ -11834,12 +11998,15 @@ Script "DnD Spell Zombie Melee" (void) {
 
 // ---- Black summons: shared ----
 
-#define DND_SKELETON_DIST 56
-#define DND_SKELETONMAGE_CHANCE 30       // rank 10: percent of skeletons that rise as mages
-#define DND_SKELETONMAGE_MORE 10         // and a mage's more damage
-#define DND_SKELETONMAGE_LESSHP 25       // and its less health
-#define DND_SKELETON_R5_BLOCK 25         // rank 5: percent chance, once hurt, to block the next hit
-#define DND_SKELETONMAGE_CHEST 40.0      // how high off its feet a mage's spell leaves
+#define DND_KNIGHT_DIST 56
+#define DND_KNIGHT_R5_AXE 75             // rank 5: percent of its melee its thrown spectral axe deals, as magic
+#define DND_KNIGHT_R10_AXE 150           // rank 10: percent of its melee the red axe deals
+#define DND_DEATHKNIGHT_DIST 64
+#define DND_DEATHKNIGHT_REACH 80.0       // its strike's reach past the target's edge
+#define DND_DEATHKNIGHT_BLOCK 25         // percent chance, when hurt, to raise its shield...
+#define DND_DEATHKNIGHT_BLOCKTICS 70     // ...for 2 seconds
+#define DND_DEATHKNIGHT_IGNITE 25        // percent chance a skull sets the enemy it hits on fire
+#define DND_LEGION_R5_LEECH 5            // Legion Mastery rank 5: percent of a Death Knight's melee leeched as life
 #define DND_GHAST_DIST 64
 #define DND_GHAST_CASTS 2                // Dark Winds before it rests
 #define DND_GHAST_REST (8 * TICRATE)
@@ -11866,12 +12033,16 @@ Script "DnD Spell Zombie Melee" (void) {
 
 // Mirrors MINIONHIT_* in Pets.dec: which row a minion's hit reads.
 enum {
-	DND_MINIONHIT_SKELETON,
+	DND_MINIONHIT_KNIGHT,
 	DND_MINIONHIT_SLAYERMELEE,
 	DND_MINIONHIT_SLAYERFLAME,
 	DND_MINIONHIT_DOOMMELEE,
 	DND_MINIONHIT_METEOR,
-	DND_MINIONHIT_METEORBLAST
+	DND_MINIONHIT_METEORBLAST,
+	DND_MINIONHIT_KNIGHTAXE,
+	DND_MINIONHIT_KNIGHTREDAXE,
+	DND_MINIONHIT_DKMELEE,
+	DND_MINIONHIT_DKSKULL
 };
 
 // Tics a timed summon lives, 0 for none: no duration row, or a mastery's rank 5 takes it away (never the portal's).
@@ -11880,7 +12051,7 @@ int GetMinionLifeTics(int pnum, int spell, int rank, int portal_more = 0) {
 	if(spell < 0 || !(SpellDefs[spell].flags & SPLF_DURATION))
 		return 0;
 	if(spell != SPL_DARKPORTAL && (SpellThresholdMet(pnum, SPL_SUMMONMASTERY, DND_SPELL_THRESH_LOW) ||
-		(spell == SPL_SKELETON && SpellThresholdMet(pnum, SPL_SKELETONMASTERY, DND_SPELL_THRESH_LOW))))
+		(spell == SPL_KNIGHT && SpellThresholdMet(pnum, SPL_LEGIONMASTERY, DND_SPELL_THRESH_LOW))))
 		return 0;
 	int s = PlayerModData[pnum].vals[PSTAT_SPELL_DURATION];
 	int tics = ((GetSpellValue(pnum, spell, SPELLVAL_DURATION, rank) + GetSpellValue(pnum, SPL_SUMMONMASTERY, SPELLVAL_DURATION)) * TICRATE) >> 16;
@@ -11888,13 +12059,11 @@ int GetMinionLifeTics(int pnum, int spell, int rank, int portal_more = 0) {
 	return Max(1, tics * (100 + portal_more) / 100);
 }
 
-// A summon's health before the pet scaling: the row, the spell's gems, then any "more" its kind carries.
+// A summon's health before the pet scaling: the row, the spell's gems, then Legion Mastery's "more" on any knight.
 int GetSpellMinionHealth(int pnum, int spell, int petid) {
 	int hp = ApplySpellGemMore(pnum, spell, GEMSTAT_MORE_MINIONLIFE, GetSpellValue(pnum, spell, SPELLVAL_DAMAGE));
-	if(petid == MONSTER_PET_SKELETON || petid == MONSTER_PET_SKELETONMAGE)
-		hp = hp * (100 + GetSpellValue(pnum, SPL_SKELETONMASTERY, SPELLVAL_DAMAGE2)) / 100;
-	if(petid == MONSTER_PET_SKELETONMAGE)
-		hp = hp * (100 - DND_SKELETONMAGE_LESSHP) / 100;
+	if(IsKnightPet(petid))
+		hp = hp * (100 + GetSpellValue(pnum, SPL_LEGIONMASTERY, SPELLVAL_DAMAGE2)) / 100;
 	return Max(1, hp);
 }
 
@@ -11974,11 +12143,25 @@ Script "DnD Spell Minion Hit" (int which, int flags) {
 		SetResultValue(0);
 		Terminate;
 	}
-	int lo, hi;
+	int lo, hi, pct;
 	switch(which) {
-		case DND_MINIONHIT_SKELETON:
-			lo = GetSpellValue(pnum, SPL_SKELETON, SPELLVAL_DAMAGE2MIN);
-			hi = GetSpellValue(pnum, SPL_SKELETON, SPELLVAL_DAMAGE2);
+		case DND_MINIONHIT_KNIGHT:
+		case DND_MINIONHIT_KNIGHTAXE:
+		case DND_MINIONHIT_KNIGHTREDAXE:
+			lo = GetSpellValue(pnum, SPL_KNIGHT, SPELLVAL_DAMAGE2MIN);
+			hi = GetSpellValue(pnum, SPL_KNIGHT, SPELLVAL_DAMAGE2);
+			if(which != DND_MINIONHIT_KNIGHT) {
+				pct = which == DND_MINIONHIT_KNIGHTAXE ? DND_KNIGHT_R5_AXE : DND_KNIGHT_R10_AXE;
+				lo = lo * pct / 100;
+				hi = hi * pct / 100;
+			}
+		break;
+		case DND_MINIONHIT_DKMELEE:
+			lo = GetSpellValue(pnum, SPL_DEATHKNIGHT, SPELLVAL_DAMAGE2MIN);
+			hi = GetSpellValue(pnum, SPL_DEATHKNIGHT, SPELLVAL_DAMAGE2);
+		break;
+		case DND_MINIONHIT_DKSKULL:
+			lo = hi = GetSpellValue(pnum, SPL_DEATHKNIGHT, SPELLVAL_AMOUNT2);
 		break;
 		case DND_MINIONHIT_SLAYERMELEE:
 			lo = GetSpellValue(pnum, SPL_SLAYERKNIGHT, SPELLVAL_DAMAGE2MIN);
@@ -11993,8 +12176,11 @@ Script "DnD Spell Minion Hit" (int which, int flags) {
 		case DND_MINIONHIT_METEOR:
 			lo = hi = GetSpellValue(pnum, SPL_DOOMGUARD, SPELLVAL_AMOUNT);
 		break;
-		default:
+		case DND_MINIONHIT_METEORBLAST:
 			lo = hi = GetSpellValue(pnum, SPL_DOOMGUARD, SPELLVAL_AMOUNT2);
+		break;
+		default:
+			lo = hi = 0;
 		break;
 	}
 	SetResultValue(ACS_NamedExecuteWithResult("DND Pet Monster Damage Scale", random(lo, Max(lo, hi)), 0, 0));
@@ -12005,17 +12191,12 @@ int GetFacingOffset(int from, int to, int a) {
 	return (VectorAngle(GetActorX(to) - GetActorX(from), GetActorY(to) - GetActorY(from)) - a + 1.5) % 1.0 - 0.5;
 }
 
-// The Doomguard's cleave and the Slayer Knight's rank 10 wave: every enemy in front within reach and the half arc, its
-// target among them, takes the hit from the minion. 1 when anything was hit.
-Script "DnD Minion Cleave" (int which) {
-	int me = ActivatorTID(), pnum = GetActorProperty(0, APROP_MASTERTID) - P_TIDSTART;
-	if(!me || pnum < 0 || pnum >= MAXPLAYERS) {
-		SetResultValue(0);
-		Terminate;
-	}
+// The Doomguard's cleave and the knights' rank 10 waves: every enemy in front within reach and the half arc, its target
+// among them, takes dmg from the minion. Returns how many it hit.
+int MinionCleave(int me, int which, int dmg) {
 	bool doom = which == DND_MINIONHIT_DOOMMELEE;
 	int reach = doom ? DND_DOOMGUARD_CLEAVE : DND_SLAYER_WAVE, arc = doom ? DND_DOOMGUARD_CLEAVEARC : DND_SLAYER_WAVEARC;
-	int dmg = ACS_NamedExecuteWithResult("DnD Spell Minion Hit", which, 0);
+	str type = which == DND_MINIONHIT_DKMELEE ? "Magic" : "Melee";
 	int a = GetActorAngle(me), z = GetActorZ(me), h = GetActorProperty(me, APROP_HEIGHT), hits = 0, i, m;
 	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
 		m = UsedMonsterTIDs[i];
@@ -12025,12 +12206,22 @@ Script "DnD Minion Cleave" (int which) {
 			continue;
 		if(!CheckSight(me, m, 0))
 			continue;
-		Thing_Damage2(m, dmg, "Melee");
+		Thing_Damage2(m, dmg, type);
 		++hits;
 	}
 	if(!doom && hits)
 		ACS_NamedExecuteAlways("DnD Slayer Wave FX", 0, me);
-	SetResultValue(hits > 0);
+	return hits;
+}
+
+// DECORATE's way in: the minion's row, then the cleave. 1 when anything was hit.
+Script "DnD Minion Cleave" (int which) {
+	int me = ActivatorTID(), pnum = GetActorProperty(0, APROP_MASTERTID) - P_TIDSTART;
+	if(!me || pnum < 0 || pnum >= MAXPLAYERS) {
+		SetResultValue(0);
+		Terminate;
+	}
+	SetResultValue(MinionCleave(me, which, ACS_NamedExecuteWithResult("DnD Spell Minion Hit", which, 0)) > 0);
 }
 
 Script "DnD Slayer Wave FX" (int me) CLIENTSIDE {
@@ -12042,22 +12233,26 @@ Script "DnD Slayer Wave FX" (int me) CLIENTSIDE {
 	SetResultValue(0);
 }
 
-// A monster's hit on a minion: a skeleton's block, the Ghast's shift, the Slayer Knight's counter. Returns what lands.
-int HandleMinionHurt(int pnum, int pet, int shooter, int dmg) {
+// A monster's hit on a minion: the Death Knight's shield (never against FOILINVUL), the Ghast's shift, the Slayer Knight's
+// counter. Returns what lands.
+int HandleMinionHurt(int pnum, int pet, int shooter, int dmg, bool foil = false) {
 	if(pet < DND_PETTID_BEGIN || pet >= DND_PETTID_END || dmg <= 0)
 		return dmg;
 	// Rank 5 Slayer Knight: briefly untouchable after a counter.
 	if(CheckActorInventory(pet, "DnD_SlayerGuard"))
 		return 0;
 	switch(PetMonsterProperties[pet - DND_PETTID_BEGIN].id) {
-		case MONSTER_PET_SKELETON:
-			if(CheckActorInventory(pet, "DnD_SkeletonBlock")) {
-				TakeActorInventory(pet, "DnD_SkeletonBlock", 1);
-				ACS_NamedExecuteAlways("DnD Skeleton Block FX", 0, pet);
+		case MONSTER_PET_DEATHKNIGHT:
+			if(!foil && CheckActorInventory(pet, "DnD_DeathKnightBlocking")) {
+				ACS_NamedExecuteAlways("DnD Death Knight Block FX", 0, pet);
 				return 0;
 			}
-			if(SpellThresholdMet(pnum, SPL_SKELETON, DND_SPELL_THRESH_LOW) && random(1, 100) <= DND_SKELETON_R5_BLOCK)
-				GiveActorInventory(pet, "DnD_SkeletonBlock", 1);
+			// A FOILINVUL hit still lands in full, though it may raise the shield for the next ones.
+			if(random(1, 100) <= DND_DEATHKNIGHT_BLOCK) {
+				ACS_NamedExecuteAlways("DnD Death Knight Block", 0, pet, SpellThresholdMet(pnum, SPL_DEATHKNIGHT, DND_SPELL_THRESH_LOW));
+				if(!foil)
+					return 0;
+			}
 		break;
 		case MONSTER_PET_GHAST:
 			if(SpellThresholdMet(pnum, SPL_GHAST, DND_SPELL_THRESH_LOW) && Timer() >= GetUserVariable(pet, "user_shift"))
@@ -12073,69 +12268,116 @@ int HandleMinionHurt(int pnum, int pet, int shooter, int dmg) {
 	return dmg;
 }
 
-Script "DnD Skeleton Block FX" (int pet) CLIENTSIDE {
-	Spawn("Spell_Skeleton_BlockFX", GetActorX(pet), GetActorY(pet), GetActorZ(pet) + GetActorProperty(pet, APROP_HEIGHT) / 2);
-	PlaySound(pet, "skeleton/melee", CHAN_BODY);
+// Shield up for 2 seconds: every hit on it is blocked; rank 5 also sends missiles back (REFLECTIVE, by item).
+Script "DnD Death Knight Block" (int pet, int reflect) {
+	if(!IsActorAlive(pet) || CheckActorInventory(pet, "DnD_DeathKnightBlocking"))
+		Terminate;
+	SetActorInventory(pet, "DnD_DeathKnightBlocking", 1);
+	if(reflect)
+		GiveActorInventory(pet, "DnD_DeathKnightShieldReflect", 1);
+	SetActorState(pet, "Block");
+	ACS_NamedExecuteAlways("DnD Death Knight Block FX", 0, pet);
+	Delay(const:DND_DEATHKNIGHT_BLOCKTICS);
+	if(!IsActorAlive(pet))
+		Terminate;
+	SetActorInventory(pet, "DnD_DeathKnightBlocking", 0);
+	GiveActorInventory(pet, "DnD_DeathKnightShieldDown", 1);
+}
+
+Script "DnD Death Knight Block FX" (int pet) CLIENTSIDE {
+	int a = GetActorAngle(pet);
+	Spawn("Spell_DeathKnight_BlockFX", GetActorX(pet) + FixedMul(cos(a), 16.0), GetActorY(pet) + FixedMul(sin(a), 16.0),
+		GetActorZ(pet) + GetActorProperty(pet, APROP_HEIGHT) / 2);
+	PlaySound(pet, "Marine/Shielded", CHAN_BODY);
 	SetResultValue(0);
 }
 
-// ---- Summon: Skeleton ----
+// ---- Summon: Knight ----
 
-// arg petid1: a carried minion's kind + 1, so a mage comes back a mage; 0 rolls rank 10's mage chance.
-Script "DnD Summon Skeleton" (int pnum, int quiet, int petid1) {
+// Rank 5 sends it out able to throw; quiet and petid1 as every summon script takes them.
+Script "DnD Summon Knight" (int pnum, int quiet, int petid1) {
 	int caster = pnum + P_TIDSTART;
-	int petid = petid1 ? petid1 - 1 : MONSTER_PET_SKELETON;
-	if(!petid1 && SpellThresholdMet(pnum, SPL_SKELETON, DND_SPELL_THRESH_HIGH) && random(1, 100) <= DND_SKELETONMAGE_CHANCE)
-		petid = MONSTER_PET_SKELETONMAGE;
-	if(!MakeRoomForPet(pnum, petid, GetSummonKindCap(pnum, SPL_SKELETON), true))
+	if(!MakeRoomForPet(pnum, MONSTER_PET_KNIGHT, GetSummonKindCap(pnum, SPL_KNIGHT), true))
 		Terminate;
-
 	int tid = TEMPORARY_PET_TID + pnum;
-	if(!SpawnSummonNear(petid == MONSTER_PET_SKELETONMAGE ? "Spell_SkeletonMage" : "Spell_Skeleton", caster, tid, DND_SKELETON_DIST))
+	if(!SpawnSummonNear(SpellThresholdMet(pnum, SPL_KNIGHT, DND_SPELL_THRESH_LOW) ? "Spell_KnightThrower" : "Spell_Knight", caster, tid, DND_KNIGHT_DIST))
 		Terminate;
-	int pet = SetupSpellMinion(pnum, tid, petid, GetSpellMinionHealth(pnum, SPL_SKELETON, petid), quiet);
+	int pet = SetupSpellMinion(pnum, tid, MONSTER_PET_KNIGHT, GetSpellMinionHealth(pnum, SPL_KNIGHT, MONSTER_PET_KNIGHT), quiet);
 	if(!quiet)
-		PlaySound(caster, "Draugr/See", CHAN_6);
+		PlaySound(caster, "hknight/sight", CHAN_6);
 	SetResultValue(pet);
 }
 
-// Skeleton Mastery rank 10: a random tier 1 elemental projectile the owner has learned, thrown from the mage at its
-// target at the owner's rank. False, casting nothing, when there is none; the mage throws its own bolt then.
-Script "DnD Skeleton Mage Spell" (void) {
-	int mage = ActivatorTID(), pnum = GetActorProperty(0, APROP_MASTERTID) - P_TIDSTART;
-	if(!mage || pnum < 0 || pnum >= MAXPLAYERS || !PlayerInGame(pnum) || !SpellThresholdMet(pnum, SPL_SKELETONMASTERY, DND_SPELL_THRESH_HIGH)) {
+// Which missile a knight throws, as bits: 1 rank 10's red axe may fly, 2 Legion Mastery rank 10 lets it strike ghosts.
+Script "DnD Knight Throw Kind" (void) {
+	int pnum = GetActorProperty(0, APROP_MASTERTID) - P_TIDSTART;
+	if(pnum < 0 || pnum >= MAXPLAYERS) {
 		SetResultValue(0);
 		Terminate;
 	}
-	int n = 0, pick = -1, s;
-	for(int i = 0; i < 4; ++i) {
-		s = i == 0 ? SPL_FIREBALL : i == 1 ? SPL_ICEBOLT : i == 2 ? SPL_CHARGEDBOLT : SPL_SHRAPNEL;
-		if(GetSpellAllocatedRank(pnum, s) && !random(0, n++))
-			pick = s;
-	}
-	int target = pick != -1 && SetActivator(0, AAPTR_TARGET) ? ActivatorTID() : 0;
-	SetActivator(mage);
-	if(!target || !IsActorAlive(target)) {
+	SetResultValue(SpellThresholdMet(pnum, SPL_KNIGHT, DND_SPELL_THRESH_HIGH) | (SpellThresholdMet(pnum, SPL_LEGIONMASTERY, DND_SPELL_THRESH_HIGH) << 1));
+}
+
+// ---- Summon: Death Knight ----
+
+Script "DnD Summon Death Knight" (int pnum, int quiet, int petid1) {
+	int caster = pnum + P_TIDSTART;
+	if(!MakeRoomForPet(pnum, MONSTER_PET_DEATHKNIGHT, GetSummonKindCap(pnum, SPL_DEATHKNIGHT)))
+		Terminate;
+	int tid = TEMPORARY_PET_TID + pnum;
+	if(!SpawnSummonNear("Spell_DeathKnight", caster, tid, DND_DEATHKNIGHT_DIST))
+		Terminate;
+	int pet = SetupSpellMinion(pnum, tid, MONSTER_PET_DEATHKNIGHT, GetSpellMinionHealth(pnum, SPL_DEATHKNIGHT, MONSTER_PET_DEATHKNIGHT), quiet);
+	if(!quiet)
+		PlaySound(caster, "dknight/sight", CHAN_6);
+	SetResultValue(pet);
+}
+
+// Its slower magic strike on its target, or from rank 10 a wave over everything in front; Legion Mastery rank 5 leeches
+// part of it as life. 1 when it hit.
+Script "DnD Death Knight Strike" (void) {
+	int me = ActivatorTID(), pnum = GetActorProperty(0, APROP_MASTERTID) - P_TIDSTART;
+	if(!me || pnum < 0 || pnum >= MAXPLAYERS) {
 		SetResultValue(0);
 		Terminate;
 	}
-	int pt = PetThrowPitch(mage, target, DND_SKELETONMAGE_CHEST);
-	switch(pick) {
-		case SPL_FIREBALL:
-			SpawnSpellProjectile(pnum, pick, "Spell_Fireball", DND_FIREBALL_SPEED, 0, 0, 0, 0, mage, true, DND_SKELETONMAGE_CHEST, pt);
-		break;
-		case SPL_ICEBOLT:
-			SpawnSpellProjectile(pnum, pick, "Spell_IceBolt", DND_ICEBOLT_SPEED, 0, 0, 0, 0, mage, true, DND_SKELETONMAGE_CHEST, pt);
-		break;
-		case SPL_CHARGEDBOLT:
-			SpawnSpellProjectile(pnum, pick, "Spell_ChargedBolt", DND_CHARGEDBOLT_SPEED, 0, 0, 0,
-				Max(1, GetSpellDurationTics(pnum, pick) / DND_CHARGEDBOLT_STEP), mage, true, DND_SKELETONMAGE_CHEST, pt);
-		break;
-		default:
-			SpawnSpellProjectile(pnum, pick, "Spell_Shrapnel", DND_SHRAPNEL_SPEED, 0, 0, 0, 0, mage, true, DND_SKELETONMAGE_CHEST, pt);
-		break;
+	int dmg = ACS_NamedExecuteWithResult("DnD Spell Minion Hit", DND_MINIONHIT_DKMELEE, 0), hits = 0, t = 0;
+	if(SpellThresholdMet(pnum, SPL_DEATHKNIGHT, DND_SPELL_THRESH_HIGH))
+		hits = MinionCleave(me, DND_MINIONHIT_DKMELEE, dmg);
+	else {
+		if(SetActivator(me, AAPTR_TARGET))
+			t = ActivatorTID();
+		SetActivator(me);
+		if(t && IsActorAlive(t) && IsSpellEnemy(t) && fdistance(me, t) - GetActorProperty(t, APROP_RADIUS) <= DND_DEATHKNIGHT_REACH && CheckSight(me, t, 0)) {
+			Thing_Damage2(t, dmg, "Magic");
+			hits = 1;
+		}
 	}
-	SetResultValue(1);
+	if(hits && SpellThresholdMet(pnum, SPL_LEGIONMASTERY, DND_SPELL_THRESH_LOW)) {
+		int hp = GetActorProperty(me, APROP_HEALTH), cap = GetMinionLifeCap(me, pnum + P_TIDSTART);
+		if(hp < cap)
+			SetActorProperty(me, APROP_HEALTH, Min(cap, hp + Max(1, dmg * hits * DND_LEGION_R5_LEECH / 100)));
+	}
+	SetResultValue(hits > 0);
+}
+
+// A skull that struck an enemy (its tracer) may set it on fire: an ignite priced off its owner's Death Knight.
+Script "DnD Death Knight Skull Hit" (void) {
+	SetResultValue(0);
+	if(random(1, 100) > DND_DEATHKNIGHT_IGNITE)
+		Terminate;
+	// A scratch tid on the skull, to reach both its shooter (target) and what it hit (tracer).
+	int skull = ScratchTID(), pnum = -1, victim = 0;
+	if(!skull)
+		Terminate;
+	Thing_ChangeTID(0, skull);
+	if(SetActivator(skull, AAPTR_TARGET))
+		pnum = GetActorProperty(0, APROP_MASTERTID) - P_TIDSTART;
+	if(SetActivator(skull, AAPTR_TRACER))
+		victim = ActivatorTID();
+	Thing_ChangeTID(skull, 0);
+	if(pnum >= 0 && pnum < MAXPLAYERS && PlayerInGame(pnum) && IsMonster(victim) && IsActorAlive(victim))
+		ApplyForcedIgnite(pnum, victim, 100, false, SPL_DEATHKNIGHT);
 }
 
 // ---- Summon: Ghast ----
@@ -12951,8 +13193,12 @@ Script "DnD Spell Cast" (int spell, int pnum, int depth) {
 			SpawnSpellFan(pnum, spell, "Spell_BanishBall", DND_CURSEBALL_SPEED);
 		break;
 
-		case SPL_SKELETON:
-			ACS_NamedExecuteAlways("DnD Summon Skeleton", 0, pnum, 0, 0);
+		case SPL_KNIGHT:
+			ACS_NamedExecuteAlways("DnD Summon Knight", 0, pnum, 0, 0);
+		break;
+
+		case SPL_DEATHKNIGHT:
+			ACS_NamedExecuteAlways("DnD Summon Death Knight", 0, pnum, 0, 0);
 		break;
 
 		case SPL_GHAST:
@@ -13363,19 +13609,18 @@ int GetSummonRowValue(int pnum, int spell, int row, int rank, bool high) {
 #define DND_VOLCANO_R5_INC 30
 #define DND_VOLCANO_R10_MORE 25
 
-// Crater height. The grow-in applies A_SetScale 19 times at 1.2125, so the cone settles at 1.95
-// and the sprite stands about 68 units. 58 is its summit.
+// Where the lava leaves: just over the model's crater (crest 54, pool 51.6, VOLCANO.md3).
 #define DND_VOLCANO_MOUTH 58.0
 
-// Scattered across the mouth, which is narrow: the sprite is 31 units wide at the BASE, and the
-// cone has tapered well past that by the time it reaches MOUTH.
+// Scattered across the mouth: the crater's pool is 10.6 units across its radius.
 #define DND_VOLCANO_SPREAD 9.0
-// Horizontal throw. NOT the actor's own Speed, which nothing reads here -- the velocity is set
-// outright. Flight is about 48 tics at the default rise and gravity, so every unit here is ~48
-// units of reach: 15 threw rocks over 700 units from a cone 31 wide.
-#define DND_VOLCANO_SPEED 11.0
-#define DND_VOLCANO_SPEEDVAR 25       // percent either way
+// Horizontal throw, set outright (the actor's Speed is unused); flight is ~50 tics, so each unit is ~50 units of reach.
+#define DND_VOLCANO_SPEEDMIN 1.5      // any throw, from a lob at its foot...
+#define DND_VOLCANO_SPEEDMAX 13.75    // ...to the far edge, at random
+#define DND_VOLCANO_SHORTMAX 4.0      // every SHORTEVERY-th piece is a short lob, so some always land near the cone
+#define DND_VOLCANO_SHORTEVERY 6
 #define DND_VOLCANO_RISE 16.0         // upward kick, which is what makes them arc rather than spray
+#define DND_VOLCANO_RISELOW 50        // percent of the kick a lob at its foot gets, rising to the full kick at SPEEDMAX
 #define DND_VOLCANO_RISEVAR 40        // percent either way, the loosest of the three on purpose
 #define DND_VOLCANO_GRAVITY 0.666     // matches the actor's own Gravity
 #define DND_VOLCANO_GRAVVAR 30        // percent either way, so they do not all land together
@@ -13471,8 +13716,10 @@ Script "DnD Volcano Erupt" (void) {
 		// Its own direction, its own throw, its own weight. Sharing any of the three made an eruption
 		// a single fan of identical rocks landing in one ring at the same moment.
 		a = random(0, 1.0);
-		hs = VaryFixedByPercent(DND_VOLCANO_SPEED, DND_VOLCANO_SPEEDVAR);
+		hs = random(DND_VOLCANO_SPEEDMIN, (i % DND_VOLCANO_SHORTEVERY) ? DND_VOLCANO_SPEEDMAX : DND_VOLCANO_SHORTMAX);
+		// Short throws rise lower, so a near vertical lob does not reach the ceiling and creep along it.
 		vs = VaryFixedByPercent(DND_VOLCANO_RISE, DND_VOLCANO_RISEVAR);
+		vs = FixedMul(vs, (DND_VOLCANO_RISELOW << 16) / 100 + FixedDiv(hs, DND_VOLCANO_SPEEDMAX) * (100 - DND_VOLCANO_RISELOW) / 100);
 
 		SetActorVelocity(btid, FixedMul(cos(a), hs), FixedMul(sin(a), hs), vs, false, false);
 

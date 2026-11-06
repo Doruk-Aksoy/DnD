@@ -32,14 +32,15 @@ Actor DnD_BlindDecoy {
 	}
 }
 
-// Nox's mark on a blinded enemy's face, off the curse row: score units ahead of it along its facing, mass up.
+// Nox's mark on a blinded enemy's face, off the curse row: score units toward this client's player, mass up.
+// "DnD Attachment Face Viewer" keeps its angle on that player; it warps along its own angle.
 Actor NoxFXMarker : DnD_AttachedFXBase {
 	RenderStyle Add
 	Alpha 0.9
 	Scale 0.5
 	States {
 		SpawnLoop:
-			S023 AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXX 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			S023 AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXX 1 Bright A_Warp(AAPTR_TARGET, score, 0, mass, 0, WARPF_INTERPOLATE | WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION)
 		Loop
 	}
 }
