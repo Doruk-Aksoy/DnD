@@ -12207,10 +12207,10 @@ int MinionCleave(int me, int which, int dmg) {
 		if(!CheckSight(me, m, 0))
 			continue;
 		Thing_Damage2(m, dmg, type);
+		if(!doom)
+			ACS_NamedExecuteAlways("DnD Slayer Hit FX", 0, m);
 		++hits;
 	}
-	if(!doom && hits)
-		ACS_NamedExecuteAlways("DnD Slayer Wave FX", 0, me);
 	return hits;
 }
 
@@ -12224,13 +12224,12 @@ Script "DnD Minion Cleave" (int which) {
 	SetResultValue(MinionCleave(me, which, ACS_NamedExecuteWithResult("DnD Spell Minion Hit", which, 0)) > 0);
 }
 
-Script "DnD Slayer Wave FX" (int me) CLIENTSIDE {
-	int a = GetActorAngle(me), x = GetActorX(me), y = GetActorY(me), z = GetActorZ(me) + 32.0;
-	for(int i = -4; i <= 4; ++i) {
-		int fa = a + i * DND_SLAYER_WAVEARC / 4;
-		Spawn("Spell_SlayerKnight_WaveFX", x + FixedMul(cos(fa), DND_SLAYER_WAVE * 2 / 3), y + FixedMul(sin(fa), DND_SLAYER_WAVE * 2 / 3), z, 0, fa >> 8);
-	}
-	SetResultValue(0);
+// A cut flashed across an enemy the wave hit, at its middle; one it killed still exists here.
+Script "DnD Slayer Hit FX" (int m) CLIENTSIDE {
+	if(ClassifyActor(m) == ACTOR_NONE)
+		Terminate;
+	Spawn("Spell_SlayerKnight_HitFX", GetActorX(m) + random(-6.0, 6.0), GetActorY(m) + random(-6.0, 6.0),
+		GetActorZ(m) + GetActorProperty(m, APROP_HEIGHT) / 2 + random(-6.0, 6.0));
 }
 
 // A monster's hit on a minion: the Death Knight's shield (never against FOILINVUL), the Ghast's shift, the Slayer Knight's

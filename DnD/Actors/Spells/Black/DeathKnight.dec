@@ -6,7 +6,7 @@ ACTOR Spell_DeathKnight : PetMonsterBase {
 	Height 56
 	Speed 8
 	PainChance 32
-	Mass 600
+	Mass 768
 	Scale 0.57
 	Stamina 1
 	SeeSound "dknight/sight"
@@ -78,12 +78,14 @@ Actor Spell_DeathKnight_Skull : DnD_BaseProjectile_ForPets {
 	+SEEKERMISSILE
 	States {
 		SpawnState:
-			SKUL A 2 Bright A_SeekerMissile(4, 8)
-			SKUL B 2 Bright A_SeekerMissile(4, 8)
+			IFX1 A 2 Bright A_SeekerMissile(4, 8)
+			TNT1 A 0 A_SpawnItemEx("SkullSpellTrail2",0,0,0,0,random(2,-2),random(2,-2),0,0)
+			IFX1 B 2 Bright A_SeekerMissile(4, 8)
+			TNT1 A 0 A_SpawnItemEx("SkullSpellTrail2",0,0,0,0,random(2,-2),random(2,-2),0,0)
 		Loop
 		Death:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Death Knight Skull Hit")
-			SKUL FGHIJK 3 Bright
+			IFX1 IJKL 4 Bright
 		Stop
 	}
 }
