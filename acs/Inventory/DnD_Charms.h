@@ -93,7 +93,7 @@ int RollCharmInfo(int charm_pos, int charm_tier, int pnum, int synergy_boost = -
 	int charm_type = ConstructCharmDataOnField(charm_pos, charm_tier);
 	// read the item back -- Construct may level it down for a lower level player
 	auto item = GetFieldItem(charm_pos);
-	int count = random(1, GetMaxItemAffixes(DND_ITEM_CHARM, charm_type));
+	int count = HighlightModCount(random(1, GetMaxItemAffixes(DND_ITEM_CHARM, charm_type)), GetMaxItemAffixes(DND_ITEM_CHARM, charm_type));
 
 	// as in RollArmorInfo: -1 falls through to the override, which is how a source that reaches
 	// this through the fixed shape Spawn* family gets its boost in
@@ -120,6 +120,7 @@ int RollCharmInfo(int charm_pos, int charm_tier, int pnum, int synergy_boost = -
 		if(roll == -1)
 			break;
 
+		NoteHighlightSynergy(synergy_roll);
 		AddAttributeToFieldItem(charm_pos, roll, pnum);
 
 		synergy_roll = CheckItemSynergy(synergy_roll, charm_pos, synergy_boost);

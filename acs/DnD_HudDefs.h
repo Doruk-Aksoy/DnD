@@ -386,6 +386,8 @@ enum {
 	MANABAR_RESERVED_ID,
 	MANABAR_BACK_ID,
 
+	// A refused cast's reason, over the cast bar's label and in front of both bars.
+	CASTBAR_REFUSAL_ID = 3057,
 	CASTBAR_TEXT_ID = 3070,
 	CASTBAR_FILL_ID,
 	CASTBAR_BACK_ID,
@@ -412,12 +414,11 @@ enum {
 	SPELLTREE_PICKSEL_ID = 1046,
 	SPELLTREE_NODE_ID = 1050,		// one per spell
 
-	// Crossings sit BETWEEN the nodes and the lines: in front of every run, behind every icon.
+	// Tree connectors from here to the backdrop, joints before strips so they sit in front: Black takes 118.
 	SPELLTREE_CROSS_ID = 1095,
 
-	SPELLTREE_LINE_ID = 1150,		// DND_SPELLLINE_IDS per requirement edge
+	SPELLTREE_LINE_ID = 1150,		// the gem page's sockets and lines
 
-	// Up to the backdrop: Black's 32 connectors fill 1150..1725, and 1700 left its last ones on screen.
 	SPELLPAGE_ID_LAST = RPGMENUID - 1
 };
 

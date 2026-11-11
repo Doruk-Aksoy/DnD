@@ -207,6 +207,17 @@ Model Spell_AgonyAuraFX {
 	FrameIndex AURA Q 0 3
 }
 
+// Vampirism: a still disc under VAMPIRE.png, from Graphics/ so Vampirism.fp can bind to it; no spin (the user's call).
+Model Spell_VampirismAuraFX {
+	Path "Models/Auras"
+	Model 0 "VAMPRING.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "VAMPIRE.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 0.33
+	FrameIndex VMPR A 0 0
+}
+
 Model Spell_AnnihilusAnchorFlip {
 	Path "Models/Auras"
 	Model 0 "flat.md3"

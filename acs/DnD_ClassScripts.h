@@ -29,7 +29,7 @@ void HandleDoomguyExecute(int ptid, int mon_tid) {
 				ACS_NamedExecuteAlways("DnD Give Buff", 0, DND_BUFF_DOOMGUY_ORB_EXEC);
 				GiveActorInventory(ptid, "Doomguy_DemonSoul_PickMsg", 1);
 
-				int temp = MonsterProperties[mon_tid - DND_MONSTERTID_BEGIN].maxhp;
+				int temp = GetMonsterUnfoldedMaxHP(mon_tid - DND_MONSTERTID_BEGIN);
 				temp = Clamp_Between(temp / DND_DOOMGUY_HEALDIV, 1, DND_DOOMGUY_MAXHEAL);
 				hp_to_give += temp;
 			}

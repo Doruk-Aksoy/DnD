@@ -37,6 +37,9 @@ Actor Spell_LightningSpear : DnD_Spell {
 	+FORCEPAIN
 	+DONTREFLECT
 	+SKYEXPLODE
+	// its latest enemy hit, for a Serpent or Hydra that ends with it
+	var int user_gemvictim;
+	var int user_gemdmg;
 	States {
 		// user_extra holds the bounces left in flight, then the pass attempts once it meets an enemy.
 		SpawnState:
@@ -121,9 +124,20 @@ Actor Spell_LightningSpear : DnD_Spell {
 			TNT1 A 1 Light("LightningSpearLight") ACS_NamedExecuteWithResult("DnD Lightning Spear Strike")
 			TNT1 A 8 Light("LightningSpearLight")
 		Goto Pass
+		// The server goes on to the hold or away; a client waits for its word, should a chain end here later.
 		End:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Gem Strike Late")
+			TNT1 A 0 A_JumpIf(user_chain < 0, "GemChainHold")
+			TNT1 A 0 A_Jump(256, "Gone")
+			TNT1 A 35
+		Gone:
 			TNT1 A 0
 		Stop
+		// The end of a gem chain it set off: rank 10's burst and the zap.
+		GemRelease:
+			TNT1 A 0 A_JumpIf(user_spellrank < DND_SPELL_THRESH_HIGH, "Death")
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Lightning Spear Blast")
+		Goto Death
 	}
 }
 
@@ -146,15 +160,38 @@ Actor Spell_LightningSpear_Strike : DnD_Spell {
 		SpawnState:
 			HSPL A 1 Light("LightningSpearLight") Bright A_CountDown
 		Loop
+		// The server always jumps, to the hold or the blast; a client blows up its own copy on touching a monster, so it waits.
 		Death:
+			"####" "#" 0 A_JumpIf(user_chain < 0, "GemChainHold")
+			"####" "#" 0 A_Jump(256, "DeathBlast")
+			"####" "#" 35
+		DeathBlast:
 			TNT1 AAAAA 0 A_SpawnItemEx("ZapPuff", random(-16, 16), random(-16, 16), random(-16, 16), 0, 0, 0, 0, 160)
 			S003 ABCDEF 2 Light("LightningSpearLight") Bright
 		Stop
 		XDeath:
 		Crash:
-			TNT1 A 0 A_JumpIf(user_spellrank < DND_SPELL_THRESH_HIGH, "Death")
+			"####" "#" 0 A_JumpIf(user_chain < 0, "GemChainHold")
+			"####" "#" 0 A_Jump(256, "GemRelease")
+			"####" "#" 35
+		// An enemy struck, or the end of a gem chain: rank 10's burst, then the zap.
+		GemRelease:
+			TNT1 A 0 A_JumpIf(user_spellrank < DND_SPELL_THRESH_HIGH, "DeathBlast")
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Lightning Spear Blast")
-		Goto Death
+		Goto DeathBlast
+	}
+}
+
+// Lightning Spear's look on a gem chain or fork hop: the spear's own model (MODELDEF.spell), shader and light.
+Actor Spell_LightningSpear_GemArc : DnD_GemStrikeFX {
+	Scale 0.65
+	RenderStyle Add
+	Translation "0:255=%[0,0,0]:[0.3,0.6,1.4]"
+	+FORCEXYBILLBOARD
+	States {
+		Spawn:
+			HSPL ABCDEFGHIJ 1 Light("LightningSpearLight") Bright
+		Loop
 	}
 }
 

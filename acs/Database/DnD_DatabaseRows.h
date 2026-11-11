@@ -44,6 +44,9 @@ enum {
 // Gem sockets: only the filled ones, as a count and that many packed rows (see DB_SaveSpellData).
 #define DND_DB_SPELLSOCKETS "DnD_PlayerSpellSockets_"
 #define DND_DB_SPELLSOCKETCOUNT "DnD_PlayerSpellSocketCount"
+// The highlight meter and its heat (16.16), absolute like the trees above.
+#define DND_DB_HIGHLIGHTMETER "DnD_PlayerHighlightMeter"
+#define DND_DB_HIGHLIGHTHEAT "DnD_PlayerHighlightHeat"
 
 #define DND_DB_HEALTH "DND_PlayerHealth"
 #define DND_DB_ESHIELD "DnD_PlayerEShield"

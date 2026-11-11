@@ -141,6 +141,11 @@ DND_SPLNAME189		=	"Break Immunity";
 DND_SPLNAME190		=	"Silence";
 DND_SPLNAME191		=	"Mark Prey";
 DND_SPLNAME192		=	"Summon: Death Knight";
+DND_SPLNAME193		=	"Grave's Grasp";
+DND_SPLNAME194		=	"Dark Pact";
+DND_SPLNAME195		=	"Vampirism";
+DND_SPLNAME196		=	"Soul Siphon";
+DND_SPLNAME197		=	"Desecrate";
 
 
 // Hover text, straight from the design docs. Positional like the names above.
@@ -380,7 +385,7 @@ DND_SPLR5_53    = "+128 unit radius, and each icicle's blast grows with it to 72
 DND_SPLR10_53   = "Volleys fall 30% more often, each with 30% more ice.";
 
 // Winter Orb
-DND_SPLDESC54   = "Release a slow orb ripping once dealing 100 damage that slows enemies by 30% for 0.75 seconds, throwing Ice Bolts in a spiral as it travels. The bolts scale with your Ice Bolt rank.";
+DND_SPLDESC54   = "Release a slow orb ripping once dealing 100 damage that slows enemies by 30% for 0.75 seconds, throwing Ice Bolts in a spiral as it travels. The bolts scale with your Ice Bolt rank. Serpent and Hydra do not work on the orb; the bolts it throws chain and fork with Ice Bolt's own gems.";
 DND_SPLPER54    = "+10% more damage on the bolts and shards it throws.";
 DND_SPLR5_54    = "The orb freezes enemies it passes through for 0.75 seconds instead.";
 DND_SPLR10_54   = "The orb also throws Frost Shards.";
@@ -668,7 +673,7 @@ DND_SPLR5_160   = "Each spread carries 30% more damage.";
 DND_SPLR10_160  = "A death spreads the plague to up to two enemies at once.";
 
 // Summon: Zombie
-DND_SPLDESC161  = "Summon a zombie to do your bidding for 10 seconds.";
+DND_SPLDESC161  = "Raise a zombie from an organic corpse to do your bidding for 10 seconds. Needs an organic corpse near where you aim, which it consumes.";
 DND_SPLPER161   = "+1 second duration.";
 DND_SPLR5_161   = "Zombies attack 50% faster.";
 DND_SPLR10_161  = "Zombies gain 15% to all resistances.";
@@ -698,7 +703,7 @@ DND_SPLR5_165   = "Returns 33% of the damage as health.";
 DND_SPLR10_165  = "The enemy hit is pacified for 3 seconds, unable to attack. Does not work on dungeon bosses.";
 
 // Summon: Knight
-DND_SPLDESC166  = "Summon an undead knight to do your bidding for 20 seconds. Knights have 300 health and hit for 52-64 melee damage.";
+DND_SPLDESC166  = "Summon an undead knight from a corpse to do your bidding for 20 seconds. Knights have 300 health and hit for 52-64 melee damage. Needs an organic corpse near where you aim, which it consumes.";
 DND_SPLPER166   = "+150 health, +32 melee damage, +2.5 seconds duration.";
 DND_SPLR5_166   = "Knights also throw a spectral axe for 75% of their melee damage as magic. It cannot hit ghosts.";
 DND_SPLR10_166  = "Knights have a 25% chance to throw a red axe instead, dealing 50% more than their melee damage.";
@@ -734,10 +739,10 @@ DND_SPLR5_171   = "The radius is 20% larger.";
 DND_SPLR10_171  = "Damage over time it carries ignores shields and fortification.";
 
 // Implosion
-DND_SPLDESC172  = "Launch a sharp needle ahead of you. The enemy it touches takes 10% of its current health as magic damage. Spell damage modifiers first make up for the enemy's resistances; anything beyond only adds a quarter of its usual effect, up to 1.5 times. It cannot kill, and always leaves the enemy at least 1% of its health.";
-DND_SPLPER172   = "+1.5% of current health.";
-DND_SPLR5_172   = "The needle travels 50% faster.";
-DND_SPLR10_172  = "Leeches 2% of the damage dealt as mana.";
+DND_SPLDESC172  = "Target an organic corpse up to 384 units away. After a short delay it explodes for 50 damage plus 4% of the corpse's maximum health as fire damage in a 96 unit radius, destroying the corpse. Increases to spell damage do not affect the explosion.";
+DND_SPLPER172   = "+25 damage, +0.25% of the corpse's maximum health, +16 range.";
+DND_SPLR5_172   = "33% increased explosion radius.";
+DND_SPLR10_172  = "25% chance to also detonate another corpse near the target, which can chain on to further corpses.";
 
 // Summon: Dark Portal
 DND_SPLDESC173  = "Open a portal for 10 seconds that empowers your summoning. Minions you summon or raise within 256 units of it have 10% more health, duration and damage. The portal has 300 health and benefits from minion modifiers, but does not count against your pet cap.";
@@ -788,13 +793,13 @@ DND_SPLR5_180   = "Your energy shield starts recovering at once when you cast it
 DND_SPLR10_180  = "Explodes for the same damage in a 256 unit radius where you start and where you end.";
 
 // Summon Mastery
-DND_SPLDESC181  = "Passive. Your summons last 1 second longer and have 2.5% increased health and damage.";
+DND_SPLDESC181  = "Passive. Your summons last 1 second longer and have 2.5% increased health and damage. Every 3 ranks, +1 pet cap.";
 DND_SPLPER181   = "+1 second summon duration, +2.5% increased health and damage.";
 DND_SPLR5_181   = "Your minions no longer have a duration.";
 DND_SPLR10_181  = "Your minions gain Hardened Skin.";
 
 // Summon: Slayer Knight
-DND_SPLDESC182  = "Summon an undead slayer knight with 1000 health to do your bidding. It strikes for 72-96 physical melee damage, or hurls a diagonal slash of 6 dark flames that each deal 60 fire damage in a 96 unit radius. The flames pass through ghosts. Counts as 3 against your pet cap.";
+DND_SPLDESC182  = "Summon an undead slayer knight with 1000 health to do your bidding. It strikes for 72-96 physical melee damage, or hurls a diagonal slash of 6 dark flames that each deal 60 fire damage in a 96 unit radius. The flames pass through ghosts. Counts as 3 against your pet cap. Can have up to two Slayer Knights. Needs an organic corpse near where you aim, which it consumes.";
 DND_SPLPER182   = "+350 health, +40 melee damage, +30 flame damage.";
 DND_SPLR5_182   = "Gains Counter Attack: when hurt, it retaliates at once and is briefly invulnerable.";
 DND_SPLR10_182  = "Its melee becomes a slashing wave that hits an area.";
@@ -824,10 +829,10 @@ DND_SPLR5_186   = "The radius is doubled.";
 DND_SPLR10_186  = "The cooldown is halved.";
 
 // Summon: Doomguard
-DND_SPLDESC187  = "Summon a mighty demon from the deepest pits of hell with 2000 health. It cleaves in an arc for 250 melee damage, or hurls a meteor that deals 200 damage on impact and 300 in a 160 unit radius. Counts as 5 against your pet cap.";
-DND_SPLPER187   = "+1250 health, +100 melee damage, +80 meteor impact damage, +100 meteor blast damage.";
-DND_SPLR5_187   = "Can cast War Stomp, stunning nearby enemies for 2.5 seconds and dealing its melee damage to them.";
-DND_SPLR10_187  = "Casts a random curse you have learned once every 30 seconds.";
+DND_SPLDESC187  = "Summon a mighty undead general from the great beyond with 2000 health. It cleaves in an arc for 250 physical melee damage, and casts your Finger of Death at your rank (rank 1 if you have not learned it) with 30% of its cooldown. When it flinches it blocks every hit for 2 seconds, with a 25% chance to answer one with its melee or a spell. Counts as 5 against your pet cap. Can have up to one Doomguard.";
+DND_SPLPER187   = "+1000 health, +80 melee damage, 3% increased Finger of Death cooldown recovery rate.";
+DND_SPLR5_187   = "Leaps at enemies within 384 units once every 8 seconds, landing to deal its melee damage within 256 units and stun those enemies for 2.5 seconds.";
+DND_SPLR10_187  = "Casts a random curse you have learned, except Transmogrify and Banish, once every 30 seconds.";
 
 // Banish
 DND_SPLDESC188  = "Curse. Fire a cursed ball that removes the enemy it hits from this realm for 3 seconds. Does not work on Dungeon Bosses.";
@@ -854,10 +859,40 @@ DND_SPLR5_191   = "The marked enemy deals 10% less damage to your minions.";
 DND_SPLR10_191  = "Your minions leech 2% of the damage they deal to the marked enemy as life over 4 seconds.";
 
 // Summon: Death Knight
-DND_SPLDESC192  = "Summon an undead death knight with 800 health to protect you. It throws homing skulls that deal 125 fire damage and may set enemies on fire, and strikes slowly for 60-80 magic melee damage. When hurt, it has a 25% chance to raise its shield and block every attack for 2 seconds. Counts as 2 against your pet cap.";
+DND_SPLDESC192  = "Summon an undead death knight with 800 health to protect you. It throws homing skulls that deal 125 fire damage and may set enemies on fire, and strikes slowly for 60-80 magic melee damage. When hurt, it has a 25% chance to raise its shield and block every attack for 2 seconds. Counts as 2 against your pet cap. Can have up to two Death Knights. Needs an organic corpse near where you aim, which it consumes.";
 DND_SPLPER192   = "+275 health, +40 melee damage, +50 skull damage.";
 DND_SPLR5_192   = "Its raised shield also reflects projectiles.";
 DND_SPLR10_192  = "Its melee becomes a slashing wave that hits an area.";
+
+// Grave Grasp
+DND_SPLDESC193  = "Target an area up to 480 units away where restless undead grasp at every enemy within 240 units for 6 seconds, slowing them by 33% and dealing 100 magic damage every 0.5 seconds.";
+DND_SPLPER193   = "+60 damage, +0.5 seconds duration, +12 radius.";
+DND_SPLR5_193   = "The slow becomes 66%.";
+DND_SPLR10_193  = "Enemies slain within the area give 1-2 soul ammo, and their bodies rest in peace.";
+
+// Dark Pact
+DND_SPLDESC194  = "Sacrifice the minion you target to recover 4% of its maximum life as your own life over 4 seconds.";
+DND_SPLPER194   = "+0.1% life recovered, -1 second cooldown.";
+DND_SPLR5_194   = "Also recovers energy shield for the same amount.";
+DND_SPLR10_194  = "Your next Black spell within 5 seconds deals 33% more damage.";
+
+// Vampirism
+DND_SPLDESC195  = "Aura. Your minions within 256 units leech 2.5% of the damage they deal as life. Reserves 30% of your mana.";
+DND_SPLPER195   = "+0.15% leech, +24 radius.";
+DND_SPLR5_195   = "Minions deal 10% more damage while they leech.";
+DND_SPLR10_195  = "The aura also covers you and nearby allies, who leech the same share of their damage as life.";
+
+// Soul Siphon
+DND_SPLDESC196  = "Drain the souls of the organic corpses within 256 units, gaining 3 soul ammo from each. For every 5 souls drained, your next Black spell within 10 seconds deals 8% more damage and has 8% more area of effect, up to 40%.";
+DND_SPLPER196   = "25% increased souls gained from each target.";
+DND_SPLR5_196   = "Also steals the souls of up to 5 living enemies, who take 20% more magic damage for 10 seconds.";
+DND_SPLR10_196  = "Killing 5 enemies whose souls you stole recovers 75% of Soul Siphon's remaining cooldown.";
+
+// Desecrate
+DND_SPLDESC197  = "Create 3 organic corpses at a spot up to 384 units away. They last 10 seconds and are level 13 monsters up to Hell Knights, mostly weaker ones.";
+DND_SPLPER197   = "+2 seconds duration, +7 corpse level, +16 range. Every 3 ranks, +2 corpses.";
+DND_SPLR5_197   = "Enemies near your desecrated corpses cannot regenerate life.";
+DND_SPLR10_197  = "The corpses are Hell Knights and Barons, mostly Hell Knights.";
 
 
 // Field names for the synergy lines the panel builds from SpellSynergies. Positional on SPELLVAL_*.
@@ -888,6 +923,16 @@ DND_SPLFIELD_MINIONHP = "minion health";
 DND_SPLFIELD_CROWS = "crow";
 DND_SPLFIELD_PERSOUL = "damage per soul";
 DND_SPLFIELD_SIDES = "side flame damage";
+DND_SPLFIELD_CORPSELVL = "corpse level";
+DND_SPLFIELD_RANGE = "range";
+DND_SPLFIELD_CORPSES = "corpses";
+DND_SPLFIELD_CORPSEHP = "% of corpse health";
+DND_SPLFIELD_SOULS = "souls per target";
+DND_SPLFIELD_MINIONLIFE = "% of minion life";
+DND_SPLFIELD_LEECH = "% leech";
+DND_SPLFIELD_SLOW = "% slow";
+DND_SPLNOCORPSE = "No organic corpse in reach";
+DND_SPLNOMINION = "No minion of yours in reach";
 
 DND_SPLPANEL_PERRANK   = "Per Rank:";
 DND_SPLPANEL_RANK5     = "Rank 5:";

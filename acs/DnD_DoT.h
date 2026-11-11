@@ -27,6 +27,7 @@ dot_cache_T module& GetPlayerDotCache(int pnum) {
 typedef struct mon_dot_cache {
 	int dmg;
 	int tics;
+	int spell;		// a poison stack's spell, dealt as that spell's damage over time; -1 for anything else
 } mon_dot_cache_T;
 
 void DealDOTDamage(int target, int dmg, str dmg_type) {

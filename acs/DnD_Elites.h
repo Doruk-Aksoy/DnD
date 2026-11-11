@@ -395,7 +395,7 @@ void SetEliteFlag(int this, int f, bool updateCS) {
 			GiveInventory("MakeHatred", 1);
 		break;
 		case DND_FORTIFIED:
-			GiveInventory("MonsterFortifyCount", MonsterProperties[this].maxhp * (DND_FORTIFY_AMOUNT + random(0, 100 - DND_FORTIFY_AMOUNT)) / 100);
+			GiveInventory("MonsterFortifyCount", MulPercent_Exact(MonsterProperties[this].maxhp, DND_FORTIFY_AMOUNT + random(0, 100 - DND_FORTIFY_AMOUNT)));
 		break;
 		case DND_REPEL:
 			GiveInventory("Repel_Script_Run", 1);
@@ -566,7 +566,7 @@ void DecideEliteTraits(int tid, int m_id, int count) {
 }
 
 Script "DnD Monster Nuclear Explosion" (int this) {
-	int hpdamage = MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp / DND_NUCLEAR_EXPLOSION_FACTOR;
+	int hpdamage = GetMonsterUnfoldedMaxHP(this - DND_MONSTERTID_BEGIN) / DND_NUCLEAR_EXPLOSION_FACTOR;
 	if(hpdamage < DND_NUCLEAR_MINDMG)
 		hpdamage = DND_NUCLEAR_MINDMG;
 	
@@ -590,7 +590,7 @@ Script "DnD Borrowed Time Decay" (int this) {
 
 	while(isAlive() && CheckInventory("MonsterFortifyCount")) {
 		Delay(const:DND_BORROWEDTIME_DECAYTIMER);
-		TakeInventory("MonsterFortifyCount", MonsterProperties[m_id].maxhp * DND_BORROWEDTIME_DECAYPCT / 100);
+		TakeInventory("MonsterFortifyCount", MulPercent_Exact(MonsterProperties[m_id].maxhp, DND_BORROWEDTIME_DECAYPCT));
 	}
 
 	TakeInventory("DnD_BorrowedTimeActive", 1);

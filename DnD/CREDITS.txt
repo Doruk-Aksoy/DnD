@@ -128,6 +128,7 @@ Thanks to:
 - 3D Realms, Bethesda Software, Blizzard, Monolith, ID Software, Relic, THQ, Raven Software for various graphics and sounds.
 - Grinding Gear Games for Path of Exile. (Sounds, Graphics)
 - Audionautics (Freesound, "Lava loop.wav", CC BY 3.0) for the Death and Decay sludge loop.
+- zimbot (Freesound, "UnrelentingAgony2.wav", CC BY 4.0), cut down and looped for the Grave's Grasp wailing loop.
 
 =========================
 - Torches by Combinebobnt

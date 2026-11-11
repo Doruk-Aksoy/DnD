@@ -139,7 +139,8 @@ void ClearTradeItemOrigins(int pnum) {
 #define DND_SYNERGYITEM_CHANCE 0.125
 // what an ordinary drop gets, as a percent of the above. callers that pass their own percent
 // -- Ultimatum rewards, chests, lootboxes -- are not affected by it
-#define DND_SYNERGY_NATURALDROP_PCT 50
+// 0: a kill's synergy comes only from the highlight meter now.
+#define DND_SYNERGY_NATURALDROP_PCT 0
 
 enum {
 	SMALLCHARM_INDEX1,
@@ -171,6 +172,7 @@ typedef struct imove {
 	int width;
 	int height;
 	int dest_pos;
+	int stack_add;
 	bool state;
 } imove_T;
 
@@ -430,14 +432,15 @@ int GetFreeSpotForItemWithStack(int item_index, int player_index, int item_sourc
 	
 	// first search for any spot on our inventory for a stack item of this type
 	int maxstack = GetStackValue(type, dest_source);
+	int incoming = GetItemSyncValue(source_player == -1 ? player_index : source_player, DND_SYNC_ITEMSTACK, item_index, -1, item_source);
 	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
 		if
 		(
 			GetItemSyncValue(player_index, DND_SYNC_ITEMTYPE, i, -1, dest_source) == type &&
 			GetItemSyncValue(player_index, DND_SYNC_ITEMSUBTYPE, i, -1, dest_source) == sub &&
 			(
-				(!check_stack && GetItemSyncValue(player_index, DND_SYNC_ITEMSTACK, i, -1, dest_source) != maxstack) || 
-				(GetItemSyncValue(player_index, DND_SYNC_ITEMSTACK, i, -1, dest_source) + GetItemSyncValue(player_index, DND_SYNC_ITEMSTACK, item_index, -1, item_source) < maxstack)
+				(!check_stack && GetItemSyncValue(player_index, DND_SYNC_ITEMSTACK, i, -1, dest_source) != maxstack) ||
+				(GetItemSyncValue(player_index, DND_SYNC_ITEMSTACK, i, -1, dest_source) + incoming < maxstack)
 			)
 		)
 			return i;
@@ -505,79 +508,84 @@ int GetFreeSpotForItem_Trade(int item_index, int source_player, int player_index
 	return GetFreeSpotForItemWithStack(item_index, player_index, source, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, true, source_player);
 }
 
-// Check if we have enough space for all the items offered, in our inventory
-bool ConfirmSpaceForOfferings(int pnum, int tradee) {
-	int bid, pos;
-	int i, j, h, w, hcomp, wcomp;
-
+// Undo the empty cells and stack top-ups a space check reserved in pnum's inventory.
+void ReleaseTradeReservations(int pnum, bool keepPlan) {
+	int i, h, w, pos;
 	auto item_move_list = GetItemMoveList(pnum);
-
-	// for every possible item in the trade list of this player, get free position
-	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
-		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
-			bid = j + i * MAXINVENTORYBLOCKS_VERT;
-			// care about the items only once, so use topleftboxid == bid
-			auto item = GetTradeItem(tradee, bid);
-			if(item.topleftboxid - 1 == bid) {
-				pos = GetFreeSpotForItem_Trade(bid, tradee, pnum, DND_SYNC_ITEMSOURCE_TRADEVIEW, true);
-				if(pos != -1) {
-					// mark as occupied so getfreespot wont return them
-					hcomp = item.height;
-					wcomp = item.width;
-					for(h = 0; h < hcomp; ++h)
-						for(w = 0; w < wcomp; ++w) {
-							// hack to avoid finding the same spot as empty
-							auto p_item = GetPlayerInventoryItem(pnum, pos + w + h * MAXINVENTORYBLOCKS_VERT);
-							if(p_item.item_type == DND_ITEM_NULL)
-								p_item.item_type = DND_ITEM_TEMPORARY;
-							item_move_list[bid + w + h * MAXINVENTORYBLOCKS_VERT].state = true;
-							item_move_list[bid + w + h * MAXINVENTORYBLOCKS_VERT].width = wcomp;
-							item_move_list[bid + w + h * MAXINVENTORYBLOCKS_VERT].height = hcomp;
-						}
-					//printbold(s:"send player ", d:pnum, s:"'s item at ", d:bid, s:" to ", d:pos);
-					item_move_list[bid].dest_pos = pos;
-				}
-				else {
-					// clean up whatever was used up, we had no space
-					for(pos = 0; pos < MAX_INVENTORY_BOXES; ++pos) {
-						if(item_move_list[pos].state) {
-							// cleanup our hack
-							p_item = GetPlayerInventoryItem(pnum, pos);
-							if(p_item.item_type == DND_ITEM_TEMPORARY)
-								p_item.item_type = DND_ITEM_NULL;
-							item_move_list[pos].state = false;
-							item_move_list[pos].width = 0;
-							item_move_list[pos].height = 0;
-							item_move_list[pos].dest_pos = -1;
-						}
-					}
-					return false;
-				}
-			}
-		}
-	}
-	
-	// unmark all marked spots as unoccupied (real marking happens when we move items)
-	// do not touch itemmovelist, we will use this as the place to move new items so we avoid checking again
 	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
-		if(item_move_list[i].state) {
-			// unmark as occupied
-			wcomp = item_move_list[i].width;
-			hcomp = item_move_list[i].height;
-			
-			// note that the itemmovelist contains "Item of Player in tradebox was to move to dest_pos in player inventory" info
-			pos = item_move_list[i].dest_pos;
-			for(h = 0; h < hcomp; ++h)
-				for(w = 0; w < wcomp; ++w) {
-					// cleanup our hack
+		if(!item_move_list[i].state)
+			continue;
+		pos = item_move_list[i].dest_pos;
+		auto p_item = GetPlayerInventoryItem(pnum, pos);
+		if(item_move_list[i].stack_add)
+			p_item.item_stack -= item_move_list[i].stack_add;
+		else {
+			for(h = 0; h < item_move_list[i].height; ++h)
+				for(w = 0; w < item_move_list[i].width; ++w) {
 					p_item = GetPlayerInventoryItem(pnum, pos + w + h * MAXINVENTORYBLOCKS_VERT);
 					if(p_item.item_type == DND_ITEM_TEMPORARY)
 						p_item.item_type = DND_ITEM_NULL;
 				}
 		}
+		item_move_list[i].stack_add = 0;
+		if(!keepPlan) {
+			item_move_list[i].state = false;
+			item_move_list[i].width = 0;
+			item_move_list[i].height = 0;
+			item_move_list[i].dest_pos = -1;
+		}
 	}
-	
-	return true;
+}
+
+// Check if we have space for all of tradee's offers; on success the move list keeps where each one goes.
+bool ConfirmSpaceForOfferings(int pnum, int tradee) {
+	int bid, pos, h, w;
+	bool fits = true;
+	auto item_move_list = GetItemMoveList(pnum);
+
+	for(bid = 0; bid < MAX_INVENTORY_BOXES; ++bid) {
+		item_move_list[bid].state = false;
+		item_move_list[bid].width = 0;
+		item_move_list[bid].height = 0;
+		item_move_list[bid].dest_pos = -1;
+		item_move_list[bid].stack_add = 0;
+	}
+
+	for(bid = 0; fits && bid < MAX_INVENTORY_BOXES; ++bid) {
+		// care about the items only once, so use topleftboxid == bid
+		auto item = GetTradeItem(tradee, bid);
+		if(item.topleftboxid - 1 != bid)
+			continue;
+
+		pos = GetFreeSpotForItem_Trade(bid, tradee, pnum, DND_SYNC_ITEMSOURCE_TRADEVIEW, true);
+		if(pos == -1) {
+			fits = false;
+			continue;
+		}
+
+		item_move_list[bid].state = true;
+		item_move_list[bid].dest_pos = pos;
+		item_move_list[bid].width = item.width;
+		item_move_list[bid].height = item.height;
+
+		// reserve it so later offers see it taken: a stack counts the added amount, empty cells are marked
+		auto p_item = GetPlayerInventoryItem(pnum, pos);
+		if(p_item.item_type != DND_ITEM_NULL) {
+			item_move_list[bid].stack_add = item.item_stack;
+			p_item.item_stack += item.item_stack;
+		}
+		else {
+			for(h = 0; h < item.height; ++h)
+				for(w = 0; w < item.width; ++w) {
+					p_item = GetPlayerInventoryItem(pnum, pos + w + h * MAXINVENTORYBLOCKS_VERT);
+					if(p_item.item_type == DND_ITEM_NULL)
+						p_item.item_type = DND_ITEM_TEMPORARY;
+				}
+		}
+	}
+
+	ReleaseTradeReservations(pnum, fits);
+	return fits;
 }
 
 bool IsWearingBodyArmor(int pnum) {
@@ -718,7 +726,7 @@ int RollItemLevel(int max_lvl = MAX_REGULAR_ILVL) {
 		return res;
 	}
 
-	return pavg + random((-pavg + 1) / 2, ITEMLEVEL_VARIANCE_HIGHER);
+	return Clamp_Between(pavg + random((-pavg + 1) / 2, ITEMLEVEL_VARIANCE_HIGHER), 1, max_lvl);
 }
 
 // attrib_id is the raw attribute, like INV_INCHP etc. not an index in the item!
@@ -1743,7 +1751,7 @@ void TransferTradeItems(int from, int to) {
 		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
 			bid = j + i * MAXINVENTORYBLOCKS_VERT;
 			// care about the items only once, so use topleftboxid == bid
-			if(GlobalItemStorage.TradeViewList[from][bid].topleftboxid - 1 == bid) {
+			if(GlobalItemStorage.TradeViewList[from][bid].topleftboxid - 1 == bid && item_move_list[bid].dest_pos != -1) {
 				//printbold(s:"carry item to ", d:ItemMoveList[to][bid].dest_pos, s: " from player ", d:from, s:"'s movelist to player ", d:to);
 				CarryItemTo(bid, item_move_list[bid].dest_pos, DND_SYNC_ITEMSOURCE_TRADEVIEW, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, from, to);
 			}
@@ -1755,6 +1763,7 @@ void TransferTradeItems(int from, int to) {
 		item_move_list[i].width = 0;
 		item_move_list[i].height = 0;
 		item_move_list[i].dest_pos = -1;
+		item_move_list[i].stack_add = 0;
 	}
 
 	// the offer went through, so "put it back where it was" means nothing for these anymore
@@ -1790,10 +1799,10 @@ void DrawInventoryInfo_Field(int pnum, int topboxid, int source, int yoff, bool 
 	
 	int stack, itype = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, topboxid, -1, source), left = 0;
 	if(topboxid != -1 && itype != DND_ITEM_NULL) {
-		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+		MenuHudSize(HUDMAX_X, HUDMAX_Y);
 		
 		// adjust pos
-		left = GetHudLeft(HUDMAX_X) << 16;
+		left = GetMenuHudLeft(HUDMAX_X) << 16;
 		int bg_x = GetIntegerBits(left) + 0.1;
 		int bg_y = isOutsideSource ? 0.1 : GetIntegerBits(100.0 - yoff) + 0.1;
 		int img_off = 0;
@@ -1817,19 +1826,19 @@ void DrawInventoryInfo_Field(int pnum, int topboxid, int source, int yoff, bool 
 		HudMessage(
 			s:"A"; 
 			HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 1 + ITEMID_SKIP, CR_WHITE, 
-			!isOutsideSource ? (GetIntegerBits(bg_x) + HUD_ITEMBAK_XF + 0.1) : bx, 
-			!isOutsideSource ? bg_y : (GetIntegerBits(by) + 64.2), 
+			MenuX(!isOutsideSource ? (GetIntegerBits(bg_x) + HUD_ITEMBAK_XF + 0.1) : bx), 
+			MenuY(!isOutsideSource ? bg_y : (GetIntegerBits(by) + 64.2)), 
 			INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
 		stack = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, topboxid, -1, source);
 		if(stack) {
 			SetFont("NSMOLFNT");
-			HudMessage(d:stack; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 14 + ITEMID_SKIP, CR_GREEN, bx + GetIntegerBits(HUD_ITEMBAK_XF / 2) - 7.2, by + 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+			HudMessage(d:stack; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 14 + ITEMID_SKIP, CR_GREEN, MenuX(bx + GetIntegerBits(HUD_ITEMBAK_XF / 2) - 7.2), MenuY(by + 24.0), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		}
 		
 		// resize to keep ratios
-		SetHudSize(HUDTEXTMAX_X, HUDTEXTMAX_Y, 1);
-		left = GetHudLeft(HUDTEXTMAX_X);
+		MenuHudSize(HUDTEXTMAX_X, HUDTEXTMAX_Y);
+		left = GetMenuHudLeft(HUDTEXTMAX_X);
 		bx = ((left + (HUD_ITEMBAK_X * HUDTEXTMAX_X / (2 * HUDMAX_X))) << 16) + 0.4;
 
 		// bg_y is a HUDMAX coordinate and this is a HUDTEXTMAX one, so yoff has to cross the 3/2
@@ -1837,9 +1846,9 @@ void DrawInventoryInfo_Field(int pnum, int topboxid, int source, int yoff, bool 
 		// moved, which is why the same item looked differently spaced depending on the row.
 		by = isOutsideSource ? (ITEMINFO_TEXTTOP + 0.1) : (GetIntegerBits(3 * (100.0 - yoff) / 2 + ITEMINFO_TEXTTOP) + 0.1);
 
-		SetHudClipRect(left + ITEMINFO_CLIPX, (by >> 16), HUD_ITEMBAK_WIDTH, ITEMINFO_CLIPHEIGHT, HUD_ITEMBAK_WIDTH);
+		MenuClipRect(left + ITEMINFO_CLIPX, (by >> 16), HUD_ITEMBAK_WIDTH, ITEMINFO_CLIPHEIGHT, HUD_ITEMBAK_WIDTH);
 		DrawInventoryText(topboxid, source, pnum, bx, by, itype, isubt, RPGMENUINVENTORYID, HUD_DII_FIELD_MULT, HUDMAX_X, HUDMAX_Y, bg_x, bg_y, attr_count, !isOutsideSource);
-		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+		MenuHudSize(HUDMAX_X, HUDMAX_Y);
 	}
 }
 
@@ -1896,8 +1905,8 @@ int DrawInventoryText(
 			HUDMSG_PLAIN | HUDMSG_FADEOUT,
 			id_begin - id_mult * MAX_INVENTORY_BOXES - 3 + ITEMID_SKIP,
 			CR_WHITE, 
-			bx, 
-			by + 32.0 * (source == DND_SYNC_ITEMSOURCE_FIELD) - 32.0 * isOutsideSource, 
+			MenuX(bx), 
+			MenuY(by + 32.0 * (source == DND_SYNC_ITEMSOURCE_FIELD) - 32.0 * isOutsideSource), 
 			holdTime, 
 			INVENTORY_FADETIME, 
 			INVENTORY_INFO_ALPHA
@@ -1947,17 +1956,17 @@ int DrawInventoryText(
 		if(itype == DND_ITEM_CHARM) {
 			temp = GetItemTier(lvl);
 			HudMessage(s:GetCharmString(temp, CHARMSTR_COLORCODE), l:GetCharmString(temp, CHARMSTR_TIERTAG), s: " ", l:GetItemTagName(DND_ITEM_CHARM, isubt); 
-				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2 + ITEMID_SKIP, CR_WHITE, bx, by, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2 + ITEMID_SKIP, CR_WHITE, MenuX(bx), MenuY(by), holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 			);
 		}
 		else if(itype == DND_ITEM_GEM) {
 			HudMessage(s:"\c[Y5]", s:GetGemFullName(isubt, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, topboxid, 0, source));
-				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2 + ITEMID_SKIP, CR_WHITE, bx, by, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2 + ITEMID_SKIP, CR_WHITE, MenuX(bx), MenuY(by), holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 			);
 		}
 		else if(itype <= UNIQUE_BEGIN) {
 			HudMessage(s:"\c[Y5]", l:GetItemTagName(itype, isubt); 
-				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2 + ITEMID_SKIP, CR_WHITE, bx, by, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2 + ITEMID_SKIP, CR_WHITE, MenuX(bx), MenuY(by), holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 			);
 		}
 		else {
@@ -1968,15 +1977,15 @@ int DrawInventoryText(
 			isUnique = true;
 
 			unique_creator = GetUniqueCreatorName(temp, itype);
-			HudMessage(s:"\c[A1]", l:GetUniqueItemName(temp, itype); HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2 + ITEMID_SKIP, CR_WHITE, bx, by, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
-			HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetItemTagName(temp, isubt); HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 3 + ITEMID_SKIP, CR_WHITE, bx, by + 8.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+			HudMessage(s:"\c[A1]", l:GetUniqueItemName(temp, itype); HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2 + ITEMID_SKIP, CR_WHITE, MenuX(bx), MenuY(by), holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+			HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetItemTagName(temp, isubt); HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 3 + ITEMID_SKIP, CR_WHITE, MenuX(bx), MenuY(by + 8.0), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		}
 		
 		// A gem has no level or quality; the lines still draw, blank, so the last item's numbers cannot linger.
 		isGem = !isUnique && itype == DND_ITEM_GEM;
 		val = GetLevel() < lvl ? CR_RED : CR_WHITE;
 		HudMessage(s:isGem ? "" : StrParam(l:"DND_LEVEL_HEADER", s:": ", d:lvl); 
-			HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 4 + ITEMID_SKIP, val, GetIntegerBits(bx - HUD_ITEMBAK_XF / 2 - 36.0) + 0.1, by, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+			HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 4 + ITEMID_SKIP, val, MenuX(GetIntegerBits(bx - HUD_ITEMBAK_XF / 2 - 36.0) + 0.1), MenuY(by), holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
 
 		// quality -- non-stacking item so
@@ -1985,8 +1994,8 @@ int DrawInventoryText(
 			HUDMSG_PLAIN | HUDMSG_FADEOUT, 
 			id_begin - id_mult * MAX_INVENTORY_BOXES - 18 + ITEMID_SKIP, 
 			CR_GREEN, 
-			GetIntegerBits(bx + ((2 * HUD_ITEMBAK_X / 3) << 16)) + 8.2, 
-			by, 
+			MenuX(GetIntegerBits(bx + ((2 * HUD_ITEMBAK_X / 3) << 16)) + 8.2), 
+			MenuY(by), 
 			holdTime, 
 			INVENTORY_FADETIME, 
 			INVENTORY_INFO_ALPHA
@@ -2040,7 +2049,7 @@ int DrawInventoryText(
 			HudMessage(
 				s:tmp_text;
 				HUDMSG_PLAIN | HUDMSG_FADEOUT,
-				id_begin - id_mult * MAX_INVENTORY_BOXES - 5 + ITEMID_SKIP, CR_WHITE, bx, yoff, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+				id_begin - id_mult * MAX_INVENTORY_BOXES - 5 + ITEMID_SKIP, CR_WHITE, MenuX(bx), MenuY(yoff), holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 			);
 
 			yoff += ITEMINFO_LINEHF * item_vsync_data.implicit_lines_count;
@@ -2051,7 +2060,7 @@ int DrawInventoryText(
 		SetFont("IMPSEPR");
 		HudMessage(
 			s:"A";
-			HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 6 + ITEMID_SKIP, val, GetIntegerBits(bx) + 0.4, yoff, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+			HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 6 + ITEMID_SKIP, val, MenuX(GetIntegerBits(bx) + 0.4), MenuY(yoff), holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
 
 		yoff += ITEMINFO_SEPH + ITEMINFO_ATTRGAP;
@@ -2136,7 +2145,7 @@ int DrawInventoryText(
 		HudMessage(
 			s:tmp_text;
 			HUDMSG_PLAIN | HUDMSG_FADEOUT,
-			id_begin - id_mult * MAX_INVENTORY_BOXES - 7 + ITEMID_SKIP, CR_WHITE, bx, yoff, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+			id_begin - id_mult * MAX_INVENTORY_BOXES - 7 + ITEMID_SKIP, CR_WHITE, MenuX(bx), MenuY(yoff), holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
 
 		// how far the whole block reaches past the title row -- that is what the panel has to cover
@@ -2178,10 +2187,10 @@ void DrawItemInfoBackground(
 	int mids, int craft_status = -1, int holdTime = INVENTORY_HOLDTIME
 )
 {
-	SetHudClipRect(0, 0, 0, 0, 0);
+	MenuClipRect(0, 0, 0, 0, 0);
 
 	// finally draw the background -- use hx and hy to set hudsize
-	SetHudSize(hx, hy, 1);
+	MenuHudSize(hx, hy);
 
 	if(mids > ITEMINFOBG_MAXMIDS)
 		mids = ITEMINFOBG_MAXMIDS;
@@ -2199,11 +2208,11 @@ void DrawItemInfoBackground(
 		SetFont("LDTITTOR");
 		mid_img = "LDTITMIR";
 	}
-	HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, hudid_begin, CR_WHITE, bg_posx, bg_posy, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+	HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, hudid_begin, CR_WHITE, MenuX(bg_posx), MenuY(bg_posy), holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 
 	for(int i = 0; i < mids; ++i) {
 		SetFont(mid_img);
-		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, hudid_begin - 1 - i, CR_WHITE, bg_posx, bg_posy + ITEMINFOBG_TOPLEN + i * ITEMINFOBG_MIDLEN, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, hudid_begin - 1 - i, CR_WHITE, MenuX(bg_posx), MenuY(bg_posy + ITEMINFOBG_TOPLEN + i * ITEMINFOBG_MIDLEN), holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 	}
 
 	if(craft_status) {
@@ -2214,7 +2223,7 @@ void DrawItemInfoBackground(
 	}
 	else
 		SetFont("LDTITBOR");
-	HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, hudid_begin - 2 - i, CR_WHITE, bg_posx, bg_posy + ITEMINFOBG_TOPLEN + i * ITEMINFOBG_MIDLEN, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+	HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, hudid_begin - 2 - i, CR_WHITE, MenuX(bg_posx), MenuY(bg_posy + ITEMINFOBG_TOPLEN + i * ITEMINFOBG_MIDLEN), holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 }
 
 void CopyItemToField(int fieldpos, int player_index, int item_index, int source) {
@@ -4220,7 +4229,7 @@ int CheckItemSynergy(int synergy_roll, int item_pos, int synergy_boost) {
 
 	auto item = GetFieldItem(item_pos);
 
-	if(synergy_roll == -2 && random(0, 1.0) <= chance) {
+	if(synergy_roll == -2 && chance > 0 && random(0, 1.0) <= chance) {
 		// pick one of the random mods on the existing item to be the target mod tag to go after
 		synergy_roll = random(0, item.attrib_count - 1);
 

@@ -598,14 +598,25 @@ Vec2_T* BulletAngle(int angle, int pitch, int rx, int ry = 0) {
 	return res;
 }
 
-// returns vec2 with xy and z spreads -- no mem allocation, takes in a mem allocated vec
-void SetBulletAngle(Vec2_T* res, int angle, int pitch, int rx, int ry = 0) {
+// One bullet's angle and pitch after spread, read from GetBulletDir(): a map static, so a shot takes no heap block.
+typedef struct {
+	int x, y;
+} bullet_dir_T;
+
+bullet_dir_T module& GetBulletDir() {
+	static bullet_dir_T s;
+	return s;
+}
+
+void RollBulletDir(int angle, int pitch, int rx, int ry = 0) {
+	bullet_dir_T module& res = GetBulletDir();
 	// if no spread return these as they are
 	if(rx == 0 && ry == 0) {
-		SetVec2(res, angle, pitch);
+		res.x = angle;
+		res.y = pitch;
 		return;
 	}
-	
+
 	// rx exists but not ry, assign same val
 	if(ry == 0)
 		ry = rx;

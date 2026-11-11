@@ -2545,6 +2545,14 @@ flickerlight VOLCANOBALL1
     chance 0.5
 }
 
+flickerlight VOLCANOBALL2
+{
+    color 1.0 0.5 0.0
+    size 40
+    secondarySize 48
+    chance 0.5
+}
+
 object VolcanoBlast2
 {
     frame VFBL { light VOLCANOBALL1 }

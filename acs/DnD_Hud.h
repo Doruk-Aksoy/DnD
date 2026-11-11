@@ -469,7 +469,7 @@ int GetCursorPos(int input, int mt, int hudx = HUDMAX_X, int hudy = HUDMAX_Y, in
 			res = PlayerCursorData.posx;
 			speed = FixedDiv(1.0, FixedMul(GetCVar("m_yaw"), GetCVar("mouse_sensitivity")));
 			speed = (speed * 2 * dim) / (dim * 100);
-			ds = input * speed;
+			ds = MenuZoomScale(input * speed);
 			res = Clamp_Between(res + ds, xmin, hudx << 16);
 		break;
 		case MOUSE_INPUT_Y:
@@ -479,7 +479,7 @@ int GetCursorPos(int input, int mt, int hudx = HUDMAX_X, int hudy = HUDMAX_Y, in
 			speed = (speed * 2 * dim) / (dim / 2 * 100);
 			if (GetCVar("invertmouse"))
 				speed *= -1;
-			ds = input * speed;
+			ds = MenuZoomScale(input * speed);
 			res = Clamp_Between(res + ds, 0, hudy << 16);
 		break;
 	}
@@ -498,7 +498,91 @@ void DrawCursor(int hudx = HUDMAX_XF, int hudy = HUDMAX_YF) {
 	printbold(f:PlayerCursorData.posx, s: " ", f:PlayerCursorData.posy/*, s: " hud: ", f:hudx, s: " ", f:hudy*/);
 #endif
 
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID, -1, hudx - (PlayerCursorData.posx & MMASK) + 0.1, hudy - (PlayerCursorData.posy & MMASK) + 0.1, 0.2, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID, -1, MenuX(hudx - (PlayerCursorData.posx & MMASK) + 0.1), MenuY(hudy - (PlayerCursorData.posy & MMASK) + 0.1), 0.2, 0.0);
+}
+
+// Menu zoom: narrower than 16:9 the menu draws smaller and centred. base is the engine's base width, 0 = no zoom.
+// ox/oy are the current canvas's offsets (fixed), set by MenuHudSize; layout and hit boxes stay in design space.
+typedef struct {
+	int base, ox, oy;
+} menu_zoom_T;
+
+menu_zoom_T module& GetMenuZoom() {
+	static menu_zoom_T z;
+	return z;
+}
+
+// Picks the zoom for this screen while the menu is open, none otherwise; true when it changed.
+bool UpdateMenuZoom(bool open) {
+	menu_zoom_T module& z = GetMenuZoom();
+	int b = 0;
+	if(open) {
+		int r = GetEngineScreenRatio(GetScreenWidth(), GetScreenHeight());
+		// the engine draws 21:9 virtual canvases as 16:10
+		b = GetRatioBaseWidth(r == 6 ? 2 : r);
+		if(b >= 1280)
+			b = 0;
+	}
+	if(b == z.base)
+		return false;
+	z.base = b;
+	z.ox = 0;
+	z.oy = 0;
+	return true;
+}
+
+// SetHudSize(w, h, 1) for the menu: grows the canvas by the zoom and centres the design space in it.
+void MenuHudSize(int w, int h) {
+	menu_zoom_T module& z = GetMenuZoom();
+	if(z.base) {
+		int cw = w * 1280 / z.base, ch = h * 1280 / z.base;
+		z.ox = ((cw - w) / 2) << 16;
+		z.oy = ((ch - h) / 2) << 16;
+		w = cw;
+		h = ch;
+	}
+	else {
+		z.ox = 0;
+		z.oy = 0;
+	}
+	SetHudSize(w, h, 1);
+}
+
+// Shifts by whole units, keeping the alignment digit when a negative coordinate crosses zero.
+int MenuShift(int v, int o) {
+	if(v < 0 && v + o > 0)
+		return v + o + 2 * (-v & 0xFFFF);
+	return v + o;
+}
+
+// A design space distance grown by the zoom, so the cursor crosses the same screen distance as on 16:9.
+int MenuZoomScale(int v) {
+	if(GetMenuZoom().base)
+		return FixedMul(v, (1280 << 16) / GetMenuZoom().base);
+	return v;
+}
+
+int MenuX(int x) {
+	return MenuShift(x, GetMenuZoom().ox);
+}
+
+int MenuY(int y) {
+	return MenuShift(y, GetMenuZoom().oy);
+}
+
+void MenuClipRect(int x, int y, int w, int h, int wrap = 0) {
+	if(w && h) {
+		x += GetMenuZoom().ox >> 16;
+		y += GetMenuZoom().oy >> 16;
+	}
+	SetHudClipRect(x, y, w, h, wrap);
+}
+
+// GetHudLeft for menu canvases: a zoomed menu shows the 16:9 width whatever the screen.
+int GetMenuHudLeft(int width) {
+	if(GetMenuZoom().base)
+		return -(FixedDiv(width << 16, 5.9) >> 16);
+	return GetHudLeft(width);
 }
 
 void ListenMouseInput() {
@@ -816,8 +900,8 @@ void DrawScrollBarBody(int id, int bx, int gripid, int capid, int thumbid, int t
 	// Clipped to the bar's own track, because the art is one fixed height and a bar shorter than it
 	// would otherwise run past its own end.
 	SetFont("SCRLTRAK");
-	SetHudClipRect(bx, bar.track_y, DND_SCROLLBAR_W, bar.track_h, DND_SCROLLBAR_W);
-	HudMessage(s:"A"; HUDMSG_PLAIN, trackid, -1, (bx << 16) + 0.1, (bar.track_y << 16) + 0.1, 0.0, 0.0);
+	MenuClipRect(bx, bar.track_y, DND_SCROLLBAR_W, bar.track_h, DND_SCROLLBAR_W);
+	HudMessage(s:"A"; HUDMSG_PLAIN, trackid, -1, MenuX((bx << 16) + 0.1), MenuY((bar.track_y << 16) + 0.1), 0.0, 0.0);
 
 	int th = GetScrollThumbHeight(bar);
 	int ty = bar.track_y + GetScrollThumbOffset(bar, id);
@@ -833,30 +917,30 @@ void DrawScrollBarBody(int id, int bx, int gripid, int capid, int thumbid, int t
 	// body, which is uniform, so the passes agree wherever they meet.
 	SetFont("SCRLTHMB");
 
-	SetHudClipRect(bx, ty, DND_SCROLLBAR_W, th, DND_SCROLLBAR_W);
+	MenuClipRect(bx, ty, DND_SCROLLBAR_W, th, DND_SCROLLBAR_W);
 	HudMessage(
 		s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, thumbid, -1,
-		(bx << 16) + 0.1, ((ty - DND_SCROLLBAR_THUMBBODY) << 16) + 0.1, 0.0, alpha
+		MenuX((bx << 16) + 0.1), MenuY(((ty - DND_SCROLLBAR_THUMBBODY) << 16) + 0.1), 0.0, alpha
 	);
 
-	SetHudClipRect(bx, ty + th - 1, DND_SCROLLBAR_W, 1, DND_SCROLLBAR_W);
+	MenuClipRect(bx, ty + th - 1, DND_SCROLLBAR_W, 1, DND_SCROLLBAR_W);
 	HudMessage(
 		s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, capid, -1,
-		(bx << 16) + 0.1, ((ty + th - 1 - DND_SCROLLBAR_THUMBCAP) << 16) + 0.1, 0.0, alpha
+		MenuX((bx << 16) + 0.1), MenuY(((ty + th - 1 - DND_SCROLLBAR_THUMBCAP) << 16) + 0.1), 0.0, alpha
 	);
 
 	if(th >= DND_SCROLLBAR_THUMBGRIPMIN) {
 		int gy = ty + (th - DND_SCROLLBAR_THUMBGRIPH) / 2;
-		SetHudClipRect(bx, gy, DND_SCROLLBAR_W, DND_SCROLLBAR_THUMBGRIPH, DND_SCROLLBAR_W);
+		MenuClipRect(bx, gy, DND_SCROLLBAR_W, DND_SCROLLBAR_THUMBGRIPH, DND_SCROLLBAR_W);
 		HudMessage(
 			s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, gripid, -1,
-			(bx << 16) + 0.1, ((gy - DND_SCROLLBAR_THUMBGRIP) << 16) + 0.1, 0.0, alpha
+			MenuX((bx << 16) + 0.1), MenuY(((gy - DND_SCROLLBAR_THUMBGRIP) << 16) + 0.1), 0.0, alpha
 		);
 	}
 	else
 		DeleteText(gripid);
 
-	SetHudClipRect(0, 0, 0, 0, 0);
+	MenuClipRect(0, 0, 0, 0, 0);
 }
 
 // The shared bar, in its own column and id block.
@@ -1149,13 +1233,13 @@ void DrawInventoryInfo(int pnum) {
 		int bg_x = mx;
 		int bg_y = my;
 
-		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+		MenuHudSize(HUDMAX_X, HUDMAX_Y);
 		int attr_count = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
 
 		// A tall panel hovered low would run off the screen: the first pass measures it, and a second, lifted by
 		// the overflow, overwrites it on the same ids before anything is shown.
 		for(pass = 0; pass < 2; ++pass) {
-			SetHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2, 1);
+			MenuHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2);
 
 			int prev_x = 3 * bg_x / 2;
 			int prev_y = 3 * bg_y / 2;
@@ -1163,7 +1247,7 @@ void DrawInventoryInfo(int pnum) {
 			mx = GetIntegerBits(3 * (bg_x + HUD_ITEMBAK_XF / 2) / 2) + 0.4;
 			my = GetIntegerBits(3 * bg_y / 2 + ITEMINFO_TEXTTOP) + 0.1;
 
-			SetHudClipRect(ITEMINFO_CLIPX + (prev_x >> 16), 15 + (prev_y >> 16), HUD_ITEMBAK_WIDTH, ITEMINFO_CLIPHEIGHT, HUD_ITEMBAK_WIDTH);
+			MenuClipRect(ITEMINFO_CLIPX + (prev_x >> 16), 15 + (prev_y >> 16), HUD_ITEMBAK_WIDTH, ITEMINFO_CLIPHEIGHT, HUD_ITEMBAK_WIDTH);
 			over = DrawInventoryText(
 				PlayerCursorData.itemHovered,
 				PlayerCursorData.itemHoveredSource,
@@ -1172,7 +1256,7 @@ void DrawInventoryInfo(int pnum) {
 				bg_x, bg_y,
 				attr_count
 			);
-			SetHudClipRect(0, 0, 0, 0, 0);
+			MenuClipRect(0, 0, 0, 0, 0);
 
 			over = (bg_y >> 16) + ItemInfoPanelHeight(over) - HUDMAX_Y;
 			if(over <= 0)
@@ -1180,13 +1264,13 @@ void DrawInventoryInfo(int pnum) {
 			bg_y -= over << 16;
 		}
 
-		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+		MenuHudSize(HUDMAX_X, HUDMAX_Y);
 		stack = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
 		if(stack) {
 			SetFont("NMENUFNT");
-			HudMessage(d:stack; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 5 - ITEMINFOBG_MAXMIDS, CR_GREEN, GetIntegerBits(bg_x + HUD_ITEMBAK_XF - 9.0) + 0.2, bg_y + 15.0, 0);
+			HudMessage(d:stack; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 5 - ITEMINFOBG_MAXMIDS, CR_GREEN, MenuX(GetIntegerBits(bg_x + HUD_ITEMBAK_XF - 9.0) + 0.2), MenuY(bg_y + 15.0), 0);
 		}
-		SetHudSize(PlayerCursorData.itemHoveredDim.x, PlayerCursorData.itemHoveredDim.y, 1);
+		MenuHudSize(PlayerCursorData.itemHoveredDim.x, PlayerCursorData.itemHoveredDim.y);
 	}
 
 	// if we have some sort of orb hovered, highlight attributes in case they can be related

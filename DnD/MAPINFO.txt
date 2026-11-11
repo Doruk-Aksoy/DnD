@@ -1,5 +1,7 @@
 DefaultMap {
 	SmoothLighting
+	// DnD's own maps always allow jumping; other maps keep their own MAPINFO setting.
+	AllowJump
 	ClipMidTextures
 	UsePlayerStartZ
 }

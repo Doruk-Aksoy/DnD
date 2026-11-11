@@ -11,6 +11,7 @@ const int PLAYERFX_HATREDAURA = 6;
 const int PLAYERFX_SHIVERINGARMOR = 7;
 const int PLAYERFX_WRATHAURA = 8;
 const int PLAYERFX_AGONYAURA = 9;
+const int PLAYERFX_VAMPIRISMAURA = 10;
 // Mirrors DND_SPELL_THRESH_* in acs/Spells/DnD_SpellDefs.h.
 const int SPELLTHRESH_LOW = 5;
 const int SPELLTHRESH_HIGH = 10;
@@ -237,6 +238,11 @@ const int SPELLTHRESH_HIGH = 10;
 #include "Actors/Spells/Black/CarrionCrows.dec"
 #include "Actors/Spells/Black/NetherWalk.dec"
 #include "Actors/Spells/Black/DeathAndDecay.dec"
+#include "Actors/Spells/Black/Desecrate.dec"
+#include "Actors/Spells/Black/DarkPact.dec"
+#include "Actors/Spells/Black/SoulSiphon.dec"
+#include "Actors/Spells/Black/GraveGrasp.dec"
+#include "Actors/Spells/Black/Vampirism.dec"
 
 #include "Actors/Spells/AllyLock.dec"
 

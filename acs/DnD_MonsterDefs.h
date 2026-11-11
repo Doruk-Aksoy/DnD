@@ -13,8 +13,43 @@
 
 #define ETHEREAL_RESIST 33
 
-#define MONSTER_RES_PER_THRESHOLD 30
-#define MONSTER_RES_PER_PLUS40 8
+// Level resist rises from level 35 to its cap at 83, gear's item level cap: 40 x ((level - 35) / 48)^0.6.
+#define DND_MONSTER_RESIST_CAPLEVEL 83
+#define DND_MONSTER_LEVELTABLE_MAX 100
+
+int GetMonsterLevelResist(int level) {
+	static int res[DND_MONSTER_LEVELTABLE_MAX + 1] = {
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		4, 6, 8, 9, 10, 11, 13, 14, 15, 16, 17, 17, 18, 19, 20, 21, 21, 22, 23, 24, 24, 25, 26, 26, 27, 28, 28, 29,
+		30, 30, 31, 31, 32, 33, 33, 34, 34, 35, 35, 36, 36, 37, 37, 38, 38, 39, 39, 40, 40, 40, 40, 40, 40, 40, 40,
+		40, 40, 40, 40, 40, 40, 40, 40, 40, 40
+	};
+	return res[Clamp_Between(level, 0, DND_MONSTER_LEVELTABLE_MAX)];
+}
+
+// Health in place of the old stepped resist (16.16), so an unpierced hit kills as fast; monsters only, never pets.
+int GetMonsterHPFold(int level) {
+	static int fold[DND_MONSTER_LEVELTABLE_MAX + 1] = {
+		65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536,
+		65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536, 65536,
+		65536, 65536, 65536, 65536, 65536, 65536, 66985, 67853, 68318, 69314, 70184, 70962, 70854, 71487, 72072,
+		72617, 73125, 74500, 74966, 75406, 75823, 76218, 77574, 77948, 78303, 78643, 80019, 80345, 80658, 82065,
+		82370, 82662, 84110, 84399, 84677, 86175, 86453, 87996, 88276, 88548, 90156, 90434, 92099, 92387, 94114,
+		94414, 96211, 96526, 98398, 98733, 100687, 101046, 103091, 103478, 103946, 104814, 105958, 107347, 108967,
+		110815, 112898, 115224, 117809, 120670, 123832, 127323, 131180, 135443, 140164, 145403, 151237
+	};
+	return fold[Clamp_Between(level, 0, DND_MONSTER_LEVELTABLE_MAX)];
+}
+
+// A health percent (what ApplyHPScale adds) with the fold on the whole health; FixedMul keeps it from wrapping.
+int ApplyMonsterHPFold(int pct, int level) {
+	return FixedMul(100 + pct, GetMonsterHPFold(level)) - 100;
+}
+
+// Max health without the fold, for what a monster does to players with its own health (blasts, heals off it).
+int GetMonsterUnfoldedMaxHP(int m_id) {
+	return FixedDiv(MonsterProperties[m_id].maxhp, GetMonsterHPFold(MonsterProperties[m_id].level));
+}
 
 #define DND_ASMODEUS_MAXLOB 3
 
@@ -61,6 +96,7 @@ typedef struct {
 	int rarity;										// monster's rarity;
 	int droprate;									// droprate multiplier for this monster based on its initialization data
 	int rarity_boost;								// item rarity boost from monster
+	int loot_value;									// 16.16: its share of the map's kill loot and of the highlight meter
 	int killer_tid;									// tid of the killer
 	int rng_vals[DND_MAX_MONSTER_PRECALC_RNG];		// precalculated rng outcomes
 	int flags;										// isElite, isMagic, isIdle etc.
@@ -933,8 +969,9 @@ bool IsSpellEnemy(int tid) {
 	return CheckFlag(tid, "SHOOTABLE") && !IsPlayerAlly(tid);
 }
 
+// id is the monster slot; the boss test needs its type
 bool IsMonsterCategoryResurrectable(int id) {
-	return MonsterProperties[id].class != MONSTERCLASS_ARCHVILE && !IsMonsterIdBoss(id);
+	return MonsterProperties[id].class != MONSTERCLASS_ARCHVILE && !IsMonsterIdBoss(MonsterProperties[id].id);
 }
 
 // ============================================================================

@@ -21,7 +21,15 @@ Script "DnD Can Fire Weapon" (void) {
 	int pnum = PlayerNumber();
 
 	//int pc = 0;
-	while(IsAlive() && !IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED)) {
+	while(IsAlive()) {
+		// Map-end flag: nothing fires in the exit countdown, and a player in before the last one's setup waits with no stale token.
+		if(IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED)) {
+			TakeInventory("DnD_CanFire", 1);
+			TakeInventory("DnD_CanAltFire", 1);
+			TakeInventory("DnD_CanReload", 1);
+			Delay(const:1);
+			continue;
+		}
 		int wepid = GetCurrentWeaponID();
 
 		//pc = (pc + 1) % 15;
@@ -2134,12 +2142,14 @@ Script "DnD Sickle Mass Res" (int base, int dist) {
 	dist <<= 16;
 	base = (base << 16) / 100;
 
-	for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
-		int i = UsedMonsterTIDs[mn];
-		if(!isActorAlive(i) && RunLuckBasedChance(pnum, base) && fdistance(0, i) <= dist) {
+	// corpses in reach first, then each one's roll
+	int from = ScanMonstersNear(0, dist + DND_SCAN_FEETMARGIN, DND_SCAN_CORPSES), to = GetMonsterScanEnd();
+	for(int mn = from; mn < to; ++mn) {
+		int i = GetMonsterScanTid(mn);
+		if(fdistance(0, i) <= dist && RunLuckBasedChance(pnum, base))
 			ACS_NamedExecuteAlways("DnD Resurrect Checker", 0, TICRATE, i);
-		}
 	}
+	ReleaseMonsterScan(from);
 }
 
 Script "DnD Inferno Debuff FX" (void) CLIENTSIDE {
@@ -2411,9 +2421,10 @@ Script "DnD Dark Lance Shred" (int dmg, int owner, int stacks, int victim) {
 			int curr_dist = bcs::INT_MAX;
 			victim = -1;
 			
-			for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
-				i = UsedMonsterTIDs[mn];
-				if(IsActorAlive(i) && CheckFlag(i, "SHOOTABLE") && IsMonster(i)) {
+			int scan_from = ScanMonstersNear(prev_victim, DARKLANCE_BOUNCE_DIST + DND_SCAN_FEETMARGIN), scan_end = GetMonsterScanEnd();
+			for(int mn = scan_from; mn < scan_end; ++mn) {
+				i = GetMonsterScanTid(mn);
+				if(CheckFlag(i, "SHOOTABLE")) {
 					dist = fdistance(prev_victim, i);
 
 					time_lim = GetActorZ(prev_victim);
@@ -2425,7 +2436,8 @@ Script "DnD Dark Lance Shred" (int dmg, int owner, int stacks, int victim) {
 					SetActorPosition(prev_victim, GetActorX(prev_victim), GetActorY(prev_victim), time_lim, false);
 				}
 			}
-			
+			ReleaseMonsterScan(scan_from);
+
 			// found a monster suitable for jump, so go to this one now
 			if(victim != -1)
 				ACS_NamedExecuteWithResult("DnD Dark Lance Shred", dmg, owner, stacks, victim);
@@ -2468,8 +2480,7 @@ Script "DnD Do Scan Attack" (int dmg, int damage_type, int tracer_count, int fla
 
 Script "DND Thunderstaff Bolts" (void) {
 	int dist = bcs::INT_MAX, i, j, k, temp;
-	// scan all monsters for the item ThunderTarget -- that implies they are candidates having passed range check
-	static dist_tid_pair_T tlist[MAXPLAYERS][DND_THUNDERSTAFF_MAXTARGETS];
+static dist_tid_pair_T tlist[MAXPLAYERS][DND_THUNDERSTAFF_MAXTARGETS];
 	
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	int pnum = owner - P_TIDSTART;
@@ -2481,10 +2492,11 @@ Script "DND Thunderstaff Bolts" (void) {
 	}
 	int tcount = 0;
 	int tidlim = 0;
-	// pick N closest targets as a list of targets to hit
-	for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
-		i = UsedMonsterTIDs[mn];
-		if(CheckActorInventory(i, "ThunderTarget") && IsActorAlive(i) && CheckFlag(i, "SHOOTABLE")) {
+	// pick N closest targets in the ball's reach and sight
+	int scan_from = ScanMonstersNear(0, DND_THUNDERBOLT_RANGE, DND_SCAN_SEEN), scan_end = GetMonsterScanEnd();
+	for(int mn = scan_from; mn < scan_end; ++mn) {
+		i = GetMonsterScanTid(mn);
+		if(CheckFlag(i, "SHOOTABLE")) {
 			dist = fdistance(0, i);
 			// insert sorted
 			if(tcount < DND_THUNDERSTAFF_MAXTARGETS)
@@ -2512,11 +2524,12 @@ Script "DND Thunderstaff Bolts" (void) {
 			
 			tlist[pnum][j].dist = dist;
 			tlist[pnum][j].tid = i;
-			
+
 			if(tcount < DND_THUNDERSTAFF_MAXTARGETS)
 				++tcount;
 		}
 	}
+	ReleaseMonsterScan(scan_from);
 	
 	if(tcount) {
 		int actor_flags = ScanActorFlags();
@@ -2611,10 +2624,13 @@ Script "DND Thunderstaff Lightning" (void) {
 	int actor_flags = 0;
 	int scan_amt = 0;
 	int adist;
-	
-	for(int mn = 0; scan_amt < DND_THUNDERSTAFF_LIMIT && mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
-		i = UsedMonsterTIDs[mn];
-		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i) && CheckFlag(i, "SHOOTABLE")) {
+	thunder_strike_T module& ring = GetThunderStrikes();
+	int n = ring.count[pnum];
+	ring.count[pnum] = 0;
+
+	for(int mn = 0; scan_amt < DND_THUNDERSTAFF_LIMIT && mn < n; ++mn) {
+		i = ring.tid[pnum][mn];
+		if(IsActorAlive(i) && CheckFlag(i, "SHOOTABLE")) {
 			ACS_NamedExecuteAlways("DND ThunderStaff FX Spawn", 0, i);
 			
 			 if(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)
@@ -2629,10 +2645,7 @@ Script "DND Thunderstaff Lightning" (void) {
 					Thing_Damage2(i, adist, "SkipHandle");
 			}
 			
-			// take the range checker
-			TakeActorInventory(i, "ThunderStrike", 1);
-
-			// prox hurt player based on distance to monster
+// prox hurt player based on distance to monster
 			if(isActorAlive(this) && (adist = AproxDistance(GetActorX(0) - GetActorX(i), GetActorY(0) - GetActorY(i))) <= THUNDERSTAFF_SELFDMG_DIST) {
 				// reduce base damage from a really high number to a rather tolerable one -- base is 750...
 				int self_dmg = (dmg / 4) * ((THUNDERSTAFF_SELFDMG_DIST - adist) >> 16) / (THUNDERSTAFF_SELFDMG_DIST >> 16);
@@ -2649,6 +2662,30 @@ Script "DND Thunderstaff Lightning" (void) {
 			++scan_amt;
 		}
 	}
+}
+
+// The monsters a Thunder Staff ring reached (in its sight, as the ring fired), for the lightning that follows.
+#define DND_THUNDERSTRIKE_LIST 128
+typedef struct {
+	int tid[MAXPLAYERS][DND_THUNDERSTRIKE_LIST];
+	int count[MAXPLAYERS];
+} thunder_strike_T;
+
+thunder_strike_T module& GetThunderStrikes() {
+	static thunder_strike_T s;
+	return s;
+}
+
+// Fires the ring (ThunderRingMaker pings what it reaches) and keeps the list.
+void FireThunderRing(int pnum) {
+	thunder_strike_T module& ring = GetThunderStrikes();
+	int from = BeginMonsterScan(DND_SCAN_LIVE), to, n = 0;
+	GiveInventory("ThunderRingMaker", 1);
+	to = GetMonsterScanEnd();
+	for(int i = from; i < to && n < DND_THUNDERSTRIKE_LIST; ++i)
+		ring.tid[pnum][n++] = GetMonsterScanTid(i);
+	ring.count[pnum] = n;
+	ReleaseMonsterScan(from);
 }
 
 Script "DND Thunder Range" (void) {
@@ -2762,16 +2799,17 @@ Script "DnD Pull Towards Self" (int force, int pull_dist, int flags) {
 		adj_fixed = true;
 		
 	pull_dist <<= 16;
-	for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
-		int i = UsedMonsterTIDs[mn];
+	// with can pull dead, corpses come too
+	int from = ScanMonstersNear(0, pull_dist + DND_SCAN_FEETMARGIN, (flags & DND_PULLF_CANPULLDEAD) ? DND_SCAN_ANY : DND_SCAN_LIVE), to = GetMonsterScanEnd();
+	for(int mn = from; mn < to; ++mn) {
+		int i = GetMonsterScanTid(mn);
 		int mass = GetActorProperty(i, APROP_MASS);
-		
+
 		// overflow check, we divide by x2 of mass so
 		if(mass >= bcs::INT_MAX >> 1)
 			continue;
-		
-		// flags has can pull dead, we dont need to check for alive or not
-		if(((flags & DND_PULLF_CANPULLDEAD) || isActorAlive(i)) && fdistance(0, i) <= pull_dist && CheckSight(i, 0, CSF_NOBLOCKALL)) {
+
+		if(fdistance(0, i) <= pull_dist && CheckSight(i, 0, CSF_NOBLOCKALL)) {
 			// get angle to face and thrust it towards this
 			int fx = x;
 			int fy = y;
@@ -2794,21 +2832,23 @@ Script "DnD Pull Towards Self" (int force, int pull_dist, int flags) {
 			SetActorVelocity(i, FixedMul(mforce, cos(ang)), FixedMul(mforce, sin(ang)), 0, true, false);
 		}
 	}
+	ReleaseMonsterScan(from);
 	SetResultValue(0);
 }
 
-Script "DnD Gravdis Thrust" (int pull_count, int force) {
+Script "DnD Gravdis Thrust"(int pull_count, int force) {
 	int x = GetActorX(0);
 	int y = GetActorY(0);
 	//int z = GetActorZ(0);
 	
 	// make fixed
 	force <<= 16;
-	int j = pull_count;
+	int j = pull_count, reach = (GetUserVariable(0, "user_rad") << 16) + DND_GRAVDIS_LIFTMARGIN;
 	while(j) {
-		for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
-			int i = UsedMonsterTIDs[mn];
-			if(CheckActorInventory(i, "GravdisDebuff") && isActorAlive(i) && !CheckActorInventory(i, "GravdisImmunity")) {
+		int from = ScanMonstersNear(0, reach), to = GetMonsterScanEnd();
+		for(int mn = from; mn < to; ++mn) {
+			int i = GetMonsterScanTid(mn);
+			if(CheckActorInventory(i, "GravdisDebuff") && !CheckActorInventory(i, "GravdisImmunity")) {
 				// get angle to face and thrust it towards this
 				int fx = x - GetActorX(i);
 				int fy = y - GetActorY(i);
@@ -2817,6 +2857,7 @@ Script "DnD Gravdis Thrust" (int pull_count, int force) {
 				SetActorVelocity(i, FixedMul(mforce, cos(ang)), FixedMul(mforce, sin(ang)), 0, true, false);
 			}
 		}
+		ReleaseMonsterScan(from);
 		Delay(const:2);
 		--j;
 	}
@@ -2836,12 +2877,13 @@ Script "DnD Gravdis Debuff" (int base_dmg) {
 	SnapshotComponentStage(owner - P_TIDSTART);
 
 	bool got_one = false;
-	
-	for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
-		i = UsedMonsterTIDs[mn];
+
+	// what the projectile's blast reaches and sees
+	int from = ScanMonstersNear(0, GetUserVariable(0, "user_rad") << 16, DND_SCAN_SEEN), to = GetMonsterScanEnd();
+	for(int mn = from; mn < to; ++mn) {
+		i = GetMonsterScanTid(mn);
 		// to be affected by gravdis debuff
-		if(CheckActorInventory(i, "GravdisToken") && IsActorAlive(i) && !CheckActorInventory(i, "GravdisImmunity")) {
-			TakeActorInventory(i, "GravdisToken", 1);
+		if(!CheckActorInventory(i, "GravdisImmunity")) {
 			
 			m_id = MonsterProperties[i - DND_MONSTERTID_BEGIN].id;
 			
@@ -2868,6 +2910,7 @@ Script "DnD Gravdis Debuff" (int base_dmg) {
 			got_one = true;
 		}
 	}
+	ReleaseMonsterScan(from);
 	
 	if(got_one)
 		GiveActorInventory(owner, "GravdisCanAlt", 1);
@@ -3195,16 +3238,19 @@ Script "DnD Chain Lightning (Weapon)" (int dmg, int zap_count, int flags, int ju
 	static int zap_tids[MAXPLAYERS][DND_MAX_OVERLOADTARGETS];
 
 	while(IsActorAlive(owner) && zap_count) {
-		// init
-		int cur_count = 0;
-		for(i = 0; i < zap_count; ++i)
-			zap_tids[pnum][i] = 0;
-
-		for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
-			i = UsedMonsterTIDs[mn];
-			if(i != this && isActorAlive(i) && CheckFlag(i, "SHOOTABLE") && fdistance(this, i) <= jump_dist && CheckSight(this, i, 0))
-				zap_tids[pnum][cur_count++] = i;
+		// past the row size, keep a uniform random sample of the candidates
+		int cur_count = 0, seen = 0, slot, scan_from = ScanMonstersNear(this, jump_dist + DND_SCAN_FEETMARGIN), scan_end = GetMonsterScanEnd();
+		for(mn = scan_from; mn < scan_end; ++mn) {
+			i = GetMonsterScanTid(mn);
+			if(i != this && CheckFlag(i, "SHOOTABLE") && fdistance(this, i) <= jump_dist && CheckSight(this, i, 0)) {
+				if(cur_count < DND_MAX_OVERLOADTARGETS)
+					zap_tids[pnum][cur_count++] = i;
+				else if((slot = random(0, seen)) < DND_MAX_OVERLOADTARGETS)
+					zap_tids[pnum][slot] = i;
+				++seen;
+			}
 		}
+		ReleaseMonsterScan(scan_from);
 
 		// no candidates left, stop
 		if(!cur_count)
@@ -3323,35 +3369,35 @@ int HandleTracerPicking(int owner, int lock_on_range, int width, int height, boo
 
 	//Log(s:"width height range ", f:width, s: " ", f:height, s: " ", f:lock_on_range);
 
-	for(int i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
+	// the owner's side is read once; a pitch outside the view picks nothing
+	int ox = GetActorX(owner), oy = GetActorY(owner), oangle = GetActorAngle(owner), opitch = GetActorPitch(owner);
+	int oeye = GetActorZ(owner) + GetActorViewHeight(owner);
+	int n = opitch >= -0.5 && opitch <= 0.5 ? InformationInLevel[LEVELINFO_TID_MONSTER] : 0;
+	for(int i = 0; i < n; ++i) {
 		int tid = UsedMonsterTIDs[i];
-		if(!isActorAlive(tid))
-			continue;
-		
-		// if we are in angle threshold of view
-		x = GetActorX(tid) - GetActorX(owner);
-		y = GetActorY(tid) - GetActorY(owner);
-		
+
+		// distance first: it rejects most of the map before any other lookup
+		x = GetActorX(tid) - ox;
+		y = GetActorY(tid) - oy;
+
 		vang = VectorAngle(x, y);
-		angle_to_face = normalize360(vang - GetActorAngle(owner));
-		
+
 		dist = 1;
 		// approx distance
 		if(((vang + 0.125) % 0.5) > 0.25)
 			dist = FixedDiv(y, sin(vang));
 		else
 			dist = FixedDiv(x, cos(vang));
-		pitch = GetActorPitch(owner);
-		if
-		(
-			(angle_to_face < 0.2 || angle_to_face > 0.8) && 
-			dist < lock_on_range && dist < cur_dist &&
-			pitch >= -0.5 && pitch <= 0.5
-		)
+		if(dist >= lock_on_range || dist >= cur_dist)
+			continue;
+
+		// if we are in angle threshold of view
+		angle_to_face = normalize360(vang - oangle);
+		if((angle_to_face < 0.2 || angle_to_face > 0.8) && isActorAlive(tid))
 		{
 			// get the angle we make to face the actor and correct it to pixel ratio of doom (1.2)
-			pitch = VectorAngle(dist, GetActorZ(tid) + GetActorProperty(tid, APROP_HEIGHT) / 2 - (GetActorZ(owner) + GetActorViewHeight(owner)));
-			pitch = normalize360(pitch + GetActorPitch(owner));
+			pitch = VectorAngle(dist, GetActorZ(tid) + GetActorProperty(tid, APROP_HEIGHT) / 2 - oeye);
+			pitch = normalize360(pitch + opitch);
 	
 			x = LOCKON_HUD_XHALF - (LOCKON_HUD_XHALF * FixedDiv(sin(angle_to_face), cos(angle_to_face))) >> 16;
 			y = LOCKON_HUD_YHALF - (LOCKON_HUD_XHALF * FixedDiv(sin(pitch), cos(pitch))) >> 16;

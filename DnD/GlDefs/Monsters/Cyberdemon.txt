@@ -2666,11 +2666,11 @@ pointlight HARCHBLUEEXP5 {
 object SorcBall1New
 {
     frame SBMP { light HARCHREDCUBE }
-	frame SBS4D { light HARCREDEXP1 }
-	frame SBS4E { light HARCREDEXP2 }
-	frame SBS4F { light HARCREDEXP3 }
-	frame SBS4G { light HARCREDEXP4 }
-	frame SBS4H { light HARCREDEXP5 }
+	frame SBS4D { light HARCHREDEXP1 }
+	frame SBS4E { light HARCHREDEXP2 }
+	frame SBS4F { light HARCHREDEXP3 }
+	frame SBS4G { light HARCHREDEXP4 }
+	frame SBS4H { light HARCHREDEXP5 }
 }
 
 object SorcBall2New
@@ -2696,11 +2696,11 @@ object SorcBall3New
 object SorcBall1Projectile
 {
     frame SBMP { light HARCHREDCUBE }
-	frame SBS4D { light HARCREDEXP1 }
-	frame SBS4E { light HARCREDEXP2 }
-	frame SBS4F { light HARCREDEXP3 }
-	frame SBS4G { light HARCREDEXP4 }
-	frame SBS4H { light HARCREDEXP5 }
+	frame SBS4D { light HARCHREDEXP1 }
+	frame SBS4E { light HARCHREDEXP2 }
+	frame SBS4F { light HARCHREDEXP3 }
+	frame SBS4G { light HARCHREDEXP4 }
+	frame SBS4H { light HARCHREDEXP5 }
 }
 
 object SorcBall2Projectile

@@ -2,6 +2,8 @@
 Actor DnD_ContagionBase : DnD_Info {}
 Actor DnD_ContagionOwner : DnD_Info {}
 Actor DnD_ContagionTimer : DnD_Info {}
+// Rank 10: Timer() until which the DoTs it carried onto an enemy ignore shields and fortification.
+Actor DnD_ContagionPierce : DnD_Info {}
 
 // The rune circle under the zone and round a dead host: flat2.md3 under CONTAGRN (Contagion.fp). ACS sizes it by ScaleX
 // and spreads it by its alpha (0.1 whole).

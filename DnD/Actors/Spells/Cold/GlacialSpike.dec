@@ -43,3 +43,14 @@ Actor Spell_GlacialSpike_Smoke : PlasmaSmoke2 {
 Actor Spell_GlacialSpike_ParticleTrail : Spell_IceBolt_Trail {
 	Scale 0.2
 }
+
+// Glacial Spike's look on a fork hop: its own model (MODELDEF.spell) and shader skin.
+Actor Spell_GlacialSpike_GemArc : DnD_GemStrikeFX {
+	Scale 1.5
+	RenderStyle Add
+	States {
+		Spawn:
+			SPIK A 1 Bright A_SpawnItemEx("Spell_GlacialSpike_Smoke", -8, 0, 0, 0, frandom(-1.75, 1.75), frandom(0.5, 1.25), 0, 128, 128)
+		Loop
+	}
+}

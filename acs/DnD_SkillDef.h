@@ -4,7 +4,7 @@
 #define DND_SKILL_MINLEVEL 1
 #define DND_SKILL_MAXLEVEL 10
 
-#define DND_PET_MOVEDIST 512.0
+#define DND_PET_MOVEDIST 768.0
 
 // Reactivity. A pet carries +QUICKTORETALIATE so it answers whatever is hitting it, but that flag
 // alone makes it change its mind on every hit and never land a swing. So the flag comes OFF for

@@ -60,3 +60,15 @@ Actor Spell_FreezingPulse : DnD_Spell {
 		Loop
 	}
 }
+
+// Freezing Pulse's look on a fork hop: the wave's own model (MODELDEF.spell) and shader skin.
+Actor Spell_FreezingPulse_GemArc : DnD_GemStrikeFX {
+	Scale 2
+	RenderStyle Add
+	Alpha 0.95
+	States {
+		Spawn:
+			FPUL A 1 Bright
+		Loop
+	}
+}

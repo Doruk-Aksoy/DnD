@@ -68,9 +68,8 @@ void DB_SaveSpellData(int pnum, int char_id, str pacc) {
 	for(i = 0; i < MAX_HOTBAR_SLOTS; ++i)
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_SPELLHOTBAR, char_id), d:i), pacc, SpellPlayerData[pnum].hotbar[i]);
 
-	int tid = pnum + P_TIDSTART;
-	SetDBEntry(GetCharField(DND_DB_SPELLSFROMLEVEL, char_id), pacc, CheckActorInventory(tid, "SpellPointsFromLevel"));
-	SetDBEntry(GetCharField(DND_DB_SPELLSFROMTOKEN, char_id), pacc, CheckActorInventory(tid, "SpellPointsFromToken"));
+	SetDBEntry(GetCharField(DND_DB_SPELLSFROMLEVEL, char_id), pacc, SpellPlayerData[pnum].from_level);
+	SetDBEntry(GetCharField(DND_DB_SPELLSFROMTOKEN, char_id), pacc, SpellPlayerData[pnum].from_token);
 
 	// A row per filled socket, its index above the 15 bit gem: 512 rows a save for every empty socket was waste.
 	int n = 0;
@@ -94,6 +93,7 @@ void DB_ClearSpellData(int char_id, str pacc) {
 	SetDBEntry(GetCharField(DND_DB_SPELLSFROMLEVEL, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_SPELLSFROMTOKEN, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_SPELLSOCKETCOUNT, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_UNSPENTSPELL, char_id), pacc, 0);
 }
 
 void DB_LoadSpellData(int pnum, int char_id, str pacc) {
@@ -107,9 +107,7 @@ void DB_LoadSpellData(int pnum, int char_id, str pacc) {
 	for(i = 0; i < MAX_HOTBAR_SLOTS; ++i)
 		SpellPlayerData[pnum].hotbar[i] = GetDBEntry(StrParam(s:GetCharField(DND_DB_SPELLHOTBAR, char_id), d:i), pacc);
 
-	int tid = pnum + P_TIDSTART;
-	SetActorInventory(tid, "SpellPointsFromLevel", GetDBEntry(GetCharField(DND_DB_SPELLSFROMLEVEL, char_id), pacc));
-	SetActorInventory(tid, "SpellPointsFromToken", GetDBEntry(GetCharField(DND_DB_SPELLSFROMTOKEN, char_id), pacc));
+	SetSpellPointLedgers(pnum, GetDBEntry(GetCharField(DND_DB_SPELLSFROMLEVEL, char_id), pacc), GetDBEntry(GetCharField(DND_DB_SPELLSFROMTOKEN, char_id), pacc));
 
 	int v, n = GetDBEntry(GetCharField(DND_DB_SPELLSOCKETCOUNT, char_id), pacc);
 	for(i = 0; i < SPELL_SOCKET_INTS; ++i)
@@ -119,6 +117,21 @@ void DB_LoadSpellData(int pnum, int char_id, str pacc) {
 		if((v >> 16) < SPELL_SOCKET_INTS)
 			SpellPlayerData[pnum].sockets[v >> 16] = v & 0xFFFF;
 	}
+}
+
+void DB_SaveHighlightData(int pnum, int char_id, str pacc) {
+	SetDBEntry(GetCharField(DND_DB_HIGHLIGHTMETER, char_id), pacc, HighlightData[pnum].meter);
+	SetDBEntry(GetCharField(DND_DB_HIGHLIGHTHEAT, char_id), pacc, HighlightData[pnum].heat);
+}
+
+void DB_LoadHighlightData(int pnum, int char_id, str pacc) {
+	HighlightData[pnum].meter = GetDBEntry(GetCharField(DND_DB_HIGHLIGHTMETER, char_id), pacc);
+	HighlightData[pnum].heat = GetDBEntry(GetCharField(DND_DB_HIGHLIGHTHEAT, char_id), pacc);
+}
+
+void DB_ClearHighlightData(int char_id, str pacc) {
+	SetDBEntry(GetCharField(DND_DB_HIGHLIGHTMETER, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_HIGHLIGHTHEAT, char_id), pacc, 0);
 }
 
 void DB_SaveItemData(inventory_T* item, int i, int char_id, str pacc) {
@@ -498,6 +511,7 @@ void SavePlayerData(int pnum, int char_id) {
 
 	// and the spell trees, on the same terms
 	DB_SaveSpellData(pnum, char_id, pacc);
+	DB_SaveHighlightData(pnum, char_id, pacc);
 	
 	// save accessories
 	temp = 0;
@@ -591,7 +605,7 @@ void SavePlayerData(int pnum, int char_id) {
 }
 
 // This uses a method completely off grid of inventory data --- eventually move on to this completely!!!
-void SavePlayerActivities(int pnum, int char_id) {
+void SavePlayerActivities(int pnum, int char_id, bool hasBody = true) {
 	int i, j, vt;
 	int tid = pnum + P_TIDSTART;
 	char_id = Clamp_Between(char_id, 0, DND_MAX_CHARS - 1);
@@ -667,6 +681,7 @@ void SavePlayerActivities(int pnum, int char_id) {
 	// negative deltas, so writing one without the other loses the points outright.
 	DB_SavePerkData(pnum, char_id, pacc);
 	DB_SaveSpellData(pnum, char_id, pacc);
+	DB_SaveHighlightData(pnum, char_id, pacc);
 
 	// save player weapon discards
 	SetDBEntry(GetCharField(DND_DB_WEAPONDISCARDS, char_id), pacc, PlayerActivities[pnum].discarded_weapons);
@@ -675,11 +690,13 @@ void SavePlayerActivities(int pnum, int char_id) {
 	// save singular items that have their ids noted by activities instead in here
 	SavePlayerInventoryStuff(pnum, char_id, pacc, DND_PINVFLAGS_ALL);
 	
-	SetDBEntry(GetCharField(DND_DB_NPCTRACKER, char_id), pacc, CheckActorInventory(tid, "DnD_NPC_Meet"));
-	
-	SetDBEntry(GetCharField(DND_DB_KILLTRACKER, char_id), pacc, CheckActorInventory(tid, "DnD_LifeTimeKills"));
-	SetDBEntry(GetCharField(DND_DB_KILLTRACKER_MILLION, char_id), pacc, CheckActorInventory(tid, "DnD_LifeTimeKills_Millions"));
-	SetDBEntry(GetCharField(DND_DB_KILLTRACKER_BILLION, char_id), pacc, CheckActorInventory(tid, "DnD_LifeTimeKills_Billions"));
+	// these live on the body, which a disconnect save no longer has: reading them there wrote zeros
+	if(hasBody) {
+		SetDBEntry(GetCharField(DND_DB_NPCTRACKER, char_id), pacc, CheckActorInventory(tid, "DnD_NPC_Meet"));
+		SetDBEntry(GetCharField(DND_DB_KILLTRACKER, char_id), pacc, CheckActorInventory(tid, "DnD_LifeTimeKills"));
+		SetDBEntry(GetCharField(DND_DB_KILLTRACKER_MILLION, char_id), pacc, CheckActorInventory(tid, "DnD_LifeTimeKills_Millions"));
+		SetDBEntry(GetCharField(DND_DB_KILLTRACKER_BILLION, char_id), pacc, CheckActorInventory(tid, "DnD_LifeTimeKills_Billions"));
+	}
 
 	SetDBEntry(GetCharField(DND_DB_VOTESKIPS, char_id), pacc, PlayerActivities[pnum].vote_skips);
 	for(i = 0; i < MAX_MAPS_RECORDED; ++i)
@@ -1051,6 +1068,7 @@ void LoadPlayerData(int pnum, int char_id) {
 	// totals do -- GetSpellValue reads the ranks live -- but the hotbar mirrors DO have to be pushed
 	// to the client, which "DnD Player Setup" does with SyncHotbarAll after the load completes.
 	DB_LoadSpellData(pnum, char_id, pacc);
+	DB_LoadHighlightData(pnum, char_id, pacc);
 	SyncAllSpellData(pnum);
 
 	// read researches
@@ -1167,7 +1185,10 @@ void load_char(int pnum, int char_id) {
 	PlayerGameState[pnum] |= DND_PSTATE_LOADED;
 	SetInventory("CanLoad", 0);
 
+	// one read transaction for the whole load: no per-read lock on a rollback-journal database
+	BeginDBTransaction();
 	LoadPlayerData(pnum, char_id);
+	EndDBTransaction();
 	// A load can land after "DnD Player Setup" has run its own restore, from the skip or from the menu.
 	ACS_NamedExecuteAlways("DnD Restore Loaded Pets", 0, pnum);
 }
@@ -1274,6 +1295,7 @@ void WipeoutPlayerData(int pnum, int cid) {
 
 	DB_ClearPerkData(char_id, pacc);
 	DB_ClearSpellData(char_id, pacc);
+	DB_ClearHighlightData(char_id, pacc);
 	DB_ClearPetData(char_id, pacc);
 
 	SetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc, 0);
@@ -1433,6 +1455,7 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 
 	DB_ClearPerkData(char_id, pacc);
 	DB_ClearSpellData(char_id, pacc);
+	DB_ClearHighlightData(char_id, pacc);
 	DB_ClearPetData(char_id, pacc);
 
 	SetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc, 100); // base health
@@ -1562,6 +1585,9 @@ Script "DnD Load Character Check" (int pnum, int char_id) {
 }
 
 Script "DnD Load Character With Reset" (int pnum, int char_id) {
+	// claim the load now: a second load or create request inside the delay would otherwise pass the checks
+	SetInventory("CanLoad", 0);
+
 	// moved here from enter script, should only run if player is about to load anyway -- NOOO acsd sync
 	ResetPlayerItems(pnum);
 	// the above reset actual items of player, the below resets variables used to denote inventories and such
@@ -1569,6 +1595,8 @@ Script "DnD Load Character With Reset" (int pnum, int char_id) {
 
 	Delay(const:5);
 
+	if(!PlayerInGame(pnum))
+		Terminate;
 	load_char(pnum, char_id);
 
 	SetResultValue(0);

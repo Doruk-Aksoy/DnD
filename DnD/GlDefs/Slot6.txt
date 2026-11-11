@@ -92,7 +92,7 @@ object BasiliskBall {
 }
 
 object BasiliskBall2 {
-	frame BASFAB { light BasiliskLight6 }
+	frame BASFAB { light BasiliskLight7 }
 	frame BASFCD { light BasiliskLight2 }
 	frame BASFEF { light BasiliskLight3 }
 	frame BASFG { light BasiliskLight4 }

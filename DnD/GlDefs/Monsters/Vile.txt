@@ -1141,14 +1141,14 @@ flickerlight WARCHFIRE8
 }
 
 object DarkFlame {
-    frame WFREA { light WARCHWFIRE1 }
-    frame WFREB { light WARCHWFIRE2 }
-    frame WFREC { light WARCHWFIRE3 }
-    frame WFRED { light WARCHWFIRE4 }
-    frame WFREE { light WARCHWFIRE5 }
-    frame WFREF { light WARCHWFIRE6 }
-    frame WFREG { light WARCHWFIRE7 }
-    frame WFREH { light WARCHWFIRE8 }
+    frame WFREA { light WARCHFIRE1 }
+    frame WFREB { light WARCHFIRE2 }
+    frame WFREC { light WARCHFIRE3 }
+    frame WFRED { light WARCHFIRE4 }
+    frame WFREE { light WARCHFIRE5 }
+    frame WFREF { light WARCHFIRE6 }
+    frame WFREG { light WARCHFIRE7 }
+    frame WFREH { light WARCHFIRE8 }
 }
 
 Pointlight Hierophant1
@@ -1697,7 +1697,7 @@ object DKBolt2Homing
 	frame CTFXF { light DKBoltX3Blue }
 }
 
-pointlight SSLASH2
+pointlight SSLASH1
 {
     color 0.3 0.3 0.8
     size 24

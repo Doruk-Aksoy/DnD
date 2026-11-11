@@ -379,7 +379,7 @@ Actor Aura_Ward_Pulse : DnD_Activator {
 
 // The marker on the receiver. A PowerProtection with a 1.0 damagefactor does NOTHING as protection --
 // it is a presence flag wearing a powerup so the engine expires it for free, the same trick
-// CrippleToken and DnD_OverloadZapCandidate already use. The resistance itself is applied by
+// CrippleToken already uses. The resistance itself is applied by
 // FactorResists, which reads this; see the note there on why a real damagefactor would be wrong.
 Actor Aura_Ward_Token : PowerProtection {
 	damagefactor "normal", 1.0

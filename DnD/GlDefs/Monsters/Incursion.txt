@@ -303,12 +303,12 @@ object AbyssCacoBall {
 	frame CP06B { light CACOBALL }
 	frame CP06C { light CACOBALL }
 
-    frame 64PBC { light PLASMA2_X1 }
-    frame 64PBD { light PLASMA2_X1 }
-    frame 64PBE { light PLASMA2_X2 }
-	frame 64PBF { light PLASMA2_X2 }
-	frame 64PBG { light PLASMA2_X3 }
-	frame 64PBH { light PLASMA2_X3 }
+    frame 64PBC { light CACOBALL_X1 }
+    frame 64PBD { light CACOBALL_X1 }
+    frame 64PBE { light CACOBALL_X2 }
+	frame 64PBF { light CACOBALL_X2 }
+	frame 64PBG { light CACOBALL_X3 }
+	frame 64PBH { light CACOBALL_X3 }
 }
 
 pointlight 64BARONBALL
@@ -652,23 +652,23 @@ FLICKERLIGHT 64ArchvileExplosion
 }
 
 OBJECT AbyssalArchVile {
-	Frame C030G { Light ArchvileExplosion }
-	Frame C030H { Light ArchvileExplosion }
-	Frame C030I { Light ArchvileExplosion }
-	Frame C030J { Light ArchvileExplosion }
-	Frame C030K { Light ArchvileExplosion }
-	Frame C030L { Light ArchvileExplosion }
-	Frame C030M { Light ArchvileExplosion }
-	Frame C030N { Light ArchvileExplosion }
-	Frame C030O { Light ArchvileExplosion }
-	Frame C030P { Light ArchvileExplosion }
-	Frame C030[ { Light ArchvileExplosion }
-	Frame C030Z { Light ArchvileExplosion }
-	Frame C030] { Light ArchvileExplosion }
+	Frame C030G { Light 64ArchvileExplosion }
+	Frame C030H { Light 64ArchvileExplosion }
+	Frame C030I { Light 64ArchvileExplosion }
+	Frame C030J { Light 64ArchvileExplosion }
+	Frame C030K { Light 64ArchvileExplosion }
+	Frame C030L { Light 64ArchvileExplosion }
+	Frame C030M { Light 64ArchvileExplosion }
+	Frame C030N { Light 64ArchvileExplosion }
+	Frame C030O { Light 64ArchvileExplosion }
+	Frame C030P { Light 64ArchvileExplosion }
+	Frame C030[ { Light 64ArchvileExplosion }
+	Frame C030Z { Light 64ArchvileExplosion }
+	Frame C030] { Light 64ArchvileExplosion }
 }
 
 Object AbyssalRevenant {
-	Frame C027J { Light ArchvileExplosion }
+	Frame C027J { Light 64ArchvileExplosion }
 }
 
 object AbyssalRevenantMissile {
@@ -806,6 +806,14 @@ object AbyssalMotherMeteor2
 	frame MOMPG { light 64TRACER_X4 }
 	frame MOMPH { light 64TRACER_X5 }
 	frame MOMPI { light 64TRACER_X5 }
+}
+
+flickerlight BIGFIRE
+{
+	color 1.0 0.5 0.0
+	size 64
+	secondarySize 72
+	chance 0.3
 }
 
 object AbyssalMotherFire

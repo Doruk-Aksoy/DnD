@@ -438,6 +438,8 @@ Script "DND Server Box Receive - Merchant" (int pnum, int boxid) NET {
     int item_count = 0;
     int i;
 	pnum &= 0xFFFF;
+	if(!IsRequestFromPlayer(pnum))
+		Terminate;
 
 	if(!MenuInputData[pnum][DND_MENUINPUT_DELAY]) {
 		SetActivator(pnum + P_TIDSTART);

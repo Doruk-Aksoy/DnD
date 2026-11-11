@@ -31,7 +31,7 @@ Actor Spell_Plague_Burst : DnD_SpecialFX {
 		Spawn:
 			TNT1 A 0
 			TNT1 A 0 A_ChangeVelocity(0, 0, frandom(0.2, 0.85), CVF_REPLACE)
-			TNT1 A 0 A_PlaySound("Zravog/SpellBegin")
+			TNT1 A 0 A_PlaySound("Plague/Burst")
 			S022 AAAABB 1 Bright A_FadeIn(0.15)
 			S022 B 2 Bright
 			S022 CD 4 Bright

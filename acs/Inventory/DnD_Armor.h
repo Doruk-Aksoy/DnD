@@ -303,7 +303,7 @@ int ConstructHelmDataOnField(int item_pos, int item_tier, int helm = -1) {
 void RollArmorInfo(int item_pos, int item_tier, int pnum, int item_type, int armor_type, int max_attr, int synergy_boost = -1) {
 	// only for rolling body armors we access the array for item_tier, as that can be changed in ConstructArmorDataOnField to level this down for lower level players
 	int i = 0, roll;
-	int count = random(1, max_attr);
+	int count = HighlightModCount(random(1, max_attr), max_attr);
 	int special_roll = SetupItemImplicit(item_pos, item_type, armor_type, item_tier);
 
 	auto item = GetFieldItem(item_pos);
@@ -329,6 +329,7 @@ void RollArmorInfo(int item_pos, int item_tier, int pnum, int item_type, int arm
 		if(roll == -1)
 			break;
 
+		NoteHighlightSynergy(synergy_roll);
 		AddAttributeToFieldItem(item_pos, roll, pnum, count);
 
 		if(synergy_boost != -1)

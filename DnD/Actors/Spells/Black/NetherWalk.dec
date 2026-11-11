@@ -34,3 +34,96 @@ Actor Spell_NetherWalk_Burst : DnD_SpecialFX {
 		Stop
 	}
 }
+
+// Where the walk began: a rune circle collapsing into the nether, spinning down to nothing.
+Actor Spell_NetherWalk_SigilIn : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0
+	Scale 4.6
+	Translation "0:255=%[0.00,0.00,0.00]:[1.20,0.45,2.00]"
+	States {
+		Spawn:
+			TNT1 A 0
+			NWSG A 1 Bright A_SetScale(scalex - 0.28, scaley - 0.28)
+			NWSG A 0 Bright A_FadeIn(0.3)
+			NWSG A 1 Bright A_SetScale(scalex - 0.28, scaley - 0.28)
+			NWSG A 0 Bright A_FadeIn(0.3)
+			NWSG A 1 Bright A_SetScale(scalex - 0.28, scaley - 0.28)
+			NWSG A 0 Bright A_FadeIn(0.3)
+		Collapse:
+			NWSG A 1 Bright A_SetScale(scalex - 0.28, scaley - 0.28)
+			NWSG A 0 Bright A_FadeOut(0.08)
+		Loop
+	}
+}
+
+// Where it ends: a circle spreading out of the ground and thinning away.
+Actor Spell_NetherWalk_SigilOut : Spell_NetherWalk_SigilIn {
+	Scale 1.2
+	States {
+		Spawn:
+			TNT1 A 0
+			NWSG A 1 Bright A_SetScale(scalex + 0.4, scaley + 0.4)
+			NWSG A 0 Bright A_FadeIn(0.45)
+			NWSG A 1 Bright A_SetScale(scalex + 0.4, scaley + 0.4)
+			NWSG A 0 Bright A_FadeIn(0.45)
+		Spread:
+			NWSG A 1 Bright A_SetScale(scalex + 0.4, scaley + 0.4)
+			NWSG A 0 Bright A_FadeOut(0.06)
+		Loop
+	}
+}
+
+// A glow riding a circle's rim, so it reads even seen edge on; "DnD Nether Walk FX" moves it with the rim.
+Actor Spell_NetherWalk_Spark : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0
+	Scale 0.09
+	States {
+		Spawn:
+			TNT1 A 0
+			OGLP PPP 1 Bright A_FadeIn(0.3)
+			OGLP P 1 Bright A_FadeOut(0.07)
+		Wait
+	}
+}
+
+// A wisp drawn into the hole or flung out of the arrival; "DnD Nether Walk FX" sets its flight.
+Actor Spell_NetherWalk_Wisp : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0
+	Scale 0.14
+	States {
+		Spawn:
+			TNT1 A 0
+			OGLP PPP 1 Bright A_FadeIn(0.3)
+			OGLP P 4 Bright
+			OGLP P 1 Bright A_FadeOut(0.12)
+		Wait
+	}
+}
+
+// A violet flash where the caster leaves and arrives.
+Actor Spell_NetherWalk_Flash : Spell_NetherWalk_Burst {
+	Alpha 0.8
+	Scale 0.6
+}
+
+// The hole the caster stepped through: a blot of dark smoke.
+Actor Spell_NetherWalk_Void : Spell_NetherWalk_Shade {
+	Alpha 0.75
+	Scale 1.3
+	Translation "0:255=%[0.00,0.00,0.00]:[0.12,0.04,0.22]"
+	States {
+		Spawn:
+			TNT1 A 0
+			D5FX GHIJKL 4 A_FadeOut(0.05)
+		Stop
+	}
+}
+
+// Shades peeling up off the ground round the arrival.
+Actor Spell_NetherWalk_Rise : Spell_NetherWalk_Shade {
+	Alpha 0.55
+	Scale 0.6
+}

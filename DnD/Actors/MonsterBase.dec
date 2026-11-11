@@ -150,16 +150,32 @@ Actor DnD_BaseMonster {
 	Accuracy 40 // level 40 fully completes default damage scale ramp for most monsters now
 	
 	var int user_spawnheight;
-	
+	// the mapper's args 1-4: SetInfo writes the type data over them, SpawnSetup puts them back for the map special
+	var int user_mapargs;
+	var int user_maparg1;
+	var int user_maparg2;
+	var int user_maparg3;
+	var int user_maparg4;
+
 	States {
 		Spawn:
 			// this tnt1 is needed, otherwise the game will complain it has no frames
-			TNT1 A 0 NoDelay A_Jump(256, "SetInfo")
+			TNT1 A 0 NoDelay A_SetUserVar("user_maparg1", args[1])
+			TNT1 A 0 A_SetUserVar("user_maparg2", args[2])
+			TNT1 A 0 A_SetUserVar("user_maparg3", args[3])
+			TNT1 A 0 A_SetUserVar("user_maparg4", args[4])
+			TNT1 A 0 A_SetUserVar("user_mapargs", 1)
+			TNT1 A 0 A_Jump(256, "SetInfo")
 			"####" "#" 35
 		Wait
-		
+
 		SpawnSetup:
 			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Monster Scale", args[4], args[1], args[3], args[2])
+			"####" "#" 0 A_JumpIf(!user_mapargs, "Idle")
+			"####" "#" 0 A_SetArg(1, user_maparg1)
+			"####" "#" 0 A_SetArg(2, user_maparg2)
+			"####" "#" 0 A_SetArg(3, user_maparg3)
+			"####" "#" 0 A_SetArg(4, user_maparg4)
 		Idle:
 			"####" "#" 0 A_GiveInventory("DnD_MonsterIdleMark", 1)
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD Monster Idle", 0)

@@ -7,7 +7,7 @@
 
 #define SIZEOF_INT 4
 
-#define ISDEBUGBUILD
+//#define ISDEBUGBUILD
 //#define WANTCURSORPOS
 //#define VERBOSE_TID_SETUP
 //#define WANT_BUFF_LOG
@@ -61,7 +61,6 @@ struct ValueComponent_T {
 #define DND_BASE_HEALTH 100
 
 #define DND_PLAYER_WEAKEN_LEVELS 40
-#define DND_MONSTER_RESIST_LEVELS 40
 #define DND_PLAYER_RESIST_REDUCE -25.0
 
 // moved here for better access everywhere, was necessary for monster resists
@@ -806,6 +805,12 @@ enum {
 	PSTAT_INC_SPELLDMG_PERSTR,
 	PSTAT_INC_SPELLDMG_PERDEX,
 
+	// Minion resist pierce in percent points: by damage group, then one for every type.
+	PSTAT_MINION_PEN_PHYS,
+	PSTAT_MINION_PEN_ELEMENTAL,
+	PSTAT_MINION_PEN_MAGIC,
+	PSTAT_MINION_PEN,
+
 	PSTAT_COUNT
 };
 
@@ -1227,6 +1232,10 @@ enum {
 	DND_GEMCHAIN_TID,
 	DND_GEMCHAIN_TID_END = DND_GEMCHAIN_TID + MAXPLAYERS * 16,
 
+	// Desecrate: a player's corpses, 16 a player.
+	DND_CORPSE_TID = DND_GEMCHAIN_TID_END,
+	DND_CORPSE_TID_END = DND_CORPSE_TID + MAXPLAYERS * 16,
+
 	// ScratchTID()'s window: far above every range here, just under the three fixed ones at the top.
 	DND_SCRATCH_TID = bcs::INT_MAX - 2 - 256,
 	DND_SCRATCH_TID_END = bcs::INT_MAX - 2,
@@ -1289,6 +1298,7 @@ bool isHardcore() {
 enum {
 	DND_PSTATE_LOADED = 1,
 	DND_PSTATE_DEAD = 2,
+	DND_PSTATE_CHANGEDMAP = 4,	// in game at a map end, so "DnD Map Resync" has something to resend
 };
 
 global int 6: PlayerGameState[MAXPLAYERS];
@@ -1425,6 +1435,8 @@ void ResetUsedTIDs() {
 #endif
 
 	ResetTIDCounts();
+	// Raised minions are this level's monsters: none carry into the next map or round.
+	ClearRaisedMinions();
 
 	SetupComplete(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS);
 }
@@ -1669,6 +1681,11 @@ bool StringContains(str s, str key) {
 
 bool isPlayer(int tid) {
 	return tid >= P_TIDSTART && tid < P_TIDSTART + MAXPLAYERS;
+}
+
+// NET requests carry a player number; only the sender may act for it.
+bool IsRequestFromPlayer(int pnum) {
+	return pnum >= 0 && pnum < MAXPLAYERS && PlayerNumber() == pnum;
 }
 
 int AngleToFace(int this, int to) {

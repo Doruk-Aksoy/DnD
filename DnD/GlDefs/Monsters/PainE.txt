@@ -99,7 +99,7 @@ Chance 0.3
 Offset 0 40 0
 }
 
-Flickerlight SentinelFire4
+Flickerlight SentinelFire5
 {
 Color 0.0 0.8 0.0
 Size 64

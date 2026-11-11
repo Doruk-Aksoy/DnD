@@ -62,6 +62,19 @@ Actor CharmDrop_Synergy3 : InventoryBase {
 	}
 }
 
+// A highlight drop of any item type, in the synergy bags but bigger: 1 no synergy, 2 one mod, 3 two or more.
+Actor HighlightDrop1 : CharmDrop_Synergy1 {
+	Scale 1.35
+}
+
+Actor HighlightDrop2 : CharmDrop_Synergy2 {
+	Scale 1.35
+}
+
+Actor HighlightDrop3 : CharmDrop_Synergy3 {
+	Scale 1.35
+}
+
 Actor UniqueCharmDrop : InventoryBase {
 	Scale 1.15
 	States {

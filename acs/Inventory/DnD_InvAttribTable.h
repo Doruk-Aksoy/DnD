@@ -262,6 +262,10 @@ enum {
 	INV_MINION_HEALTH,
 	INV_MINION_RES_CORPOREAL,
 	INV_MINION_RES_MAGIC,
+	INV_MINION_PETCAP,
+	INV_MINION_PEN_PHYSICAL,
+	INV_MINION_PEN_ELEMENTAL,
+	INV_MINION_PEN_MAGIC,
 
 	// add new regular rollable attributes here
 
@@ -563,7 +567,7 @@ enum {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_MINION_RES_MAGIC
+#define LAST_INV_ATTRIBUTE INV_MINION_PEN_MAGIC
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 
 // modify the above to make it use the negative last
@@ -2197,6 +2201,40 @@ void SetupInventoryAttributeTable() {
 		ItemModTable[mres].allowed_slots = DND_MODBASE_SPELLS;
 		SetModTierProfile(mres, DND_TIERSET_DEFENSE_NORMAL);
 	}
+
+	// Rare and whole: +1, +2 only at boss item levels (dungeon final bosses, Ultimatum). Shares the Lich helm's stat.
+	ItemModTable[INV_MINION_PETCAP].attrib_low = 1;
+	ItemModTable[INV_MINION_PETCAP].attrib_high = 1;
+	ItemModTable[INV_MINION_PETCAP].attrib_level_modifier = 0;
+	ItemModTable[INV_MINION_PETCAP].tags = INV_ATTR_TAG_SPELL;
+	ItemModTable[INV_MINION_PETCAP].weight = 50;
+	ItemModTable[INV_MINION_PETCAP].allowed_slots = DND_MODBASE_SPELLS;
+	SetModTierProfile(INV_MINION_PETCAP, DND_TIERSET_PETCAP);
+
+	// Minion pierce: the player pierce mods' weight and ladder, a wider band and a bigger step.
+	ItemModTable[INV_MINION_PEN_PHYSICAL].attrib_low = 2;
+	ItemModTable[INV_MINION_PEN_PHYSICAL].attrib_high = 7;
+	ItemModTable[INV_MINION_PEN_PHYSICAL].attrib_level_modifier = 6;
+	ItemModTable[INV_MINION_PEN_PHYSICAL].tags = INV_ATTR_TAG_PHYSICAL | INV_ATTR_TAG_SPELL;
+	ItemModTable[INV_MINION_PEN_PHYSICAL].weight = 750;
+	ItemModTable[INV_MINION_PEN_PHYSICAL].allowed_slots = DND_MODBASE_SPELLS;
+	SetModTierProfile(INV_MINION_PEN_PHYSICAL, DND_TIERSET_OFFENSE_STRONG);
+
+	ItemModTable[INV_MINION_PEN_ELEMENTAL].attrib_low = 2;
+	ItemModTable[INV_MINION_PEN_ELEMENTAL].attrib_high = 6;
+	ItemModTable[INV_MINION_PEN_ELEMENTAL].attrib_level_modifier = 5;
+	ItemModTable[INV_MINION_PEN_ELEMENTAL].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_SPELL;
+	ItemModTable[INV_MINION_PEN_ELEMENTAL].weight = 750;
+	ItemModTable[INV_MINION_PEN_ELEMENTAL].allowed_slots = DND_MODBASE_SPELLS;
+	SetModTierProfile(INV_MINION_PEN_ELEMENTAL, DND_TIERSET_OFFENSE_STRONG);
+
+	ItemModTable[INV_MINION_PEN_MAGIC].attrib_low = 2;
+	ItemModTable[INV_MINION_PEN_MAGIC].attrib_high = 7;
+	ItemModTable[INV_MINION_PEN_MAGIC].attrib_level_modifier = 6;
+	ItemModTable[INV_MINION_PEN_MAGIC].tags = INV_ATTR_TAG_OCCULT | INV_ATTR_TAG_SPELL;
+	ItemModTable[INV_MINION_PEN_MAGIC].weight = 750;
+	ItemModTable[INV_MINION_PEN_MAGIC].allowed_slots = DND_MODBASE_SPELLS;
+	SetModTierProfile(INV_MINION_PEN_MAGIC, DND_TIERSET_OFFENSE_STRONG);
 
 	/////////////////////////
 	// corrupted implicits //

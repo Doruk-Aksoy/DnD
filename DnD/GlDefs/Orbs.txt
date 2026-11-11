@@ -266,7 +266,7 @@ pointlight PotencyLight05
 
 object OrbOfPotency
 {
-    frame ORB4 { light PotencyLight0 }
+    frame ORB4 { light PotencyLight00 }
     frame ORB4J { light PotencyLight01 }
     frame ORB4K { light PotencyLight01 }
     frame ORB4L { light PotencyLight01 }

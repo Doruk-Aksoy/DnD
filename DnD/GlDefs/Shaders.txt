@@ -130,6 +130,12 @@ HardwareShader AGONY {
 	Speed 1.0
 }
 
+// Vampirism's aura on VAMPRING.md3: blood streams curling in from a dripping rim, pulses flowing to the caster.
+HardwareShader VAMPIRE {
+	Shader "GLDefs/Shaders/Vampirism.fp"
+	Speed 1.0
+}
+
 // Wrath's aura: soft arcs crawling out from the centre to a flickering rim.
 HardwareShader WRATH {
 	Shader "GLDefs/Shaders/StormWrath.fp"
@@ -234,12 +240,6 @@ HardwareShader SSTORM {
 // Soulstorm's bolts on FORKBEAM.md3 under their own skin: FingerBolt.fp's crackling lightning in pink and violet.
 HardwareShader SSBOLT {
 	Shader "GLDefs/Shaders/SoulBolt.fp"
-	Speed 1.0
-}
-
-// Implosion's needle on IMPLOSN.md3: a crimson shard, per-facet light, ember veins, a glowing rim and tip.
-HardwareShader IMPLOSN {
-	Shader "GLDefs/Shaders/Implosion.fp"
 	Speed 1.0
 }
 
@@ -1049,5 +1049,1188 @@ HardwareShader VLLAVA {
 // Fire Jet's bolt: the model is only a hull, the fire is ray-marched in it.
 HardwareShader FIREJET {
 	Shader "GLDefs/Shaders/FireJet.fp"
+	Speed 1.0
+}
+
+// Spell_Doomguard's molten visor, the light it casts and its embers, on every frame with a glow (not death).
+HardwareShader sprite S044A1 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044A2A8 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044A3A7 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044A4A6 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044A5 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044B1 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044B2B8 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044B3B7 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044B4B6 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044B5 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044C1 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044C2C8 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044C3C7 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044C4C6 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044C5 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044D1 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044D2D8 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044D3D7 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044D4D6 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044D5 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044E1 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044E2E8 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044E3E7 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044E4E6 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044E5 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044F1 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044F2F8 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044F3F7 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044F4F6 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044G1 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044G2G8 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044G3G7 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044G4G6 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044G5 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044H1 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044H2H8 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044H5 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044I1 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044I2I8 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044I3I7 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044I4I6 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044I5 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044J1 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044J2J8 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044J3J7 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044J4J6 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044J5 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044L1 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044L2L8 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044L3L7 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044L5 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044N1 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044N2N8 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044N3N7 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044N4N6 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044N5 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044O1 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044O2O8 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044O3O7 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044O4O6 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044O5 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044U3U7 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044U4U6 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044U5 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044V1 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044V3V7 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044V4V6 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044V5 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044W1 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044W2W8 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044W4W6 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044W5 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044X1 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044X2X8 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044X3X7 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S044X5 {
+	Shader "GLDefs/Shaders/DoomguardLava.fp"
+	Speed 1.0
+}
+
+// Spell_Knight's burning axe: green flames off its outline; the red throw's KNRA aliases burn red.
+HardwareShader sprite S041A1 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041A2 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041A3 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041A4 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041A5 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041A6 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041A7 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041A8 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041B1 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041B2 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041B3 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041B4 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041B5 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041B6 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041B7 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041B8 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041C1 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041C2 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041C3 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041C4 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041C5 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041C6 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041C7 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041C8 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041D1 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041D2 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041D3 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041D4 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041D5 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041D6 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041D7 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041D8 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041E1 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041E2 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041E3 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041E4 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041E5 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041E6 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041E7 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041E8 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041F1 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041F2 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041F3 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041F4 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041F5 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041F6 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041F7 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041F8 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041G1 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041G2 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041G3 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041G4 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041G5 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041G6 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041G7 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041G8 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041H1 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041H2 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041H3 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041H4 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041H5 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041H6 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041H7 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S041H8 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite KNRAE1 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite KNRAE2 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite KNRAE3 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite KNRAE4 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite KNRAE5 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite KNRAE6 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite KNRAE7 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite KNRAE8 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite KNRAF1 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite KNRAF2 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite KNRAF3 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite KNRAF4 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite KNRAF5 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite KNRAF6 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite KNRAF7 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite KNRAF8 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite KNRAG1 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite KNRAG2 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite KNRAG3 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite KNRAG4 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite KNRAG5 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite KNRAG6 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite KNRAG7 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite KNRAG8 {
+	Shader "GLDefs/Shaders/KnightFlame.fp"
+	Speed 1.0
+}
+
+// Spell_DeathKnight's burning sword: red flames off its outline (the dropped sword's flame is out).
+HardwareShader sprite S042A1 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042A2 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042A3 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042A4 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042A5 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042A6 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042A7 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042A8 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042B1 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042B2 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042B3 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042B4 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042B5 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042B6 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042B7 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042B8 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042C1 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042C2 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042C3 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042C4 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042C5 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042C6 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042C7 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042C8 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042D1 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042D2 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042D3 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042D4 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042D5 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042D6 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042D7 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042D8 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042E1 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042E2 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042E3 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042E4 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042E5 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042E6 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042E7 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042E8 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042F1 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042F2 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042F3 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042F4 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042F5 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042F6 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042F7 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042F8 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042G1 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042G2 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042G3 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042G4 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042G5 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042G6 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042G7 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042G8 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042H1 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042H2 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042H3 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042H4 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042H5 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042H6 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042H7 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042H8 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042T1 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042T2 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042T3 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042T4 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042T5 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042T6 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042T7 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite S042T8 {
+	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
 	Speed 1.0
 }

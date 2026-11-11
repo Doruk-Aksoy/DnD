@@ -22,16 +22,6 @@ object Spell_SoulstormAnchor {
 	frame SSTM { light SoulstormLight }
 }
 
-// Implosion's needle: a small crimson glow round the shard.
-pointlight ImplosionNeedleLight {
-	color 0.75 0.03 0.12
-	size 32
-}
-
-object Spell_Implosion {
-	frame D5FX { light ImplosionNeedleLight }
-}
-
 flickerlight MoltenBoulderLight {
 	color 0.825 0.275 0.0
     size 48
@@ -66,6 +56,14 @@ object Spell_IceSpear_Form {
 object Spell_IceSpear {
 	frame ISPR { light IceSpearLight }
 	frame ISPP { light IceSpearPrimedLight }
+	frame ISPQ { light IceSpearPrimedLight }
+}
+
+object Spell_IceSpear_GemArc {
+	frame ISPR { light IceSpearLight }
+}
+
+object Spell_IceSpear_Primed_GemArc {
 	frame ISPQ { light IceSpearPrimedLight }
 }
 
@@ -155,6 +153,10 @@ pointlight ChargedBoltBurst4 {
 }
 
 object Spell_ChargedBolt {
+	frame LGCB { light ChargedBoltLight }
+}
+
+object Spell_ChargedBolt_GemArc {
 	frame LGCB { light ChargedBoltLight }
 }
 
@@ -381,4 +383,40 @@ pointlight VolcanoEruptLight {
 object Spell_Volcano {
 	frame VLCNA { light VolcanoCraterLight }
 	frame VLCNB { light VolcanoEruptLight }
+}
+
+// Implosion's blast: Spell_Implosion_Light flashes white-hot fire, then cools through orange to a blood red.
+pointlight ImplosionFlash1 {
+	color 1.00 0.85 0.55
+	size 168
+}
+
+pointlight ImplosionFlash2 {
+	color 1.00 0.62 0.25
+	size 232
+}
+
+pointlight ImplosionFlash3 {
+	color 0.95 0.40 0.12
+	size 256
+}
+
+pointlight ImplosionFlash4 {
+	color 0.78 0.20 0.07
+	size 240
+}
+
+pointlight ImplosionFlash5 {
+	color 0.55 0.08 0.04
+	size 216
+}
+
+pointlight ImplosionFlash6 {
+	color 0.30 0.03 0.02
+	size 184
+}
+
+pointlight ImplosionFlash7 {
+	color 0.12 0.01 0.01
+	size 160
 }

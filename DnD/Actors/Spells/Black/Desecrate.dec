@@ -1,0 +1,67 @@
+// Corpse spells' markers on a body: spoken for until a Timer() tic, and Soul Siphon's drained flag.
+Actor DnD_CorpseTaken : DnD_Info {}
+Actor DnD_SoulDrained : DnD_Boolean {}
+
+// Desecrate's corpse: a body corpse spells can use, with no monster behind it. ACS picks its Kind state and health.
+Actor DnD_DesecratedCorpse {
+	Radius 16
+	Height 16
+	+NOBLOCKMAP
+	+NOTELEPORT
+	+DONTSPLASH
+	+NOTONAUTOMAP
+	+MOVEWITHSECTOR
+	var int user_kind;
+	var int user_maxhp;
+	States {
+		Spawn:
+			TNT1 A -1
+		Stop
+		Kind0:
+			POSS L -1
+		Stop
+		Kind1:
+			SPOS L -1
+		Stop
+		Kind2:
+			TROO M -1
+		Stop
+		Kind3:
+			CPOS N -1
+		Stop
+		Kind4:
+			SARG N -1
+		Stop
+		Kind5:
+			HEAD L -1
+		Stop
+		Kind6:
+			BOS2 O -1
+		Stop
+		Kind7:
+			BOSS O -1
+		Stop
+		Fade:
+			"####" "#" 1 A_FadeOut(0.05)
+		Wait
+	}
+}
+
+// A summon rising from a corpse: a dark crimson burst.
+Actor Spell_CorpseRise : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.85
+	Scale 0.8
+	Translation "0:255=%[0.00,0.00,0.00]:[1.30,0.10,0.35]"
+	States {
+		Spawn:
+			TNT1 A 0
+			D4FX GHIJKL 3 Bright
+		Stop
+	}
+}
+
+// A corpse laid by Desecrate: the same burst in a sickly green.
+Actor Spell_CorpseRiseGreen : Spell_CorpseRise {
+	Translation "0:255=%[0.00,0.00,0.00]:[0.45,1.30,0.30]"
+}

@@ -36,6 +36,7 @@ enum {
 #define DND_THUNDER_RADIUSPERCOUNT 18
 #define DND_THUNDERSTAFF_BASERANGE 128
 #define DND_THUNDERSTAFF_LIMIT 30
+#define DND_THUNDERBOLT_RANGE 360.0 // ball lightning's bolt reach
 typedef struct dist_tid_pair {
 	int dist;
 	int tid;
@@ -407,16 +408,11 @@ void Do_Hitscan_Attack(int owner, int pnum, int proj_id, int wepid, int count, i
 	if(hitscan_id != -1)
 		hitscan_id = HitscanDamageData[hitscan_id];
 	
-	Vec2_T* vtemp = GetVec2();
 	for(int i = 0; i < count; ++i) {
 		// use conical spread
-		SetBulletAngle(vtemp, a, p, sp_x, sp_y);
-		
-		CreateHitscan(owner, p_helper_tid, proj_name, vtemp.x, vtemp.y, range, vPos, hitscan_id);
-		
-		//printbold(f:vtemp.x, s: " ", f:vtemp.y, s: " ", s:proj_name, s: " ", f:range);
+		RollBulletDir(a, p, sp_x, sp_y);
+		CreateHitscan(owner, p_helper_tid, proj_name, GetBulletDir().x, GetBulletDir().y, range, vPos, hitscan_id);
 	}
-	bcs::free(vtemp);
 }
 
 void Do_Hitscan_Attack_Named(int owner, int pnum, str proj_name, int wepid, int count, int range, int spread_x, int spread_y, int flags, Vec3_T* vPos, int proj_id = 0, int hitscan_id = -1) {
@@ -441,17 +437,11 @@ void Do_Hitscan_Attack_Named(int owner, int pnum, str proj_name, int wepid, int 
 	if(hitscan_id != -1)
 		hitscan_id = HitscanDamageData[hitscan_id];
 	
-	Vec2_T* vtemp = GetVec2();
 	for(int i = 0; i < count; ++i) {
 		// use conical spread
-		SetBulletAngle(vtemp, a, p, sp_x, sp_y);
-		
-		CreateHitscan(owner, p_helper_tid, proj_name, vtemp.x, vtemp.y, range, vPos, hitscan_id);
-		
-		//printbold(f:vtemp.x, s: " ", f:vtemp.y, s: " ", s:proj_name, s: " ", f:range);
+		RollBulletDir(a, p, sp_x, sp_y);
+		CreateHitscan(owner, p_helper_tid, proj_name, GetBulletDir().x, GetBulletDir().y, range, vPos, hitscan_id);
 	}
-
-	bcs::free(vtemp);
 }
 
 void Do_Railgun_Attack(str rail_helper, int count) {
@@ -716,10 +706,11 @@ void Do_Scan_Attack(int dmg, int damage_type, int tracer_count, int flags) {
 	//printbold(s:"starting scan from ", d:owner, s: " with dmg ", d:dmg, s: " scan id: ", d:scan_id, s: " mon count: ", d:InformationInLevel[LEVELINFO_TID_MONSTER]);
 	// pick tracer_count closest enemies
 	//printbold(s:"tid count: ", d:InformationInLevel[LEVELINFO_TID_MONSTER]);
-	int mn;
-	for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
-		i = UsedMonsterTIDs[mn];
-		if(IsActorAlive(i) && CheckFlag(i, "SHOOTABLE")) {
+	int mn, scan_end, scan_from = ScanMonstersNear(owner, scan_dist + DND_SCAN_FEETMARGIN);
+	scan_end = GetMonsterScanEnd();
+	for(mn = scan_from; mn < scan_end; ++mn) {
+		i = GetMonsterScanTid(mn);
+		if(CheckFlag(i, "SHOOTABLE")) {
 			dist = fdistance(owner, i);
 			if(dist < scan_dist && MaxAngleDiff_Projection(owner, i, scan_fov, projection_angle) && CheckSight(owner, i, CSF_NOBLOCKALL)) {
 				// insert sorted
@@ -751,6 +742,7 @@ void Do_Scan_Attack(int dmg, int damage_type, int tracer_count, int flags) {
 			}
 		}
 	}
+	ReleaseMonsterScan(scan_from);
 	
 	if(tcount) {
 		int actor_flags = ScanActorFlags();

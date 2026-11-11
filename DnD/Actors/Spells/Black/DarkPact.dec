@@ -1,0 +1,75 @@
+// The sacrificed minion bursting into its life's essence.
+Actor Spell_DarkPact_Burst : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.9
+	Translation "0:255=%[0.00,0.00,0.00]:[1.50,0.08,0.25]"
+	States {
+		Spawn:
+			TNT1 A 0
+			D4FX GHIJKL 3 Bright
+		Stop
+	}
+}
+
+// Motes strung from the minion to the caster.
+Actor Spell_DarkPact_Mote : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0
+	Scale 0.3
+	Translation "80:111=%[0.00,0.00,0.00]:[1.60,0.10,0.30]"
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_ChangeVelocity(frandom(-0.2, 0.2), frandom(-0.2, 0.2), frandom(0.3, 0.8), CVF_REPLACE)
+			SPFX AAAA 1 Bright A_FadeIn(0.2)
+			SPFX A 1 Bright A_FadeOut(0.05)
+		Wait
+	}
+}
+
+// A blood rune circle round the sacrificed minion, climbing its body and fading; "DnD Dark Pact FX" sizes and lifts it.
+Actor Spell_DarkPact_Ring : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0
+	Translation "0:255=%[0.00,0.00,0.00]:[2.00,0.22,0.28]"
+	States {
+		Spawn:
+			TNT1 A 0
+			DPRG AAAAA 1 Bright A_FadeIn(0.18)
+			DPRG A 10 Bright
+			DPRG A 1 Bright A_FadeOut(0.07)
+		Wait
+	}
+}
+
+// Sparks on a circle's rim, rising with it, so it reads even seen edge on.
+Actor Spell_DarkPact_Spark : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0
+	Scale 0.28
+	Translation "80:111=%[0.00,0.00,0.00]:[1.70,0.10,0.18]"
+	States {
+		Spawn:
+			TNT1 A 0
+			SPFX AAAAA 1 Bright A_FadeIn(0.18)
+			SPFX A 10 Bright
+			SPFX A 1 Bright A_FadeOut(0.07)
+		Wait
+	}
+}
+
+// The same circle turning the other way.
+Actor Spell_DarkPact_RingRev : Spell_DarkPact_Ring {}
+
+// A thin band of light between the circles.
+Actor Spell_DarkPact_Band : Spell_DarkPact_Ring {
+	States {
+		Spawn:
+			TNT1 A 0
+			DPRG BBBB 1 Bright A_FadeIn(0.2)
+			DPRG B 6 Bright
+			DPRG B 1 Bright A_FadeOut(0.08)
+		Wait
+	}
+}

@@ -2,6 +2,7 @@
 #define DND_SPELLTREE_IN
 
 #include "DnD_SpellHud.h"
+#include "DnD_SpellTreeRoutes.h"
 
 // The page borrows CRFTVW, the crafting backdrop: a wide board on the left for the tree and a tall
 // pocket on the right for text. It is drawn exactly the way the crafting page draws it -- enlarged
@@ -44,24 +45,8 @@
 #define DND_SPELLTREE_TOP 46
 #define DND_SPELLTREE_BOARDH 239
 
-// Connector tiles, drawn as single-picture fonts: SPLLINEV is 5x8 and stacks downward, SPLLINEH is
-// 8x5 and runs sideways, SPLLJOIN is a 5x5 plug for the corner where the two meet. The steps are the
-// tile sizes along the run, and the cap is a guard on the repeat strings.
-// Joints are 7x7; the straights are 14 long so a span needs half as many tiles, which is what
-// keeps the whole tree inside the hud id budget.
+// Connector line thickness box: the strips are this tall or wide, the joint tiles this square.
 #define DND_SPELLLINE_JOINT 7
-#define DND_SPELLLINE_LEN 14
-
-// Per edge: 2 stubs, then up to 4 + 4 vertical and 10 horizontal tiles. The corners went to the
-// junction pass, so their two ids came back here.
-//
-// MAXH must COVER the widest edge in any tree or the crossbar stops in mid air with its legs left
-// hanging -- the widest is 108 units, which is 8 tiles, and the old cap of 6 cut it by two.
-//
-// Black is the busiest tree at 32 edges: 1150 + 32*18 = 1726, under RPGMENUID (1750), the page backdrop.
-#define DND_SPELLLINE_IDS 18
-#define DND_SPELLLINE_MAXV 4
-#define DND_SPELLLINE_MAXH 8
 
 // How far the tree reaches, so it can be centred. Authored positions, so this is the tree's shape
 // and not the player's progress.
@@ -134,39 +119,10 @@ void AddSpellNodeBox(menu_pane_T module& p, int spell) {
 		(HUDMAX_X - (cx + h)) << 16, (HUDMAX_Y - (cy + h)) << 16);
 }
 
-// Connectors are drawn from the requirement data rather than authored, so an edge can never
-// disagree with the rule that produced it.
-//
-// Every piece is a 7x7 tile from one set, so the routing only ever has to say WHICH tile goes where:
-//
-//   SPLLND   stub leaving the parent's bottom edge      SPLLNU   stub meeting the child's top edge
-//   SPLLNV   straight vertical run                      SPLLNH   straight horizontal run
-//   SPLLCUL  from above, turning left                   SPLLCUR  from above, turning right
-//   SPLLCDL  from the left, turning down                SPLLCDR  from the right, turning down
-//
-// The stubs are what stop a line from simply running under an icon -- it visibly meets the edge and
-// stops there.
-// Where two runs genuinely pass through each other a CROSS belongs, not two bands cutting each
-// other's core. Nothing about one edge can know that, so each edge logs the segments it drew and a
-// second pass over the log places the crosses.
-//
-// Map arrays, so they cost nothing between maps. Black is the busiest tree at 32 edges, which is at
-// most 64 verticals and 32 horizontals.
-#define DND_SPELLTREE_MAXSEG 72
-#define DND_SPELLTREE_MAXCROSS 48
-#define DND_SPELLTREE_MAXJOINT 96
-
-// One accessor for everything the tree draw scribbles on, function static rather than module scope
-// -- the house rule for anything array sized. The segment log, the junction candidates it produces,
-// and the pocket's text cursor all live and die inside a single draw, so they share a home.
+// The pocket's text cursor, and which trees already warned about a stale route table.
 typedef struct {
-	int vx[DND_SPELLTREE_MAXSEG], vy0[DND_SPELLTREE_MAXSEG], vy1[DND_SPELLTREE_MAXSEG];
-	int hy[DND_SPELLTREE_MAXSEG], hx0[DND_SPELLTREE_MAXSEG], hx1[DND_SPELLTREE_MAXSEG];
-	int vcount, hcount;
-
-	int jx[DND_SPELLTREE_MAXJOINT], jy[DND_SPELLTREE_MAXJOINT], jcount;
-
 	int panel_y, panel_id;
+	int stale_warned;
 } spell_draw_T;
 
 spell_draw_T module& GetSpellDraw() {
@@ -174,206 +130,115 @@ spell_draw_T module& GetSpellDraw() {
 	return s;
 }
 
-void ResetTreeSegments() {
-	GetSpellDraw().vcount = 0;
-	GetSpellDraw().hcount = 0;
-}
-
-void LogSegmentV(int x, int y0, int y1) {
-	if(GetSpellDraw().vcount >= DND_SPELLTREE_MAXSEG)
-		return;
-	GetSpellDraw().vx[GetSpellDraw().vcount] = x;
-	GetSpellDraw().vy0[GetSpellDraw().vcount] = y0;
-	GetSpellDraw().vy1[GetSpellDraw().vcount] = y1;
-	++GetSpellDraw().vcount;
-}
-
-void LogSegmentH(int y, int x0, int x1) {
-	if(GetSpellDraw().hcount >= DND_SPELLTREE_MAXSEG)
-		return;
-	GetSpellDraw().hy[GetSpellDraw().hcount] = y;
-	GetSpellDraw().hx0[GetSpellDraw().hcount] = x0;
-	GetSpellDraw().hx1[GetSpellDraw().hcount] = x1;
-	++GetSpellDraw().hcount;
-}
-
-// Every piece is placed INDIVIDUALLY at a computed top-left. A multi glyph run's true length is
-// the font's glyph advance times the count, which this code cannot know -- every version built on
-// runs either left gaps at the corners or staggered the tiles apart. One HudMessage per tile costs
-// ids and buys exact placement.
-//
-// Both coordinates use the .1 suffix, so each is the tile's TOP LEFT. Nothing here relies on an
-// alignment mode.
-void DrawLineTileAt(str tile, int x, int y, int id, str col) {
-	SetFont(tile);
-	HudMessage(s:col, s:"A"; HUDMSG_PLAIN, id, CR_UNTRANSLATED,
-		(x << 16) + 0.1, (y << 16) + 0.1, 0.0, 0.0);
-}
-
-// Fills y0..y1 exactly: whole tiles while they fit, then one flush to the end. The overlap that
-// leaves in the middle is invisible; a gap at either end is not.
-void DrawLineSpanV(int cx, int y0, int y1, int id, int maxn, str col) {
-	int n = 0, y = y0;
-	int x = cx - DND_SPELLLINE_JOINT / 2;
-
-	while(y + DND_SPELLLINE_LEN <= y1 && n < maxn) {
-		DrawLineTileAt("SPLLNV", x, y, id + n, col);
-		y += DND_SPELLLINE_LEN;
-		++n;
-	}
-
-	// The flush tile is only legal when a WHOLE one still fits inside the span. Between neighbouring
-	// rows the gap is 13 and a tile is 14, so y1 - LEN landed ABOVE y0 and the line grew backwards out
-	// of the parent. A span that short needs no tile at all -- the two stubs already meet.
-	if(y < y1 && n < maxn && y1 - DND_SPELLLINE_LEN >= y0) {
-		DrawLineTileAt("SPLLNV", x, y1 - DND_SPELLLINE_LEN, id + n, col);
-		++n;
-	}
-
-	DeleteTextRange(id + n, id + maxn - 1);
-}
-
-void DrawLineSpanH(int cy, int x0, int x1, int id, int maxn, str col) {
-	int n = 0, x = x0;
-	int y = cy - DND_SPELLLINE_JOINT / 2;
-
-	while(x + DND_SPELLLINE_LEN <= x1 && n < maxn) {
-		DrawLineTileAt("SPLLNH", x, y, id + n, col);
-		x += DND_SPELLLINE_LEN;
-		++n;
-	}
-	if(x < x1 && n < maxn && x1 - DND_SPELLLINE_LEN >= x0) {
-		DrawLineTileAt("SPLLNH", x1 - DND_SPELLLINE_LEN, y, id + n, col);
-		++n;
-	}
-
-	DeleteTextRange(id + n, id + maxn - 1);
-}
-
-void DrawTreeConnector(int fromspell, int tospell, int id, str col) {
-	int h = DND_SPELLNODE / 2;
-	int jt = DND_SPELLLINE_JOINT;
-
-	int px = GetSpellNodeX(fromspell) + h;
-	int py = GetSpellNodeY(fromspell) + DND_SPELLNODE;	// parent's bottom edge
-	int cx = GetSpellNodeX(tospell) + h;
-	int cy = GetSpellNodeY(tospell);					// child's top edge
-	int midy = (py + cy) / 2;
-
-	// Joints take the LOW ids of the block so they sit in front of the spans they cap. The icons are
-	// lower still, so anything reaching into a node goes behind it.
-	// No corners here. An edge cannot see the others, and at a shared parent its "corner" is really
-	// a tee -- DrawTreeJunctions decides every joint from the arms actually present.
-	//
-	// The stubs take the lowest ids so they cap each leg in front of it, which is what stops a line
-	// running under an icon.
-	DrawLineTileAt("SPLLND", px - jt / 2, py, id, col);
-	DrawLineTileAt("SPLLNU", cx - jt / 2, cy - jt, id + 1, col);
-
-	DrawLineSpanV(px, py, midy, id + 2, DND_SPELLLINE_MAXV, col);
-	DrawLineSpanV(cx, midy, cy, id + 6, DND_SPELLLINE_MAXV, col);
-
-	if(px != cx)
-		DrawLineSpanH(midy, Min(px, cx), Max(px, cx), id + 10, DND_SPELLLINE_MAXH, col);
-	else
-		DeleteTextRange(id + 10, id + 10 + DND_SPELLLINE_MAXH - 1);
-
-	// Logged for the crossing pass, which runs once the whole tree is down.
-	LogSegmentV(px, py, midy);
-	LogSegmentV(cx, midy, cy);
-	if(px != cx)
-		LogSegmentH(midy, Min(px, cx), Max(px, cx));
-}
-
-// Which arms a point actually has, asked of EVERY segment rather than of the one edge that happened
-// to draw it. Two spells hanging off one parent put a corner and a passing run at the same spot, and
-// an L there is simply the wrong piece -- it is a tee.
-#define JARM_U 1
-#define JARM_D 2
-#define JARM_L 4
-#define JARM_R 8
-
-void AddJoint(int x, int y) {
-	for(int i = 0; i < GetSpellDraw().jcount; ++i)
-		if(GetSpellDraw().jx[i] == x && GetSpellDraw().jy[i] == y)
-			return;
-
-	if(GetSpellDraw().jcount >= DND_SPELLTREE_MAXJOINT)
-		return;
-
-	GetSpellDraw().jx[GetSpellDraw().jcount] = x;
-	GetSpellDraw().jy[GetSpellDraw().jcount] = y;
-	++GetSpellDraw().jcount;
-}
-
-int JointArms(int x, int y) {
-	int i, m = 0;
-
-	for(i = 0; i < GetSpellDraw().vcount; ++i) {
-		if(GetSpellDraw().vx[i] != x)
+// Same hash as the router: positions and requirement slots, so a table routed from another shape is never drawn.
+int GetSpellTreeSignature(int tree) {
+	int i, k, s, sig = tree + 1;
+	for(i = 0; i < DND_SPELLS_PER_TREE; ++i) {
+		s = GetTreeFirstSpell(tree) + i;
+		if(!IsSpellDefined(s))
 			continue;
-		if(GetSpellDraw().vy0[i] < y && y <= GetSpellDraw().vy1[i])	m |= JARM_U;
-		if(GetSpellDraw().vy0[i] <= y && y < GetSpellDraw().vy1[i])	m |= JARM_D;
+		sig = (sig * 31 + i + 1) % 1000003;
+		sig = (sig * 31 + SpellDefs[s].tx) % 1000003;
+		sig = (sig * 31 + SpellDefs[s].ty) % 1000003;
+		for(k = 0; k < DND_MAX_SKILL_REQ; ++k)
+			sig = (sig * 31 + SpellDefs[s].req_spell[k]) % 1000003;
 	}
-
-	for(i = 0; i < GetSpellDraw().hcount; ++i) {
-		if(GetSpellDraw().hy[i] != y)
-			continue;
-		if(GetSpellDraw().hx0[i] < x && x <= GetSpellDraw().hx1[i])	m |= JARM_L;
-		if(GetSpellDraw().hx0[i] <= x && x < GetSpellDraw().hx1[i])	m |= JARM_R;
-	}
-
-	return m;
+	return sig;
 }
 
-// Straight-through and dead ends need no piece: the run already covers them.
-str JointTile(int m) {
-	switch(m) {
-		case JARM_U | JARM_L:					return "SPLLCUL";
-		case JARM_U | JARM_R:					return "SPLLCUR";
-		case JARM_D | JARM_L:					return "SPLLCDL";
-		case JARM_D | JARM_R:					return "SPLLCDR";
-		case JARM_U | JARM_D | JARM_L:			return "SPLLTL";
-		case JARM_U | JARM_D | JARM_R:			return "SPLLTR";
-		case JARM_L | JARM_R | JARM_U:			return "SPLLTU";
-		case JARM_L | JARM_R | JARM_D:			return "SPLLTD";
-		case JARM_U | JARM_D | JARM_L | JARM_R:	return "SPLLX";
+// Strips (kinds 0-1) clip to the span. Single pictures cannot be tinted, so a coloured piece is the same art as a SPLLINES glyph.
+str GetSpellLineTile(int kind) {
+	switch(kind) {
+		case 0: return "SPLLHL";
+		case 1: return "SPLLVL";
+		case 2: return "SPLLCUL";
+		case 3: return "SPLLCUR";
+		case 4: return "SPLLCDL";
+		case 5: return "SPLLCDR";
+		case 6: return "SPLLTL";
+		case 7: return "SPLLTR";
+		case 8: return "SPLLTU";
+		case 9: return "SPLLTD";
 	}
-	return "";
+	return "SPLLX";
 }
 
-void DrawTreeJunctions(str col) {
-	int i, j, n = 0;
-	int jt = DND_SPELLLINE_JOINT;
-	str tile;
-
-	GetSpellDraw().jcount = 0;
-
-	// Every segment end is a candidate, and so is every genuine crossing.
-	for(i = 0; i < GetSpellDraw().vcount; ++i) {
-		AddJoint(GetSpellDraw().vx[i], GetSpellDraw().vy0[i]);
-		AddJoint(GetSpellDraw().vx[i], GetSpellDraw().vy1[i]);
+void DrawSpellLinePiece(int kind, int x, int y, int len, int id, str col) {
+	if(kind == 0)
+		MenuClipRect(x, y, len, DND_SPELLLINE_JOINT);
+	else if(kind == 1)
+		MenuClipRect(x, y, DND_SPELLLINE_JOINT, len);
+	if(StrLen(col)) {
+		SetFont("SPLLINES");
+		HudMessage(s:col, c:'A' + kind; HUDMSG_PLAIN, id, CR_UNTRANSLATED, MenuX((x << 16) + 0.1), MenuY((y << 16) + 0.1), 0.0, 0.0);
 	}
-	for(i = 0; i < GetSpellDraw().hcount; ++i) {
-		AddJoint(GetSpellDraw().hx0[i], GetSpellDraw().hy[i]);
-		AddJoint(GetSpellDraw().hx1[i], GetSpellDraw().hy[i]);
+	else {
+		SetFont(GetSpellLineTile(kind));
+		HudMessage(s:"A"; HUDMSG_PLAIN, id, CR_UNTRANSLATED, MenuX((x << 16) + 0.1), MenuY((y << 16) + 0.1), 0.0, 0.0);
 	}
-	for(i = 0; i < GetSpellDraw().hcount; ++i)
-		for(j = 0; j < GetSpellDraw().vcount; ++j)
-			if(GetSpellDraw().hy[i] > GetSpellDraw().vy0[j] && GetSpellDraw().hy[i] < GetSpellDraw().vy1[j] &&
-				GetSpellDraw().vx[j] > GetSpellDraw().hx0[i] && GetSpellDraw().vx[j] < GetSpellDraw().hx1[i])
-				AddJoint(GetSpellDraw().vx[j], GetSpellDraw().hy[i]);
+	if(kind < 2)
+		MenuClipRect(0, 0, 0, 0);
+}
 
-	for(i = 0; i < GetSpellDraw().jcount && n < DND_SPELLTREE_MAXCROSS; ++i) {
-		tile = JointTile(JointArms(GetSpellDraw().jx[i], GetSpellDraw().jy[i]));
-		if(!StrLen(tile))
+// Each requirement bus is its own network; only the highlighted spell's own paths draw cyan. Returns the next free id.
+int DrawRoutedConnectors(int pnum, int tree, int hl) {
+	int i, a, b, spell, pass, id = SPELLTREE_CROSS_ID;
+	int first = GetSpellRouteInfo(tree, 1), last = first + GetSpellRouteInfo(tree, 2);
+	bool lit;
+
+	hl -= GetTreeFirstSpell(tree);
+	if(hl < 0 || hl >= DND_SPELLS_PER_TREE)
+		hl = -1;
+
+	// Joints first, so the lower ids put them in front of the strips they cap.
+	for(pass = 0; pass < 2; ++pass) {
+		for(i = first; i < last; ++i) {
+			a = GetSpellRoutes()[2 * i];
+			if(((a & 15) < 2) != (pass == 1))
+				continue;
+			b = GetSpellRoutes()[2 * i + 1];
+			spell = GetTreeFirstSpell(tree) + ((b >> 6) & 63);
+
+			// A parent's leg lights once it meets any child of the bus, everything else once its child can open.
+			if(b & (1 << 12))
+				lit = GetSpellAllocatedRank(pnum, spell) >= (b >> 13);
+			else
+				lit = SpellReqsMet(pnum, spell);
+
+			DrawSpellLinePiece(a & 15, (a >> 4) & 511, (a >> 13) & 511, (a >> 22) & 511, id++,
+				(hl != -1 && (GetSpellRouteHot()[2 * i + (hl >> 5)] >> (hl & 31)) & 1) ? "\c[C1]" : lit ? "\c[C3]" : "");
+		}
+	}
+	return id;
+}
+
+// Plain elbows, one per requirement, for a tree whose route table is stale.
+int DrawPlainConnectors(int pnum, int tree, int id) {
+	int i, k, req, s, px, py, cx, cy, midy, jt = DND_SPELLLINE_JOINT / 2;
+	str col;
+
+	for(i = 0; i < DND_SPELLS_PER_TREE; ++i) {
+		s = GetTreeFirstSpell(tree) + i;
+		if(!IsSpellDefined(s))
 			continue;
+		for(k = 0; k < DND_MAX_SKILL_REQ; ++k) {
+			req = SpellDefs[s].req_spell[k] - 1;
+			if(req < 0 || !IsSpellDefined(req) || SpellDefs[req].tree != tree)
+				continue;
 
-		DrawLineTileAt(tile, GetSpellDraw().jx[i] - jt / 2, GetSpellDraw().jy[i] - jt / 2, SPELLTREE_CROSS_ID + n, col);
-		++n;
+			col = GetSpellAllocatedRank(pnum, req) >= SpellDefs[s].req_rank[k] ? "\c[C3]" : "";
+			px = GetSpellNodeX(req) + DND_SPELLNODE / 2;
+			py = GetSpellNodeY(req) + DND_SPELLNODE;
+			cx = GetSpellNodeX(s) + DND_SPELLNODE / 2;
+			cy = GetSpellNodeY(s);
+			midy = (py + cy) / 2;
+			DrawSpellLinePiece(1, px - jt, py - 1, midy - py + 2, id++, col);
+			DrawSpellLinePiece(1, cx - jt, midy - 1, cy - midy + 2, id++, col);
+			if(px != cx)
+				DrawSpellLinePiece(0, Min(px, cx) - 1, midy - jt, Max(px, cx) - Min(px, cx) + 3, id++, col);
+		}
 	}
-
-	DeleteTextRange(SPELLTREE_CROSS_ID + n, SPELLTREE_CROSS_ID + DND_SPELLTREE_MAXCROSS - 1);
+	return id;
 }
 
 // Spells belonging to this tree, in id order. The index is also the box index, so a click resolves
@@ -408,9 +273,9 @@ int GetTreeSpellCount(int tree) {
 // The eight trees as rows. Only the two with content are selectable; the rest are drawn dim
 // rather than hidden, so the shape of what is coming is visible.
 void HandleSpellIndexDraw(int pnum, int boxid) {
-	HudMessage(s:"--- ", l:"DND_MENU_HEAD_SPELLS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+	HudMessage(s:"--- ", l:"DND_MENU_HEAD_SPELLS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, MenuX(316.4), MenuY(44.0), 0.0, 0.0);
 	HudMessage(s:"\c[Y5]", l:"DND_MENU_SPELLPOINTS", s:": \c-", d:GetSpellPoints(pnum);
-		HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 192.1, 60.0, 0.0, 0.0);
+		HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, MenuX(192.1), MenuY(60.0), 0.0, 0.0);
 
 	int i, y;
 	for(i = 0; i < MAX_SKILL_TREES; ++i) {
@@ -419,7 +284,7 @@ void HandleSpellIndexDraw(int pnum, int boxid) {
 			RPGMENUITEMID - 1 - i, 192.1, y << 16, "\c[B1]", GetTreeSpellCount(i) ? "\c-" : "\c[K5]");
 	}
 
-	HudMessage(s:"\c[Y5]-------------------------"; HUDMSG_PLAIN, RPGMENUITEMID - 3 - MAX_SKILL_TREES, CR_WHITE, 192.1, 80.0 + 16.0 * MAX_SKILL_TREES, 0.0, 0.0);
+	HudMessage(s:"\c[Y5]-------------------------"; HUDMSG_PLAIN, RPGMENUITEMID - 3 - MAX_SKILL_TREES, CR_WHITE, MenuX(192.1), MenuY(80.0 + 16.0 * MAX_SKILL_TREES), 0.0, 0.0);
 
 	// Last, so entry n stays box n however many trees get content.
 	DrawBoxText("DND_SPELLTREE_HOTBAR", DND_LANGUAGE_LOOKUP, boxid, MBOX_1 + MAX_SKILL_TREES,
@@ -428,15 +293,15 @@ void HandleSpellIndexDraw(int pnum, int boxid) {
 		RPGMENUITEMID - 2 - MAX_SKILL_TREES, 192.1, (104 + MAX_SKILL_TREES * 16) << 16, "\c[B1]", "\c-");
 
 	// The trees' binds, told before entering one, as the perk index does.
-	SetHudClipRect(192, DND_SPELLINDEX_HELP_Y, 256, DND_SPELLINDEX_HELP_H, 256);
+	MenuClipRect(192, DND_SPELLINDEX_HELP_Y, 256, DND_SPELLINDEX_HELP_H, 256);
 	HudMessage(
 		s:"\cv*\cu ", l:"DND_SPELLINDEX_HELP1", s:"\n\cv*\cu ", l:"DND_SPELLINDEX_HELP2", s:"\n\cv*\cu ",
 		l:"DND_MENU_PERK_PINHELP1", s:" \ci", k:"+jump", s:"\cu ", l:"DND_MENU_PERK_PINHELP2", s:"\n\cv*\cu ",
 		l:"DND_SPELLINDEX_REFUND1", s:" \ci", k:"+jump", s:"\cu ", l:"DND_SPELLINDEX_REFUND2";
 		HUDMSG_PLAIN, RPGMENUITEMID - 4 - MAX_SKILL_TREES, CR_WHITE,
-		192.1, ((DND_SPELLINDEX_HELP_Y + DND_SPELLINDEX_HELP_STEP * ScrollPos.x) << 16) + 0.1, 0.0, 0.0
+		MenuX(192.1), MenuY(((DND_SPELLINDEX_HELP_Y + DND_SPELLINDEX_HELP_STEP * ScrollPos.x) << 16) + 0.1), 0.0, 0.0
 	);
-	SetHudClipRect(0, 0, 0, 0, 0);
+	MenuClipRect(0, 0, 0, 0, 0);
 }
 
 // The binds strip's bar, on a short track beside the strip rather than down the whole page.
@@ -562,7 +427,7 @@ void PanelText(str text, str col = "") {
 		SetFont(DND_SPELLPANEL_FONT);
 		HudMessage(s:col, s:StrMid(text, start, brk - start);
 			HUDMSG_PLAIN, GetSpellDraw().panel_id++, CR_WHITE,
-			(DND_SPELLPANEL_X << 16) + 0.1, (GetSpellDraw().panel_y << 16) + 0.1, 0.0);
+			MenuX((DND_SPELLPANEL_X << 16) + 0.1), MenuY((GetSpellDraw().panel_y << 16) + 0.1), 0.0);
 		GetSpellDraw().panel_y += DND_SPELLPANEL_LINEH;
 
 		start = brk;
@@ -592,10 +457,10 @@ int PanelVisibleLength(str text) {
 void PanelHeading(str text, int id, int y) {
 	int n = Max(DND_SPELLPANEL_WRAP, PanelVisibleLength(text));
 	SetFont(DND_SPELLPANEL_FONT);
-	SetHudSize(HUDMAX_X * n / DND_SPELLPANEL_WRAP, HUDMAX_Y * n / DND_SPELLPANEL_WRAP, 1);
+	MenuHudSize(HUDMAX_X * n / DND_SPELLPANEL_WRAP, HUDMAX_Y * n / DND_SPELLPANEL_WRAP);
 	HudMessage(s:text; HUDMSG_PLAIN, id, CR_WHITE,
-		((DND_SPELLPANEL_X * n << 16) / DND_SPELLPANEL_WRAP) + 0.1, (y * n / DND_SPELLPANEL_WRAP) << 16, 0.0, 0.0);
-	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+		MenuX(((DND_SPELLPANEL_X * n << 16) / DND_SPELLPANEL_WRAP) + 0.1), MenuY((y * n / DND_SPELLPANEL_WRAP) << 16), 0.0, 0.0);
+	MenuHudSize(HUDMAX_X, HUDMAX_Y);
 }
 
 // A string split on its line breaks, each line wrapped by PanelText; an empty line is a half-line spacer.
@@ -686,7 +551,7 @@ void HandleSpellHoverPanel(int pnum, int spell) {
 	// else that scrolls here.
 	// FOUR arguments. The fifth is a WRAP WIDTH, and passing one made ZDoom re-wrap lines PanelText
 	// had already wrapped -- each overflow then landed on top of the next message.
-	SetHudClipRect(DND_SPELLPANEL_X - 4, DND_SPELLPANEL_Y - 4, DND_SPELLPANEL_W, DND_SPELLPANEL_H);
+	MenuClipRect(DND_SPELLPANEL_X - 4, DND_SPELLPANEL_Y - 4, DND_SPELLPANEL_W, DND_SPELLPANEL_H);
 
 	int panel_top = DND_SPELLPANEL_Y + GetScrollBarPos(DND_SPELLBAR_PANEL) * DND_SPELLPANEL_LINEH;
 	GetSpellDraw().panel_y = panel_top;
@@ -863,7 +728,7 @@ void HandleSpellHoverPanel(int pnum, int spell) {
 
 	// Whatever the previous hover left behind, when this one is shorter.
 	DeleteTextRange(GetSpellDraw().panel_id, SPELLTREE_DESC_ID + DND_SPELLPANEL_MAXLINES);
-	SetHudClipRect(0, 0, 0, 0, 0);
+	MenuClipRect(0, 0, 0, 0, 0);
 }
 
 // The pocket's bar. Range comes from what the last draw actually emitted, so it can never disagree
@@ -1012,21 +877,21 @@ int GetRowCellX(int index, int count) {
 void DrawSpellCell(int spell, int x, int y, int id, bool lit, bool chosen = false) {
 	int sc = DND_SPELLTREE_ICONSCALE;
 
-	SetHudSize(HUDMAX_X * sc, HUDMAX_Y * sc, 1);
+	MenuHudSize(HUDMAX_X * sc, HUDMAX_Y * sc);
 
 	// SPLBACK is what an empty slot looks like; SPLSLCT is what HOVER looks like. One id either way:
 	// a cell is an icon or an empty frame, never both.
 	SetFont(spell >= 0 ? GetSpellIcon(spell, false) : "SPLBACK");
 	HudMessage(s:"A"; HUDMSG_PLAIN, id, CR_UNTRANSLATED,
-		((x * sc) << 16) + 0.1, ((y * sc) << 16) + 0.1, 0.0);
+		MenuX(((x * sc) << 16) + 0.1), MenuY(((y * sc) << 16) + 0.1), 0.0);
 
 	if(lit || chosen) {
 		SetFont("SPLSLCT");
 		HudMessage(s:"A"; HUDMSG_PLAIN, chosen ? SPELLTREE_PICKSEL_ID : SPELLTREE_HOVER_ID,
-			CR_UNTRANSLATED, ((x * sc) << 16) + 0.1, ((y * sc) << 16) + 0.1, 0.0);
+			CR_UNTRANSLATED, MenuX(((x * sc) << 16) + 0.1), MenuY(((y * sc) << 16) + 0.1), 0.0);
 	}
 
-	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+	MenuHudSize(HUDMAX_X, HUDMAX_Y);
 }
 
 void HandleSpellHotbarDraw(int pnum, int boxid, menu_pane_T module& p) {
@@ -1039,17 +904,17 @@ void HandleSpellHotbarDraw(int pnum, int boxid, menu_pane_T module& p) {
 
 	ResetPane(p);
 
-	SetHudSize(DND_SPELLTREE_BACKW, DND_SPELLTREE_BACKH, 1);
+	MenuHudSize(DND_SPELLTREE_BACKW, DND_SPELLTREE_BACKH);
 	SetFont("CRFTVW2");
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, CR_CYAN, 176.0, 100.0, 0.0, 0.0);
-	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, CR_CYAN, MenuX(176.0), MenuY(100.0), 0.0, 0.0);
+	MenuHudSize(HUDMAX_X, HUDMAX_Y);
 	SetFont("NMENUFNT");
 
 	HudMessage(s:"--- ", l:"DND_SPELLTREE_HOTBAR", s:" ---";
-		HUDMSG_PLAIN, SPELLTREE_HEAD_ID, CR_CYAN, 178.4, 22.0, 0.0, 0.0);
+		HUDMSG_PLAIN, SPELLTREE_HEAD_ID, CR_CYAN, MenuX(178.4), MenuY(22.0), 0.0, 0.0);
 	// Top aligned where the one line hint centred, so the slot hint's second line runs down rather than up into the title.
 	HudMessage(s:"\c[Y5]", l:ss.picking_slot == -1 ? "DND_SPLPANEL_PICKSLOT" : "DND_SPLPANEL_PICKSPELL";
-		HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 1, CR_WHITE, 178.4, 30.1, 0.0, 0.0);
+		HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 1, CR_WHITE, MenuX(178.4), MenuY(30.1), 0.0, 0.0);
 	DeleteText(SPELLTREE_HEAD_ID + 7);
 
 	// The back arrow is box ONE, added before anything else, because opening the picker changes how
@@ -1079,8 +944,8 @@ void HandleSpellHotbarDraw(int pnum, int boxid, menu_pane_T module& p) {
 		SetFont("SMALLFONT");
 		HudMessage(s:"\c[Y5]", d:i + 1;
 			HUDMSG_PLAIN, SPELLTREE_RANK_ID + n, CR_WHITE,
-			((x + DND_SPELLNODE / 2) << 16) + 0.4,
-			((y + DND_SPELLNODE + 2) << 16) + 0.1, 0.0);
+			MenuX(((x + DND_SPELLNODE / 2) << 16) + 0.4),
+			MenuY(((y + DND_SPELLNODE + 2) << 16) + 0.1), 0.0);
 
 		if(boxid == MBOX_1 + n && spell >= 0)
 			hovered = spell;
@@ -1134,7 +999,7 @@ void HandleSpellHotbarDraw(int pnum, int boxid, menu_pane_T module& p) {
 			AddPickerArrowBox(p, mid + DND_SPELLPICK_ARROWX, DND_SPELLPICK_PAGEY);
 			++n;
 			HudMessage(s:"\c[Y5]", d:ss.picking_page + 1, s:" / ", d:pages;
-				HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 6, CR_WHITE, (mid << 16) + 0.4, DND_SPELLPICK_PAGEY << 16, 0.0, 0.0);
+				HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 6, CR_WHITE, MenuX((mid << 16) + 0.4), MenuY(DND_SPELLPICK_PAGEY << 16), 0.0, 0.0);
 		}
 	}
 	if(ss.picking_slot == -1 || pages == 1)
@@ -1156,10 +1021,6 @@ void HandleSpellHotbarDraw(int pnum, int boxid, menu_pane_T module& p) {
 	if(!chosen)
 		DeleteText(SPELLTREE_PICKSEL_ID);
 
-	// Published for the server: the bind script reads the spell from here, exactly as it does for the
-	// hotbar keys, so assigning from this page reuses that path instead of inventing a second one.
-	SetUserCVar(pnum, "dnd_hoveredspell", hovered);
-
 	if(!ss.pinned && ss.shown_spell != hovered) {
 		ss.shown_spell = hovered;
 		SetScrollBarPos(DND_SPELLBAR_PANEL, 0);
@@ -1172,8 +1033,7 @@ void HandleSpellHotbarDraw(int pnum, int boxid, menu_pane_T module& p) {
 // receive. picking_slot decides what a box number means to the DRAW, and the draw is clientside, so
 // a server side write never reaches it. That is why the first version did nothing at all.
 //
-// The BIND itself is authoritative, so that half is puked to "DnD Bind Hotbar", which reads the
-// spell out of dnd_hoveredspell exactly as the hotbar keys do.
+// The bind itself is puked to "DnD Bind Hotbar" with the spell id, which the server re-checks.
 //
 // Returns whether the page owes a redraw.
 bool HandleSpellHotbarPick(int pnum, int boxid, int input) {
@@ -1235,7 +1095,7 @@ bool HandleSpellHotbarPick(int pnum, int boxid, int input) {
 
 	// No sound here: "DnD Bind Hotbar" makes one when the bind lands, and two fired together read as
 	// one loud click rather than two.
-	NamedRequestScriptPuke("DnD Bind Hotbar", ss.picking_slot);
+	NamedRequestScriptPuke("DnD Bind Hotbar", ss.picking_slot, GetBindableByIndex(pnum, ss.picking_page * DND_SPELLPICK_PERPAGE + idx));
 
 	ss.picking_slot = -1;
 	ss.picking_page = 0;
@@ -1243,9 +1103,8 @@ bool HandleSpellHotbarPick(int pnum, int boxid, int input) {
 }
 
 void HandleSpellTreeDraw(int pnum, int tree, int boxid, menu_pane_T module& p) {
-	int i, j, req, spell, rank, alloc, n = 0, line = SPELLTREE_LINE_ID, hovered = -1;
+	int i, j, spell, rank, alloc, n = 0, line, hovered = -1;
 	bool unlocked;
-	str col;
 
 	ResetPane(p);
 
@@ -1265,7 +1124,7 @@ void HandleSpellTreeDraw(int pnum, int tree, int boxid, menu_pane_T module& p) {
 
 	// CRFTVW2 -- the crafting board with a wider right pocket. Drawn with the crafting page's own
 	// call: same size, same position, same immediate restore.
-	SetHudSize(DND_SPELLTREE_BACKW, DND_SPELLTREE_BACKH, 1);
+	MenuHudSize(DND_SPELLTREE_BACKW, DND_SPELLTREE_BACKH);
 	SetFont("CRFTVW2");
 	// RPGMENUID, the crafting page's slot, and it has to be a LOW id: this backdrop is what covers
 	// DND_STAB, the side bar and the game behind them. Putting it at RPGMENUBACKGROUNDID instead --
@@ -1281,45 +1140,30 @@ void HandleSpellTreeDraw(int pnum, int tree, int boxid, menu_pane_T module& p) {
 	// Whole numbers only. The fraction of a HudMessage coordinate selects ALIGNMENT here -- .1 left,
 	// .4 centre -- so 103.5 did not mean "half a unit lower", it picked another mode and threw the
 	// backdrop across the screen.
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, CR_CYAN, 176.0, 100.0, 0.0, 0.0);
-	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, CR_CYAN, MenuX(176.0), MenuY(100.0), 0.0, 0.0);
+	MenuHudSize(HUDMAX_X, HUDMAX_Y);
 	SetFont("NMENUFNT");
 
 	// The board's heading over the middle of the tree; points and credits in the corners under it, each growing away from the other.
 	HudMessage(s:"--- ", l:StrParam(s:"DND_SPELLTREETITLE", d:tree), s:" ---";
-		HUDMSG_PLAIN, SPELLTREE_HEAD_ID, CR_CYAN, 178.4, 22.0, 0.0, 0.0);
+		HUDMSG_PLAIN, SPELLTREE_HEAD_ID, CR_CYAN, MenuX(178.4), MenuY(22.0), 0.0, 0.0);
 	HudMessage(s:"\c[Y5]", l:"DND_MENU_SPELLPOINTS", s:": \c-", d:GetSpellPoints(pnum);
-		HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 1, CR_WHITE, 16.1, 34.0, 0.0, 0.0);
+		HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 1, CR_WHITE, MenuX(16.1), MenuY(34.0), 0.0, 0.0);
 	HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \cd$", d:GetPlayerCredit(pnum);
-		HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 7, CR_WHITE, 354.2, 34.0, 0.0, 0.0);
+		HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 7, CR_WHITE, MenuX(354.2), MenuY(34.0), 0.0, 0.0);
 
-	ResetTreeSegments();
-
-	// Edges first so a node's icon always sits on top of anything reaching it.
-	//
-	// This walks the TREE'S BLOCK, not the whole id space, and skips its empty slots. Walking all of
-	// MAX_SPELL_IDS and testing .tree drew every unused id as a Fire spell at (0,0) -- 234 invisible
-	// nodes, each claiming a box, which overran the pane's box limit and took the real tree with it.
+	// Edges before nodes so every icon sits on top of the lines reaching it; the hovered or pinned spell's buses light.
 	int first = GetTreeFirstSpell(tree);
-	for(j = 0; j < DND_SPELLS_PER_TREE; ++j) {
-		i = first + j;
-		if(!IsSpellDefined(i))
-			continue;
-
-		for(int k = 0; k < DND_MAX_SKILL_REQ; ++k) {
-			req = SpellDefs[i].req_spell[k];
-			if(!req || !IsSpellDefined(req - 1) || SpellDefs[req - 1].tree != tree)
-				continue;
-
-			// Lit when the requirement is satisfied, so the tree reads as a set of open paths.
-			col = GetSpellAllocatedRank(pnum, req - 1) >= SpellDefs[i].req_rank[k] ? "\c[Y5]" : "\c[K5]";
-			DrawTreeConnector(req - 1, i, line, col);
-			line += DND_SPELLLINE_IDS;
+	if(GetSpellRouteInfo(tree, 0) == GetSpellTreeSignature(tree))
+		line = DrawRoutedConnectors(pnum, tree, boxid >= MBOX_1 ? GetTreeSpellByIndex(tree, boxid - MBOX_1) : ss.pinned ? ss.shown_spell : -1);
+	else {
+		if(!(GetSpellDraw().stale_warned & (1 << tree))) {
+			GetSpellDraw().stale_warned |= 1 << tree;
+			Log(s:"Spell tree ", d:tree, s:": route table is stale, drawing plain connectors. Regenerate DnD_SpellTreeRoutes.h.");
 		}
+		line = DrawPlainConnectors(pnum, tree, SPELLTREE_CROSS_ID);
 	}
-
-	// Once every edge is down, and only then: a joint is a fact about the SET of them.
-	DrawTreeJunctions("\c[K5]");
+	DeleteTextRange(line, SPELLPAGE_ID_LAST - 1);
 
 	for(j = 0; j < DND_SPELLS_PER_TREE; ++j) {
 		i = first + j;
@@ -1332,22 +1176,22 @@ void HandleSpellTreeDraw(int pnum, int tree, int boxid, menu_pane_T module& p) {
 
 		// The only thing on the page drawn outside the default space. Coordinates scale with it, and
 		// the hit box in AddSpellNodeBox stays in menu units -- that is the space boxes always use.
-		SetHudSize(HUDMAX_X * DND_SPELLTREE_ICONSCALE, HUDMAX_Y * DND_SPELLTREE_ICONSCALE, 1);
+		MenuHudSize(HUDMAX_X * DND_SPELLTREE_ICONSCALE, HUDMAX_Y * DND_SPELLTREE_ICONSCALE);
 		SetFont(GetSpellIcon(spell, !unlocked));
 		HudMessage(s:"A"; HUDMSG_PLAIN, SPELLTREE_NODE_ID + n, CR_UNTRANSLATED,
-			((GetSpellNodeX(spell) * DND_SPELLTREE_ICONSCALE) << 16) + 0.1,
-			((GetSpellNodeY(spell) * DND_SPELLTREE_ICONSCALE) << 16) + 0.1, 0.0);
+			MenuX(((GetSpellNodeX(spell) * DND_SPELLTREE_ICONSCALE) << 16) + 0.1),
+			MenuY(((GetSpellNodeY(spell) * DND_SPELLTREE_ICONSCALE) << 16) + 0.1), 0.0);
 
 		// The selection frame is 64x64 like the icons, so it rides the same canvas and the same
 		// coordinates -- one id, because only one node is ever hovered.
 		if(boxid == MBOX_1 + n) {
 			SetFont("SPLSLCT");
 			HudMessage(s:"A"; HUDMSG_PLAIN, SPELLTREE_HOVER_ID, CR_UNTRANSLATED,
-				((GetSpellNodeX(spell) * DND_SPELLTREE_ICONSCALE) << 16) + 0.1,
-				((GetSpellNodeY(spell) * DND_SPELLTREE_ICONSCALE) << 16) + 0.1, 0.0);
+				MenuX(((GetSpellNodeX(spell) * DND_SPELLTREE_ICONSCALE) << 16) + 0.1),
+				MenuY(((GetSpellNodeY(spell) * DND_SPELLTREE_ICONSCALE) << 16) + 0.1), 0.0);
 		}
 
-		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+		MenuHudSize(HUDMAX_X, HUDMAX_Y);
 
 		// Only ALLOCATED spells carry a number on the board. At this icon size there is no room for a
 		// line under every node -- forty of them ran together into one smear -- and an unspent tree
@@ -1361,13 +1205,13 @@ void HandleSpellTreeDraw(int pnum, int tree, int boxid, menu_pane_T module& p) {
 		else if(rank != alloc)
 			HudMessage(s:"\c[Y5]", d:alloc, s:"(", d:rank, s:")";
 				HUDMSG_PLAIN, SPELLTREE_RANK_ID + n, CR_WHITE,
-				((GetSpellNodeX(spell) + DND_SPELLNODE) << 16) + 0.2,
-				((GetSpellNodeY(spell) + 1) << 16) + 0.1, 0.0);
+				MenuX(((GetSpellNodeX(spell) + DND_SPELLNODE) << 16) + 0.2),
+				MenuY(((GetSpellNodeY(spell) + 1) << 16) + 0.1), 0.0);
 		else
 			HudMessage(s:"\c[Y5]", d:alloc;
 				HUDMSG_PLAIN, SPELLTREE_RANK_ID + n, CR_WHITE,
-				((GetSpellNodeX(spell) + DND_SPELLNODE) << 16) + 0.2,
-				((GetSpellNodeY(spell) + 1) << 16) + 0.1, 0.0);
+				MenuX(((GetSpellNodeX(spell) + DND_SPELLNODE) << 16) + 0.2),
+				MenuY(((GetSpellNodeY(spell) + 1) << 16) + 0.1), 0.0);
 
 		if(boxid == MBOX_1 + n)
 			hovered = spell;
@@ -1375,10 +1219,6 @@ void HandleSpellTreeDraw(int pnum, int tree, int boxid, menu_pane_T module& p) {
 		AddSpellNodeBox(p, spell);
 		++n;
 	}
-
-	// Published for the hotbar bind keys, which arrive on the server with no idea what the
-	// cursor is over.
-	SetUserCVar(pnum, "dnd_hoveredspell", hovered);
 
 	if(hovered == -1)
 		DeleteText(SPELLTREE_HOVER_ID);
@@ -1454,6 +1294,31 @@ bool SpellHasRow(int spell, int field) {
 	return SpellDefs[spell].base[field] > 0 || SpellDefs[spell].per_rank[field] > 0;
 }
 
+// Damage the player's own casts deal: not a support spell's, not a summon's (its minions' hits are not the spell's).
+bool SpellDealsOwnDamage(int spell) {
+	return !(SpellDefs[spell].flags & (SPLF_SUPPORT | SPLF_SUMMON | SPLF_NODAMAGE));
+}
+
+// Hits the player's own casts land; damage over time never crits, leeches or rolls the hit-only ailments.
+bool SpellLandsOwnHits(int spell) {
+	return SpellDealsOwnDamage(spell) && !(SpellDefs[spell].flags & SPLF_NOHIT);
+}
+
+// A summon whose minions land hits of their own, for the hit gems that roll on them (not the Ghast: its attack is your
+// Dark Wind, which takes Dark Wind's; not the portal, which deals no damage).
+bool IsMinionHitSpell(int spell) {
+	return (SpellDefs[spell].flags & SPLF_SUMMON) && spell != SPL_GHAST && spell != SPL_DARKPORTAL;
+}
+
+// Whether Quicktongue's repeat can add anything: not on a curse or a mark (re-applied, the strongest wins), a flock or corpses
+// a recast replaces, a channel that refuses a second, or a summon capped at one of its kind (the repeat evicts it).
+bool CanSpellRepeat(int spell) {
+	int f = SpellDefs[spell].flags;
+	if(f & (SPLF_CURSE | SPLF_TOGGLE) || spell == SPL_MARKPREY || spell == SPL_CARRIONCROWS || spell == SPL_UNLEASHEARTH || spell == SPL_DESECRATE)
+		return false;
+	return !(f & SPLF_SUMMON) || GetSummonKindMaxCap(spell) > 1;
+}
+
 // Whether a term can do anything on this spell. A term that cannot is never added, so it cannot leak into
 // a row a spell borrows for something else: Annihilus's DURATION is a channel cap, not an effect.
 bool IsGemStatActiveOnSpell(int stat, int spell) {
@@ -1474,9 +1339,13 @@ bool IsGemStatActiveOnSpell(int stat, int spell) {
 		return !!(f & SPLF_AOE);
 		case GEMSTAT_EXTRAPROJ:
 		return !!(f & SPLF_PROJECTILE);
+		case GEMSTAT_CRITCHANCE:
+		case GEMSTAT_CRITMULT:
+		case GEMSTAT_MORE_HITDAMAGE:
+		return SpellLandsOwnHits(spell);
 	}
-	// damage, crit and ailments: anything that is not purely a support spell
-	return !(f & SPLF_SUPPORT);
+	// damage and ailments: the player's own damage
+	return SpellDealsOwnDamage(spell);
 }
 
 // A colour does something on this spell when any of its terms can.
@@ -1484,6 +1353,23 @@ bool IsGemColourActive(int colour, int spell) {
 	for(int k = 0; k < GetGemColourTermCount(colour); ++k)
 		if(IsGemStatActiveOnSpell(GetGemColourTermStat(colour, k), spell))
 			return true;
+	return false;
+}
+
+// A curse whose values go through GetSpellCurseEffect, so Witch has something to raise.
+bool HasSpellCurseEffect(int spell) {
+	switch(spell) {
+		case SPL_FLAMMABILITY:
+		case SPL_FROSTBITE:
+		case SPL_CONDUCTIVITY:
+		case SPL_VULNERABILITY:
+		case SPL_DESPAIR:
+		case SPL_NOX:
+		case SPL_TEMPORALCHAINS:
+		case SPL_ENFEEBLE:
+		case SPL_PAINAMP:
+		return true;
+	}
 	return false;
 }
 
@@ -1502,35 +1388,66 @@ bool IsGemRoleActiveOnSpell(int role, int spell) {
 		case DND_GEMROLE_INFLUENCER:
 		return !!(f & SPLF_PASSIVE);
 		case DND_GEMROLE_SUMMONER:
-		case DND_GEMROLE_COMMANDER:
 		case DND_GEMROLE_NECROMANCER:
+		return !!(f & SPLF_SUMMON);
+		// Minion damage reaches the spells minions cast (the Ghast's Dark Wind); the portal deals no damage.
+		case DND_GEMROLE_COMMANDER:
+		return !!(f & SPLF_SUMMON) && spell != SPL_DARKPORTAL;
+		// A minion's cast crits as the spell it is, so minion crit has nothing on the Ghast.
 		case DND_GEMROLE_VORACIOUS:
 		case DND_GEMROLE_ALPHA:
-		return !!(f & SPLF_SUMMON);
+		return !!(f & SPLF_SUMMON) && spell != SPL_GHAST && spell != SPL_DARKPORTAL;
 		case DND_GEMROLE_PRIEST:
 		return !!(f & SPLF_HEAL);
-		case DND_GEMROLE_WITCH:
 		case DND_GEMROLE_HEXMASTER:
-		case DND_GEMROLE_RITUALIST:
 		return !!(f & SPLF_CURSE);
+		case DND_GEMROLE_WITCH:
+		return !!(f & SPLF_CURSE) && HasSpellCurseEffect(spell);
+		// It lingers in the curse's area, so a single-target curse has none to linger in.
+		case DND_GEMROLE_RITUALIST:
+		return !!(f & SPLF_CURSE) && spell != SPL_DELIRIUM && spell != SPL_BANISH && spell != SPL_TRANSMOGRIFY;
 		case DND_GEMROLE_SWIFTCASTER:
 		return SpellHasRow(spell, SPELLVAL_CASTTIME);
 		case DND_GEMROLE_QUICKTONGUE:
-		return SpellHasRow(spell, SPELLVAL_CASTTIME) && !(f & SPLF_TOGGLE);
+		return SpellHasRow(spell, SPELLVAL_CASTTIME) && CanSpellRepeat(spell);
 		case DND_GEMROLE_MAGUS:
 		case DND_GEMROLE_HAEMOCRAFTER:
 		return IsGemStatActiveOnSpell(GEMSTAT_MORE_COST, spell);
 		case DND_GEMROLE_BLADEDANCER:
 		case DND_GEMROLE_FIGHTER:
 		return !(f & (SPLF_PASSIVE | SPLF_AURA));
-		// A spell that already chains or forks takes the matching one into its own count.
+		// The lightning pairs take both: the matching one into their own count, the other off their first target.
 		case DND_GEMROLE_CHAINER:
-		return !!(f & SPLF_STRIKE) || spell == SPL_CHAINLIGHTNING;
 		case DND_GEMROLE_FORKER:
-		return !!(f & SPLF_STRIKE) || spell == SPL_FORKEDLIGHTNING;
+		return !!(f & SPLF_STRIKE) || spell == SPL_CHAINLIGHTNING || spell == SPL_FORKEDLIGHTNING;
+		// on a crit, or off a hit (leech, Archmage's added hit, the bleed and poison rolls skip damage over time)
+		case DND_GEMROLE_MARKSMAN:
+		case DND_GEMROLE_WIZARD:
+		case DND_GEMROLE_ASSASSIN:
+		case DND_GEMROLE_POWERFUL:
+		case DND_GEMROLE_ARCHMAGE:
+		case DND_GEMROLE_VAMPIRE:
+		case DND_GEMROLE_ARCHON:
+		return SpellLandsOwnHits(spell);
+		// The ailment and finishing roles also roll on a summon's minions' own hits.
+		case DND_GEMROLE_SANGUINOMANCER:
+		return SpellLandsOwnHits(spell) || IsMinionHitSpell(spell);
+		// A poison spell's hits already poison; Venom Gyre rolls its own.
+		case DND_GEMROLE_VENOMANCER:
+		return (SpellLandsOwnHits(spell) && GetSpellDamageType(spell) != DND_DAMAGETYPE_POISON) || IsMinionHitSpell(spell);
+		case DND_GEMROLE_PYROMANCER:
+		case DND_GEMROLE_CRYOMANCER:
+		case DND_GEMROLE_ELECTROMANCER:
+		case DND_GEMROLE_MERCILESS:
+		case DND_GEMROLE_EXECUTIONER:
+		case DND_GEMROLE_DESTROYER:
+		return SpellDealsOwnDamage(spell) || IsMinionHitSpell(spell);
+		// Doomguard's landing stun rolls it (the user's call); no other minion does.
+		case DND_GEMROLE_RESOLUTE:
+		return SpellDealsOwnDamage(spell) || spell == SPL_DOOMGUARD;
 	}
-	// The hit roles: damage, crit, ailments, leech, penetration, culling, charges.
-	return !(f & SPLF_SUPPORT);
+	// The other hit roles: damage, ailments, penetration, culling, charges.
+	return SpellDealsOwnDamage(spell);
 }
 
 // Chainer and Forker never work together: the role in an earlier socket that blocks this one, or -1.
@@ -1976,47 +1893,47 @@ void AddGemSocketBox(menu_pane_T module& p, int x, int y) {
 // A frame shrunk this far lost its border, so the socket states are the cell's colour instead.
 void DrawGemSocket(int v, int x, int y, int icon_id, bool lit, bool chosen, bool locked = false) {
 	int sc = DND_SPELLTREE_ICONSCALE;
-	SetHudSize(HUDMAX_X * sc, HUDMAX_Y * sc, 1);
+	MenuHudSize(HUDMAX_X * sc, HUDMAX_Y * sc);
 
 	// A socket its research has not opened: the empty cell, dimmed and never lit.
 	if(locked) {
 		SetFont("LDTBOX");
-		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, icon_id + 1, CR_UNTRANSLATED, ((x * sc) << 16) + 0.1, ((y * sc) << 16) + 0.1, 0.0, 0.3);
+		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, icon_id + 1, CR_UNTRANSLATED, MenuX(((x * sc) << 16) + 0.1), MenuY(((y * sc) << 16) + 0.1), 0.0, 0.3);
 		DeleteText(icon_id);
-		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+		MenuHudSize(HUDMAX_X, HUDMAX_Y);
 		return;
 	}
 
 	SetFont(lit ? "LDTBOXS" : chosen ? "LDTBOXC" : v ? "LDTBOXO" : "LDTBOX");
-	HudMessage(s:"A"; HUDMSG_PLAIN, icon_id + 1, CR_UNTRANSLATED, ((x * sc) << 16) + 0.1, ((y * sc) << 16) + 0.1, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, icon_id + 1, CR_UNTRANSLATED, MenuX(((x * sc) << 16) + 0.1), MenuY(((y * sc) << 16) + 0.1), 0.0);
 
 	if(v) {
 		SetFont(GetItemImage(GetGemImageId(GetSocketGemSubtype(v))));
 		HudMessage(s:"A"; HUDMSG_PLAIN, icon_id, CR_UNTRANSLATED,
-			((x * 2 + DND_GEMPAGE_SOCKET) * sc / 2) << 16, ((y * 2 + DND_GEMPAGE_SOCKET) * sc / 2) << 16, 0.0);
+			MenuX(((x * 2 + DND_GEMPAGE_SOCKET) * sc / 2) << 16), MenuY(((y * 2 + DND_GEMPAGE_SOCKET) * sc / 2) << 16), 0.0);
 	}
 	else
 		DeleteText(icon_id);
-	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+	MenuHudSize(HUDMAX_X, HUDMAX_Y);
 }
 
 // A gem cell in the picker: the empty cell art, the gem centred on it.
 void DrawGemCell(int subt, int x, int y, int icon_id, int frame_id, bool lit) {
 	int sc = DND_SPELLTREE_ICONSCALE;
-	SetHudSize(HUDMAX_X * sc, HUDMAX_Y * sc, 1);
+	MenuHudSize(HUDMAX_X * sc, HUDMAX_Y * sc);
 	SetFont("SPLBACK");
-	HudMessage(s:"A"; HUDMSG_PLAIN, frame_id, CR_UNTRANSLATED, ((x * sc) << 16) + 0.1, ((y * sc) << 16) + 0.1, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, frame_id, CR_UNTRANSLATED, MenuX(((x * sc) << 16) + 0.1), MenuY(((y * sc) << 16) + 0.1), 0.0);
 	if(lit) {
 		SetFont("SPLSLCT");
-		HudMessage(s:"A"; HUDMSG_PLAIN, SPELLTREE_HOVER_ID, CR_UNTRANSLATED, ((x * sc) << 16) + 0.1, ((y * sc) << 16) + 0.1, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, SPELLTREE_HOVER_ID, CR_UNTRANSLATED, MenuX(((x * sc) << 16) + 0.1), MenuY(((y * sc) << 16) + 0.1), 0.0);
 	}
 
 	sc = DND_GEMPAGE_GEMSC;
-	SetHudSize(HUDMAX_X * sc, HUDMAX_Y * sc, 1);
+	MenuHudSize(HUDMAX_X * sc, HUDMAX_Y * sc);
 	SetFont(GetItemImage(GetGemImageId(subt)));
 	HudMessage(s:"A"; HUDMSG_PLAIN, icon_id, CR_UNTRANSLATED,
-		((x * 2 + DND_SPELLNODE) * sc / 2) << 16, ((y * 2 + DND_SPELLNODE) * sc / 2) << 16, 0.0);
-	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+		MenuX(((x * 2 + DND_SPELLNODE) * sc / 2) << 16), MenuY(((y * 2 + DND_SPELLNODE) * sc / 2) << 16), 0.0);
+	MenuHudSize(HUDMAX_X, HUDMAX_Y);
 }
 
 // The pocket for a gem: its name as the heading, then its colour's terms, greyed where the spell cannot use them.
@@ -2031,7 +1948,7 @@ void DrawGemPocket(int subt, int role, int spell, int blocker = -1) {
 	else
 		DeleteText(SPELLTREE_HEAD_ID + 3);
 
-	SetHudClipRect(DND_SPELLPANEL_X - 4, DND_SPELLPANEL_Y - 4, DND_SPELLPANEL_W, DND_SPELLPANEL_H);
+	MenuClipRect(DND_SPELLPANEL_X - 4, DND_SPELLPANEL_Y - 4, DND_SPELLPANEL_W, DND_SPELLPANEL_H);
 	int panel_top = DND_SPELLPANEL_Y + GetScrollBarPos(DND_SPELLBAR_PANEL) * DND_SPELLPANEL_LINEH;
 	GetSpellDraw().panel_y = panel_top;
 	GetSpellDraw().panel_id = SPELLTREE_DESC_ID;
@@ -2056,7 +1973,7 @@ void DrawGemPocket(int subt, int role, int spell, int blocker = -1) {
 
 	GetSpellScroll().panel_px = GetSpellDraw().panel_y - panel_top;
 	DeleteTextRange(GetSpellDraw().panel_id, SPELLTREE_DESC_ID + DND_SPELLPANEL_MAXLINES);
-	SetHudClipRect(0, 0, 0, 0, 0);
+	MenuClipRect(0, 0, 0, 0, 0);
 	DrawSpellPocketBar();
 }
 
@@ -2065,7 +1982,7 @@ void DrawGemHelp() {
 	PanelHeading(StrParam(s:"\c[Y5]", l:"DND_GEMPAGE_HELPTITLE"), SPELLTREE_HEAD_ID + 2, 24);
 	DeleteText(SPELLTREE_HEAD_ID + 3);
 
-	SetHudClipRect(DND_SPELLPANEL_X - 4, DND_SPELLPANEL_Y - 4, DND_SPELLPANEL_W, DND_SPELLPANEL_H);
+	MenuClipRect(DND_SPELLPANEL_X - 4, DND_SPELLPANEL_Y - 4, DND_SPELLPANEL_W, DND_SPELLPANEL_H);
 	int panel_top = DND_SPELLPANEL_Y + GetScrollBarPos(DND_SPELLBAR_PANEL) * DND_SPELLPANEL_LINEH;
 	GetSpellDraw().panel_y = panel_top;
 	GetSpellDraw().panel_id = SPELLTREE_DESC_ID;
@@ -2074,7 +1991,7 @@ void DrawGemHelp() {
 
 	GetSpellScroll().panel_px = GetSpellDraw().panel_y - panel_top;
 	DeleteTextRange(GetSpellDraw().panel_id, SPELLTREE_DESC_ID + DND_SPELLPANEL_MAXLINES);
-	SetHudClipRect(0, 0, 0, 0, 0);
+	MenuClipRect(0, 0, 0, 0, 0);
 	DrawSpellPocketBar();
 }
 
@@ -2086,14 +2003,14 @@ void HandleSpellGemsDraw(int pnum, int boxid, menu_pane_T module& p) {
 
 	ResetPane(p);
 
-	SetHudSize(DND_SPELLTREE_BACKW, DND_SPELLTREE_BACKH, 1);
+	MenuHudSize(DND_SPELLTREE_BACKW, DND_SPELLTREE_BACKH);
 	SetFont("CRFTVW2");
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, CR_CYAN, 176.0, 100.0, 0.0, 0.0);
-	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, CR_CYAN, MenuX(176.0), MenuY(100.0), 0.0, 0.0);
+	MenuHudSize(HUDMAX_X, HUDMAX_Y);
 	SetFont("NMENUFNT");
 
 	HudMessage(s:"--- ", l:"DND_SPELLTREE_GEMS", s:" ---";
-		HUDMSG_PLAIN, SPELLTREE_HEAD_ID, CR_CYAN, 178.4, 22.0, 0.0, 0.0);
+		HUDMSG_PLAIN, SPELLTREE_HEAD_ID, CR_CYAN, MenuX(178.4), MenuY(22.0), 0.0, 0.0);
 	DeleteText(SPELLTREE_HEAD_ID + 7);
 
 	// Box one is the back arrow, first for the reason the hotbar page gives: the boxes after it change with the view.
@@ -2108,7 +2025,7 @@ void HandleSpellGemsDraw(int pnum, int boxid, menu_pane_T module& p) {
 	if(!ss.gem_pick) {
 		count = GetGemEligibleCount(pnum);
 		HudMessage(s:"\c[Y5]", l:count ? "DND_GEMPAGE_PICKSOCKET" : "DND_GEMPAGE_NONE";
-			HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 1, CR_WHITE, 178.4, 34.0, 0.0, 0.0);
+			HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 1, CR_WHITE, MenuX(178.4), MenuY(34.0), 0.0, 0.0);
 
 		for(i = 0; i < count; ++i) {
 			spell = GetGemEligibleSpell(pnum, i);
@@ -2148,7 +2065,7 @@ void HandleSpellGemsDraw(int pnum, int boxid, menu_pane_T module& p) {
 		// Only the gems that can do something on this spell; the message tells none at all from none that fit.
 		count = GetInventoryGemCount(pnum, spell);
 		HudMessage(s:"\c[Y5]", l:count ? "DND_GEMPAGE_PICKGEM" : GetInventoryGemCount(pnum) ? "DND_GEMPAGE_NOFIT" : "DND_GEMPAGE_NOGEMS";
-			HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 1, CR_WHITE, 178.4, 34.0, 0.0, 0.0);
+			HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 1, CR_WHITE, MenuX(178.4), MenuY(34.0), 0.0, 0.0);
 
 		x = GetRowCellX(0, 1);
 		y = DND_GEMPAGE_Y;

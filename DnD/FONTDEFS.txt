@@ -84,3 +84,19 @@ NSMOLFNT
 {
   Template DNSMR%03d
 }
+
+// Spell tree connectors: strips then joints, one font so colour codes can tint them.
+SPLLINES
+{
+	A SPLLHL
+	B SPLLVL
+	C SPLLCUL
+	D SPLLCUR
+	E SPLLCDL
+	F SPLLCDR
+	G SPLLTL
+	H SPLLTR
+	I SPLLTU
+	J SPLLTD
+	K SPLLX
+}

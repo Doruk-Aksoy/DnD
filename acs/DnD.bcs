@@ -233,6 +233,8 @@ Script "DnD Player HUD" ENTER CLIENTSIDE {
 		else if(drawn) {
 			ClearSpellHotbar();
 			DeleteText(METRONOME_BEAT_ID);
+			// a respawn's bars are fresh items: they must be written again, even with the same numbers
+			GetLeechBars().written = false;
 			drawn = false;
 			beat = false;
 		}
@@ -537,6 +539,12 @@ Script "DnD On Death" DEATH {
 
 	Delay(const:5);
 
+	// A minion still standing after UnsummonAllPets is a leak: logged for the server, then sent home again.
+	if(CountPlayerPetWeight(pnum)) {
+		Log(s:"DnD pets outlived their master: player ", d:pnum, s:" live weight ", d:CountPlayerPetWeight(pnum), s:" t", d:Timer());
+		UnsummonAllPets(pnum);
+	}
+
 	// everyone died in survival
 	if(GetGamemodeState() == GAMESTATE_INRESULTSEQUENCE) {
 		// reset used tids -- drop the damage tic latches first, as the unloading path does. This is a
@@ -588,13 +596,19 @@ Script "DnD Critical Input Handler" ENTER {
     }
 }
 
-Script "DnD Weapon Input Handler" (int wepid) {
+Script "DnD Weapon Input Handler" (int wepid, int from_setup) {
 	bool temp = false;
 	int pnum = PlayerNumber();
 
 	// prevents bug related to map change + Select state of weapons, causing multiple scripts to run many times
-	if(IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED))
-		Terminate;
+	if(IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED)) {
+		if(!from_setup)
+			Terminate;
+		// The setup's own start waits out a player still loading in, then takes whatever weapon is held by then.
+		while(IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED) && PlayerInGame(pnum))
+			Delay(const:5);
+		wepid = GetCurrentWeaponID();
+	}
 
 	//printbold(s:"run input handler for ", d:wepid);
 	switch(wepid) {
@@ -894,8 +908,11 @@ Script "DND On Revive" (void) {
 	int temp = GetActorProperty(this, APROP_MASTERTID);
 	if(IsPlayer(temp)) {
 		int pnum = temp - P_TIDSTART;
-		// set player related stuff here
-		GiveActorInventory(temp, "PetCounter", 1);
+		// set player related stuff here; a Sickle raise counted itself when it claimed the corpse
+		if(CheckInventory("DnD_RaiseReserved"))
+			TakeInventory("DnD_RaiseReserved", 1);
+		else
+			GiveActorInventory(temp, "PetCounter", 1);
 
 		// Devoted Leader: increased minion health. Not written back into maxhp, which the next revive reads again.
 		int more = PlayerModData[pnum].vals[PSTAT_MINION_HEALTH], full = MonsterProperties[id].maxhp;
@@ -1092,7 +1109,6 @@ Script "DND On Kill" KILL {
 		ACS_NamedExecuteAlways("DnD Wanderer Explosions", 0, this, target);
 		
 	if(CheckInventory("DnD_OverloadTimer") && !CheckInventory("DnD_OverloadLockTime") && !PlayerModData[target - P_TIDSTART].vals[PSTAT_INC_ALLOVERLOAD]) {
-		GiveInventory("DnD_OverloadZapGiver", 1);
 		ACS_NamedExecuteAlways("DnD Monster Overload Zap", 0, this, target);
 	}
 	SetInventory("DnD_OverloadTimer", 0);
@@ -1193,12 +1209,12 @@ Script "DND On Kill" KILL {
 	if
 	(
 		CheckUniquePropertyOnPlayer(pnum, PUP_SLAINENEMIESRIP) || 
-		HasClassPerk_Fast(DND_PLAYER_DOOMGUY, 5) ||
+		HasActorClassPerk_Fast(target, DND_PLAYER_DOOMGUY, 5) ||
 		InformationInLevel[LEVELINFO_ISULTIMATUM] ||
 		PlayerModData[pnum].vals[PSTAT_INC_ENEMYRIPCHANCE] >= random(1, 100) ||
 		HasMonsterTrait(m_id, DND_MARKOFCHAOS)
 	)
-		ACS_NamedExecuteAlways("DnD Monster RIP", 0);
+		ACS_NamedExecuteAlways("DnD Monster RIP", 0, this);
 	
 	// from here on out we are the player
 	SetActivator(target);
@@ -1307,15 +1323,31 @@ Script "DnD Monster Death Effects" (int this, int m_id) {
 }
 
 Script "DnD Monster RIP" (int tid) {
+	// tid 0 would hand the marker to the players
+	if(!tid)
+		Terminate;
 	GiveActorInventory(tid, "DnD_EnemySlatedForRemoval", 1);
 	Delay(const:RIP_MONSTER_FADE_DELAY);
+	if(IsRIPRaisedAlly(tid))
+		Terminate;
 	SetActorProperty(tid, APROP_RENDERSTYLE, STYLE_Translucent);
 	int a = GetActorProperty(tid, APROP_ALPHA);
 	for(int i = 1; i < RIP_FADE_TIMER; ++i) {
+		if(IsRIPRaisedAlly(tid)) {
+			SetActorProperty(tid, APROP_RENDERSTYLE, STYLE_Normal);
+			SetActorProperty(tid, APROP_ALPHA, a);
+			Terminate;
+		}
 		SetActorProperty(tid, APROP_ALPHA, a - (i * 1.0) / RIP_FADE_TIMER);
 		Delay(const:1);
 	}
-	Thing_Remove(tid);
+	if(!IsRIPRaisedAlly(tid))
+		Thing_Remove(tid);
+}
+
+// a player's raise got to the corpse anyway: it is a counted minion now, never delete it from under them
+bool IsRIPRaisedAlly(int tid) {
+	return IsActorAlive(tid) && isPlayer(GetActorProperty(tid, APROP_MASTERTID));
 }
 
 Script "DnD Demon Barrier Timeout" (int p_tid) {
@@ -1543,13 +1575,14 @@ Script 898 (int msg) CLIENTSIDE {
 }
 
 Script 899 (int tips) NET CLIENTSIDE {
+	// dnd_weapontips set means the tip boxes are suppressed.
 	if(GetCVar("dnd_weapontips")) {
 		SetCVar("dnd_weapontips", 0);
-		ACS_ExecuteAlways(898, 0, 0);
+		ACS_ExecuteAlways(898, 0, 1);
 	}
 	else {
 		SetCVar("dnd_weapontips", 1);
-		ACS_ExecuteAlways(898, 0, 1);
+		ACS_ExecuteAlways(898, 0, 0);
 	}
 }
 
@@ -1860,6 +1893,9 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite, int
 		pcount = 1;
 	
 	MonsterProperties[m_id].id = monsterid;
+	// per instance, as the custom scaler does: the slot may hold a previous monster's values
+	MonsterProperties[m_id].painchance = MonsterData[monsterid].painchance;
+	MonsterProperties[m_id].pain_cd = 0;
 	// Set or cleared for every monster, scaled or not: MonsterProperties outlives the map, so the slot may still carry a
 	// previous map's dungeon boss.
 	if(hp_mult > 1)
@@ -2187,6 +2223,12 @@ Script "DnD Sync Custom Monster Type" (int token) CLIENTSIDE {
 }
 
 // Decide monster to spawn on a certain monster category given weight list
+// The child takes the map special (SXF_TRANSFERSPECIAL); the spawner it kills on death must not fire it again.
+void SpawnerPickState(str label) {
+	SetActorState(0, label, true);
+	SetThingSpecial(0, 0);
+}
+
 Script "DnD Monster Spawner" (int category) {
     // count and initialization
 	int i = 0;
@@ -2240,18 +2282,18 @@ Script "DnD Monster Spawner" (int category) {
 		MadeLegendary = 1;
 		// decide which legendary
 		roll = random(1, DND_MAX_LEGENDARY);
-		SetActorState(0, StrParam(s:"Leg", d:roll), true);
+		SpawnerPickState(StrParam(s:"Leg", d:roll));
 		ACS_NamedExecuteAlways("DnD Legendary Announcer", 0);
 	}
 	else {
 		// check for unique possibility here
 		if(IsIncursionActive()) {
-			SetActorState(0, GetIncursionSpawnerLabel(), true);
+			SpawnerPickState(GetIncursionSpawnerLabel());
 			Terminate;
 		}
 		else if(CheckMapEvent(DND_MAPEVENT_FIRSTUNIQUEMONSTER + category) && avg_level >= 25) {
 			if(random(0, 1.0) <= TempArray[TARR_MONID][category]) {
-				SetActorState(0, "Unique", true);
+				SpawnerPickState("Unique");
 				ClearMapEvent(DND_MAPEVENT_FIRSTUNIQUEMONSTER + category);
 				Terminate;
 			}
@@ -2274,13 +2316,13 @@ Script "DnD Monster Spawner" (int category) {
 			--bin;
 			// go to vanilla if bin is 0
 			if(!bin) {
-				SetActorState(0, "Vanilla", true);
+				SpawnerPickState("Vanilla");
 				picked = true;
 			}
 			else {
 				// dumb spawner, just check weight
 				if(!GetCVar("dnd_usesmartmonsterspawner")) {
-					SetActorState(0, StrParam(s:"Var", d:bin), true);
+					SpawnerPickState(StrParam(s:"Var", d:bin));
 					picked = true;
 				}
 				else {
@@ -2295,7 +2337,7 @@ Script "DnD Monster Spawner" (int category) {
 					int ratio = FixedDiv(Monster_Weights[category][0] << 16, m_level);
 					int bias = random(factor / 5, factor);
 					if(ratio <= bias + InformationInLevel[LEVELINFO_MAXPLAYERLEVEL] * FixedDiv(1.0, ratio) / 5) {
-						SetActorState(0, StrParam(s:"Var", d:bin), true);
+						SpawnerPickState(StrParam(s:"Var", d:bin));
 						picked = true;
 					}
 				}
@@ -3225,12 +3267,15 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	//Just to make sure a rare lvl 1 char load bug doesn't happen
 	//Log(s:"player left ", d:pnum);
 	PlayerDatabaseState[pnum][PLAYER_TRANSFERSTATE] = false;
+	GetDisconnectPending()[pnum] = true;
 
 	SendOwnerScript("DnD Class Select Cleanup", PlayerNumber());
 	// if someone quit during countdown just remove this
 	HudMessage(s:""; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.0, 240.0, 1);
 	PlayerCanLoad[pnum] = 0;
 	BreakTradesBetween(pnum);
+	// the leaver's trail loop was stopped with their body
+	GetEmberTrailRunning()[pnum] = false;
 
 	Delay(const:1);
 
@@ -3250,7 +3295,7 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	UnsummonAllPets(pnum);
 
 	// fixes a character deletion bug with spectating during countdown
-	PlayerGameState[pnum] &= ~(DND_PSTATE_LOADED);
+	PlayerGameState[pnum] &= ~(DND_PSTATE_LOADED | DND_PSTATE_CHANGEDMAP);
 
 	// this moved here so the above function has prio, not sure if it has any other implications but its good for it to be here regardless
 	PlayerDatabaseState[pnum][PLAYER_SAVESTATE] = false;
@@ -3264,6 +3309,7 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	Delay(const:1);
 
 	ClearPlayerAliasTables(pnum);
+	GetDisconnectPending()[pnum] = false;
 
 	Delay(const:1);
 
@@ -3285,6 +3331,9 @@ Script "DnD On Unloading" UNLOADING {
 	ResetUsedTIDs();
 
 	int tid;
+	for(tid = 0; tid < MAXPLAYERS; ++tid)
+		if(PlayerInGame(tid))
+			PlayerGameState[tid] |= DND_PSTATE_CHANGEDMAP;
 	SetupComplete(SETUP_STATE1, SETUP_MAPCHANGED);
 	SetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED);
 	SetupUndo(SETUP_STATE1, SETUP_MAPEVENTS);
@@ -3309,6 +3358,8 @@ Script "DnD On Unloading" UNLOADING {
 Script "DnD Player Setup" ENTER {
 	int pnum = PlayerNumber();
 	Thing_ChangeTID(0, P_TIDSTART + pnum);
+	if(GameType() != GAME_SINGLE_PLAYER)
+		ACS_NamedExecuteAlways("DnD Server Clock", 0, pnum);
 
 	ClearMenuLeftovers(pnum);
 
@@ -3392,6 +3443,10 @@ Script "DnD Player Setup" ENTER {
 	ACS_NamedExecuteWithResult("DnD Monster Scanner Picker");
 	ACS_NamedExecuteAlways("DnD Monster Scanner", 0);
 	SendOwnerScript("DnD SBAR", PlayerNumber());
+
+	// a quick spectate and rejoin: let the old cleanup save and clear first, or it clears this entry's save state
+	while(GetDisconnectPending()[pnum])
+		Delay(const:1);
 	
 	// begin hardcore countdown
 	if(isSoftorHardcore() && (GetCVar("dnd_mode") >= DND_MODE_SOFTCORE)) {
@@ -3546,7 +3601,7 @@ Script "DnD Player Setup" ENTER {
 	UnfreezePlayer();
 	curlvl = GetCurrentWeaponID();
 	ACS_NamedExecuteWithResult("DnD Weapon Damage Cache", curlvl);
-	ACS_NamedExecuteAlways("DnD Weapon Input Handler", 0, curlvl);
+	ACS_NamedExecuteAlways("DnD Weapon Input Handler", 0, curlvl, 1);
 	ACS_NamedExecuteWithResult("DnD Can Fire Weapon", 0);
 	
 	// if map changed, reset accessory stuff
@@ -3599,7 +3654,8 @@ Script "DnD Player Setup" ENTER {
 		GiveInventory("HardcoreDebuff", 1);
 
 	ACS_NamedExecuteAlways("DnD Sync Mapdata", 0, DND_MAPDATA_DIFFICULTY, MapData[DND_MAPDATA_DIFFICULTY]);
-	ACS_NamedExecuteAlways("DnD Sync Mapdata", 0, DND_MAPDATA_LOOTBONUS, MapData[DND_MAPDATA_LOOTBONUS]);
+	ACS_NamedExecuteAlways("DnD Sync Mapdata", 0, DND_MAPDATA_LOOTMULT, MapData[DND_MAPDATA_LOOTMULT]);
+	ACS_NamedExecuteAlways("DnD Sync Mapdata", 0, DND_MAPDATA_LOOTPAYOUT, MapData[DND_MAPDATA_LOOTPAYOUT]);
 	
 	SetInventory("DnD_PTotalLevel", InformationInLevel[LEVELINFO_PLAYERLEVEL]);
 
@@ -3735,6 +3791,27 @@ Script "DnD Resync" (void) NET {
 	SendOwnerScript("DnD Sync Check Report", pnum, 0, DND_SYNCCHECK_RESYNCED);
 }
 
+// Asked by a client whose globals the map change wiped: its items, spells, mods, weapons and research again.
+Script "DnD Map Resync" (void) NET {
+	int pnum = PlayerNumber();
+	// A fresh connection has nothing to resend: only a player carried over a map end does.
+	if(pnum < 0 || GameType() == GAME_SINGLE_PLAYER || !PlayerInGame(pnum) || !(PlayerGameState[pnum] & DND_PSTATE_CHANGEDMAP))
+		Terminate;
+	// A character still to be loaded is synced whole by its load.
+	if(isSoftorHardcore() && !(PlayerGameState[pnum] & DND_PSTATE_LOADED))
+		Terminate;
+
+	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_ITEMSUSED);
+	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_STASH);
+	SyncAllSpellData(pnum);
+	SyncHotbarAll(pnum);
+	SyncPlayerItemMods(pnum);
+	SyncAllClientsideVariables(pnum);
+	SyncResearchInvestments(pnum);
+	SendOwnerScript("DnD Refresh Request", pnum, pnum, 1);
+}
+
 // Control for ammo capacity
 Script 992 (int t, int simple) {
 	SetResultValue(CheckAmmoPickup(t, simple));
@@ -3764,6 +3841,62 @@ Script "DnD On Player Enter CS" ENTER CLIENTSIDE {
 
 	NamedRequestScriptPuke("DnD Temp Ignore Toggle", cpnum, GetCVar("dnd_ignoretempweps"));
 	NamedRequestScriptPuke("DND Set Pickup Filter", cpnum, GetCVar("dnd_pickup_filter"));
+
+	ACS_NamedExecute("DnD Client CVar Watch", 0);
+}
+
+enum {
+	DND_CVW_DASH,
+	DND_CVW_TEMPWEPS,
+	DND_CVW_PICKUP,
+	DND_CVW_COUNT
+};
+
+// Last values the watcher sent to the server, on the client only.
+int[] module& GetClientCVarsSent() {
+	static int sent[DND_CVW_COUNT];
+	return sent;
+}
+
+// Sends a server-relevant cvar whenever it changes, so options menu edits apply mid-map online.
+Script "DnD Client CVar Watch" (void) CLIENTSIDE {
+	int cpnum = ConsolePlayerNumber();
+	if(cpnum != PlayerNumber())
+		Terminate;
+
+	int[] module& sent = GetClientCVarsSent();
+	sent[DND_CVW_DASH] = GetCVar("dnd_dashstatus");
+	sent[DND_CVW_TEMPWEPS] = GetCVar("dnd_ignoretempweps");
+	sent[DND_CVW_PICKUP] = GetCVar("dnd_pickup_filter");
+
+	int tid = cpnum + P_TIDSTART;
+	int val;
+	while(true) {
+		Delay(const:8);
+
+		val = GetCVar("dnd_dashstatus");
+		if(val != sent[DND_CVW_DASH]) {
+			sent[DND_CVW_DASH] = val;
+			NamedRequestScriptPuke("DnD User CVAR Status Receive", val);
+		}
+
+		val = GetCVar("dnd_ignoretempweps");
+		if(val != sent[DND_CVW_TEMPWEPS]) {
+			sent[DND_CVW_TEMPWEPS] = val;
+			NamedRequestScriptPuke("DnD Temp Ignore Toggle", cpnum, val);
+		}
+
+		val = GetCVar("dnd_pickup_filter");
+		if(val != sent[DND_CVW_PICKUP]) {
+			sent[DND_CVW_PICKUP] = val;
+			NamedRequestScriptPuke("DND Set Pickup Filter", cpnum, val);
+		}
+
+		// Checked against the item itself, so a respawned body picks the setting up too.
+		val = GetCVar("dnd_showmapinfo") != 0;
+		if(CheckActorInventory(tid, "ShowMapInfo") != val)
+			SetActorInventory(tid, "ShowMapInfo", val);
+	}
 }
 
 // A generic checker function
@@ -4134,8 +4267,9 @@ Script "DnD Rage Decay" (int ptid) {
 // rather than switching off at the end.
 // Martialist / Flash Parry. A forward cone sweep rather than a spawned actor, because the ParryAoE
 // beside it carries its own fixed damage and scaling that per perk would mean the actor asking ACS.
-// Bounded by UsedMonsterTIDs like every other sweep in this file.
 Script "DnD Flash Parry Shockwave" (int ptid, int pnum) {
+	// the parry's event leaves another activator: the cone faces the player's way, and the hit is the player's
+	SetActivator(ptid);
 	int dmg = PlayerModData[pnum].vals[PSTAT_PARRY_SHOCKDMG] +
 			GetSpawnHealth() * DND_FLASHPARRY_HEALTHPCT / 100;
 
@@ -4144,21 +4278,19 @@ Script "DnD Flash Parry Shockwave" (int ptid, int pnum) {
 	if(temp)
 		range = range * (100 + temp) / 100;
 
-	for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
-		int m_tid = UsedMonsterTIDs[mn];
-		if(!m_tid || !isActorAlive(m_tid))
-			continue;
-
-		if(AproxDistance(GetActorX(m_tid) - GetActorX(ptid), GetActorY(m_tid) - GetActorY(ptid)) > range)
+	int from = ScanMonstersNear(ptid, range), to = GetMonsterScanEnd();
+	for(int mn = from; mn < to; ++mn) {
+		int m_tid = GetMonsterScanTid(mn);
+		if(!isActorAlive(m_tid))
 			continue;
 
 		// "forward" -- a parry faces the thing it parried, so the cone is the player's own facing
 		if(!MaxAngleDiff(ptid, m_tid, DND_FLASHPARRY_ANGLE) || !CheckSight(ptid, m_tid, CSF_NOBLOCKALL))
 			continue;
 
-		Thing_Damage2(m_tid, dmg, "Physical");
-		TryDirectMonsterPain(m_tid, dmg);
+		TryDirectMonsterPain(m_tid, DealPerkPhysicalAttack(pnum, m_tid, dmg, true));
 	}
+	ReleaseMonsterScan(from);
 }
 
 // Perception / Emergency Protocol. DnD_OverheatGraceSpent is cleared when the window ends rather
@@ -4695,24 +4827,17 @@ Script "DnD Dash Crash Course" (void) {
 		if(!isActorAlive(ptid))
 			Terminate;
 
-		// UsedMonsterTIDs is the DENSE list of monsters actually spawned, bounded by the level's own
-		// count. Walking DND_MAX_MONSTERS instead would be 12800 probes per tic for a map that might
-		// hold 700 -- the same shape as the runaway that killed FlushDamageTicResidue.
-		for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
-			int m_tid = UsedMonsterTIDs[mn];
-			if(!m_tid || !isActorAlive(m_tid))
-				continue;
+		// the first monster in reach and in sight takes the crash
+		int hit = 0, from = ScanMonstersNear(ptid, radius), to = GetMonsterScanEnd();
+		for(int mn = from; mn < to && !hit; ++mn)
+			if(CheckSight(ptid, GetMonsterScanTid(mn), CSF_NOBLOCKALL))
+				hit = GetMonsterScanTid(mn);
+		ReleaseMonsterScan(from);
 
-			if(AproxDistance(GetActorX(m_tid) - GetActorX(ptid), GetActorY(m_tid) - GetActorY(ptid)) > radius)
-				continue;
-
-			if(!CheckSight(ptid, m_tid, CSF_NOBLOCKALL))
-				continue;
-
+		if(hit) {
 			// reuses the stun Cranium Bash drives, so there is one stun in the game rather than two
-			StunMonster(m_tid, stun);
-
-			Thing_Damage2(m_tid, dmg, "Physical");
+			StunMonster(hit, stun);
+			DealPerkPhysicalAttack(pnum, hit, dmg, false);
 			Terminate;
 		}
 
@@ -4758,13 +4883,19 @@ Script "DnD Dashed Recently Timer" (void) {
 // empty state -- a new map starts the ring over.
 int trail_slot[MAXPLAYERS];
 
+// Map scoped, so a map change can never leave a stale "running" behind the way a carried token did.
+int[] module& GetEmberTrailRunning() {
+	static int running[MAXPLAYERS];
+	return running;
+}
+
 Script "DnD Ember Trail" (int pnum) {
 	SetActivator(pnum + P_TIDSTART);
 
 	// Re-equipping must not stack a second loop on top of the first.
-	if(CheckInventory("DnD_EmberTrailRunning"))
+	if(GetEmberTrailRunning()[pnum])
 		Terminate;
-	GiveInventory("DnD_EmberTrailRunning", 1);
+	GetEmberTrailRunning()[pnum] = true;
 
 	// Standing still has to be SUSTAINED before it burns. The loop samples an instant, and an
 	// instant reads slow for all sorts of reasons that are not standing still -- a strafe reversal,
@@ -4858,7 +4989,7 @@ Script "DnD Ember Trail" (int pnum) {
 		Delay(const:DND_EMBERTRAIL_RATE);
 	}
 
-	TakeInventory("DnD_EmberTrailRunning", 1);
+	GetEmberTrailRunning()[pnum] = false;
 }
 
 Script "DnD Ember Trail Damage" (void) {
@@ -5643,6 +5774,9 @@ Script "DnD Play Local Item Drop Sound" (int who, int droptype, int extra) CLIEN
 		Terminate;
 	
 	switch(droptype) {
+		case DND_DROPSOUND_HIGHLIGHT:
+			PlaySound(0, "Drop/Big", 7);
+		break;
 		case DND_ITEM_CHARM:
 			PlaySound(0, "Items/CharmDrop", 4);
 		break;
@@ -6334,6 +6468,19 @@ Script "DnD Pet Monster Scale" (int petid, int trait1, int trait2) {
 		SetPetMonsterTrait(m_id, trait1, true);
 	if(trait2 != -1)
 		SetPetMonsterTrait(m_id, trait2, true);
+	// What its DECORATE flags say, read as a monster's are (LoadMonsterTraits), so the info shows them.
+	if(CheckFlag(0, "GHOST"))
+		SetPetMonsterTrait(m_id, DND_GHOST, true);
+	if(CheckFlag(0, "NORADIUSDMG"))
+		SetPetMonsterTrait(m_id, DND_EXPLOSIVE_IMMUNE, true);
+	if(CheckFlag(0, "PIERCEARMOR"))
+		SetPetMonsterTrait(m_id, DND_ARMORPEN, true);
+	if(CheckFlag(0, "DONTRIP"))
+		SetPetMonsterTrait(m_id, DND_HARDENED_SKIN, true);
+	if(CheckFlag(0, "NOPAIN"))
+		SetPetMonsterTrait(m_id, DND_NOPAIN, true);
+	if(CheckFlag(0, "REFLECTIVE"))
+		SetPetMonsterTrait(m_id, DND_REFLECTIVE, true);
 
 	// Ahead of the sync: a rank bonus can add a trait.
 	InitPetResists(this, pnum, petid);
@@ -6434,8 +6581,9 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 	if(temp)
 		res = res * (100 + temp) / 100;
 
-	if(CheckMinionCrit(pnum)) {
-		res = res * GetMinionCritModifier(pnum) / 100;
+	// Voracious and Alpha: the summoning spell's gems, read live
+	if(CheckMinionCrit(pnum, spell != -1 ? (GetSpellGemMod(pnum, spell, GEMSTAT_MINION_CRIT) << 16) / 100 : 0)) {
+		res = res * GetMinionCritModifier(pnum, spell != -1 ? GetSpellGemMod(pnum, spell, GEMSTAT_MINION_CRITMULT) : 0) / 100;
 		HandleHunterTalisman();
 	}
 
@@ -6497,15 +6645,17 @@ Script "DnD On Pet Summon" (void) {
 	}*/
 }
 
-Script "DnD Pet Distance Move" (void) {
+// far: whole map units it may stray from its master before it is brought back, 0 for the usual DND_PET_MOVEDIST.
+Script "DnD Pet Distance Move" (int far) {
 	int master = GetActorProperty(0, APROP_MASTERTID), dx, dy, dz;
+	far = far > 0 ? far << 16 : DND_PET_MOVEDIST;
 	while(IsAlive() && IsActorAlive(master)) {
-		// Not while its master's Mark Prey lasts: the chase may take it far away.
-		if(!CheckInventory("MovePetCooldown") && !GetMarkedPrey(master - P_TIDSTART)) {
+		// Not while its master's Mark Prey lasts (the chase may take it far away), nor for a master who turned dnd_minionleash off.
+		if(!CheckInventory("MovePetCooldown") && !GetMarkedPrey(master - P_TIDSTART) && GetUserCVar(master - P_TIDSTART, "dnd_minionleash")) {
 			dx = GetActorX(0) - GetActorX(master);
 			dy = GetActorY(0) - GetActorY(master);
 			dz = GetActorZ(0) - GetActorZ(master);
-			if(fdistance_delta(dx, dy, dz) > DND_PET_MOVEDIST) {
+			if(fdistance_delta(dx, dy, dz) > far) {
 				GiveInventory("MovePetCooldown", 1);
 				Thing_Move(0, master, 1);
 				SetActorAngle(0, GetActorAngle(master));
@@ -6929,7 +7079,7 @@ Script "DnD Heal Monster Direct" (int amount, int isPercent) {
 	if(!isPercent)
 		HealMonster(mid, amount);
 	else
-		HealMonster(mid, MonsterProperties[mid].maxhp * isPercent / 100);
+		HealMonster(mid, MulPercent_Exact(MonsterProperties[mid].maxhp, isPercent));
 }
 
 // amount is authored against the monster's table health; each heal scales it by the live max health.
@@ -6965,13 +7115,15 @@ Script "DnD Monster Health Regen Script" (int style, int amount, int period) {
 
 // Needs to be here as it loops through monster tid variable which is changed through this part
 Script "DnD Tcherno Corpse Explode" (void) {
-	for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
-		int i = UsedMonsterTIDs[mn];
-		if(!isActorAlive(i) && fdistance(0, i) <= DREAMER_CORPSEEXPLOSION_DIST) {
+	int from = ScanMonstersNear(ActivatorTID(), DREAMER_CORPSEEXPLOSION_DIST + DND_SCAN_FEETMARGIN, DND_SCAN_CORPSES), to = GetMonsterScanEnd();
+	for(int mn = from; mn < to; ++mn) {
+		int i = GetMonsterScanTid(mn);
+		if(fdistance(0, i) <= DREAMER_CORPSEEXPLOSION_DIST) {
 			GiveActorInventory(i, "TchernoCorpseExploder", 1);
 			ACS_NamedExecuteAlways("DnD Tcherno Corpse Explode Gib Giver", 0, i);
 		}
 	}
+	ReleaseMonsterScan(from);
 }
 
 Script "DnD Tcherno Corpse Explode Gib Giver" (int i) CLIENTSIDE {
@@ -7274,17 +7426,23 @@ Script "DnD Resurrect Checker" (int d, int this) {
 		Terminate;
 	
 	int killer = MonsterProperties[id].killer_tid;
-	//printbold(d:!CheckInventory("DnD_EnemySlatedForRemoval"), s: " ", d:CanActorHaveMorePets(killer), s: " ", d:IsMonsterCategoryResurrectable(id), s: " ", d:isPlayer(killer));
-	if(!CheckInventory("DnD_EnemySlatedForRemoval") && CanActorHaveMorePets(killer) && IsMonsterCategoryResurrectable(id) && isPlayer(killer)) {
+	// the corpse's own RIP mark, not the activator's: here that is the Sickle's projectile
+	if(!CheckActorInventory(this, "DnD_EnemySlatedForRemoval") && isPlayer(killer) && IsMonsterCategoryResurrectable(id) && CanActorHaveMorePets(killer)) {
 		// proceed to resurrect and make the master the player and mark this monster as a pet
 		SetEliteFlag(id, DND_REVIVED, true);
+		// claim the cap slot now, before waiting: every checker of one ghostwave wakes on the same tic
+		GiveActorInventory(killer, "PetCounter", 1);
+		GiveActorInventory(this, "DnD_RaiseReserved", 1);
 
 		int tries = 0;
-		while(!CanRaiseActor(this) && tries++ < 15)
+		while(!CanRaiseActor(this) && tries++ < 15 && !CheckActorInventory(this, "DnD_EnemySlatedForRemoval"))
 			Delay(const:HALF_TICRATE);
 
-		if(!CanRaiseActor(this))
+		if(!CanRaiseActor(this) || CheckActorInventory(this, "DnD_EnemySlatedForRemoval")) {
+			TakeActorInventory(killer, "PetCounter", 1);
+			TakeActorInventory(this, "DnD_RaiseReserved", 1);
 			Terminate;
+		}
 
 		//printbold(s:"yes we can!!");
 
@@ -7294,6 +7452,7 @@ Script "DnD Resurrect Checker" (int d, int this) {
 		SetActorProperty(this, APROP_MASTERTID, killer);
 		SetActorProperty(this, APROP_FRIENDLY, 1);
 		SetActorProperty(this, APROP_SPECIES, "Player");
+		AddRaisedMinion(killer - P_TIDSTART, this);
 	}
 }
 

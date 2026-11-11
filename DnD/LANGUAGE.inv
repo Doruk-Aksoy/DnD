@@ -592,6 +592,11 @@ IATTR_T196          = "increased crit chance for minions";
 IATTR_T197          = "increased minion health";
 IATTR_T198          = "to minion corporeal resistances";
 IATTR_T199          = "to minion magic resistance";
+IATTR_T200          = "to pet cap";
+IATTR_T201          = "minion physical pierce";
+IATTR_T202          = "minion elemental pierce";
+IATTR_T203          = "minion magic pierce";
+IATTR_PETCAPMAX     = "(at most 10 in total)";
 
 // corrupt implicits
 IATTR_TC1			= "more weapon damage to";

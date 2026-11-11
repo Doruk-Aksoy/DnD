@@ -1,0 +1,30 @@
+// ForkUnderA only: blended flat models drawn as floor planes, so actors standing on them keep their feet.
+// Other engines never read this lump; a class needs its own MODELDEF block (blocks are not inherited).
+
+// Monster auras and floor circles
+FlatSurface CrippleAuraFX ViolentAuraFX WardAuraFX AsmodeusAuraFX
+FlatSurface AsmodeusFireCircle ChthonFireCircle
+
+// Perks, items and Ultimatum
+FlatSurface Wanderer_ReturnCircle DnD_EmberTrail
+FlatSurface DnD_Ultimatum_Stormcall_Tier1 DnD_Ultimatum_Stormcall_Tier2 DnD_Ultimatum_Stormcall_Tier3 DnD_Ultimatum_Stormcall_Tier4
+
+// Player auras
+FlatSurface Spell_AngerAuraFX Spell_HatredAuraFX Spell_WrathAuraFX Spell_AgonyAuraFX Spell_VampirismAuraFX Spell_RighteousFireFX
+
+// Fire
+FlatSurface Spell_AnnihilusAnchor Spell_AnnihilusAnchorFlip
+
+// Lightning (Storm Brand's rings float over a monster's head)
+FlatSurface Spell_StormBrand_Ring Spell_StormBrand_RingFlip Spell_StormCall_Field Spell_ThunderClap_Ring
+
+// Cold
+FlatSurface Spell_IceNova Spell_GlacialCascadeFloor Spell_CreepingFrost_Crawl
+
+// Earth
+FlatSurface Spell_ThreadedVolley_Ground Spell_ThreadedVolley_GroundGlow Spell_NoxiousBlast_Ring Spell_Upheaval_Crack
+
+// Black
+FlatSurface ContagionRuneCircle Spell_DeathAndDecayRot
+FlatSurface Spell_DarkPact_Ring Spell_DarkPact_RingRev Spell_DarkPact_Band
+FlatSurface Spell_NetherWalk_SigilIn Spell_NetherWalk_SigilOut

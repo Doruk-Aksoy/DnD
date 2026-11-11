@@ -692,7 +692,11 @@ int MapAttributeToPStat(int mod) {
 		case INV_MINION_HEALTH:                     return PSTAT_MINION_HEALTH;
 		case INV_MINION_RES_CORPOREAL:              return PSTAT_MINION_RES_BASE + DND_MINIONRES_CORPOREAL;
 		case INV_MINION_RES_MAGIC:                  return PSTAT_MINION_RES_BASE + DND_MINIONRES_MAGIC;
-		case INV_FLAT_TECH:                         return PSTAT_FLAT_TECH;
+		case INV_MINION_PETCAP:                     return PSTAT_IMP_BONUSPETCAP;
+		case INV_MINION_PEN_PHYSICAL:               return PSTAT_MINION_PEN_PHYS;
+		case INV_MINION_PEN_ELEMENTAL:              return PSTAT_MINION_PEN_ELEMENTAL;
+		case INV_MINION_PEN_MAGIC:                  return PSTAT_MINION_PEN_MAGIC;
+		case INV_FLAT_TECH:                        return PSTAT_FLAT_TECH;
 		case INV_FLAT_PRECISION:                    return PSTAT_FLAT_PRECISION;
 		case INV_TECH_PERCENT:                      return PSTAT_TECH_PERCENT;
 		case INV_FLAT_MAGIC:                        return PSTAT_FLAT_MAGIC;
@@ -970,6 +974,7 @@ bool IsStaticMod(int mod) {
 	switch(mod) {
 		case INV_INC_PLUSPROJ:
 		case INV_INC_PLUSTWOPROJ:
+		case INV_MINION_PETCAP:
 		return true;
 	}
 	return false;
@@ -1446,6 +1451,10 @@ int GetItemAttributeFactor(int item_type, int item_subtype) {
 // this uses a precalculated tier mapping to save time
 int GetModRangeWithTier(int attr, int tier_mapping, bool which, int attr_factor) {
 	int res = 0;
+
+	// Whole tiers, one apart: +1, then +2.
+	if(attr == INV_MINION_PETCAP)
+		return ItemModTable[attr].attrib_low + tier_mapping;
 
 	if(tier_mapping != -1) {
 		if(!which)

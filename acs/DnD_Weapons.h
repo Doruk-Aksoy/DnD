@@ -2142,7 +2142,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				use_default = false;
 				ammo_take_amt = Weapons_Data[wepid].ammo_use2;
 				ammo_type = Weapons_Data[wepid].ammo_name1;
-				GiveInventory("ThunderRingMaker", 1);
+				FireThunderRing(pnum);
 			}
 		break;
 		

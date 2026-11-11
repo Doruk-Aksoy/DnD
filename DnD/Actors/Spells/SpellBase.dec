@@ -26,6 +26,8 @@ Actor DnD_Spell : DnD_BaseProjectile {
 	// Gem chains: > 0 armed (the gem row's spell + 1), < 0 parked; user_chainpct prices a parked one's last hop.
 	var int user_chain;
 	var int user_chainpct;
+	// A minion's cast of its owner's spell: the summon spell + 1, so minion damage reaches it.
+	var int user_minion;
 
 	States {
 		Spawn:
@@ -60,6 +62,8 @@ Actor DnD_SpellFast : DnD_BaseFastProjectile {
 	// Gem chains: > 0 armed (the gem row's spell + 1), < 0 parked; user_chainpct prices a parked one's last hop.
 	var int user_chain;
 	var int user_chainpct;
+	// A minion's cast of its owner's spell: the summon spell + 1, so minion damage reaches it.
+	var int user_minion;
 
 	States {
 		Spawn:
@@ -143,6 +147,8 @@ Actor DnD_SpellExplosive : DnD_ExplosiveBase {
 	// Gem chains: > 0 armed (the gem row's spell + 1), < 0 parked; user_chainpct prices a parked one's last hop.
 	var int user_chain;
 	var int user_chainpct;
+	// A minion's cast of its owner's spell: the summon spell + 1, so minion damage reaches it.
+	var int user_minion;
 
 	States {
 		// One call, not four. The script writes every user_exp* variable itself -- see the note on
@@ -231,5 +237,3 @@ Actor DnD_GemStrikeFX {
 	Height 2
 }
 
-// The serial of the last gem chain that hit this monster, so a chain never returns to it.
-Actor DnD_GemChainMark : DnD_Info { }

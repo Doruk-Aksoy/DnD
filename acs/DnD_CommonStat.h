@@ -171,6 +171,8 @@ enum {
 	// ignite is sized off the fire in the hit but still has to ROLL the chance -- ADDEDIGNITE above
 	// does that AND makes the ignite guaranteed. Keep in step with DamageTypes.dec (16777216).
 	DND_DAMAGEFLAG_SCALEIGNITE			=			0b1000000000000000000000000,
+	// A spell a minion cast: minion pierce meets the resist instead of the player's own. ACS only, never in DECORATE.
+	DND_DAMAGEFLAG_MINIONCAST			=			33554432,
 
 	// NOTE: a LEVEL hazard is flagged in the OTHER word -- see DND_DAMAGETYPEFLAG_LEVELHAZARD. This
 	// set describes a player's own attack; an actor's Stamina carries the DND_DAMAGETYPEFLAG_* set,
@@ -228,6 +230,7 @@ enum {
 #define DND_HP_PER_LVL 5
 
 #define BASE_PET_CAP 3
+#define DND_MAX_PET_CAP 10             // the pet cap never goes past this, whatever raises it
 
 #define RISK_AVERSION_VALUE 5 // 5%
 #define BASE_WISDOM_GAIN 10
@@ -306,12 +309,24 @@ enum {
 	DND_MAPDATA_SPIDERMASTERMINDCOUNT,
 	DND_MAPDATA_CYBERDEMONCOUNT,
 
-	DND_MAPDATA_LOOTBONUS,
+	DND_MAPDATA_LOOTMULT,
+	// The map's loot budget (summed monster value), what a value point pays in items and fills of the highlight meter (16.16).
+	DND_MAPDATA_LOOTBUDGET,
+	DND_MAPDATA_LOOTPAYOUT,
+	DND_MAPDATA_METERGAIN,
 
 	DND_MAX_MAPDATA
 };
 
 global int 4: MapData[DND_MAX_MAPDATA];
+
+// The highlight meter, per player and saved with the character: the meter and its heat, both 16.16.
+typedef struct {
+	int meter;
+	int heat;
+} highlight_T;
+
+global highlight_T 60: HighlightData[MAXPLAYERS];
 
 #include "Events/DnD_MapEvents.h"
 
@@ -706,11 +721,13 @@ int GetUnity() {
 }
 
 int GetPetCap() {
-	return BASE_PET_CAP + PlayerModData[PlayerNumber()].vals[PSTAT_IMP_BONUSPETCAP];
+	return GetActorPetCap(PlayerNumber() + P_TIDSTART);
 }
 
+// Summon Mastery: +1 for every 3 ranks.
 int GetActorPetCap(int tid) {
-	return BASE_PET_CAP + PlayerModData[tid - P_TIDSTART].vals[PSTAT_IMP_BONUSPETCAP];
+	int pnum = tid - P_TIDSTART;
+	return Min(DND_MAX_PET_CAP, BASE_PET_CAP + PlayerModData[pnum].vals[PSTAT_IMP_BONUSPETCAP] + GetSpellRank(pnum, SPL_SUMMONMASTERY, true) / 3);
 }
 
 // When each pet was summoned, parallel to PetMonsterProperties and indexed the same way.
@@ -721,7 +738,7 @@ global int 59: PetSummonTic[DND_MAX_PETS];
 
 // Pets carried through a regular map exit: per player its ticket, then DND_PETCARRY_MAX records oldest first, each
 // (kind + 1) | (health percent << 8). A global, so a console "map" (a new game) clears it; exits and changemap keep it.
-#define DND_PETCARRY_MAX 8
+#define DND_PETCARRY_MAX 10
 #define DND_PETCARRY_STRIDE (DND_PETCARRY_MAX + 1)
 global int 61: PetCarry[];
 
@@ -786,12 +803,14 @@ void UnsummonPet(int tid) {
 	if(tid && IsActorAlive(tid)) {
 		// Marked first, so the death hook can tell a pet sent home from a slain one: Necromancer revives only those.
 		GiveActorInventory(tid, "DnD_PetUnsummoned", 1);
+		// A shifting Ghast is unshootable, and the engine drops any hit on it.
+		GiveActorInventory(tid, "DnD_PetMakeShootable", 1);
 		Thing_Damage2(tid, GetActorProperty(tid, APROP_HEALTH) * 3, "Perish");
 	}
 }
 
 bool CanActorHaveMorePets(int tid) {
-	return CheckActorInventory(tid, "PetCounter") < GetActorPetCap(tid);
+	return GetCheckedPetCounter(tid - P_TIDSTART) < GetActorPetCap(tid);
 }
 
 // Live pets in the player's slots.
@@ -801,6 +820,35 @@ int CountPlayerPets(int pnum) {
 		if(IsActorAlive(base + i))
 			++n;
 	return n;
+}
+
+// Live pets for the pain share, recounted at most once a second: it is read on every hit the player takes.
+typedef struct {
+	int count[MAXPLAYERS], tic[MAXPLAYERS];
+} pet_share_T;
+
+pet_share_T module& GetPetShareCache() {
+	static pet_share_T s;
+	return s;
+}
+
+int GetPainSharePets(int pnum) {
+	int t = Timer(), last = GetPetShareCache().tic[pnum];
+	if(!last || t < last || t - last >= TICRATE) {
+		GetPetShareCache().count[pnum] = CountPlayerPets(pnum);
+		GetPetShareCache().tic[pnum] = Max(1, t);
+	}
+	return GetPetShareCache().count[pnum];
+}
+
+// The pets' part of a shared hit: up to n live pets each take share as true damage, past resists and the damage handler.
+Script "DnD Pain Share" (int pnum, int share, int n) {
+	int base = GetPlayerPetSlotBase(pnum);
+	for(int i = 0; i < DND_MAX_PETS_PER_PLAYER && n > 0; ++i)
+		if(IsActorAlive(base + i)) {
+			Thing_Damage2(base + i, share, "SkipHandle");
+			--n;
+		}
 }
 
 // The oldest live pet's slot (0..24) not yet in taken, of a kind (-1: any); -1 when there is none.
@@ -818,12 +866,81 @@ int FindOldestPetSlot(int pnum, int petid, int taken) {
 	return best;
 }
 
+// Monsters each player raised (they hold no pet slot). Only "DnD Resurrect Checker" adds; reads drop the dead and the lost.
+#define DND_MAX_RAISED_MINIONS 32
+typedef struct {
+	int tid[MAXPLAYERS][DND_MAX_RAISED_MINIONS];
+	int count[MAXPLAYERS];
+} raised_minions_T;
+
+raised_minions_T module& GetRaisedMinions() {
+	static raised_minions_T s;
+	return s;
+}
+
+// Keeps only the entries still alive and still this player's; returns how many are left.
+int PruneRaisedMinions(int pnum) {
+	raised_minions_T module& rm = GetRaisedMinions();
+	int i, tid, n = 0, c = rm.count[pnum], master = pnum + P_TIDSTART;
+	for(i = 0; i < c; ++i) {
+		tid = rm.tid[pnum][i];
+		if(IsActorAlive(tid) && GetActorProperty(tid, APROP_MASTERTID) == master)
+			rm.tid[pnum][n++] = tid;
+	}
+	rm.count[pnum] = n;
+	return n;
+}
+
+void ClearRaisedMinions() {
+	for(int p = 0; p < MAXPLAYERS; ++p)
+		GetRaisedMinions().count[p] = 0;
+}
+
+// Read slot i after a PruneRaisedMinions; 0 past the end.
+int GetRaisedMinion(int pnum, int i) {
+	return i < GetRaisedMinions().count[pnum] ? GetRaisedMinions().tid[pnum][i] : 0;
+}
+
+void AddRaisedMinion(int pnum, int tid) {
+	raised_minions_T module& rm = GetRaisedMinions();
+	int i, n = PruneRaisedMinions(pnum);
+	for(i = 0; i < n; ++i)
+		if(rm.tid[pnum][i] == tid)
+			return;
+	if(n >= DND_MAX_RAISED_MINIONS) {
+		Log(s:"DnD raised minion list full: player ", d:pnum, s:" tid ", d:tid);
+		return;
+	}
+	rm.tid[pnum][n] = tid;
+	rm.count[pnum] = n + 1;
+}
+
+// Cap points the player's live minions really hold: slotted pets by weight, raised monsters one each.
+int CountPlayerPetWeight(int pnum) {
+	int i, w = 0, base = GetPlayerPetSlotBase(pnum);
+	for(i = 0; i < DND_MAX_PETS_PER_PLAYER; ++i)
+		if(IsActorAlive(base + i))
+			w += GetPetCapWeight(PetMonsterProperties[base + i - DND_PETTID_BEGIN].id);
+	return w + PruneRaisedMinions(pnum);
+}
+
+// PetCounter, never below what the live minions hold: an undercount is logged and raised (a high one heals as death checks land).
+int GetCheckedPetCounter(int pnum) {
+	int caster = pnum + P_TIDSTART, c = CheckActorInventory(caster, "PetCounter"), real = CountPlayerPetWeight(pnum);
+	if(c < real) {
+		Log(s:"DnD pet counter drift: player ", d:pnum, s:" counter ", d:c, s:" live ", d:real, s:" t", d:Timer());
+		SetActorInventory(caster, "PetCounter", real);
+		c = real;
+	}
+	return c;
+}
+
 // Slots (a bit each) to send home so one more of a kind fits: its oldest past the kind limit, then the oldest until the
 // cap has room for its weight. Counted up front (points come back a tic later); -1 when even all would not do.
 int GetPetsToSendHome(int pnum, int petid, int maxkind, bool prefer_kind = false) {
 	int caster = pnum + P_TIDSTART, base = GetPlayerPetSlotBase(pnum), mask = 0, freed = 0, pick;
 	int kind = Max(0, CountPlayerPetsOfKind(pnum, petid) - maxkind + 1);
-	int need = CheckActorInventory(caster, "PetCounter") + GetPetCapWeight(petid) - GetActorPetCap(caster);
+	int need = GetCheckedPetCounter(pnum) + GetPetCapWeight(petid) - GetActorPetCap(caster);
 	while(kind > 0 || freed < need) {
 		pick = FindOldestPetSlot(pnum, kind > 0 || prefer_kind ? petid : -1, mask);
 		if(pick == -1 && kind <= 0)
@@ -848,16 +965,22 @@ bool MakeRoomForPet(int pnum, int petid, int maxkind, bool prefer_kind = false) 
 	return true;
 }
 
+// A summon unlearned by a refund takes its pets with it.
+void UnsummonPetsOfSpell(int pnum, int spell) {
+	int base = GetPlayerPetSlotBase(pnum);
+	for(int i = 0; i < DND_MAX_PETS_PER_PLAYER; ++i)
+		if(IsActorAlive(base + i) && GetPetSummonSpell(PetMonsterProperties[base + i - DND_PETTID_BEGIN].id) == spell)
+			UnsummonPet(base + i);
+}
+
 // Pets do not outlive their master: every slotted pet goes home, and every monster it raised (in no slot) with them.
 void UnsummonAllPets(int pnum) {
-	int i, tid, base = GetPlayerPetSlotBase(pnum), master = pnum + P_TIDSTART;
+	int i, n = PruneRaisedMinions(pnum), base = GetPlayerPetSlotBase(pnum), master = pnum + P_TIDSTART;
 	for(i = 0; i < DND_MAX_PETS_PER_PLAYER; ++i)
 		UnsummonPet(base + i);
-	for(i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
-		tid = UsedMonsterTIDs[i];
-		if(IsActorAlive(tid) && GetActorProperty(tid, APROP_MASTERTID) == master)
-			UnsummonPet(tid);
-	}
+	// The list keeps them: one that survives the hit is still counted by the death script's check.
+	for(i = 0; i < n; ++i)
+		UnsummonPet(GetRaisedMinions().tid[pnum][i]);
 	// Cleared here: their death checks come a tic later, when a dead master is already untagged.
 	SetActorInventory(master, "PetCounter", 0);
 	for(i = 0; i < DND_PETCARRY_STRIDE; ++i)
@@ -1251,7 +1374,9 @@ void RestoreRPGStat (int statflag) {
 	SetInventory("BlindTimer", 0);
 	SetInventory("BlindSeverity", 0);
 	SetInventory("BuffTintTimer", 0);
-	SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
+	// The setup's and the menu's freeze outrank it: a character load lands here while the game holds everyone.
+	if(!CheckInventory("P_Frozen"))
+		SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
 }
 
 // Renamed from HasPlayerPowerset deliberately. It used to take a PPOWER_* BITMASK and test it

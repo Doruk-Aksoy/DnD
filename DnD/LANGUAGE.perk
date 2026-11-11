@@ -715,6 +715,11 @@ PERK_MAGI_SPIRITUALAID_DESC              = "20% increased effect of buffs grante
 PERK_MAGI_SPIRITUALAID_PER               = "10% additional buff effect from your minions.";
 PERK_MAGI_SPIRITUALAID_REQ               = "Devoted Leader (1) OR Inspirational (1)";
 
+PERK_MAGI_SHARPENEDCLAWS                 = "Sharpened Claws";
+PERK_MAGI_SHARPENEDCLAWS_DESC            = "Minions gain 8% resist pierce on all damage types.";
+PERK_MAGI_SHARPENEDCLAWS_PER             = "4% additional resist pierce.";
+PERK_MAGI_SHARPENEDCLAWS_REQ             = "Devoted Leader (1) OR Inspirational (1)";
+
 PERK_MAGI_FRENZIEDFOLLOWERS              = "Frenzied Followers";
 PERK_MAGI_FRENZIEDFOLLOWERS_DESC         = "Minions gain 15% increased cooldown recovery rate.";
 PERK_MAGI_FRENZIEDFOLLOWERS_REQ          = "Pact Leader (1) OR Spiritual Aid (1)";

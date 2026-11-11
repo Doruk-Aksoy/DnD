@@ -259,6 +259,9 @@ void CachePlayerPerkData(int pnum) {
 }
 
 bool HasPlayerClassPerk(int pnum, int class_id, int perk_num) {
+	// a non player activator reaches here as -1
+	if(pnum < 0 || pnum >= MAXPLAYERS)
+		return false;
 	perkCache_T module& c = GetPlayerPerkCache(pnum);
 
 	if(c.valid)

@@ -1,4 +1,5 @@
 #include "DnD_Common.h"
+#include "DnD_MonsterScan.h"
 #include "DnD_Elites.h"
 #include "Database/DnD_Database.h"
 #include "DnD_TempWeps.h"
@@ -293,7 +294,7 @@ int GetPerkDashCooldown(int pnum) {
 // ParryAoE beside it carries its own damage and could not be scaled per perk without the actor
 // asking ACS what to do.
 #define DND_FLASHPARRY_BASERANGE 256.0
-#define DND_FLASHPARRY_ANGLE 45.0
+#define DND_FLASHPARRY_ANGLE ANG_TO_DOOM(45.0)
 #define DND_FLASHPARRY_HEALTHPCT 5
 
 // Acrobacy / Tailwind. Polled far less often than the Crash Course sweep -- running past someone
@@ -392,6 +393,7 @@ enum {
 #define GRAVDIS_FLING_FACTOR 128
 #define GRAVDIS_HEIGHT_FACTOR 15
 #define GRAVDIS_HEIGHTADD_PER 64
+#define DND_GRAVDIS_LIFTMARGIN 256.0 // the thrust's reach past the blast radius, for monsters it lifted
 #define GRAVDIS_CIRCLE_PARTICLES 48
 
 #define CHARON_PARTICLE_DENSITY 8
@@ -530,17 +532,51 @@ str GetMonsterSpawnerStr(int id) {
 	return "";
 }
 
-#define DND_LOOT_MINMOBTHRESHOLD 100 // up to this threshold the game will give additional loot bonus
-#define DND_LOOT_MAXMOBTHRESHOLD 1000 // after this threshold the game will give no loot bonus based on monster count
-#define DND_LOOTBONUS_MOBCOUNT 0.5
-#define DND_LOOTBONUS_LOWEREDVAL -0.5
+// Kill loot percent is sqrt(REF / monsters): map totals grow with the square root of its monster count.
+#define DND_LOOTMULT_REFCOUNT 600
+#define DND_LOOTMULT_MIN 40
+#define DND_LOOTMULT_MAX 200
+
+// Kill loot: a map pays DND_LOOTPAYOUT_MUL x B^0.28 items (B = its summed monster value), each kill its value's share.
+#define DND_LOOTPAYOUT_MUL 2.85
+#define DND_LOOTPAYOUT_POW 0.28
+// The highlight meter: a whole map fills B^0.35, so each value point fills 1 / B^0.65.
+#define DND_METERGAIN_POW 0.65
+#define DND_LOOTBUDGET_MIN 40
+// the payout of a mid-sized map (budget 2000, about 400 mixed monsters), 16.16; the Stats page compares against it
+#define DND_LOOTPAYOUT_REF 784
+
+// Expected Tough/Elite uplift of a spawn, percent: today's spawn odds at this player level, Elite x1.5 and Tough x1.25.
+int GetExpectedMonsterValuePct() {
+	int pl = InformationInLevel[LEVELINFO_MAXPLAYERLEVEL] / DND_MONSTERRARITY_PERLVL;
+	int elite = Clamp_Between(GetCVar("dnd_elite_spawnchance"), 1, 100) * DND_ELITE_RESOLUTION_SCALE + pl * DND_ELITE_MIN_INCREMENT;
+	int tough = Clamp_Between(GetCVar("dnd_magic_spawnchance"), 1, 100) * DND_ELITE_RESOLUTION_SCALE + pl * DND_MAGIC_MIN_INCREMENT;
+	if(!GetCVar("dnd_enable_elites") || InformationInLevel[LEVELINFO_PLAYERLEVELATSTART] < GetCVar("dnd_elite_spawnlevel"))
+		elite = 0;
+	return 100 + (elite * 2 * DND_ELITEBONUS_FROM_RARITY + tough * DND_ELITEBONUS_FROM_RARITY) / DND_ELITE_RESOLUTION;
+}
+
+// The map's loot budget from its spawners, and what one value point of it pays and fills.
+void SetupMapLootBudget() {
+	int b = 0;
+	for(int i = MONSTERCLASS_ZOMBIEMAN; i < MONSTERCLASS_WOLFENSS; ++i)
+		b += MapData[DND_MAPDATA_ZOMBIEMANCOUNT + i] * (GetMonsterClassBonus(i) >> 16);
+	ApplyMapLootBudget(Max(DND_LOOTBUDGET_MIN, b * GetExpectedMonsterValuePct() / 100));
+}
+
+// What one value point of a budget b pays in items and fills of the highlight meter.
+void ApplyMapLootBudget(int b) {
+	MapData[DND_MAPDATA_LOOTBUDGET] = b;
+	MapData[DND_MAPDATA_LOOTPAYOUT] = FixedMul(DND_LOOTPAYOUT_MUL, IntPowFixed(b, DND_LOOTPAYOUT_POW)) / b;
+	MapData[DND_MAPDATA_METERGAIN] = FixedDiv(1.0, IntPowFixed(b, DND_METERGAIN_POW));
+}
 
 // 5 Tiers: 0 -> Very Easy, 1 -> Easy, 2 -> Medium, 3 -> Hard and 4 -> Very Hard.
 void CalculateMapDifficulty() {
 	int factor = 0;
 	
 	MapData[DND_MAPDATA_MONSTERTOTAL] = 0;
-	MapData[DND_MAPDATA_LOOTBONUS] = 0;
+	MapData[DND_MAPDATA_LOOTMULT] = 100;
 
 	for(int i = MONSTERCLASS_ZOMBIEMAN; i < MONSTERCLASS_WOLFENSS; ++i) {
 		int index = DND_MAPDATA_ZOMBIEMANCOUNT + i;
@@ -559,10 +595,10 @@ void CalculateMapDifficulty() {
 	}
 
 	int x = MapData[DND_MAPDATA_MONSTERTOTAL];
-	if(x > DND_LOOT_MAXMOBTHRESHOLD)
-		x = DND_LOOT_MAXMOBTHRESHOLD;
-	MapData[DND_MAPDATA_LOOTBONUS] = 	DND_LOOTBONUS_MOBCOUNT * (x < DND_LOOT_MINMOBTHRESHOLD) +
-										(x >= DND_LOOT_MINMOBTHRESHOLD) * LinearMap(x, DND_LOOT_MINMOBTHRESHOLD, DND_LOOT_MAXMOBTHRESHOLD, DND_LOOTBONUS_MOBCOUNT, DND_LOOTBONUS_LOWEREDVAL);
+	MapData[DND_MAPDATA_LOOTMULT] = DND_LOOTMULT_MAX;
+	if(x > 0)
+		MapData[DND_MAPDATA_LOOTMULT] = Clamp_Between((fsqrt(FixedDiv(DND_LOOTMULT_REFCOUNT << 16, x << 16)) * 100) >> 16, DND_LOOTMULT_MIN, DND_LOOTMULT_MAX);
+	SetupMapLootBudget();
 
 	factor += ThingCountName("BossBrain", 0) * DND_BOSSBRAIN_CONTRIB;
 
@@ -1095,6 +1131,80 @@ Script "DnD Chest Credit Message" (int amt) CLIENTSIDE {
 	Log(s:"\ccCredit pickup : \c[Y5]", d:amt, s:" credits.");
 }
 
+// The highlight meter: certain at the threshold x (1 + heat), a flat chance from the first kill, a soft rise as it fills.
+#define DND_HL_THRESHOLD 160.0
+#define DND_HL_BASE 3.5
+#define DND_HL_RAMP 4.0
+#define DND_HL_HEAT 0.6
+#define DND_HL_COOL 50
+#define DND_HL_ILVL_BONUS 2
+#define DND_HL_RARITY_BONUS 100
+// a gold chest's synergy, under the merchant's
+#define DND_HL_SYNERGY (DND_CHARM_SPECIALTYBOOST_ANCHOR + 3 * DND_CHARM_SPECIALTYBOOST_BASE)
+#define DND_DROPSOUND_HIGHLIGHT -1
+
+// Fills pnum's meter for a kill of loot value v (16.16) at monster level ml; true when it gives a highlight.
+bool RollHighlightMeter(int pnum, int v, int ml) {
+	// monsters below the player's level fill less, (level ratio)^1.5 down to a quarter of the ratio
+	int r = Clamp_Between(FixedDiv(ml, Max(1, GetActorLevel(pnum + P_TIDSTART))), 0.25, 1.0);
+	int g = FixedMul(FixedMul(MapData[DND_MAPDATA_METERGAIN], v), FixedMul(r, fsqrt(r)));
+	if(g <= 0)
+		return false;
+
+	// heat cools as the meter fills, and pushes the threshold out
+	int heat = HighlightData[pnum].heat;
+	heat -= FixedMul(heat, g / DND_HL_COOL);
+	int m = HighlightData[pnum].meter + g;
+	int t = FixedMul(DND_HL_THRESHOLD, 1.0 + heat);
+	int q = FixedDiv(m, t);
+	int p = FixedDiv(FixedMul(g, DND_HL_BASE + FixedMul(DND_HL_RAMP, FixedMul(q, FixedMul(q, q)))), t);
+
+	if(m >= t || random(0, 1.0) < p) {
+		HighlightData[pnum].meter = 0;
+		HighlightData[pnum].heat = heat + DND_HL_HEAT;
+		return true;
+	}
+	HighlightData[pnum].meter = m;
+	HighlightData[pnum].heat = heat;
+	return false;
+}
+
+// One highlight item for pnum off monster m_id: any equipment type, well rolled, an extra mod, gold chest synergy,
+// double unique odds, two item levels up within its cap, in its own bag.
+void SpawnHighlightItem(int pnum, int m_id) {
+	int cap = MAX_REGULAR_ILVL;
+	if(InformationInLevel[LEVELINFO_ISDUNGEON] && (MonsterProperties[m_id].flags & DND_MONFLAG_ISDUNGEONBOSS))
+		cap = MAX_BOSS_ILVL;
+	int lvl = Min(MonsterProperties[m_id].level + DND_HL_ILVL_BONUS, cap);
+	int rarity = MonsterProperties[m_id].rarity_boost + DND_HL_RARITY_BONUS;
+
+	auto w = GetLootDropWeights();
+	int roll = random(1, w[DND_MONSTERLOOT_CHARM] + w[DND_MONSTERLOOT_BODYARMOR] + w[DND_MONSTERLOOT_HELM] + w[DND_MONSTERLOOT_BOOT] + w[DND_MONSTERLOOT_SPECIALTY]);
+
+	HighlightRollAccess(true, DND_HLROLL_ACTIVE, 1);
+	HighlightRollAccess(true, DND_HLROLL_WORTH, 0);
+	SetSynergyBoostOverride(DND_HL_SYNERGY);
+	SetWellRolledChanceOverride(1.0);
+
+	if((roll -= w[DND_MONSTERLOOT_CHARM]) <= 0)
+		SpawnCharm(pnum, rarity, lvl);
+	else if((roll -= w[DND_MONSTERLOOT_BODYARMOR]) <= 0)
+		SpawnArmorDrop(pnum, rarity, lvl);
+	else if((roll -= w[DND_MONSTERLOOT_HELM]) <= 0)
+		SpawnHelmDrop(pnum, rarity, lvl);
+	else if((roll -= w[DND_MONSTERLOOT_BOOT]) <= 0)
+		SpawnBoot(pnum, rarity, lvl);
+	else if(random(1, 100) <= DND_SPECIALTY_BIAS_CHANCE)
+		SpawnSpecialtyItem(pnum, rarity, lvl, false, FIRST_SPECIALTY_ITEM_TYPE + GetActorPlayerClass(pnum + P_TIDSTART));
+	else
+		SpawnSpecialtyItem(pnum, rarity, lvl, false, GetRandomSpecialtyItem());
+
+	SetWellRolledChanceOverride(0);
+	SetSynergyBoostOverride(0);
+	HighlightRollAccess(true, DND_HLROLL_ACTIVE, 0);
+	SendOwnerScript("DnD Play Local Item Drop Sound", pnum, pnum, DND_DROPSOUND_HIGHLIGHT);
+}
+
 // drop boost increases chance for a drop, rarity is for chance for it to be unique
 void HandleItemDropsForLoot(int m_id, int drop_boost, int rarity_boost) {
 	// An ultimatum pays out of its reward bank and nothing else. A wave arena that also dropped per
@@ -1115,7 +1225,8 @@ void HandleItemDropsForLoot(int m_id, int drop_boost, int rarity_boost) {
 	// HandleUniqueDeath needs no gate: none of the seventeen named monsters it answers to is spawned
 	// by any ultimatum wave, so its orb and essence drops are already out of reach here.
 	bool ultimatum = InformationInLevel[LEVELINFO_ISULTIMATUM];
-	int tmp, point_chance = DND_SPELLPOINT_KILLCHANCE * drop_boost / 100;
+	int map_pct = MapData[DND_MAPDATA_LOOTMULT];
+	int tmp, point_chance = DND_SPELLPOINT_KILLCHANCE * drop_boost / 100 * map_pct / 100;
 
 	// chest droprate check
 	int chest_dropchance = DND_LOOTCHEST_DROPRATE;
@@ -1128,10 +1239,13 @@ void HandleItemDropsForLoot(int m_id, int drop_boost, int rarity_boost) {
 	}
 
 	drop_boost += 100;
-	chest_dropchance = chest_dropchance * drop_boost / 100;
+	chest_dropchance = chest_dropchance * drop_boost / 100 * map_pct / 100;
 
 	// The monster's own facts, once rather than per player; the chest one also stands down once a chest has dropped.
 	bool chest = IsLootChestDroppingMonster(m_id), legendary = isLegendaryMonster(MonsterProperties[m_id].id);
+	bool elite = !!(MonsterProperties[m_id].flags & DND_MONFLAG_ISELITE);
+	// this kill's share of the map's loot, before each player's drop chance and quantity
+	int value = MonsterProperties[m_id].loot_value, share = FixedMul(MapData[DND_MAPDATA_LOOTPAYOUT], value);
 
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
@@ -1142,27 +1256,19 @@ void HandleItemDropsForLoot(int m_id, int drop_boost, int rarity_boost) {
 			if(ultimatum)
 				continue;
 
-			// this is the effective weight of nothing dropping -- if we pass this roll that means a loot drop can occur and we can check successive rolls after
-			int count = GetAdjustedNothingWeight(p_chance, drop_boost);
-//#ifdef ISDEBUGBUILD
-//			if(1) {
-//#else
-			if(random(1, count + LootTables.monster_loot_weight_sum) <= LootTables.monster_loot_weight_sum) {
-//#endif
-				// count how many items to spawn with player's item quant; only a passed roll needs it
-				int quant = GetPlayerDropQuantity(i) * drop_boost / 100;
-				count = 0;
-				while(quant > 0 && MonsterProperties[m_id].rng_vals[count] <= quant) {
-					// for subsequent chance rolls that pass the quant, guaranteed drop them
-					tmp = PickFromAliasTable(LootTables.monster_drop_table);
-					SpawnLootFromDropTableIndex(i, rarity_boost, tmp, m_id, incursion);
+			// Expected items: the kill's share times drop chance and quantity; whole items drop, the fraction is a chance.
+			tmp = FixedMul(FixedMul(share, p_chance), GetPlayerDropQuantity(i));
+			int count = (tmp >> 16) + (random(0, 0xFFFF) < (tmp & 0xFFFF));
+			// an Elite's drops are well rolled
+			if(elite && count)
+				SetWellRolledChanceOverride(1.0);
+			for(; count > 0; --count)
+				SpawnLootFromDropTableIndex(i, rarity_boost, PickFromAliasTable(LootTables.monster_drop_table), m_id, incursion);
+			if(elite)
+				SetWellRolledChanceOverride(0);
 
-					quant -= 1.0;
-					++count;
-					if(count > LAST_MON_RNG_INDEX)
-						count = LAST_MON_RNG_INDEX;
-				}
-			}
+			if(RollHighlightMeter(i, value, MonsterProperties[m_id].level))
+				SpawnHighlightItem(i, m_id);
 
 			if(chest && RunPrecalcDropChance(p_chance, chest_dropchance, m_id, DND_MON_RNG_8)) {
 				SpawnDrop("LootChest", 0, 0, 0, 0);
@@ -1384,7 +1490,7 @@ void HandleLootDrops(int tid, int target, int loc_tid = -1) {
 /*#ifdef ISDEBUGBUILD
 		if(1)
 #else*/
-		if(RunPrecalcDropChance(p_chance, CVarValues[DND_CVAR_RESEARCHDROPRATE] * MonsterProperties[m_id].droprate / 100, m_id, DND_MON_RNG_2))
+		if(RunPrecalcDropChance(p_chance, CVarValues[DND_CVAR_RESEARCHDROPRATE] * MonsterProperties[m_id].droprate / 100 * MapData[DND_MAPDATA_LOOTMULT] / 100, m_id, DND_MON_RNG_2))
 //#endif
 		SpawnResearch(pnum);
 	}
@@ -1426,7 +1532,7 @@ void HandleLootDrops(int tid, int target, int loc_tid = -1) {
 	
 	// doomguy drop -- we dont multiply with MonsterProperties[m_id].droprate here as it's for loot only
 	if(HasActorClassPerk_Fast(target, DND_PLAYER_DOOMGUY, 2) && RunPrecalcDropChance(p_chance, DND_DOOMGUY_DROPCHANCE, m_id, DND_MON_RNG_3)) {
-		temp = MonsterProperties[m_id].maxhp;
+		temp = GetMonsterUnfoldedMaxHP(m_id);
 		SpawnPlayerDrop(pnum, "Doomguy_DemonSoul", 24.0, 16, temp & 0xFFFF, temp >> 16);
 	}
 		
@@ -1528,10 +1634,15 @@ int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned, int
 		if(GetCVar("dnd_playercount_scales_monsters"))
 			add += DND_MONSTERHP_PLAYERSCALE * (Clamp_Between(pcount - 1, 0, DND_MAX_PLAYERHPSCALE));
 
+		// Clamped first: a very high admin level cap made the dungeon multiply below wrap.
+		add = Min(add, DND_MAX_HPSCALE_PCT);
 		// Folded into the PERCENT, where the numbers are small. Applied after `add` became a health
 		// figure it had nothing to spare. Identical arithmetic: base*pct*(100+t)/10000.
 		if((temp = HasDungeonAttributeVal(DUN_ATTR_EXTRAHP)) != -1)
 			add = add * (100 + temp) / 100;
+
+		// The health that stands in for the old level resist, on all of it.
+		add = ApplyMonsterHPFold(add, level);
 
 		// Bounds the percent, then multiplies without forming an intermediate that can wrap. The old
 		// `add = base * add / 100` wrapped HERE, and the INT_MAX check that followed it was reading a
@@ -1947,6 +2058,12 @@ void CheckEOL(bool isSpectate, int game_mode = -1) {
 	}
 }
 
+// Set while "DnD On Disconnect" tears a slot down; a rejoin into that slot waits for it to finish.
+int[] module& GetDisconnectPending() {
+	static int pending[MAXPLAYERS];
+	return pending;
+}
+
 void HandlePlayerDataSave(int pnum, bool isDisconnect = false, int game_mode = -1) {
 	if(game_mode == -1)
 		game_mode = GetCVar("dnd_mode");
@@ -1985,7 +2102,7 @@ void HandlePlayerDataSave(int pnum, bool isDisconnect = false, int game_mode = -
 		Log(s:"Save player ", d:pnum, s: " activites on disconnect for char id ", d:PlayerActivities[pnum].char_id);
 
 		BeginDBTransaction();
-		SavePlayerActivities(pnum, PlayerActivities[pnum].char_id);
+		SavePlayerActivities(pnum, PlayerActivities[pnum].char_id, false);
 		EndDBTransaction();
 
 		// resets player activites already
@@ -2013,6 +2130,7 @@ void SaveAllPlayerData() {
 				if(PlayerDatabaseState[i][PLAYER_TRANSFERSTATE]) {
 					WipeoutPlayerData(i, CheckActorInventory(ptid, "DnD_CharacterID"));
 					SetActorInventory(ptid, "DnD_CharacterID", CheckActorInventory(ptid, "DnD_TransfCharacterID"));
+					PlayerActivities[i].char_id = CheckActorInventory(ptid, "DnD_TransfCharacterID");
 					PlayerDatabaseState[i][PLAYER_TRANSFERSTATE] = false;
 				}
 				//Log(s:"char id save on ", d:CheckActorInventory(i + P_TIDSTART, "DnD_CharacterID"));

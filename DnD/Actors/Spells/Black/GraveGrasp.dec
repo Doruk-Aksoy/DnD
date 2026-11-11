@@ -1,0 +1,113 @@
+// Rank 10: an enemy the grasp held, until a Timer() tic; one dying meanwhile is harvested.
+Actor DnD_GraspHeld : DnD_Info {}
+
+// A restless spirit clawing up out of the ground, with grave dust round it.
+Actor Spell_GraveGrasp_Hand : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0
+	Scale 0.4
+	Translation "0:255=%[0.00,0.00,0.00]:[0.55,0.85,0.45]"
+	+NOGRAVITY
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_SpawnItemEx("Spell_DeathAndDecaySmoke", 0, 0, 2, 0, 0, 0, 0, SXF_CLIENTSIDE, 128)
+			TNT1 A 0 A_ChangeVelocity(0, 0, frandom(0.8, 1.4), CVF_REPLACE)
+			SPIR ABAB 2 Bright A_FadeIn(0.15)
+			SPIR ABABAB 2 Bright
+			SPIR AB 2 Bright A_FadeOut(0.1)
+		Wait
+	}
+}
+
+// A lost soul fleeing the grave: Soul Reaver's wailing skull rising and drifting off, a wisp trailing it.
+Actor Spell_GraveGrasp_Soul : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0
+	Scale 1.5
+	Translation "0:255=%[0.00,0.00,0.00]:[0.70,1.00,0.75]"
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_ChangeVelocity(frandom(1.0, 2.2), 0, frandom(0.7, 1.5), CVF_RELATIVE | CVF_REPLACE)
+		Rise:
+			SRV1 K 2 Bright A_FadeIn(0.2)
+			SRV1 K 0 Bright A_SpawnItemEx("Spell_GraveGrasp_SoulTrail", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_TRANSFERTRANSLATION)
+			SRV1 K 0 Bright A_JumpIf(alpha < 0.85, "Rise")
+		Wander:
+			SRV1 K 2 Bright A_SpawnItemEx("Spell_GraveGrasp_SoulTrail", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_TRANSFERTRANSLATION)
+			SRV1 K 0 Bright A_Jump(20, "Fade")
+		Loop
+		Fade:
+			SRV1 K 2 Bright A_FadeOut(0.12)
+			SRV1 K 0 Bright A_SpawnItemEx("Spell_GraveGrasp_SoulTrail", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_TRANSFERTRANSLATION)
+		Loop
+	}
+}
+
+Actor Spell_GraveGrasp_SoulTrail : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.55
+	Scale 1.1
+	States {
+		Spawn:
+			TNT1 A 1
+			SRV1 DEFGHIJ 1 Bright
+		Stop
+	}
+}
+
+// A wisp of a soul twisting up out of the ground.
+Actor Spell_GraveGrasp_Wisp : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0
+	Scale 0.55
+	Translation "0:255=%[0.00,0.00,0.00]:[0.55,0.85,0.45]"
+	+NOGRAVITY
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_ChangeVelocity(0, 0, frandom(1.0, 1.8), CVF_REPLACE)
+			SPIR EFG 3 Bright A_FadeIn(0.25)
+			SPIR HI 3 Bright
+			SPIR I 2 Bright A_FadeOut(0.15)
+		Wait
+	}
+}
+
+// Night mist lying low over the area: wispy smoke, wide and low, faintly pale, churning slowly as it drifts and thins.
+Actor Spell_GraveGrasp_Mist : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0
+	Translation "0:255=%[0.00,0.00,0.00]:[0.72,0.90,0.80]"
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_SetScale(frandom(1.8, 2.6), frandom(0.55, 0.75))
+			TNT1 A 0 A_ChangeVelocity(frandom(-0.3, 0.3), frandom(-0.3, 0.3), frandom(0.0, 0.08), CVF_REPLACE)
+			SMOK ABC 6 Bright A_FadeIn(0.08)
+			SMOK DEFG 8 Bright
+			SMOK HIJK 8 Bright A_FadeOut(0.06)
+		Stop
+	}
+}
+
+// The area's edge, as the curses draw theirs.
+Actor Spell_GraveGrasp_Ring : NoxAreaMarkerFX {
+	Translation "80:111=%[0.00,0.00,0.00]:[0.55,0.95,0.40]"
+}
+
+// Rank 10: a slain enemy's soul torn out as its body is laid to rest.
+Actor Spell_GraveGrasp_Harvest : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.8
+	Translation "0:255=%[0.00,0.00,0.00]:[0.60,1.00,0.50]"
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 AAA 0 A_SpawnItemEx("Spell_GraveGrasp_Hand", frandom(-12, 12), frandom(-12, 12), 8, 0, 0, 0, 0, SXF_CLIENTSIDE)
+			D4FX GHIJKL 3 Bright
+		Stop
+	}
+}

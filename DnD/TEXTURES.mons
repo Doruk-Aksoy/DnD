@@ -355,7 +355,7 @@ Sprite IGLME4H6, 62, 67
 
 Sprite IGLME5H5, 55, 66
 {
-	Offset 27, 62
+	Offset 18, 62
 	Patch GOL3E5H5, 0, 3
 	Patch IGLMDAT, 0, 0
 	{
@@ -435,7 +435,7 @@ Sprite IGLMF4I6, 49, 59
 
 Sprite IGLMF5I5, 62, 59
 {
-	Offset 36, 55
+	Offset 33, 55
 	Patch GOL3F5I5, 0, 3
 	Patch IGLMDAT, 0, 0
 	{
@@ -515,7 +515,7 @@ Sprite IGLMG4J6, 40, 57
 
 Sprite IGLMG5J5, 53, 58
 {
-	Offset 33, 54
+	Offset 30, 54
 	Patch GOL3G5J5, 0, 3
 	Patch IGLMDAT, 0, 0
 	{

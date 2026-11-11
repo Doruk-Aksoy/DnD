@@ -11,7 +11,7 @@ ACTOR Spell_DeathKnight : PetMonsterBase {
 	Stamina 1
 	SeeSound "dknight/sight"
 	PainSound "dknight/pain"
-	DeathSound "dknight/death"
+	DeathSound "DeathKnight/Die"
 	ActiveSound "dknight/active"
 	Obituary "%o was struck down by a Death Knight."
 	Tag "Death Knight"

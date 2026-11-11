@@ -394,7 +394,7 @@ Script "DnD Weapon Wheel Scale Icon" (int index, int wepid, int count) CLIENTSID
 }
 
 Script "DND Weapon Wheel Change" (int pnum, int wepid) NET {
-    if(!PlayerInGame(pnum) || PlayerIsSpectator(pnum))
+    if(!IsRequestFromPlayer(pnum) || wepid < 0 || wepid >= MAXWEPS || !PlayerInGame(pnum) || PlayerIsSpectator(pnum))
         Terminate;
     SetActivator(pnum + P_TIDSTART);
 

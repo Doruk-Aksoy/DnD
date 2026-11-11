@@ -17,6 +17,7 @@ enum {
     DND_TIERSET_DEFENSE_STRONG,                 // 7 tiers, last one is boss drop only
     DND_TIERSET_VERYSTRONG,                     // 6 tiers, sharp scaling, last one is boss only
     DND_TIERSET_COMMON_LASTFROMBOSS,            // currently what exists but last tier comes from boss only              
+    DND_TIERSET_PETCAP,                         // +1 from ilvl 36, +2 only past the regular item level cap; never rolled up
     DND_TIER_PROFILE_COUNT
 };
 
@@ -116,6 +117,9 @@ void SetupModTierProfiles() {
     SetTierStep(DND_TIERSET_COMMON_LASTFROMBOSS, 7, -1, 300);
     SetTierStep(DND_TIERSET_COMMON_LASTFROMBOSS, 8, -1, 200);
     SetTierStep(DND_TIERSET_COMMON_LASTFROMBOSS, 9, -1, 100);
+
+    DefineTierProfileEven(DND_TIERSET_PETCAP, 2, 36, MAX_REGULAR_ILVL + 1, DND_TIER_WEIGHT_MAX);
+    SetTierStep(DND_TIERSET_PETCAP, 1, -1, 350);
 }
 
 // Dungeon key mod ids collide with INV_ ids, so they may never index profile_of and stay on the
@@ -180,10 +184,15 @@ int GetModTierColourIndex(int attr, int item_type, int tier) {
     return Clamp_Between(GetModTierNormalized(attr, item_type, tier), 0, MAX_CHARM_AFFIXTIERS - 1);
 }
 
+// A ladder whose top tier is a source gate, not a quality step: nothing may lift a roll past what the item level affords.
+bool IsModTierHardGated(int attr, int item_type) {
+    return GetModTierProfile(attr, item_type) == DND_TIERSET_PETCAP;
+}
+
 // Potency may push one step past what the item level affords -- the last step is earned.
 int GetModPotencyCeiling(int attr, int item_type, int ilvl) {
     int top = GetModTierCount(attr, item_type) - 1;
-    int nat = GetModTierForLevel(attr, item_type, ilvl) + 1;
+    int nat = GetModTierForLevel(attr, item_type, ilvl) + !IsModTierHardGated(attr, item_type);
     return nat < top ? nat : top;
 }
 
@@ -191,6 +200,8 @@ int GetModPotencyCeiling(int attr, int item_type, int ilvl) {
 int RollModTier(int attr, int item_type, int lvl, bool isWellRolled) {
     bool revered = CheckInventory("ReveranceUsed");
     int top = GetModTierCount(attr, item_type) - 1;
+    if(IsModTierHardGated(attr, item_type))
+        top = Min(top, lvl);
 
     // 10% chance to roll a tier up -- if well rolled 20%
     if(!random(0, 9 - 5 * isWellRolled) || revered)

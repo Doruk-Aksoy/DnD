@@ -1,37 +1,93 @@
-// The needle. No hit damage: its tracer (HITTRACER, from DnD_BaseProjectile) names the enemy for "DnD Implosion Hit".
-Actor Spell_Implosion : DnD_Spell {
-	PROJECTILE
-	Speed 30
-	Radius 4
-	Height 8
-	Damage 0
+// The corpse swelling before it goes off: an ember glow pulsing on it.
+Actor Spell_Implosion_Swell : DnD_SpecialFX {
 	RenderStyle Add
-	Alpha 1.0
-	Scale 0.35
-	Translation "0:255=%[0.00,0.00,0.00]:[1.60,0.08,0.30]"
-	SeeSound "Implosion/Fly"
-	DeathSound "Implosion/Hit"
+	Alpha 0.7
+	Scale 0.45
+	Translation "0:255=%[0.00,0.00,0.00]:[1.70,0.45,0.10]"
 	States {
-		SpawnState:
-			D5FX G 1 Bright A_SpawnItemEx("Spell_Implosion_Trail", -6, 0, 0, 0, 0, 0, 0, 128)
-		Loop
-		Death:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Implosion Hit")
-			D4FX GHIJKL 2 Bright
+		Spawn:
+			TNT1 A 0
+			D4FX GHIJKL 2 Bright A_FadeOut(0.08)
 		Stop
 	}
 }
 
-// The needle's crimson glow trail.
-Actor Spell_Implosion_Trail : DnD_SpecialFX {
-	RenderStyle Add
-	Alpha 0.6
-	Scale 0.16
-	Translation "0:255=%[0.00,0.00,0.00]:[1.60,0.08,0.30]"
+// The corpse bursting: a white-hot flash and fireball, and a spray of blood, gore and blood mist.
+Actor Spell_Implosion_Blast : DnD_SpecialFX {
+	Scale 1.9
 	States {
 		Spawn:
 			TNT1 A 0
-			D5FX GHIJKL 1 Bright A_FadeOut(0.1)
+			TNT1 A 0 A_PlaySound("Implosion/Explode", CHAN_VOICE)
+			TNT1 A 0 A_PlaySound("Implosion/Add", CHAN_ITEM)
+			TNT1 A 0 A_SpawnItemEx("Spell_Implosion_Light", 0, 0, 8)
+			TNT1 A 0 A_SpawnItemEx("Spell_Implosion_Flash")
+			TNT1 AAA 0 A_CustomMissile("ExplosionFX10", 0, 0, random(0, 360), 2, random(0, 360))
+			TNT1 AAAAAAA 0 A_SpawnItemEx("Spell_Implosion_Fire", frandom(-8, 8), frandom(-8, 8), frandom(-8, 16), frandom(-3.5, 3.5), frandom(-3.5, 3.5), frandom(0.5, 4.0), 0, SXF_NOCHECKPOSITION)
+			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 AAAAAAAAAA 0 A_CustomMissile("ExplosionParticleHeavy", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_High", 0, 0, -16)
+			TNT1 AAAAAAAAAAAAAA 0 A_SpawnItemEx("NashGore_FlyingBlood", frandom(-12, 12), frandom(-12, 12), frandom(-8, 8), frandom(-9, 9), frandom(-9, 9), frandom(4, 14), 0, SXF_NOCHECKPOSITION)
+			TNT1 AAAAA 0 A_SpawnItemEx("Spell_Implosion_BloodMist", frandom(-28, 28), frandom(-28, 28), frandom(-8, 28), 0, 0, frandom(0.3, 1.0), 0, SXF_NOCHECKPOSITION)
+			FX14 DEFGH 3 Bright
 		Stop
+	}
+}
+
+// Fireballs thrown out of the burst.
+Actor Spell_Implosion_Fire : ExplosionFX10 {
+	Scale 0.95
+}
+
+// The fireball's core: a big fireball rolling into smoke over the blast.
+Actor Spell_Implosion_Flash : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.95
+	Scale 1.6
+	+FORCEXYBILLBOARD
+	States {
+		Spawn:
+			TNT1 A 0
+			SX06 ABCDEFGHIJKL 1 Bright
+			SX06 MNOPQRSTUVWX 2 Bright A_FadeOut(0.06)
+		Stop
+	}
+}
+
+// A cloud of blood thrown out with the gore.
+Actor Spell_Implosion_BloodMist : BloodSplashBaseSmall {
+	Scale 1.1
+	Alpha 0.8
+}
+
+// The blast's light: Spells.txt's ImplosionFlash steps, white-hot to blood red.
+Actor Spell_Implosion_Light : DnD_SpecialFX {
+	RenderStyle None
+	States {
+		Spawn:
+			TNT1 A 1 Light("ImplosionFlash1")
+			TNT1 A 2 Light("ImplosionFlash2")
+			TNT1 A 2 Light("ImplosionFlash3")
+			TNT1 A 3 Light("ImplosionFlash4")
+			TNT1 A 3 Light("ImplosionFlash5")
+			TNT1 A 3 Light("ImplosionFlash6")
+			TNT1 A 3 Light("ImplosionFlash7")
+		Stop
+	}
+}
+
+// Burning scraps thrown out over the blast.
+Actor Spell_Implosion_Ember : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.35
+	+NOGRAVITY
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_ChangeVelocity(frandom(-1.5, 1.5), frandom(-1.5, 1.5), frandom(1.0, 2.5), CVF_REPLACE)
+			FX14 ABCABC 2 Bright
+			FX14 ABC 2 Bright A_FadeOut(0.25)
+		Wait
 	}
 }

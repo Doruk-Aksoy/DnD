@@ -151,15 +151,19 @@ Script "DnD Shared Item Queue" (int tid) CLIENTSIDE {
 Script "DND Limited Respawn Item Init" (void) {
 	if(!GetCVar("dnd_enable_limiteditems") || GameType() == GAME_SINGLE_PLAYER)
 		Terminate;
-	if(!ActivatorTID()) {
-		Thing_ChangeTID(0, LIMITED_RESPAWN_TID_BEGIN + limitedrespawn_item_counter);
-		LimitedItem_Respawns[limitedrespawn_item_counter++] = GetCVar("dnd_limitedrespawn_amount");
+	int tid = ActivatorTID();
+	if(!tid) {
+		if(limitedrespawn_item_counter < LIMITED_RESPAWN_MAX) {
+			Thing_ChangeTID(0, LIMITED_RESPAWN_TID_BEGIN + limitedrespawn_item_counter);
+			LimitedItem_Respawns[limitedrespawn_item_counter++] = GetCVar("dnd_limitedrespawn_amount");
+		}
 	}
-	else {
-		if(!LimitedItem_Respawns[ActivatorTID() - LIMITED_RESPAWN_TID_BEGIN])
-			Thing_Remove(ActivatorTID());
+	// a mapper's tag is left alone: that item respawns as normal
+	else if(tid >= LIMITED_RESPAWN_TID_BEGIN && tid < LIMITED_RESPAWN_TID_BEGIN + limitedrespawn_item_counter) {
+		if(!LimitedItem_Respawns[tid - LIMITED_RESPAWN_TID_BEGIN])
+			Thing_Remove(tid);
 		else
-			LimitedItem_Respawns[ActivatorTID() - LIMITED_RESPAWN_TID_BEGIN]--;
+			LimitedItem_Respawns[tid - LIMITED_RESPAWN_TID_BEGIN]--;
 	}
 }
 

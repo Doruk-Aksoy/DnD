@@ -404,4 +404,41 @@ int degToFixed_Pitch(int x) {
 	return x / 90;
 }
 
+// log2 of a positive int, 16.16.
+int FixedLog2Int(int x) {
+	if(x <= 0)
+		return 0;
+	int n = 0, t = x;
+	while(t > 1) {
+		t >>= 1;
+		++n;
+	}
+	// the mantissa in [1, 2), then one bit of the fraction per squaring
+	int m = FixedDiv(x, 1 << n), r = n << 16;
+	for(int i = 15; i >= 0; --i) {
+		m = FixedMul(m, m);
+		if(m >= 2.0) {
+			m >>= 1;
+			r |= 1 << i;
+		}
+	}
+	return r;
+}
+
+// 2 to a 16.16 power >= 0, 16.16; the fraction is a product of 2^(1/2^k) factors.
+int FixedExp2(int f) {
+	int ip = f >> 16, fp = f & 0xFFFF, r = 1.0, s = 2.0;
+	for(int i = 15; i >= 0; --i) {
+		s = fsqrt(s);
+		if(fp & (1 << i))
+			r = FixedMul(r, s);
+	}
+	return r << ip;
+}
+
+// A positive int to a 16.16 power >= 0, 16.16. Not for hot paths: sixteen square roots a call.
+int IntPowFixed(int x, int e) {
+	return FixedExp2(FixedMul(e, FixedLog2Int(x)));
+}
+
 #endif

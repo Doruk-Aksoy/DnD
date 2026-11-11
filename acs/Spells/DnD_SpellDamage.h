@@ -30,6 +30,9 @@ int GetSpellDamageType(int spell) {
 	// Gust's only damage is its slam, which is physical, so cold increases must not price it.
 	if(spell == SPL_GUSTOFFROST)
 		return DND_DAMAGETYPE_PHYSICAL;
+	// Implosion's corpse goes up in fire
+	if(spell == SPL_IMPLOSION)
+		return DND_DAMAGETYPE_FIRE;
 
 	// Earth's poison half; its rock spells stay physical below.
 	switch(spell) {
@@ -106,6 +109,7 @@ int GetSpellAttunementOverride(int spell) {
 		case SPL_CONTAGION:
 		case SPL_IMPLOSION:
 		case SPL_NETHERWALK:
+		case SPL_GRAVEGRASP:
 		return PACK_SPELL_ATTUNE(0, DND_SPELL_ATTUNE_SLIGHT, DND_SPELL_ATTUNE_DOMINANT);
 		case SPL_SOULSTORM:
 		case SPL_DEATHANDDECAY:
@@ -262,14 +266,25 @@ int GetSpellRankDamageIncrease(int pnum, int spell) {
 	return 0;
 }
 
+// "Increased minion damage" a minion's own spell or ailment joins its pile with: gear and Summon Mastery, in percent.
+int GetMinionDamageIncrease(int pnum) {
+	return PlayerModData[pnum].vals[PSTAT_MINION_DAMAGE] + (GetSpellValue(pnum, SPL_SUMMONMASTERY, SPELLVAL_DAMAGE) >> 16);
+}
+
+// A summon's own "more minion damage" (its row, Legion Mastery, Commander), as 100 + percent.
+int GetMinionDamageMore(int pnum, int summon) {
+	return 100 + GetPetSpellDamageBonus(pnum, GetSummonPetKind(summon));
+}
+
 // One spell hit or tick, priced the same whichever way it lands: "DnD Spell Damage" and the spells that call
 // HandleDamageDeal themselves both come here. isDot takes the DoT pile instead; noMore is Infernal Strike's.
-int PriceSpellDamage(int pnum, int spell, int dmg, int scale_flags = 0, bool isDot = false, int victim = -1, bool noMore = false) {
+// minion is the summon spell + 1 of a minion casting it: minion damage joins, increased with the rest, more after.
+int PriceSpellDamage(int pnum, int spell, int dmg, int scale_flags = 0, bool isDot = false, int victim = -1, bool noMore = false, int minion = 0) {
 	// A hit takes its flat damage (spell worded and generic) before every increase; a tick none, as a weapon's DoT takes no attack flat.
 	if(!isDot)
 		dmg += GetSpellFlatDamage(pnum, GetSpellDamageCategory(spell), (scale_flags & DND_WDMG_ISRADIUSDMG) ? DND_DAMAGEFLAG_ISRADIUSDMG : 0);
 
-	int own = GetSpellRankDamageIncrease(pnum, spell);
+	int own = GetSpellRankDamageIncrease(pnum, spell) + (minion ? GetMinionDamageIncrease(pnum) : 0);
 
 	if(isDot) {
 		// No hit fed a tick, so it takes the hit side increases (element, buffs, accuracy, spell damage) beside the DoT ones.
@@ -284,7 +299,10 @@ int PriceSpellDamage(int pnum, int spell, int dmg, int scale_flags = 0, bool isD
 	if(isDot)
 		dmg = ApplySpellAttunement(pnum, spell, dmg);
 
-	return FinishSpellDamage(pnum, spell, dmg, isDot, noMore);
+	dmg = FinishSpellDamage(pnum, spell, dmg, isDot, noMore);
+	if(minion)
+		dmg = dmg * GetMinionDamageMore(pnum, minion - 1) / 100;
+	return dmg;
 }
 
 // A share-of-life spell's damage after resists: whole up to the share, then keep_pct of what gear adds past it, up to cap_pct of it.
@@ -308,18 +326,22 @@ int PriceSpellPoison(int pnum, int spell, int dmg) {
 }
 
 // What every spell hit or tick takes after its scale.
+// The spell's gems: MORE on every hit and tick, then on hits or on ticks alone, then Greater Resolute, Ravager and
+// Powerful's more per charge held. noMore in FinishSpellDamage is the buff's, not theirs.
+int ApplySpellGemDamage(int pnum, int spell, int dmg, bool isDot) {
+	dmg = ApplySpellGemMore(pnum, spell, GEMSTAT_MORE_DAMAGE, dmg);
+	dmg = ApplySpellGemMore(pnum, spell, isDot ? GEMSTAT_MORE_DOTDAMAGE : GEMSTAT_MORE_HITDAMAGE, dmg);
+	return ApplySpellGemChargeDamage(pnum, spell, dmg);
+}
+
 int FinishSpellDamage(int pnum, int spell, int dmg, bool isDot, bool noMore) {
 	// Heart of Fire rank 5: a spell its proc made ready hits harder for a few seconds. MORE, so after the scale.
 	int prime = GetSpellPrimes().ends[pnum][spell];
 	if(prime && Timer() <= prime)
 		dmg = dmg * (100 + GetSpellValue(pnum, SPL_HEARTOFFIRE, SPELLVAL_AMOUNT)) / 100;
 
-	// The spell's gems: MORE on every hit and tick, then on hits or on ticks alone. noMore is the buff's, not theirs.
-	dmg = ApplySpellGemMore(pnum, spell, GEMSTAT_MORE_DAMAGE, dmg);
-	dmg = ApplySpellGemMore(pnum, spell, isDot ? GEMSTAT_MORE_DOTDAMAGE : GEMSTAT_MORE_HITDAMAGE, dmg);
-
-	// Greater Resolute, Ravager and Powerful: more damage per charge held, each kind its own multiplier.
-	dmg = ApplySpellGemChargeDamage(pnum, spell, dmg);
+	dmg = ApplySpellGemDamage(pnum, spell, dmg, isDot);
+	dmg = ApplyBlackEmpowerDamage(pnum, spell, dmg);
 
 	if(!noMore)
 		dmg = ApplySpellMoreDamage(pnum, spell, dmg);
@@ -398,8 +420,8 @@ Script "DnD Spell Damage" (int which, int flags, int div) {
 		Terminate;
 	}
 
-	// A tick field prices through the DoT pile, as Blaze does; see IsSpellDoTField.
-	dmg = PriceSpellDamage(pnum, spell, dmg, flags, IsSpellDoTField(spell, which));
+	// A tick field prices through the DoT pile, as Blaze does; see IsSpellDoTField. A minion's cast takes minion damage.
+	dmg = PriceSpellDamage(pnum, spell, dmg, flags, IsSpellDoTField(spell, which), -1, false, GetUserVariable(0, "user_minion"));
 
 	// Winter Orb's ranks strengthen what it throws, read live like the rest. MORE, beside the others.
 	if(parent == SPL_WINTERORB + 1)
@@ -485,6 +507,7 @@ Script "DnD Fire Jet Sides" (void) {
 
 		SetActorAngle(tid, a + (i ? -0.25 : 0.25));
 		SetupSpellActor(tid, pnum, spell);
+		SetUserVariable(tid, "user_minion", GetUserVariable(0, "user_minion"));
 		// Rank 10's ripping flames: through everything, each enemy once per flame.
 		if(rip) {
 			SetSpellRipLimit(pnum, tid, MAX_RIPCOUNT);
@@ -641,7 +664,7 @@ void SetSpellRipLimit(int pnum, int tid, int rips) {
 // "increased" must, and scales AREA, not radius. extra_inc is a rank's own increase; spell is for the gem term.
 int ScaleSpellArea(int pnum, int spell, int r, int extra_inc = 0) {
 	r = ScalePlayerAoERadius(pnum, r, DND_AOESRC_NONWEAPON, PlayerModData[pnum].vals[PSTAT_SPELL_AOE] + extra_inc);
-	return ApplySpellGemArea(pnum, spell, r);
+	return ApplyBlackEmpowerArea(pnum, spell, ApplySpellGemArea(pnum, spell, r));
 }
 
 // Companion to the above for explosive spells: the explosion retriever with spell area gear in its pool.

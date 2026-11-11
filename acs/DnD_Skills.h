@@ -40,9 +40,22 @@ int GetMinionCooldownTics(int which) {
 	return 0;
 }
 
+// The summon a cooldown belongs to, whose recovery gem speeds it.
+int GetMinionCooldownSpell(int which) {
+	switch(which) {
+		case DND_MINIONCD_BURNINGGROUND: return SPL_FIREDEMON;
+	}
+	return -1;
+}
+
 // Percent faster a minion recovers its abilities: Frenzied Followers. Read live by the counter below.
 int GetMinionCooldownRate(int pnum) {
 	return PlayerModData[pnum].vals[PSTAT_MINION_CDR];
+}
+
+// What every minion ability timer recovers at: minion recovery, plus a recovery gem in the spell that summoned it.
+int GetMinionAbilityRate(int pnum, int spell) {
+	return GetMinionCooldownRate(pnum) + (spell >= 0 ? GetSpellGemMod(pnum, spell, GEMSTAT_CDR) : 0);
 }
 
 // Spiritual Aid: a buff a minion gives its master, at the master's increased effect.
@@ -72,7 +85,7 @@ Script "DnD Minion Cooldown" (int which) {
 		// which is the whole reason this is a counter and not a powerup.
 		step = DND_MINIONCD_SCALE;
 		if(pnum >= 0 && pnum < MAXPLAYERS)
-			step += GetMinionCooldownRate(pnum);
+			step += GetMinionAbilityRate(pnum, GetMinionCooldownSpell(which));
 
 		TakeInventory(item, Max(1, step));
 	}
@@ -183,20 +196,35 @@ bool IsPetCarried(int pnum, int petid) {
 }
 
 // How many of a summon's pets may stand at once. The rows that say so (AMOUNT on the golems and the demon); zombies,
-// knights and the heavy minions only the pet cap; one Dark Portal.
-int GetSummonKindCap(int pnum, int spell) {
+// knights and Ghasts only the pet cap; two Death and Slayer Knights, one Doomguard and one Dark Portal.
+// The cap a summon kind has whatever its rank, or 0 when its AMOUNT row sets it.
+int GetSummonKindFixedCap(int spell) {
 	switch(spell) {
 		case SPL_ZOMBIE:
 		case SPL_KNIGHT:
 		case SPL_GHAST:
+		return DND_MAX_PETS_PER_PLAYER;
 		case SPL_SLAYERKNIGHT:
 		case SPL_DEATHKNIGHT:
+		return 2;
 		case SPL_DOOMGUARD:
-		return DND_MAX_PETS_PER_PLAYER;
 		case SPL_DARKPORTAL:
 		return 1;
 	}
-	return Max(1, GetSpellValue(pnum, spell, SPELLVAL_AMOUNT));
+	return 0;
+}
+
+int GetSummonKindCap(int pnum, int spell) {
+	int cap = GetSummonKindFixedCap(spell);
+	return cap ? cap : Max(1, GetSpellValue(pnum, spell, SPELLVAL_AMOUNT));
+}
+
+// The most a summon kind can ever have out, from its rows alone (a rank that grows AMOUNT counts as more than one).
+int GetSummonKindMaxCap(int spell) {
+	int cap = GetSummonKindFixedCap(spell);
+	if(cap)
+		return cap;
+	return SpellDefs[spell].per_rank[SPELLVAL_AMOUNT] > 0 ? 2 : Max(1, SpellDefs[spell].base[SPELLVAL_AMOUNT]);
 }
 
 // A pet's stored resists, once its traits are in: its spell's rank bonuses first, then the same trait rules as a monster's.

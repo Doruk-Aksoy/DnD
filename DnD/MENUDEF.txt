@@ -12,3 +12,131 @@ OptionMenu ZA_JoinMenu
 	Command		"Join game",			"pukename \"DnD Class Select\" always"
 	Command		"How to play",			"menu_help"
 }
+
+// Stock options list with a DnD row; FUA rows only show where the OpenAL option exists.
+OptionMenu "OptionsMenu"
+{
+	Title "OPTIONS"
+	ifoption(OpenAL)
+	{
+		Submenu "FUA Options",			"FUAOptions"
+	}
+	Submenu "$DND_OPT_TITLE",			"DnDOptions"
+	Submenu "Multiplayer Options",		"ZA_MultiplayerOptions"
+	StaticText " "
+	Submenu "Customize Controls",		"CustomizeControls"
+	Submenu "Mouse options",			"MouseOptions"
+	Submenu "Joystick options",			"JoystickOptions"
+	StaticText " "
+	Submenu "Player Setup",				"PlayerMenu"
+	Submenu "Gameplay Options",			"GameplayOptions"
+	Submenu "Compatibility Options",	"CompatibilityOptions"
+	Submenu "Automap Options",			"AutomapOptions"
+	Submenu "HUD Options",				"HUDOptions"
+	Submenu "Miscellaneous Options",	"MiscOptions"
+	Submenu "Sound Options",			"SoundOptions"
+	Submenu "Display Options",			"VideoOptions"
+	Submenu "Set video mode",			"VideoModeMenu"
+	StaticText " "
+	SafeCommand "Reset to defaults",	"reset2defaults"
+	SafeCommand	"Reset to last saved",	"reset2saved"
+	ifoption(OpenAL)
+	{
+		SafeCommand "Save current settings",	"writeini"
+	}
+	Command "Go to console",			"menuconsole"
+}
+
+OptionValue "DnDPickupFilter"
+{
+	0, "Nothing"
+	1, "Stackables"
+	2, "Charms"
+	3, "Stacks + Charms"
+	4, "Armors"
+	5, "Stacks + Armors"
+	6, "Charms + Armors"
+	7, "Everything"
+}
+
+OptionMenu "DnDOptions"
+{
+	Title "$DND_OPT_TITLE"
+	StaticText "$DND_OPT_HEAD_INTERFACE", 1
+	Option "$DND_OPT_WEAPONTIPS",		"dnd_weapontips",		"OffOn"
+	Option "$DND_OPT_MODTIERS",			"dnd_detailedmods",		"OnOff"
+	Option "$DND_OPT_MODTAGS",			"dnd_showmodtags",		"OnOff"
+	Option "$DND_OPT_MAPINFO",			"dnd_showmapinfo",		"OnOff"
+	StaticText " "
+	StaticText "$DND_OPT_HEAD_COMBAT", 1
+	Option "$DND_OPT_DMGNUM",			"dnd_dmgnum",			"OnOff"
+	Option "$DND_OPT_HITBEEPS",			"dnd_hitbeeps",			"OnOff"
+	StaticText " "
+	StaticText "$DND_OPT_HEAD_EFFECTS", 1
+	Option "$DND_OPT_SPECIALFX",		"dnd_nofx",				"OffOn"
+	Option "$DND_OPT_AURARINGS",		"dnd_hideauras",		"OffOn"
+	StaticText " "
+	StaticText "$DND_OPT_HEAD_GAMEPLAY", 1
+	Option "$DND_OPT_DASH",				"dnd_dashstatus",		"OffOn"
+	Option "$DND_OPT_IGNORETEMPS",		"dnd_ignoretempweps",	"OnOff"
+	Option "$DND_OPT_PICKUPFILTER",		"dnd_pickup_filter",	"DnDPickupFilter"
+	Option "$DND_OPT_MINIONLEASH",		"dnd_minionleash",		"OnOff"
+	StaticText " "
+	Submenu "$DND_OPT_CONTROLS",			"DnDControls"
+}
+
+OptionMenu "DnDControls"
+{
+	Title "$DND_OPT_CONTROLS"
+	ScrollTop 2
+	StaticTextSwitchable "ENTER to change, BACKSPACE to clear", "Press new key for control, ESC to cancel", "ControlMessage"
+	StaticText ""
+	StaticText "$DND_OPT_KEYS_GENERAL", 1
+	Control "DnD Menu",	"upgs"
+	Control "DnD Weapon Wheel",	"+wepwheel"
+	Control "DnD Inventory",	"inv"
+	Control "DnD Stash",	"stash"
+	Control "DnD Stash Dump",	"stashdump"
+	Control "DnD Stash Dump (Stackables Only)",	"stashdumporbs"
+	Control "DnD Dash",	"dashuse"
+	Control "Toggle Weapon Tip Boxes",	"tips"
+	Control "Current Weapon Tip",	"curweptip"
+	Control "Drop Temporary Weapon",	"droptemp"
+	Control "Toggle Special Effects",	"fx"
+	Control "Toggle Item Mod Range",	"item_mods"
+	Control "Toggle Item Mod Tags",	"item_tags"
+	Control "DnD Taunt",	"dnd_taunt"
+	StaticText ""
+	StaticText "$DND_OPT_KEYS_SPELLS", 1
+	Control "DnD Skill Wheel",	"+dnd_skillwheel"
+	Control "DnD Spell 1",	"dnd_spell1"
+	Control "DnD Spell 2",	"dnd_spell2"
+	Control "DnD Spell 3",	"dnd_spell3"
+	Control "DnD Spell 4",	"dnd_spell4"
+	Control "DnD Spell 5",	"dnd_spell5"
+	Control "DnD Spell 6",	"dnd_spell6"
+	StaticText ""
+	StaticText "$DND_OPT_KEYS_ITEMS", 1
+	Control "DnD Use Flask #1",	"dnd_flask1"
+	Control "DnD Use Flask #2",	"dnd_flask2"
+	Control "DnD Use Flask #3",	"dnd_flask3"
+	Control "DnD Use Flask #4",	"dnd_flask4"
+	StaticText ""
+	StaticText "$DND_OPT_KEYS_CHARS", 1
+	Control "Skip character loading",	"sl"
+	StaticText ""
+	StaticText "$DND_OPT_KEYS_LOGIN", 1
+	Control "Create #1 character",	"cc 1"
+	Control "Create #2 character",	"cc 2"
+	Control "Create #3 character",	"cc 3"
+	Control "Create #4 character",	"cc 4"
+	Control "Load #1 character",	"lc 1"
+	Control "Load #2 character",	"lc 2"
+	Control "Load #3 character",	"lc 3"
+	Control "Load #4 character",	"lc 4"
+	Control "Transfer character to #0",	"tc 0"
+	Control "Transfer character to #1",	"tc 1"
+	Control "Transfer character to #2",	"tc 2"
+	Control "Transfer character to #3",	"tc 3"
+	Control "Transfer character to #4",	"tc 4"
+}

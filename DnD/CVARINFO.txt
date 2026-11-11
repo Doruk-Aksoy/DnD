@@ -9,6 +9,7 @@ user bool dnd_detailedmods = false;
 user bool dnd_showmodtags = false;
 user bool dnd_ignoretempweps = false;
 user int dnd_pickup_filter = 0;
+user bool dnd_minionleash = true; // minions too far away are brought back to you
 
 user noarchive int dnd_playerclass = 0;
 user noarchive int dnd_classmenu_button = 0;
@@ -86,5 +87,4 @@ server noarchive float dnd_monster_variation_factor = 1.5;
 server noarchive float dnd_researchdroprate = 0.005;
 
 server noarchive float dnd_lingertime = 180;
-user int dnd_hoveredspell = -1;
 user bool dnd_hideauras = false;

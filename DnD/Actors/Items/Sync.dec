@@ -86,6 +86,15 @@ Actor P_CastSpell : Ammo {
 	+IGNORESKILL
 }
 
+// The server's Timer(), pushed each second: a client's own Timer() trails it after a map load, so end tics are read off this.
+Actor P_ServerTime : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
 // Silencer: the tic the player's silence ends, which the server casts against and the client's HUD draws from.
 Actor P_SilenceEnd : Ammo {
 	inventory.amount 1

@@ -342,22 +342,22 @@ pointlight DarkServantLight3 {
 	size 48
 }
 
-pointlight DarkServantLight3 {
+pointlight DarkServantLight4 {
 	color 0.5 0.5 1.0
 	size 40
 }
 
-pointlight DarkServantLight3 {
+pointlight DarkServantLight5 {
 	color 0.5 0.5 1.0
 	size 32
 }
 
-pointlight DarkServantLight3 {
+pointlight DarkServantLight6 {
 	color 0.5 0.5 1.0
 	size 24
 }
 
-pointlight DarkServantLight3 {
+pointlight DarkServantLight7 {
 	color 0.5 0.5 1.0
 	size 16
 }

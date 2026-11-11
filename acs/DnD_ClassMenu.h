@@ -568,7 +568,7 @@ Script "DND Server Box Receive - CharLoad" (int pnum, int boxid) NET {
 	int temp = pnum >> 16;
 	pnum &= 0xFFFF;
 
-	if(!CheckInventory("CanLoad"))
+	if(!IsRequestFromPlayer(pnum) || !CheckInventory("CanLoad"))
 		Terminate;
 		
 	if(!MenuInputData[pnum][DND_MENUINPUT_DELAY]) {

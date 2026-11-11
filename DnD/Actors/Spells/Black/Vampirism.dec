@@ -1,0 +1,37 @@
+// Vampirism's aura, carried as inventory like Agony's (see acs/DnD_Attachments.h). The marker's presence is the aura.
+Actor DnD_VampirismAuraActive : DnD_Boolean {}
+
+Actor Spell_VampirismAura_FXSpawner : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 1 ACS_NamedExecuteWithResult("DnD Spawn Player Aura", PLAYERFX_VAMPIRISMAURA)
+		Stop
+	}
+}
+
+// The ring, on VMPR A in MODELDEF.aura, shaded by Vampirism.fp: blood flowing in to its owner. Follows them while the marker holds.
+Actor Spell_VampirismAuraFX {
+	Renderstyle Add
+	Alpha 0.5
+	// the rings' fixed size
+	Scale 10.5
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOTONAUTOMAP
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_JumpIfInTargetInventory("DnD_VampirismAuraActive", 1, "Active")
+		Stop
+
+		Active:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Auras Hidden"), "Hidden")
+			VMPR A 1 Bright A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_INTERPOLATE | WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_VampirismAuraActive", 1, "Active")
+		Stop
+
+		Hidden:
+			TNT1 A 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_VampirismAuraActive", 1, "Active")
+		Stop
+	}
+}

@@ -235,30 +235,40 @@ void GiveSpellPoints(int pnum, int amt) {
 	}
 }
 
-// Both sources run through here. The counter is what the cap is read off, not the unspent pool, so
+// The ledgers live in SpellPlayerData; the inventory counters only mirror them for display.
+void SetSpellPointLedgers(int pnum, int from_level, int from_token) {
+	SpellPlayerData[pnum].from_level = from_level;
+	SpellPlayerData[pnum].from_token = from_token;
+	SetActorInventory(pnum + P_TIDSTART, "SpellPointsFromLevel", from_level);
+	SetActorInventory(pnum + P_TIDSTART, "SpellPointsFromToken", from_token);
+}
+
+// Both sources run through here. The ledger is what the cap is read off, not the unspent pool, so
 // spending points never earns a player more of them. Returns what was actually granted.
-int GiveSpellPointsFrom(int pnum, int amt, str counter, int cap) {
+int GiveSpellPointsFrom(int pnum, int amt, int given, int cap) {
 	if(amt <= 0)
 		return 0;
 
-	int given = CheckActorInventory(pnum + P_TIDSTART, counter);
 	amt = Min(amt, cap - given);
 	if(amt <= 0)
 		return 0;
 
-	GiveActorInventory(pnum + P_TIDSTART, counter, amt);
 	GiveSpellPoints(pnum, amt);
 	return amt;
 }
 
 int GiveSpellPointsFromLevel(int pnum, int amt) {
-	return GiveSpellPointsFrom(pnum, amt, "SpellPointsFromLevel", DND_SPELLPOINT_MAXFROMLEVEL);
+	amt = GiveSpellPointsFrom(pnum, amt, SpellPlayerData[pnum].from_level, DND_SPELLPOINT_MAXFROMLEVEL);
+	SetSpellPointLedgers(pnum, SpellPlayerData[pnum].from_level + amt, SpellPlayerData[pnum].from_token);
+	return amt;
 }
 
 // The monster and chest drops, held to what levelling has given by now so luck never runs ahead of the level.
 int GiveSpellPointsFromToken(int pnum, int amt) {
 	int cap = Min(DND_SPELLPOINT_MAXFROMTOKEN, GetActorLevel(pnum + P_TIDSTART) / DND_SPELLPOINT_PERLEVELS);
-	return GiveSpellPointsFrom(pnum, amt, "SpellPointsFromToken", cap);
+	amt = GiveSpellPointsFrom(pnum, amt, SpellPlayerData[pnum].from_token, cap);
+	SetSpellPointLedgers(pnum, SpellPlayerData[pnum].from_level, SpellPlayerData[pnum].from_token + amt);
+	return amt;
 }
 
 // One player's roll from inside a loot loop over players; chance already carries their drop chance. Handed over as a research is.
@@ -359,8 +369,10 @@ bool RespecSpellPoint(int pnum, int spell) {
 	SyncSpellRankWord(pnum, spell);
 	GiveSpellPoints(pnum, 1);
 
-	// An unlearned spell leaves the hotbar.
+	// An unlearned spell leaves the hotbar, and a summon's minions go home.
 	if(!r) {
+		if(SpellDefs[spell].flags & SPLF_SUMMON)
+			UnsummonPetsOfSpell(pnum, spell);
 		for(int s = 0; s < GetHotbarSlotCount(pnum); ++s) {
 			if(GetHotbarSpell(pnum, s) == spell) {
 				SetHotbarSpell(pnum, s, -1);
@@ -422,7 +434,7 @@ int PetThrowPitch(int from, int target, int z) {
 // flat ignores the caster's pitch and sends the shot level along their facing.
 void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags = 0, int angle_off = 0,
 	int side_off = 0, int rtime = 0, int origin = 0, bool flat = false,
-	int zoff = DND_SPELLPROJ_FROMVIEW, int pitch_off = 0, int parent = -1, int ripper = 0, int rips = MAX_RIPCOUNT, int rank_at = 0) {
+	int zoff = DND_SPELLPROJ_FROMVIEW, int pitch_off = 0, int parent = -1, int ripper = 0, int rips = MAX_RIPCOUNT, int rank_at = 0, int keep_tid = 0) {
 	int owner = pnum + P_TIDSTART;
 	int from = origin ? origin : owner;
 
@@ -456,15 +468,17 @@ void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags =
 	CreateProjectile(from, PROJECTILE_HELPER_TID + pnum, actor, a, pt, speed, vProj, vPos, flags, 0, 0, 0, tid);
 	SetupSpellActor(tid, pnum, spell);
 	SetSpellRipperAtSpawn(pnum, spell, actor, tid);
+	if(origin && isPet(origin))
+		SetUserVariable(tid, "user_minion", GetPetSummonSpell(PetMonsterProperties[origin - DND_PETTID_BEGIN].id) + 1);
 
 	// The spell that threw it, plus one, for a thrower whose ranks strengthen its throws (Winter Orb).
 	if(parent >= 0)
 		SetUserVariable(tid, "user_parent", parent + 1);
 
-	// Chainer and Forker arm it with the gem row they read, the thrower's for a throw; its first direct hit spends it.
-	int row = parent >= 0 ? parent : spell;
-	if(GetSpellGemMod(pnum, row, GEMSTAT_CHAIN) || GetSpellGemMod(pnum, row, GEMSTAT_FORK))
-		SetUserVariable(tid, "user_chain", row + 1);
+	// Chainer and Forker arm it with its own spell's gems, a throw's too (Winter Orb's Ice Bolt takes Ice Bolt's); its
+	// first direct hit spends it.
+	if(GetSpellGemMod(pnum, spell, GEMSTAT_CHAIN) || GetSpellGemMod(pnum, spell, GEMSTAT_FORK))
+		SetUserVariable(tid, "user_chain", spell + 1);
 
 	if(rtime > 0)
 		SetActorProperty(tid, APROP_REACTIONTIME, rtime);
@@ -482,7 +496,8 @@ void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags =
 		SetSpellRipLimit(pnum, tid, rips);
 	}
 
-	Thing_ChangeTID(tid, 0);
+	// keep_tid: one several actors share, so they can be moved as one (a Freezing Pulse wave a gem chain steers)
+	Thing_ChangeTID(tid, keep_tid);
 
 	bcs::free(vProj);
 	bcs::free(vPos);
@@ -928,7 +943,9 @@ enum {
 	CAST_NOMANA,
 	CAST_BUSY,
 	CAST_SILENCED,
-	CAST_NOROOM
+	CAST_NOROOM,
+	CAST_NOCORPSE,
+	CAST_NOMINION
 };
 
 // "If a weapon is being fired, reloaded etc. the spell won't go off. Only when the weapon is idle."
@@ -972,6 +989,12 @@ int CanCastSpell(int pnum, int spell, int cost_pct = 100) {
 		if(petkind >= 0 && GetPetsToSendHome(pnum, petkind, GetSummonKindCap(pnum, spell)) < 0)
 			return CAST_NOROOM;
 	}
+
+	// Last, as it picks and holds the corpse: a refusal above must not leave one spoken for.
+	if(SpellNeedsCorpse(spell) && !ReserveSpellCorpse(pnum, spell))
+		return CAST_NOCORPSE;
+	if(spell == SPL_DARKPACT && !(GetCorpseData().minion[pnum] = FindAimedMinion(pnum)))
+		return CAST_NOMINION;
 
 	return CAST_OK;
 }
@@ -1053,8 +1076,10 @@ int TryCastSpell(int pnum, int spell) {
 	int areas = spell == SPL_THREADEDVOLLEY ? CountVolleyAreas(pnum) : 0, pct = areas ? DND_TVOLLEY_COSTPCT : 100;
 
 	int res = CanCastSpell(pnum, spell, pct);
-	if(res != CAST_OK)
+	if(res != CAST_OK) {
+		ShowSpellRefusal(pnum, res);
 		return res;
+	}
 
 	// Mana over the cap (a cap that just shrank, or a give cheat) goes before it can pay; regen only trims it once a second.
 	res = GetUnreservedManaCap(pnum);

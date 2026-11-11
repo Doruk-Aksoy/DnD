@@ -77,6 +77,7 @@ enum {
     BTI_SPELL_BANISH_ELE,
     BTI_SPELL_BANISH_ENERGY,
     BTI_SPELL_BANISH_MAGIC,
+    BTI_SPELL_VAMPIRISM,
 
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
@@ -758,6 +759,15 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
         // Galvanic Surge rank 10: percent spell haste.
         case BTI_SPELL_GALVANICSURGE_HASTE:
             btype = BUFF_SPELLHASTE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Vampirism rank 10: lifesteal, 16.16 percent as the stat is.
+        case BTI_SPELL_VAMPIRISM:
+            btype = BUFF_LIFESTEAL;
             bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
             bvalue = inc_effect;
             bduration = new_duration;

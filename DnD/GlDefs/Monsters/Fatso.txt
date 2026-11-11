@@ -921,7 +921,7 @@ pointlight AbominationLight5 {
     size 24
 }
 
-pointlight AbominationLight5 {
+pointlight AbominationLight6 {
     color 1.0 0.75 1.0
     size 10
 }

@@ -10,8 +10,30 @@
 	- Hydra: The hit forks to up to 4 more enemies behind the target, at 10% less damage. 20% more mana cost. Greater: up to 7 more. 33% more mana cost.
 	- The projectile visibly travels from enemy to enemy. A chained projectile explodes only at its last enemy, at that chain's damage; a forking one explodes at the first enemy it hits.
 	- Serpent and Hydra do not work together on one spell: the gem in the earlier socket wins.
-	- "Chain Lightning" adds the chains to its own, and "Forked Lightning" adds the forks to its own.
-	- Works on "Fireball", "Pyroblast" and "Ice Bolt" for now.
+	- "Chain Lightning" adds the chains to its own, and "Forked Lightning" adds the forks to its own. Hydra on "Chain Lightning" forks off its first target, and Serpent on "Forked Lightning" chains off its target, each with its own lightning.
+	- Works on every spell that strikes an enemy directly: "Fireball", "Pyroblast", "Ice Bolt", "Fire Jet", "Searing Bond", "Threaded Volley", "Charged Bolt", "Lightning Spear", "Shrapnel", "Glacial Spike", "Freezing Pulse", "Venom Gyre", "Ice Spear", "Frost Shards" and "Finger of Death" (its hops are its own beam), and on the bolts "Winter Orb" and the golems throw, by those spells' own gems. Not on the "Winter Orb" itself.
+	- A piercing projectile ("Shrapnel", "Glacial Spike", "Freezing Pulse", "Venom Gyre", "Frost Shards" at rank 10, "Ice Spear" once it has grown) chains by turning itself from enemy to enemy, piercing everything on the way at that chain's damage, then flies on. With Hydra it ends at the first enemy it hits, except "Venom Gyre": its forks are gyres of their own, thrown on from that enemy, each turning home when its own time runs out.
+	- "Freezing Pulse" turns as a whole wave and "Venom Gyre" keeps its own clock: the time and distance they spend chaining comes out of their flight, so a long chain can end early.
+	- A spell thrown by another (the "Ice Bolt"s of "Winter Orb", a golem's throw) chains or forks by its own spell's gems.
+	- Bouncing spells chain or fork only at the end of their bouncing: "Charged Bolt" from rank 10 when its last bounce before it fades was off an enemy, "Lightning Spear" from its last strike through the enemy.
+	- Several chains running at once (several bolts or rocks) no longer jump back onto an enemy they already hit.
+* Gems now count only where they can do something, and an inactive gem adds no mana cost either:
+	- Summoning spells take the gems that speak of minions (and Resolute on "Summon: Doomguard", for its landing stun), and the ailment gems ("Pyromancer", "Cryomancer", "Venomancer", "Electromancer", "Sanguinomancer"), "Merciless" and "Executioner", which roll on their minions' own hits, and "Destroyer", whose resist pierce their minions' hits take. Your own damage, critical strike, leech, charge, "Archmage" and "Assassin" gems no longer count on them.
+	- "Summon: Ghast" no longer takes minion critical strike or hit gems, as its attack is your "Dark Wind" and crits and rolls as that spell does. "Dark Portal" no longer takes minion damage, critical strike or hit gems, as it deals no damage.
+* Spells your minions cast ("Summon: Ghast"'s "Dark Wind", "Summon: Doomguard"'s "Finger of Death", the golems' and the demon's throws) now gain from minion damage: increased minion damage adds to that spell's increases, and the summon's more minion damage (its own, "Legion Mastery", "Commander") multiplies it.
+* "Summon: Death Knight"'s skull ignite now gains from minion damage the same way.
+	- Spells that deal no damage (curses, "Shock", "Mark Prey") take no damage, critical strike, leech or ailment gems. Projectile ones still take projectile gems.
+	- Spells that deal only damage over time ("Blaze", "Immolation", "Righteous Fire", "Noxious Blast", "Corrosive Breath", "Plague", "Contagion", "Essence Theft", "Death and Decay") take no critical strike, more hit damage, leech, "Archmage", "Assassin", "Powerful", "Wizard", "Venomancer" or "Sanguinomancer" gems.
+	- "Venomancer" no longer counts on poison spells, which poison on their own.
+	- "Witch" counts only on curses with an effect to raise, and "Ritualist" only on curses with an area to linger in.
+	- "Quicktongue" no longer counts on curses, "Mark Prey", "Carrion Crows", "Unleash Earth" or summons limited to one at a time, which a second cast only replaces.
+* Poison from Earth spells ("Noxious Blast", "Corrosive Breath", "Venom Gyre", "Poison Nova", "Toxic Trap" and the others) is now damage from that spell: its penetration, "Merciless", "Executioner" and your other spell modifiers reach every tick.
+	- Poison a spell's hit inflicts, from "Venomancer" or "Agony", is that spell's too.
+* "Chilling Breath" and "Avalanche" now grow with area of effect: the breath reaches further, and the avalanche lands further out.
+* Area of effect modifiers no longer apply to "Poison Nova".
+* "Storm Call" now has a duration: the 1.6 seconds before the strike. Duration modifiers lengthen it.
+* "Influencer" now also raises "Legion Mastery" and "Summon Mastery"'s minion health, "Summon Mastery"'s added summon duration, and "Agony"'s rank 5 poison and bleed chance and rank 10 reduced poison.
+* "Summon Mastery"'s added duration is now raised by the summon's own duration gems.
 * New uncommon gem roles for summoning spells:
 	- Voracious: Minions gain +3% critical strike chance. 33% more mana cost. Greater: +5%, 50% more mana cost.
 	- Alpha: Minions gain +50% critical strike multiplier. 25% more mana cost. Greater: +100%, 40% more mana cost.
@@ -45,12 +67,21 @@
 	- Minion damage now grows with your level the way monster damage does, and with the attunement of the spell that summoned it.
 	- Intellect no longer adds minion damage or minion health directly. Raised monsters no longer gain damage from Intellect.
 	- Minions roll their own critical strikes: 5% chance and 150% multiplier, raised only by minion modifiers. They no longer use your crit chance.
+	- Minion hits now meet monster resistances, as yours do: resistances and immunities, the resistance monsters gain with level, weaknesses, and every curse or debuff that lowers resistances all apply. Minion resist pierce answers them; your own pierce does not.
+	- Spells your minions cast ("Summon: Ghast"'s "Dark Wind", "Summon: Doomguard"'s "Finger of Death", the golems' and the demon's casts, and their "Serpent" and "Hydra" hops) are the minion's damage too: they pierce with minion resist pierce instead of yours. The cast spell's own "Destroyer" still adds its pierce.
+	- Ignites, bleeds and poisons your minions cause ("Pyromancer", "Sanguinomancer" and "Venomancer" on a summon, the Death Knight's burning skulls) are the minion's damage too, and pierce with minion resist pierce and the summon's "Destroyer". An enemy has one burn and one bleed: whoever applied the stronger one, you or a minion, owns it and its pierce.
 	- Summon tooltips show the minion's health and the damage of each of its attacks at your level and gear, and what the next rank brings, instead of base numbers.
 	- Each rank of a summon now adds its full health at every level. Health gains under 100 per rank used to be lost to level scaling.
+	- Minions that cast your spells repeat them when that spell has "Quicktongue" socketed, as your own cast would.
+	- A cooldown recovery gem socketed in a summon spell now also speeds its minion's own abilities, alongside minion cooldown recovery rate.
 * New minion modifiers on spell items, rarer than other spell modifiers:
 	- Increased minion damage, increased minion cooldown recovery rate and increased minion health.
 	- Crit chance for minions (very rare), increased crit chance for minions and additional crit multiplier for minions.
 	- Minion corporeal resistances (every damage type except magic) and minion magic resistance. These can raise a minion's resistance up to 75%.
+	- +1 to pet cap (very rare), from item level 36. Items from dungeon final bosses and Ultimatum can roll +2 instead.
+	- Minion physical pierce, minion elemental pierce and minion magic pierce, as common as the other pierce modifiers and with a wider range: up to 32 physical or magic and 27 elemental on a medium charm, from item level 20 (38 and 32 on items from dungeon final bosses and Ultimatum).
+* The pet cap can no longer go above 10, whatever raises it.
+* New Magi minion perk "Sharpened Claws" (3 points, needs 9 Magi points and "Devoted Leader" or "Inspirational"): minions gain 8% resist pierce on all damage types, and 4% more per additional point.
 * New incursion modifiers that reward a second attribute, rarer than the other incursion modifiers and dropped only by incursion monsters:
 	- Increased weapon damage per 10 Intellect, up to 11% on armor, helms and boots.
 	- Increased spell damage per 10 Strength, and the same per 10 Dexterity, up to 8% on armor, helms and boots.
@@ -62,6 +93,30 @@
 	- The borders of the slot under the cursor light up.
 
 ==== BUG FIXES / TWEAKS ====
+* Spell tree lines redrawn so they no longer suggest requirements that do not exist:
+	- Spells that share the same requirements share one set of lines, and no other line ever joins it. Two unrelated lines that cross pass over each other instead of meeting.
+	- Hovering a spell highlights the lines of everything it requires and everything it opens.
+	- A line now turns gold once its requirement is met. This was meant to happen before but never showed.
+	- The Cold tree is rearranged so its lines no longer tangle. No spell's requirements changed.
+* Monster resistance from level reworked:
+	- It now rises smoothly from level 36 and stops growing at level 83, where it reaches 40% to every damage type. It used to jump to 30% at level 41 and keep climbing in steps, to 78% at level 100.
+	- Monsters have more health in its place, so a hit with no resist pierce kills them about as fast as before, without the sudden jump at level 41. Resist pierce is worth having rather than required.
+	- Past level 83 monsters keep getting tougher through health alone.
+	- A Nuclear elite's explosion and Doomguy's demon soul heal are unchanged by the extra health.
+* Monsters with very large health (big custom bosses) no longer break fortify, healing, chill, Incinerate and other effects that work from their maximum health.
+* Item drops from kills reworked:
+	- Every monster now has a loot value from its type, rarity, Tough or Elite status and modifiers, and a map shares its loot out by that value. A lone Baron on a small map is an event; on a map packed with Barons each one is worth much less. Bigger and harder maps still pay more in total, just not in proportion.
+	- Overall, maps of up to a few hundred weaker monsters drop about 60% more items, dense maps of strong monsters about 30% more, and slaughter maps about 5-10% more.
+	- Monster level no longer changes how many items drop. It still raises their item level and orb stacks.
+	- An Elite's drops are always well rolled.
+	- The Stats page shows how much a kill pays on this map compared with an average map.
+	- Loot chests, research and spell points from kills still scale with how many monsters a map has, more per kill on smaller maps. Your drop chance, item quantity, unique item odds, chest contents, soul and ammo drops do not change with map size.
+* Increased drop chance now always counts for item drops from kills: +100% drop chance means twice the item drops. Before, the first +50% did nothing once your starting luck ran out, and at that drop chance stronger monsters dropped items no more often than weaker ones.
+* New highlight drops:
+	- Every kill fills a hidden meter of your own, saved with your character, by the monster's loot value. Monsters far below your level fill it much more slowly.
+	- Any kill can give a highlight, more likely as the meter fills and certain once it is full. Each highlight makes the next harder for a while, easing off as you keep playing.
+	- A highlight is an extra item of any equipment type: well rolled, one more mod where it has room, twice the unique chance, two item levels higher within its usual cap, and a chance at synergy like a gold chest's. It drops in a large coloured bag with its own sound; the colour shows how far it synergised.
+	- Ordinary drops from kills no longer roll synergy, so a coloured bag from a kill is always a highlight. Chests, the merchant and Ultimatum keep theirs.
 
 * The mana bar and monster health bars no longer break into blocky patches on Vulkan renderers the longer a game runs. Their flowing patterns are laid out a little differently.
 * Elite and Tough monster properties now respect their level requirements. Below monster level 50, monsters could roll properties meant for higher levels, and some low level properties never appeared.
@@ -77,6 +132,16 @@
 	- At 1 max life ("Protoshell", or "Sanguine Covenant" without energy shield) auras switch off and cannot be switched on.
 	- Auras reserving 100% of your life together no longer fit, the last one switches off.
 * Performance: firing weapons, monster spawning on large maps and starting a new game cost much less script time, on the server and on clients.
+* Performance: loading a character in Softcore and Hardcore reads the database much faster, so the server no longer stutters while a player loads.
+* Performance: effects that look for monsters around them now look only nearby instead of checking every monster on the map: melee splash, poison and ignite spreading, overload zaps, "Thumper", "Tailwind", "Flash Parry", "Crash Course", and the "Thunder Staff", "Gravdis 5000", "Sickle", "Dark Lance" and chain lightning weapons. Large maps no longer slow down when they trigger.
+* Performance: kills and raises no longer count every monster on the map to check your minion limit, a level-up no longer rebuilds every weapon's damage at once, and the HUD costs less script time every tic.
+* Melee splash, "Thumper", "Tailwind", "Flash Parry" and "Crash Course" now measure their reach as a true distance, height included: they no longer reach monsters far above or below you, and reach their full distance diagonally too.
+* "Faraday Halo": the arc now reaches the overloaded enemies in its sight within twice the overload zap's range, instead of every overloaded enemy on the map.
+* "Thumper", "Flash Parry" and "Crash Course" now deal their damage. It never landed before. They are physical attacks: physical attack damage, increased physical attack damage, attribute bonuses and physical penetration all apply, and "Thumper" and "Flash Parry" also gain from increased attack radius damage.
+* "Flash Parry" now hits the enemies in front of you. Its cone never matched anything before.
+* Poison spreading on kill now reaches further with area of effect, as ignite proliferation does.
+* "Gravdis 5000": the pull after its blast now draws in only the monsters near that blast, instead of every monster held by any Gravdis on the map.
+* "Thunder Staff": the alt-fire's lightning now strikes only the monsters its ring reached. Enemies left marked by an earlier ring, or another player's, are no longer struck.
 * "GraveCaller": raised zombies are now the zombie "Summon: Zombie" conjures, with its health, melee damage and duration at your "Summon: Zombie" rank, or rank 1 if you have not learned it.
 	- The charm keeps raising while you have fewer than 5 zombies, counting the ones you summon yourself.
 * Fixed effects attached to the first monsters of a map (elite sparkles, reflect shields and similar) clashing with "Ultimatum" objects. An Ultimatum could remove a monster's effect, or wait on a popped pustule that never counted as gone.
@@ -89,7 +154,7 @@
 	- Pets now die when their summoner dies or leaves the game.
 	- Summoning at a full limit no longer sends home two pets to make room for one.
 	- A summon that cannot make room, such as when raised minions fill your limit, is no longer cast, and costs nothing.
-* Pets without a time limit ("Summon: Rock Golem", "Summon: Ice Golem", "Summon: Fire Demon") now follow you to the next map when the level is exited, at the health they had, with no mana, cooldown or cast time.
+* Pets without a time limit ("Summon: Rock Golem", "Summon: Ice Golem", "Summon: Fire Demon", and any minion a mastery takes the time limit off) now follow you to the next map when the level is exited, up to 10 of them, at the health they had, with no mana, cooldown or cast time.
 	- They are also saved with your character and return when you load it. Pets that died with you are not saved.
 * Skill and gem pockets: long headings, such as "In: Summon: Ice Golem", shrink to fit instead of running past the frame.
 * A new character no longer shows the flasks of your previous character on the HUD. They could not be drunk. The same applied after losing a hardcore character.
@@ -101,6 +166,7 @@
 	- Lava is thrown at a much wider range of distances, and some of it always lands close to the volcano.
 	- Releasing it early now shortens its cooldown: it recovers 8% faster for each charge not built, up to 32%. Releasing after 1 second recovers 24% faster.
 	- The volcano is now a 3D model with lava flowing down its sides. It rises out of the ground, each eruption bursts out of the crater with flames, embers and a plume of ash, and it sinks back into the ground when it ends.
+* Fixed "Searing Bond" below rank 10 also exploding around what it hit, for its full damage over 100 units. Only rank 10 explodes.
 * "Fire Jet" is now drawn as a 3D flame: a white-hot head whose fire splits into tongues streaming out behind it, shedding embers as it flies.
 	- The side flames are now small 3D flames like the jet, diving to the floor and flaring up where they land.
 	- Each side flame now bursts where it lands, damaging enemies within 48 units of it, so the flames no longer have to touch an enemy to hurt it. Below rank 10 a side flame only damages through this burst.
@@ -118,6 +184,51 @@
 * Modifiers with 6 to 8 tiers no longer fall as far below the tier their item level offers when a roll comes out low. The chance of rolling the best tiers is unchanged.
 	- Example: a 6 tier modifier on a level 83 item used to roll its lowest tier 16% of the time; its lowest possible roll is now 2 tiers higher.
 * Monsters on a map played after a dungeon could still count as that dungeon's boss, which made them harder to knock back and let effects that skip dungeon bosses skip them too. Fixed.
+* Fixed one player being able to spend another player's credits at the merchant, or act on another player's character slots, by sending menu requests in their name.
+* Trading:
+	- Confirming again after a trade failed for lack of space could destroy an item in the receiving inventory. Space is now checked again when the countdown ends, and nothing moves if it no longer fits.
+	- A trade that failed for lack of space could leave an inventory cell that refused pickups while it looked empty.
+	- Orb stacks can no longer go over their limit through a trade, whether from several offers onto one stack or from both players offering the same orb.
+	- Leaving the game in the middle of a trade no longer loses the items you had offered.
+* Leaving the game no longer resets the limit on spell points earned from levels and drops, your lifetime kill count or the NPCs you have met.
+* Moving a character to another slot at the end of a map now also moves the progress saved later on that map.
+* Wiping a character, or creating a new one over it, no longer keeps the old character's unspent spell points.
+* Loading two characters at once in Softcore no longer carries weapons from one into the other.
+* Spectating and quickly rejoining no longer stops your character from being saved for the rest of the map.
+* Buying ammo to full with too few credits for the leftover rounds now buys only the bundles you can afford. It used to hand over every round for less than its price.
+* Map items with a tag are no longer deleted at map start when "dnd_enable_limiteditems" is on, along with everything else sharing their tag.
+* The "Emberwake" trail no longer stops working after a map change.
+* Single player: walking over two health items at once at nearly full health no longer uses up the second one for nothing.
+* Map events tied to a monster's death no longer trigger twice for monsters from spawners, and they receive the values the map set instead of the monster's own.
+* "Sickle":
+	- Raising corpses no longer refuses some ordinary monsters depending on their spawn order, and bosses can no longer be raised.
+	- A corpse that is fading away can no longer be raised, and a raised minion is never deleted by a fade that started before it rose.
+	- Many corpses rising at once can no longer go past your pet limit.
+* Doomguy's "Striking Fear" perk now makes slain enemies rest in peace, as its description says.
+* Lightning that chains between enemies no longer misbehaves with more than 128 enemies in range.
+* Fixed 31 dynamic lights that never showed on monsters, projectiles and orbs, among them the "Dark Servant" missile, "Abomination", "Basilisk" and several incursion monsters.
+* New "DnD Options" page in the Options menu: interface, combat feedback, effects and gameplay settings, plus a "DnD Controls" page to bind every DnD key.
+	- Dash, the auto-pickup filter and ignoring temporary weapons now apply at once online when changed, instead of on the next map.
+* The DnD menu now fits 4:3 and 5:4 screens (and windowed modes of those shapes): it is drawn a little smaller and centred instead of being cut off at the sides.
+* Online, your inventory, equipment, stash and skill tree no longer show up empty (or with skills at no points) after a map change on some clients; they are sent again as soon as the new map loads.
+* The spell cast bar, cooldown shading and silence bar no longer fall behind under ping or right after a map change.
+* Players who load a character can no longer move around before the game starts.
+* "Bernabe" can no longer offer a level 0 item, and item levels no longer drop to 0 while a player is still loading.
+* Fully refunding a summon skill now sends its minions home.
+* Damage taken shared with your pets (unique property): you and each of your living pets now take an equal part of the hit, up to 1/9 each, and the pets really take their part, in full.
+* The pet limit now checks the minions actually standing before every summon, so it can no longer be gone past if its count falls behind.
+* Minions now wander up to 768 units from you (was 512) before being brought back.
+	- New option "Minions return to you" in "DnD Options": turn it off and minions are never brought back; turn it on again and they return.
+* Jumping is always allowed on DnD's own maps (Void Keep, Boreas Grotto, Trials of Chaos and the dungeons); other maps keep their own jump setting.
+* "Creeping Frost":
+	- Now damages enemies immune to radius damage.
+	- Its frost now steers much harder toward its target and starts out after the enemy the bolt hit.
+* "Summon: Fire Demon": its burning ground now damages enemies immune to radius damage.
+* "Ice Nova" no longer hits enemies behind walls.
+* The link from "Ice Shield" to "Hatred" in the Cold skill tree is no longer drawn broken.
+* Online, weapons could keep firing with no ammo left after a map change, for players who entered the map before the last player finished loading.
+* "Heavy Super Shotgun": "Sleight of Hand" now speeds up its reload as intended.
+* "Erasus": with "Sleight of Hand", reloading after a shot now checks for ammo and a full chamber like a normal reload.
 
 ==== MONSTER CHANGES ====
 
@@ -126,6 +237,10 @@
 	- Unchanged: monsters under 100 base health, or with a round hundred such as "Cacodemon" and "Baron of Hell".
 * Monster self-healing now scales with the monster's health, so it heals the same share of its life at every level. It barely grew with level before.
 	- Covers the regeneration of the "Roach" and "Crystal Golem", the "Dark Zealot" healing itself and nearby monsters, and the healing of "Azazel", "Hell Smith" and "Iron Lich".
+* Monsters now flinch from your hits at their intended pain chance. Apart from attacks that always cause pain, damage could not put them in pain before.
+* "ZSec" now reloads after 10 bursts and sometimes throws grenades at close range, as intended. Both were unreachable.
+	- It also no longer stays immune to pain after finishing a burst.
+* "Leshrac" gets a mine back whenever one of its mines dies, so it no longer stops laying mines.
 
 ==== DND 2022 APRIL 1ST EDITION v2.5 PATCH NOTES ====
 

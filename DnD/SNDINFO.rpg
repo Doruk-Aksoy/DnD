@@ -850,6 +850,8 @@ $alias Blockade/Sink UnleashEarth/Retract
 **************************
 */
 
+$alias Plague/Burst         AcidRifle/BoltCloud
+
 Nox/Cast                    NOXCAST
 
 TemporalChains/Cast1        TEMPCAS1
@@ -903,17 +905,34 @@ Contagion/Cast4             CONTAGC4
 Contagion/Cast5             CONTAGC5
 $random Contagion/Cast { Contagion/Cast1 Contagion/Cast2 Contagion/Cast3 Contagion/Cast4 Contagion/Cast5 }
 
+Implosion/Loop1             IMPLOSL1
+Implosion/Loop2             IMPLOSL2
+Implosion/Loop3             IMPLOSL3
+$random Implosion/Loop { Implosion/Loop1 Implosion/Loop2 Implosion/Loop3 }
+
+Implosion/Windup1           IMPLOSW1
+Implosion/Windup2           IMPLOSW2
+Implosion/Windup3           IMPLOSW3
+$random Implosion/Windup { Implosion/Windup1 Implosion/Windup2 Implosion/Windup3 }
+
+Implosion/Start1            IMPLOSS1
+Implosion/Start2            IMPLOSS2
+Implosion/Start3            IMPLOSS3
+$random Implosion/Start { Implosion/Start1 Implosion/Start2 Implosion/Start3 }
+
+Implosion/Explode1          IMPLOSX1
+Implosion/Explode2          IMPLOSX2
+Implosion/Explode3          IMPLOSX3
+Implosion/Explode4          IMPLOSX4
+$random Implosion/Explode { Implosion/Explode1 Implosion/Explode2 Implosion/Explode3 Implosion/Explode4 }
+
+Implosion/Add1              IMPLOSA1
+Implosion/Add2              IMPLOSA2
+Implosion/Add3              IMPLOSA3
+Implosion/Add4              IMPLOSA4
+$random Implosion/Add { Implosion/Add1 Implosion/Add2 Implosion/Add3 Implosion/Add4 }
+
 Implosion/Cast              IMPLOSC
-
-Implosion/Fly1              IMPLOSF1
-Implosion/Fly2              IMPLOSF2
-Implosion/Fly3              IMPLOSF3
-$random Implosion/Fly { Implosion/Fly1 Implosion/Fly2 Implosion/Fly3 }
-
-Implosion/Hit1              IMPLOSH1
-Implosion/Hit2              IMPLOSH2
-Implosion/Hit3              IMPLOSH3
-$random Implosion/Hit { Implosion/Hit1 Implosion/Hit2 Implosion/Hit3 }
 
 NightShade/See1             DSNSHSI1
 NightShade/See2             DSNSHSI2
@@ -971,3 +990,36 @@ Banish/Hit                  BANISHH
 Silence/Cast                SILENCEC
 
 MarkPrey/Cast               MARKPRYC
+
+DeathKnight/Die             DKNIGDIE
+
+Doomguard/Cast1             DGUARDC1
+Doomguard/Cast2             DGUARDC2
+Doomguard/Cast3             DGUARDC3
+$random Doomguard/Cast { Doomguard/Cast1 Doomguard/Cast2 Doomguard/Cast3 }
+
+Doomguard/See               DOOMGUS
+Doomguard/Die               DOOMGUAD
+
+Doomguard/Attack1           DOOMGUA1
+Doomguard/Attack2           DOOMGUA2
+$random Doomguard/Attack { Doomguard/Attack1 Doomguard/Attack2 }
+
+Doomguard/Pain1             DOOMGUP1
+Doomguard/Pain2             DOOMGUP2
+$random Doomguard/Pain { Doomguard/Pain1 Doomguard/Pain2 }
+
+Doomguard/Land              DOOMGUAL
+
+DarkPact/Cast               DARKPACC
+
+Desecrate/Cast1             DESECCA1
+Desecrate/Cast2             DESECCA2
+Desecrate/Cast3             DESECCA3
+$random Desecrate/Cast { Desecrate/Cast1 Desecrate/Cast2 Desecrate/Cast3 }
+
+SoulSiphon/Cast             SOULSIPC
+SoulSiphon/Drain            SOULSIPH
+
+GraveGrasp/Cast             GRAVGRAC
+GraveGrasp/Loop             GRAVGRAL

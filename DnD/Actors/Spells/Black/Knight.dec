@@ -33,6 +33,7 @@ ACTOR Spell_Knight : PetMonsterBase {
 			TNT1 A 0 A_AlertMonsters(0, AMF_TARGETNONPLAYER)
 			S041 E 5 A_FaceTarget
 			S041 F 4 A_FaceTarget
+			TNT1 A 0 A_PlaySound("hknight/axewhoosh", CHAN_WEAPON)
 			S041 G 4 A_CustomMeleeAttack(ACS_NamedExecuteWithResult("DnD Spell Minion Hit", MINIONHIT_KNIGHT, 0), "hknight/melee")
 			S041 G 3
 		Goto See
@@ -59,10 +60,11 @@ ACTOR Spell_KnightThrower : Spell_Knight {
 	States {
 		Missile:
 			TNT1 A 0 A_AlertMonsters(0, AMF_TARGETNONPLAYER)
-			S041 E 6 A_FaceTarget
-			TNT1 A 0 A_PlaySound("hknight/attack", CHAN_WEAPON)
+			// Rolled before the windup, so a red throw winds up in its red-burning KNRA frames.
 			TNT1 A 0 A_SetUserVar("user_throw", ACS_NamedExecuteWithResult("DnD Knight Throw Kind"))
 			TNT1 A 0 A_JumpIf((user_throw & 1) && random(1, 100) <= 25, "ThrowRed")
+			S041 E 6 A_FaceTarget
+			TNT1 A 0 A_PlaySound("hknight/attack", CHAN_WEAPON)
 			TNT1 A 0 A_JumpIf(user_throw & 2, "ThrowLegion")
 			// Thrown from the axe hand as frame F shows it: 51 up, 11 to its right.
 			S041 F 4 A_CustomMissile("Spell_Knight_Axe", 51, 11)
@@ -73,13 +75,15 @@ ACTOR Spell_KnightThrower : Spell_Knight {
 			S041 G 4
 		Goto See
 		ThrowRed:
+			KNRA E 6 A_FaceTarget
+			TNT1 A 0 A_PlaySound("hknight/attack", CHAN_WEAPON)
 			TNT1 A 0 A_JumpIf(user_throw & 2, "ThrowRedLegion")
-			S041 F 4 A_CustomMissile("Spell_Knight_RedAxe", 51, 11)
-			S041 G 4
+			KNRA F 4 A_CustomMissile("Spell_Knight_RedAxe", 51, 11)
+			KNRA G 4
 		Goto See
 		ThrowRedLegion:
-			S041 F 4 A_CustomMissile("Spell_Knight_RedAxeLegion", 51, 11)
-			S041 G 4
+			KNRA F 4 A_CustomMissile("Spell_Knight_RedAxeLegion", 51, 11)
+			KNRA G 4
 		Goto See
 	}
 }

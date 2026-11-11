@@ -77,12 +77,12 @@ void SpawnArmorDrop(int pnum, int rarity_boost, int max_level = MAX_REGULAR_ILVL
 			}
 			else {
 				RollArmorInfo(c, ilvl, pnum, DND_ITEM_BODYARMOR, type, MAX_ARMOR_ATTRIB_DEFAULT);
-				SpawnDrop(GetArmorDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+				SpawnDrop(HighlightLook(GetArmorDropClass(type)), 16.0, 16, pnum + 1, c, noRandomVelXY);
 			}
 		}
 		else {
 			RollArmorInfo(c, ilvl, pnum, DND_ITEM_BODYARMOR, type, MAX_ARMOR_ATTRIB_DEFAULT);
-			SpawnDrop(GetArmorDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+			SpawnDrop(HighlightLook(GetArmorDropClass(type)), 16.0, 16, pnum + 1, c, noRandomVelXY);
 		}
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
@@ -136,12 +136,12 @@ void SpawnBoot(int pnum, int rarity_boost, int max_level = MAX_REGULAR_ILVL, boo
 			}
 			else {
 				RollArmorInfo(c, ilvl, pnum, DND_ITEM_BOOT, type, MAX_BOOT_ATTRIB_DEFAULT);
-				SpawnDrop(GetBootDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+				SpawnDrop(HighlightLook(GetBootDropClass(type)), 16.0, 16, pnum + 1, c, noRandomVelXY);
 			}
 		}
 		else {
 			RollArmorInfo(c, ilvl, pnum, DND_ITEM_BOOT, type, MAX_BOOT_ATTRIB_DEFAULT);
-			SpawnDrop(GetBootDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+			SpawnDrop(HighlightLook(GetBootDropClass(type)), 16.0, 16, pnum + 1, c, noRandomVelXY);
 		}
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
@@ -290,13 +290,13 @@ void SpawnHelmDrop(int pnum, int rarity_boost, int max_level = MAX_REGULAR_ILVL,
 			}
 			else {
 				RollArmorInfo(c, ilvl, pnum, DND_ITEM_HELM, type, MAX_HELM_ATTRIB_DEFAULT);
-				SpawnDrop(GetHelmDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+				SpawnDrop(HighlightLook(GetHelmDropClass(type)), 16.0, 16, pnum + 1, c, noRandomVelXY);
 			}
 		}
 		else {
 			RollArmorInfo(c, ilvl, pnum, DND_ITEM_HELM, type, MAX_HELM_ATTRIB_DEFAULT);
 			// depending on armor type rolled, spawn its appropriate actor
-			SpawnDrop(GetHelmDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+			SpawnDrop(HighlightLook(GetHelmDropClass(type)), 16.0, 16, pnum + 1, c, noRandomVelXY);
 		}
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
@@ -345,12 +345,12 @@ void SpawnCharm(int pnum, int rarity_boost, int max_lvl = MAX_REGULAR_ILVL, bool
 			}
 			else {
 				worth = RollCharmInfo(c, ilvl, pnum, extra);
-				SpawnDrop(GetCharmDropLabel(worth), 16.0, 16, pnum + 1, c);
+				SpawnDrop(HighlightLook(GetCharmDropLabel(worth)), 16.0, 16, pnum + 1, c);
 			}
 		}
 		else {
 			worth = RollCharmInfo(c, ilvl, pnum, extra);
-			SpawnDrop(GetCharmDropLabel(worth), 16.0, 16, pnum + 1, c);
+			SpawnDrop(HighlightLook(GetCharmDropLabel(worth)), 16.0, 16, pnum + 1, c);
 		}
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SendOwnerScript("DnD Play Local Item Drop Sound", pnum, pnum, DND_ITEM_CHARM);
@@ -378,10 +378,10 @@ void SpawnSpecialtyItem(int pnum, int rarity_boost, int max_level = MAX_REGULAR_
 				SpawnDrop(StrParam(s:"PowercoreDrop_Unique", d:id - UNIQUE_POWERCORE_BEGIN), 16.0, 16, pnum + 1, c, noRandomVelXY);
 			}
 			else
-				SpawnDrop(GetSpecialtyDropClass(extra, RollSpecialtyItemInfo(c, ilvl, pnum, extra)), 24.0, 16, pnum + 1, c, noRandomVelXY);
+				SpawnDrop(HighlightLook(GetSpecialtyDropClass(extra, RollSpecialtyItemInfo(c, ilvl, pnum, extra))), 24.0, 16, pnum + 1, c, noRandomVelXY);
 		}
 		else {
-			SpawnDrop(GetSpecialtyDropClass(extra, RollSpecialtyItemInfo(c, ilvl, pnum, extra)), 24.0, 16, pnum + 1, c, noRandomVelXY);
+			SpawnDrop(HighlightLook(GetSpecialtyDropClass(extra, RollSpecialtyItemInfo(c, ilvl, pnum, extra))), 24.0, 16, pnum + 1, c, noRandomVelXY);
 		}
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SendOwnerScript("DnD Play Local Item Drop Sound", pnum, pnum, extra);

@@ -175,8 +175,10 @@ int RollSpecialtyItemInfo(int item_pos, int item_tier, int pnum, int itype) {
 	// roll random attributes for the charm
 	int i = 0, roll;
 	int sub_type = ConstructSpecialtyDataOnField(item_pos, item_tier, itype);
-	int count = random(1, MAX_SPECIALTY_ATTRIBS);
+	int count = HighlightModCount(random(1, MAX_SPECIALTY_ATTRIBS), MAX_SPECIALTY_ATTRIBS);
 	auto item = GetFieldItem(item_pos);
+	// Specialty items roll synergy only as a highlight, at the boost it brings.
+	int synergy_boost = IsHighlightRoll() ? GetSynergyBoost(-1) : -1, synergy_roll = -2, max_tries = 10;
 
 	// the return is the widening implicit this base grants -- it was being dropped, so specialty
 	// items never widened, and the arguments below were shifted by one slot as a result
@@ -184,13 +186,18 @@ int RollSpecialtyItemInfo(int item_pos, int item_tier, int pnum, int itype) {
 	
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(itype, sub_type, special_roll, item.implicit[0].attrib_id, -2, item.item_base, item.item_level);
+			roll = PickRandomAttribute(itype, sub_type, special_roll, item.implicit[0].attrib_id, synergy_roll, item.item_base, item.item_level);
+			if(max_tries-- < 0)
+				synergy_roll = -2;
 		} while(roll != -1 && CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 
 		if(roll == -1)
 			break;
 
+		NoteHighlightSynergy(synergy_roll);
 		AddAttributeToFieldItem(item_pos, roll, pnum, count);
+		if(synergy_boost != -1)
+			synergy_roll = CheckItemSynergy(synergy_roll, item_pos, synergy_boost);
 		++i;
 	}
 

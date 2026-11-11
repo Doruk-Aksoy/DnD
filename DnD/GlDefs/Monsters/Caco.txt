@@ -1419,6 +1419,13 @@ Size 48
 Offset 0 48 0
 }
 
+Pointlight AcolyteExplode7
+{
+Color 0.4 0.4 0.0
+Size 24
+Offset 0 48 0
+}
+
 Object AcolyteSummonBall
 {
 Frame SSB3ABC { Light AcolyteShot1 }

@@ -1192,19 +1192,54 @@ Model Spell_DeathAndDecayRot {
 	FrameIndex DDRT A 0 0
 }
 
-// Implosion's needle: a crimson shard spinning on its length; Scale cancels the actor's 0.35, kept for the D4FX death sprite.
-Model Spell_Implosion {
-	Path "Models/Proj"
-	Model 0 "IMPLOSN.md3"
-	Path "Graphics/ShaderTex"
-	Skin 0 "IMPLOSN.png"
-	Scale 2.857 2.857 2.857
-	ZOffset 11.4
-	PITCHFROMMOMENTUM
+// Dark Pact's rising circles: the Wanderer's rune circle and Threaded Volley's thin rim, recoloured by the actors.
+Model Spell_DarkPact_Ring {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Skin 0 "WandRune.png"
+	Scale 1.0 -1.0 1.0
 	ROTATING
-	rotation-vector 1.0 0.0 0.0
+	rotation-speed 2.5
+	FrameIndex DPRG A 0 0
+}
+
+Model Spell_DarkPact_RingRev {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Skin 0 "WandRune.png"
+	Scale 1.0 -1.0 1.0
+	ROTATING
+	rotation-speed -2.5
+	FrameIndex DPRG A 0 0
+}
+
+Model Spell_DarkPact_Band {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Skin 0 "TVGLOW.png"
+	Scale 1.0 -1.0 1.0
+	FrameIndex DPRG B 0 0
+}
+
+// Nether Walk's ground circles: the same rune circle, collapsing where it starts and spreading where it ends.
+Model Spell_NetherWalk_SigilIn {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Skin 0 "WandRune.png"
+	Scale 1.0 -1.0 1.0
+	ROTATING
 	rotation-speed 4.0
-	FrameIndex D5FX G 0 0
+	FrameIndex NWSG A 0 0
+}
+
+Model Spell_NetherWalk_SigilOut {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Skin 0 "WandRune.png"
+	Scale 1.0 -1.0 1.0
+	ROTATING
+	rotation-speed -2.0
+	FrameIndex NWSG A 0 0
 }
 
 // Dark Portal: a golden basin with a smoke void, PORTAL.md3 under PORTAL.png (DarkPortal.fp), on every frame it shows.
@@ -1372,4 +1407,157 @@ Model Spell_FireJet_SideFlare {
 	ZOffset 2
 	PITCHFROMMOMENTUM
 	FrameIndex S009 A 0 0
+}
+
+// Gem chain and fork hops for Fire Jet and Threaded Volley: their projectiles' own models.
+Model Spell_FireJet_GemArc {
+	Path "Models/Proj"
+	Model 0 "FIREJET.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "FIREJET.png"
+	Scale 0.7407 0.7407 0.7407
+	ZOffset 3
+	PITCHFROMMOMENTUM
+	FrameIndex S008 N 0 0
+}
+
+Model Spell_ThreadedVolley_Rock_GemArc {
+	Path "Models/Proj"
+	Model 0 "SHRAPNEL.md3"
+	Skin 0 "SHRAPNEL.png"
+	Scale 1.0 1.0 1.0
+	PITCHFROMMOMENTUM
+	FrameIndex ERSH A 0 0
+}
+
+// Lightning Spear's hop: the spear's model and shader skin, a model frame per HSPL letter as the spear cycles them.
+Model Spell_LightningSpear_GemArc {
+	Path "Models/Proj"
+	Model 0 "LSPEAR.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "LSPEAR.png"
+	Scale 1.54 1.54 1.54
+	PITCHFROMMOMENTUM
+	FrameIndex HSPL A 0 0
+	FrameIndex HSPL B 0 1
+	FrameIndex HSPL C 0 2
+	FrameIndex HSPL D 0 3
+	FrameIndex HSPL E 0 4
+	FrameIndex HSPL F 0 5
+	FrameIndex HSPL G 0 6
+	FrameIndex HSPL H 0 7
+	FrameIndex HSPL I 0 8
+	FrameIndex HSPL J 0 9
+}
+
+// Fork hops of the steered rippers: copies of their projectiles' blocks.
+Model Spell_GlacialSpike_GemArc {
+	Path "Models/Proj"
+	Model 0 "GLACIAL.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "GLACIAL.png"
+	Scale 1.0 1.0 1.0
+	PITCHFROMMOMENTUM
+	ROTATING
+	rotation-vector 1.0 0.0 0.0
+	rotation-speed 5.0
+	FrameIndex SPIK A 0 0
+}
+
+Model Spell_FreezingPulse_GemArc {
+	Path "Models/Proj"
+	Model 0 "FREEZWAV.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "FREEZPUL.png"
+	Scale 1.0 1.0 1.0
+	FrameIndex FPUL A 0 0
+}
+
+// Ice Spear's and Frost Shards' gem hops: copies of their blocks (both of the spear's forms park the other slot).
+Model Spell_IceSpear_GemArc {
+	Path "Models/Proj"
+	Model 0 "ICESPEAR.md3"
+	Model 1 "ICESPEAR.md3"
+
+	Path "Graphics/ShaderTex"
+	Skin 0 "ICESPEAR.png"
+	Skin 1 "ICESPRP.png"
+	Scale 1.0 1.0 1.0
+
+	PITCHFROMMOMENTUM
+	ROTATING
+	rotation-vector 1.0 0.0 0.0
+	rotation-speed 4.0
+
+	// Every model of a block is drawn on every frame, each at the frame its slot was last given, so the
+	// unused slot is parked on frame 31 (empty). The Z lines only park a slot; ISPR has no Z frame.
+	FrameIndex ISPR Z 1 31
+	FrameIndex ISPR A 0 14
+	FrameIndex ISPR Z 0 31
+	FrameIndex ISPP A 1 15
+	FrameIndex ISPP B 1 16
+	FrameIndex ISPP C 1 17
+	FrameIndex ISPP D 1 18
+	FrameIndex ISPP E 1 19
+	FrameIndex ISPP F 1 20
+	FrameIndex ISPP G 1 21
+	FrameIndex ISPP H 1 22
+	FrameIndex ISPQ A 1 23
+	FrameIndex ISPQ B 1 24
+	FrameIndex ISPQ C 1 25
+	FrameIndex ISPQ D 1 26
+	FrameIndex ISPQ E 1 27
+	FrameIndex ISPQ F 1 28
+	FrameIndex ISPQ G 1 29
+	FrameIndex ISPQ H 1 30
+}
+
+Model Spell_IceSpear_Primed_GemArc {
+	Path "Models/Proj"
+	Model 0 "ICESPEAR.md3"
+	Model 1 "ICESPEAR.md3"
+
+	Path "Graphics/ShaderTex"
+	Skin 0 "ICESPEAR.png"
+	Skin 1 "ICESPRP.png"
+	Scale 1.0 1.0 1.0
+
+	PITCHFROMMOMENTUM
+	ROTATING
+	rotation-vector 1.0 0.0 0.0
+	rotation-speed 4.0
+
+	// Every model of a block is drawn on every frame, each at the frame its slot was last given, so the
+	// unused slot is parked on frame 31 (empty). The Z lines only park a slot; ISPR has no Z frame.
+	FrameIndex ISPR Z 1 31
+	FrameIndex ISPR A 0 14
+	FrameIndex ISPR Z 0 31
+	FrameIndex ISPP A 1 15
+	FrameIndex ISPP B 1 16
+	FrameIndex ISPP C 1 17
+	FrameIndex ISPP D 1 18
+	FrameIndex ISPP E 1 19
+	FrameIndex ISPP F 1 20
+	FrameIndex ISPP G 1 21
+	FrameIndex ISPP H 1 22
+	FrameIndex ISPQ A 1 23
+	FrameIndex ISPQ B 1 24
+	FrameIndex ISPQ C 1 25
+	FrameIndex ISPQ D 1 26
+	FrameIndex ISPQ E 1 27
+	FrameIndex ISPQ F 1 28
+	FrameIndex ISPQ G 1 29
+	FrameIndex ISPQ H 1 30
+}
+
+Model Spell_FrostShard_GemArc {
+	Path "Models/Proj"
+	Model 0 "FROSTSHD.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "ICEBOLT.png"
+	Scale 1.0 1.0 1.0
+	PITCHFROMMOMENTUM
+	FrameIndex FFSD A 0 0
+	FrameIndex FFSD B 0 0
+	FrameIndex FFSD C 0 0
 }

@@ -147,7 +147,13 @@ enum {
 	SPL_BREAKIMMUNITY,
 	SPL_SILENCE,
 	SPL_MARKPREY,
-	SPL_DEATHKNIGHT
+	SPL_DEATHKNIGHT,
+	// the 2026-11-08 batch; ids follow their icons (SP433-SP437)
+	SPL_GRAVEGRASP,
+	SPL_DARKPACT,
+	SPL_VAMPIRISM,
+	SPL_SOULSIPHON,
+	SPL_DESECRATE
 };
 
 // Which numbers a spell carries. The DAMAGE, RADIUS and AMOUNT fields are plain integers; COST,
@@ -194,7 +200,9 @@ enum {
 	SPLF_MOVE			= 262144,	// moves the caster
 	SPLF_CHAIN			= 524288,	// jumps from target to target
 	SPLF_NOCOST			= 1048576,	// an active spell that costs nothing to cast
-	SPLF_STRIKE			= 2097152	// lands a direct hit on an enemy (a projectile or bolt), so the hit can chain or fork
+	SPLF_STRIKE			= 2097152,	// lands a direct hit on an enemy (a projectile or bolt), so the hit can chain or fork
+	SPLF_NOHIT			= 4194304,	// its own casts land no hit: damage over time only (hit gems do nothing)
+	SPLF_NODAMAGE		= 8388608	// its own casts deal no damage at all (damage gems do nothing)
 };
 
 #define DND_SPELL_RANKCAP 10
@@ -348,6 +356,8 @@ typedef struct {
 	int aura_on[SPELL_AURA_INTS];
 	int unspent;
 	int sockets[SPELL_SOCKET_INTS];		// spell * DND_SPELL_MAXSOCKETS + slot; see MakeSocketValue
+	int from_level;						// award ledgers: kept here so a disconnect save, made after the body is gone, still has them
+	int from_token;
 } spell_player_T;
 
 global spell_player_T 45: SpellPlayerData[MAXPLAYERS];
@@ -548,13 +558,8 @@ bool SpellThresholdMet(int pnum, int spell, int at) {
 	return GetSpellAllocatedRank(pnum, spell) && GetSpellRank(pnum, spell, true) >= at;
 }
 
-// Requirements read the ALLOCATED rank on both sides, so no amount of +levels opens a branch.
-// at_rank is the rank being bought, so the level gate ladders instead of only guarding rank 1.
-// It defaults to 1, which is the "can this node ever open" question the tree draw asks.
-bool IsSpellUnlockable(int pnum, int spell, int at_rank = 1) {
-	if(GetActorLevel(pnum + P_TIDSTART) < GetSpellRankLevelReq(spell, at_rank))
-		return false;
-
+// The requirement slots alone, ALL or ANY by flag. They read the ALLOCATED rank, so no +levels open a branch.
+bool SpellReqsMet(int pnum, int spell) {
 	int i, req, listed = 0, met = 0;
 	for(i = 0; i < DND_MAX_SKILL_REQ; ++i) {
 		req = SpellDefs[spell].req_spell[i];
@@ -565,14 +570,16 @@ bool IsSpellUnlockable(int pnum, int spell, int at_rank = 1) {
 			++met;
 	}
 
-	if(SpellDefs[spell].flags & SPLF_REQ_ANY) {
-		if(listed && !met)
-			return false;
-	}
-	else if(met != listed)
-		return false;
+	if(SpellDefs[spell].flags & SPLF_REQ_ANY)
+		return !listed || met;
+	return met == listed;
+}
 
-	return true;
+// at_rank is the rank being bought, so the level gate ladders; 1 asks whether the node can ever open.
+bool IsSpellUnlockable(int pnum, int spell, int at_rank = 1) {
+	if(GetActorLevel(pnum + P_TIDSTART) < GetSpellRankLevelReq(spell, at_rank))
+		return false;
+	return SpellReqsMet(pnum, spell);
 }
 
 // The one place the rank curve lives: base plus a linear step per rank past the first, then the
@@ -650,6 +657,10 @@ int GetSpellThresholdBonus(int spell, int which, int rank) {
 			return which == SPELLVAL_AMOUNT && r5 ? 13 : 0;
 		case SPL_DARKWIND:
 			return which == SPELLVAL_RADIUS && r10 ? 24 : 0;
+		case SPL_DESECRATE:
+			return which == SPELLVAL_AMOUNT ? rank / 3 * 2 : 0;
+		case SPL_GRAVEGRASP:
+			return which == SPELLVAL_AMOUNT && r5 ? 33 : 0;
 		case SPL_ENFEEBLE:
 			return which == SPELLVAL_RADIUS && r5 ? 128 : which == SPELLVAL_DURATION && r10 ? 4.0 : 0;
 		case SPL_PAINAMP:
@@ -759,11 +770,26 @@ int GetSpellValue(int pnum, int spell, int which, int rank_at = 0) {
 		if(PlayerModData[pnum].vals[PSTAT_SPELL_COST_LESS])
 			res = ScaleSpellValue(res, 100 - PlayerModData[pnum].vals[PSTAT_SPELL_COST_LESS]);
 	}
-	// Influencer: a passive's effect is its DAMAGE row on all four (burst share, more fire or cold, cooldown cut).
-	else if(which == SPELLVAL_DAMAGE && (SpellDefs[spell].flags & SPLF_PASSIVE))
+
+	// Influencer: a passive's effect rows (IsPassiveEffectRow).
+	if((SpellDefs[spell].flags & SPLF_PASSIVE) && IsPassiveEffectRow(spell, which))
 		res = ScaleSpellValue(res, 100 + GetSpellGemMod(pnum, spell, GEMSTAT_PASSIVE_EFFECT));
 
 	return res;
+}
+
+// A passive's rows that are its effect: DAMAGE on every one; the masteries' minion health and Summon Mastery's added seconds.
+bool IsPassiveEffectRow(int spell, int which) {
+	if(which == SPELLVAL_DAMAGE)
+		return true;
+	if(which == SPELLVAL_DAMAGE2)
+		return spell == SPL_LEGIONMASTERY || spell == SPL_SUMMONMASTERY;
+	return which == SPELLVAL_DURATION && spell == SPL_SUMMONMASTERY;
+}
+
+// A passive's fixed rank effect raised by its Influencer, as its rows are.
+int ScalePassiveEffect(int pnum, int spell, int v) {
+	return v * (100 + GetSpellGemMod(pnum, spell, GEMSTAT_PASSIVE_EFFECT)) / 100;
 }
 
 // Whether casting this is a HOSTILE ACT -- which is a wider question than whether it deals
@@ -871,6 +897,7 @@ void ResetSpellPlayerData(int pnum) {
 	}
 
 	SpellPlayerData[pnum].unspent = 0;
+	SetSpellPointLedgers(pnum, 0, 0);
 	ResetAllSpellCooldownsNew(pnum);
 }
 
@@ -1083,6 +1110,38 @@ str GetSpellFieldLumpFor(int spell, int which) {
 		return "DND_SPLFIELD_PERSOUL";
 	if(spell == SPL_FIREJET && which == SPELLVAL_DAMAGE2)
 		return "DND_SPLFIELD_SIDES";
+	switch(spell) {
+		case SPL_DESECRATE:
+			if(which == SPELLVAL_DAMAGE)
+				return "DND_SPLFIELD_CORPSELVL";
+			if(which == SPELLVAL_AMOUNT)
+				return "DND_SPLFIELD_CORPSES";
+			if(which == SPELLVAL_RADIUS)
+				return "DND_SPLFIELD_RANGE";
+		break;
+		case SPL_IMPLOSION:
+			if(which == SPELLVAL_DAMAGE2)
+				return "DND_SPLFIELD_CORPSEHP";
+			if(which == SPELLVAL_AMOUNT)
+				return "DND_SPLFIELD_RANGE";
+		break;
+		case SPL_SOULSIPHON:
+			if(which == SPELLVAL_DAMAGE)
+				return "DND_SPLFIELD_SOULS";
+		break;
+		case SPL_DARKPACT:
+			if(which == SPELLVAL_DAMAGE)
+				return "DND_SPLFIELD_MINIONLIFE";
+		break;
+		case SPL_VAMPIRISM:
+			if(which == SPELLVAL_DAMAGE)
+				return "DND_SPLFIELD_LEECH";
+		break;
+		case SPL_GRAVEGRASP:
+			if(which == SPELLVAL_AMOUNT)
+				return "DND_SPLFIELD_SLOW";
+		break;
+	}
 	return GetSpellFieldLump(which);
 }
 

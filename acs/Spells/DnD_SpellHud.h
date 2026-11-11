@@ -204,11 +204,40 @@ void SyncHotbarForSpell(int pnum, int spell) {
 			SyncHotbarSlot(pnum, i);
 }
 
+// Server side, once a second while the player is in: the clock the client reads end tics against.
+Script "DnD Server Clock" (int pnum) {
+	while(PlayerInGame(pnum)) {
+		SetActorInventory(pnum + P_TIDSTART, "P_ServerTime", Timer());
+		Delay(const:TICRATE);
+	}
+}
+
 // ---- clientside ------------------------------------------------------------------------------
 
-// Silencer: the share of the silence still to run, 0 to 100, off its end tic and the client's own Timer().
+typedef struct {
+	int val, at;
+} server_clock_T;
+
+server_clock_T module& GetServerClock() {
+	static server_clock_T s;
+	return s;
+}
+
+// The server's Timer() as this client knows it: its last push plus the client's tics since. Timer() offline.
+int ServerTimer() {
+	int v = CheckInventory("P_ServerTime");
+	if(GameType() == GAME_SINGLE_PLAYER || !v)
+		return Timer();
+	if(v != GetServerClock().val) {
+		GetServerClock().val = v;
+		GetServerClock().at = Timer();
+	}
+	return v + Timer() - GetServerClock().at;
+}
+
+// Silencer: the share of the silence still to run, 0 to 100, off its end tic and the server's clock.
 int GetSilencePercent() {
-	int left = CheckInventory("P_SilenceEnd") - Timer();
+	int left = CheckInventory("P_SilenceEnd") - ServerTimer();
 	if(left <= 0)
 		return 0;
 	return Min(100, left * 100 / DND_SILENCER_TICS);
@@ -225,7 +254,7 @@ int GetHotbarWordPercent(int slot, str word) {
 	if(total <= 0)
 		return 0;
 
-	int left = end - Timer();
+	int left = end - ServerTimer();
 	if(left <= 0)
 		return 0;
 
@@ -261,9 +290,10 @@ int GetHotbarChargesReady(int slot) {
 #define DND_HUDSTACK_NUM 27
 #define DND_HUDSTACK_DEN 16
 
-// This frame's canvas: its size, and the screen's right and bottom edges in it.
+// This frame's canvas: its size, and the screen's right and bottom edges in it; key holds the inputs it came from.
 typedef struct {
 	int w, h, right, bottom;
+	int key_w, key_h, key_cvars;
 } hud_stack_T;
 
 hud_stack_T module& GetHudStack() {
@@ -342,6 +372,15 @@ void UpdateHudStack(void) {
 		w = 640;
 		h = 480;
 	}
+
+	// the canvas only moves with the screen size or these four cvars (the + 1 keeps a first run from matching zeros)
+	int cvars = 1 + (!!GetCVar("vid_nowidescreen") | (!!GetCVar("vid_tft") << 1) | (!!GetCVar("hud_scale") << 2) | ((GetCVar("vid_aspect") & 0xFF) << 3));
+	hud_stack_T module& st = GetHudStack();
+	if(st.key_w == w && st.key_h == h && st.key_cvars == cvars)
+		return;
+	st.key_w = w;
+	st.key_h = h;
+	st.key_cvars = cvars;
 
 	int r = GetEngineScreenRatio(w, h);
 	int s = GetCVar("hud_scale") ? GetHudCleanFactor(w, h, r) : 1;
@@ -529,12 +568,12 @@ manabar_fx_T module& GetManaBarFx() {
 	return s;
 }
 
-// A mana flask drinking right now, so the surge lasts exactly as long as the drink.
+// A mana flask drinking right now, so the surge lasts exactly as long as the drink. Literal names: this runs every tic.
 bool IsManaFlaskRunning(void) {
-	for(int i = 1; i <= MAX_FLASK_SLOTS; ++i)
-		if(IsManaFlask(CheckInventory(StrParam(s:"Flask", d:i, s:"_Type")) - 1) && CheckInventory(StrParam(s:"Flask", d:i, s:"_TicCounter")))
-			return true;
-	return false;
+	return (CheckInventory("Flask1_TicCounter") && IsManaFlask(CheckInventory("Flask1_Type") - 1)) ||
+		(CheckInventory("Flask2_TicCounter") && IsManaFlask(CheckInventory("Flask2_Type") - 1)) ||
+		(CheckInventory("Flask3_TicCounter") && IsManaFlask(CheckInventory("Flask3_Type") - 1)) ||
+		(CheckInventory("Flask4_TicCounter") && IsManaFlask(CheckInventory("Flask4_Type") - 1));
 }
 
 // Tics a leeching bar's rise still glides: refilled while the pool holds anything.
@@ -683,6 +722,8 @@ typedef struct {
 	int hp, es;
 	int leech, flask, pool;
 	bool to_shield;
+	int last_hval, last_sval, last_hcap, last_scap, last_hpool, last_spool;
+	bool written;
 } leech_bars_T;
 
 leech_bars_T module& GetLeechBars() {
@@ -722,11 +763,24 @@ void UpdateLeechBars(void) {
 	s.es = GlideLeechFill(s.es, sval, s.leech && !leech_health, 1);
 
 	// The health slot's capacity grows with overhealth, as P_HealthShown's does; the ghost stops at the true cap.
-	int hcap = CheckInventory("P_HealthCap"), cap = Max(hcap, hval);
+	int hcap = CheckInventory("P_HealthCap"), cap = Max(hcap, hval), scap = GetAmmoCapacity("P_ShieldShown");
+
+	// Settled (no glide left) on the same numbers as last tic: the four bars already hold them.
+	if(s.written && s.hp == hval && s.es == sval && s.last_hval == hval && s.last_sval == sval && s.last_hcap == hcap &&
+		s.last_scap == scap && s.last_hpool == hpool && s.last_spool == spool)
+		return;
+	s.written = true;
+	s.last_hval = hval;
+	s.last_sval = sval;
+	s.last_hcap = hcap;
+	s.last_scap = scap;
+	s.last_hpool = hpool;
+	s.last_spool = spool;
+
 	SetBarAmmo("P_HealthBar", s.hp, cap);
 	SetBarAmmo("P_HealthGhost", Max(s.hp, Min(hval + hpool, cap)), cap);
 
-	cap = GetAmmoCapacity("P_ShieldShown");
+	cap = scap;
 	SetBarAmmo("P_ShieldBar", s.es, cap);
 	SetBarAmmo("P_ShieldGhost", Max(s.es, Min(sval + spool, cap)), cap);
 }
@@ -746,9 +800,10 @@ void UpdateLeechBars(void) {
 #define DND_CASTBAR_BLEED 16        // shown past the front for the shader's glow
 #define DND_CASTBAR_CODES 220       // front steps in the alpha; FUA keeps alpha as a byte, so each sits on a byte bucket's centre
 #define DND_CASTBAR_LABEL 10        // the spell name's top, in 480x320 units above the frame
+#define DND_CASTBAR_REFUSAL 11      // a refused cast's reason, this far above the label
 
 // -1 when nothing is being cast, else how far ELAPSED the cast is, 0 to 100. Same packed word and the
-// same reasoning as GetHotbarCooldownPercent: the client animates it off its own Timer().
+// same reasoning as GetHotbarCooldownPercent: the client animates it off ServerTimer().
 int GetSpellCastPercent() {
 	int end = CheckInventory("P_CastProgress");
 	if(!end)
@@ -758,7 +813,7 @@ int GetSpellCastPercent() {
 	if(total <= 0)
 		return -1;
 
-	int left = end - Timer();
+	int left = end - ServerTimer();
 	if(left <= 0)
 		return -1;
 
@@ -837,6 +892,18 @@ void DrawSpellCastBar(int pnum) {
 	}
 	else
 		DeleteText(CASTBAR_ICON_ID);
+}
+
+// Client side: the caster's own refused cast (no corpse, no minion), a line over where the cast bar names its spell.
+Script "DnD Spell Refusal" (int pnum, int res) CLIENTSIDE {
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+	SetHudSize(HUDMAX_X, HUDMAX_Y, 0);
+	SetFont("SMALLFONT");
+	int y = DND_CASTBAR_TOP * DND_CASTBAR_CDEN / DND_CASTBAR_CNUM - DND_CASTBAR_LABEL - DND_CASTBAR_REFUSAL;
+	HudMessage(l:res == CAST_NOCORPSE ? "DND_SPLNOCORPSE" : "DND_SPLNOMINION"; HUDMSG_FADEOUT, CASTBAR_REFUSAL_ID, CR_RED,
+		((HUDMAX_X / 2) << 16) + 0.4, (y << 16) + 0.1, 1.5, 0.5);
+	SetResultValue(0);
 }
 
 // Everything the spell HUD draws, in one sweep: the bars sit just under the hotbar's three runs and

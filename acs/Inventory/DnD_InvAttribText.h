@@ -421,6 +421,9 @@ str ItemAttributeString(
 		case INV_PEN_ICE:
 		case INV_PEN_LIGHTNING:
 		case INV_PEN_POISON:
+		case INV_MINION_PEN_PHYSICAL:
+		case INV_MINION_PEN_ELEMENTAL:
+		case INV_MINION_PEN_MAGIC:
 
 		case INV_KNOCKBACK_RESIST:
 		case INV_ACCURACY_INCREASE:
@@ -460,6 +463,7 @@ str ItemAttributeString(
 		case INV_SPELLFLAT_MAGICDMG:
 
 		case INV_INC_MAXPOISONSTACK:
+		case INV_MINION_PETCAP:
 			if(val > 0) {
 				if(showDetailedMods) {
 					return StrParam(

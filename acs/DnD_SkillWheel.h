@@ -123,7 +123,7 @@ Script "DnD Create Skill Wheel" (int pnum, int cleanup, int wantCast) CLIENTSIDE
 
 		// The name redraws every tic a spell is hovered, so its cooldown counts down under it.
 		if(spell >= 0) {
-			j = CheckInventory(GetHotbarCdItem(w.slot)) - Timer();
+			j = CheckInventory(GetHotbarCdItem(w.slot)) - ServerTimer();
 			SetFont("SMALLFONT");
 			if(j > 0)
 				HudMessage(s:"\c[H9]", l:GetSpellNameLump(spell), s:"\n\c[B1]", s:TicsToSeconds(j), s:"s"; HUDMSG_PLAIN, RPGMENUINVENTORYID, -1, cx, cy + 40.1, 0.0);

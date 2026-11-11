@@ -62,14 +62,14 @@ ACTOR Spell_Zombie : PetMonsterBase {
 	}
 }
 
-// Rank 5: a class of its own rather than a jump, which clients skip: the same swing in 10 tics instead of 16.
+// Rank 5: a class of its own rather than a jump, which clients skip: the same swing in 11 tics instead of 16 (50% faster).
 ACTOR Spell_ZombieHaste : Spell_Zombie {
 	States {
 		Melee:
 			TNT1 A 0 A_AlertMonsters(0, AMF_TARGETNONPLAYER)
 			ZFOD E 4 A_FaceTarget
 			TNT1 A 0 A_PlaySound("ZombieFodder/MeleeBegin", 5)
-			ZFOD F 3 A_FaceTarget
+			ZFOD F 4 A_FaceTarget
 			ZFOD G 1 A_CustomMeleeAttack(ACS_NamedExecuteWithResult("DnD Spell Zombie Melee"), "ZombieFodder/MeleeHit")
 			ZFOD G 2
 		Goto See

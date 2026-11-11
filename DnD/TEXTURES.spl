@@ -921,6 +921,46 @@ Graphic "SP432G", 64, 64
 	}
 }
 
+Graphic "SP433G", 64, 64
+{
+	Patch "SP433", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP434G", 64, 64
+{
+	Patch "SP434", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP435G", 64, 64
+{
+	Patch "SP435", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP436G", 64, 64
+{
+	Patch "SP436", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP437G", 64, 64
+{
+	Patch "SP437", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
 // The cast bar fill tinted crimson for a silence; CastBar.fp reads the tint as the silenced look.
 Graphic "SPLCSTS", 276, 16
 {
@@ -3347,4 +3387,198 @@ Sprite "CM1KH0", 64, 71
 	YScale 1.109375
 	Offset -248, 36
 	Patch "SILENCED", 0, 0
+}
+
+// Spell_Knight's red throw: its E/F/G frames, tinted so KnightFlame.fp burns them red.
+Sprite KNRAE1, 105, 157
+{
+	Offset 53, 157
+	Patch S041E1, 0, 0
+	{
+		Blend "#FFF8FF"
+	}
+}
+Sprite KNRAE2, 105, 157
+{
+	Offset 53, 157
+	Patch S041E2, 0, 0
+	{
+		Blend "#FFF8FF"
+	}
+}
+Sprite KNRAE3, 105, 157
+{
+	Offset 53, 157
+	Patch S041E3, 0, 0
+	{
+		Blend "#FFF8FF"
+	}
+}
+Sprite KNRAE4, 105, 157
+{
+	Offset 53, 157
+	Patch S041E4, 0, 0
+	{
+		Blend "#FFF8FF"
+	}
+}
+Sprite KNRAE5, 105, 157
+{
+	Offset 53, 157
+	Patch S041E5, 0, 0
+	{
+		Blend "#FFF8FF"
+	}
+}
+Sprite KNRAE6, 105, 157
+{
+	Offset 53, 157
+	Patch S041E6, 0, 0
+	{
+		Blend "#FFF8FF"
+	}
+}
+Sprite KNRAE7, 105, 157
+{
+	Offset 53, 157
+	Patch S041E7, 0, 0
+	{
+		Blend "#FFF8FF"
+	}
+}
+Sprite KNRAE8, 105, 157
+{
+	Offset 53, 157
+	Patch S041E8, 0, 0
+	{
+		Blend "#FFF8FF"
+	}
+}
+Sprite KNRAF1, 105, 157
+{
+	Offset 53, 157
+	Patch S041F1, 0, 0
+	{
+		Blend "#FFF8FF"
+	}
+}
+Sprite KNRAF2, 105, 157
+{
+	Offset 53, 157
+	Patch S041F2, 0, 0
+	{
+		Blend "#FFF8FF"
+	}
+}
+Sprite KNRAF3, 105, 157
+{
+	Offset 53, 157
+	Patch S041F3, 0, 0
+	{
+		Blend "#FFF8FF"
+	}
+}
+Sprite KNRAF4, 105, 157
+{
+	Offset 53, 157
+	Patch S041F4, 0, 0
+	{
+		Blend "#FFF8FF"
+	}
+}
+Sprite KNRAF5, 105, 157
+{
+	Offset 53, 157
+	Patch S041F5, 0, 0
+	{
+		Blend "#FFF8FF"
+	}
+}
+Sprite KNRAF6, 105, 157
+{
+	Offset 53, 157
+	Patch S041F6, 0, 0
+	{
+		Blend "#FFF8FF"
+	}
+}
+Sprite KNRAF7, 105, 157
+{
+	Offset 53, 157
+	Patch S041F7, 0, 0
+	{
+		Blend "#FFF8FF"
+	}
+}
+Sprite KNRAF8, 105, 157
+{
+	Offset 53, 157
+	Patch S041F8, 0, 0
+	{
+		Blend "#FFF8FF"
+	}
+}
+Sprite KNRAG1, 105, 157
+{
+	Offset 53, 157
+	Patch S041G1, 0, 0
+	{
+		Blend "#FFF8FF"
+	}
+}
+Sprite KNRAG2, 105, 157
+{
+	Offset 53, 157
+	Patch S041G2, 0, 0
+	{
+		Blend "#FFF8FF"
+	}
+}
+Sprite KNRAG3, 105, 157
+{
+	Offset 53, 157
+	Patch S041G3, 0, 0
+	{
+		Blend "#FFF8FF"
+	}
+}
+Sprite KNRAG4, 105, 157
+{
+	Offset 53, 157
+	Patch S041G4, 0, 0
+	{
+		Blend "#FFF8FF"
+	}
+}
+Sprite KNRAG5, 105, 157
+{
+	Offset 53, 157
+	Patch S041G5, 0, 0
+	{
+		Blend "#FFF8FF"
+	}
+}
+Sprite KNRAG6, 105, 157
+{
+	Offset 53, 157
+	Patch S041G6, 0, 0
+	{
+		Blend "#FFF8FF"
+	}
+}
+Sprite KNRAG7, 105, 157
+{
+	Offset 53, 157
+	Patch S041G7, 0, 0
+	{
+		Blend "#FFF8FF"
+	}
+}
+Sprite KNRAG8, 105, 157
+{
+	Offset 53, 157
+	Patch S041G8, 0, 0
+	{
+		Blend "#FFF8FF"
+	}
 }

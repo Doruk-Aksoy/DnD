@@ -32,7 +32,7 @@ Actor Stimpack_SP : CustomInventory {
 			TNT1 A 0
 		Fail
 		Success:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 10)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Health Pickup", 10)
 		Stop
 	}
 }
@@ -78,7 +78,7 @@ Actor Medikit_SP : CustomInventory {
 			TNT1 A 0
 		Fail
 		Success:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 25)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Health Pickup", 25)
 		Stop
 	}
 }

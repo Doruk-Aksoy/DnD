@@ -412,6 +412,42 @@ void SetSynergyBoostOverride(int val) {
 	SynergyBoostOverrideAccess(true, val);
 }
 
+// A highlight roll in progress (the spawners and rolls ask), and how many of its mods rolled under synergy.
+enum {
+	DND_HLROLL_ACTIVE,
+	DND_HLROLL_WORTH,
+	DND_HLROLL_FIELDS
+};
+
+int HighlightRollAccess(bool write, int field, int val) {
+	static int state[DND_HLROLL_FIELDS];
+	if(write)
+		state[field] = val;
+	return state[field];
+}
+
+bool IsHighlightRoll() {
+	return HighlightRollAccess(false, DND_HLROLL_ACTIVE, 0);
+}
+
+// A mod picked while a synergy tag was locked on, counted only for a highlight.
+void NoteHighlightSynergy(int synergy_roll) {
+	if(synergy_roll != -2 && IsHighlightRoll())
+		HighlightRollAccess(true, DND_HLROLL_WORTH, HighlightRollAccess(false, DND_HLROLL_WORTH, 0) + 1);
+}
+
+// A highlight drops in its own bag, by how far it synergised (1 none, 2 one mod, 3 two or more); else the usual look.
+str HighlightLook(str normal) {
+	if(!IsHighlightRoll())
+		return normal;
+	return StrParam(s:"HighlightDrop", d:1 + Min(2, HighlightRollAccess(false, DND_HLROLL_WORTH, 0)));
+}
+
+// A highlight adds a mod where the item has room.
+int HighlightModCount(int count, int max_count) {
+	return IsHighlightRoll() ? Min(max_count, count + 1) : count;
+}
+
 // An explicit argument always wins. -1 there is "none given", and 0 on the override is "unset", so a
 // caller that passes nothing and a map with no override in flight both land back on -1.
 int GetSynergyBoost(int own) {
@@ -711,8 +747,7 @@ int GetPlayerDropQuantity(int pnum) {
 	base = FixedMul(
 		base, 
 		1.0 + GetPlayerLuck(pnum) + (HasDungeonUpside(DUN_UPSIDE_QUANT) << 16) / 100 +
-		(DungeonInformation.level != -1) * (DungeonInformation.level * DND_DUNGEON_QUANTPERLVL) +
-		MapData[DND_MAPDATA_LOOTBONUS]
+		(DungeonInformation.level != -1) * (DungeonInformation.level * DND_DUNGEON_QUANTPERLVL)
 	);
 
 	return base;
@@ -729,7 +764,8 @@ int GetDropChance(int pnum) {
 	if(CVarValues[DND_CVAR_MODE] == DND_MODE_HARDCORE)
 		base = FixedMul(base, 1.0 + DND_HARDCORE_DROPRATEBONUS);
 
-	base += Clamp_Between(DND_STARTER_LUCK - (GetActorLevel(pnum + P_TIDSTART) - 1) * DND_LUCK_DIMINISHPERLVL, 0, 1.0) + MapData[DND_MAPDATA_LOOTBONUS];
+	// The map's monster count is not here: only kill loot reads it, as DND_MAPDATA_LOOTMULT.
+	base += Clamp_Between(DND_STARTER_LUCK - (GetActorLevel(pnum + P_TIDSTART) - 1) * DND_LUCK_DIMINISHPERLVL, 0, 1.0);
 
 	// chances reduced to 25%
 	if(PlayerActivities[pnum].loot_penalty)
@@ -903,11 +939,10 @@ int GetPlayerWeaponEnchant(int pnum, int wepid) {
 	return Player_Weapon_Infos[pnum][wepid].quality;
 }
 
-// break all trades between this player and others
-// Only ever touches OTHER players -- you are never engaged with yourself, so this is purely
-// "clean up everyone else's reference to the player who left".
+// break all trades between this player and others; the leaver's stake goes home before their disconnect save
 void BreakTradesBetween(int pnum) {
 	int tid;
+	ReturnTradeItems(pnum);
 	// check all trades of all players, clean players who have one going with this guy
 	for(int j = 0; j < MAXPLAYERS; ++j) {
 		if(!PlayerInGame(j))
@@ -1418,7 +1453,8 @@ void RecalculatePlayerLevelInfo() {
 	InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART] = 0;
 	int temp = 0;
 	for(int i = 0; i < MAXPLAYERS; ++i) {
-		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
+		// A player still loading holds Level 0 and would drag the average (and item levels) to 0.
+		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && CheckActorInventory(i + P_TIDSTART, "Level")) {
 			temp = CheckActorInventory(i + P_TIDSTART, "Level");
 			InformationInLevel[LEVELINFO_PLAYERLEVEL] += temp;
 			InformationInLevel[LEVELINFO_PLAYERLEVELATSTART] += temp;
@@ -1476,6 +1512,8 @@ void ResetPlayerInfo(int pnum, bool resetStash = true) {
 	ResetPlayerModList(pnum);
 	ResetInvestments(pnum);
 	ResetSpellPlayerData(pnum);
+	HighlightData[pnum].meter = 0;
+	HighlightData[pnum].heat = 0;
 	ResetSpellGemMods(pnum);
 
 	SyncAllClientsideVariables(pnum);
@@ -1703,7 +1741,7 @@ int GetPlayerDOTMulti(int pnum, int victim = -1, int wepid = -1, int ailment_mul
 }
 
 #define DND_BASE_IGNITEDMG 20
-int GetFireDOTDamage(int pnum, int bonus = 0, int victim = -1, int wepid = -1, bool isSpell = false) {
+int GetFireDOTDamage(int pnum, int bonus = 0, int victim = -1, int wepid = -1, bool isSpell = false, int extra_inc = 0) {
 	// flat dmg
 	int dmg = 	DND_BASE_IGNITEDMG +
 				!isSpell * PlayerModData[pnum].vals[PSTAT_FLATDMG_BASE + DND_DAMAGECATEGORY_FIRE] +
@@ -1711,7 +1749,7 @@ int GetFireDOTDamage(int pnum, int bonus = 0, int victim = -1, int wepid = -1, b
 				PlayerModData[pnum].vals[PSTAT_DOT_FLAT];
 
 	// The DoT increases reach all of it; bonus is a hit's own fire, which already took the hit side increases the base takes here.
-	int inc = PlayerModData[pnum].vals[PSTAT_IGN_DMG] + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED];
+	int inc = PlayerModData[pnum].vals[PSTAT_IGN_DMG] + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED] + extra_inc;
 	dmg = dmg * (100 + inc + GetHitSideDoTIncrease(pnum, DND_DAMAGECATEGORY_FIRE, isSpell)) / 100 + bonus * (100 + inc) / 100;
 	
 	// dot multi;
@@ -1731,6 +1769,28 @@ int GetFireDOTDamage(int pnum, int bonus = 0, int victim = -1, int wepid = -1, b
 #define DND_SPELL_POISON_SOURCE -2
 // The same for a spell poison priced off its row, not a hit: no hit fed it, so the poison pile adds the hit side increases.
 #define DND_SPELL_POISON_ROW -3
+// Below this, a known spell's poison: DND_SPELL_POISON_CODE - 2 * spell - (1 when priced off its row).
+#define DND_SPELL_POISON_CODE -16
+
+// The source "DnD Do Poison Damage" takes for a spell's poison, naming the spell when it is known.
+int SpellPoisonSource(int spell, bool fromRow) {
+	if(spell < 0)
+		return fromRow ? DND_SPELL_POISON_ROW : DND_SPELL_POISON_SOURCE;
+	return DND_SPELL_POISON_CODE - 2 * spell - fromRow;
+}
+
+bool IsSpellPoisonSource(int src) {
+	return src == DND_SPELL_POISON_SOURCE || src == DND_SPELL_POISON_ROW || src <= DND_SPELL_POISON_CODE;
+}
+
+bool IsRowPoisonSource(int src) {
+	return src == DND_SPELL_POISON_ROW || (src <= DND_SPELL_POISON_CODE && ((DND_SPELL_POISON_CODE - src) & 1));
+}
+
+// The spell a poison source names, or -1.
+int GetPoisonSourceSpell(int src) {
+	return src <= DND_SPELL_POISON_CODE ? (DND_SPELL_POISON_CODE - src) >> 1 : -1;
+}
 
 // The increases a hit takes that also reach a DoT no hit fed: a DoT seeded from a hit already carries them through it.
 int GetHitSideDoTIncrease(int pnum, int category, bool isSpell) {
@@ -1964,7 +2024,7 @@ int GetRegenCap(int pnum) {
 }
 
 int GetLifesteal(int pnum) {
-	int base = PlayerModData[pnum].vals[PSTAT_LIFESTEAL];
+	int base = PlayerModData[pnum].vals[PSTAT_LIFESTEAL] + pbuffs[pnum].buff_net_values[BUFF_LIFESTEAL].additive;
 
 	if(HasClassPerk_Fast(DND_PLAYER_PUNISHER, 2)) {
 		// spree * 2 => merciless

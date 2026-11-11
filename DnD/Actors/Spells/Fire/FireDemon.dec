@@ -185,6 +185,7 @@ Actor Spell_FireDemon_BurningGround2 : DnD_BaseProjectile_ForPets {
 // used to own itself and scale off nothing. Death routes to Done so a wall still burns out.
 Actor Spell_FireDemon_BurningGround_Final : DnD_BaseProjectile_ForPets {
 	-NOGRAVITY
+	+FORCERADIUSDMG
 	+Ripper
 	+NoExplodeFloor
 	+BloodlessImpact

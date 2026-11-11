@@ -450,6 +450,12 @@ void CalculateMonsterGainMult(int m_id, int rarity = DND_MWEIGHT_COMMON) {
 			if(HasMonsterTrait(m_id, i))
 				MonsterProperties[m_id].droprate += GetEliteModPower(i);
 	
+		// Loot value: class, rarity, Tough or Elite, modifiers. Level raises item quality, never how much drops.
+		int f = MonsterProperties[m_id].flags;
+		int v = (drop_base << 16) / 100 * (100 + GetMonsterRarityDroprateBonus(rarity));
+		v = v / 100 * (100 + DND_ELITEBONUS_FROM_RARITY * !!(f & DND_MONFLAG_ISMAGIC) + 2 * DND_ELITEBONUS_FROM_RARITY * !!(f & DND_MONFLAG_ISELITE));
+		MonsterProperties[m_id].loot_value = v / 100 * (100 + MonsterProperties[m_id].droprate);
+
 		drop_base = drop_base * (100 + MonsterProperties[m_id].droprate) / 100;
 
 		// droprate for regular monsters, low level trash tier monsters drop nothing or rarely vs. higher tier and higher level monsters
@@ -466,6 +472,7 @@ void CalculateMonsterGainMult(int m_id, int rarity = DND_MWEIGHT_COMMON) {
 		
 		// droprate here for custom dungeon bosses is 0, because they should call their own loot dropper script!
 		MonsterProperties[m_id].droprate = 0;
+		MonsterProperties[m_id].loot_value = 0;
 		MonsterProperties[m_id].rarity_boost = 33; // 33% rarity boost on dungeon monsters
 	}
 }
@@ -501,7 +508,7 @@ void HandlePostInitTraits(int m_id, int id, int rarity = DND_MWEIGHT_COMMON, boo
 	if(HasMonsterTrait(m_id, DND_FORTIFIED)) {
 		// full fortify exceptions
 		if(id != MONSTER_TERON && id != MONSTER_CHEGOVAX)
-			SetInventory("MonsterFortifyCount", MonsterProperties[m_id].maxhp * (DND_FORTIFY_AMOUNT + random(0, 100 - DND_FORTIFY_AMOUNT)) / 100);
+			SetInventory("MonsterFortifyCount", MulPercent_Exact(MonsterProperties[m_id].maxhp, DND_FORTIFY_AMOUNT + random(0, 100 - DND_FORTIFY_AMOUNT)));
 		else
 			SetInventory("MonsterFortifyCount", MonsterProperties[m_id].maxhp);
 	}
@@ -634,9 +641,7 @@ int GetMonsterResistWeakness(int m_id, int damage_category, bool pet = false) {
 
 void InitMonsterResists(int m_id) {
 	int temp = 0;
-	int bonus = 0;
-	if(MonsterProperties[m_id].level > DND_MONSTER_RESIST_LEVELS)
-		bonus += MONSTER_RES_PER_THRESHOLD + ((MonsterProperties[m_id].level - DND_MONSTER_RESIST_LEVELS) / 10) * MONSTER_RES_PER_PLUS40;
+	int bonus = GetMonsterLevelResist(MonsterProperties[m_id].level);
 
 	if((temp = HasDungeonAttributeVal(DUN_ATTR_INCREASEDRESISTS)) != -1)
 		bonus += temp;

@@ -23,25 +23,17 @@ Actor DnD_CurrentBleedDamage : DnD_Info { }
 // bleed is a script, and inventory outlives scripts. While the timer was the ownership test a
 // monster could carry a non-zero one with nothing behind it, and nothing could restart the bleed.
 Actor DnD_BleedScripts : DnD_Info { }
+
+// Whose the burn and the bleed are: the summon + 1 while the strongest application was a minion's, so the ticks
+// meet resists with minion pierce. 0 is the player's own.
+Actor DnD_IgniteMinion : DnD_Info { }
+Actor DnD_BleedMinion : DnD_Info { }
 Actor DnD_OverloadTimer : DnD_Info { }
 Actor DnD_OverloadDamage : DnD_Info { }
 
 Actor DnD_OverloadLockTime : PowerProtection {
 	damagefactor "normal", 1.0
 	powerup.duration -2
-}
-
-Actor DnD_OverloadZapCandidate : PowerProtection {
-	damagefactor "normal", 1.0
-	powerup.duration 3
-}
-
-Actor DnD_OverloadZapGiver : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_RadiusGive("DnD_OverloadZapCandidate", 512 + radius, RGF_MONSTERS, 1)
-		Stop
-	}
 }
 
 // The two ailment CLEARERS. RemoveIgnite and RemoveChillFreeze themselves are artifact granted

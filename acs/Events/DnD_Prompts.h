@@ -1421,13 +1421,15 @@ Script "DND Server Box Receive - NPC" (int pnum, int boxid, int npc_id) NET {
 		Terminate;
 	int temp = pnum >> 16;
 	pnum &= 0xFFFF;
+	if(!IsRequestFromPlayer(pnum))
+		Terminate;
 
 	if(!MenuInputData[pnum][DND_MENUINPUT_DELAY]) {
 		SetActivator(pnum + P_TIDSTART);
 		MenuInputData[pnum][DND_MENUINPUT_DELAY] = DND_MENU_INPUTDELAYTICS;
 		MenuInputData[pnum][DND_MENUINPUT] = temp;
 		GiveInventory("DND_ACK", 1);
-		
+
 		if(temp == DND_MENUINPUT_USEBUTTON) {
 			// force close the menu for us
 			ClosePrompt();
