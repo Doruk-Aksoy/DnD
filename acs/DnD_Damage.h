@@ -2246,9 +2246,35 @@ bool IsNulledByAvatarOfFire(int pnum, int damage_category) {
 	return PlayerModData[pnum].vals[PSTAT_AVATAROFFIRE] && damage_category != DND_DAMAGECATEGORY_FIRE;
 }
 
+// One tic's resist reads, by monster, damage type, the hitter's own cut and occult: a shotgun's pellets read once.
+// A debuff landed during the tic counts from the next one (accepted). Direct-mapped: a clash just reads again.
+#define DND_RESIST_MEMO_SIZE 256
+typedef struct {
+	int key[DND_RESIST_MEMO_SIZE], tic[DND_RESIST_MEMO_SIZE], pct[DND_RESIST_MEMO_SIZE], val[DND_RESIST_MEMO_SIZE];
+} resist_memo_T;
+
+resist_memo_T module& GetResistMemo() {
+	static resist_memo_T s;
+	return s;
+}
+
 // The monster's resist after every debuff it carries, capped, then its weakness; pct_val is the hitter's own % cut.
 // Players and minions both meet this; penetration is the caller's, against the capped number.
 int GetMonsterEffectiveResist(int victim, int damage_category, int pct_val, bool occult) {
+	resist_memo_T module& memo = GetResistMemo();
+	int key = victim * 32 + damage_category * 2 + !!occult, slot = (victim * 9 + damage_category * 2 + !!occult) & (DND_RESIST_MEMO_SIZE - 1);
+	int now = Timer() + 1;
+	if(memo.tic[slot] == now && memo.key[slot] == key && memo.pct[slot] == pct_val)
+		return memo.val[slot];
+	int res = ReadMonsterEffectiveResist(victim, damage_category, pct_val, occult);
+	memo.tic[slot] = now;
+	memo.key[slot] = key;
+	memo.pct[slot] = pct_val;
+	memo.val[slot] = res;
+	return res;
+}
+
+int ReadMonsterEffectiveResist(int victim, int damage_category, int pct_val, bool occult) {
 	int mon_id = victim - DND_MONSTERTID_BEGIN;
 	// The TRUE resist, which may sit above DND_IMMUNITY_FACTOR: reductions eat into the excess before the cap.
 	int resist = MonsterProperties[mon_id].resists[damage_category];
@@ -2452,17 +2478,38 @@ int FactorResists(int source, int victim, int wepid, int dmg, int damage_type, i
 }
 
 // for player hitting others damage
+// The player's side of HandlePlayerBuffs, read once a tic: the accessory bits and Agamotto's token.
+typedef struct {
+	int tic[MAXPLAYERS], acc[MAXPLAYERS], agamotto[MAXPLAYERS];
+} player_buff_memo_T;
+
+player_buff_memo_T module& GetPlayerBuffMemo() {
+	static player_buff_memo_T s;
+	return s;
+}
+
+int GetMemoAccessories(int pnum) {
+	player_buff_memo_T module& memo = GetPlayerBuffMemo();
+	int now = Timer() + 1;
+	if(memo.tic[pnum] != now) {
+		memo.tic[pnum] = now;
+		memo.acc[pnum] = CheckActorInventory(pnum + P_TIDSTART, "Accessory_Index");
+		memo.agamotto[pnum] = CheckActorInventory(pnum + P_TIDSTART, "AgamottoOffense");
+	}
+	return memo.acc[pnum];
+}
+
 int HandlePlayerBuffs(int p_tid, int enemy_tid, int damage_type, int wepid, int flags) {
-	int more_bonus = 100;
-	if(!IsOccultDamage(damage_type) && IsAccessoryEquipped(p_tid, DND_ACCESSORY_DEMONBANE))
+	int more_bonus = 100, acc = GetMemoAccessories(p_tid - P_TIDSTART);
+	if(!IsOccultDamage(damage_type) && (acc & DND_ACCESSORY_DEMONBANE))
 		more_bonus = more_bonus * (100 - DND_DEMONBANE_REDUCE) / 100;
 		
 	// ghost enemies take more damage if nether mask is equipped
-	if(CheckFlag(enemy_tid, "GHOST") && IsAccessoryEquipped(p_tid, DND_ACCESSORY_NETHERMASK))
+	if((acc & DND_ACCESSORY_NETHERMASK) && CheckFlag(enemy_tid, "GHOST"))
 		more_bonus = more_bonus * (100 + DND_NETHERGHOST_BONUS) / 100;
 		
 	// amps fire damage, reduces cold damage
-	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_AMULETHELLFIRE)) {
+	if(acc & DND_ACCESSORY_AMULETHELLFIRE) {
 		// we handle ignite damage buff in the dot calculation
 		if(IsFireDamage(damage_type) && !(flags & DND_DAMAGETICFLAG_NOIGNITESTACK))
 			more_bonus = more_bonus * (100 + DND_AMULETHELL_DAMAGE) / 100;
@@ -2470,12 +2517,12 @@ int HandlePlayerBuffs(int p_tid, int enemy_tid, int damage_type, int wepid, int 
 			more_bonus = more_bonus * (100 - DND_AMULETHELL_DAMAGE) / 100;
 	}
 	
-	if(!(IsMeleeDamage(damage_type) || (flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) && IsAccessoryEquipped(p_tid, DND_ACCESSORY_HATESHARD))
+	if(!(IsMeleeDamage(damage_type) || (flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) && (acc & DND_ACCESSORY_HATESHARD))
 		more_bonus = more_bonus * (100 - DND_HATESHARD_REDUCTION) / 100;
 	
 	// Artemis and the Lich Arm name weapons and attacks, so a spell's damage takes neither.
 	bool isSpell = flags & DND_DAMAGETICFLAG_SPELL;
-	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_HANDARTEMIS) && wepid >= 0 && !isSpell) {
+	if((acc & DND_ACCESSORY_HANDARTEMIS) && wepid >= 0 && !isSpell) {
 		if(IsSuperWeapon(wepid))
 			more_bonus = more_bonus * (100 - DND_ARTEMIS_REDUCE_SUPER) / 100;
 		else
@@ -2483,10 +2530,10 @@ int HandlePlayerBuffs(int p_tid, int enemy_tid, int damage_type, int wepid, int 
 	}
 		
 	// if there's poison stack that means it's a regular poison attack, but if there's not that means its a poison dot, do not include it again for that
-	if(CheckInventory("AgamottoOffense") && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK))
+	if(GetPlayerBuffMemo().agamotto[p_tid - P_TIDSTART] && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK))
 		more_bonus = more_bonus * (100 + DND_AGAMOTTO_OFFENSE) / 100;
 	
-	if(!isSpell && IsAccessoryEquipped(p_tid, DND_ACCESSORY_LICHARM)) {
+	if(!isSpell && (acc & DND_ACCESSORY_LICHARM)) {
 		if(damage_type == DND_DAMAGETYPE_SOUL || (flags & DND_DAMAGETICFLAG_SOULATTACK))
 			more_bonus = more_bonus * (100 + DND_LICHARM_BUFF) / 100;
 		else
@@ -2507,7 +2554,7 @@ int HandlePlayerBuffs(int p_tid, int enemy_tid, int damage_type, int wepid, int 
 	int ele_packed = GetPlayerBuffElementalMorePacked(p_tid - P_TIDSTART, ele_idx);
 	if(ele_packed != DND_PACKED_MULT_IDENTITY)
 		more_bonus = ApplyPackedMultiplier(more_bonus, ele_packed);
-	else if(IsElementalDamageType(damage_type) && IsAccessoryEquipped(p_tid, DND_ACCESSORY_SIGILELEMENTS))
+	else if(IsElementalDamageType(damage_type) && (acc & DND_ACCESSORY_SIGILELEMENTS))
 		more_bonus = more_bonus * (100 - DND_SIGIL_NERF) / 100; // DND_SIGIL_NERF is 100: total negation, by design
 	
 	// 50% more damage taken
@@ -2575,7 +2622,27 @@ int HandlePlayerOnHitBuffs(int p_tid, int enemy_tid, int dmg, int dmg_data, str 
 
 // This function is responsible for handling all damage effects player has that affect their damage some way
 // ex: curses etc.
+// Charges and the buffs' "more", once a tic per player: a charge gained mid-tic counts from the next (accepted).
+typedef struct {
+	int tic[MAXPLAYERS], val[MAXPLAYERS];
+} generic_more_memo_T;
+
+generic_more_memo_T module& GetGenericMoreMemo() {
+	static generic_more_memo_T s;
+	return s;
+}
+
 int HandleGenericPlayerMoreDamageEffects(int pnum, int wepid) {
+	generic_more_memo_T module& memo = GetGenericMoreMemo();
+	int now = Timer() + 1;
+	if(memo.tic[pnum] != now) {
+		memo.tic[pnum] = now;
+		memo.val[pnum] = ReadGenericPlayerMoreDamage(pnum);
+	}
+	return memo.val[pnum];
+}
+
+int ReadGenericPlayerMoreDamage(int pnum) {
 	int more_bonus = 100;
 	int temp;
 	temp = PlayerModData[pnum].vals[PSTAT_EX_MOREDAMAGEPERCHARGE];
@@ -5908,8 +5975,9 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	// Everything after this function -- armor, the damage floor, the eshield deduction, the on hit
 	// buffs, the hit cooldown, the push -- is once per hit machinery, and a second Thing_Damage2 on
 	// the player would re-enter the damage event and pay every bit of it twice.
-	int p_flags[DND_MAX_TOUCHGAINS + 1];
-	int p_amt[DND_MAX_TOUCHGAINS + 1];
+	// the hit, its touch gains, and Mana Burner's portion
+	int p_flags[DND_MAX_TOUCHGAINS + 2];
+	int p_amt[DND_MAX_TOUCHGAINS + 2];
 	int p_count = 1;
 
 	// Player-side DoTs are delivered by DealDOTDamage through Thing_Damage2, which carries no
@@ -5996,6 +6064,14 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 			p_amt[p_count] = MulPercent_Exact(dmg, gain_pct[e]);
 			++p_count;
 		}
+	}
+
+	// Mana Burner: the burned mana is its own lightning portion, so it meets lightning resist apart from the hit
+	if(m_id != -1 && !isDot && !isReflected && HasMonsterTrait(m_id, DND_MANABURNER) && (temp = GetPlayerMana(pnum) * DND_MANABURNER_PCT / 100)) {
+		SetPlayerMana(pnum, GetPlayerMana(pnum) - temp);
+		p_flags[p_count] = DND_DAMAGETYPEFLAG_LIGHTNING;
+		p_amt[p_count] = temp;
+		++p_count;
 	}
 
 	// chill is the only ailment that needs its element's own subtotal -- see the block below

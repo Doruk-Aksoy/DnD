@@ -37,6 +37,9 @@
 #define DND_SILENCER_CHANCE 33
 #define DND_SILENCER_TICS (4 * TICRATE)
 
+// Mana Burner: the share of current mana a hit burns, landed back as lightning damage
+#define DND_MANABURNER_PCT 10
+
 enum {
 	DND_TRAITCODE_WEAKNESS,
 	DND_TRAITCODE_RESIST,
@@ -168,6 +171,7 @@ enum {
 
 	DND_CURSEIMMUNE,
 	DND_SILENCER,
+	DND_MANABURNER,
 
 	// never add below these!!
 	DND_GUARDBROKEN,
@@ -269,6 +273,7 @@ int GetEliteModPower(int t) {
 		case DND_VOLTAIC:
 		case DND_HEXFUSION:
 		case DND_SILENCER:
+		case DND_MANABURNER:
 		case DND_ARMORPEN:
 		case DND_EXTRASTRONG:
 		case DND_HASTE:
@@ -554,6 +559,8 @@ str GetMonsterTraitLabel(int id) {
 		return "DND_EMOD_CURSEIMMUNE";
 		case DND_SILENCER:
 		return "DND_EMOD_SILENCER";
+		case DND_MANABURNER:
+		return "DND_EMOD_MANABURNER";
 
 		case DND_GUARDBROKEN:
 		return "DND_EMOD_GUARDBROKEN";

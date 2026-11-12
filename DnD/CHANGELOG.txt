@@ -1,5 +1,15 @@
 ==== DND NEXT VERSION PATCH NOTES ====
 
+* The Shop in the DnD menu has a new look: a near full screen frame with section tabs along the top (Character, Skills, Gear, Shop, Research, World, Codex), sub tabs below them, and a status strip with your level, experience, credits and budget.
+	- Weapons and ammunition are a list with a details pane: hover an entry to see its picture, damage types, properties, description, price and stock. Left click buys, right click sells a weapon or buys ammunition in bulk, as before.
+	- Selling a weapon now asks in a popup with Sell and Cancel buttons, and shows how much you get back. A second right click no longer confirms the sale; clicking anywhere outside the buttons cancels it.
+	- Slot buttons jump straight to any weapon slot or ammunition category, and slots with several pages have page arrows.
+	- Back, home and forward buttons sit at the top right, next to a Close button.
+	- The Character and Skills tabs show how many points you have to spend.
+	- The Character section has the same look: an Overview with your level, experience, credits and attributes (hover one to read what it does and its refund cost), and a Stat sheet with Offense, Defense, Utility, Exotic and Misc buttons. Long stat lists scroll with the forward and back keys.
+	- Perks are on the new frame too: archetype buttons along the top, each tree as a list with lines and arrows from a perk to the perks it unlocks, and a details pane with the perk's rank, what is blocking it, each further point and the refund cost. Long trees scroll with the forward and back keys. The dash toggle sits under the archetype list.
+	- Research is on the new frame: Overview, Body, Ammo, Weapons and Utility tabs. Each category is a list with icons showing what is researched, found or still unknown; pick an entry to see its picture, cost, discovery chance and description, with Research and Invest buttons beside it. Weapons split into Slot weapons and Luxury bundles. The left and right keys still step through the entries, and budget donation sits on the Overview.
+	- The other menu pages keep their old look for now.
 * New elite property "Curse Immune": the monster is unaffected by curses, unless a skill states it can affect curse immune enemies.
 	- Can roll on Elite and Tough monsters from monster level 30.
 * New very rare gem roles, for curse skills only:
@@ -50,6 +60,8 @@
 * New elite property "Silencer": hits from the monster's attacks and spells have a 33% chance to silence you for 4 seconds; its damage over time does not. A new silence restarts the timer.
 	- While silenced you cannot cast spells. A spell being cast never comes out, channelled spells end as if you let go ("Annihilus" releases what it has charged so far) and toggled spells switch off. Auras and passives keep running.
 	- Can roll on Elite and Tough monsters from monster level 40.
+* New elite property "Mana Burner": hits from the monster's attacks and spells burn 10% of your current mana, and you take the burned mana as extra lightning damage, reduced by your elemental resistance. Its damage over time does not.
+	- Can roll on Elite and Tough monsters from monster level 30.
 * Attributes now reward spreading your points:
 	- The damage an attribute gives to weapons, spells and minions counts in full up to your level, and a quarter past it.
 	- Dexterity also grants spell haste, up to 25%. Intellect also grants increased spell cooldown recovery rate, up to 20%. Both grow fastest from the first points.
@@ -140,6 +152,13 @@
 * "Thumper", "Flash Parry" and "Crash Course" now deal their damage. It never landed before. They are physical attacks: physical attack damage, increased physical attack damage, attribute bonuses and physical penetration all apply, and "Thumper" and "Flash Parry" also gain from increased attack radius damage.
 * "Flash Parry" now hits the enemies in front of you. Its cone never matched anything before.
 * Poison spreading on kill now reaches further with area of effect, as ignite proliferation does.
+* Performance: spells that look for enemies around them (targeting, curses, chains and forks, novas, auras and ground areas) now look only nearby instead of checking every monster on the map.
+* Performance: several hits on one monster in the same tic (shotgun pellets, splash) work out its resistances once. A debuff landed during that tic counts from the next one.
+* "Ice Nova" now spreads as a sphere: enemies far above or below you are no longer hit, and those up close in any direction are.
+* "Forked Lightning" and the "Hydra" gem fork to enemies within their reach in every direction, height included, instead of any height.
+* "Gust of Frost" no longer reaches enemies more than 128 units above or below it.
+* "Storm Brand", "Monsoon", "Thunder Clap", "Storm Call", "Baleful Infusion"'s spread, "Vines of Torment" and "Upheaval" no longer reach enemies far above or below their area.
+* Martialist "Expose Weakness": the parry that applies it no longer deals its hit as the wrong damage type.
 * "Gravdis 5000": the pull after its blast now draws in only the monsters near that blast, instead of every monster held by any Gravdis on the map.
 * "Thunder Staff": the alt-fire's lightning now strikes only the monsters its ring reached. Enemies left marked by an earlier ring, or another player's, are no longer struck.
 * "GraveCaller": raised zombies are now the zombie "Summon: Zombie" conjures, with its health, melee damage and duration at your "Summon: Zombie" rank, or rank 1 if you have not learned it.

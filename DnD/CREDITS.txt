@@ -129,6 +129,8 @@ Thanks to:
 - Grinding Gear Games for Path of Exile. (Sounds, Graphics)
 - Audionautics (Freesound, "Lava loop.wav", CC BY 3.0) for the Death and Decay sludge loop.
 - zimbot (Freesound, "UnrelentingAgony2.wav", CC BY 4.0), cut down and looped for the Grave's Grasp wailing loop.
+- Jersey 15 (Copyright 2023 The Soft Type Project Authors) and Chakra Petch (Copyright 2018 The Chakra Petch Project Authors), SIL Open Font License 1.1, for the menu fonts.
+- ambientCG.com (Metal038, PaintedMetal013, Metal022, CC0) for textures in the menu frame.
 
 =========================
 - Torches by Combinebobnt

@@ -120,6 +120,7 @@ DND_EMOD_POISON_IMMUNE			= "\cmPoison Immune\c-";
 DND_EMOD_LIGHTNING_IMMUNE		= "\cmLightning Immune\c-";
 DND_EMOD_CURSEIMMUNE			= "\cmCurse Immune\c-";
 DND_EMOD_SILENCER				= "\cvSilencer\c-";
+DND_EMOD_MANABURNER				= "\cvMana Burner\c-";
 DND_EMOD_EXHAUSTING				= "\cgExhausting";
 DND_EMOD_EXTRASPEED				= "\cgExtra Speed";
 

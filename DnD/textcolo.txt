@@ -304,3 +304,50 @@ Y9 {
                 #00a3c1  #0064d5 81 199
                 #0064d5  #65ebff 200 256
 }
+
+// Menu redesign colours: ramps from black so the anti-aliased glyph edges of the new menu fonts fade like alpha.
+UIGold {
+	#000000 #e8b23a 0 256
+	Console:
+	#000000 #e8b23a 0 256
+}
+UIWhite {
+	#000000 #e9e6df 0 256
+	Console:
+	#000000 #e9e6df 0 256
+}
+UICyan {
+	#000000 #5fd0dc 0 256
+	Console:
+	#000000 #5fd0dc 0 256
+}
+UIGrey {
+	#000000 #96929c 0 256
+	Console:
+	#000000 #96929c 0 256
+}
+UIDim {
+	#000000 #5c5962 0 256
+	Console:
+	#000000 #5c5962 0 256
+}
+UIGreen {
+	#000000 #6ad86a 0 256
+	Console:
+	#000000 #6ad86a 0 256
+}
+UIInk {
+	#000000 #1e0e02 0 256
+	Console:
+	#000000 #1e0e02 0 256
+}
+UIRed {
+	#000000 #e0604a 0 256
+	Console:
+	#000000 #e0604a 0 256
+}
+UISlate {
+	#000000 #7a84a6 0 256
+	Console:
+	#000000 #7a84a6 0 256
+}

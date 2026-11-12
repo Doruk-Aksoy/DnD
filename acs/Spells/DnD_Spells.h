@@ -2589,9 +2589,9 @@ Script "DnD Ice Nova" (int pnum) {
 	bool weaken = SpellThresholdMet(pnum, SPL_ICENOVA, DND_SPELL_THRESH_HIGH);
 
 	int ox = GetActorX(caster), oy = GetActorY(caster), oz = GetActorZ(caster) + GetActorProperty(caster, APROP_HEIGHT) / 2;
-	int bx = ox >> 16, by = oy >> 16;
+	int bx = ox >> 16, by = oy >> 16, bz = oz >> 16, dz;
 
-	// The drawn ring, on a tid of its own for the whole cast because its size is rewritten every
+	// The drawn ring, on a tid of its ownfor the whole cast because its size is rewritten every
 	// tic. It does not have to land on the damage steps -- it has to look smooth.
 	int fx = DND_ICENOVA_FX_TID + pnum;
 	bool drawn = !!SpawnForced("Spell_IceNova", ox, oy, GetActorFloorZ(caster) + DND_ICENOVA_Z, fx, 0);
@@ -2625,20 +2625,23 @@ Script "DnD Ice Nova" (int pnum) {
 		++step;
 		r = full * step / DND_ICENOVA_STEPS;
 
-		int scan_from = ScanMonstersAt(ox, oy, oz, (r << 16) + DND_SCAN_FEETMARGIN), scan_end = GetMonsterScanEnd();
+		// a sphere round the caster's centre, measured to each monster's centre
+		int scan_from = ScanMonstersAt(ox, oy, oz, (r << 16) + 2.0), scan_end = GetMonsterScanEnd();
 		for(mn = scan_from; mn < scan_end; ++mn) {
 			i = GetMonsterScanTid(mn);
 
-			// Box reject first: UsedMonsterTIDs counts every monster the map ever spawned.
 			dx = (GetActorX(i) >> 16) - bx;
 			if(dx > r || dx < -r)
 				continue;
 			dy = (GetActorY(i) >> 16) - by;
 			if(dy > r || dy < -r)
 				continue;
+			dz = ((GetActorZ(i) + GetActorProperty(i, APROP_HEIGHT) / 2) >> 16) - bz;
+			if(dz > r || dz < -r)
+				continue;
 
-			// The ANNULUS, not the disc. Anything nearer was caught by an earlier step.
-			d2 = dx * dx + dy * dy;
+			// The SHELL, not the ball. Anything nearer was caught by an earlier step.
+			d2 = dx * dx + dy * dy + dz * dz;
 			if(d2 > r * r || d2 <= prev * prev)
 				continue;
 			if(!IsActorAlive(i) || !IsSpellEnemy(i))
@@ -4586,12 +4589,12 @@ fork_cand_T module& GetForkCandidates() {
 	return s;
 }
 
-// Enemies behind target along the line (lx, ly), within the fork reach and cone and in sight of it, into GetForkCandidates.
+// Enemies behind target along the line (lx, ly), within the fork's hop (3D, centre to centre), in its cone and in sight.
 int CollectForkCandidates(int target, int lx, int ly) {
-	int tx = GetActorX(target), ty = GetActorY(target);
+	int tx = GetActorX(target), ty = GetActorY(target), tz = GetActorZ(target) + GetActorProperty(target, APROP_HEIGHT) / 2;
 	auto cand = GetForkCandidates();
-	int i, m, dx, dy, d, n = 0;
-	int scan_from = ScanMonstersNear(target, DND_FORKED_REACH + DND_SCAN_FEETMARGIN), scan_end = GetMonsterScanEnd();
+	int i, m, dx, dy, d, hop, n = 0;
+	int scan_from = ScanMonstersNear(target, DND_FORKED_REACH + 2.0), scan_end = GetMonsterScanEnd();
 	for(i = scan_from; i < scan_end && n < DND_FORKED_MAXCAND; ++i) {
 		m = GetMonsterScanTid(i);
 		if(m == target || !IsActorAlive(m) || !IsSpellEnemy(m))
@@ -4599,10 +4602,12 @@ int CollectForkCandidates(int target, int lx, int ly) {
 		dx = GetActorX(m) - tx;
 		dy = GetActorY(m) - ty;
 		d = VectorLength(dx, dy);
-		if(d > DND_FORKED_REACH || FixedMul(dx, lx) + FixedMul(dy, ly) < FixedMul(d, DND_FORKED_CONE) || !CheckSight(target, m, CSF_NOBLOCKALL))
+		hop = VectorLength(d, GetActorZ(m) + GetActorProperty(m, APROP_HEIGHT) / 2 - tz);
+		// the cone stays on the ground line; the hop is the real distance
+		if(hop > DND_FORKED_REACH || FixedMul(dx, lx) + FixedMul(dy, ly) < FixedMul(d, DND_FORKED_CONE) || !CheckSight(target, m, CSF_NOBLOCKALL))
 			continue;
 		cand.tid[n] = m;
-		cand.dist[n] = d;
+		cand.dist[n] = hop;
 		++n;
 	}
 	ReleaseMonsterScan(scan_from);

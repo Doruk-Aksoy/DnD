@@ -2,6 +2,7 @@
 #define DND_MENU_IN
 
 #include "DnD_MenuFuncs.h"
+#include "DnD_MenuChrome.h"
 
 /*
 - Main idea here is simple. There are two main scripts: One draws the menu CLIENTSIDE, the other receives button info and stuff from client and vital info from server.
@@ -262,9 +263,14 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		}
 		// Load cursor stuff. A spell page's pocket and its scrollbar sit past the usual right edge --
 		// the art is wider than the hud space -- so the cursor is let past it THERE and nowhere else.
-		PlayerCursorData.posx = GetCursorPos(GetPlayerInput(ConsolePlayerNumber(), INPUT_YAW), MOUSE_INPUT_X,
-			HUDMAX_X, HUDMAX_Y,
-			IsSpellPage(CheckInventory("MenuOption")) ? -DND_SPELLCURSOR_OVERREACH : 0);
+		// the redesigned frame spans the 16:9 width, so its cursor reaches both sides past the design space
+		if(IsChromePage(CheckInventory("MenuOption")))
+			PlayerCursorData.posx = GetCursorPos(GetPlayerInput(ConsolePlayerNumber(), INPUT_YAW), MOUSE_INPUT_X,
+				HUDMAX_X + MCH_CURSOR_OVER, HUDMAX_Y, -MCH_CURSOR_OVER << 16);
+		else
+			PlayerCursorData.posx = GetCursorPos(GetPlayerInput(ConsolePlayerNumber(), INPUT_YAW), MOUSE_INPUT_X,
+				HUDMAX_X, HUDMAX_Y,
+				IsSpellPage(CheckInventory("MenuOption")) ? -DND_SPELLCURSOR_OVERREACH : 0);
 		PlayerCursorData.posy = GetCursorPos(GetPlayerInput(ConsolePlayerNumber(), INPUT_PITCH), MOUSE_INPUT_Y);
 		curopt = CheckInventory("MenuOption");
 		
@@ -318,6 +324,12 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				DeleteText(RPGMENUHELPCORNERID);
 			else
 				DeleteText(RPGMENUITEMSUBID);
+
+			// the two frames own different id bands, so crossing between them takes the other one down
+			if(IsChromePage(curopt) && !IsChromePage(curopt_prev))
+				ClearOldMenuFrame();
+			else if(!IsChromePage(curopt) && IsChromePage(curopt_prev))
+				DeleteTextRange(MCH_ID_FIRST, MCH_ID_LAST);
 		}
 
 		curopt_prev = curopt;
@@ -326,7 +338,8 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		if(CheckInventory("DnD_SellConfirm")) {
 			if(CheckInventory("ActivePopupBox"))
 				boxid = CheckInventory("ActivePopupBox");
-			mainboxid = MAINBOX_NONE;
+			// the redesigned frame's confirm popup has its own buttons
+			mainboxid = IsChromePage(curopt) ? GetChromePopupBox() : MAINBOX_NONE;
 		}
 		else if(curopt < MENU_LOAD_CRAFTING || curopt > MENU_LOAD_CRAFTING_LAST) {
 			if(!CheckInventory("DnD_InventoryView") && !CheckInventory("InTradeView") && !CheckInventory("DnD_StashView")) {
@@ -336,13 +349,17 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				// were simply unreachable.
 				if(IsSpellPage(curopt))
 					boxid = GetTriggeredBoxOnPane(CurrentPane, PlayerCursorData.posx, PlayerCursorData.posy, 470.0, 300.0);
+				else if(IsChromePage(curopt))
+					boxid = GetTriggeredBoxOnPane(CurrentPane, PlayerCursorData.posx, PlayerCursorData.posy, HUDMAX_XF + ((MCH_CURSOR_OVER + 1) << 16), HUDMAX_YF + 1.0);
 				else
 					boxid = GetTriggeredBoxOnPane(CurrentPane, PlayerCursorData.posx, PlayerCursorData.posy);
 
 				// A spell tree page owns the whole screen and draws its own backdrop over the side bar,
 				// exactly as the crafting pages do. The bar is not drawn there, so it must not be
 				// clickable either -- otherwise the player is hovering buttons that are not on screen.
-				if(!IsSpellPage(curopt))
+				if(IsChromePage(curopt))
+					mainboxid = GetTriggeredChromeBox(curopt);
+				else if(!IsSpellPage(curopt))
 					mainboxid = GetTriggeredBoxOnMainPane(PlayerCursorData.posx, PlayerCursorData.posy);
 			}
 			else {
@@ -428,6 +445,12 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		if(!IsAnyScrollBarGrabbed())
 			GetInputOnMenuPage(curopt);
 		i = CheckInventory("MenuInput");
+		if(i && IsChromePage(curopt)) {
+			int sent_input = i;
+			i = HandleChromeClientInput(curopt, i, mainboxid);
+			SetInventory("MenuInput", i);
+			redraw |= i != sent_input;
+		}
 
 		// Straight after the input is produced and before the ack below can clear it. See
 		// HandlePerkPin: nothing may read MenuInput on a later iteration and expect to find it.
@@ -462,7 +485,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			i |= PlayerNumber();
 			op_cooldown = DND_MENU_SENDINTERVAL;
 			//Log(s:"trying to send prev item ", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
-			NamedRequestScriptPuke("DND Server Box Receive", i, MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], mainboxid | (CheckInventory("MenuPosX") << 16));
+			NamedRequestScriptPuke("DND Server Box Receive", i, MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], GetChromeSendMain(mainboxid) | (CheckInventory("MenuPosX") << 16));
 			redraw = true;
 		}
 		
@@ -540,12 +563,13 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		GetMenuZoom().ox = temp_zx;
 		GetMenuZoom().oy = temp_zy;
 
-		// Handle panel on the left
-		HandleItemInfoPanel(curopt, boxid, redraw);
-
-		// Side bar options with animations -- these require framecounter so they can be checked every tic
-		// this also draws "Stats" and "Perks" text, it looks tidier in here this way
-		DrawHighLightBar(mainboxid, framecounter);
+		// Handle panel on the left, and the side bar options with their blink -- the old frame only
+		if(!IsChromePage(curopt)) {
+			HandleItemInfoPanel(curopt, boxid, redraw);
+			DrawHighLightBar(mainboxid, framecounter);
+		}
+		else if(CheckInventory(ButtonTimers[0]) || CheckInventory(ButtonTimers[1]) || CheckInventory(ButtonTimers[2]))
+			redraw = true;
 		
 		// draws items that need frequent redraw
 		DrawFrequentRedrawItems(curopt, pnum);
@@ -582,16 +606,17 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			str toshow = "";
 			int j = 0, k = 0, temp;
 			
-			MenuHudSize(384, 200);
-			/*SetFont("DND_STAT");
-			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, -1, 192.0, 100.0, 0.0);*/
-			//DeleteText(RPGMENUID);
-			SetFont("DND_STAB");
-			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUBACKGROUNDID, -1, MenuX(192.0), MenuY(100.0), 0.0);
-			// the 3 buttons at bottom
-			DrawClickableButton("LARR", mainboxid, MAINBOX_LARR, RPGMENULARRID, 218.0, 184.0, "LARRO", "LARR_P");
-			DrawClickableButton("RETARR", mainboxid, MAINBOX_RET, RPGMENURETARRID, 251.0, 184.0, "RETARRO", "RETARR_P");
-			DrawClickableButton("RARR", mainboxid, MAINBOX_RARR, RPGMENURARRID, 284.0, 184.0, "RARRO", "RARR_P");
+			if(IsChromePage(curopt))
+				DrawChromeFrame(pnum, curopt, mainboxid);
+			else {
+				MenuHudSize(384, 200);
+				SetFont("DND_STAB");
+				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUBACKGROUNDID, -1, MenuX(192.0), MenuY(100.0), 0.0);
+				// the 3 buttons at bottom
+				DrawClickableButton("LARR", mainboxid, MAINBOX_LARR, RPGMENULARRID, 218.0, 184.0, "LARRO", "LARR_P");
+				DrawClickableButton("RETARR", mainboxid, MAINBOX_RET, RPGMENURETARRID, 251.0, 184.0, "RETARRO", "RETARR_P");
+				DrawClickableButton("RARR", mainboxid, MAINBOX_RARR, RPGMENURARRID, 284.0, 184.0, "RARRO", "RARR_P");
+			}
 			
 			// main drawing of texts, labels, icons etc.
 			MenuHudSize(HUDMAX_X, HUDMAX_Y);
@@ -653,7 +678,16 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			}
 
 			SetFont("NMENUFNT");
-			if(curopt == MENU_STAT1) {
+			if(IsChromePage(curopt)) {
+				DrawChromePage(pnum, curopt, boxid, mainboxid, CurrentPane);
+				if(ChromeSellPopupShown())
+					DrawChromeSellPopup(mainboxid);
+				else
+					DeleteTextRange(MCH_ID_POPFIRST, MCH_ID_POPLAST);
+				MenuHudSize(HUDMAX_X, HUDMAX_Y);
+				SetFont("NMENUFNT");
+			}
+			else if(curopt == MENU_STAT1) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_STATS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, MenuX(316.4), MenuY(44.0), 0.0, 0.0);
 				MenuClipRect(192, 56, 256, 144, 256);
 				HudMessage(s:"\c[Y5]", l:"DND_STAT18", s:" \c-", d:CheckInventory("Level"), s: " \cd", l:GetClassLabel(StrParam(s:"CLASS", d:CheckInventory("DnD_Character") - 1), DND_CLASS_LABEL_NAME); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, MenuX(192.1), MenuY(64.0), 0.0, 0.0);
@@ -1416,7 +1450,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			
 			// Main menu side bar -- stats and perks are in the other looping script. Skipped wherever a
 			// page brings its own full screen backdrop: the crafting pages, and now the spell trees.
-			if((curopt < MENU_LOAD_CRAFTING || curopt > MENU_LOAD_CRAFTING_TRANSMUTING) && !IsSpellPage(curopt)) {
+			if((curopt < MENU_LOAD_CRAFTING || curopt > MENU_LOAD_CRAFTING_TRANSMUTING) && !IsSpellPage(curopt) && !IsChromePage(curopt)) {
 				if(mainboxid == MAINBOX_LOAD)
 					HudMessage(s:"\c[B1]", l:"DND_MENU_SIDE_LOADOUT"; HUDMSG_PLAIN, RPGMENULISTID - 2, -1, MenuX(96.0), MenuY(204.0), 0.0);
 				else
@@ -1610,6 +1644,8 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					UpdateMenuPosition(MENU_SPELL);
 				else if(mainboxid == MAINBOX_HELP)
 					UpdateMenuPosition(MENU_HELP);
+				else if(mainboxid >= MCH_NAV_BASE)
+					HandleChromeNav(pnum, curopt, mainboxid - MCH_NAV_BASE);
 			}
 		}
 		else {
@@ -2549,6 +2585,14 @@ Script "DnD Menu Popup Show" (int id, int pnum, int isSell) CLIENTSIDE {
 	if(isSell)
 		popuptype = POPUP_SELL;
 
+	// the redesigned frame draws its own confirm popup, with buttons
+	if(isSell && IsChromePage(CheckInventory("MenuOption"))) {
+		GetMchState().popanswered = false;
+		DrawChromeSellPopup(MAINBOX_NONE);
+		MenuHudSize(HUDMAX_X, HUDMAX_Y);
+		Terminate;
+	}
+
 	MenuHudSize(HUDMAX_X, HUDMAX_Y);
 	SetFont("DND_ERR");
 	if(!isSell)
@@ -2626,6 +2670,7 @@ Script "DnD Menu Sell Popup Clear" (void) CLIENTSIDE {
 	HudMessage(s:""; HUDMSG_PLAIN, RPGMENUPOPUPID, -1, 316.4, 136.1, 1.0);
 	HudMessage(s:""; HUDMSG_PLAIN, RPGMENUPOPUPID - 1, -1, 316.4, 136.1, 1.0);
 	HudMessage(s:""; HUDMSG_PLAIN, RPGMENUPOPUPID - 2, CR_GOLD, 224.1, 160.1, 1.0);
+	DeleteTextRange(MCH_ID_POPFIRST, MCH_ID_POPLAST);
 }
 
 Script "DnD Menu Investment Sync" (int pnum, int resid, int val) CLIENTSIDE {

@@ -247,6 +247,7 @@ void SetupEliteModWeights() {
 
 	INSERT_ELITEMODPOOL(DND_CURSEIMMUNE, 30, 125);
 	INSERT_ELITEMODPOOL(DND_SILENCER, 40, 150);
+	INSERT_ELITEMODPOOL(DND_MANABURNER, 30, 150);
 
 	// build the tables off of this info
 	CreateEliteAliasTables(thresholds, i);

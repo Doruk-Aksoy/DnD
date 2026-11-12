@@ -233,7 +233,7 @@ void ShowNeedResearchPopup() {
 }
 
 
-void DrawDamageTypes(int req_id, int constraint, int flags) {
+int GetShopWeaponDamageTypes(int id) {
 	static int WeaponDamageTypes[MAXSHOPWEAPONS] = {
 		// 1
 		DTYPE_MELEE,
@@ -340,12 +340,15 @@ void DrawDamageTypes(int req_id, int constraint, int flags) {
 		DTYPE_OCCULT,
 		DTYPE_OCCULT
 	};
+	return WeaponDamageTypes[id];
+}
 
+void DrawDamageTypes(int req_id, int constraint, int flags) {
 	DeleteTextRange(RPGMENUDAMAGETYPEID, RPGMENUDAMAGETYPEID + MAX_DAMAGE_TYPES_MENU - 1);
 	if(req_id == -1 || CheckItemRequirements(req_id, constraint, flags)) {
 		int j = 0;
 		for(int i = 0; i < MAX_DAMAGE_TYPES_MENU; ++i) {
-			if(IsSet(WeaponDamageTypes[req_id], i)) {
+			if(IsSet(GetShopWeaponDamageTypes(req_id), i)) {
 				SetFont(GetDamageTypeIcon(i));
 				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUDAMAGETYPEID + j, CR_CYAN, MenuX(62.1 + j * 30.0 - 60.0 * (j > 1)), MenuY(84.1 - 32.0 * (j > 1)), 0.0, 0.0);
 				++j;
@@ -526,6 +529,9 @@ bool HandlePageListening(int curopt, int boxid) {
 	// leaves the second one un-listened, which is what keeps it off every page but the perk tree.
 	for(int b = 0; b < DND_SCROLLBAR_COUNT; ++b)
 		GetScrollBar(b).listened = false;
+	// the redesigned pages scroll their own way
+	if(IsChromePage(curopt))
+		return HandleChromeListening(curopt, boxid);
 	switch(curopt) {
 		case MENU_MAIN:
 			redraw = ListenScroll(-32, 0, 4, 128);
@@ -573,7 +579,7 @@ bool HandlePageListening(int curopt, int boxid) {
 			redraw = ListenScroll(-128, 0, 4, 216);
 		break;
 		case MENU_HELP_MMODS_UTILITY:
-			redraw = ListenScroll(-320, 0, DND_SCROLL_MMODSTEP, DND_SCROLL_MMODVIEW);
+			redraw = ListenScroll(-336, 0, DND_SCROLL_MMODSTEP, DND_SCROLL_MMODVIEW);
 		break;
 		case MENU_HELP_LEGMONS:
 			temp = 0;
@@ -2563,6 +2569,9 @@ void LoadPane(menu_pane_T module& p, int menu_page) {
 		else
 			break;
 	}
+	// a redesigned page keeps this row's box count and order, only where the boxes sit changes
+	if(IsChromePage(menu_page))
+		LoadChromePane(p, menu_page);
 }
 
 // The early out is a cheap reject before the rect scan, so its bounds have to CONTAIN every rect the
@@ -6112,16 +6121,14 @@ int GetPlayerLessDamageDisplay(int pnum) {
 }
 
 // not sure how to group these for other places, their calculations arent exactly done in straightforward fashion so calculating as they come makes sense
-void DrawPlayerStats(int pnum, int category) {
+// Builds the cached stat list text of a category; returns its line count when it built, 0 when it was cached.
+int BuildPlayerStatsText(int pnum, int category) {
 	int val;
 	int k = 0;
 	int tid = pnum + P_TIDSTART;
 	int i;
 	int temp;
 	pstat_text_T? pstat_text = GetPlayerStatText();
-	
-	// sum of y and height should = 248
-	MenuClipRect(192, 52, 256, 196, 256);
 	
 	// yea this is some terrible piece of code but idc, should be cleaned up with an array to lookup attribs and a switch-case for exceptions? idk
 	if(pstat_text.text == "") {
@@ -7525,6 +7532,14 @@ void DrawPlayerStats(int pnum, int category) {
 		}
 	}
 
+	return k;
+}
+
+void DrawPlayerStats(int pnum, int category) {
+	pstat_text_T? pstat_text = GetPlayerStatText();
+	// sum of y and height should = 248
+	MenuClipRect(192, 52, 256, 196, 256);
+	int k = BuildPlayerStatsText(pnum, category);
 	HudMessage(s:pstat_text.text; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, MenuX(192.1), MenuY(64.1 + 6.0 * ScrollPos.x), 0.0, 0.0);
 	// --------------------------------------
 	
@@ -7715,6 +7730,7 @@ void DrawMonsterModCategory(int category) {
 		DND_VOLTAIC,
 		DND_ENERGYLEECH,
 		DND_SILENCER,
+		DND_MANABURNER,
 
 		DND_MARKOFCHAOS,
 		DND_MARKOFASMODEUS,

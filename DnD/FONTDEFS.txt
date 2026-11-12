@@ -100,3 +100,34 @@ SPLLINES
 	J SPLLTD
 	K SPLLX
 }
+
+// Menu redesign fonts (DnD/MenuFont.wad): Jersey 15 body, Chakra Petch tabs and headings, baked 1:1 for a 1620x1080 menu canvas.
+MENUBODY
+{
+	Template MFB%03d
+	SpaceWidth 7
+}
+
+MENUBDYS
+{
+	Template MFS%03d
+	SpaceWidth 6
+}
+
+MENUTAB
+{
+	Template MFT%03d
+	SpaceWidth 5
+}
+
+MENUSUB
+{
+	Template MFU%03d
+	SpaceWidth 4
+}
+
+MENUHEAD
+{
+	Template MFH%03d
+	SpaceWidth 9
+}
