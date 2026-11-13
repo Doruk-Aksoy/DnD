@@ -110,6 +110,7 @@ void ClearMenuDisplay() {
 
 	DeleteTextRange(RPGMENUCURSORID, RPGMENUINVENTORYID);
 	DeleteTextRange(RPGMENUINFOID, RPGMENUWEAPONPANELID);
+	DeleteTextRange(MCH_ID_CRAFT_FIRST, MCH_ID_CRAFT_LAST);
 	DeleteTextRange(RPGMENUITEMIDEND, RPGMENUITEMSUBID);
 
 	DeleteTextRange(RPGMENUITEMID - 6 - MAXPLAYERS, RPGMENUITEMID);
@@ -562,12 +563,19 @@ int MenuZoomScale(int v) {
 	return v;
 }
 
+// A computed negative coordinate is floor plus alignment digit (-64 + .4); the engine reads the digit off the magnitude (-64.4).
+int MenuNegAlign(int v) {
+	if(v < 0)
+		return (v & MMASK) - (v & 0xFFFF);
+	return v;
+}
+
 int MenuX(int x) {
-	return MenuShift(x, GetMenuZoom().ox);
+	return MenuShift(MenuNegAlign(x), GetMenuZoom().ox);
 }
 
 int MenuY(int y) {
-	return MenuShift(y, GetMenuZoom().oy);
+	return MenuShift(MenuNegAlign(y), GetMenuZoom().oy);
 }
 
 void MenuClipRect(int x, int y, int w, int h, int wrap = 0) {
@@ -811,7 +819,7 @@ bool IsAnyScrollBarGrabbed() {
 	for(int i = 0; i < DND_SCROLLBAR_COUNT; ++i)
 		if(GetScrollBar(i).grabbed)
 			return true;
-	return false;
+	return MchSbarGrabbed();
 }
 
 // Dragging the bar with the mouse. Returns whether anything the eye can see changed, so the caller

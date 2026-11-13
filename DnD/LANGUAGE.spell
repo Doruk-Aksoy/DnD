@@ -983,5 +983,5 @@ DND_SPLPANEL_DETAILS = "DETAILS";
 
 DND_SPELLTREE_HOTBAR   = "Hotbar Assignments";
 DND_SPELLTREE_GEMS     = "Gem Sockets";
-DND_SPLPANEL_PICKSLOT  = "Click a slot to assign a skill to it.\nRight click a slot to empty it.";
+DND_SPLPANEL_PICKSLOT  = "Click a slot to assign a skill to it, right click a slot to empty it.";
 DND_SPLPANEL_PICKSPELL = "Pick a skill, or click away to cancel.";

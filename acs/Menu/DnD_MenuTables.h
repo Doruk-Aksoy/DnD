@@ -45,6 +45,15 @@ enum {
 #define INVENTORYBOX_BASEY_TRADEUP (((2 * HUDMAX_YF / 3) & 0xFFFF0000) - 28.0)
 
 #define STASHBOX_BASEX_UP (((2 * HUDMAX_XF / 3) & 0xFFFF0000) + 260.4)
+// The stash view lays its two grids side by side in the stash hud space (720 x 480): last column / row centres.
+#define STASHVIEW_STASH_BASEX 314.4
+#define STASHVIEW_INV_BASEX 674.4
+#define STASHVIEW_BASEY 296.0
+// The trade view's three grids side by side (their offer, ours, our inventory), in the same hud space.
+#define TRADEVIEW_THEIRS_BASEX 192.4
+#define TRADEVIEW_OURS_BASEX 488.4
+#define TRADEVIEW_INV_BASEX 784.4
+#define TRADEVIEW_BASEY 292.0
 
 #define INVENTORYBOX_BASEX_TRADEDOWN (((2 * HUDMAX_XF / 3) & 0xFFFF0000) - 24.6)
 #define INVENTORYBOX_BASEY_TRADEDOWN (((2 * HUDMAX_YF / 3) & 0xFFFF0000) + 212.0)

@@ -229,6 +229,9 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 	// change itself: that runs a tic earlier, and the page blinked out for a frame in between.
 	bool clear_spellpage = false;
 	int clear_backdrop = 0; // 1 = RPGMENUID only, 2 = the whole crafting band
+	// the item views open last tic, and whether the tic after one opened still owes a redraw
+	int views_last = 0;
+	bool view_redraw = false;
 	int temp_zx, temp_zy;
 	auto CurrentPane = GetPane();
 	ResetPane(CurrentPane);
@@ -264,7 +267,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		// Load cursor stuff. A spell page's pocket and its scrollbar sit past the usual right edge --
 		// the art is wider than the hud space -- so the cursor is let past it THERE and nowhere else.
 		// the redesigned frame spans the 16:9 width, so its cursor reaches both sides past the design space
-		if(IsChromePage(CheckInventory("MenuOption")))
+		if(IsChromeFramed(CheckInventory("MenuOption")))
 			PlayerCursorData.posx = GetCursorPos(GetPlayerInput(ConsolePlayerNumber(), INPUT_YAW), MOUSE_INPUT_X,
 				HUDMAX_X + MCH_CURSOR_OVER, HUDMAX_Y, -MCH_CURSOR_OVER << 16);
 		else
@@ -303,6 +306,9 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				if(curopt < MENU_LOAD_CRAFTING || curopt > MENU_LOAD_CRAFTING_LAST)
 					clear_backdrop = (curopt_prev >= MENU_LOAD_CRAFTING && curopt_prev <= MENU_LOAD_CRAFTING_LAST) ? 2 : 1;
 			}
+			// one skill page to another: each lays out the band its own way, so nothing of the last may stay
+			else if(IsSpellPage(curopt_prev))
+				clear_spellpage = true;
 
 			// A pinned perk description belongs to the page it was pinned on. Cleared here rather
 			// than only in that page's draw so it also lapses when the menu is closed and reopened.
@@ -311,6 +317,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			// a range that no longer exists
 			for(int b = 0; b < DND_SCROLLBAR_COUNT; ++b)
 				GetScrollBar(b).grabbed = false;
+			MchSbarReset();
 			SetInventory("MenuPosX", 0);
 			SetInventory("DnD_PlayerItemIndex", 0);
 			SetInventory("DnD_PlayerPrevItemIndex", 0);
@@ -325,15 +332,27 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			else
 				DeleteText(RPGMENUITEMSUBID);
 
+			// leaving the crafting pages takes their band and the selected item's card with them
+			if(IsChromeCraftPage(curopt_prev) && !IsChromeCraftPage(curopt)) {
+				DeleteTextRange(MCH_ID_CRAFT_FIRST, MCH_ID_CRAFT_LAST);
+				GetMchCraft().page = -1;
+				ResetCursorClickData();
+			}
 			// the two frames own different id bands, so crossing between them takes the other one down
-			if(IsChromePage(curopt) && !IsChromePage(curopt_prev))
+			if(IsChromeFramed(curopt) && !IsChromeFramed(curopt_prev))
 				ClearOldMenuFrame();
-			else if(!IsChromePage(curopt) && IsChromePage(curopt_prev))
+			else if(!IsChromeFramed(curopt) && IsChromeFramed(curopt_prev))
 				DeleteTextRange(MCH_ID_FIRST, MCH_ID_LAST);
+			// a skill page keeps only the frame: a redesigned page's content would stand on its board
+			if(IsChromeFramed(curopt) && !IsChromePage(curopt)) {
+				DeleteTextRange(MCH_ID_ROWTXT, MCH_ID_TABTXT - 1);
+				DeleteTextRange(MCH_ID_PANEIMG, MCH_ID_PAGEIMG + 5);
+			}
 		}
 
 		curopt_prev = curopt;
 		
+		int views_seen = GetMenuViewFlags();
 		// boxes won't be updated until you finish your sell
 		if(CheckInventory("DnD_SellConfirm")) {
 			if(CheckInventory("ActivePopupBox"))
@@ -349,6 +368,8 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				// were simply unreachable.
 				if(IsSpellPage(curopt))
 					boxid = GetTriggeredBoxOnPane(CurrentPane, PlayerCursorData.posx, PlayerCursorData.posy, 470.0, 300.0);
+				else if(IsChromeShopList(curopt))
+					boxid = MchShopListHit(curopt);
 				else if(IsChromePage(curopt))
 					boxid = GetTriggeredBoxOnPane(CurrentPane, PlayerCursorData.posx, PlayerCursorData.posy, HUDMAX_XF + ((MCH_CURSOR_OVER + 1) << 16), HUDMAX_YF + 1.0);
 				else
@@ -357,19 +378,37 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				// A spell tree page owns the whole screen and draws its own backdrop over the side bar,
 				// exactly as the crafting pages do. The bar is not drawn there, so it must not be
 				// clickable either -- otherwise the player is hovering buttons that are not on screen.
-				if(IsChromePage(curopt))
+				if(IsChromeFramed(curopt))
 					mainboxid = GetTriggeredChromeBox(curopt);
 				else if(!IsSpellPage(curopt))
 					mainboxid = GetTriggeredBoxOnMainPane(PlayerCursorData.posx, PlayerCursorData.posy);
 			}
 			else {
+				// a view that just opened has no pane yet: the draw loads it, after this hit test
+				if(views_seen != views_last) {
+					if(CheckInventory("DnD_InventoryView"))
+						LoadInventoryView(InventoryPane);
+					else if(CheckInventory("InTradeView"))
+						LoadTradeView(InventoryPane);
+					else
+						LoadStashView(InventoryPane);
+				}
 				if(CheckInventory("DnD_InventoryView"))
 					boxid = GetTriggeredBoxOnInventoryPane(InventoryPane, PlayerCursorData.posx, PlayerCursorData.posy);
 				else if(CheckInventory("InTradeView"))
 					boxid = GetTriggeredBoxOnTradePane(InventoryPane, PlayerCursorData.posx, PlayerCursorData.posy);
 				else if(CheckInventory("DnD_StashView")) // I used the trade pane variable to hold the stash content
 					boxid = GetTriggeredBoxOnStashPane(InventoryPane, PlayerCursorData.posx, PlayerCursorData.posy);
+				// a held item sits centred on the cursor and lands on the cells under it
+				boxid = GetDragAnchorBox(boxid, CheckInventory("DnD_InventoryView") ? DND_LITVIEW_INVENTORY : CheckInventory("InTradeView") ? DND_LITVIEW_TRADE : DND_LITVIEW_STASH);
+				// the frame's tabs stay clickable over a grid; the server drops the view before it navigates
+				if(IsChromePage(curopt) && (CheckInventory("DnD_InventoryView") || CheckInventory("DnD_StashView")))
+					mainboxid = GetTriggeredChromeBox(curopt);
 			}
+		}
+		else if(IsChromeCraftPage(curopt)) {
+			boxid = MchCraftHit(pnum, curopt);
+			mainboxid = GetTriggeredChromeBox(curopt);
 		}
 		else {
 			ResetUniqueCraftingItemList();
@@ -401,6 +440,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 
 				if
 				(
+					IsChromeCraftPage(curopt) ||
 					PlayerCursorData.itemHovered == -1 || 
 					PlayerCursorData.itemHovered != GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, boxid - 1 - PlayerCursorData.itemHoveredOffset, -1, PlayerCursorData.itemHoveredSource) - 1
 				)
@@ -448,6 +488,15 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		if(i && IsChromePage(curopt)) {
 			int sent_input = i;
 			i = HandleChromeClientInput(curopt, i, mainboxid);
+			// a crafting page names its own box and selection, or answers the click itself
+			if(i && IsChromeCraftPage(curopt)) {
+				if(mainboxid == MAINBOX_NONE || CheckInventory("DnD_SellConfirm"))
+					i = MchCraftInput(pnum, curopt, i, boxid);
+				else {
+					GetMchCraft().send_box = MAINBOX_NONE;
+					GetMchCraft().send_main = 0;
+				}
+			}
 			SetInventory("MenuInput", i);
 			redraw |= i != sent_input;
 		}
@@ -480,15 +529,21 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			// player had already moved on from, which looks exactly like the click being eaten.
 			// Nothing here needs to survive a send -- each click names its own box, and the craft
 			// selection is read as it stands right now rather than as it stood one round trip ago.
-			MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = (boxid | MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK]);
+			int sendbox = IsChromeCraftPage(curopt) ? GetMchCraft().send_box : boxid;
+			MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = (sendbox | MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK]);
 			i <<= 16;
 			i |= PlayerNumber();
 			op_cooldown = DND_MENU_SENDINTERVAL;
-			//Log(s:"trying to send prev item ", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
-			NamedRequestScriptPuke("DND Server Box Receive", i, MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], GetChromeSendMain(mainboxid) | (CheckInventory("MenuPosX") << 16));
+			int sendmain = GetChromeSendMain(mainboxid, i >> 16);
+			if(IsChromeCraftPage(curopt) && GetMchCraft().send_main)
+				sendmain = GetMchCraft().send_main;
+			GetMchCraft().send_main = 0;
+			NamedRequestScriptPuke("DND Server Box Receive", i, MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], sendmain | (CheckInventory("MenuPosX") << 16));
 			redraw = true;
 		}
 		
+		views_last = views_seen;
+
 		// update prev with new ones
 		boxid_prev = boxid;
 		mainboxid_prev = mainboxid;
@@ -563,8 +618,19 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		GetMenuZoom().ox = temp_zx;
 		GetMenuZoom().oy = temp_zy;
 
+		// A view the server opened or closed during the delay: boxid names the old layout's box, so this draw
+		// shows no hover and the next one has the view's own.
+		if(GetMenuViewFlags() != views_seen) {
+			boxid = MAINBOX_NONE;
+			view_redraw = true;
+		}
+		else if(view_redraw) {
+			redraw = true;
+			view_redraw = false;
+		}
+
 		// Handle panel on the left, and the side bar options with their blink -- the old frame only
-		if(!IsChromePage(curopt)) {
+		if(!IsChromeFramed(curopt)) {
 			HandleItemInfoPanel(curopt, boxid, redraw);
 			DrawHighLightBar(mainboxid, framecounter);
 		}
@@ -606,7 +672,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			str toshow = "";
 			int j = 0, k = 0, temp;
 			
-			if(IsChromePage(curopt))
+			if(IsChromeFramed(curopt))
 				DrawChromeFrame(pnum, curopt, mainboxid);
 			else {
 				MenuHudSize(384, 200);
@@ -1894,7 +1960,11 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 								GiveInventory("DnD_InventoryView", 1);
 							else if(MENU_LOAD + boxid == MENU_LOAD_STASH)
 								GiveInventory("DnD_StashView", 1);
-							UpdateMenuPosition(MENU_LOAD + boxid);
+							// crafting opens on weapon crafting; its pages are chips there
+							if(MENU_LOAD + boxid == MENU_LOAD_CRAFTING)
+								UpdateMenuPosition(MENU_LOAD_CRAFTING_WEAPON);
+							else
+								UpdateMenuPosition(MENU_LOAD + boxid);
 						}
 					}
 				}
@@ -2265,21 +2335,21 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 			else if(curopt == MENU_SHOP_WEAPON2)
 				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON2_BEGIN, SHOP_WEAPON_SLOT2END, -1, -1);
 			else if(curopt == MENU_SHOP_WEAPON3_1)
-				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON31_BEGIN, SHOP_WEAPON_SLOT31END, -1, MENU_SHOP_WEAPON3_2);
+				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON31_BEGIN, SHOP_WEAPON_SLOT3END, -1, -1);
 			else if(curopt == MENU_SHOP_WEAPON3_2)
 				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON32_BEGIN, SHOP_WEAPON_SLOT32END, MENU_SHOP_WEAPON3_1, MENU_SHOP_WEAPON3_3);
 			else if(curopt == MENU_SHOP_WEAPON3_3)
 				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON33_BEGIN, SHOP_WEAPON_SLOT33END, MENU_SHOP_WEAPON3_2, -1);
 			else if(curopt == MENU_SHOP_WEAPON4_1)
-				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON41_BEGIN, SHOP_WEAPON_SLOT41END, -1, MENU_SHOP_WEAPON4_2);
+				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON41_BEGIN, SHOP_WEAPON_SLOT42END, -1, -1);
 			else if(curopt == MENU_SHOP_WEAPON4_2)
 				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON42_BEGIN, SHOP_WEAPON_SLOT42END, MENU_SHOP_WEAPON4_1, -1);
 			else if(curopt == MENU_SHOP_WEAPON5_1)
-				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON51_BEGIN, SHOP_WEAPON_SLOT51END, -1, MENU_SHOP_WEAPON5_2);
+				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON51_BEGIN, SHOP_WEAPON_SLOT52END, -1, -1);
 			else if(curopt == MENU_SHOP_WEAPON5_2)
 				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON52_BEGIN, SHOP_WEAPON_SLOT52END, MENU_SHOP_WEAPON5_1, -1);
 			else if(curopt == MENU_SHOP_WEAPON6_1)
-				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON61_BEGIN, SHOP_WEAPON_SLOT61END, -1, MENU_SHOP_WEAPON6_2);
+				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON61_BEGIN, SHOP_WEAPON_SLOT62END, -1, -1);
 			else if(curopt == MENU_SHOP_WEAPON6_2)
 				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON62_BEGIN, SHOP_WEAPON_SLOT62END, MENU_SHOP_WEAPON6_1, -1);
 			else if(curopt == MENU_SHOP_WEAPON7)
@@ -2310,17 +2380,17 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					UpdateMenuPosition(MENU_SHOP);
 			}
 			else if(curopt == MENU_SHOP_AMMO_1)
-				HandleAmmoPageInput(pnum, DND_AMMOSLOT_CLIP, boxid, AMMOSLOT_CLIP_BEGIN, -1, MENU_SHOP_AMMO_1_2, false);
+				HandleAmmoPageInput(pnum, DND_AMMOSLOT_CLIP, boxid, AMMOSLOT_CLIP_BEGIN, -1, -1, false);
 			else if(curopt == MENU_SHOP_AMMO_1_2)
 				HandleAmmoPageInput(pnum, DND_AMMOSLOT_CLIP, boxid, AMMOSLOT_CLIP2_BEGIN, MENU_SHOP_AMMO_1, -1, false);
 			else if(curopt == MENU_SHOP_AMMO_2)
-				HandleAmmoPageInput(pnum, DND_AMMOSLOT_SHELL, boxid, AMMOSLOT_SHELL_BEGIN, -1, MENU_SHOP_AMMO_2_2, false);
+				HandleAmmoPageInput(pnum, DND_AMMOSLOT_SHELL, boxid, AMMOSLOT_SHELL_BEGIN, -1, -1, false);
 			else if(curopt == MENU_SHOP_AMMO_2_2)
 				HandleAmmoPageInput(pnum, DND_AMMOSLOT_SHELL, boxid, AMMOSLOT_SHELL2_BEGIN, MENU_SHOP_AMMO_2, -1, false);
 			else if(curopt == MENU_SHOP_AMMO_3)
 				HandleAmmoPageInput(pnum, DND_AMMOSLOT_ROCKET, boxid, AMMOSLOT_ROCKET_BEGIN, -1, -1, false);
 			else if(curopt == MENU_SHOP_AMMO_4_1)
-				HandleAmmoPageInput(pnum, DND_AMMOSLOT_CELL, boxid, AMMOSLOT_CELL_BEGIN, -1, MENU_SHOP_AMMO_4_2, false);
+				HandleAmmoPageInput(pnum, DND_AMMOSLOT_CELL, boxid, AMMOSLOT_CELL_BEGIN, -1, -1, false);
 			else if(curopt == MENU_SHOP_AMMO_4_2)
 				HandleAmmoPageInput(pnum, DND_AMMOSLOT_CELL, boxid, AMMOSLOT_CELL2_BEGIN, MENU_SHOP_AMMO_4_1, -1, false);
 			else if(curopt == MENU_SHOP_AMMO_SPECIAL1)
@@ -2478,9 +2548,16 @@ Script "DnD Trade Countdown" (int p1, int p2) CLIENTSIDE {
 	int count = 0;
 	
 	while(count < lim && CheckActorInventory(p1 + P_TIDSTART, "DnD_Trade_Confirmed") && CheckActorInventory(p2 + P_TIDSTART, "DnD_Trade_Confirmed")) {
-		MenuHudSize(HUDMAX_X, HUDMAX_Y);
 		SetFont("DBIGFONT");
-		HudMessage(s:"\c[W3]", d:(lim - count + 6) / 7; HUDMSG_PLAIN, RPGMENUTRADECOUNTDOWNID, -1, MenuX(110.4), MenuY(160.0), 0.0);
+		if(IsChromePage(CheckInventory("MenuOption"))) {
+			// a third of the frame canvas, so the big font reads at the size it had on the old page
+			MenuHudSize(MCH_W / 3, MCH_H / 3);
+			HudMessage(s:"\c[UIGold]", d:(lim - count + 6) / 7; HUDMSG_PLAIN, RPGMENUTRADECOUNTDOWNID, -1, MenuX(240.4), MenuY(276.0), 0.0);
+		}
+		else {
+			MenuHudSize(HUDMAX_X, HUDMAX_Y);
+			HudMessage(s:"\c[W3]", d:(lim - count + 6) / 7; HUDMSG_PLAIN, RPGMENUTRADECOUNTDOWNID, -1, MenuX(110.4), MenuY(160.0), 0.0);
+		}
 		MenuHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2);
 		Delay(const:5);
 		++count;
@@ -2647,6 +2724,9 @@ Script "DnD Menu Notif Show" (int pnum, int popupid, int extra) CLIENTSIDE {
 
 	MenuHudSize(HUDMAX_X, HUDMAX_Y);
 	
+	// the crafting pages ask with the frame's own popup
+	if(popupid == POPUP_SCAVENGECONFIRM && IsChromeCraftPage(CheckInventory("MenuOption")))
+		Terminate;
 	SetFont("DND_ERR");
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUPOPUPID, -1, MenuX(216.1), MenuY(128.1), 0.0);
 	

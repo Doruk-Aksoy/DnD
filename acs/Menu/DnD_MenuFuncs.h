@@ -2373,100 +2373,30 @@ rect_T module& LoadInventoryViewRect(int id) {
 }
 
 rect_T module& LoadStashViewRect(int id) {
-	// this is the top left box, ie 0, 0
-	// left and right boxes
-	// + 2 at the end for the two sort buttons
+	// stash cells, then inventory cells, the page tabs, the orb tab and the two sort buttons, each where the art draws it
 	static rect_T bp[2 * MAX_INVENTORY_BOXES + MAX_EXTRA_INVENTORY_PAGES + 3];
-	int i, j;
-	// construct for first time, these can be constructed easily from base coordinates
 	if(!IsSet(PaneSetup, STASH_SETUP_BIT)) {
-		// stash
-		for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i)
-			for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
-				bp[i * MAXINVENTORYBLOCKS_VERT + j].topleft_x = STASHBOX_TOP_BASEX_RECT - TRADEBOX_SKIP * j;
-				bp[i * MAXINVENTORYBLOCKS_VERT + j].topleft_y = INVENTORYBOXTRADE_TOP_BASEY_RECT - TRADEBOX_SKIP * i;
-				bp[i * MAXINVENTORYBLOCKS_VERT + j].botright_x = STASHBOX_TOP_BASEX_RECT - TRADEBOX_SKIP * j - TRADEBOX_SKIP;
-				bp[i * MAXINVENTORYBLOCKS_VERT + j].botright_y = INVENTORYBOXTRADE_TOP_BASEY_RECT - TRADEBOX_SKIP * i - TRADEBOX_SKIP;
-			}
-		// inventory
-		for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i)
-			for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
-				bp[MAX_INVENTORY_BOXES + i * MAXINVENTORYBLOCKS_VERT + j].topleft_x = STASHBOX_TOP_BASEX_RECT - TRADEBOX_SKIP * j;
-				bp[MAX_INVENTORY_BOXES + i * MAXINVENTORYBLOCKS_VERT + j].topleft_y = INVENTORYBOXTRADE_BOT_BASEY_RECT - TRADEBOX_SKIP * i;
-				bp[MAX_INVENTORY_BOXES + i * MAXINVENTORYBLOCKS_VERT + j].botright_x = STASHBOX_TOP_BASEX_RECT - TRADEBOX_SKIP * j - TRADEBOX_SKIP;
-				bp[MAX_INVENTORY_BOXES + i * MAXINVENTORYBLOCKS_VERT + j].botright_y = INVENTORYBOXTRADE_BOT_BASEY_RECT - TRADEBOX_SKIP * i - TRADEBOX_SKIP;
-			}
-		for(i = 0; i < MAX_EXTRA_INVENTORY_PAGES; ++i) {
-			bp[2 * MAX_INVENTORY_BOXES + i].topleft_x = STASHTAB_BUTTON_TOPLEFT_X - i * STASHTAB_BUTTON_INCREMENT_X;
-			bp[2 * MAX_INVENTORY_BOXES + i].topleft_y = STASHTAB_BUTTON_TOPLEFT_Y;
-			bp[2 * MAX_INVENTORY_BOXES + i].botright_x = STASHTAB_BUTTON_BOTRIGHT_X - i * STASHTAB_BUTTON_INCREMENT_X;
-			bp[2 * MAX_INVENTORY_BOXES + i].botright_y = STASHTAB_BUTTON_BOTRIGHT_Y;
+		for(int i = 0; i < 2 * MAX_INVENTORY_BOXES + MAX_EXTRA_INVENTORY_PAGES + 3; ++i) {
+			bp[i].topleft_x = MchStashRectEdge(i, 0);
+			bp[i].topleft_y = MchStashRectEdge(i, 1);
+			bp[i].botright_x = MchStashRectEdge(i, 2);
+			bp[i].botright_y = MchStashRectEdge(i, 3);
 		}
-
-		// orb special page
-		bp[2 * MAX_INVENTORY_BOXES + PAGEID_STASHTAB_ORBS].topleft_x = 253.0;
-		bp[2 * MAX_INVENTORY_BOXES + PAGEID_STASHTAB_ORBS].topleft_y = STASHTAB_BUTTON_TOPLEFT_Y;
-		bp[2 * MAX_INVENTORY_BOXES + PAGEID_STASHTAB_ORBS].botright_x = 228.0;
-		bp[2 * MAX_INVENTORY_BOXES + PAGEID_STASHTAB_ORBS].botright_y = STASHTAB_BUTTON_BOTRIGHT_Y;
-
-		// sort buttons -- rect index is box id - 1
-		bp[STASHSORT_BOXID_STASH - 1].topleft_x = SORTBUTTON_STASH_RECT_TX;
-		bp[STASHSORT_BOXID_STASH - 1].topleft_y = SORTBUTTON_STASH_RECT_TY;
-		bp[STASHSORT_BOXID_STASH - 1].botright_x = SORTBUTTON_STASH_RECT_BX;
-		bp[STASHSORT_BOXID_STASH - 1].botright_y = SORTBUTTON_STASH_RECT_BY;
-
-		bp[STASHSORT_BOXID_INV - 1].topleft_x = SORTBUTTON_INV_RECT_TX;
-		bp[STASHSORT_BOXID_INV - 1].topleft_y = SORTBUTTON_INV_RECT_TY;
-		bp[STASHSORT_BOXID_INV - 1].botright_x = SORTBUTTON_INV_RECT_BX;
-		bp[STASHSORT_BOXID_INV - 1].botright_y = SORTBUTTON_INV_RECT_BY;
-
 		PaneSetup = SetBit(PaneSetup, STASH_SETUP_BIT);
 	}
 	return bp[id];
 }
 
 rect_T module& LoadTradeViewRect(int id) {
-	// this is the top left box, ie 0, 0
-	// + 2 for confirm and cancel buttons
+	// their offer, our offer, our inventory, then confirm and cancel, each where the art draws it
 	static rect_T bp[3 * MAX_INVENTORY_BOXES + 2];
-	int i, j;
-	// construct for first time, these can be constructed easily from base coordinates
 	if(!IsSet(PaneSetup, TRADEVIEW_SETUP_BIT)) {
-		// other player offering
-		for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i)
-			for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
-				bp[i * MAXINVENTORYBLOCKS_VERT + j].topleft_x = INVENTORYBOXTRADE_TOP_BASEX_RECT - TRADEBOX_SKIP * j;
-				bp[i * MAXINVENTORYBLOCKS_VERT + j].topleft_y = INVENTORYBOXTRADE_TOP_BASEY_RECT - TRADEBOX_SKIP * i;
-				bp[i * MAXINVENTORYBLOCKS_VERT + j].botright_x = INVENTORYBOXTRADE_TOP_BASEX_RECT - TRADEBOX_SKIP * j - TRADEBOX_SKIP;
-				bp[i * MAXINVENTORYBLOCKS_VERT + j].botright_y = INVENTORYBOXTRADE_TOP_BASEY_RECT - TRADEBOX_SKIP * i - TRADEBOX_SKIP;
-			}
-		// our offering
-		for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i)
-			for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
-				bp[MAX_INVENTORY_BOXES + i * MAXINVENTORYBLOCKS_VERT + j].topleft_x = INVENTORYBOXTRADE_BOT_BASEX_RECT - TRADEBOX_SKIP * j;
-				bp[MAX_INVENTORY_BOXES + i * MAXINVENTORYBLOCKS_VERT + j].topleft_y = INVENTORYBOXTRADE_BOT_BASEY_RECT - TRADEBOX_SKIP * i;
-				bp[MAX_INVENTORY_BOXES + i * MAXINVENTORYBLOCKS_VERT + j].botright_x = INVENTORYBOXTRADE_BOT_BASEX_RECT - TRADEBOX_SKIP * j - TRADEBOX_SKIP;
-				bp[MAX_INVENTORY_BOXES + i * MAXINVENTORYBLOCKS_VERT + j].botright_y = INVENTORYBOXTRADE_BOT_BASEY_RECT - TRADEBOX_SKIP * i - TRADEBOX_SKIP;
-			}
-		// our inventory
-		for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i)
-			for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
-				bp[2 * MAX_INVENTORY_BOXES + i * MAXINVENTORYBLOCKS_VERT + j].topleft_x = INVENTORYBOXTRADE_MID_BASEX_RECT - TRADEBOX_SKIP * j;
-				bp[2 * MAX_INVENTORY_BOXES + i * MAXINVENTORYBLOCKS_VERT + j].topleft_y = INVENTORYBOXTRADE_MID_BASEY_RECT - TRADEBOX_SKIP * i;
-				bp[2 * MAX_INVENTORY_BOXES + i * MAXINVENTORYBLOCKS_VERT + j].botright_x = INVENTORYBOXTRADE_MID_BASEX_RECT - TRADEBOX_SKIP * j - TRADEBOX_SKIP;
-				bp[2 * MAX_INVENTORY_BOXES + i * MAXINVENTORYBLOCKS_VERT + j].botright_y = INVENTORYBOXTRADE_MID_BASEY_RECT - TRADEBOX_SKIP * i - TRADEBOX_SKIP;
-			}
-		// add confirm and cancel buttons
-		// confirm
-		bp[TRADECONFIRM_BOXID].topleft_x = INVENTORYBOXTRADE_TRADECONFIRM_BASEX_RECT;
-		bp[TRADECONFIRM_BOXID].topleft_y = INVENTORYBOXTRADE_TRADECONFIRM_BASEY_RECT;
-		bp[TRADECONFIRM_BOXID].botright_x = INVENTORYBOXTRADE_TRADECONFIRM_BASEX_RECT - INVENTORYBOXTRADE_TRADEBOXSKIP_X;
-		bp[TRADECONFIRM_BOXID].botright_y = INVENTORYBOXTRADE_TRADECONFIRM_BASEY_RECT - INVENTORYBOXTRADE_TRADEBOXSKIP_Y;
-		// cancel
-		bp[TRADECANCEL_BOXID].topleft_x = INVENTORYBOXTRADE_TRADECANCEL_BASEX_RECT;
-		bp[TRADECANCEL_BOXID].topleft_y = INVENTORYBOXTRADE_TRADECANCEL_BASEY_RECT;
-		bp[TRADECANCEL_BOXID].botright_x = INVENTORYBOXTRADE_TRADECANCEL_BASEX_RECT - INVENTORYBOXTRADE_TRADEBOXSKIP_X;
-		bp[TRADECANCEL_BOXID].botright_y = INVENTORYBOXTRADE_TRADECANCEL_BASEY_RECT - INVENTORYBOXTRADE_TRADEBOXSKIP_Y;
+		for(int i = 0; i < 3 * MAX_INVENTORY_BOXES + 2; ++i) {
+			bp[i].topleft_x = MchTradeRectEdge(i, 0);
+			bp[i].topleft_y = MchTradeRectEdge(i, 1);
+			bp[i].botright_x = MchTradeRectEdge(i, 2);
+			bp[i].botright_y = MchTradeRectEdge(i, 3);
+		}
 		PaneSetup = SetBit(PaneSetup, TRADEVIEW_SETUP_BIT);
 	}
 	return bp[id];
@@ -2601,7 +2531,8 @@ int GetTriggeredBoxOnCraftingPane(menu_inventory_T module& p, int mx, int my) {
 }
 
 int GetTriggeredBoxOnTradePane(menu_inventory_T module& p, int mx, int my) {
-	if(mx >= 465.0 || mx <= 30.0)
+	// the three grids span the frame's full width, past both edges of the 4:3 cursor space
+	if(mx >= 540.0 || mx <= -60.0)
 		return MAINBOX_NONE;
 	for(int i = 0; i < p.cursize; ++i) {
 		if(point_in_inventory_box(p.MenuRectangles[i], mx, my))
@@ -2615,7 +2546,8 @@ int GetTriggeredBoxOnTradePane(menu_inventory_T module& p, int mx, int my) {
 // the inventory sort button moved onto the panel border below it. All but the button's topmost line
 // was rejected here before the rect scan could see it.
 int GetTriggeredBoxOnStashPane(menu_inventory_T module& p, int mx, int my) {
-	if(mx >= 304.0 || my <= SORTBUTTON_INV_RECT_BY - 1.0 || mx <= 68.0 || my >= 293.0)
+	// the two panels side by side, headings and sort buttons to the page tabs below the stash
+	if(mx >= 454.0 || my <= 92.0 || mx <= 18.0 || my >= 239.0)
 		return MAINBOX_NONE;
 	for(int i = 0; i < p.cursize; ++i) {
 		if(point_in_inventory_box(p.MenuRectangles[i], mx, my))
@@ -3441,6 +3373,33 @@ void DrawFlaskBox(int boxid, int thisboxid, int hudx, int hudy, int flask_id) {
 	SetFont("NMENUFNT");
 }
 
+// the shadowed picture an empty armor slot shows, so the player can tell the slots apart
+str GetArmorSlotSilhouette(int armor_slot) {
+	switch(armor_slot) {
+		case DND_ITEM_BODYARMOR:
+		return "ARMBAK";
+		case DND_ITEM_HELM:
+		return "HELMBAK";
+		case DND_ITEM_BOOT:
+		return "BOOTBAK";
+		case DND_ITEM_SPECIALTY_DOOMGUY:
+		return "SCARDBAK";
+		case DND_ITEM_SPECIALTY_MARINE:
+		return "DOGTGBAK";
+		case DND_ITEM_SPECIALTY_HOBO:
+		return "SUNGLBAK";
+		case DND_ITEM_SPECIALTY_PUNISHER:
+		return "CIGRBAK";
+		case DND_ITEM_SPECIALTY_WANDERER:
+		return "PRINGBAK";
+		case DND_ITEM_SPECIALTY_CYBORG:
+		return "PCORBAK";
+		case DND_ITEM_SPECIALTY_BERSERKER:
+		return "BELTBAK";
+	}
+	return "CLAWBAK";
+}
+
 void DrawArmorBox(int boxid, int thisboxid, int hudx, int hudy, int armor_slot) {
 	int pnum = PlayerNumber();
 
@@ -3454,43 +3413,7 @@ void DrawArmorBox(int boxid, int thisboxid, int hudx, int hudy, int armor_slot) 
 			UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, 0, pnum, 0, HUDMAX_X, HUDMAX_Y);
 	}
 	else {
-		switch(armor_slot) {
-			case DND_ITEM_BODYARMOR:
-				SetFont("ARMBAK");
-			break;
-			case DND_ITEM_HELM:
-				SetFont("HELMBAK");
-			break;
-			case DND_ITEM_BOOT:
-				SetFont("BOOTBAK");
-			break;
-
-			// specialty items
-			case DND_ITEM_SPECIALTY_DOOMGUY:
-				SetFont("SCARDBAK");
-			break;
-			case DND_ITEM_SPECIALTY_MARINE:
-				SetFont("DOGTGBAK");
-			break;
-			case DND_ITEM_SPECIALTY_HOBO:
-				SetFont("SUNGLBAK");
-			break;
-			case DND_ITEM_SPECIALTY_PUNISHER:
-				SetFont("CIGRBAK");
-			break;
-			case DND_ITEM_SPECIALTY_WANDERER:
-				SetFont("PRINGBAK");
-			break;
-			case DND_ITEM_SPECIALTY_CYBORG:
-				SetFont("PCORBAK");
-			break;
-			case DND_ITEM_SPECIALTY_BERSERKER:
-				SetFont("BELTBAK");
-			break;
-			case DND_ITEM_SPECIALTY_TRICKSTER:
-				SetFont("CLAWBAK");
-			break;
-		}
+		SetFont(GetArmorSlotSilhouette(armor_slot));
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - 1, CR_WHITE, MenuX(hudx), MenuY(hudy), 0.0, 0.0);
 	}
 
@@ -3508,6 +3431,31 @@ void DrawInventoryExploreIcon(int boxid, int thisboxid, int x, int y) {
 		SetFont("ICOGSML");
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - 1, CR_CYAN, MenuX(x), MenuY(y), 0.0, 0.0);
 	SetFont("NMENUFNT");
+}
+
+// the cell picture for a grid box: its highlight first, else the item on it (usable or not), else empty
+str GetInventoryCellPic(int pnum, int bid, int boff, int source) {
+	int temp, filter, itype;
+	if(IsValidBox(bid) && InventoryBoxLit[bid + boff] == BOXLIT_STATE_CURSORON)
+		return "LDTBOXS";
+	if(InventoryBoxLit[bid + boff] == BOXLIT_STATE_BAD)
+		return "LDTBOXN";
+	if(CheckActorInventory(pnum + P_TIDSTART, "DnD_Trade_Confirmed"))
+		return "LDTBOXCN";
+	if(IsValidBox(bid) && InventoryBoxLit[bid + boff] == BOXLIT_STATE_CLICK)
+		return "LDTBOXC";
+	if((temp = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, bid, -1, source))) {
+		// if lvl requirement is satisfied draw them normal -- topbox is +1 of actual index
+		filter = CheckInventory("DnD_Inventory_Filter");
+		itype = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, temp - 1, -1, source);
+		if(filter && itype != GetFilterItemType(filter))
+			return "LDTBOXR";
+		// dont subject keys to level cap, if user wants to go there, let em
+		if(GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, temp - 1, -1, source) <= GetLevel() || itype == DND_ITEM_DUNGEONKEY)
+			return "LDTBOXO";
+		return "LDTBOXR";
+	}
+	return "LDTBOX";
 }
 
 void DrawInventoryBlock(int idx, int idy, int bid, bool hasItem, int basex, int basey, int skip, int idbase, int source, int pnum, int boff, int itemskipx, int itemskipy) {
@@ -3542,27 +3490,23 @@ void DrawInventoryBlock(int idx, int idy, int bid, bool hasItem, int basex, int 
 	}
 
 	// gray inventory chunks
-	if(IsValidBox(bid) && InventoryBoxLit[bid + boff] == BOXLIT_STATE_CURSORON)
-		SetFont("LDTBOXS");
-	else if(InventoryBoxLit[bid + boff] == BOXLIT_STATE_BAD)
-		SetFont("LDTBOXN");
-	else if(CheckActorInventory(pnum + P_TIDSTART, "DnD_Trade_Confirmed"))
-		SetFont("LDTBOXCN");
-	else if(IsValidBox(bid) && InventoryBoxLit[bid + boff] == BOXLIT_STATE_CLICK)
-		SetFont("LDTBOXC");
-	else if((temp = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, bid, -1, source))) {
-		// if lvl requirement is satisfied draw them normal -- topbox is +1 of actual index
-		img = CheckInventory("DnD_Inventory_Filter");
-		hasItem = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, temp - 1, -1, source);
-		if(img && hasItem != GetFilterItemType(img))
-			SetFont("LDTBOXR");
-		else if(GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, temp - 1, -1, source) <= GetLevel() || hasItem == DND_ITEM_DUNGEONKEY) // dont subject keys to level cap, if user wants to go there, let em
-			SetFont("LDTBOXO");
-		else
-			SetFont("LDTBOXR");
+	str cellpic = GetInventoryCellPic(pnum, bid, boff, source);
+	// the inventory and stash grids on a redesigned page draw the frame's own cells in the same places
+	if(IsChromePage(CheckInventory("MenuOption"))) {
+		if(basex == INVENTORYBOX_BASEX) {
+			MchInventoryCell(pnum, cellpic, idbase - bid - boff - 1, idx, idy, boff, source, 0);
+			return;
+		}
+		if(basex == STASHVIEW_STASH_BASEX || basex == STASHVIEW_INV_BASEX) {
+			MchInventoryCell(pnum, cellpic, idbase - bid - boff - 1, idx, idy, boff, source, (basex == STASHVIEW_STASH_BASEX) ? 1 : 2);
+			return;
+		}
+		if(basex == TRADEVIEW_THEIRS_BASEX || basex == TRADEVIEW_OURS_BASEX || basex == TRADEVIEW_INV_BASEX) {
+			MchInventoryCell(pnum, cellpic, idbase - bid - boff - 1, idx, idy, boff, source, (basex == TRADEVIEW_THEIRS_BASEX) ? 3 : (basex == TRADEVIEW_OURS_BASEX) ? 4 : 5);
+			return;
+		}
 	}
-	else
-		SetFont("LDTBOX");
+	SetFont(cellpic);
 	HudMessage(s:"A"; HUDMSG_PLAIN, idbase - bid - boff - 1, CR_WHITE, MenuX(basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * skip), MenuY(basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * skip), 0.0);
 }
 
@@ -3594,6 +3538,41 @@ int GetLitBoxOwner(int view, int grid, int pnum) {
 }
 
 // min is included max is excluded
+// one edge of a grid box in the cursor space: 0 top left x, 1 top left y, 2 bottom right x, 3 bottom right y
+int GetDragRectEdge(int view, int b, int edge) {
+	if(view == DND_LITVIEW_STASH) {
+		rect_T module& rs = LoadStashViewRect(b);
+		return (edge == 0) ? rs.topleft_x : (edge == 1) ? rs.topleft_y : (edge == 2) ? rs.botright_x : rs.botright_y;
+	}
+	if(view == DND_LITVIEW_TRADE) {
+		rect_T module& rt = LoadTradeViewRect(b);
+		return (edge == 0) ? rt.topleft_x : (edge == 1) ? rt.topleft_y : (edge == 2) ? rt.botright_x : rt.botright_y;
+	}
+	rect_T module& ri = LoadInventoryViewRect(b);
+	return (edge == 0) ? ri.topleft_x : (edge == 1) ? ri.topleft_y : (edge == 2) ? ri.botright_x : ri.botright_y;
+}
+
+// A held item sits centred on the cursor, snapped to the nearest cells inside the hovered grid (Diablo II style);
+// returns the box its grabbed cell lands on, which is what the server already places by.
+int GetDragAnchorBox(int boxid, int view) {
+	int src = PlayerCursorData.itemDragInfo.topboxid, grab = PlayerCursorData.itemDragInfo.click_box;
+	int grids = (view == DND_LITVIEW_STASH) ? 2 : (view == DND_LITVIEW_TRADE) ? 3 : 1;
+	if(src == -1 || grab == -1 || boxid == MAINBOX_NONE || boxid > grids * MAX_INVENTORY_BOXES)
+		return boxid;
+	int b = boxid - 1, cell = b % MAX_INVENTORY_BOXES;
+	int w = PlayerCursorData.itemDragInfo.size_x, h = PlayerCursorData.itemDragInfo.size_y;
+	// where in the hovered box the cursor is, 0 to 1 -- the cursor space runs mirrored
+	int tlx = GetDragRectEdge(view, b, 0), tly = GetDragRectEdge(view, b, 1);
+	int fx = FixedDiv(tlx - (PlayerCursorData.posx & MMASK), tlx - GetDragRectEdge(view, b, 2));
+	int fy = FixedDiv(tly - (PlayerCursorData.posy & MMASK), tly - GetDragRectEdge(view, b, 3));
+	// the item's top left corner sits half its size up and left of the cursor, rounded to the nearest cell
+	int left = (((cell % MAXINVENTORYBLOCKS_VERT) << 16) + fx - (w << 15) + 0.5) >> 16;
+	int top = (((cell / MAXINVENTORYBLOCKS_VERT) << 16) + fy - (h << 15) + 0.5) >> 16;
+	left = Clamp_Between(left, 0, MAXINVENTORYBLOCKS_VERT - w);
+	top = Clamp_Between(top, 0, MAXINVENTORYBLOCKS_HORIZ - h);
+	return b - cell + top * MAXINVENTORYBLOCKS_VERT + left + grab - src + 1;
+}
+
 void UpdateDraggedItemLitBoxes(int boxid, int min_box, int max_box, int pnum, int view) {
 	// update the area being hovered wrt item being dragged
 	int temp = PlayerCursorData.itemDragInfo.topboxid;
@@ -3616,45 +3595,14 @@ void UpdateDraggedItemLitBoxes(int boxid, int min_box, int max_box, int pnum, in
 		if(gmax > max_box)
 			gmax = max_box;
 
-		int prev_boxid = boxid;
-		if(!(prev_boxid % MAXINVENTORYBLOCKS_VERT) && temp - PlayerCursorData.itemDragInfo.click_box) {
-			boxid = prev_boxid - (PlayerCursorData.itemDragInfo.size_y - 1) * MAXINVENTORYBLOCKS_VERT;
-			if(boxid < gmin)
-				boxid = gmin;
-		}
-		else {
-			boxid += temp - PlayerCursorData.itemDragInfo.click_box;
-
-			// adjust boxid so that we align the top left corner to be within our grid at all times
-			// if we are at the beginning of a row, don't do it obviously, so we check mod for that
-			// to detect beginning of a new line, we check if adding a size - 1 to it would make it go over nearest multiple of 9, if it would we stop it
-			// this coincidentally also checks for upper bound, as the upper bound is always a multiple of 9 as well
-			if(boxid < gmin) {
-				boxid = gmin + (prev_boxid % MAXINVENTORYBLOCKS_VERT) - (PlayerCursorData.itemDragInfo.size_x - 1);
-				if(boxid < gmin)
-					boxid = gmin;
-			}
-
-			if(boxid % MAXINVENTORYBLOCKS_VERT) {
-				if(boxid + PlayerCursorData.itemDragInfo.size_x - 1 >= roundUp(boxid, MAXINVENTORYBLOCKS_VERT))
-					boxid -= PlayerCursorData.itemDragInfo.size_x - 1;
-			}
-
-			if(boxid + (PlayerCursorData.itemDragInfo.size_y - 1) * MAXINVENTORYBLOCKS_VERT >= gmax) {
-				temp = ((boxid + (PlayerCursorData.itemDragInfo.size_y - 1) * MAXINVENTORYBLOCKS_VERT) - gmax);
-				if(!temp)
-					temp = 1;
-				boxid -= roundUp(temp, MAXINVENTORYBLOCKS_VERT);
-			}
-		}
+		// boxid is already where the grabbed cell lands (GetDragAnchorBox), so the footprint starts the grab offset back
+		boxid += temp - PlayerCursorData.itemDragInfo.click_box;
 
 		for(p = 0; p < PlayerCursorData.itemDragInfo.size_y; ++p) {
 			for(s = 0; s < PlayerCursorData.itemDragInfo.size_x; ++s) {
 				idx = boxid + s + p * MAXINVENTORYBLOCKS_VERT;
 
-				// the clamping above is intricate enough that it is worth refusing to write outside
-				// the grid rather than trusting it -- a stray index here would light a box in
-				// another grid, or scribble past the end of InventoryBoxLit entirely
+				// never light a box outside the hovered grid, or past the end of InventoryBoxLit
 				if(idx < gmin || idx >= gmax)
 					continue;
 
@@ -3775,10 +3723,19 @@ void DoInventoryBoxDraw(int boxid, int prevclick, int bh, int bw, int basex, int
 	DrawInventoryBlock(bh, bw, bid, hasItem, basex, basey, skip, idbase, source, pnum, offset, 32.0, 32.0);
 }
 
+int GetMenuViewFlags() {
+	return CheckInventory("DnD_InventoryView") | (CheckInventory("DnD_StashView") << 1) | (CheckInventory("InTradeView") << 2);
+}
+
 void HandleInventoryView(int boxid) {
 	int prevclick = CheckInventory("DnD_SelectedInventoryBox") - 1;
-	SetFont("LDTSCRN");
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID, CR_WHITE, MenuX(HUDMAX_XF / 2), MenuY(HUDMAX_YF / 2), 0.0, 0.0);
+	bool chrome = IsChromePage(CheckInventory("MenuOption"));
+	if(chrome)
+		MchInventoryPanel(RPGMENUINVENTORYID);
+	else {
+		SetFont("LDTSCRN");
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID, CR_WHITE, MenuX(HUDMAX_XF / 2), MenuY(HUDMAX_YF / 2), 0.0, 0.0);
+	}
 	
 	PlayerCursorData.itemDraggedStashSize = false;
 	
@@ -3797,6 +3754,12 @@ void HandleInventoryView(int boxid) {
 		for(int j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
 			DoInventoryBoxDraw(gridboxid, prevclick, i, j, INVENTORYBOX_BASEX, INVENTORYBOX_BASEY, 32.0, RPGMENUINVENTORYID, 0, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, pnum, HUDMAX_X, HUDMAX_Y);
 		}
+	}
+
+	if(chrome) {
+		MchInventorySort(boxid == INVSORT_BOXID, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 20);
+		SetFont("NMENUFNT");
+		return;
 	}
 
 	// sort button -- DND_SBN/DND_SBO are the stash tab graphics standing in until real art exists
@@ -4202,21 +4165,26 @@ void HandleTradeBoxDraw(int boxid, int dimx, int dimy) {
 	UpdateDraggedItemLitBoxes(boxid, 0, 3 * MAX_INVENTORY_BOXES, pnum, DND_LITVIEW_TRADE);
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
-			DoInventoryBoxDraw(boxid, prevclick, i, j, INVENTORYBOX_BASEX_TRADEUP, INVENTORYBOX_BASEY_TRADEUP, 32.0, RPGMENUINVENTORYID - 4, 0, DND_SYNC_ITEMSOURCE_TRADEVIEW, GetTradee(), dimx, dimy);
+			DoInventoryBoxDraw(boxid, prevclick, i, j, TRADEVIEW_THEIRS_BASEX, TRADEVIEW_BASEY, 32.0, RPGMENUINVENTORYID - 4, 0, DND_SYNC_ITEMSOURCE_TRADEVIEW, GetTradee(), dimx, dimy);
 		}
 	}
 	
 	// draw our offering below
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
-			DoInventoryBoxDraw(boxid, prevclick, i, j, INVENTORYBOX_BASEX_TRADEDOWN, INVENTORYBOX_BASEY_TRADEDOWN, 32.0, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 6, MAX_INVENTORY_BOXES, DND_SYNC_ITEMSOURCE_TRADEVIEW, pnum, dimx, dimy);
+			DoInventoryBoxDraw(boxid, prevclick, i, j, TRADEVIEW_OURS_BASEX, TRADEVIEW_BASEY, 32.0, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 6, MAX_INVENTORY_BOXES, DND_SYNC_ITEMSOURCE_TRADEVIEW, pnum, dimx, dimy);
 		}
 	}
 	// draw our inventory to the side
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
-			DoInventoryBoxDraw(boxid, prevclick, i, j, INVENTORYBOX_BASEX_TRADEMID, INVENTORYBOX_BASEY_TRADEMID, 32.0, RPGMENUINVENTORYID - 6 * MAX_INVENTORY_BOXES - 12, 2 * MAX_INVENTORY_BOXES, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, pnum, dimx, dimy);
+			DoInventoryBoxDraw(boxid, prevclick, i, j, TRADEVIEW_INV_BASEX, TRADEVIEW_BASEY, 32.0, RPGMENUINVENTORYID - 6 * MAX_INVENTORY_BOXES - 12, 2 * MAX_INVENTORY_BOXES, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, pnum, dimx, dimy);
 		}
+	}
+	if(IsChromePage(CheckInventory("MenuOption"))) {
+		MchTradeControls(pnum, boxid - 1);
+		MenuHudSize(HUDMAX_X, HUDMAX_Y);
+		return;
 	}
 	MenuHudSize(HUDMAX_X, HUDMAX_Y);
 	SetFont("TRADEBAR");
@@ -4258,6 +4226,15 @@ void HandleTradeBoxDraw(int boxid, int dimx, int dimy) {
 }
 
 void HandleInventoryViewTrade(int boxid) {
+	// on the redesigned frame the grids sit on the page itself; the headings and buttons come with the grids
+	if(IsChromePage(CheckInventory("MenuOption"))) {
+		MenuHudSize(HUDMAX_X_STASH, HUDMAX_Y_STASH);
+		HandleTradeBoxDraw(boxid, HUDMAX_X_STASH, HUDMAX_Y_STASH);
+		PlayerCursorData.itemDraggedStashSize = true;
+		SetFont("NMENUFNT");
+		MenuHudSize(HUDMAX_X, HUDMAX_Y);
+		return;
+	}
 	SetFont("LDTSCRN");
 	MenuHudSize(HUDMAX_X_STASH, HUDMAX_Y_STASH);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 1, CR_WHITE, MenuX(0.1), MenuY(120.0), 0.0, 0.0);
@@ -4617,10 +4594,16 @@ void HandleStashView(int boxid) {
 	int pnum = PlayerNumber(), i, j;
 	int curpages = CheckInventory("DnD_PlayerCurrentPage") - 1;
 	int color;
-	SetFont("LDTSCRN");
+	bool chrome = IsChromePage(CheckInventory("MenuOption"));
+	if(chrome)
+		MchStashPanels(RPGMENUINVENTORYID - 1);
+	else {
+		SetFont("LDTSCRN");
+		MenuHudSize(HUDMAX_X_STASH, HUDMAX_Y_STASH);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 1, CR_WHITE, MenuX(452.4), MenuY(120.0), 0.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 2, CR_WHITE, MenuX(452.4), MenuY(360.0), 0.0, 0.0);
+	}
 	MenuHudSize(HUDMAX_X_STASH, HUDMAX_Y_STASH);
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 1, CR_WHITE, MenuX(452.4), MenuY(120.0), 0.0, 0.0);
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 2, CR_WHITE, MenuX(452.4), MenuY(360.0), 0.0, 0.0);
 	
 	PlayerCursorData.itemDraggedStashSize = true;
 	
@@ -4629,17 +4612,24 @@ void HandleStashView(int boxid) {
 	// draw stash at top
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
-			DoInventoryBoxDraw(boxid, prevclick, i, j, STASHBOX_BASEX_UP, INVENTORYBOX_BASEY_TRADEUP, 32.0, RPGMENUINVENTORYID - 4, 0, DND_SYNC_ITEMSOURCE_STASH | (curpages << 16), pnum, TRADE_RES_X, TRADE_RES_Y);
+			DoInventoryBoxDraw(boxid, prevclick, i, j, STASHVIEW_STASH_BASEX, STASHVIEW_BASEY, 32.0, RPGMENUINVENTORYID - 4, 0, DND_SYNC_ITEMSOURCE_STASH | (curpages << 16), pnum, TRADE_RES_X, TRADE_RES_Y);
 		}
 	}
 	
 	// draw our inventory below
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
-			DoInventoryBoxDraw(boxid, prevclick, i, j, STASHBOX_BASEX_UP, INVENTORYBOX_BASEY_TRADEDOWN, 32.0, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 6, MAX_INVENTORY_BOXES, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, pnum, TRADE_RES_X, TRADE_RES_Y);
+			DoInventoryBoxDraw(boxid, prevclick, i, j, STASHVIEW_INV_BASEX, STASHVIEW_BASEY, 32.0, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 6, MAX_INVENTORY_BOXES, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, pnum, TRADE_RES_X, TRADE_RES_Y);
 		}
 	}
 	
+	if(chrome) {
+		MchStashControls(pnum, boxid, curpages);
+		MenuHudSize(HUDMAX_X, HUDMAX_Y);
+		SetFont("NMENUFNT");
+		return;
+	}
+
 	// stash buttons
 	for(i = 0; i < CheckInventory("DnD_PlayerInventoryPages"); ++i) {
 		if(CheckInventory(StrParam(s:"DnD_ButtonPress_", d:i + 1)) || curpages == i) {
@@ -5539,7 +5529,7 @@ int DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int i
 		extra1, extra2, pnum, mx, my, itype,
 		GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, extra1, -1, extra2),
 		id_begin, HUD_DII_MULT, hx, hy, bg_x, bg_y, attr_count, false,
-		PlayerCursorData.itemHovered, INVENTORY_HOLDTIME_CRAFT
+		MchCraftPreview(PlayerCursorData.itemHovered), INVENTORY_HOLDTIME_CRAFT
 	);
 }
 
@@ -5786,6 +5776,11 @@ void HandleCraftingInputs(int boxid, int curopt) {
 		}
 		ClearPlayerInput(pnum, true);
 	}
+	else if(HasPressedLeft(pnum) && IsChromePage(curopt)) {
+		UpdateMenuPosition(MENU_LOAD);
+		SetInventory("DnD_SelectedInventoryBox", 0);
+		SetInventory("DnD_UsedTwoItemRequirementMaterial", 0);
+	}
 	else if(HasPressedLeft(pnum)) {
 		if(CheckInventory("DnD_Crafting_ItemPage")) {
 			TakeInventory("DnD_Crafting_ItemPage", 1);
@@ -5805,7 +5800,7 @@ void HandleCraftingInputs(int boxid, int curopt) {
 			
 		SetInventory("DnD_SelectedInventoryBox", 0);
 	}
-	else if(curopt != MENU_LOAD_CRAFTING && HasPressedRight(pnum)) {
+	else if(curopt != MENU_LOAD_CRAFTING && !IsChromePage(curopt) && HasPressedRight(pnum)) {
 		// we dont want right page input to work on crafting selection
 		int mcount = curopt == MENU_LOAD_CRAFTING_WEAPON ? GetWeaponCount() : GetCraftableItemCount();
 		if(mcount - MAX_CRAFTING_ITEMBOXES * (CheckInventory("DnD_Crafting_ItemPage") + 1) > 0) {
@@ -5967,7 +5962,7 @@ void HandleTransmutingInputs(int pnum, int boxid) {
 		ClearPlayerInput(pnum, true);
 	}
 	else if(HasPressedLeft(pnum)) {
-		UpdateMenuPosition(MENU_LOAD_CRAFTING);
+		UpdateMenuPosition(IsChromePage(CheckInventory("MenuOption")) ? MENU_LOAD : MENU_LOAD_CRAFTING);
 		GiveInventory("DnD_CleanCraftingRequest", 1);
 		SetInventory("DnD_SelectedInventoryBox", 0);
 	}
@@ -7617,8 +7612,8 @@ str GetPlayerLifetimeKills() {
 	return result;
 }
 
-void DrawMonsterModCategory(int category) {
-// input is menu based index, returns corresponding label index for the mod
+// input is menu based index, returns the trait it lists
+int GetMonsterModMenuTrait(int i) {
 	static int MonsterModGroupMapper[MAX_MONSTER_MODS] = {
 		// weaknesses
 		DND_ENERGY_WEAKNESS,
@@ -7737,40 +7732,79 @@ void DrawMonsterModCategory(int category) {
 		
 		DND_LEGENDARY
 	};
+	return MonsterModGroupMapper[i];
+}
 
-	int i;
-	MenuClipRect(192, 52, 256, 228, 256);
+// how many traits a monster mod category lists; -1 is the special ones
+int GetMonsterModMenuCount(int category) {
 	switch(category) {
 		case DND_TRAITCODE_WEAKNESS:
-			for(i = 0; i < MAX_WEAKNESS_MODS; ++i)
-				HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[i]), s:"\n", l:StrParam(s:"DND_MENU_MMOD_WEAK", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, MenuX(192.1), MenuY(80.1 + 64.0 * i + 4.0 * ScrollPos.x), 0.0, 0.0);
+		return MAX_WEAKNESS_MODS;
+		case DND_TRAITCODE_RESIST:
+		return MAX_RESIST_MODS;
+		case DND_TRAITCODE_IMMUNITY:
+		return MAX_IMMUNITY_MODS;
+		case DND_TRAITCODE_AGGRESSIVE:
+		return MAX_AGGRESSIVE_MODS;
+		case DND_TRAITCODE_DEFENSIVE:
+		return MAX_DEFENSE_MODS;
+		case DND_TRAITCODE_UTILITY:
+		return MAX_UTILITY_MODS;
+	}
+	return 3;
+}
+
+// a trait's label and description, as the codex lists them
+str GetMonsterModMenuEntry(int category, int i) {
+	str key;
+	int off = 0;
+	switch(category) {
+		case DND_TRAITCODE_WEAKNESS:
+			key = StrParam(s:"DND_MENU_MMOD_WEAK", d:i + 1);
 		break;
 		case DND_TRAITCODE_RESIST:
-			for(i = 0; i < MAX_RESIST_MODS; ++i)
-				HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[i + RESMODOFFSET]), s:"\n", l:StrParam(s:"DND_MENU_MMOD_RES", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, MenuX(192.1), MenuY(80.1 + 64.0 * i + 4.0 * ScrollPos.x), 0.0, 0.0);
+			key = StrParam(s:"DND_MENU_MMOD_RES", d:i + 1);
+			off = RESMODOFFSET;
 		break;
 		case DND_TRAITCODE_IMMUNITY:
-			for(i = 0; i < MAX_IMMUNITY_MODS; ++i)
-				HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[i + IMMMODOFFSET]), s:"\n", l:StrParam(s:"DND_MENU_MMOD_IMM", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, MenuX(192.1), MenuY(80.1 + 64.0 * i + 4.0 * ScrollPos.x), 0.0, 0.0);
+			key = StrParam(s:"DND_MENU_MMOD_IMM", d:i + 1);
+			off = IMMMODOFFSET;
 		break;
 		case DND_TRAITCODE_AGGRESSIVE:
-			for(i = 0; i < MAX_AGGRESSIVE_MODS; ++i)
-				HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[i + AGGMODOFFSET]), s:"\n", l:StrParam(s:"DND_MENU_MMOD_AGG", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, MenuX(192.1), MenuY(80.1 + 64.0 * i + 4.0 * ScrollPos.x), 0.0, 0.0);
+			key = StrParam(s:"DND_MENU_MMOD_AGG", d:i + 1);
+			off = AGGMODOFFSET;
 		break;
 		case DND_TRAITCODE_DEFENSIVE:
-			for(i = 0; i < MAX_DEFENSE_MODS; ++i)
-				HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[i + DEFMODOFFSET]), s:"\n", l:StrParam(s:"DND_MENU_MMOD_DEF", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, MenuX(192.1), MenuY(80.1 + 64.0 * i + 4.0 * ScrollPos.x), 0.0, 0.0);
+			key = StrParam(s:"DND_MENU_MMOD_DEF", d:i + 1);
+			off = DEFMODOFFSET;
 		break;
 		case DND_TRAITCODE_UTILITY:
-			for(i = 0; i < MAX_UTILITY_MODS; ++i)
-				HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[i + UTIMODOFFSET]), s:"\n", l:StrParam(s:"DND_MENU_MMOD_UTI", d:i + 1); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, MenuX(192.1), MenuY(80.1 + 64.0 * i + 4.0 * ScrollPos.x), 0.0, 0.0);
+			key = StrParam(s:"DND_MENU_MMOD_UTI", d:i + 1);
+			off = UTIMODOFFSET;
 		break;
-		case -1:
-			// since these are very few we can put these here for now
-			HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[MAX_MONSTER_MODS - 3]), s:"\n", l:"DND_MENU_MMOD_CHAOS"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, MenuX(192.1), MenuY(80.1 + 4.0 * ScrollPos.x), 0.0, 0.0);
-			HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[MAX_MONSTER_MODS - 2]), s:"\n", l:"DND_MENU_MMOD_ASMODEUS"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, MenuX(192.1), MenuY(132.1 + 4.0 * ScrollPos.x), 0.0, 0.0);
-			HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[MAX_MONSTER_MODS - 1]), s:"\n", l:"DND_MENU_MMOD_LEG"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, MenuX(192.1), MenuY(184.1 + 4.0 * ScrollPos.x), 0.0, 0.0);
+		default:
+			off = MAX_MONSTER_MODS - 3;
+			if(!i)
+				key = "DND_MENU_MMOD_CHAOS";
+			else if(i == 1)
+				key = "DND_MENU_MMOD_ASMODEUS";
+			else
+				key = "DND_MENU_MMOD_LEG";
 		break;
+	}
+	return StrParam(l:GetMonsterTraitLabel(GetMonsterModMenuTrait(i + off)), s:"\n", l:key);
+}
+
+void DrawMonsterModCategory(int category) {
+	int i, n = GetMonsterModMenuCount(category);
+	MenuClipRect(192, 52, 256, 228, 256);
+	if(category == -1) {
+		for(i = 0; i < n; ++i)
+			HudMessage(s:GetMonsterModMenuEntry(category, i); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, MenuX(192.1), MenuY(80.1 + 52.0 * i + 4.0 * ScrollPos.x), 0.0, 0.0);
+	}
+	else {
+		for(i = 0; i < n; ++i)
+			HudMessage(s:GetMonsterModMenuEntry(category, i); HUDMSG_PLAIN, RPGMENUITEMID - i - 1, CR_WHITE, MenuX(192.1), MenuY(80.1 + 64.0 * i + 4.0 * ScrollPos.x), 0.0, 0.0);
 	}
 	MenuClipRect(0, 0, 0, 0);
 }
@@ -7815,9 +7849,20 @@ void ResetSelectedDungeonInformation(int pnum) {
 	ResetDungeonSelectData(pnum);
 }
 
+void CloseDungeonKeyView() {
+	SetInventory("DnD_Inventory_Filter", 0);
+	TakeInventory("DnD_InventoryView", 1);
+	GiveInventory("DnD_CleanInventoryRequest", 1);
+}
+
 void HandleDungeonKeySelection(int pnum, int boxid, int choice) {
 	int temp;
 	int tpbid = -1;
+	// a click off the grid puts the inventory away
+	if(choice == DND_MENUINPUT_LCLICK && boxid == MAINBOX_NONE) {
+		CloseDungeonKeyView();
+		return;
+	}
 	if(choice == DND_MENUINPUT_LCLICK) {
 		if(boxid != MAINBOX_NONE && (temp = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, boxid - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY)) != DND_ITEM_NULL) {
 			tpbid = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, boxid - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) - 1;
@@ -7834,10 +7879,7 @@ void HandleDungeonKeySelection(int pnum, int boxid, int choice) {
 				// save the topleftbox for later removal in case player activates this
 				SetInventory("DnD_SelectedDungeonBox", tpbid + 1);
 
-				// close inventory view
-				TakeInventory("DnD_InventoryView", 1);
-				GiveInventory("DnD_CleanInventoryRequest", 1);
-
+				CloseDungeonKeyView();
 				LocalAmbientSound("RPG/MenuChoose", 127);
 			}
 		}

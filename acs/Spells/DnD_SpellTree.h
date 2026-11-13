@@ -322,7 +322,8 @@ bool HandleSpellIndexScroll() {
 // If the text sits wrong against the art, these four are the only knobs -- nothing else measures
 // the pocket.
 #define DND_SPELLPANEL_X 384
-#define DND_SPELLPANEL_Y 56
+#define DND_SPELLPANEL_Y 91
+#define DND_SPELLPANEL_HEADY 67	// the heading's first line, centred in the board with the pocket art
 // The pocket runs to the RIGHT EDGE OF THE SCREEN -- the art continues past 480 but nothing can be
 // drawn or clicked there. 384..480 is all there is.
 //
@@ -330,7 +331,7 @@ bool HandleSpellIndexScroll() {
 // the text was always overflowing, and clipping it only made that visible. NSMOLFNT is the smaller
 // face and is what this is sized for.
 #define DND_SPELLPANEL_W 148
-#define DND_SPELLPANEL_H 222
+#define DND_SPELLPANEL_H 192
 // SMALLFONT, not NSMOLFNT: that font is declared in FONTDEFS but has no glyph lumps at all
 // (nothing named DNSMR*), so SetFont on it silently fell back here and "using a smaller face"
 // changed nothing for several rounds.
@@ -737,11 +738,8 @@ void HandleSpellHoverPanel(int pnum, int spell) {
 // left to paint harmlessly behind the backdrop. This is the copy that is actually seen, at low ids
 // and at the pocket's right edge rather than the global DND_SCROLLBAR_X, which lands mid-pocket.
 void DrawSpellPocketBar() {
-	// The same routine the shared bar uses, into ids that sit in FRONT of this page's backdrop. The
-	// hand-rolled version this replaces drew a track and no thumb, because it skipped the cap and
-	// grip passes the real one needs.
-	DrawScrollBarBody(DND_SPELLBAR_PANEL, DND_SPELLBAR_X,
-		SPELLTREE_BAR_ID, SPELLTREE_BAR_ID + 1, SPELLTREE_BAR_ID + 2, SPELLTREE_BAR_ID + 3);
+	scrollbar_T module& bar = GetScrollBar(DND_SPELLBAR_PANEL);
+	MchSpellPocketBar(bar.range.y - GetScrollBarPos(DND_SPELLBAR_PANEL), CanShowScrollBar(bar) ? bar.range.y - bar.range.x : 0);
 }
 
 bool HandleSpellPageScroll(int tree, int boxid) {
@@ -752,8 +750,11 @@ bool HandleSpellPageScroll(int tree, int boxid) {
 	if(over < 0)
 		over = 0;
 
-	return ListenScroll(-(over / DND_SPELLPANEL_LINEH), 0, DND_SPELLPANEL_LINEH, DND_SPELLPANEL_H,
-		DND_SPELLBAR_PANEL, DND_SPELLPANEL_Y, DND_SPELLPANEL_H, true, DND_SPELLBAR_X);
+	// the chrome bar takes the mouse, so the shared bar's own grab sits off screen
+	bool r = MchSpellPocketDrag();
+	bool k = ListenScroll(-(over / DND_SPELLPANEL_LINEH), 0, DND_SPELLPANEL_LINEH, DND_SPELLPANEL_H,
+		DND_SPELLBAR_PANEL, DND_SPELLPANEL_Y, DND_SPELLPANEL_H, !MchSbarGrabbed(), -2000);
+	return k || r;
 }
 
 // Jump + click holds the pocket on the node under the cursor; any plain click releases it. Called
@@ -804,13 +805,13 @@ void DrawSpellPocket(int pnum) {
 	int hrank = GetSpellRank(pnum, ss.shown_spell, true);
 	int halloc = GetSpellAllocatedRank(pnum, ss.shown_spell);
 
-	PanelHeading(StrParam(s:"\c[Y5]", l:GetSpellNameLump(ss.shown_spell)), SPELLTREE_HEAD_ID + 2, 24);
+	PanelHeading(StrParam(s:"\c[Y5]", l:GetSpellNameLump(ss.shown_spell)), SPELLTREE_HEAD_ID + 2, DND_SPELLPANEL_HEADY);
 
 	// Effective rank in brackets only where gear is actually adding to it.
 	if(halloc && hrank != halloc)
-		PanelHeading(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_LEVEL", s:": \c-", d:halloc, s:" (", d:hrank, s:")"), SPELLTREE_HEAD_ID + 3, 36);
+		PanelHeading(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_LEVEL", s:": \c-", d:halloc, s:" (", d:hrank, s:")"), SPELLTREE_HEAD_ID + 3, DND_SPELLPANEL_HEADY + 12);
 	else
-		PanelHeading(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_LEVEL", s:": \c-", d:halloc, s:"/", d:DND_SPELL_RANKCAP), SPELLTREE_HEAD_ID + 3, 36);
+		PanelHeading(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_LEVEL", s:": \c-", d:halloc, s:"/", d:DND_SPELL_RANKCAP), SPELLTREE_HEAD_ID + 3, DND_SPELLPANEL_HEADY + 12);
 
 	HandleSpellHoverPanel(pnum, ss.shown_spell);
 	DrawSpellPocketBar();
@@ -904,25 +905,20 @@ void HandleSpellHotbarDraw(int pnum, int boxid, menu_pane_T module& p) {
 
 	ResetPane(p);
 
-	MenuHudSize(DND_SPELLTREE_BACKW, DND_SPELLTREE_BACKH);
-	SetFont("CRFTVW2");
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, CR_CYAN, MenuX(176.0), MenuY(100.0), 0.0, 0.0);
-	MenuHudSize(HUDMAX_X, HUDMAX_Y);
+	// the menu frame is the backdrop now; the page name is its sub tab
+	DrawChromeSpellPocket();
 	SetFont("NMENUFNT");
+	DeleteText(SPELLTREE_HEAD_ID);
 
-	HudMessage(s:"--- ", l:"DND_SPELLTREE_HOTBAR", s:" ---";
-		HUDMSG_PLAIN, SPELLTREE_HEAD_ID, CR_CYAN, MenuX(178.4), MenuY(22.0), 0.0, 0.0);
-	// Top aligned where the one line hint centred, so the slot hint's second line runs down rather than up into the title.
-	HudMessage(s:"\c[Y5]", l:ss.picking_slot == -1 ? "DND_SPLPANEL_PICKSLOT" : "DND_SPLPANEL_PICKSPELL";
-		HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 1, CR_WHITE, MenuX(178.4), MenuY(30.1), 0.0, 0.0);
+	DrawChromeSpellHint(ss.picking_slot == -1 ? "DND_SPLPANEL_PICKSLOT" : "DND_SPLPANEL_PICKSPELL");
 	DeleteText(SPELLTREE_HEAD_ID + 7);
 
 	// The back arrow is box ONE, added before anything else, because opening the picker changes how
 	// many boxes follow it -- and the server, which cannot see the clientside picking_slot, would
 	// otherwise have no fixed number to recognise it by. It used to be added last, so the picker's
 	// first cell inherited its index and going back was what a grid click did.
-	AddBoxToPane_Points(p, 466.0, 36.0, 454.0, 28.0);
-	DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_1, RPGMENUPAGEID - 1, 16.1, 288.0, "\c[B1]", "\c[Y5]");
+	AddBoxToPane_Points(p, 466.0, 46.0, 454.0, 38.0);
+	DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_1, RPGMENUPAGEID - 1, 16.1, 278.0, "\c[B1]", "\c[Y5]");
 	n = 1;
 
 	// The slots. Read off the SYNCED inventory item rather than the global, because this draw is
@@ -1102,11 +1098,23 @@ bool HandleSpellHotbarPick(int pnum, int boxid, int input) {
 	return true;
 }
 
+bool IsSpellTreeEmpty(int tree) {
+	int first = GetTreeFirstSpell(tree);
+	for(int j = 0; j < DND_SPELLS_PER_TREE; ++j)
+		if(IsSpellDefined(first + j))
+			return false;
+	return true;
+}
+
 void HandleSpellTreeDraw(int pnum, int tree, int boxid, menu_pane_T module& p) {
 	int i, j, spell, rank, alloc, n = 0, line, hovered = -1;
 	bool unlocked;
 
 	ResetPane(p);
+	if(IsSpellTreeEmpty(tree)) {
+		DeleteText(RPGMENUID);
+		return;
+	}
 
 	spell_scroll_T module& ss = GetSpellScroll();
 
@@ -1122,35 +1130,13 @@ void HandleSpellTreeDraw(int pnum, int tree, int boxid, menu_pane_T module& p) {
 		SetScrollBarPos(DND_SPELLBAR_PANEL, 0);
 	}
 
-	// CRFTVW2 -- the crafting board with a wider right pocket. Drawn with the crafting page's own
-	// call: same size, same position, same immediate restore.
-	MenuHudSize(DND_SPELLTREE_BACKW, DND_SPELLTREE_BACKH);
-	SetFont("CRFTVW2");
-	// RPGMENUID, the crafting page's slot, and it has to be a LOW id: this backdrop is what covers
-	// DND_STAB, the side bar and the game behind them. Putting it at RPGMENUBACKGROUNDID instead --
-	// to get it behind the shared scrollbar -- replaced the full screen cover and let the side bar's
-	// leftover text sit on top of the tree.
-	//
-	// Which means the SHARED bar (2151..2158) can never show through it, so the pocket draws its own
-	// just below.
-	// Exactly the crafting view's coordinate. Nudging it to compensate for CRFTVW2's own padding
-	// only made the two views disagree in the other direction; if the art needs to move, it moves in
-	// the art.
-	//
-	// Whole numbers only. The fraction of a HudMessage coordinate selects ALIGNMENT here -- .1 left,
-	// .4 centre -- so 103.5 did not mean "half a unit lower", it picked another mode and threw the
-	// backdrop across the screen.
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, CR_CYAN, MenuX(176.0), MenuY(100.0), 0.0, 0.0);
-	MenuHudSize(HUDMAX_X, HUDMAX_Y);
+	// the menu frame is the backdrop; the info panel keeps a pane at RPGMENUID, in front of the frame
+	DrawChromeSpellPocket();
 	SetFont("NMENUFNT");
 
-	// The board's heading over the middle of the tree; points and credits in the corners under it, each growing away from the other.
-	HudMessage(s:"--- ", l:StrParam(s:"DND_SPELLTREETITLE", d:tree), s:" ---";
-		HUDMSG_PLAIN, SPELLTREE_HEAD_ID, CR_CYAN, MenuX(178.4), MenuY(22.0), 0.0, 0.0);
-	HudMessage(s:"\c[Y5]", l:"DND_MENU_SPELLPOINTS", s:": \c-", d:GetSpellPoints(pnum);
-		HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 1, CR_WHITE, MenuX(16.1), MenuY(34.0), 0.0, 0.0);
-	HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \cd$", d:GetPlayerCredit(pnum);
-		HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 7, CR_WHITE, MenuX(354.2), MenuY(34.0), 0.0, 0.0);
+	// The tree's name is its sub tab, and points and credits sit on the frame's status strip.
+	DeleteTextRange(SPELLTREE_HEAD_ID, SPELLTREE_HEAD_ID + 1);
+	DeleteText(SPELLTREE_HEAD_ID + 7);
 
 	// Edges before nodes so every icon sits on top of the lines reaching it; the hovered or pinned spell's buses light.
 	int first = GetTreeFirstSpell(tree);
@@ -1242,8 +1228,8 @@ void HandleSpellTreeDraw(int pnum, int tree, int boxid, menu_pane_T module& p) {
 	// on purpose, so entry n stays box n however the tree grows.
 	// Literals rather than CRAFTING_PAGEARROW*: those live in DnD_MenuTables.h, which is included
 	// AFTER this file, and macros do not forward reference. Values are 466/36 with a 12x8 size.
-	AddBoxToPane_Points(p, 466.0, 36.0, 454.0, 28.0);
-	DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_1 + n, RPGMENUPAGEID - 1, 16.1, 288.0, "\c[B1]", "\c[Y5]");
+	AddBoxToPane_Points(p, 466.0, 46.0, 454.0, 38.0);
+	DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_1 + n, RPGMENUPAGEID - 1, 16.1, 278.0, "\c[B1]", "\c[Y5]");
 }
 
 // Returns true when something changed and the page wants a redraw.
@@ -1942,9 +1928,9 @@ void DrawGemPocket(int subt, int role, int spell, int blocker = -1) {
 	int c = GetGemColour(subt), k, st;
 	bool g = IsGreaterGem(subt);
 
-	PanelHeading(StrParam(s:"\c[Y5]", l:GetItemTagName(DND_ITEM_GEM, subt)), SPELLTREE_HEAD_ID + 2, 24);
+	PanelHeading(StrParam(s:"\c[Y5]", l:GetItemTagName(DND_ITEM_GEM, subt)), SPELLTREE_HEAD_ID + 2, DND_SPELLPANEL_HEADY);
 	if(spell != -1)
-		PanelHeading(StrParam(s:"\c[Y5]", l:"DND_GEM_IN", s:": \c-", l:GetSpellNameLump(spell)), SPELLTREE_HEAD_ID + 3, 36);
+		PanelHeading(StrParam(s:"\c[Y5]", l:"DND_GEM_IN", s:": \c-", l:GetSpellNameLump(spell)), SPELLTREE_HEAD_ID + 3, DND_SPELLPANEL_HEADY + 12);
 	else
 		DeleteText(SPELLTREE_HEAD_ID + 3);
 
@@ -1979,7 +1965,7 @@ void DrawGemPocket(int subt, int role, int spell, int blocker = -1) {
 
 // The gem page's pocket while nothing is hovered: DND_GEMPAGE_HELPTITLE, then DND_GEMPAGE_HELP split on its line breaks.
 void DrawGemHelp() {
-	PanelHeading(StrParam(s:"\c[Y5]", l:"DND_GEMPAGE_HELPTITLE"), SPELLTREE_HEAD_ID + 2, 24);
+	PanelHeading(StrParam(s:"\c[Y5]", l:"DND_GEMPAGE_HELPTITLE"), SPELLTREE_HEAD_ID + 2, DND_SPELLPANEL_HEADY);
 	DeleteText(SPELLTREE_HEAD_ID + 3);
 
 	MenuClipRect(DND_SPELLPANEL_X - 4, DND_SPELLPANEL_Y - 4, DND_SPELLPANEL_W, DND_SPELLPANEL_H);
@@ -2003,19 +1989,15 @@ void HandleSpellGemsDraw(int pnum, int boxid, menu_pane_T module& p) {
 
 	ResetPane(p);
 
-	MenuHudSize(DND_SPELLTREE_BACKW, DND_SPELLTREE_BACKH);
-	SetFont("CRFTVW2");
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, CR_CYAN, MenuX(176.0), MenuY(100.0), 0.0, 0.0);
-	MenuHudSize(HUDMAX_X, HUDMAX_Y);
+	// the menu frame is the backdrop now; the page name is its sub tab
+	DrawChromeSpellPocket();
 	SetFont("NMENUFNT");
-
-	HudMessage(s:"--- ", l:"DND_SPELLTREE_GEMS", s:" ---";
-		HUDMSG_PLAIN, SPELLTREE_HEAD_ID, CR_CYAN, MenuX(178.4), MenuY(22.0), 0.0, 0.0);
+	DeleteText(SPELLTREE_HEAD_ID);
 	DeleteText(SPELLTREE_HEAD_ID + 7);
 
 	// Box one is the back arrow, first for the reason the hotbar page gives: the boxes after it change with the view.
-	AddBoxToPane_Points(p, 466.0, 36.0, 454.0, 28.0);
-	DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_1, RPGMENUPAGEID - 1, 16.1, 288.0, "\c[B1]", "\c[Y5]");
+	AddBoxToPane_Points(p, 466.0, 46.0, 454.0, 38.0);
+	DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_1, RPGMENUPAGEID - 1, 16.1, 278.0, "\c[B1]", "\c[Y5]");
 	n = 1;
 
 	// A pick on a spell that lost its sockets is dropped rather than drawn.
@@ -2024,8 +2006,7 @@ void HandleSpellGemsDraw(int pnum, int boxid, menu_pane_T module& p) {
 
 	if(!ss.gem_pick) {
 		count = GetGemEligibleCount(pnum);
-		HudMessage(s:"\c[Y5]", l:count ? "DND_GEMPAGE_PICKSOCKET" : "DND_GEMPAGE_NONE";
-			HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 1, CR_WHITE, MenuX(178.4), MenuY(34.0), 0.0, 0.0);
+		DrawChromeSpellHint(count ? "DND_GEMPAGE_PICKSOCKET" : "DND_GEMPAGE_NONE");
 
 		for(i = 0; i < count; ++i) {
 			spell = GetGemEligibleSpell(pnum, i);
@@ -2064,8 +2045,7 @@ void HandleSpellGemsDraw(int pnum, int boxid, menu_pane_T module& p) {
 		int pick_slot = (ss.gem_pick - 1) % DND_SPELL_MAXSOCKETS;
 		// Only the gems that can do something on this spell; the message tells none at all from none that fit.
 		count = GetInventoryGemCount(pnum, spell);
-		HudMessage(s:"\c[Y5]", l:count ? "DND_GEMPAGE_PICKGEM" : GetInventoryGemCount(pnum) ? "DND_GEMPAGE_NOFIT" : "DND_GEMPAGE_NOGEMS";
-			HUDMSG_PLAIN, SPELLTREE_HEAD_ID + 1, CR_WHITE, MenuX(178.4), MenuY(34.0), 0.0, 0.0);
+		DrawChromeSpellHint(count ? "DND_GEMPAGE_PICKGEM" : GetInventoryGemCount(pnum) ? "DND_GEMPAGE_NOFIT" : "DND_GEMPAGE_NOGEMS");
 
 		x = GetRowCellX(0, 1);
 		y = DND_GEMPAGE_Y;

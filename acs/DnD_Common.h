@@ -7,7 +7,7 @@
 
 #define SIZEOF_INT 4
 
-//#define ISDEBUGBUILD
+#define ISDEBUGBUILD
 //#define WANTCURSORPOS
 //#define VERBOSE_TID_SETUP
 //#define WANT_BUFF_LOG

@@ -2057,7 +2057,7 @@ int DrawInventoryText(
 
 		yoff += ITEMINFO_SEPGAP;
 
-		SetFont("IMPSEPR");
+		SetFont((CheckInventory("ShowingMenu") && IsChromePage(CheckInventory("MenuOption"))) ? "MCITSEP" : "IMPSEPR");
 		HudMessage(
 			s:"A";
 			HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 6 + ITEMID_SKIP, val, MenuX(GetIntegerBits(bx) + 0.4), MenuY(yoff), holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
@@ -2180,6 +2180,29 @@ int TextExtentToMids(int text_h) {
 	return (2 * text_h + ITEMINFOBG_MIDTEXT2 - 1) / ITEMINFOBG_MIDTEXT2;
 }
 
+// twice a coordinate, keeping its alignment digit
+int ItemInfoDouble(int v) {
+	return ((v & MMASK) << 1) + (v & 0xFFFF);
+}
+
+void DrawItemInfoBackgroundChrome(int hudid_begin, int hx, int hy, int bg_posx, int bg_posy, int mids, int craft_status, int holdTime) {
+	str st = "N";
+	if(!craft_status)
+		st = "R";
+	else if(hovered_orb_craft_result.effect_type == DND_ORBEFFECT_ENTIREITEM)
+		st = "O";
+	int x = ItemInfoDouble(bg_posx), y = ItemInfoDouble(bg_posy), i;
+	MenuHudSize(hx * 2, hy * 2);
+	SetFont(StrParam(s:"MCITT", s:st));
+	HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, hudid_begin, CR_WHITE, MenuX(x), MenuY(y), holdTime, INVENTORY_FADETIME, 0.95);
+	SetFont(StrParam(s:"MCITM", s:st));
+	for(i = 0; i < mids; ++i)
+		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, hudid_begin - 1 - i, CR_WHITE, MenuX(x), MenuY(y + 2 * (ITEMINFOBG_TOPLEN + i * ITEMINFOBG_MIDLEN)), holdTime, INVENTORY_FADETIME, 0.95);
+	SetFont(StrParam(s:"MCITB", s:st));
+	HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, hudid_begin - 2 - i, CR_WHITE, MenuX(x), MenuY(y + 2 * (ITEMINFOBG_TOPLEN + i * ITEMINFOBG_MIDLEN)), holdTime, INVENTORY_FADETIME, 0.95);
+	MenuHudSize(hx, hy);
+}
+
 void DrawItemInfoBackground(
 	int hudid_begin, 
 	int hx, int hy, 
@@ -2194,6 +2217,12 @@ void DrawItemInfoBackground(
 
 	if(mids > ITEMINFOBG_MAXMIDS)
 		mids = ITEMINFOBG_MAXMIDS;
+
+	// in the redesigned menu the card is the frame's: the same slices at twice the resolution, in a hud twice the size
+	if(CheckInventory("ShowingMenu") && IsChromePage(CheckInventory("MenuOption"))) {
+		DrawItemInfoBackgroundChrome(hudid_begin, hx, hy, bg_posx, bg_posy, mids, craft_status, holdTime);
+		return;
+	}
 
 	str mid_img = "LDTITMID";
 	if(craft_status) {

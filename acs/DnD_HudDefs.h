@@ -280,6 +280,9 @@ enum {
 
 // MENU IDS
 // Moved here because of dependencies
+// the redesigned crafting pages: in front of the frame, behind the item cards
+#define MCH_ID_CRAFT_FIRST 1440
+#define MCH_ID_CRAFT_LAST 1640
 enum {
 	RPGMENUCURSORID = 100,
 	RPGMENUPOPUPID = 105,

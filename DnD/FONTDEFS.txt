@@ -131,3 +131,9 @@ MENUHEAD
 	Template MFH%03d
 	SpaceWidth 9
 }
+
+MENUNUM
+{
+	Template MFN%03d
+	SpaceWidth 5
+}
