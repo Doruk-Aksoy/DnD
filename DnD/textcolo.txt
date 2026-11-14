@@ -346,6 +346,22 @@ UIRed {
 	Console:
 	#000000 #e0604a 0 256
 }
+
+UIOrange {
+	#000000 #e6823a 0 256
+	Console:
+	#000000 #e6823a 0 256
+}
+UITermRed {
+	#000000 #ff7850 0 256
+	Console:
+	#000000 #ff7850 0 256
+}
+UITermInk {
+	#000000 #140c08 0 256
+	Console:
+	#000000 #140c08 0 256
+}
 UISlate {
 	#000000 #7a84a6 0 256
 	Console:

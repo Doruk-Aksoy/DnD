@@ -7,7 +7,6 @@
 #include "../DnD_Abilities.h"
 #include "../Inventory/DnD_OrbDefs.h"
 
-#define DND_QUICKBUY_POPUPID 0xFFFF
 #define DND_LANGUAGE_LOOKUP true
 #define DND_NOLOOKUP false
 
@@ -34,8 +33,6 @@ sel_dungeon_data_T module& GetSelectedDungeonData(int pnum) {
 	static sel_dungeon_data_T DungeonData[MAXPLAYERS];
 	return DungeonData[pnum];
 }
-
-#define DND_MENU_BASEAMMOSTOCK 50
 
 enum {
 	DRAW_STAT_OFFENSE1,
@@ -176,8 +173,6 @@ enum {
 	#endif
 };
 
-#define MAX_WEPS_PER_PAGE 8
-
 #define SHOP_FIRSTWEAPON_PAGE MENU_SHOP_WEAPON1
 #define SHOP_LASTWEAPON_PAGE MENU_SHOP_WEAPON8
 
@@ -243,18 +238,6 @@ enum {
 #define SHOP_LASTAMMO_NORMALINDEX SHOP_AMMO_SNIPER
 #define SHOP_LASTWEP_INDEX SHOP_WEP_REAVER
 
-// Flask grid on the equipment page. Two columns of two, in the band between the small charms
-// (right edge ~284) and the armor column (left edge ~368). The draw coordinate is the box
-// CENTRE, not its corner -- flask 1 used to sit at 336 and its hit box spans 316..356.
-//
-// 32px boxes at a 36px pitch: columns span 296..328 and 332..364, so the grid clears the charms
-// on the left and the armors on the right with a couple of pixels to spare. The old single
-// column used the 40px charm box, which is why two of those could never fit side by side.
-#define DND_FLASKBOX_COL1 312.0
-#define DND_FLASKBOX_COL2 348.0
-#define DND_FLASKBOX_ROW1 211.0
-#define DND_FLASKBOX_ROW2 251.0
-
 #define SHOP_RESPAGE_BEGIN MENU_RESEARCH_BODY
 #define SHOP_RESPAGE_END MENU_RESEARCH_UTILITY
 
@@ -275,12 +258,6 @@ enum {
 #define MENU_MMOD_HELP_BEGIN MENU_HELP_MMODS_WEAKNESS
 #define MENU_MMOD_HELP_END MENU_HELP_MMODS_SPECIAL
 
-#define AMMO_ICON 0
-#define AMMO_NAME 1	
-#define AMMO_PAGE2_BEGIN (SHOP_FIRSTAMMO2_INDEX - SHOP_FIRSTAMMO_INDEX)
-#define AMMO_PAGE3_BEGIN (SHOP_FIRSTAMMO3_INDEX - SHOP_FIRSTAMMO_INDEX)
-#define AMMO_PAGESPECIAL_BEGIN (SHOP_FIRSTAMMOSPECIAL_INDEX - SHOP_FIRSTAMMO_INDEX)
-
 #define MENU_LAST_TRADE MENU_LOAD_TRADE5
 #define MENU_FIRST_TRADE MENU_LOAD_TRADE1
 #define MENU_TRADE_PAGECOUNT (MENU_LAST_TRADE - MENU_FIRST_TRADE + 1)
@@ -289,69 +266,13 @@ enum {
 #define MENU_LOAD_CRAFTING_FIRST MENU_LOAD_CRAFTING_WEAPON
 #define MENU_LOAD_CRAFTING_LAST MENU_LOAD_CRAFTING_TRANSMUTING
 
-#define MAXACCOUNTITEMS (SHOP_ACCOUNT_END - SHOP_ACCOUNT_BEGIN + 1)
-
-#define MAX_ACCESSORIES (DND_ACCESSORY_LICHARM + 1)
-
-// The tree page's layout, in screen pixels. Here rather than beside the drawing code because the
-// scroll switch near the top of DnD_MenuFuncs.h reads them, and a macro cannot be forward referenced
-// in bcs the way a function can.
-//
-// The page has TWO scrolling regions: the list of perks, and the detail panel under it. They keep
-// separate positions -- see perk_scroll_T -- because the panel's text runs to eight lines for the
-// wordiest perks and reading it should not cost you your place in the tree.
-// The text column. It has to STOP SHORT of the scroll bar, which stands at DND_SCROLLBAR_X and is
-// drawn over whatever reaches it -- 192 + 248 lands at 440, nine pixels clear of it. This is the clip
-// width and the wrap width both: wrapping alone would still let an unbreakable run overhang, and
-// clipping alone would cut mid-word.
-#define DND_PERKLIST_X       192
-#define DND_PERKLIST_W       248
-
-#define DND_PERKLIST_TOP     76
-#define DND_PERKLIST_H       128    // exactly 8 rows, so the step below divides it
-#define DND_PERKROW_H        16
-#define DND_PERKINDENT       8
-
-// One row per step, so a row is never left half inside the window. That in turn is what makes the
-// clip pad safe: with a partial row possible, padding the top would show the bottom of the row above.
-#define DND_PERKSCROLL_STEP  DND_PERKROW_H
-
-// Glyphs sit a little above the y they are drawn at, so a clip that starts exactly at the first row
-// shaves its top pixel off. Padding is added upward and taken out of the height, leaving the bottom
-// edge where it was.
-#define DND_PERKLIST_CLIPPAD 4
-
-// How tall a row's click target is, centred on its text. Eight matches every hand-written bp[] row
-// in the layout table -- a taller one reaches into the gap below and picks the wrong perk.
-#define DND_PERKROW_HIT      8
-
-// Where the tree's row messages start, counting DOWN from RPGMENUITEMID. Every id a page draws has
-// to land inside the DeleteTextRange the menu runs each redraw, which reaches 45 below -- so the
-// deepest row is DND_PERKROW_IDBASE + DND_MAX_PERKS_PERARCH - 1 and that has to stay under it.
-// At 5 and 40 the deepest is 44. Raising either without the other pushes rows out of the clear.
-#define DND_PERKROW_IDBASE   5
-
 // Which bar drives which region. The list takes bar 0 because that is the one whose position lives
 // in ScrollPos.x, which is what the rest of the menu resets on a page change.
-#define DND_PERKBAR_LIST     0
 #define DND_PERKBAR_PANEL    1
 
 // Eight archetype rows ROWGAP apart from y 88 (the last at 214, the layout table's rects follow), then the
 // dash toggle behind a rule: not a perk, so fenced off, its box after the last archetype as extras go last.
-#define DND_PERKINDEX_ROWGAP    18
-#define DND_PERKINDEX_DIVIDER_Y 226.2
-#define DND_PERKINDEX_TOGGLE_Y  240.2
-#define DND_PERKINDEX_HINT_Y    280.2
 #define DND_PERKINDEX_TOGGLEBOX (MBOX_1 + PERK_ARCH_COUNT)
-
-#define DND_PERKDIVIDER_Y    206
-#define DND_PERKPANEL_TOP    216
-#define DND_PERKPANEL_H      64     // 8 lines, which is the wordiest perk in the tree
-#define DND_PERKPANEL_LINE   8
-
-// Rough characters per wrapped line. ACS cannot measure a rendered string, so the panel's extent is
-// estimated from its length -- only the scroll bar's thumb depends on this being close.
-#define DND_PERKPANEL_CPL    31
 
 #define MENU_PERKTREE_FIRST MENU_PERK_ACRO
 #define MENU_PERKTREE_LAST  MENU_PERK_MAGI

@@ -33,7 +33,7 @@
 // at 8 columns by 7 rows, and at this icon size that is the whole board -- the gaps are what is
 // left over, not a choice.
 #define DND_SPELLTREE_GAPX 15
-#define DND_SPELLTREE_GAPY 13
+#define DND_SPELLTREE_GAPY 12
 #define DND_SPELLTREE_COLW (DND_SPELLNODE + DND_SPELLTREE_GAPX)
 #define DND_SPELLTREE_ROWH (DND_SPELLNODE + DND_SPELLTREE_GAPY)
 
@@ -42,8 +42,8 @@
 // top left corner with the whole right half of the board empty.
 #define DND_SPELLTREE_LEFT 16
 #define DND_SPELLTREE_BOARDW 322
-#define DND_SPELLTREE_TOP 46
-#define DND_SPELLTREE_BOARDH 239
+#define DND_SPELLTREE_TOP 53
+#define DND_SPELLTREE_BOARDH 233
 
 // Connector line thickness box: the strips are this tall or wide, the joint tiles this square.
 #define DND_SPELLLINE_JOINT 7
@@ -913,12 +913,8 @@ void HandleSpellHotbarDraw(int pnum, int boxid, menu_pane_T module& p) {
 	DrawChromeSpellHint(ss.picking_slot == -1 ? "DND_SPLPANEL_PICKSLOT" : "DND_SPLPANEL_PICKSPELL");
 	DeleteText(SPELLTREE_HEAD_ID + 7);
 
-	// The back arrow is box ONE, added before anything else, because opening the picker changes how
-	// many boxes follow it -- and the server, which cannot see the clientside picking_slot, would
-	// otherwise have no fixed number to recognise it by. It used to be added last, so the picker's
-	// first cell inherited its index and going back was what a grid click did.
-	AddBoxToPane_Points(p, 466.0, 46.0, 454.0, 38.0);
-	DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_1, RPGMENUPAGEID - 1, 16.1, 278.0, "\c[B1]", "\c[Y5]");
+	// box one stays, parked: the frame's tabs go back now, and the boxes after it keep their numbers
+	AddBoxToPane_Points(p, -1, -1, -1, -1);
 	n = 1;
 
 	// The slots. Read off the SYNCED inventory item rather than the global, because this draw is
@@ -1004,7 +1000,7 @@ void HandleSpellHotbarDraw(int pnum, int boxid, menu_pane_T module& p) {
 	// Whatever the last, longer layout left behind: the rest of the node ids, which end where the
 	// crossings begin. Never past them -- sweeping the whole id space wiped the tree's connectors.
 	DeleteTextRange(SPELLTREE_NODE_ID + drawn, SPELLTREE_CROSS_ID - 1);
-	// + 1: the labels start at RANK_ID + 1, because box one is the back arrow. Sweeping from
+	// + 1: the labels start at RANK_ID + 1, because box one is the parked old back arrow. Sweeping from
 	// RANK_ID + slots deleted the LAST slot's number every frame.
 	DeleteTextRange(SPELLTREE_RANK_ID + slots + 1, SPELLTREE_RANK_ID + DND_SPELLS_PER_TREE - 1);
 
@@ -1059,7 +1055,7 @@ bool HandleSpellHotbarPick(int pnum, int boxid, int input) {
 		return true;
 	}
 
-	// Box one is the back arrow, which the server handles.
+	// Box one is parked (the old back arrow): nothing to pick there.
 	int idx = boxid - MBOX_1;
 	if(!idx)
 		return false;
@@ -1223,13 +1219,9 @@ void HandleSpellTreeDraw(int pnum, int tree, int boxid, menu_pane_T module& p) {
 
 	SetFont("NMENUFNT");
 
-	// Added last on purpose: entry n stays box n however many spells the tree grows.
-	// Exactly the crafting view's arrow: same box, same position, same art. Added AFTER every node
-	// on purpose, so entry n stays box n however the tree grows.
-	// Literals rather than CRAFTING_PAGEARROW*: those live in DnD_MenuTables.h, which is included
-	// AFTER this file, and macros do not forward reference. Values are 466/36 with a 12x8 size.
-	AddBoxToPane_Points(p, 466.0, 46.0, 454.0, 38.0);
-	DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_1 + n, RPGMENUPAGEID - 1, 16.1, 278.0, "\c[B1]", "\c[Y5]");
+	// the old back arrow's box, parked after every node so entry n stays box n
+	AddBoxToPane_Points(p, -1, -1, -1, -1);
+	DeleteText(RPGMENUPAGEID - 1);
 }
 
 // Returns true when something changed and the page wants a redraw.
@@ -1995,9 +1987,8 @@ void HandleSpellGemsDraw(int pnum, int boxid, menu_pane_T module& p) {
 	DeleteText(SPELLTREE_HEAD_ID);
 	DeleteText(SPELLTREE_HEAD_ID + 7);
 
-	// Box one is the back arrow, first for the reason the hotbar page gives: the boxes after it change with the view.
-	AddBoxToPane_Points(p, 466.0, 46.0, 454.0, 38.0);
-	DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_1, RPGMENUPAGEID - 1, 16.1, 278.0, "\c[B1]", "\c[Y5]");
+	// box one stays, parked: the frame's tabs go back now, and the boxes after it keep their numbers
+	AddBoxToPane_Points(p, -1, -1, -1, -1);
 	n = 1;
 
 	// A pick on a spell that lost its sockets is dropped rather than drawn.
@@ -2127,7 +2118,7 @@ bool HandleSpellGemsPick(int pnum, int boxid, int input) {
 
 	spell_scroll_T module& ss = GetSpellScroll();
 
-	// Outside every box closes the gem view; box one is the back arrow, which the server handles.
+	// Outside every box closes the gem view; box one is parked (the old back arrow).
 	if(boxid <= MBOX_1) {
 		if(boxid == MBOX_1 || !ss.gem_pick)
 			return false;

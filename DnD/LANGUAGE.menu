@@ -2,9 +2,7 @@
 
 DND_MENU_NOTINGAME		=	"You have to be in the game to use the menu";
 
-DND_MENU_WELCOME		=	"Welcome to the DnD Menu";
-
-DND_MENU_BOBBY1			= 	"This is Doom's first interactive super cool UAC Menu, ran by none other than \c[Y5]Bobby\c- \cj\"\c-\cmCombine\cqb\cjo\crb\cmnt\c-\" \c[Y5]Sanchez\c-! "
+DND_MENU_BOBBY1			= 	"This is Doom's first interactive super cool UAC Menu, ran by none other than \c[UIGold]Bobby \"Combinebobnt\" Sanchez\c-! "
 							"Through this interface, you're directly connected to the UAC Database! You can make your purchases of various goodies here.";
 
 DND_MENU_BOBBY2			=	"Use your mouse cursor and left click to do your selections. There are various pages with various items in them, so be sure "
@@ -13,10 +11,6 @@ DND_MENU_BOBBY2			=	"Use your mouse cursor and left click to do your selections.
 DND_MENU_BOBBY3			=	"I don't have all day, I have yet to finish my important projects such as \cdM\ctS\cfP\crD\c- so don't bother me for long! Buy your shit and leave!";
 
 DND_MENU_AVGMONLEVEL	=	"Average Monster Level";
-
-DND_MENU_MAPINFO		=	"Show Map Info: ";
-DND_MENU_MODTIERS		=	"Show Item Mod Tiers: ";
-DND_MENU_IGNORETEMPS	=	"Ignore Temp Weapons: ";
 
 DND_MENU_DONATE			=	"Allocate Budget";
 DND_MENU_CONVRATE		=	"Conversion Rate";
@@ -30,21 +24,9 @@ DND_DISASS_LOSS			=	"Failed to extract any orbs from the item!";
 DND_DISASS_CHANCE		=	"Chance";
 
 // basic words
-DND_MENU_ENABLED		=	"\cdEnabled";
-DND_MENU_DISABLED		=	"\cgDisabled";
 DND_MENU_ERROR			=	"Error";
 DND_MENU_CONFIRM		=	"Confirm";
 DND_MENU_DASH			=	"Dash";
-
-DND_MENU_AUTOPICK_FILTER	=	"Autopick: ";
-DND_MENU_FILTER_0			=	"\cjNothing";
-DND_MENU_FILTER_1			=	"\cjStackables";
-DND_MENU_FILTER_2			=	"\cjCharms";
-DND_MENU_FILTER_3			=	"\cjStackables / Charms";
-DND_MENU_FILTER_4			=	"\cjArmors";
-DND_MENU_FILTER_5			=	"\cjStackables / Armors";
-DND_MENU_FILTER_6			=	"\cjCharms / Armors";
-DND_MENU_FILTER_7			=	"\cjAll inventory";
 
 // engine options menu
 DND_OPT_TITLE				=	"DnD Options";
@@ -76,12 +58,7 @@ DND_MENU_YOUROFFERING	=	"Your Offering";
 DND_MENU_YOURINV		=	"Your Inventory";
 DND_MENU_THEIROFFER		=	"'s Offering";	// this is "X's offering" basically
 
-DND_MENU_SIDE_STATS		=	"Stats";
-DND_MENU_SIDE_PERKS		=	"Perks";
-DND_MENU_SIDE_LOADOUT	=	"Loadout";
-
 DND_MENU_GAIN_OFFENSE	=	"Offensive Stats";
-DND_MENU_GAIN_ELEMENT	=	"Elemental Stats";
 DND_MENU_GAIN_DEFENSE	=	"Defensive Stats";
 DND_MENU_GAIN_UTILITY	=	"Utility Stats";
 DND_MENU_GAIN_EXOTIC	=	"Exotic Stats";
@@ -89,28 +66,13 @@ DND_MENU_GAIN_MISC		=	"Misc Stats";
 
 DND_MENU_HEAD_STATS		=	"Player Stats";
 DND_MENU_HEAD_GAINS		=	"Current Gains";
-DND_MENU_HEAD_QUESTBON	=	"Quest Bonuses";
 DND_MENU_HEAD_PERKS		=	"Player Perks";
-DND_MENU_HEAD_LOADOUT	=	"Loadout Selection";
-DND_MENU_HEAD_DISCARD	=	"Weapon Discard Setup";
-DND_MENU_HEAD_ITEMS		=	"Items Acquired";
-DND_MENU_HEAD_STASH		=	"Stash";
 DND_MENU_HEAD_TRADE		=	"Arrange a Trade";
-DND_MENU_HEAD_ACCESSORY	=	"Current Accessories";
 DND_MENU_HEAD_SHOP		=	"Shop";
 DND_MENU_HEAD_WEAPONS	=	"Weapons";
 DND_MENU_HEAD_AMMO		=	"Ammunitions";
-DND_MENU_HEAD_ABILITIES =	"Abilities";
-DND_MENU_HEAD_ARTIFACTS	=	"Artifacts";
-DND_MENU_HEAD_ARMORS	=	"Armors";
 DND_MENU_HEAD_ACCOUNT 	=	"Account";
-DND_MENU_HEAD_RESCAT	=	"Research Categories";
-DND_MENU_HEAD_RESPAN	=	"Research Panel";
-DND_MENU_HEAD_ABILEARNED = 	"Abilities Learned";
-DND_MENU_HEAD_HELP		=	"DnD Help";
-DND_MENU_HEAD_RESGUNS	=	"Research: Guns";
 DND_MENU_HEAD_NFT		=	"NFTs";
-DND_MENU_HEAD_DUNGEONS	=	"Dungeons Available";
 
 DND_MENU_SLOT			=	"Slot";
 DND_MENU_MATERIALS		=	"Materials";
@@ -121,23 +83,18 @@ DND_MENU_WEPALT			=	"Alt fire";
 DND_MENU_WEPALTMODE		=	"Alt mode";
 
 DND_MENU_NA				=	"N/A";
-DND_MENU_PERKSAVAIL		=	"Perks Available";
 DND_MENU_PERKSSPENT		=	"Spent";
-DND_MENU_PERK_ARCHETYPES =	"Archetypes";
 DND_MENU_PERK_LOCKED	=	"Locked";
 DND_MENU_PERK_MAXED		=	"Maxed out";
 DND_MENU_PERK_NOPOINTS	=	"No perk points left to spend";
 DND_MENU_PERK_NEEDSPENT	=	"Needs points spent in this archetype";
 DND_MENU_PERK_REQUIRES	=	"Requires";
 DND_MENU_PERK_PERPOINT	=	"Each further point";
-DND_MENU_PERK_SPENDHINT	=	"to spend a point";
-DND_MENU_PERK_PINNED1	=	"Pinned"; DND_MENU_PERK_PINNED2 = "to release";
+DND_MENU_PERK_PINNED1	=	"Pinned"; 
 DND_ARTILLERYRADIUS		=	"Artillery Explosion Radius";
 DND_MENU_PERK_EMPTY		=	"Not designed yet.";
-DND_MENU_PERK_PICKARCH	=	"Pick an archetype to open its tree.";
 DND_MENU_PERK_PINHELP1	=	"Hold";		DND_MENU_PERK_PINHELP2 = "and click to pin description in place.";
 DND_MENU_STAT_REFUND1	=	"Hold";		DND_MENU_STAT_REFUND2 = "and click to refund a point for ";
-DND_MENU_PERK_REFUND	=	"refunds a point for";
 DND_MENU_PERK_REFUNDLOCKS =	"Cannot refund, it would lock";
 DND_MENU_PERK_REFUNDPOOR =	"Cannot afford to refund a point";
 DND_MENU_RESEARCH		=	"Research";
@@ -145,66 +102,30 @@ DND_MENU_CREDITS		=	"Credits";
 DND_MENU_BUDGET			=	"Budget";
 DND_MENU_ENTRY			=	"Entry";
 DND_MENU_COST			=	"Cost";
-DND_MENU_LEGEND			=	"LEGEND";
 DND_MENU_REPLACESWEP	=	"Replaces slot weapon";
 DND_MENU_LUXURYWEP		=	"Luxury weapon";
 DND_MENU_CARRYLIMIT		=	"Can carry at most 1";
-DND_MENU_FILLPRICE		=	"Fill Price";
-DND_MENU_LEARNED		=	"Learned";
-DND_MENU_HELP			=	"Help";
-DND_MENU_LASTED			=	"Beat";
 DND_MENU_STOCK			=	"Stock";
 DND_MENU_SELLSFOR		=	"Sells for";
 DND_MENU_INBULK			=	"In bulk";
 
-DND_MENU_ITEMS			=	"Items";
 DND_MENU_INVENTORY		=	"Inventory";
 DND_MENU_STASH			=	"Stash";
-DND_MENU_EQUIPMENTS		=	"Equipments";				DND_MENU_EQUIPLEFT = "Charms";			DND_MENU_EQUIPRIGHT = "Armors";
+DND_MENU_EQUIPMENTS		=	"Equipments";							
 DND_MENU_WEAPONDISCARD	=	"Weapon Discard";
 DND_MENU_CRAFTING		=	"Crafting";
 DND_MENU_ACCESSORIES	=	"Accessories";
 DND_MENU_TRADING		=	"Trading";
 DND_MENU_DUNGEONS		=	"Dungeons";
-DND_MENU_VIEWINV		=	"View Inventory";
 
 DND_MENU_MAPDIFF		=	"Map Difficulty";
 DND_MENU_LIVESLEFT		=	"Lives left";
 DND_MENU_TOTALKILLS		=	"Total kills";
 
-DND_MENU_WEAPONS		=	"Weapons Menu";
-DND_MENU_AMMO			=	"Ammunition Menu";
-DND_MENU_ABILITIES		=	"Abilities Menu";
-DND_MENU_ARTIFACTS		=	"Artifacts Menu";
-DND_MENU_ARMORS			=	"Armors Menu";
-DND_MENU_ACCOUNT		=	"Account Menu";
 DND_MENU_NFT			=	"NFT Menu";
 
 DND_MENU_AMMOCATEGORY	=	"Ammo Category";
 DND_MENU_SPECIALAMMO	=	"Special Ammo";
-
-DND_MENU_WEPCRAFT		=	"Weapons Crafting";
-DND_MENU_INVCRAFT		=	"Inventory Crafting";
-DND_MENU_TRANSMUTE		=	"Transmute Station";
-DND_TRANSMUTE			=	"Transmute!";
-
-DND_RESMENU_BODY		=	"Research Category: Body";
-DND_RESMENU_AMMO		=	"Research Category: Ammo";
-DND_RESMENU_GUNS		=	"Research Category: Guns";
-DND_RESMENU_UTILITY		=	"Research Category: Utility";
-
-DND_RESMENU_SUBSLOT		=	"Sub Category: Slot Guns";
-DND_RESMENU_SUBLUX		=	"Sub Category: Luxury Bundles";
-
-DND_MENU_HELPTEXT1		=	"Character Loading Help";
-DND_MENU_HELPTEXT2		=	"Class Perk Help";
-DND_MENU_HELPTEXT3		=	"Weapon Property Help";
-DND_MENU_HELPTEXT4		=	"Research Help";
-DND_MENU_HELPTEXT5		=	"Damage Types Help";
-DND_MENU_HELPTEXT6		=	"Ailment Types Help";
-DND_MENU_HELPTEXT7		=	"Orbs Help";
-DND_MENU_HELPTEXT8		=	"Monster Modifiers Help";
-DND_MENU_HELPTEXT9		=	"Legendary Monster Codex";
 
 DND_MENU_AILMENT1		=	"Chill";
 DND_MENU_AILMENT1_EXP	=	"Monsters are slowed by 10% for every 10% of health they lose, up to a maximum of 50% health lost. This stacks and enables \cvfreezing.";
@@ -220,12 +141,6 @@ DND_MENU_AILMENT6		=	"Bleeding";
 DND_MENU_AILMENT6_EXP	=	"Physical damage from hits can inflict bleeding, with a base chance of 20% for melee and 5% for ranged attacks. 30% of the hit damage is then dealt over 2.5 seconds in 5 instances. Moving causes victims to take triple damage.";
 
 DND_MENU_MMOD_WEAK		=	"Weakness Modifiers";
-DND_MENU_MMOD_RESIST	=	"Resistance Modifiers";
-DND_MENU_MMOD_IMMUNE	=	"Immunity Modifiers";
-DND_MENU_MMOD_AGGRESS	=	"Aggressive Modifiers";
-DND_MENU_MMOD_DEFENSE	=	"Defensive Modifiers";
-DND_MENU_MMOD_UTILITY	=	"Utility Modifiers";
-DND_MENU_MMOD_SPECIAL	=	"Special Modifiers";
 
 DND_MENU_BULLETTEXT		=	"\c[Y5]Physical\n\nThe simplest of all types. You'll find this in hitscan or melee weapons.";
 DND_MENU_MELEETEXT		=	"\c[Y5]Melee\n\nFound specifically in \c[Y5]Slot 1\c- weapons, with some exceptions. Magical weapons deal \cvmagic\c- damage with their melee, but otherwise counts as \cuphysical\c- damage.";
@@ -254,28 +169,6 @@ DND_MENU_WEPHELPTEXT15	=	"Weapon is a \cfartillery\c- weapon.";
 DND_MENU_WEPHELPTEXT16	=	"Weapon is a \ctmagical\c- weapon.";
 DND_MENU_WEPHELPTEXT17	=	"Weapon is a \cumelee\c- weapon.";
 
-DND_MENU_DISCARD_WEP1	=	"Discard: \cjSlot 1";
-DND_MENU_DISCARD_WEP2	=	"Discard: \cjSlot 2";
-DND_MENU_DISCARD_WEP3	=	"Discard: \cjSlot 3";
-DND_MENU_DISCARD_WEP4	=	"Discard: \cjSlot 3 - Super Shotguns";
-DND_MENU_DISCARD_WEP5	=	"Discard: \cjSlot 4";
-DND_MENU_DISCARD_WEP6	=	"Discard: \cjSlot 5";
-DND_MENU_DISCARD_WEP7	=	"Discard: \cjSlot 6";
-DND_MENU_DISCARD_WEP8	=	"Discard: \cjSlot 7";
-DND_MENU_DISCARD_WEP9	=	"Discard: \cjTemporary weapons";
-
-DND_MENU_ENABLE_WEP1	=	"Enable: \cjSlot 1";
-DND_MENU_ENABLE_WEP2	=	"Enable: \cjSlot 2";
-DND_MENU_ENABLE_WEP3	=	"Enable: \cjSlot 3";
-DND_MENU_ENABLE_WEP4	=	"Enable: \cjSlot 3 - Super Shotguns";
-DND_MENU_ENABLE_WEP5	=	"Enable: \cjSlot 4";
-DND_MENU_ENABLE_WEP6	=	"Enable: \cjSlot 5";
-DND_MENU_ENABLE_WEP7	=	"Enable: \cjSlot 6";
-DND_MENU_ENABLE_WEP8	=	"Enable: \cjSlot 7";
-DND_MENU_TEMP_PREF		=	"Temp weapon: \cj";
-DND_MENU_TEMP_PREF_ANY	=	"Temp weapon: \cjAny";
-DND_MENU_TEMP_PREF_NONE	=	"Temp weapon: \cjNone";
-
 DND_MENU_DISCARD_EXPLANATION = "You can discard or enable weapon slots here. Discarded weapons on the slot won't be picked up, and the vanilla equivalent weapon will also be removed if you own it.";
 
 // yeah numbers here aren't the smartest because hypothetically if a balance change were to happen then all languages would need a change but it's too cumbersome to add numbers in between text \_(*__*)_/
@@ -287,48 +180,18 @@ DND_MENU_ATTR_SHORT1 	=	"\c[INT]STR\c-";
 DND_MENU_ATTR_SHORT2 	=	"\c[INT]DEX\c-";
 DND_MENU_ATTR_SHORT3 	=	"\c[INT]INT\c-";
 
-DND_MENU_ATTUNED		=	"Attuned";
-
 DND_MENU_ATTRTEXT1		=	"Increases \cqKnockback Resist\c- by 50, \cgmaximum life\c- by 1.5 and stamina by 0.5, and grants \cgammo capacity\c-, special ammo included, up to 40%.";
 DND_MENU_ATTRTEXT2		=	"Increases \cdMitigation Chance\c- by 0.2%, and grants \cdspell haste\c- and a chance to \cdshake off homing projectiles\c-, each up to 25%.";
 DND_MENU_ATTRTEXT3		=	"Increases \cvEnergy Shield\c- by 0.5 and mana by 1.5, and grants \cvspell cooldown recovery rate\c- and \cvreduced curse effect\c- on you, each up to 20%.";
 DND_MENU_HOMINGAVOID	=	"chance to shake off homing projectiles";
 DND_MENU_ATTRKNEE		=	"Damage from an attribute past your level counts a quarter.";
 
-DND_MENU_PERKTEXT1		=	"more ranged damage.";
-DND_MENU_PERKTEXT2		=	"more melee damage.";			DND_MENU_PERKTEXT2_CONT 	=	"increased melee range.";
-DND_MENU_PERKTEXT3		=	"chance to avoid ailments.";
-DND_MENU_PERKTEXT4		=	"increased exp gain.";
-DND_MENU_PERKTEXT5		=	"increased credit gain.";
-DND_MENU_PERKTEXT6		=	"increased effect of healing.";
-DND_MENU_PERKTEXT7		=	"increased ammo gain.";
-DND_MENU_PERKTEXT8		=	"to critical strike chance.";
-DND_MENU_PERKTEXT9		=	"to critical strike multiplier.";
-DND_MENU_PERKTEXT10		=	"to damage over time multiplier.";
-
-DND_MENU_MASTERY		=	"Mastery";
-DND_MENU_MASTERY_COND	=	"Requires 10 points";
-DND_MENU_PERKMASTERY1	=	"Dexterity has an additional 1% scaling for attunement.";
-DND_MENU_PERKMASTERY2	=	"Melee damage and range increase also applies to projectiles fired from melee weapons.";
-DND_MENU_PERKMASTERY3	=	"When you are first afflicted by an ailment, prevent further ailments for the next 5 seconds.";
-DND_MENU_PERKMASTERY4	=	"Gain experience from kills regardless of the killer or the range limit.";
-DND_MENU_PERKMASTERY5	=	"Gain credit from kills regardless of the killer or the range limit.";
-DND_MENU_PERKMASTERY6	=	"Convert 2% of healing pickups to energy shield.";
-DND_MENU_PERKMASTERY7	=	"Enemies have 2% chance to drop ammo tokens, giving 10% ammo to a random weapon you own.";
-DND_MENU_PERKMASTERY8	=	"Every 7th hit you land within four seconds is a guaranteed critical strike.";
-DND_MENU_PERKMASTERY9	=	"100% to crit multiplier to attacks if you haven't dealt a critical strike in 5 seconds.";
-DND_MENU_PERKMASTERY10	=	"20% chance to recover 2% of your health on killing an enemy with damage over time.";
-
 // resists for defense tab
 DND_MENU_RES_ELE		=	"Elemental Resist";
 DND_MENU_RES_PHYS		=	"Physical Resist";
 DND_MENU_RES_ENRG		=	"Energy Resist";
 DND_MENU_RES_MAGC		=	"Magic Resist";
-DND_MENU_RES_EXPL		=	"Explosive Resist";
-DND_MENU_RES_HTSC		=	"Hitscan Resist";
 DND_MENU_RES_REFL		=	"Reflection Resist";
-DND_MENU_RES_SELF		=	"Self Damage Reduction";
-DND_MENU_PENETRATION	=	"Pierce";
 
 DND_MENU_RES_FIRE_PEN	=	"Fire Pierce";
 DND_MENU_RES_ICE_PEN	=	"Cold Pierce";
@@ -474,47 +337,8 @@ DND_MENU_AMMOTEXT49		=	"sonic grenades. 144 direct hit damage, 72 area damage in
 DND_MENU_AMMOTEXT50		=	"high-ex grenades. 288 direct hit damage, 288 area damage in 256 unit radius. Explodes to shrapnels dealing 16-128 damage. Can't hit ghosts. \ciExplosion damage.";
 
 // artifacts
-DND_MENU_ARTHELPTEXT1	=	"Portable medikits, can carry 3.";
-DND_MENU_ARTHELPTEXT2	=	"Teleports you to start, heals for 100 health.";
-DND_MENU_ARTHELPTEXT3	=	"Invulnerability on use for 5 seconds. Duration stacks.";
-DND_MENU_ARTHELPTEXT4	=	"Steal life from damage done for 30 seconds.";
-DND_MENU_ARTHELPTEXT5	=	"Triples damage dealt for 15 seconds.";
-DND_MENU_ARTHELPTEXT6	=	"Creates a ring of blades for 20 seconds, damaging enemies on collision.";
-DND_MENU_ARTHELPTEXT7	=	"Unleashes power of the dead, deals extreme damage to enemies in view, extracting their souls.";
-DND_MENU_ARTHELPTEXT8	=	"Reveals the current map to you.";
-DND_MENU_ARTHELPTEXT9	=	"Increases ammo capacity.";
-DND_MENU_ARTHELPTEXT10	=	"Resets your stats back to zero. You can reassign.";
-DND_MENU_ARTHELPTEXT11	=	"Gives a portable radsuit.";
 
 // abilities
-DND_MENU_ABLTAG1		=	"Parry Master";
-DND_MENU_ABLHELPTEXT1	=	"Parrying requires 5 stamina less and increases parry window by 2 tics.";
-
-DND_MENU_ABLTAG2		=	"Fast Reloading";
-DND_MENU_ABLHELPTEXT2	=	"You reload weapons 50% faster.";
-
-DND_MENU_ABLTAG3		=	"Mobility";
-DND_MENU_ABLHELPTEXT3	=	"You can dash to dodge attacks (bind a button under controls).";
-
-DND_MENU_ABLTAG4		=	"Arcanery";
-DND_MENU_ABLHELPTEXT4	=	"Artifact power increases by \cd50%\c-.";
-
-DND_MENU_ABLTAG5		=	"Toxicology";
-DND_MENU_ABLHELPTEXT5	=	"\c[R5]CYBERNETIC \cj- You take \cd33%\c- less poison damage.";
-
-DND_MENU_ABLTAG6		=	"Demolitions";
-DND_MENU_ABLHELPTEXT6	=	"\c[R5]CYBERNETIC \cj- Your explosives hurt you \cd50%\c- less.";
-
-DND_MENU_ABLTAG7		=	"Heart Seeking";
-DND_MENU_ABLHELPTEXT7	=	"Demons drop their hearts on death \cd5%\c- of the time. Can use as a temporary weapon.";
-
-DND_MENU_ABLTAG8		=	"Temporal Mastery";
-DND_MENU_ABLHELPTEXT8	=	"Temporary weapons give \cd50%\c- more ammo, and at the beginning of each map gain a fully loaded random temporary weapon.";
-
-DND_MENU_ABLTAG9		=	"Soul Stealing";
-DND_MENU_ABLHELPTEXT9	=	"Demons have an extra \cd2%\c- chance to drop their souls on death.";
-
-DND_MENU_ABLHELPTEXT11	=	"Toggles dashing.";
 
 // Orb generic help
 
@@ -557,10 +381,6 @@ DND_MENU_SELLCONFIRM						=	"Are you sure you\nwant to sell your";
 
 // specific wording of this in player stat draw
 
-DND_MENU_ARMOREFF			=	"armor efficiency";
-DND_MENU_NONMAGICDMG		=	"non-magic damage";
-DND_MENU_MAGICDMG			=	"magic damage";
-DND_MENU_DISCOUNT			=	"discount";
 DND_MENU_GLOBALCRIT			=	"attack critical strike chance";
 DND_MENU_GLOBALCRITMULT		=	"attack critical strike multiplier";
 DND_MENU_SPELLCRIT			=	"spell critical strike chance";
@@ -577,7 +397,6 @@ DND_MENU_MAPLOOT_LESS		=	"less loot per kill on this map";
 DND_MENU_MINIONPEN			=	"minion pierce to every damage type";
 DND_MENU_RARITY				=	"increased item rarity";
 DND_MENU_AMMOCAPS			=	"increased ammo caps";
-DND_MENU_SLOTDMG			=	"damage bonus to slot";
 DND_MENU_SELFEXPDMG			=	"less self damage";
 DND_MENU_DODGECHANCE		=	"chance to dodge attacks";
 DND_MENU_REGENCAP			=	"health regen cap";
@@ -589,10 +408,6 @@ DND_MENU_MANAREGEN			=	"mana regenerated per second";
 DND_MENU_FLATREGEN			=	"health regenerated per second";
 DND_MENU_PCTREGEN			=	"of life regenerated per second";
 
-DND_MENU_STATUS				=	"Status";
-DND_MENU_RESEARCH_NA		=	"\cgBlueprint Required";
-DND_MENU_RESEARCH_FOUND		=	"\cuPending Research";
-DND_MENU_RESEARCH_DONE		=	"\cdDiscovered";
 DND_MENU_INVEST				=	"Invest";
 DND_MENU_DISCOVERYCHANCE	=	"Chance";
 DND_INVESTMENT_EXPLANATION	=	"Investing increases odds of discovering that research by 1% per investment. Cost to invest increases the more you invest based on the initial budget requirement of the research.";
@@ -714,8 +529,6 @@ DND_MENU_MMOD_CHAOS		=	"Monster has double health, 50% more damage, 50% more spe
 DND_MENU_MMOD_ASMODEUS	=	"Monster has quadruple health (doubled on top if non-boss), +33% to all damage resistances, 100% more damage and special attacks depending on its type.";
 DND_MENU_MMOD_LEG		=	"Monster is unique.";
 
-
-
 // meme nfts
 DND_NFT_INTRO			=	"Welcome to emporium of NFTs, the best place to obtain the top NFTs in Doom! All NFTs cost a million dollars. Please, do enjoy yourself!";
 DND_NFT_TAG0			=	"Cybape";
@@ -751,7 +564,7 @@ DND_MCH_CLOSE			=	"Close";
 DND_MCH_SUB_WEAPONS		=	"Weapons";
 DND_MCH_SUB_AMMO		=	"Ammo";
 DND_MCH_SUB_ACCOUNT		=	"Account";
-DND_MCH_LV				=	"LV";
+DND_MCH_LV				=	"LVL";
 DND_MCH_NA				=	"Not yet available";
 DND_MCH_PAGE			=	"Page";
 DND_MCH_SPECIALCHIP		=	"SP";
@@ -864,10 +677,8 @@ DND_MCH_LEARNED				=	"Learned";
 DND_MCH_TREEEMPTY			=	"No skills in this tree yet.";
 DND_MCH_HOTBARDESC			=	"Pick from learned skills to assign them to the hotbar. Left click to select, right click to unassign.";
 DND_MCH_GEMSDESC			=	"Socket gems into skills to change how they work.";
-DND_MCH_LOCKED				=	"Locked";
 DND_MCH_GEARROW1			=	"Armor";
 DND_MCH_GEARROW2			=	"Charms";
-DND_MCH_GEARROW3			=	"Flasks";
 DND_MCH_GEARDESC2			=	"Everything inventory: charms, armor, flasks, orbs and other items.";
 DND_MCH_GEARDESC3			=	"Items kept in stash.";
 DND_MCH_GEARDESC4			=	"The charms, armor and flasks equipped.";
@@ -883,6 +694,7 @@ DND_MCH_GSUB5				=	"Discard";
 DND_MCH_GSUB6				=	"Crafting";
 DND_MCH_GSUB7				=	"Accessories";
 DND_MCH_GSUB8				=	"Trading";
+DND_MCH_LOCKEDTAB			=	"Not available";
 DND_MCH_DSLOT1				=	"Slot 1";
 DND_MCH_DSLOT2				=	"Slot 2";
 DND_MCH_DSLOT3				=	"Slot 3";
@@ -965,3 +777,27 @@ DND_MCH_CR_ON				=	"on";
 DND_MCH_CR_THEITEM			=	"the selected item";
 DND_MCH_CR_QUALITY			=	"Quality";
 DND_MCH_CR_TO				=	"to";
+DND_CMP_HOLD				=	"Hold";
+DND_CMP_HOLD2				=	"to compare with what you have equipped";
+DND_CMP_EQUIPPED			=	"Equipped";
+DND_CMP_CYCLE				=	"forward / back: next";
+DND_CMP_NEW					=	"NEW";
+DND_CMP_LOST				=	"LOST:";
+DND_CSEL_SELECT				=	"Select";
+DND_CSEL_LEVEL				=	"Lv";
+DND_CSEL_CHOOSE				=	"choose a class";
+DND_CSEL_READ				=	"read a perk";
+DND_CSEL_PICK				=	"select";
+DND_CSEL_CLOSEKEY			=	"close";
+DND_CSEL_CLICKPICK			=	"Click to select";
+DND_CLOAD_LOAD				=	"Load";
+DND_CLOAD_EMPTY				=	"Empty slot";
+DND_CLOAD_NOTYET			=	"Not logged in";
+DND_CLOAD_NOCHAR			=	"Nothing is saved in this slot. Pick it to start a new character here.";
+DND_CLOAD_LOGINWHY			=	"Log in to see your saved characters.";
+DND_CLOAD_PICKLOAD			=	"Picked: Load brings this character back";
+DND_CLOAD_PICKNEW			=	"Picked: Load starts a new character in this slot";
+DND_CLOAD_PICKREPLACE		=	"Picked to replace: Load starts a new character over this one";
+DND_CLOAD_HOWTO				=	"Click to load it, right click to replace it with a new character";
+DND_CLOAD_HINT1				=	"Click a slot, then Load";
+DND_CLOAD_HINT2				=	"browse slots";

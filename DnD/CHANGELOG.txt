@@ -21,7 +21,8 @@
 	- Trading is redesigned: the player list shows who wants to trade with you, who you asked, who is busy and who is muted, with an explanation beside it. The trade itself lays their offer, your offer and your inventory side by side, each offer showing whether that side has confirmed, with Confirm and Cancel under your offer and a large countdown once both confirm.
 	- Dungeons now live under the World tab, redesigned: a key socket with an Activate button, and a pane that explains how dungeons work or reads out the dungeon you have selected. Clicking outside the inventory while picking a key puts it away.
 	- The page the menu opens on is now a Home page on the new frame: Bobby in his frame, his welcome, and a short note on getting around. The home button at the top right brings you back to it.
-	- In the menu, the item details card that appears when you hover an item has the new frame's look: a dark card with a steel edge (red when an orb cannot be used on the item, gold when it would affect the whole item). Cards for items on the ground keep their old look.
+	- In the menu, the item details card that appears when you hover an item has the new frame's look: a dark card with a steel edge (red when an orb cannot be used on the item, gold when it would affect the whole item). Items on the ground show the same card, and a tall one is lifted so it ends above your level and health.
+	- Comparing items: hovering an item that fits a slot you have filled says which key compares it (the walk / run key). Holding it shows the equipped item's card beside it, and each line of the hovered item is marked: NEW, or a green up or red down triangle with how much higher or lower it is than the equipped one, and LOST lines for the equipped item's mods it does not have. With several of that kind equipped (small charms, flasks), forward and back switch which one it compares with; picking a slot on the Equipment page first compares with that slot.
 	- Moving items in the inventory, stash and trade grids now works like Diablo II and Path of Exile: the item you hold sits centred on the cursor and lands on the cells under it, wherever you grabbed it. The highlighted landing spot always matches the item, and an item dropped near an edge is kept inside the grid instead of refusing to move.
 	- The left and right keys in the menu now work wherever the cursor rests; before, they were ignored while it sat over a side button.
 	- Every scrolling list and text on the new frame has a scroll bar you can drag with the mouse, or click anywhere on to jump there; the forward and back keys still scroll too.
@@ -31,7 +32,16 @@
 		- Click a material to pick it, then Apply; click it again, or an empty spot on the panel, to drop it. Right clicking a material still applies it at once. While a material is picked, the item's card marks the lines it would change, and a line above the buttons says what it will be used on, or that it cannot be; for Orb of Enhancement it shows the quality range.
 		- Items have a Salvage button next to Apply (right clicking an item still salvages it). It asks first in a popup that shows the cost and the chance.
 		- Transmuting has a recipe book: every orb made by transmuting, with its ingredients once you have found the recipe. Clicking a found recipe fills the chamber. Clicking a material puts it in the first empty socket, clicking a socket takes it out, and Empty clears the chamber. The result and the cost show beside the sockets.
-	- The other menu pages keep their old look for now.
+	- The character select screen is redesigned on the same frame: the class stands large in the middle with its neighbours either side, and the left and right keys (or the arrows, or a click on a neighbour) slide the whole line along, easing into place. Under it are the class's background and its five perks as cards: the focused card widens to show its full text while the others fold to their level and name. Hover a card or use the up and down keys to read another. Use, the Select button or a click on the class in the middle picks it (the floor under it turns gold when the cursor is on it); a click anywhere else does nothing. Alt fire or Close leaves, as before.
+	- The character load screen on database servers has the same look: your five save slots stand in a line you can slide through with the left and right keys, the arrows or the dots up top, and the middle one shows its class, level, experience, health, credits, budget and perks (perks above its level are dimmed). Click a slot to pick it, right click to mark it to be replaced by a new character, then press Load. The picked slot glows green, a slot to be replaced red. Loading, creating and replacing work as before, and the load timer and the players still loading show under the slot.
+	- Skill trees sit centred on their board, and the old back arrow on the skill pages is gone (the tabs along the top go back).
+	- Hovering a perk no longer has the tree lines of the perks under it drawn over the highlight.
+	- Switching from one item view to another (for example from an equipment slot's inventory to the Stash tab) no longer leaves the first one drawn underneath.
+	- Transmute under Gear > Crafting and the Accessories tab read "Not available" until their research is done.
+	- Ammunition pictures in the shop are centred in their frame.
+	- Closing the menu with a click no longer fires your weapon on the same click.
+	- Menu popups are UAC terminal messages: amber on dark glass, with a header that names the message. Errors show in red and still fade after a second; the sell and salvage questions show the credits you get in green.
+* "Hatred" can now also be unlocked with "Creeping Frost" at rank 2, as well as with "Ice Shield" at rank 2.
 * New elite property "Curse Immune": the monster is unaffected by curses, unless a skill states it can affect curse immune enemies.
 	- Can roll on Elite and Tough monsters from monster level 30.
 * New very rare gem roles, for curse skills only:
@@ -128,6 +138,7 @@
 
 ==== BUG FIXES / TWEAKS ====
 * Spell tree lines redrawn so they no longer suggest requirements that do not exist:
+	- A spell that opens only one group of spells now has its line start from the middle of its icon.
 	- Spells that share the same requirements share one set of lines, and no other line ever joins it. Two unrelated lines that cross pass over each other instead of meeting.
 	- Hovering a spell highlights the lines of everything it requires and everything it opens.
 	- A line now turns gold once its requirement is met. This was meant to happen before but never showed.

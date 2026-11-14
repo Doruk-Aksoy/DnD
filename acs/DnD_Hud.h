@@ -40,15 +40,8 @@ void CalculateHudScale(int width, int height, bool isForcedScale) {
 	HudScale.y = FixedMul(scale, GetCVar("hud_aspectscale") ? 1.2 : 1.0);
 }*/
 
-str GetMenuLeftClickKeysText(str separator = "\c[L7]") {
-	return StrParam(s:"\ci", k:"+use", s:" ", s:separator, l:"DND_OR", s:" \ci", k:"+attack");
-}
-
-str GetMenuRightClickKeysText() {
-	return StrParam(s:"\ci", k:"+altattack");
-}
-
 #define HUD_DII_MULT 14
+#define HUD_DII_FIELD_MULT 10
 #define MAXINVENTORYBLOCKS_HORIZ 5 // from top to bottom, 5 heights
 #define MAXINVENTORYBLOCKS_VERT 9 // from left to right, 9 vertical slices
 #define MAX_INVENTORY_BOXES (MAXINVENTORYBLOCKS_HORIZ * MAXINVENTORYBLOCKS_VERT)
@@ -158,6 +151,10 @@ void ResetCursorHoverData() {
 	// cleanup anything that is potentially shown by cursor hovering here
 	//Log(s:"reset cursor");
 	CleanInventoryInfo();
+	if(GetItemCompare().state) {
+		GetItemCompare().state = 0;
+		DeleteTextRange(RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 18 + ITEMID_SKIP, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES);
+	}
 	ResetCursorHoverProc();
 }
 
@@ -1210,7 +1207,9 @@ void HandleCurseOverlays(int mon_tid) {
 }
 
 void DrawInventoryInfo(int pnum) {
-	int mx, my, pass, over, stack = 0;
+	int mx, my, pass, over, stack = 0, cand = 0, eq_x = 0, cmp_y = 0;
+	bool held = false;
+	item_compare_T module& c = GetItemCompare();
 
 	int itype = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
 	int isubt = -1;
@@ -1219,7 +1218,27 @@ void DrawInventoryInfo(int pnum) {
 		DeleteTextRange(RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 18 + ITEMID_SKIP, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES);
 
 		isubt = GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
-		
+
+		// an item that fits a filled slot compares while the walk key is held; forward / back pick among several
+		if(PlayerCursorData.itemHoveredSource != DND_SYNC_ITEMSOURCE_ITEMSUSED && !IsStackedItem(itype))
+			cand = CollectCompareSlots(pnum, itype, isubt);
+		int bpress = GetPlayerInput(-1, INPUT_BUTTONS), bold = GetPlayerInput(-1, INPUT_OLDBUTTONS);
+		held = cand && IsButtonHeld(bpress, BT_SPEED);
+		if(held && cand > 1) {
+			if(IsButtonPressed(bpress, bold, BT_FORWARD))
+				c.pick += cand - 1;
+			else if(IsButtonPressed(bpress, bold, BT_BACK))
+				++c.pick;
+		}
+		c.pick = cand ? c.pick % cand : 0;
+		over = 1 + held + 2 * cand + 32 * c.pick + 512 * (cand ? c.slots[c.pick] + 1 : 0);
+		if(over != c.state) {
+			c.state = over;
+			GetItemVSyncData(DND_SYNCINDEX_ITEM).isDirty = true;
+			if(!held)
+				DeleteTextRange(RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 18 + ITEMID_SKIP, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES);
+		}
+
 		mx = HUDMAX_XF - (PlayerCursorData.posx & MMASK) + 16.1;
 		my = HUDMAX_YF - (PlayerCursorData.posy & MMASK) + 16.1;
 
@@ -1240,6 +1259,23 @@ void DrawInventoryInfo(int pnum) {
 		
 		int bg_x = mx;
 		int bg_y = my;
+
+		// the equipped card goes beside the hovered one, away from the cursor: on its right, else both left of the cursor
+		if(held) {
+			int edge = GetMenuHudLeft(HUDMAX_X), hx = bg_x >> 16;
+			if(hx + 2 * HUD_ITEMBAK_X + 4 <= HUDMAX_X - edge)
+				eq_x = ((hx + HUD_ITEMBAK_X + 4) << 16) + 0.1;
+			else {
+				hx = Max(((HUDMAX_XF - (PlayerCursorData.posx & MMASK)) >> 16) - 16 - HUD_ITEMBAK_X, edge + HUD_ITEMBAK_X + 4);
+				bg_x = (hx << 16) + 0.1;
+				eq_x = ((hx - HUD_ITEMBAK_X - 4) << 16) + 0.1;
+			}
+			if(bg_y < 14.0)
+				bg_y = 14.1;
+		}
+		cmp_y = bg_y;
+		c.against = held ? c.slots[c.pick] + 1 : 0;
+		c.hint = cand && !held;
 
 		MenuHudSize(HUDMAX_X, HUDMAX_Y);
 		int attr_count = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
@@ -1271,6 +1307,10 @@ void DrawInventoryInfo(int pnum) {
 				break;
 			bg_y -= over << 16;
 		}
+		c.against = 0;
+		c.hint = false;
+		if(held)
+			DrawCompareCard(pnum, c.slots[c.pick], eq_x, cmp_y, c.pick, cand);
 
 		MenuHudSize(HUDMAX_X, HUDMAX_Y);
 		stack = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
@@ -1282,7 +1322,7 @@ void DrawInventoryInfo(int pnum) {
 	}
 
 	// if we have some sort of orb hovered, highlight attributes in case they can be related
-	if(CheckInventory("DnD_SelectedCharmBox")) {
+	if(CheckInventory("DnD_SelectedCharmBox") && !held) {
 		DrawInventoryInfo_Field(pnum, CheckInventory("DnD_SelectedCharmBox") - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, 0, true);
 	}
 }

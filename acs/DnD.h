@@ -15,7 +15,7 @@
 #include "DnD_Statistics.h"
 #include "DnD_Scoreboard.h"
 #include "DnD_Attachments.h"
-#include "Menu/DnD_Menu.h"
+#include "Menu/DnD_MenuChrome.h"
 
 enum {
 	ITEMFILTER_STACKABLE = 1,

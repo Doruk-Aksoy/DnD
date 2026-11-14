@@ -250,6 +250,22 @@ typedef struct it_sync {
 	bool last_tag_mode;							// same, for the mod tag lines -- its own cvar, so its own memory
 } inventory_vsync_T;
 
+// The hover card's comparison with equipped items while the compare key is held; clientside.
+#define ITEMCMP_MAXSLOTS 4
+typedef struct {
+	int against;									// equipped slot + 1 the card being drawn is marked against, 0 none
+	int pick;										// which candidate slot is shown
+	int count;
+	int state;										// what the last draw showed, so a change rebuilds the text
+	int slots[ITEMCMP_MAXSLOTS];
+	bool hint;										// the card being drawn says which key compares
+} item_compare_T;
+
+item_compare_T module& GetItemCompare() {
+	static item_compare_T c;
+	return c;
+}
+
 enum {
 	DND_SYNCINDEX_ITEM,
 	DND_SYNCINDEX_STACKABLE,

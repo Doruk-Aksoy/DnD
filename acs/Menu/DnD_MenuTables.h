@@ -24,27 +24,11 @@ enum {
 
 #define SHOP_SCALE_MAX 10
 
-#define DND_MENU_LOADOUTWEPITEMS 6
-#define DND_MENU_ACCESSORYITEMS 4
-
-#define VORTEXMAX 1
-#define TRIPLEMAX 1
-#define BLOODRUNEMAX 1
-#define BOOKMAX 1
-#define SOLVEMAX 1
-#define STASISMAX 3
-#define FIELDKITMAX 3
-#define RESETMAX 1
-
 #define ACCESSORY_PER_PAGE 5
 
 #define INVENTORYBOX_BASEX (((HUDMAX_XF / 2) & 0xFFFF0000) + 128.4)
 #define INVENTORYBOX_BASEY (HUDMAX_YF / 2 + 64.0)
 
-#define INVENTORYBOX_BASEX_TRADEUP (((2 * HUDMAX_XF / 3) & 0xFFFF0000) - 24.6) // -.6 because we want 0.4 at the end
-#define INVENTORYBOX_BASEY_TRADEUP (((2 * HUDMAX_YF / 3) & 0xFFFF0000) - 28.0)
-
-#define STASHBOX_BASEX_UP (((2 * HUDMAX_XF / 3) & 0xFFFF0000) + 260.4)
 // The stash view lays its two grids side by side in the stash hud space (720 x 480): last column / row centres.
 #define STASHVIEW_STASH_BASEX 314.4
 #define STASHVIEW_INV_BASEX 674.4
@@ -55,53 +39,16 @@ enum {
 #define TRADEVIEW_INV_BASEX 784.4
 #define TRADEVIEW_BASEY 292.0
 
-#define INVENTORYBOX_BASEX_TRADEDOWN (((2 * HUDMAX_XF / 3) & 0xFFFF0000) - 24.6)
-#define INVENTORYBOX_BASEY_TRADEDOWN (((2 * HUDMAX_YF / 3) & 0xFFFF0000) + 212.0)
-
-#define INVENTORYBOX_BASEX_TRADEMID (((2 * HUDMAX_XF / 3) & 0xFFFF0000) + 340.4)
-#define INVENTORYBOX_BASEY_TRADEMID (((2 * HUDMAX_YF / 3) & 0xFFFF0000) + 112.0)
-
-#define INVENTORYBOX_ITEMBASEY (((HUDMAX_YF / 4) & 0xFFFF0000) + 16.0)
-
 #define INVENTORYBOX_BASEX_RECT 384.0
 #define INVENTORYBOX_BASEY_RECT 240.0
 
 #define TRADE_RES_X (HUDMAX_X * 3 / 2)
 #define TRADE_RES_Y (HUDMAX_Y * 3 / 2)
 
-#define TRADEBOX_SKIP ((2 * 32.0 / 3) & 0xFFFF0000)
-#define INVENTORYBOXTRADE_TOP_BASEX_RECT 465.0
-#define INVENTORYBOXTRADE_TOP_BASEY_RECT 293.0
-
-#define STASHBOX_TOP_BASEX_RECT 275.0
-
-#define INVENTORYBOXTRADE_BOT_BASEX_RECT 465.0
-#define INVENTORYBOXTRADE_BOT_BASEY_RECT 133.0
-
-#define INVENTORYBOXTRADE_MID_BASEX_RECT 221.0
-#define INVENTORYBOXTRADE_MID_BASEY_RECT 200.0
-
-#define INVENTORYBOXTRADE_TRADECONFIRM_BASEX_RECT 467.0
-#define INVENTORYBOXTRADE_TRADECONFIRM_BASEY_RECT 168.0
-
-#define INVENTORYBOXTRADE_TRADEBOXSKIP_X 77.0
-#define INVENTORYBOXTRADE_TRADEBOXSKIP_Y 16.0
-
-#define INVENTORYBOXTRADE_TRADECANCEL_BASEX_RECT 350.0
-#define INVENTORYBOXTRADE_TRADECANCEL_BASEY_RECT 168.0
-
 #define TRADECONFIRM_BOXID (3 * MAX_INVENTORY_BOXES)
 #define TRADECANCEL_BOXID (3 * MAX_INVENTORY_BOXES + 1)
 
-#define TRADE_BOXOFFSET (2 * MAX_INVENTORY_BOXES)
 #define STASHBUTTON_BOXID_START (2 * MAX_INVENTORY_BOXES + 1)
-
-#define STASHTAB_BUTTON_TOPLEFT_X 226.0
-#define STASHTAB_BUTTON_TOPLEFT_Y 186.0
-#define STASHTAB_BUTTON_BOTRIGHT_X 216.0
-#define STASHTAB_BUTTON_BOTRIGHT_Y 175.0
-
-#define STASHTAB_BUTTON_INCREMENT_X 10.0
 
 // Auto sort buttons. Box ids continue past the orb tab, which is the last stash tab id.
 #define STASHSORT_BOXID_STASH (STASHBUTTON_BOXID_START + PAGEID_STASHTAB_ORBS + 1)
@@ -125,37 +72,15 @@ enum {
 // does this (120 + 90 = 210), and the two sort buttons now follow the same rule instead of carrying
 // hand-picked numbers.
 
-// Stash view, stash side: in the tab row, centred in what is left of it. Page tabs are 15 wide and
-// drawn 15 apart from 388.4, so page 10 ends at 530.9 and the panel ends at 620 -- an 89 wide gap,
-// which puts a 40 wide button at 575.4 with ~24 either side. It used to sit at 553.4, hard against
-// page 10 with all of the slack dumped on the corner side.
-#define SORTBUTTON_STASH_HUD_X 575.4
-#define SORTBUTTON_HUD_Y 210.0
-
-#define SORTBUTTON_STASH_RECT_TX 111.0
-#define SORTBUTTON_STASH_RECT_TY 187.0
-#define SORTBUTTON_STASH_RECT_BX 84.0
-#define SORTBUTTON_STASH_RECT_BY 173.0
-
-#define SORTBUTTON_INV_HUD_X 452.4
-#define SORTBUTTON_INV_HUD_Y 450.0
-#define SORTBUTTON_INV_RECT_TX 193.0
-#define SORTBUTTON_INV_RECT_TY 27.0
-#define SORTBUTTON_INV_RECT_BX 166.0
-#define SORTBUTTON_INV_RECT_BY 13.0
-
 // Plain inventory view: bottom centre of the panel border, same rule (160 + 90 = 250). This view is
 // 1:1 with cursor space, so the box matches the art at 40 x 20 with no padding needed -- it was 48
 // wide, and 2 rows of it also reached up into the grid's bottom row, which ends at cursor y 80.
-#define SORTBUTTON_INVVIEW_HUD_X 240.4
-#define SORTBUTTON_INVVIEW_HUD_Y 250.0
 #define SORTBUTTON_INVVIEW_RECT_TX 260.0
 #define SORTBUTTON_INVVIEW_RECT_TY 80.0
 #define SORTBUTTON_INVVIEW_RECT_BX 220.0
 #define SORTBUTTON_INVVIEW_RECT_BY 60.0
 
 #define ITEMOFFSETSCALE 16.0
-#define TRADEITEMSKIP (3 * 32.0 / 2)
 
 // left right buttons at material side 
 #define MAX_CRAFTING_ADDITIONALBUTTONS 6 + (MENU_LOAD_CRAFTING_LAST - MENU_LOAD_CRAFTING_FIRST + 1)
@@ -164,16 +89,11 @@ enum {
 
 #define MAX_CRAFTING_NORMAL_BOXES (MAX_CRAFTING_MATERIALBOXES + MAX_CRAFTING_ITEMBOXES)
 #define MAX_CRAFTING_BOXES (MAX_CRAFTING_NORMAL_BOXES + MAX_CRAFTING_ADDITIONALBUTTONS)
-#define CRAFTINGARROWBOX_OFFSET MAX_CRAFTING_NORMAL_BOXES
 
-#define MATERIALARROW_HUDID (MATERIALBOX_OFFSET + 3 * MAX_CRAFTING_MATERIALBOXES)
 #define MATERIALARROW_ID (MAX_CRAFTING_BOXES - 2)
 
 #define CRAFTING_PAGEARROW_ID (MAX_CRAFTING_BOXES - 4)
 
-#define CRAFTING_PAGEARROWL_X 466.0
-#define CRAFTING_PAGEARROWL_Y 36.0
-#define CRAFTING_PAGEARROWR_X 142.0
 #define CRAFTING_PAGEARROW_XSIZE 12.0
 #define CRAFTING_PAGEARROW_YSIZE 8.0
 
@@ -181,30 +101,9 @@ enum {
 #define CRAFTING_INVENTORY_BOXID MBOX_2
 #define CRAFTING_TRANSMUTING_BOXID MBOX_3
 
-#define CRAFTING_MATERIALBOX_X 92.0
-#define CRAFTING_MATERIALBOX_Y 264.0
-#define CRAFTING_MATERIALBOX_SKIPX 12.0
-#define CRAFTING_MATERIALBOX_SKIPY 4.0
-
-#define CRAFTING_WEAPONBOXDRAW_X 68.0
-#define CRAFTING_WEAPONBOXDRAW_Y 60.0
-
-#define CRAFTING_ITEMBOX_X 445.0
-#define CRAFTING_ITEMBOX_Y 293.0
-#define CRAFTING_ITEMBOX_SKIPX 12.0
-#define CRAFTING_ITEMBOX_SKIPY 4.0
-
-#define CRAFTING_LARR_X 98.0
-#define CRAFTING_LARR_Y 40.0
-#define CRAFTING_RARR_X 23.0
-#define CRAFTING_ARROW_X_SKIP 12.0
-#define CRAFTING_ARROW_Y_SKIP 8.0
-
 #define DND_MENU_ITEMSAVEBITS1 8
 #define DND_MENU_ITEMSAVEBITS1_MASK 0xFF
-#define DND_MENU_ITEMCLEARMASK1 0xFFF00FF
 #define DND_MENU_ITEMSAVEBITS2 16
-#define DND_MENU_ITEMCLEARMASK2 0x000FFFF
 
 #define MAX_EXTRA_BUYABLE_INVENTORY_PAGES (MAX_EXTRA_INVENTORY_PAGES - DND_BASE_STASH_PAGES)
 
@@ -261,9 +160,6 @@ str ButtonTimers[MAX_TIMED_BUTTONS] = {
 
 int ButtonFrameCounts[MAX_TIMED_BUTTONS] = { 3, 3, 3 };
 // Box enums end
-
-#define SHOP_MAXWEAPON_PAGES (MENU_SHOP_WEAPON8 - MENU_SHOP_WEAPON1 + 1)
-#define SHOP_MAXAMMO_PAGES (SHOP_LASTAMMO_PAGE - SHOP_FIRSTAMMO_PAGE + 1)
 
 // Holds the players' current maximum page visit indexes
 // Must reach the LAST page in the enum -- LoadRect indexes bp[] by menu page, so a bound that
@@ -1329,16 +1225,6 @@ str GetWeaponCondition(int id) {
 	return WeaponConditionCheckers[2 * slot + islux - 1];
 }
 
-// I could probably make these much finer with one function and multiple checks in it or better yet an array to look up the strings themselves
-// well, later on I probably should but I like this more as each has their unique purpose and its immediately obvious
-str GetArmorTag(int id) {
-	return StrParam(s:"DND_ARMOR", d:id + 1);
-}
-
-str GetArmorExplanation(int id) {
-	return StrParam(s:"DND_MENU_ARMTEXT", d:id + 1);
-}
-
 // regular ammo, then special shells then special grenades
 str GetAmmoTag(int id) {
 	if(id < SHOP_FIRSTAMMOSPECIAL_INDEX) {
@@ -1348,22 +1234,6 @@ str GetAmmoTag(int id) {
 	if(id < SHOP_FIRSTAMMOSPECIAL_GRENADE_INDEX)
 		return StrParam(s:"DND_AMMOSPECIAL", d:id - SHOP_FIRSTAMMOSPECIAL_INDEX + 1);
 	return StrParam(s:"DND_AMMOSPECIALG", d:id - SHOP_FIRSTAMMOSPECIAL_GRENADE_INDEX + 1);
-}
-
-str GetAbilityTag(int id) {
-	return StrParam(s:"DND_MENU_ABLTAG", d:id + 1);
-}
-
-str GetAbilityHelpText(int id) {
-	return StrParam(s:"DND_MENU_ABLHELPTEXT", d:id + 1);
-}
-
-str GetArtifactTag(int id) {
-	return StrParam(s:"DND_ARTI", d:id + 1);
-}
-
-str GetArtifactText(int id) {
-	return StrParam(s:"DND_MENU_ARTHELPTEXT", d:id + 1);
 }
 
 str GetAttributeText(int id) {
@@ -1729,27 +1599,6 @@ int GetMenuAmmoCount(int id, int countOrRef) {
 		{ 5, -1 }
 	};
 	return AmmoCounts[id][countOrRef];
-}
-
-void DrawAmmoExplanation(int itemid) {
-	int ammo_id = itemid - SHOP_FIRSTAMMO_INDEX;
-	int ammo_ref = GetMenuAmmoCount(ammo_id, AMMOID_WEPREF);
-	
-	// has 2 weapons -- we can extend this further in the future maybe with an array or something
-	if(ammo_ref < 65536) {
-		// exception for "no weapon specified"
-		if(itemid <= SHOP_AMMO_CELL || itemid >= SHOP_AMMO_FLECHETTE)
-			HudMessage(s:"\cd*\c- ", l:"DND_MENU_GIVES", s:" \cf", d:GetAmmoToGive(itemid), s:"\c- ", l:StrParam(s:"DND_MENU_AMMOTEXT", d:ammo_id + 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, MenuX(192.1), MenuY(248.1 + (1.0 * ScrollPos.x)), 0.0, 0.0);
-		else
-			HudMessage(s:"\cd*\c- ", l:"DND_MENU_GIVES", s:" \cf", d:GetAmmoToGive(itemid), s:"\c- ", l:StrParam(s:"DND_MENU_AMMOTEXT", d:ammo_id + 1), s: " ", l:"DND_MENU_FOR", s:"\cd", l:GetWeaponTag(ammo_ref), s:"\c-."; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, MenuX(192.1), MenuY(248.1 + (1.0 * ScrollPos.x)), 0.0, 0.0);
-	}
-	else
-		HudMessage(
-			s:"\cd*\c- ", l:"DND_MENU_GIVES", s:" \cf", d:GetAmmoToGive(itemid), s:"\c- ",
-			l:StrParam(s:"DND_MENU_AMMOTEXT", d:ammo_id + 1), s: " ", 
-			l:"DND_MENU_FOR", s:"\cd", l:GetWeaponTag(ammo_ref & 0xFFFF), s:"\c-", l:"DND_MENU_AND", s:"\cd", l:GetWeaponTag(ammo_ref >> 16), s:"\c-."; 
-			HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, MenuX(192.1), MenuY(248.1 + (1.0 * ScrollPos.x)), 0.0, 0.0
-		);
 }
 
 typedef struct {

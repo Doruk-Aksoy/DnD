@@ -4,8 +4,6 @@
 
 CLASS_SELECT			= "SELECT YOUR CHARACTER";
 CLASS_LOAD				= "LOAD YOUR CHARACTER";
-CLASS_TOSELECT			= "to select";
-CLASS_OVERWRITE			= "to overwrite existing character";
 CLASS_TOCLOSE			= "to close";
 CLASS_PRESS				= "Press";
 CLASS_INNATE			= "Innate";

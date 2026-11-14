@@ -128,8 +128,6 @@ void ClearTradeItemOrigins(int pnum) {
 #define MAXSTACKS_CKEY 256
 #define MAXSTACKS_TOKEN 256
 
-#define HUD_DII_FIELD_MULT 10
-
 #define MAX_EXPRESIST_VAL 100
 #define MAX_ELEMRESIST_VAL 100
 #define MAX_PHYSRESIST_VAL 100
@@ -1798,7 +1796,8 @@ void DrawInventoryInfo_Field(int pnum, int topboxid, int source, int yoff, bool 
 		return;
 	
 	int stack, itype = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, topboxid, -1, source), left = 0;
-	if(topboxid != -1 && itype != DND_ITEM_NULL) {
+	// a tall world card is measured, then drawn again lifted so it ends above the HUD's level and health readouts
+	for(int pass = 0; pass < 2 && topboxid != -1 && itype != DND_ITEM_NULL; ++pass) {
 		MenuHudSize(HUDMAX_X, HUDMAX_Y);
 		
 		// adjust pos
@@ -1847,8 +1846,12 @@ void DrawInventoryInfo_Field(int pnum, int topboxid, int source, int yoff, bool 
 		by = isOutsideSource ? (ITEMINFO_TEXTTOP + 0.1) : (GetIntegerBits(3 * (100.0 - yoff) / 2 + ITEMINFO_TEXTTOP) + 0.1);
 
 		MenuClipRect(left + ITEMINFO_CLIPX, (by >> 16), HUD_ITEMBAK_WIDTH, ITEMINFO_CLIPHEIGHT, HUD_ITEMBAK_WIDTH);
-		DrawInventoryText(topboxid, source, pnum, bx, by, itype, isubt, RPGMENUINVENTORYID, HUD_DII_FIELD_MULT, HUDMAX_X, HUDMAX_Y, bg_x, bg_y, attr_count, !isOutsideSource);
+		int mids = DrawInventoryText(topboxid, source, pnum, bx, by, itype, isubt, RPGMENUINVENTORYID, HUD_DII_FIELD_MULT, HUDMAX_X, HUDMAX_Y, bg_x, bg_y, attr_count, !isOutsideSource);
 		MenuHudSize(HUDMAX_X, HUDMAX_Y);
+		int over = (bg_y >> 16) + ItemInfoPanelHeight(mids) - ITEMINFO_FIELD_BOTTOM;
+		if(isOutsideSource || over <= 0 || yoff >= 100.0)
+			break;
+		yoff = Min(yoff + (over << 16), 100.0);
 	}
 }
 
@@ -1875,6 +1878,7 @@ int DrawInventoryText(
 
 	str tmp_text;
 	str unique_creator = "";
+	str unique_line;
 
 	// potential delete of quality in case we hover over an item that doesn't have it, we don't want it lingering!
 	DeleteText(id_begin - id_mult * MAX_INVENTORY_BOXES - 18);
@@ -2015,19 +2019,19 @@ int DrawInventoryText(
 			for(i = 0; i < MAX_ITEM_IMPLICITS && !isGem; ++i) {
 				temp = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, topboxid, i, source);
 				if(temp != -1) {
-					tmp_text = StrParam(s:tmp_text,
-						s:GetItemAttributeText(
-							temp, 
-							itype, 
-							isubt, 
-							GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, topboxid, i, source), 
-							0, 
-							GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, topboxid, i, source), 
-							false, // we dont want detailed info on implicits, it doesn't make much sense currently
-							GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, topboxid, i, source), 
-							false,
-							val
-						),
+					unique_line = GetItemAttributeText(
+						temp,
+						itype,
+						isubt,
+						GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, topboxid, i, source),
+						0,
+						GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, topboxid, i, source),
+						false, // we dont want detailed info on implicits, it doesn't make much sense currently
+						GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, topboxid, i, source),
+						false,
+						val
+					);
+					tmp_text = StrParam(s:tmp_text, s:unique_line, s:ItemCompareMark(pnum, temp, unique_line, true),
 						s:(i != MAX_ITEM_IMPLICITS - 1) && GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, topboxid, i + 1, source) != -1 ? "\n" : ""
 					);
 				}
@@ -2057,7 +2061,7 @@ int DrawInventoryText(
 
 		yoff += ITEMINFO_SEPGAP;
 
-		SetFont((CheckInventory("ShowingMenu") && IsChromePage(CheckInventory("MenuOption"))) ? "MCITSEP" : "IMPSEPR");
+		SetFont("MCITSEP");
 		HudMessage(
 			s:"A";
 			HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 6 + ITEMID_SKIP, val, MenuX(GetIntegerBits(bx) + 0.4), MenuY(yoff), holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
@@ -2091,20 +2095,20 @@ int DrawInventoryText(
 						}
 				}
 	
-				tmp_text = StrParam(s:tmp_text,
-					s:GetItemAttributeText(
-						temp, 
-						itype, 
-						isubt, 
-						GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source), 
-						GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_EXTRA, topboxid, j, source), 
-						lvl, 
-						showModTiers, 
-						!isUnique ? -1 : j, 
-						GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_FRACTURE, topboxid, j, source),
-						val,
-						i == -1 ? (1 | (hovered_orb_craft_result.effect_type << 8)) : 0
-					),
+				unique_line = GetItemAttributeText(
+					temp,
+					itype,
+					isubt,
+					GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source),
+					GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_EXTRA, topboxid, j, source),
+					lvl,
+					showModTiers,
+					!isUnique ? -1 : j,
+					GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_FRACTURE, topboxid, j, source),
+					val,
+					i == -1 ? (1 | (hovered_orb_craft_result.effect_type << 8)) : 0
+				);
+				tmp_text = StrParam(s:tmp_text, s:unique_line, s:ItemCompareMark(pnum, temp, unique_line, false),
 					s:showModTags ? GetModTagText(temp) : "",
 					s: j != attr_count - 1 ? "\n" : ""
 				);
@@ -2113,6 +2117,8 @@ int DrawInventoryText(
 					tmp_text = StrParam(s:tmp_text, s:"\n\ck>>>\t???\t<<<\n");
 			}
 	
+			tmp_text = StrParam(s:tmp_text, s:ItemCompareLost(pnum, topboxid, source, attr_count));
+
 			// corrupted label and seperator -- the blank lines these add are paid for by the
 			// measured extent now, so none of them need a hand tuned offset any more
 			if(GetItemSyncValue(pnum, DND_SYNC_ITEMCORRUPTED, topboxid, -1, source))
@@ -2130,6 +2136,8 @@ int DrawInventoryText(
 			}
 			else if(isGem)
 				tmp_text = StrParam(s:tmp_text, s:"\c[K9]", l:"DND_GEM_HINT");
+			if(GetItemCompare().hint)
+				tmp_text = StrParam(s:tmp_text, s:"\n\n\c[UIDim]", l:"DND_CMP_HOLD", s:" ", k:"+speed", s:" ", l:"DND_CMP_HOLD2");
 
 			item_vsync_data.isDirty = false;
 			item_vsync_data.last_text_mode = showModTiers;
@@ -2162,6 +2170,177 @@ int DrawInventoryText(
 		craftMaterialIdx, holdTime
 	);
 	return Min(i, ITEMINFOBG_MAXMIDS);
+}
+
+// ---- comparing with what is equipped
+
+// The equipped item's card beside the hovered one, in the world card's id band, labelled above.
+void DrawCompareCard(int pnum, int s, int bg_x, int bg_y, int pick, int count) {
+	int base = RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES, src = DND_SYNC_ITEMSOURCE_ITEMSUSED, pass, over, mx, my;
+	int itype = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, s, -1, src), isubt = GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, s, -1, src);
+	int attr_count = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, s, -1, src);
+	int label_y = bg_y;
+	for(pass = 0; pass < 2; ++pass) {
+		MenuHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2);
+		mx = GetIntegerBits(3 * (bg_x + HUD_ITEMBAK_XF / 2) / 2) + 0.4;
+		my = GetIntegerBits(3 * bg_y / 2 + ITEMINFO_TEXTTOP) + 0.1;
+		MenuClipRect(ITEMINFO_CLIPX + ((3 * bg_x / 2) >> 16), 15 + ((3 * bg_y / 2) >> 16), HUD_ITEMBAK_WIDTH, ITEMINFO_CLIPHEIGHT, HUD_ITEMBAK_WIDTH);
+		over = DrawInventoryText(s, src, pnum, mx, my, itype, isubt, RPGMENUINVENTORYID, HUD_DII_FIELD_MULT, HUDMAX_X, HUDMAX_Y, bg_x, bg_y, attr_count);
+		MenuClipRect(0, 0, 0, 0, 0);
+		over = (bg_y >> 16) + ItemInfoPanelHeight(over) - HUDMAX_Y;
+		if(over <= 0)
+			break;
+		bg_y -= over << 16;
+	}
+	MenuHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2);
+	SetFont("NSMOLFNT");
+	str label = StrParam(s:"\c[UIGold]", l:"DND_CMP_EQUIPPED");
+	if(count > 1)
+		label = StrParam(s:label, s:" ", d:pick + 1, s:" / ", d:count, s:"   \c[UIDim]", l:"DND_CMP_CYCLE");
+	HudMessage(s:label; HUDMSG_PLAIN | HUDMSG_FADEOUT, base - 9 + ITEMID_SKIP, CR_WHITE,
+		MenuX(GetIntegerBits(3 * (bg_x + HUD_ITEMBAK_XF / 2) / 2) + 0.4), MenuY(GetIntegerBits(3 * Min(bg_y, label_y) / 2) - 9.0), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+	MenuHudSize(HUDMAX_X, HUDMAX_Y);
+}
+
+
+// whether equipment slot s takes an item of this type
+bool ItemFitsEquipSlot(int s, int itype, int isubt) {
+	itype &= 0xFFFF;
+	if(s <= SMALLCHARM_INDEX4)
+		return itype == DND_ITEM_CHARM && isubt == DND_CHARM_SMALL;
+	if(s <= MEDIUMCHARM_INDEX2)
+		return itype == DND_ITEM_CHARM && isubt == DND_CHARM_MEDIUM;
+	if(s == LARGECHARM_INDEX)
+		return itype == DND_ITEM_CHARM && isubt == DND_CHARM_LARGE;
+	if(s == HELM_INDEX)
+		return itype == DND_ITEM_HELM;
+	if(s == BODY_ARMOR_INDEX)
+		return itype == DND_ITEM_BODYARMOR;
+	if(s == POWERCORE_INDEX)
+		return itype == DND_ITEM_SPECIALTY_DOOMGUY + GetPlayerClass();
+	if(s == BOOT_INDEX)
+		return itype == DND_ITEM_BOOT;
+	return itype == DND_ITEM_FLASK && s >= FLASK1_INDEX && s <= FLASK4_INDEX;
+}
+
+// the filled slots a hovered item compares with: the one picked on the equipment page, else every one it fits
+int CollectCompareSlots(int pnum, int itype, int isubt) {
+	item_compare_T module& c = GetItemCompare();
+	int sel = CheckInventory("DnD_SelectedCharmBox") - 1;
+	c.count = 0;
+	for(int s = 0; s < INV_ICON_INDEX && c.count < ITEMCMP_MAXSLOTS; ++s) {
+		if(sel >= 0 && s != sel)
+			continue;
+		if(ItemFitsEquipSlot(s, itype, isubt) && GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, s, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED) != DND_ITEM_NULL)
+			c.slots[c.count++] = s;
+	}
+	return c.count;
+}
+
+#define ITEMCMP_NONUM 0x7FFFFFFF
+
+// the first number on a line of mod text in hundredths, colour codes skipped
+int ItemTextNumber(str s) {
+	int n = StrLen(s), i = 0, c, v = 0;
+	bool neg = false;
+	while(i < n) {
+		c = GetChar(s, i);
+		if(c == 28) {
+			if(i + 1 < n && GetChar(s, i + 1) == '[') {
+				i += 2;
+				while(i < n && GetChar(s, i) != ']')
+					++i;
+			}
+			else
+				++i;
+			++i;
+			continue;
+		}
+		if(c >= '0' && c <= '9')
+			break;
+		neg = c == '-';
+		++i;
+	}
+	if(i >= n)
+		return ITEMCMP_NONUM;
+	while(i < n && GetChar(s, i) >= '0' && GetChar(s, i) <= '9') {
+		v = v * 10 + GetChar(s, i) - '0';
+		++i;
+	}
+	v *= 100;
+	if(i + 1 < n && GetChar(s, i) == '.' && GetChar(s, i + 1) >= '0' && GetChar(s, i + 1) <= '9') {
+		v += (GetChar(s, i + 1) - '0') * 10;
+		if(i + 2 < n && GetChar(s, i + 2) >= '0' && GetChar(s, i + 2) <= '9')
+			v += GetChar(s, i + 2) - '0';
+	}
+	return neg ? -v : v;
+}
+
+str ItemCompareNumber(int v) {
+	if(v < 0)
+		v = -v;
+	if(!(v % 100))
+		return StrParam(d:v / 100);
+	if(!(v % 10))
+		return StrParam(d:v / 100, s:".", d:(v / 10) % 10);
+	return StrParam(d:v / 100, s:".", d:(v / 10) % 10, d:v % 10);
+}
+
+// line j (an implicit, or a mod) of equipped slot s, plain, as its own card writes it
+str ItemCompareLine(int pnum, int s, int j, bool implicit) {
+	int src = DND_SYNC_ITEMSOURCE_ITEMSUSED, extra = -1;
+	int itype = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, s, -1, src), isubt = GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, s, -1, src);
+	int q = GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, s, -1, src);
+	if(implicit)
+		return GetItemAttributeText(GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, s, j, src), itype, isubt,
+			GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, s, j, src), 0, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, s, j, src),
+			false, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, s, j, src), false, q);
+	int lvl = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_TIER, s, j, src);
+	if(itype > UNIQUE_BEGIN) {
+		itype = (itype >> UNIQUE_BITS) - 1;
+		lvl = itype;
+		extra = j;
+	}
+	return GetItemAttributeText(GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, s, j, src), itype, isubt,
+		GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, s, j, src), GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_EXTRA, s, j, src),
+		lvl, false, extra, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_FRACTURE, s, j, src), q);
+}
+
+// after a hovered line: NEW, or an arrow and how far its number moved from the equipped line with the same mod;
+// '{' and '}' are NSMOLFNT's up and down arrow glyphs
+str ItemCompareMark(int pnum, int attr, str line, bool implicit) {
+	int s = GetItemCompare().against - 1, n, i, a, b;
+	if(s < 0)
+		return "";
+	n = implicit ? MAX_ITEM_IMPLICITS : GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, s, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED);
+	for(i = 0; i < n; ++i) {
+		if(GetItemSyncValue(pnum, implicit ? DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID : DND_SYNC_ITEMATTRIBUTES_ID, s, i, DND_SYNC_ITEMSOURCE_ITEMSUSED) != attr)
+			continue;
+		a = ItemTextNumber(line);
+		b = ItemTextNumber(ItemCompareLine(pnum, s, i, implicit));
+		if(a == ITEMCMP_NONUM || b == ITEMCMP_NONUM || a == b)
+			return "";
+		return StrParam(s:(a > b) ? "  \c[UIGreen]{" : "  \c[UIRed]}", s:ItemCompareNumber(a - b), s:"\c-");
+	}
+	return StrParam(s:"  \c[UIGreen]", l:"DND_CMP_NEW", s:"\c-");
+}
+
+// the equipped item's mods the hovered one does not have
+str ItemCompareLost(int pnum, int topboxid, int source, int attr_count) {
+	int s = GetItemCompare().against - 1, n, i, j, id;
+	str out = "";
+	if(s < 0)
+		return "";
+	n = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, s, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED);
+	for(i = 0; i < n; ++i) {
+		id = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, s, i, DND_SYNC_ITEMSOURCE_ITEMSUSED);
+		j = 0;
+		while(j < attr_count && GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source) != id)
+			++j;
+		if(j == attr_count)
+			out = StrParam(s:out, s:"\n\c[UIRed]", l:"DND_CMP_LOST", s:" \c-", s:ItemCompareLine(pnum, s, i, false));
+	}
+	return out;
 }
 
 // The panel's full height in HUDMAX pixels for a mid count, both caps included.
@@ -2218,41 +2397,8 @@ void DrawItemInfoBackground(
 	if(mids > ITEMINFOBG_MAXMIDS)
 		mids = ITEMINFOBG_MAXMIDS;
 
-	// in the redesigned menu the card is the frame's: the same slices at twice the resolution, in a hud twice the size
-	if(CheckInventory("ShowingMenu") && IsChromePage(CheckInventory("MenuOption"))) {
-		DrawItemInfoBackgroundChrome(hudid_begin, hx, hy, bg_posx, bg_posy, mids, craft_status, holdTime);
-		return;
-	}
-
-	str mid_img = "LDTITMID";
-	if(craft_status) {
-		if(hovered_orb_craft_result.effect_type != DND_ORBEFFECT_ENTIREITEM)
-			SetFont("LDTITTOP");
-		else {
-			SetFont("LDTITTOO");
-			mid_img = "LDTITMIO";
-		}
-	}
-	else {
-		SetFont("LDTITTOR");
-		mid_img = "LDTITMIR";
-	}
-	HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, hudid_begin, CR_WHITE, MenuX(bg_posx), MenuY(bg_posy), holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
-
-	for(int i = 0; i < mids; ++i) {
-		SetFont(mid_img);
-		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, hudid_begin - 1 - i, CR_WHITE, MenuX(bg_posx), MenuY(bg_posy + ITEMINFOBG_TOPLEN + i * ITEMINFOBG_MIDLEN), holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
-	}
-
-	if(craft_status) {
-		if(hovered_orb_craft_result.effect_type != DND_ORBEFFECT_ENTIREITEM)
-			SetFont("LDTITBOT");
-		else
-			SetFont("LDTITBOO");
-	}
-	else
-		SetFont("LDTITBOR");
-	HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, hudid_begin - 2 - i, CR_WHITE, MenuX(bg_posx), MenuY(bg_posy + ITEMINFOBG_TOPLEN + i * ITEMINFOBG_MIDLEN), holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+	// the card is the menu frame's, in the world too: the same slices at twice the resolution, in a hud twice the size
+	DrawItemInfoBackgroundChrome(hudid_begin, hx, hy, bg_posx, bg_posy, mids, craft_status, holdTime);
 }
 
 void CopyItemToField(int fieldpos, int player_index, int item_index, int source) {

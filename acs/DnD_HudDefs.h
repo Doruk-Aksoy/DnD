@@ -64,6 +64,7 @@ int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1, ASPECT_4_3 };
 #define ITEMINFOBG_BOTLEN 21.0
 // 20 holds about 30 wrapped attribute lines; a dungeon key with its mod tags shown already needs 13
 #define ITEMINFOBG_MAXMIDS 20
+#define ITEMINFO_FIELD_BOTTOM 252		// a world card ends above the HUD's level box (HUDMAX units)
 #define ITEMINFO_CLIPWIDTH 360
 // text clip height: the tallest panel in HUDTEXTMAX pixels, less the 15 the clip starts below its top
 #define ITEMINFO_CLIPHEIGHT (3 * ((ITEMINFOBG_TOPLEN + ITEMINFOBG_MAXMIDS * ITEMINFOBG_MIDLEN + ITEMINFOBG_BOTLEN) >> 16) / 2 - 15)
@@ -158,15 +159,6 @@ scrollbar_T module& GetScrollBar(int id = 0) {
 	return bars[id];
 }
 
-// The bar sits in the strip between where the page's text stops and where the panel's right hand
-// frame begins. Every page wraps its text 256 wide from x 192, so nothing it draws can reach past
-// 448 -- starting at 449 means the bar never lands on a line of text no matter how long the line
-// runs, which picking a column inside the content area could not promise. All of these are in the
-// HUDMAX_X x HUDMAX_Y space the menu draws its text in.
-// How far past the right edge the cursor may go on a page whose art is wider than the hud space.
-// posx is a far edge coordinate, so this is a NEGATIVE floor: -64 reaches screen x 544.
-#define DND_SPELLCURSOR_OVERREACH 64.0
-
 #define DND_SCROLLBAR_X 449
 #define DND_SCROLLBAR_W 7
 #define DND_SCROLLBAR_Y 40
@@ -219,7 +211,6 @@ int DungeonBossData[6] = { 0, 0, 0, 0, 0, 0 };
 
 // Box definitions for clickables
 // 7 images on menu leftmost bar
-#define MAX_MAIN_BOXES 10
 #define MAX_TAGCHARS_SHOWN 17
 
 // Mainbox Labels
@@ -289,9 +280,6 @@ enum {
 	RPGMENUTRADECOUNTDOWNID,
 	RPGMENUPAGEID = 120,
 	RPGMENUHIGHLIGHTID,
-
-	// this is used as basis for the character select menu id
-	RPGMENUCHARSELID = 800,
 
 	RPGMENUINVENTORYID = 849,
 	
