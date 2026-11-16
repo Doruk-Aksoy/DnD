@@ -259,7 +259,7 @@ str DamageTypeList[MAX_DAMAGE_TYPES] = {
 	"SoulType"
 };
 
-vec3_T PlayerDamageVector[MAXPLAYERS];
+vec3 PlayerDamageVector[MAXPLAYERS];
 // A hit's own added crit multiplier, handed to the accumulate it launches the same way as the vector.
 int PlayerDamageCritBonus[MAXPLAYERS];
 
@@ -6992,14 +6992,12 @@ void HandleReflect(int shooter, int victim, str proj_name, int encoded_data, int
 	int pnum = shooter - P_TIDSTART;
 
 	// the hit location
-	Vec3_T* v_Pos = GetVec3(hit_x, hit_y, hit_z);
+	vec3 v_Pos = (hit_x, hit_y, hit_z);
 
 	// velocity vector will be randomized ie. towards the shooter but with some randomness
-	Vec3_T* v_Vel = Vec3To_Pos(shooter, hit_x, hit_y, hit_z);
-	ToUnitVec3(v_Vel);
-	ScaleVec3(v_Vel, spd);
+	vec3 v_Vel = Vec3To_Pos(shooter, hit_x, hit_y, hit_z).Unit() * spd;
 	v_Vel.z = FixedMul(v_Vel.z, random(0.75, 1.25));
-	RotateVector3(v_Vel, ANG_TO_DOOM(random(-45.0, 45.0)));
+	v_Vel = v_Vel.Rotate(ANG_TO_DOOM(random(-45.0, 45.0)));
 
 	int wid, dmg, dtype;
 	int dmg_category = 0;
@@ -7040,7 +7038,7 @@ void HandleReflect(int shooter, int victim, str proj_name, int encoded_data, int
 		victim,
 		PROJECTILE_HELPER_TID + pnum,
 		proj_name,
-		AngleOfVector3(v_Vel),
+		v_Vel.Angle(),
 		0, // pitch doesn't matter for this
 		spd >> 16,
 		v_Vel,
@@ -7050,8 +7048,6 @@ void HandleReflect(int shooter, int victim, str proj_name, int encoded_data, int
 		dmg_data,
 		dmg_category
 	);
-	bcs::free(v_Pos);
-	bcs::free(v_Vel);
 }
 
 bool IsDamageEventException(str dt) {

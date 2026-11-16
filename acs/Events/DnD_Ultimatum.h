@@ -1868,10 +1868,8 @@ Script "DnD Ultimatum Saw Spawn" (int tier) {
 
 Script "DnD Sawblade Track" (int spd) {
     int target = GetActorProperty(0, APROP_ACCURACY);
-    Vec3_T* vec = Vec3To(target);
-    ToUnitVec3(vec);
+    vec3 vec = Vec3To(target).Unit();
     SetActorVelocity(0, spd * vec.x, spd * vec.y, spd * vec.z, 0, 0);
-    bcs::free(vec);
 }
 
 Script "DnD Ultimatum Storm Call Spawn" (int tier) {

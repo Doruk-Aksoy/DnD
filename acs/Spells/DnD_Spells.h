@@ -608,7 +608,7 @@ Script "DnD Scorching Ray FX" (int stop, int girth) CLIENTSIDE {
 
 	// Built the same way "DnD Ray of Disintegration Trails" is, which is the one trail spawner in the
 	// mod known to work: the direction from GetDirectionVector, the beads from plain Spawn.
-	Vec3_T* v = GetDirectionVector(0);
+	vec3 v = GetDirectionVector(0);
 
 	int ox = GetActorX(0), oy = GetActorY(0);
 	int oz = GetActorZ(0) + GetActorViewHeight(0) - DND_SCORCHRAY_ZOFF;
@@ -641,7 +641,6 @@ Script "DnD Scorching Ray FX" (int stop, int girth) CLIENTSIDE {
 		Thing_ChangeTID(bead, 0);
 	}
 
-	bcs::free(v);
 	SetResultValue(0);
 }
 

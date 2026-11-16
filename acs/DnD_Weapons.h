@@ -231,8 +231,6 @@ int TakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt, int flags = 0) {
 
 // we get weapon id, primary or alt and flags only
 // ammo_slot >> 16 contains subslot, first 16 contains main slot
-// "DnD Fire Weapon"'s working vectors in one heap block: a Vec2_T, then five Vec3_T.
-#define DND_FIRE_WORK_INTS 17
 
 Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 	// The weapon is no longer idle. Cleared here rather than in 465 DECORATE states, and reaching
@@ -279,27 +277,17 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 	str proj_name_alt = "";			// alternative name
 	int count = 1;					// proj count
 	int sp_x = 0, sp_y = 0;			// spread values
-	// angle 2 ints, offset 3, then position, direction, up and right 3 each, in one block freed at the end
-	int work = (int)bcs::malloc(DND_FIRE_WORK_INTS);
-	Vec2_T* angle_vec = work;		// negative is left, positive is right
-	Vec3_T* offset_vec = work + 2;
+	vec2 angle_vec = (0, 0);			// negative is left, positive is right
+	vec3 offset_vec = (0, 0, 0);
 	bool use_default = false;		// default behavior
 	int ammo_gain_guarantee = DND_AMMOGAIN_FAIL;
 	int hitscan_id = -1;
 
-	// malloc does not zero, and most weapons never set these two
-	SetVec2(angle_vec, 0, 0);
-	SetVec3XYZ(offset_vec, 0, 0, 0);
-
 	// vectors of owner
-	Vec3_T* vPos = work + 5;
-	Vec3_T* vDir = work + 8;
-	Vec3_T* vUp = work + 11;
-	Vec3_T* vRight = work + 14;
-	SetVec3XYZ(vPos, GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 5.0);
-	LoadDirectionVectorInto(vDir, owner);
-	LoadUpVectorInto(vUp, vDir);
-	LoadRightVectorInto(vRight, vDir, vUp);
+	vec3 vPos = (GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 5.0);
+	vec3 vDir = GetDirectionVector(owner);
+	vec3 vUp = GetUpVector(vDir);
+	vec3 vRight = GetRightVector(vDir, vUp);
 
 	// check for cyborg instability
 	flags |= 
@@ -803,7 +791,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				use_default = false;
 				
 				// this spawns a minion
-				SetVec3XYZ(offset_vec, 24.0, 0.0, -12.0);
+				offset_vec = (24.0, 0.0, -12.0);
 				Do_Minion_Summon(owner, ProjectileInfo[DND_PROJ_VIPERCRAWLER].name, offset_vec, ProjectileInfo[DND_PROJ_VIPERCRAWLER].spd_range);
 			}
 		break;
@@ -1052,11 +1040,11 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					offset_vec.y = -12.0;
 					HandleProjectileAttack(owner, pnum, DND_PROJ_HELLSMAWMAIN, wepid, 1, angle_vec, offset_vec, 0, 0, flags, vPos, vUp, vDir, vRight);
 					
-					SetVec3XYZ(offset_vec, 0.0, 4.0, 0.0);
+					offset_vec = (0.0, 4.0, 0.0);
 					HandleProjectileAttack(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 1, angle_vec, offset_vec, 0, 0, flags, vPos, vUp, vDir, vRight);
-					SetVec3XYZ(offset_vec, 0.0, -12.0, 16.0);
+					offset_vec = (0.0, -12.0, 16.0);
 					HandleProjectileAttack(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 1, angle_vec, offset_vec, 0, 0, flags, vPos, vUp, vDir, vRight);
-					SetVec3XYZ(offset_vec, 0.0, -28.0, 0.0);
+					offset_vec = (0.0, -28.0, 0.0);
 					HandleProjectileAttack(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 1, angle_vec, offset_vec, 0, 0, flags, vPos, vUp, vDir, vRight);
 				}
 				else {
@@ -1065,11 +1053,11 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					offset_vec.y = 12.0;
 					HandleProjectileAttack(owner, pnum, DND_PROJ_HELLSMAWMAIN, wepid, 1, angle_vec, offset_vec, 0, 0, flags, vPos, vUp, vDir, vRight);
 					
-					SetVec3XYZ(offset_vec, 0.0, -4.0, 0.0);
+					offset_vec = (0.0, -4.0, 0.0);
 					HandleProjectileAttack(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 1, angle_vec, offset_vec, 0, 0, flags, vPos, vUp, vDir, vRight);
-					SetVec3XYZ(offset_vec, 0.0, 12.0, 16.0);
+					offset_vec = (0.0, 12.0, 16.0);
 					HandleProjectileAttack(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 1, angle_vec, offset_vec, 0, 0, flags, vPos, vUp, vDir, vRight);
-					SetVec3XYZ(offset_vec, 0.0, 28.0, 0.0);
+					offset_vec = (0.0, 28.0, 0.0);
 					HandleProjectileAttack(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 1, angle_vec, offset_vec, 0, 0, flags, vPos, vUp, vDir, vRight);
 				}
 			}
@@ -1313,7 +1301,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					count = 12 + GetPlayerBonusProjectiles(pnum, wepid);
 					sp_y = 360.0 / count;
 					for(sp_x = 0; sp_x < count; ++sp_x) {
-						SetVec2(angle_vec, 4 * cos(ANG_TO_DOOM(sp_y * sp_x)), 4 * sin(ANG_TO_DOOM(sp_y * sp_x)));
+						angle_vec = (4 * cos(ANG_TO_DOOM(sp_y * sp_x)), 4 * sin(ANG_TO_DOOM(sp_y * sp_x)));
 						Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags, vPos, vUp, vDir, vRight);
 					}
 				}
@@ -1485,13 +1473,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			
 			// 4 pattern of ebony balls or circle
 			if(!CheckUniquePropertyOnPlayer(pnum, PUP_PELLETSFIRECIRCLE)) {
-				SetVec3XYZ(offset_vec, 0, 10.0, 0.0);
+				offset_vec = (0, 10.0, 0.0);
 				HandleProjectileAttack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags, vPos, vUp, vDir, vRight);
-				SetVec3XYZ(offset_vec, 0, -10.0, 0.0);
+				offset_vec = (0, -10.0, 0.0);
 				HandleProjectileAttack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags, vPos, vUp, vDir, vRight);
-				SetVec3XYZ(offset_vec, 0, 0, 10.0);
+				offset_vec = (0, 0, 10.0);
 				HandleProjectileAttack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags, vPos, vUp, vDir, vRight);
-				SetVec3XYZ(offset_vec, 0, 0, -10.0);
+				offset_vec = (0, 0, -10.0);
 				HandleProjectileAttack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags, vPos, vUp, vDir, vRight);
 			}
 			else {
@@ -1632,7 +1620,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				ammo_take_amt = Weapons_Data[DND_WEAPON_ACIDRIFLE].ammo_use1;
 			}
 			else {
-				SetVec3XYZ(offset_vec, 0, 4.0, -12.0);
+				offset_vec = (0, 4.0, -12.0);
 				proj_id = DND_PROJ_ACIDSTAKE;
 			}
 		break;
@@ -1914,7 +1902,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			use_default = true;
 			if(!(isAltFire & DND_ATK_SECONDARY)) {
 				proj_id = DND_PROJ_FROSTFANG_1;
-				SetVec3XYZ(offset_vec, 0, random(-7.5, 7.5), random(-7.5, 7.5));
+				offset_vec = (0, random(-7.5, 7.5), random(-7.5, 7.5));
 			}
 			else
 				proj_id = DND_PROJ_FROSTFANG_2;
@@ -2047,9 +2035,9 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				sp_y = 2.8;
 				
 				if(isAltfire & DND_ATK_OTHER_DIR)
-					SetVec3XYZ(offset_vec, 1.5, 8.0, 0.0);
+					offset_vec = (1.5, 8.0, 0.0);
 				else
-					SetVec3XYZ(offset_vec, 1.5, -8.0, 0.0);
+					offset_vec = (1.5, -8.0, 0.0);
 			}
 			else {
 				// secondary uses a delayed script to match the firing anim, with delays corresponding to weapon frames in decorate
@@ -2344,7 +2332,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				angle_vec.x = 1.0;
 			}
 			else {
-				SetVec3XYZ(offset_vec, 0, 2.0, 2.0);
+				offset_vec = (0, 2.0, 2.0);
 
 				count = 2 + GetPlayerBonusProjectiles(pnum, wepid);
 				for(sp_x = 0; sp_x < count; ++sp_x) {
@@ -2540,15 +2528,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			);
 	}
 
-	bcs::free(work);
-
 	SetResultValue(0);
 }
 
 void HandleProjectileAttack
 (
-	int owner, int pnum, int proj_id, int wepid, int count, Vec2_T* angle_vec, Vec3_T* offset_vec, int sp_x, int sp_y, int flags,
-	Vec3_T* vPos, Vec3_T* vUp, Vec3_T* vDir, Vec3_T* vRight, int spread_inc = DND_EXTRAPROJ_SPREADANG, int spread_base = 0
+	int owner, int pnum, int proj_id, int wepid, int count, vec2& angle_vec, const vec3& offset_vec, int sp_x, int sp_y, int flags,
+	const vec3& vPos, const vec3& vUp, const vec3& vDir, const vec3& vRight, int spread_inc = DND_EXTRAPROJ_SPREADANG, int spread_base = 0
 )
 {
 	int extra_proj = GetPlayerBonusProjectiles(pnum, wepid);
@@ -2568,8 +2554,8 @@ void HandleProjectileAttack
 
 void HandleProjectileAttack_Named
 (
-	int owner, int pnum, str proj_name, int wepid, int count, int speed, Vec2_T* angle_vec, Vec3_T* offset_vec, int sp_x, int sp_y, int flags, 
-	Vec3_T* vPos, Vec3_T* vUp, Vec3_T* vDir, Vec3_T* vRight, int spread_inc = DND_EXTRAPROJ_SPREADANG, int spread_base = 0
+	int owner, int pnum, str proj_name, int wepid, int count, int speed, vec2& angle_vec, const vec3& offset_vec, int sp_x, int sp_y, int flags, 
+	const vec3& vPos, const vec3& vUp, const vec3& vDir, const vec3& vRight, int spread_inc = DND_EXTRAPROJ_SPREADANG, int spread_base = 0
 )
 {
 	int extra_proj = GetPlayerBonusProjectiles(pnum, wepid);

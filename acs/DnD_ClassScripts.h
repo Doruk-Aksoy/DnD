@@ -701,14 +701,11 @@ Script "DnD Wanderer Dash" (void) {
 
 	PlaySound(0, "Wanderer/DashBegin", 7);
 
-	Vec3_T* v_dir = GetVec3();
 	for(int i = 0; i < DND_WANDERER_DASH_TIME; ++i) {
-		LoadDirectionVectorInto(v_dir, 0);
+		vec3 v_dir = GetDirectionVector(0);
 		SetActorVelocity(0, v_dir.x * DND_WANDERER_DASHVEL, v_dir.y * DND_WANDERER_DASHVEL, v_dir.z * DND_WANDERER_DASHVEL, 0, 0);
 		Delay(const:1);
 	}
-
-	bcs::free(v_dir);
 
 	PlaySound(0, "Wanderer/DashFinish", 7);
 

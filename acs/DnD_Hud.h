@@ -312,7 +312,7 @@ typedef struct cursor {
 	int itemHoveredType;		// is this an orb, etc. or a weapon
 	int itemHoveredSource;		// for inventory stuff, player inventory, stash etc.
 	int itemHoveredOffset;		// offset for boxid
-	vec2_T itemHoveredDim;		// dim for draving things
+	vec2 itemHoveredDim;		// dim for draving things
 	bool hoverNeedsReset;		// need reset on hover data
 	
 	int itemDragged;			// this holds the image id, not the item id (We dont need it)
@@ -323,7 +323,7 @@ typedef struct cursor {
 	int itemClicked;
 	int itemClickedType;		// is this an orb, etc. or a weapon
 	int itemClickedSource;		// for inventory stuff, player inventory, stash etc.
-	vec2_T itemClickedPos;
+	vec2 itemClickedPos;
 	bool clickNeedsReset;
 } cursor_T;
 cursor_T PlayerCursorData;

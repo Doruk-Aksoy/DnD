@@ -6,6 +6,6 @@ echo "Compiling acs code... If errors pop up, they will show up below:
 ----------------------------------------------------------------
 "
 
-$bcs -D __ZANDRONUM__ "./DnD.bcs" "../DnD/acs/dnd.o"
-$bcs -D __ZANDRONUM__ "./Misc.bcs" "../DnD/acs/Misc.o"
+$bcs -target any -D __ZANDRONUM__ "./DnD.bcs" "../DnD/acs/dnd.o"
+$bcs -target any -D __ZANDRONUM__ "./Misc.bcs" "../DnD/acs/Misc.o"
 echo "----------------------------------------------------------------"

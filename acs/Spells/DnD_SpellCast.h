@@ -428,7 +428,7 @@ void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags =
 
 	int z = zoff == DND_SPELLPROJ_FROMVIEW ?
 		GetActorViewHeight(from) - 15.0 : zoff;
-	Vec3_T* vPos = GetVec3(GetActorX(from), GetActorY(from), GetActorZ(from) + z);
+	vec3 vPos = (GetActorX(from), GetActorY(from), GetActorZ(from) + z);
 
 	// a + 0.25 is 90 degrees left of the facing, so a positive side_off goes left.
 	if(side_off) {
@@ -436,11 +436,7 @@ void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags =
 		vPos.x += FixedMul(side_off, cos(sa));
 		vPos.y += FixedMul(side_off, sin(sa));
 	}
-	Vec3_T* vProj = GetVec3();
-
-	vProj.x = speed * FixedMul(cos(a), cosp);
-	vProj.y = speed * FixedMul(sin(a), cosp);
-	vProj.z = -sin(pt) * speed;
+	vec3 vProj = (speed * FixedMul(cos(a), cosp), speed * FixedMul(sin(a), cosp), -sin(pt) * speed);
 
 	// Handed back under a tid of our own: CreateProjectile releases TEMPORARY_ATTACK_TID before it
 	// returns, so setting the spell up on that tid afterwards reached nothing at all and every spell
@@ -479,9 +475,6 @@ void SpawnSpellProjectile(int pnum, int spell, str actor, int speed, int flags =
 
 	// keep_tid: one several actors share, so they can be moved as one (a Freezing Pulse wave a gem chain steers)
 	Thing_ChangeTID(tid, keep_tid);
-
-	bcs::free(vProj);
-	bcs::free(vPos);
 }
 
 // Placed rather than thrown: Immolation's ring, Frost Bomb's crystal, Blizzard, Volcano.

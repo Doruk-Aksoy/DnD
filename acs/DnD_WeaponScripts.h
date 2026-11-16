@@ -3099,8 +3099,7 @@ Script "DnD Hammer Speed Limiter" (int max_vel, int min_vel) {
 		if(update_spd && CheckInventory("DnD_Boolean")) {
 			int tracer_tid = GetActorProperty(0, APROP_TRACERTID);
 			if(tracer_tid && tracer_tid != owner_tid) {
-				Vec3_T* v_dir = Vec3To(tracer_tid);
-				ToUnitVec3(v_dir);
+				vec3 v_dir = Vec3To(tracer_tid).Unit();
 
 				update_spd = false;
 				new_spd >>= 16;
@@ -3113,7 +3112,6 @@ Script "DnD Hammer Speed Limiter" (int max_vel, int min_vel) {
 					0
 				);
 				GiveInventory("HammerSeekDelay", 1);
-				bcs::free(v_dir);
 
 				// printbold(s:"is missile? ", d:CheckFlag(0, "MISSILE"), s: " ", s:GetActorClass(0), s: " vs ", s:GetActorClass(owner_tid));
 
@@ -3501,7 +3499,7 @@ Script "DnD Swapped From Melee" (int ptid) {
 }
 
 Script "DnD Ray of Disintegration Trails" (void) CLIENTSIDE {
-	Vec3_T* v_dir = GetDirectionVector(0);
+	vec3 v_dir = GetDirectionVector(0);
 	int trail_amt = DND_WANDERER_RAY_BASEDIST / DND_WANDERER_RAY_DIST_PER;
 
 	int viewZ = GetActorViewHeight(0) - 8.0;
@@ -3520,8 +3518,6 @@ Script "DnD Ray of Disintegration Trails" (void) CLIENTSIDE {
 		if(!Spawn("WandererRayTrail", mx, my, mz, 0, 0))
 			break;
 	}
-
-	bcs::free(v_dir);
 
 	SetResultValue(0);
 }

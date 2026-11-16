@@ -2023,15 +2023,9 @@ int GetActorPlayerClass(int tid) {
 #include "DnD_Math.h"
 
 bool IsActorFacing(int this, int target, int threshold) {
-	Vec3_T* v_this = GetDirectionVector(this);
-	Vec3_T* v_pos_this = Vec3To_Pos(target, GetActorX(this), GetActorY(this), GetActorZ(this));
-	ToUnitVec3(v_pos_this);
-	int dot = DotProductVec3(v_this, v_pos_this);
-
-	bcs::free(v_this);
-	bcs::free(v_pos_this);
-
-	return dot >= threshold;
+	vec3 v_this = GetDirectionVector(this);
+	vec3 v_pos_this = Vec3To_Pos(target, GetActorX(this), GetActorY(this), GetActorZ(this)).Unit();
+	return (v_this dot v_pos_this) >= threshold;
 }
 
 // moved these here due to co-dependency

@@ -6,6 +6,6 @@ if not exist "..\dnd\acs" mkdir "..\dnd\acs"
 echo Compiling acs code... If errors pop up, they will show up below:
 echo ----------------------------------------------------------------
 echo.
-%ztbcc% -D __ZANDRONUM__ "dnd.bcs" "..\dnd\acs\dnd.o"
-%ztbcc% -D __ZANDRONUM__ "Misc.bcs" "..\dnd\acs\Misc.o"
+%ztbcc% -target any -D __ZANDRONUM__ "dnd.bcs" "..\dnd\acs\dnd.o"
+%ztbcc% -target any -D __ZANDRONUM__ "Misc.bcs" "..\dnd\acs\Misc.o"
 echo ----------------------------------------------------------------
