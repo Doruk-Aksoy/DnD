@@ -496,7 +496,7 @@ int Do_Projectile_Attack
 		proj_ang_vec = (vFireDir.Angle(), -asin(FixedDiv(vFireDir.z, vFireDir.Length())));
 
 		// proper scaling now that we got our direction vector
-		ScaleVec3_Int(vFireDir, ProjectileInfo[proj_id].spd_range);
+		vFireDir *= (int)ProjectileInfo[proj_id].spd_range;
 
 		spread_x = CreateProjectile(owner, p_helper_tid, proj_name, proj_ang_vec.x, proj_ang_vec.y, ProjectileInfo[proj_id].spd_range, vFireDir, vPosTemp, flags, extra, extra2);
 		if(spread_x && !acc)
@@ -561,7 +561,7 @@ int Do_Projectile_Attack_Named
 		proj_ang_vec = (vFireDir.Angle(), -asin(FixedDiv(vFireDir.z, vFireDir.Length())));
 
 		// proper scaling now that we got our direction vector
-		ScaleVec3_Int(vFireDir, speed);
+		vFireDir *= (int)speed;
 
 		spread_x = CreateProjectile(owner, p_helper_tid, proj_name, proj_ang_vec.x, proj_ang_vec.y, speed, vFireDir, vPosTemp, flags, extra, extra2);
 		if(spread_x && !acc)
@@ -579,7 +579,7 @@ void Do_Minion_Summon(int owner, str actor, const vec3& offset_vec, int speed = 
 	vec3 vRight = GetRightVector(vDir, vUp);
 
 	vec3 velocity = vDir;
-	ScaleVec3_Int(velocity, speed);
+	velocity *= (int)speed;
 
 	// offset adjustment
 	if(offset_vec.x || offset_vec.y || offset_vec.z)

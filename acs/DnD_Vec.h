@@ -9,14 +9,8 @@
 
 // Vectors are zt-bcc's built-in vec2 and vec3: plain values with + - * /, dot, cross, .Length(),
 // .Unit(), .Angle() and .Rotate(), so nothing here allocates or needs freeing.
-// DnD is not strict, so `int` is raw and `v * f` scales as fixed point; whole-number scaling
-// goes through ScaleVec3_Int.
-
-void ScaleVec3_Int(vec3& v, int s) {
-	v.x *= s;
-	v.y *= s;
-	v.z *= s;
-}
+// DnD is not strict, so `int` is raw and `v * f` scales as fixed point; for whole-number
+// scaling write `v * (int)s` (or an integer literal, as in `v * 2`).
 
 bool isMoving() {
 	return GetActorVelX(0) != 0.0 || GetActorVelY(0) != 0.0;
