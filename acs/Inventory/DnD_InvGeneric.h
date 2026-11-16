@@ -107,13 +107,6 @@ void SpawnArmorWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, int max_leve
 	}
 }
 
-void SpawnArmorWithMods_ForAll(int m1, int m2 = -1, int m3 = -1, int max_lvl = MAX_REGULAR_ILVL) {
-	for(int i = 0; i < MAXPLAYERS; ++i) {
-		if(PlayerInGame(i) && !PlayerIsSpectator(i))
-			SpawnArmorWithMods(i, m1, m2, m3, max_lvl);
-	}
-}
-
 void SpawnBoot(int pnum, int rarity_boost, int max_level = MAX_REGULAR_ILVL, bool noRandomVelXY = false, int extra = -1) {
     int c = CreateItemSpot();
 	int id = 0;
@@ -160,13 +153,6 @@ void SpawnBootWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, int max_level
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SendOwnerScript("DnD Play Local Item Drop Sound", pnum, pnum, DND_ITEM_BOOT);
-	}
-}
-
-void SpawnBootWithMods_ForAll(int m1, int m2 = -1, int m3 = -1, int max_level = MAX_REGULAR_ILVL) {
-	for(int i = 0; i < MAXPLAYERS; ++i) {
-		if(PlayerInGame(i) && !PlayerIsSpectator(i))
-			SpawnBootWithMods(i, m1, m2, m3, max_level);
 	}
 }
 
@@ -318,13 +304,6 @@ void SpawnHelmWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, int max_level
 	}
 }
 
-void SpawnHelmWithMods_ForAll(int m1, int m2 = -1, int m3 = -1, int max_level = MAX_REGULAR_ILVL) {
-	for(int i = 0; i < MAXPLAYERS; ++i) {
-		if(PlayerInGame(i) && !PlayerIsSpectator(i))
-			SpawnHelmWithMods(i, m1, m2, m3, max_level);
-	}
-}
-
 // monsters dropping charms -- extra for synergy boost
 void SpawnCharm(int pnum, int rarity_boost, int max_lvl = MAX_REGULAR_ILVL, bool noRandomVelXY = false, int extra = -1) {
 	int c = CreateItemSpot();
@@ -435,27 +414,6 @@ void SpawnFlaskDrop(int pnum, int rarity_boost, int max_level = MAX_REGULAR_ILVL
 	}
 }
 
-void SpawnFlaskWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, int max_level = MAX_REGULAR_ILVL) {
-	int c = CreateItemSpot();
-	if(c != -1) {
-		int ilvl = RollItemLevel(max_level);
-		int type = ConstructFlaskDataOnField(c, ilvl, pnum, -1);
-		RollFlaskInfoWithMods(c, ilvl, pnum, type, MAX_FLASK_ATTRIB_DEFAULT, m1, m2, m3);
-		// depending on armor type rolled, spawn its appropriate actor
-		SpawnDrop(GetFlaskDropClass(type), 16.0, 16, pnum + 1, c, false);
-
-		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		SendOwnerScript("DnD Play Local Item Drop Sound", pnum, pnum, DND_ITEM_FLASK);
-	}
-}
-
-void SpawnFlaskWithMods_ForAll(int m1, int m2 = -1, int m3 = -1, int max_level = MAX_REGULAR_ILVL) {
-	for(int i = 0; i < MAXPLAYERS; ++i) {
-		if(PlayerInGame(i) && !PlayerIsSpectator(i))
-			SpawnFlaskWithMods(i, m1, m2, m3, max_level);
-	}
-}
-
 void SpawnItemForAll(int type, int max_lvl = MAX_REGULAR_ILVL, int extra = -1) {
     void function(int, int, int, bool, int)& f = SpawnArmor;
     switch(type) {
@@ -503,29 +461,6 @@ void SpawnItemForAll(int type, int max_lvl = MAX_REGULAR_ILVL, int extra = -1) {
 			f(j, 0, max_lvl, 0, extra);
 		}
 	}
-}
-
-// won't spawn powercores
-void SpawnItemForAll_WithMods(int type, int max_lvl = MAX_REGULAR_ILVL, int m1 = -1, int m2 = -1, int m3 = -1) {
-    void function(int, int, int, int)& f = SpawnArmorWithMods_ForAll;
-    switch(type) {
-        case DND_ITEM_CHARM:
-            f = SpawnCharmWithMods_ForAll;
-        break;
-        case DND_ITEM_BODYARMOR:
-            f = SpawnArmorWithMods_ForAll;
-        break;
-		case DND_ITEM_BOOT:
-			f = SpawnBootWithMods_ForAll;
-		break;
-		case DND_ITEM_HELM:
-			f = SpawnHelmWithMods_ForAll;
-		break;
-		default:
-		return;
-    }
-
-	f(m1, m2, m3, max_lvl);
 }
 
 str GetItemTagName(int itype, int isubt) {

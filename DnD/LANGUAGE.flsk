@@ -70,7 +70,7 @@ IATTR_IMP_FLASK13   = "mana recovered over";
 
 IATTR_FLASK0        = "increased total charges";
 IATTR_FLASK1        = "reduced charges per use";
-IATTR_FLASK2        = "increased amount recovered";         IATTR_FLASK2X = "increased charges used";
+IATTR_FLASK2        = "increased amount recovered";         
 IATTR_FLASK3        = "Recovery is instant";                IATTR_FLASK3X = "reduced amount recovered";
 IATTR_FLASK4        = "increased effect";                   IATTR_FLASK4X = "reduced effect duration";
 IATTR_FLASK5        = "increased effect duration";

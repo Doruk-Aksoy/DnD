@@ -105,11 +105,6 @@ struct buff_T {
 	int next_id;		// next buff pointer
 };
 
-#define DND_BUFF_SOURCE_BITS 14 // 14 bits for source tids is enough with 16384
-#define DND_BUFF_FLAG_BITS 7 // 128 as max value of buff type, leaves 11 bits for extra info
-
-#define DND_BUFF_FLAG_SHIFT (DND_BUFF_SOURCE_BITS + DND_BUFF_FLAG_BITS)
-
 #define DND_MAX_PLAYER_BUFFS 64
 
 // Width of the bt_index presence bitmask, in whole 32-bit words.

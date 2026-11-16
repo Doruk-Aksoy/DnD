@@ -32,7 +32,6 @@ enum { PERK_REQ_NONE, PERK_REQ_ALL, PERK_REQ_ANY, PERK_REQ_TAG };
 
 // Set by phase 3 as each perk is wired to a stat.
 #define PERKF_AFFECTSDAMAGE 0b1     // spending re-runs the damage cache
-#define PERKF_BESPOKE       0b10    // no pstat, the behaviour reads HasPerk at its own call site
 
 // TWO stat slots, not one. Several perks give two numbers at once -- Unwavering Stance is
 // "200 knockback resist AND 5% health" per point -- and splitting those into two perk entries would
@@ -272,8 +271,6 @@ enum {
 
     PERK_COUNT
 };
-
-#define PERK_ARCH_FIRST PERK_ARCH_ACRO
 
 // ---------------------------------------------------------------- authoring
 // Guarded the way SetTierStep is. A bad id here writes past PerkTable and there is no plausible way
@@ -515,15 +512,6 @@ void SyncPerkWord(int pnum, int perk) {
     SendOwnerSync("DnD Request Perk Sync", pnum, pnum, word, PlayerModData[pnum].perks_packed[word]);
 }
 
-void ResetPlayerPerks(int pnum) {
-    int i;
-    for(i = 0; i < DND_PERK_WORDS; ++i)
-        PlayerModData[pnum].perks_packed[i] = 0;
-    for(i = 0; i < DND_MAX_PERK_ARCHETYPES; ++i)
-        PlayerModData[pnum].spent_in[i] = 0;
-    PlayerModData[pnum].unspent = 0;
-}
-
 // ---------------------------------------------------------------- gating
 // Both halves always apply: the archetype threshold AND the Requires clause. A perk with neither is
 // spendable from the first point.
@@ -742,10 +730,6 @@ bool RefundPerkPoint(int pnum, int perk) {
 #define DND_RESPEC_BASECOST     500
 #define DND_RESPEC_POINTWEIGHT  3
 #define DND_RESPEC_LEVELSCALE   9
-
-// The floor the deepest perk at max level has to clear, in credits. Stated so the three constants
-// above cannot be retuned back under it without the verifier saying so.
-#define DND_RESPEC_DEEPFLOOR    99000
 
 // Why a refund cannot happen right now, or 0 when it can. Same shape as GetPerkSpendBlocker and for
 // the same reason: "another perk depends on this" and "you cannot afford it" are different problems

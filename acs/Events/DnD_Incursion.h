@@ -38,13 +38,11 @@ str GetIncursionSpawnerLabel() {
 }
 
 #define DND_INCURSION_MARKER_MERGECOUNT 4 // if this many markers have spawned within the radius, they'll merge to form a portal -- this is technically 3, as the marker itself counts as 1 too
-#define DND_INCURSION_MERGERADIUS 640.0 // the maximum radius in which incursion markers can be merged
 #define DND_INCURSION_BASE_MARKERCHANCE 0.75 // 17.5%
 #define DND_INCURSION_MIN_MARKERCHANCE 0.075
 #define DND_INCURSION_BONUSMULT 0.33 // up to 33% increase the more it processes the monster list (to help even the odds and avoid "drought" situations)
 #define DND_INCURSION_IMPROVETHRESHOLD 500
 #define DND_INCURSION_REDUCETHRESHOLD 700
-#define DND_INCURSION_IMPROVEPER 250
 #define DND_INCURSION_MARKERIMPROVEPCT 0.025
 #define DND_INCURSION_SPAWNRADIUS 384.0
 

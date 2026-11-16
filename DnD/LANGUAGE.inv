@@ -278,8 +278,8 @@ DND_CHARMTIER8		=	"Majestic";
 DND_CHARMTIER9		=	"Regal";
 DND_CHARMTIER10		=	"Perfect";
 
-DND_TIERLETTER		=	"T";		// stands for >T<ier
-DND_UNIQUELETTER	=	"U";		// stands for >U<nique
+// stands for >T<ier
+// stands for >U<nique
 
 // item names
 DND_CHESTKEY1		=	"Bronze Chest Key";
@@ -720,7 +720,7 @@ IATTR_TX7 			= "increased crit chance to lightning attacks";
 IATTR_TX8 			= "Explosives that trigger again have "; IATTR_TX8B = "more damage and area of effect";	IATTR_TX8S = "Your initial explosions have "; IATTR_TX8S2 = " less damage and area of effect";
 IATTR_TX9 			= "Double Health Cap";
 IATTR_TX10 			= "Gain 1% increased physical damage every ";
-IATTR_TX11 			= "Can't use body armor";
+IATTR_TX11 			= "Requires";	IATTR_TX11S = "Strength to equip";	IATTR_TX11B = "Strength starts contributing only past";
 IATTR_TX12 			= "Burst type attacks fire in a circle around you";
 IATTR_TX13 			= "Burst type attacks also benefit from pellet bonuses";
 IATTR_TX14 			= "chance to raise a zombie from slain enemies";

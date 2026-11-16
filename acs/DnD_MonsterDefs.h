@@ -3,7 +3,6 @@
 
 #include "DnD_EliteInfo.h"
 
-#define DND_CUSTOMMONSTER_ID 65536
 #define DND_MONSTERMASS_SCALE 20 // 20% per level
 
 #define DND_DEFAULT_MONSTERDMG_SCALING_FACTOR 120
@@ -14,7 +13,6 @@
 #define ETHEREAL_RESIST 33
 
 // Level resist rises from level 35 to its cap at 83, gear's item level cap: 40 x ((level - 35) / 48)^0.6.
-#define DND_MONSTER_RESIST_CAPLEVEL 83
 #define DND_MONSTER_LEVELTABLE_MAX 100
 
 int GetMonsterLevelResist(int level) {
@@ -75,7 +73,6 @@ enum {
 
 	DND_MAX_MONSTER_PRECALC_RNG
 };
-#define LAST_MON_RNG_INDEX DND_MON_RNG_8
 
 enum {
 	DND_MONFLAG_ISELITE = 1,
@@ -192,10 +189,6 @@ void SetPetMonsterTrait(int m_id, int t, bool v) {
 void ClearPetMonsterTraits(int m_id) {
 	for(int i = 0; i < MONSTER_TRAIT_WORDS; ++i)
 		PetMonsterProperties[m_id].trait_bits[i] = 0;
-}
-
-bool HasMonsterDataTrait(int mon, int t) {
-	return !!(MonsterData[mon].trait_bits[t >> 5] & (1 << (t & 31)));
 }
 
 void SetMonsterDataTrait(int mon, int t, bool v) {
@@ -616,7 +609,6 @@ enum {
 #define DND_CUSTOM_SM_END MONSTER_DARKLICH
 
 #define DND_CUSTOM_CYBER_BEGIN MONSTER_CARDINAL
-#define DND_CUSTOM_CYBER_END MONSTER_DEATHWYVERN
 
 #define DND_UNIQUE_ZOMBIEMAN_BEGIN MONSTER_TERON
 #define DND_UNIQUE_ZOMBIEMAN_END MONSTER_TERON
@@ -702,7 +694,6 @@ bool IsLootChestDroppingMonster(int m_id) {
 #define LEGENDARY_START MONSTER_DREAMINGGOD
 #define LEGENDARY_END MONSTER_GOLGOTH
 #define DND_MAX_LEGENDARY (LEGENDARY_END - LEGENDARY_START + 1)
-#define MONSTER_COUNT (DND_LASTMONSTER_INDEX + 50) // possible compatibility for other wads' monsters
 
 enum {
 	DND_MONSTERSIZE_SMALL,
@@ -788,7 +779,6 @@ enum {
 };
 
 // first 5 above dictate the basic monster types
-#define MAX_MONSTER_TYPES 6
 str GetMonsterTypeIcon(int type) {
 	switch(type) {
 		case DND_MTYPE_DEMON:
@@ -878,27 +868,6 @@ bool IsDemon() {
 
 bool IsMonsterIdDemon(int m_id) {
 	return GetMonsterType(MonsterProperties[m_id].id, m_id + DND_MONSTERTID_BEGIN) == DND_MTYPE_DEMON;
-}
-
-bool IsZombie() {
-	int monsterID = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id;
-	if(monsterID < MONSTER_CUSTOM)
-		return MonsterData[monsterID].flags & DND_MTYPE_ZOMBIE_POW;
-	return CheckActorInventory(ActivatorTID(), "MonsterTypeToken") & DND_MTYPE_ZOMBIE_POW;
-}
-
-bool IsMonsterIdZombie(int m_id) {
-	int monsterID = MonsterProperties[m_id].id;
-	if(monsterID < MONSTER_CUSTOM)
-		return MonsterData[monsterID].flags & DND_MTYPE_ZOMBIE_POW;
-	return CheckActorInventory(m_id + DND_MONSTERTID_BEGIN, "MonsterTypeToken") & DND_MTYPE_ZOMBIE_POW;
-}
-
-bool IsUndead() {
-	int monsterID = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].id;
-	if(monsterID < MONSTER_CUSTOM)
-		return MonsterData[monsterID].flags & DND_MTYPE_UNDEAD_POW;
-	return CheckActorInventory(ActivatorTID(), "MonsterTypeToken") & DND_MTYPE_UNDEAD_POW;
 }
 
 bool IsMagic() {

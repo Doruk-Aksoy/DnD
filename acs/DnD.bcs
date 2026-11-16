@@ -3868,11 +3868,14 @@ Script "DnD Client CVar Watch" (void) CLIENTSIDE {
 	sent[DND_CVW_DASH] = GetCVar("dnd_dashstatus");
 	sent[DND_CVW_TEMPWEPS] = GetCVar("dnd_ignoretempweps");
 	sent[DND_CVW_PICKUP] = GetCVar("dnd_pickup_filter");
+	RefreshCardPrefs();
 
 	int tid = cpnum + P_TIDSTART;
 	int val;
 	while(true) {
 		Delay(const:8);
+
+		RefreshCardPrefs();
 
 		val = GetCVar("dnd_dashstatus");
 		if(val != sent[DND_CVW_DASH]) {

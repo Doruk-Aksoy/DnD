@@ -11,7 +11,6 @@
 // assumes (its modulus is LAST_SLOT9 - FIRST + 3), so this brings the last of the three into
 // agreement with the other two.
 #define MAXTEMPWEPS (LAST_SLOT9_WEAPON - TEMPBEGIN + 1)
-#define UNUSEDWEPS 0 // this is remaining slots out of 2^(nearest power of 2 to maxweps) - maxweps
 
 #define TEMPWEP_BLOODFIENDSPINE_DROPCHANCE 0.6
 #define TEMPWEP_VENOM_DROPCHANCE 0.5
@@ -120,13 +119,6 @@ str TemporaryWeaponData[MAXTEMPWEPS][4] = {
 		"Ripper Cannon" 
 	}
 };
-
-bool HasNoTempWeapon() {
-	for(int i = 0; i < MAXTEMPWEPS; ++i)
-		if(!CheckInventory(TemporaryWeaponData[i][TEMPWEP_NAME]))
-			return 1;
-	return 0;
-}
 
 void CleanTempAmmo() {
 	for(int i = 0; i < MAXTEMPWEPS; ++i) {

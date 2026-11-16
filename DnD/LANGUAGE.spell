@@ -965,7 +965,6 @@ DND_SPLPANEL_REFUNDRUNNING = "Cannot refund while it is active.";
 DND_SPELLINDEX_HELP1 = "Click a skill in its tree to spend a point.";
 DND_SPELLINDEX_HELP2 = "Right click a learned aura or passive to switch it.";
 DND_SPELLINDEX_REFUND1 = "Hold"; DND_SPELLINDEX_REFUND2 = "and right click to refund a point for credits.";
-DND_SPLPANEL_NONE      = "None";
 DND_SPLHUD_SILENCED    = "Silenced";
 
 // Board headings, positional on DND_SKILLTREE_*.
@@ -979,7 +978,6 @@ DND_SPELLTREETITLE5  = "Arcane Spells";
 DND_SPELLTREETITLE6  = "Chaos Spells";
 DND_SPELLTREETITLE7  = "Combat Spells";
 
-DND_SPLPANEL_DETAILS = "DETAILS";
 
 DND_SPELLTREE_HOTBAR   = "Hotbar Assignments";
 DND_SPELLTREE_GEMS     = "Gem Sockets";

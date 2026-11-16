@@ -6,7 +6,6 @@ enum {
 	WEP_MOD_TIER_MEDIUM,
 	WEP_MOD_TIER_HIGH
 };
-#define MAX_WEP_MODTIER (WEP_MOD_TIER_HIGH + 1)
 
 // powersets
 enum {
@@ -39,8 +38,6 @@ void SetWeaponModPowerset(int pnum, int wepid, int powerset, bool val, int sourc
 int GetPlayerWeaponModVal(int pnum, int wepid, int wepmod) {
 	return Player_Weapon_Infos[pnum][wepid].wep_mods[wepmod][WMOD_ITEMS].val + Player_Weapon_Infos[pnum][wepid].wep_mods[wepmod][WMOD_WEP].val;
 }
-
-#define WEP_POWER_GHOSTHIT_REDUCE 33 // %
 
 str GetWeaponModText(int val, int id, int extra_bit = 0) {
 	switch(id) {
@@ -88,10 +85,5 @@ wep_mod_vals_T WeaponModValues[MAX_WEP_MODS] = {
 	{ 4, 10, 5 },
 	{ 5, 10, 10 },
 };
-
-int RollWeaponMod(int mod, int tier) {
-	int inc = WeaponModValues[mod].tier_add * tier;
-	return random(WeaponModValues[mod].low + inc, WeaponModValues[mod].high + inc);
-}
 
 #endif

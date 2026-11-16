@@ -4,17 +4,6 @@
 #include "DnD_SpellHud.h"
 #include "DnD_SpellTreeRoutes.h"
 
-// The page borrows CRFTVW, the crafting backdrop: a wide board on the left for the tree and a tall
-// pocket on the right for text. It is drawn exactly the way the crafting page draws it -- enlarged
-// canvas for the BACKDROP ONLY, restored immediately, everything else in the default HUDMAX space.
-//
-// That split is not a style choice. Node hit boxes go through AddBoxToPane_Points, which is always
-// in the default space whatever SetHudSize the drawing used. Drawing content in a second space meant
-// boxes and icons came from different numbers: the boxes worked and the icons never appeared, so
-// hovering played its sound over a blank page. One space for everything that is not the backdrop.
-#define DND_SPELLTREE_BACKW 384
-#define DND_SPELLTREE_BACKH 200
-
 // The art is 64x64 and a graphic renders ONE UNIT PER SOURCE PIXEL, so at menu scale an icon is 64
 // units across -- eight of those is 512, and the whole board is about 322. They are drawn in a 2x
 // canvas instead, which halves them to an effective 32 units and needs no new art.
@@ -42,6 +31,8 @@
 // top left corner with the whole right half of the board empty.
 #define DND_SPELLTREE_LEFT 16
 #define DND_SPELLTREE_BOARDW 322
+// Drawn this far left of where the router places it (its tables hold x as 0..511), to leave the info panel room.
+#define DND_SPELLTREE_SHIFTX -56
 #define DND_SPELLTREE_TOP 53
 #define DND_SPELLTREE_BOARDH 233
 
@@ -76,7 +67,7 @@ int GetSpellNodeX(int spell) {
 	int tree = SpellDefs[spell].tree;
 	int w = GetTreeMaxTX(tree) * DND_SPELLTREE_COLW + DND_SPELLNODE;
 
-	return DND_SPELLTREE_LEFT + (DND_SPELLTREE_BOARDW - w) / 2 +
+	return DND_SPELLTREE_LEFT + DND_SPELLTREE_SHIFTX + (DND_SPELLTREE_BOARDW - w) / 2 +
 		SpellDefs[spell].tx * DND_SPELLTREE_COLW;
 }
 
@@ -205,7 +196,7 @@ int DrawRoutedConnectors(int pnum, int tree, int hl) {
 			else
 				lit = SpellReqsMet(pnum, spell);
 
-			DrawSpellLinePiece(a & 15, (a >> 4) & 511, (a >> 13) & 511, (a >> 22) & 511, id++,
+			DrawSpellLinePiece(a & 15, ((a >> 4) & 511) + DND_SPELLTREE_SHIFTX, (a >> 13) & 511, (a >> 22) & 511, id++,
 				(hl != -1 && (GetSpellRouteHot()[2 * i + (hl >> 5)] >> (hl & 31)) & 1) ? "\c[C1]" : lit ? "\c[C3]" : "");
 		}
 	}
@@ -268,7 +259,6 @@ int GetTreeSpellCount(int tree) {
 #define DND_SPELLINDEX_HELP_Y (116 + MAX_SKILL_TREES * 16)
 #define DND_SPELLINDEX_HELP_H (280 - DND_SPELLINDEX_HELP_Y)
 #define DND_SPELLINDEX_HELP_STEP 9		// one line of the menu font, so the window never shows half a line
-#define DND_SPELLINDEX_HELP_SPAN 6		// nine wrapped lines past the window's four, plus one for a longer bind name
 
 // The eight trees as rows. Only the two with content are selectable; the rest are drawn dim
 // rather than hidden, so the shape of what is coming is visible.
@@ -296,18 +286,12 @@ void HandleSpellIndexDraw(int pnum, int boxid) {
 	MenuClipRect(192, DND_SPELLINDEX_HELP_Y, 256, DND_SPELLINDEX_HELP_H, 256);
 	HudMessage(
 		s:"\cv*\cu ", l:"DND_SPELLINDEX_HELP1", s:"\n\cv*\cu ", l:"DND_SPELLINDEX_HELP2", s:"\n\cv*\cu ",
-		l:"DND_MENU_PERK_PINHELP1", s:" \ci", k:"+jump", s:"\cu ", l:"DND_MENU_PERK_PINHELP2", s:"\n\cv*\cu ",
-		l:"DND_SPELLINDEX_REFUND1", s:" \ci", k:"+jump", s:"\cu ", l:"DND_SPELLINDEX_REFUND2";
+		l:"DND_MENU_PERK_PINHELP1", s:" ", s:BindKeysText("+jump", "\ci", "\cu"), s:"\cu ", l:"DND_MENU_PERK_PINHELP2", s:"\n\cv*\cu ",
+		l:"DND_SPELLINDEX_REFUND1", s:" ", s:BindKeysText("+jump", "\ci", "\cu"), s:"\cu ", l:"DND_SPELLINDEX_REFUND2";
 		HUDMSG_PLAIN, RPGMENUITEMID - 4 - MAX_SKILL_TREES, CR_WHITE,
 		MenuX(192.1), MenuY(((DND_SPELLINDEX_HELP_Y + DND_SPELLINDEX_HELP_STEP * ScrollPos.x) << 16) + 0.1), 0.0, 0.0
 	);
 	MenuClipRect(0, 0, 0, 0, 0);
-}
-
-// The binds strip's bar, on a short track beside the strip rather than down the whole page.
-bool HandleSpellIndexScroll() {
-	return ListenScroll(-DND_SPELLINDEX_HELP_SPAN, 0, DND_SPELLINDEX_HELP_STEP, DND_SPELLINDEX_HELP_H,
-		0, DND_SPELLINDEX_HELP_Y, DND_SPELLINDEX_HELP_H);
 }
 
 // ---- hover panel -------------------------------------------------------------------------------
@@ -315,22 +299,11 @@ bool HandleSpellIndexScroll() {
 // NUMBER here is read live from SpellDefs and SpellSynergies, so the panel cannot drift from what a
 // cast actually resolves.
 
-// CRFTVW2's right pocket -- the same pocket the crafting page fills with materials, widened. The
-// crafting constants are what these are derived from: CRAFTING_MATERIALBOX_X 92.0 is a FAR EDGE
-// coordinate, so its boxes sit at screen x 344..420, and the pocket heading is drawn at 424.0.
-//
-// If the text sits wrong against the art, these four are the only knobs -- nothing else measures
-// the pocket.
-#define DND_SPELLPANEL_X 384
+// The text box inside MCPOCKET (drawn at canvas x 3 * (X - 4)); its right edge stays by the pane's scroll bar.
+#define DND_SPELLPANEL_X 304
 #define DND_SPELLPANEL_Y 91
 #define DND_SPELLPANEL_HEADY 67	// the heading's first line, centred in the board with the pocket art
-// The pocket runs to the RIGHT EDGE OF THE SCREEN -- the art continues past 480 but nothing can be
-// drawn or clicked there. 384..480 is all there is.
-//
-// SMALLFONT is about 8.7 units per character, so 21 of them wanted 183 units in a 96 unit pocket:
-// the text was always overflowing, and clipping it only made that visible. NSMOLFNT is the smaller
-// face and is what this is sized for.
-#define DND_SPELLPANEL_W 148
+#define DND_SPELLPANEL_W 228
 #define DND_SPELLPANEL_H 192
 // SMALLFONT, not NSMOLFNT: that font is declared in FONTDEFS but has no glyph lumps at all
 // (nothing named DNSMR*), so SetFont on it silently fell back here and "using a smaller face"
@@ -338,9 +311,7 @@ bool HandleSpellIndexScroll() {
 #define DND_SPELLPANEL_FONT "SMALLFONT"
 #define DND_SPELLPANEL_LINEH 11	// SMALLFONT's step. 8 was sized for a font that does not exist
 
-// Measured off the render rather than assumed: a line came out about 8 units per character, so 18
-// of them overran the pocket by half again and the clip ate the tail of every line.
-#define DND_SPELLPANEL_WRAP 16		// VISIBLE characters per line -- escapes do not count
+#define DND_SPELLPANEL_WRAP 24		// VISIBLE characters per line (about 9.25 units each); escapes do not count
 
 // The pocket CLIPS, so this only has to stay inside the id band: DESC starts at 900 and HEAD is at
 // 980, so forty is comfortably clear.
@@ -352,7 +323,6 @@ bool HandleSpellIndexScroll() {
 #define DND_SPELLBAR_PANEL 1		// shares the perk panel's bar; the pages are never up together
 // The pocket's right column. This is past x 480, which the cursor only reaches because the page
 // asks for DND_SPELLCURSOR_OVERREACH -- see the GetCursorPos call in the menu loop.
-#define DND_SPELLBAR_X 528
 
 // What the pocket is describing, kept across the cursor LEAVING the icon. Moving down to the bar is
 // the same gesture as un-hovering the node, so a pocket that followed hover would empty exactly as
@@ -660,7 +630,7 @@ void HandleSpellHoverPanel(int pnum, int spell) {
 		PanelText("");
 		temp = GetSpellRefundStatus(pnum, spell);
 		if(temp == SPELLREFUND_NONE)
-			PanelText(StrParam(s:"\c-", l:"DND_SPLPANEL_REFUND1", s:" \ci", k:"+jump", s:"\c- ", l:"DND_SPLPANEL_REFUND2",
+			PanelText(StrParam(s:"\c-", l:"DND_SPLPANEL_REFUND1", s:" ", s:BindKeysText("+jump", "\ci", "\c-"), s:"\c- ", l:"DND_SPLPANEL_REFUND2",
 				s:" \cd$", d:GetSpellRespecCost(pnum, spell), s:" \c-", l:"DND_MENU_CREDITS"), "\c-");
 		else if(temp == SPELLREFUND_POOR)
 			PanelText(StrParam(s:"\c[D4]", l:"DND_SPLPANEL_REFUNDPOOR", s:" (\cg$", d:GetSpellRespecCost(pnum, spell), s:"\c[D4])"), "\c[D4]");
@@ -870,7 +840,7 @@ void AddPickerArrowBox(menu_pane_T module& p, int x, int y) {
 // x of the nth cell in a centred row of `count`, at DND_SPELLHOTBAR_PITCH.
 int GetRowCellX(int index, int count) {
 	int w = (count - 1) * DND_SPELLHOTBAR_PITCH + DND_SPELLNODE;
-	return DND_SPELLTREE_LEFT + (DND_SPELLTREE_BOARDW - w) / 2 + index * DND_SPELLHOTBAR_PITCH;
+	return DND_SPELLTREE_LEFT + DND_SPELLTREE_SHIFTX + (DND_SPELLTREE_BOARDW - w) / 2 + index * DND_SPELLHOTBAR_PITCH;
 }
 
 // lit is the cursor; chosen is the slot already picked. Separate ids, because the picker's cells
@@ -980,7 +950,7 @@ void HandleSpellHotbarDraw(int pnum, int boxid, menu_pane_T module& p) {
 
 		// Prev and next, wrapping round, as the two boxes after this page's cells.
 		if(pages > 1) {
-			int mid = DND_SPELLTREE_LEFT + DND_SPELLTREE_BOARDW / 2;
+			int mid = DND_SPELLTREE_LEFT + DND_SPELLTREE_SHIFTX + DND_SPELLTREE_BOARDW / 2;
 			SetFont("NMENUFNT");
 			DrawBoxText("<", DND_NOLOOKUP, boxid, MBOX_1 + n, SPELLTREE_HEAD_ID + 4,
 				((mid - DND_SPELLPICK_ARROWX) << 16) + 0.4, DND_SPELLPICK_PAGEY << 16, "\c[B1]", "\c[Y5]");

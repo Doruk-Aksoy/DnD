@@ -1,7 +1,6 @@
 [enu default]
 
 DND_HEALTHPICKUP	=	"Health pickup";
-DND_ARMORPICKUP		=	"Armor pickup";
 DND_ITEMPICKUP		=	"Item pickup";
 
 DND_STIMPACK		=	"Stimpack";
@@ -56,7 +55,6 @@ DND_AMMO_3_8		=	"Ion Cell";
 DND_AMMO_3_9		=	"Thunder Mana";
 DND_AMMO_3_10		=	"Gauss Rounds";
 
-DND_AMMO_SOULS		=	"Souls";
 
 DND_AMMOSPECIAL1	=	"Flechette Shells";
 DND_AMMOSPECIAL2	=	"Magnum Shells";

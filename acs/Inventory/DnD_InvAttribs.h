@@ -87,7 +87,6 @@ void ClearPlayerAttributeExtraSync(int pnum) {
 //#define MAX_ATTRIB_MODIFIER 0xFFFFFFFF
 
 #define UNSTABLE_DMG_MULT 5 // x5 of chance as damage
-#define UNSTABLE_PROC_PCT 0.05 // 5%
 
 #define DND_INC_ACCURACYFORPRECRATIO 25
 #define DND_INC_BLOCKPREVENTIONTIME 10
@@ -230,7 +229,6 @@ int GetWideningTagId(int implicit_id) {
 	return DND_MODPOOL_NO_TAG;
 }
 
-#define DND_ATTRIB_TAG_ID_BEGIN INV_ATTR_TAG_DAMAGE_ID
 #define DND_ATTRIB_TAG_ID_END INV_ATTR_TAG_LIGHTNING_ID
 #define MAX_ATTRIB_TAG_GROUPS (DND_ATTRIB_TAG_ID_END + 1)
 
@@ -295,6 +293,9 @@ typedef struct {
 	int perks_packed[DND_PERK_WORDS];
 	int spent_in[DND_MAX_PERK_ARCHETYPES];
 	int unspent;
+
+	// Equipped slots switched off for an unmet Strength requirement, one bit each; server side only.
+	int gear_off;
 } player_item_mod_data_T;
 
 global player_item_mod_data_T 57: PlayerModData[MAXPLAYERS];
@@ -585,7 +586,7 @@ int MapAttributeToPStat(int mod) {
 		case INV_EX_SECONDEXPBONUS:                 return PSTAT_EX_SECONDEXPBONUS;
 		case INV_EX_DOUBLE_HEALTHCAP:               return PSTAT_EX_DOUBLE_HEALTHCAP;
 		case INV_EX_PHYSDAMAGEPER_FLATHEALTH:       return PSTAT_EX_PHYSDAMAGEPER_FLATHEALTH;
-		case INV_EX_FORBID_ARMOR:                   return PSTAT_EX_FORBID_ARMOR;
+		case INV_EX_STRENGTH_REQUIREMENT:           return PSTAT_EX_STRENGTH_REQUIREMENT;
 		case INV_EX_CHANCE_ONDEATH_RAISEZOMBIE:     return PSTAT_EX_CHANCE_ONDEATH_RAISEZOMBIE;
 		case INV_EX_DMGREDUCE_SHAREWITHPETS:        return PSTAT_EX_DMGREDUCE_SHAREWITHPETS;
 		case INV_EX_DMGINCREASE_TAKEN:              return PSTAT_EX_DMGINCREASE_TAKEN;
@@ -1058,11 +1059,6 @@ void SetPlayerModValue(int pnum, int mod, int val) {
 	PushToPlayerAttributeSync(pnum, mod);
 }
 
-void SetPlayerModExtra(int pnum, int mod, int val) {
-	WritePlayerModExtra(pnum, mod, val);
-	PushToPlayerAttributeExtraSync(pnum, mod);
-}
-
 void IncPlayerModValue(int pnum, int mod, int val) {
 	// Read once, decide, write once -- the storage is behind a mapper now, so the old form that
 	// touched PlayerModData[pnum].value[mod] five times in one function cannot be kept.
@@ -1192,6 +1188,7 @@ void ResetPlayerModList(int pnum) {
 	for(i = 0; i < DND_MAX_PERK_ARCHETYPES; ++i)
 		PlayerModData[pnum].spent_in[i] = 0;
 	PlayerModData[pnum].unspent = 0;
+	PlayerModData[pnum].gear_off = 0;
 
 	// Damage conversion accumulates outside PlayerModData -- one summed attribute cannot tell two
 	// conversion mods apart when each names its own source and destination -- so it has to be reset
@@ -1355,6 +1352,8 @@ bool IsAttributeQualityException(int attr) {
 		case INV_EX_COUNTASHAVINGMAXCHARGEOF:
 		// Anathema. This one names an ailment; scaling it by quality points it somewhere else.
 		case INV_EX_AILMENT_SINGLETYPE:
+		// The requirement reads the same on every item, whatever scales its mods.
+		case INV_EX_STRENGTH_REQUIREMENT:
 		return true;
 	}
 	return false;
@@ -1495,15 +1494,6 @@ int GetModRangeWithTierExtra(int attr, int tier_mapping, bool which, int attr_fa
 	return res;
 }
 
-// this calculates the tier mapping for itself based on supplied level
-int GetModRange(int attr, int tier, bool which, int attr_factor) {
-	return GetModRangeWithTier(attr, GetModTierRangeMapper(attr, tier), which, attr_factor);
-}
-
-int GetModRangeExtra(int attr, int tier, bool which, int attr_factor) {
-	return GetModRangeWithTierExtra(attr, GetModTierRangeMapperExtra(attr, tier), which, attr_factor);
-}
-
 // rolls an attribute's value depending on specified parameters
 // if they are fixed, put the truncated value in to match (as closely as possible...) what the menu displays in stat gains
 // item type and subtype store whether its a charm/other and type of charm if applicable
@@ -1625,33 +1615,6 @@ int RollUniqueAttributeExtra(int unique_id, int attr, bool isWellRolled) {
 	if(!reverance)
 		return random((UniqueItemList[unique_id].rolls[attr].attrib_extra_low + UniqueItemList[unique_id].rolls[attr].attrib_extra_high) / 2, UniqueItemList[unique_id].rolls[attr].attrib_extra_high);
 	return random(UniqueItemList[unique_id].rolls[attr].attrib_extra_low / 4 + 3 * UniqueItemList[unique_id].rolls[attr].attrib_extra_high / 4, UniqueItemList[unique_id].rolls[attr].attrib_extra_high);
-}
-
-int MapItemTypeToCraftableID(int type) {
-	switch(type) {
-		case DND_ITEM_BODYARMOR:
-		return DND_CRAFTABLEID_BODYARMOR;
-		case DND_ITEM_BOOT:
-		return DND_CRAFTABLEID_BOOT;
-
-		case DND_ITEM_HELM:
-		case DND_ITEM_SPECIALTY_HOBO: // hobo ruleset is same as helms', its a facewear afterall...
-		return DND_CRAFTABLEID_HELM;
-
-		case DND_ITEM_SPECIALTY_DOOMGUY:
-		case DND_ITEM_SPECIALTY_MARINE:
-		case DND_ITEM_SPECIALTY_PUNISHER:
-		case DND_ITEM_SPECIALTY_CYBORG:
-		return DND_CRAFTABLEID_SPECIALTY_GENERIC;
-		
-		case DND_ITEM_SPECIALTY_WANDERER:
-		return DND_CRAFTABLEID_SPECIALTY_WANDERER;
-		case DND_ITEM_SPECIALTY_BERSERKER:
-		return DND_CRAFTABLEID_SPECIALTY_BERSERKER;
-		case DND_ITEM_SPECIALTY_TRICKSTER:
-		return DND_CRAFTABLEID_SPECIALTY_TRICKSTER;
-	}
-	return DND_CRAFTABLEID_CHARM;
 }
 
 int PickRandomIncursionMod() {

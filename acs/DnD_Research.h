@@ -274,13 +274,6 @@ void CompleteResearch(int res_id) {
 		GivePerkPoints(PlayerNumber(), DND_RESEARCH_KNOWLEDGE_POINTS);
 }
 
-bool HasIncompleteResearches() {
-	for(int i = 0; i < MAX_RESEARCHES; ++i)
-		if(CheckResearchStatus(i) != RES_DONE)
-			return 1;
-	return 0;
-}
-
 void GiveAndDoAllResearch() {
 	for(int i = 0; i < MAX_RESEARCHES; ++i) {
 		GiveResearch(i, false);

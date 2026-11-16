@@ -15,7 +15,6 @@ enum {
 	DND_GEM_COLOURS
 };
 #define DND_GEM_GREATER 0x100
-#define MAX_GEM_KINDS (DND_GEM_COLOURS * 2)
 
 // Saved by id in the role's implicit, so append only.
 enum {

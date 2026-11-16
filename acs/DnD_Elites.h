@@ -7,10 +7,6 @@
 #define DND_MAX_MAGICMODS 2
 
 #define DND_ELITE_VITAL_SCALE 75
-#define DND_ELITE_CREDITCHANCE_BONUS 0.1
-#define DND_ELITE_FX_DENSITY 8
-#define MAX_ELITE_FX_WAIT 60
-#define DND_ELITE_FX_TID 900
 #define DND_NUCLEAR_EXPLOSION_FACTOR 10
 #define DND_NUCLEAR_MINDMG 100
 #define DND_FASTPROJ_FACTOR 0.5
@@ -122,11 +118,6 @@ typedef struct {
 } elite_traits_data_T;
 
 global elite_traits_data_T 36: EliteTraitData;
-
-// these are powers, not actual values
-#define ELITETRAIT_ID 0
-#define ELITETRAIT_LVLREQ 1
-#define ELITETRAIT_WEIGHT 2
 
 #define INSERT_ELITEMODPOOL(X, Y, Z) 	EliteTraitData.info[i].id = X; \
 									 	EliteTraitData.info[i].lvl_req = Y; \

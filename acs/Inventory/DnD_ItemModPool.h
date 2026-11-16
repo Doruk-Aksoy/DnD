@@ -57,16 +57,6 @@ int MakeModPoolKey(int item_base, int widening = 0, int forced_tag_id = DND_MODP
             ((forced_tag_id + 1) << DND_MODPOOL_FORCEDTAG_SHIFT);
 }
 
-void FreeModPool(mod_pool_T* m) {
-    // count gates both, because an empty pool allocates neither
-    if(m.count) {
-        FreeAliasTable(m.table);
-        bcs::arrDelete(m.mod_list);
-    }
-
-    bcs::free(m);
-}
-
 // Check if the slot this mod is for is appropriate, as well as the implicit properties of the item
 // first part solves "what items can roll this mod" problem
 // second part solves "is this mod tag even eligible to appear" problem

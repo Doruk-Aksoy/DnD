@@ -10,7 +10,6 @@
 
 #define ENHANCEORB_MAX 50 // 50% bonus
 #define AFFLUENCE_MAX 4 // x16
-#define AFFLUENCE_MULT 2
 
 #define DND_ORB_SIN_REPENTCHANCE 0.4
 
@@ -75,7 +74,6 @@ int GetPotencyChance(int attr, int item_type, int from_tier) {
 	return chance * GetModTierWeight(attr, item_type, from_tier + 1) / DND_TIER_WEIGHT_MAX;
 }
 
-#define ORB_MAXWEIGHT 1000
 #define DND_CORRUPT_FAIL 419
 #define DND_CORRUPT_SUCCESS 420
 
@@ -359,23 +357,6 @@ void SaveUsedItemAttribs(int pnum, int item_id) {
 	}
 }
 
-void SaveUsedItemQuality(int pnum, int item_id) {
-	Player_MostRecent_Orb[pnum].p_tempwep = item_id + 1;
-	Player_MostRecent_Orb[pnum].values[0] = GlobalItemStorage.PlayerInventoryList[pnum][item_id].quality;
-}
-
-void SaveUsedItemImplicit(int pnum, int item_id) {
-	auto item = GetPlayerInventoryItem(pnum, item_id);
-	Player_MostRecent_Orb[pnum].p_tempwep = item_id + 1;
-
-	for(int i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
-		Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i] = item.implicit[i].attrib_id;
-		Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i + 1] = item.implicit[i].attrib_val;
-		Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i + 2] = item.implicit[i].attrib_tier;
-		Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i + 3] = item.implicit[i].attrib_extra;
-	}
-}
-
 void RestoreItemAttribsFromUsedOrb(int pnum) {
 	int temp = Player_MostRecent_Orb[pnum].p_tempwep - 1;
 	auto item = GetPlayerInventoryItem(pnum, temp);
@@ -390,20 +371,6 @@ void RestoreItemAttribsFromUsedOrb(int pnum) {
 		item.attributes[i].fractured = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 6];
 	}
 	SyncItemAttributes(pnum, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-}
-
-void RestoreItemImplicitsFromUsedOrb(int pnum) {
-	int temp = Player_MostRecent_Orb[pnum].p_tempwep - 1;
-	auto item = GetPlayerInventoryItem(pnum, temp);
-
-	for(int i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
-		item.implicit[i].attrib_id = Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i];
-		item.implicit[i].attrib_val = Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i + 1];
-		item.implicit[i].attrib_tier = Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i + 2];
-		item.implicit[i].attrib_extra = Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i + 3];
-	}
-
-	SyncItemImplicits(pnum, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 }
 
 void RestoreItemQualityFromUsedOrb(int pnum) {

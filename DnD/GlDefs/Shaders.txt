@@ -2234,3 +2234,9 @@ HardwareShader sprite S042T8 {
 	Shader "GLDefs/Shaders/DeathKnightFlame.fp"
 	Speed 1.0
 }
+
+// Molten Boulder's ball: cracked basalt over lava, in model space.
+HardwareShader MBOULDR {
+	Shader "GLDefs/Shaders/MoltenBoulder.fp"
+	Speed 1.0
+}

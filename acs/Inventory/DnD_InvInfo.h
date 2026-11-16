@@ -17,9 +17,6 @@
 
 #define DND_BASE_STASH_PAGES 4
 
-// only orbs and tokens
-#define MAX_CRAFTITEMTYPES 2
-
 #define DND_CYBERNETIC_FACTOR 33 // 33%
 
 #define DND_MAX_ITEM_QUALITY 25
@@ -117,37 +114,6 @@ enum {
 	DND_MODBASE_ALL							= 0xFFFF					// shorthand for allowing all bases
 };
 
-// Maps DND_ITEM_XXX to DND_MODBASE_XXX for applicable mods an item slot can have (ex: DND_ITEM_CHARM to DND_MODBASE_CHARM flag)
-int ItemTypeToModBaseFlag(int type) {
-    static int mapper[DND_ITEM_MAXTYPES] = {
-		0,
-		0,
-		DND_MODBASE_CHARM,
-		DND_MODBASE_HELM,
-		DND_MODBASE_BOOT,
-		DND_MODBASE_BODYARMOR,
-
-		DND_MODBASE_FLASK,
-
-		DND_MODBASE_SPECIALTY_DOOMGUY,
-		DND_MODBASE_SPECIALTY_MARINE,
-		DND_MODBASE_SPECIALTY_HOBO,
-		DND_MODBASE_SPECIALTY_PUNISHER,
-		DND_MODBASE_SPECIALTY_WANDERER,
-		DND_MODBASE_SPECIALTY_CYBORG,
-		DND_MODBASE_SPECIALTY_BERSERKER,
-		DND_MODBASE_SPECIALTY_TRICKSTER,
-
-		0,
-		0,
-		0,
-		0,
-		0,
-		0
-	};
-	return mapper[type];
-}
-
 int GetRandomSpecialtyItem() {
 	return random(FIRST_SPECIALTY_ITEM_TYPE, LAST_SPECIALTY_ITEM_TYPE);
 }
@@ -185,14 +151,12 @@ enum {
 	DND_CRAFTABLEID_SPECIALTY_BERSERKER,	// allow all melee, no energy or explosive
 	DND_CRAFTABLEID_SPECIALTY_TRICKSTER		// allow no defense/life mods
 };
-#define MAX_CRAFTABLEITEMTYPES (DND_CRAFTABLEID_SPECIALTY_TRICKSTER + 1)
 
 enum {
 	DND_CHARM_SMALL,
 	DND_CHARM_MEDIUM,
 	DND_CHARM_LARGE
 };
-#define MAX_CHARM_TYPES (DND_CHARM_LARGE + 1)
 
 typedef struct {
 	int attrib_val;
@@ -202,10 +166,8 @@ typedef struct {
 	bool fractured;
 } attr_inf_T;
 #define ATTRIB_DATA_COUNT 5
-#define SIZEOF_ATTR_INF_T (SIZEOF_INT * 5)
 
 #define MAX_ITEM_IMPLICITS 3
-#define IMPLICIT_DATA_COUNT 4
 
 typedef struct it {
 	int width;										// width in inventory space
@@ -231,7 +193,6 @@ typedef struct it {
 // end of the array. They disagreed while a per item itembase_tags_T lived here: 3 ints of struct
 // against a "+ 2" in the int count. The tagset was never read off the item -- the pool takes it from
 // the static base table via item_base -- and was never written to either, so it is gone.
-#define SIZEOF_INVENTORY_T (SIZEOF_INT * 12 + SIZEOF_ATTR_INF_T * (MAX_ITEM_IMPLICITS + MAX_ITEM_ATTRIBUTES))
 #define INVENTORY_T_INTS (12 + ATTRIB_DATA_COUNT * (MAX_ITEM_IMPLICITS + MAX_ITEM_ATTRIBUTES))
 
 // visual sync type -- entirely to be used clientside
@@ -393,16 +354,12 @@ enum {
 
 #define CHESTKEY_END DND_ISUBT_CHESTTYPE_GOLD
 #define ORBS_END DND_ISUBT_ORB_31
-#define MAX_DROPPABLE_ORBS (ORBS_END + 1)
 #define MONSTER_ORBS_END DND_ISUBT_MORB_2
 #define TOKEN_END DND_ISUBT_TOKEN_CARTOGRAPHER
 #define DUNGEONKEY_END DND_ISUBT_DUNGEONKEY_BOREASGROTTO
-#define DUNGEONKEY_SPECIAL_END DND_ISUBT_DUNGEONKEY_ULTIMATUM
 
-#define MAX_CHESTKEYS (CHESTKEY_END - CHESTKEY_BEGIN + 1)
 #define MAX_ORBS ((MONSTER_ORBS_END - MONSTER_ORBS_BEGIN + 1) + (ORBS_END - ORBS_BEGIN + 1)) // notice the monster drops were below regular and we use their index as final here
 #define MAX_TOKENS (TOKEN_END - TOKEN_BEGIN + 1)
-#define MAX_COMMON_INVENTORY (TOKEN_END + 1)
 
 str GetInventoryName(int inv) {
 	str label = "";

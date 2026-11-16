@@ -6,8 +6,6 @@
 #define DND_THUNDERAXE_WEAKENPCT 50
 #define CHAIN_LIGHTNING_DELAY 4
 
-#define LESS_OVERHEAT_FACTOR 20
-
 #define SNIPER_CRIT_MAX 100
 #define SNIPER_CRIT_BOOST_PER (0.75 / SNIPER_CRIT_MAX)
 
@@ -309,7 +307,6 @@ global wep_info_T 2: Player_Weapon_Infos[MAXPLAYERS][MAXWEPS];
 #define DND_LIGHTNINGGUN_DMGPERSTACK 1
 #define DND_DUSKBLADE_DMGPERSTACK 3
 #define MAXWEPQUALITY 50
-#define MAXWEPSLOTS 9
 
 enum {  
 	WEAPON_NAME,
@@ -422,8 +419,6 @@ int GetMagazineCap(int pnum, int mag_id) {
 }
 
 #include "DnD_TempWeps.h"
-
-#define MAX_WEAPON_STRINGS (WEAPON_ICON + 1)
 
 typedef struct wep_data {
 	int ammo_use1;
@@ -1808,10 +1803,6 @@ int CountShotgunWeaponsOwned() {
 		res += CheckInventory(Weapons_Data[shotguns[i]].name);
 
 	return res;
-}
-
-bool IsTemporaryWeapon(int id) {
-	return id >= DND_WEAPON_SAWEDOFF;
 }
 
 // An owned weapon the crafting page lists; the Wanderer's Ethereal Form is a transformation, not a weapon.

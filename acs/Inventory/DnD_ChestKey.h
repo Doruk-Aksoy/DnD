@@ -3,7 +3,6 @@
 
 #include "DnD_Inventory.h"
 
-#define DND_CHESTKEY_DROPRATE 0.0075 // overall chestkey droprate
 #define DND_GOLDCHESTKEY_DROPRATE 0.1
 #define DND_SILVERCHESTKEY_DROPRATE 0.3
 

@@ -31,6 +31,7 @@ Script "DnD Class Select" (int isSinglePlayer) NET CLIENTSIDE {
 		Terminate;
 
 	SetUserCVar(cpnum, "dnd_onclassmenu", true);
+	SyncMenuTheme();
 	CselStart(GetUserCVar(cpnum, "dnd_playerclass"));
 
 	while(PlayerIsSpectator(cpnum) || isSinglePlayer) {
@@ -159,6 +160,7 @@ Script "DnD Character Load Inputs" (void) CLIENTSIDE {
 	bool sendInput = false;
 	bool shown_first = false;
 
+	SyncMenuTheme();
 	CloadStart();
 
 	while(PlayerInGame(pnum) && CheckInventory("PlayersNotReady")) {

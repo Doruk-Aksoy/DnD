@@ -209,13 +209,9 @@ bool IsHudBlocked() {
 
 #define HUDTEXTMAX_X 720
 #define HUDTEXTMAX_Y 480
-#define HUDTEXTMAX_XF 720.0
-#define HUDTEXTMAX_YF 480.0
 
 #define HUD_ITEMBAK_X 212
-#define HUD_ITEMBAK_Y 168
 #define HUD_ITEMBAK_XF 212.0
-#define HUD_ITEMBAK_YF 168.0
 #define HUD_ITEMBAK_WIDTH 300//(4 * HUD_ITEMBAK_X / 3 + 16)
 
 // stash hud
@@ -226,16 +222,11 @@ bool IsHudBlocked() {
 
 #define MMASK (-1.0)
 
-#define X_MULTIPLIER (4800.0)
-#define Y_MULTIPLIER (3200.0)
-
 #define MOUSE_INPUT_X 1
 #define MOUSE_INPUT_Y 2
 
 #define HUDMAX_X_PROMPT (HUDMAX_X * 2)
 #define HUDMAX_Y_PROMPT (HUDMAX_Y * 2)
-#define HUDMAX_XF_PROMPT (HUDMAX_XF * 2)
-#define HUDMAX_YF_PROMPT (HUDMAX_YF * 2)
 
 enum {
 	DND_MENUINPUT_LCLICK = 1,
@@ -283,7 +274,6 @@ typedef struct rect {
 	int botright_x;
 	int botright_y;
 } rect_T;
-#define SIZEOF_RECT (SIZEOF_INT * 4)
 
 // marks a payload as coming from a view the server vouches for, packed alongside the source
 #define DND_DRAGSYNC_VALID 0x8000
@@ -581,6 +571,29 @@ void MenuClipRect(int x, int y, int w, int h, int wrap = 0) {
 		y += GetMenuZoom().oy >> 16;
 	}
 	SetHudClipRect(x, y, w, h, wrap);
+}
+
+// A HUDMAX coordinate on the 1440x1080 menu canvas (x times 3, y times 27/8), for a card's 1:1 stack count
+int CardNumX(int v) {
+	return (((v >> 16) * 3) << 16) + (v & 0xFFFF);
+}
+
+int CardNumY(int v) {
+	return (((v >> 16) * 27 / 8) << 16) + (v & 0xFFFF);
+}
+
+// A command's keys in keycol, the engine's " or " between them in textcol (the colour of the words around it).
+str BindKeysText(str cmd, str keycol, str textcol) {
+	str keys = StrParam(k:cmd), res = keycol;
+	int i, start = 0, len = StrLen(keys);
+	for(i = 0; i + 4 <= len; ++i) {
+		if(GetChar(keys, i) == ' ' && GetChar(keys, i + 1) == 'o' && GetChar(keys, i + 2) == 'r' && GetChar(keys, i + 3) == ' ') {
+			res = StrParam(s:res, s:StrMid(keys, start, i - start), s:textcol, s:" or ", s:keycol);
+			start = i + 4;
+			i += 3;
+		}
+	}
+	return StrParam(s:res, s:StrMid(keys, start, len - start));
 }
 
 // GetHudLeft for menu canvases: a zoomed menu shows the 16:9 width whatever the screen.
@@ -1042,8 +1055,566 @@ int GetCharWidth(int c) {
 	return 9;
 }
 
+// GENERATED card widths: the item card fonts (dnd_cardfont) and their advance widths, which the line count wraps by
+#define DND_CARDFONTS 5
+str GetCardFontName(int f) {
+	switch(f) {
+		case 1:
+		return "MENUCRDJ";
+		case 2:
+		return "MENUCRDB";
+		case 3:
+		return "MENUCRDT";
+		case 4:
+		return "MENUCRDE";
+	}
+	return "MENUCARD";
+}
+
+int CardCharWidth(int c) {
+	switch(GetCardPrefs()[DND_CARDPREF_FONT]) {
+		case 1:
+		switch(c) {
+			case '`':
+			return 4;
+			case '!':
+			case '\'':
+			case ',':
+			case '.':
+			case ':':
+			case ';':
+			case 'I':
+			case 'i':
+			case 'l':
+			return 6;
+			case ' ':
+			case 'j':
+			return 7;
+			case '(':
+			case ')':
+			case '1':
+			return 8;
+			case '[':
+			case ']':
+			return 9;
+			case '"':
+			case 'f':
+			case '|':
+			return 10;
+			case '*':
+			case '/':
+			case 'F':
+			case 'L':
+			case '\\':
+			case 'k':
+			case 'r':
+			case 't':
+			return 11;
+			case '-':
+			case '0':
+			case '4':
+			case '5':
+			case '7':
+			case '?':
+			case 'E':
+			case 'J':
+			case 'K':
+			case 'T':
+			case 'z':
+			case '{':
+			case '}':
+			return 12;
+			case '+':
+			case 'N':
+			case 'S':
+			case 'Y':
+			case '^':
+			return 14;
+			case '$':
+			case '~':
+			return 16;
+			case '#':
+			case '%':
+			case '&':
+			case 'M':
+			case 'W':
+			case 'm':
+			case 'w':
+			return 19;
+			case '@':
+			return 20;
+		}
+		return 13;
+		case 2:
+		switch(c) {
+			case '\'':
+			return 3;
+			case '|':
+			return 4;
+			case ' ':
+			case '`':
+			return 5;
+			case ',':
+			case 'I':
+			case 'i':
+			case 'l':
+			return 6;
+			case '"':
+			case ')':
+			case '.':
+			case ';':
+			return 7;
+			case '!':
+			case '(':
+			case '1':
+			case ':':
+			case 'j':
+			return 8;
+			case '[':
+			case ']':
+			case 'f':
+			case 'r':
+			case 't':
+			return 9;
+			case '*':
+			case '-':
+			case '/':
+			case '\\':
+			return 10;
+			case '^':
+			case 'y':
+			case 'z':
+			return 11;
+			case '+':
+			case '7':
+			case '<':
+			case '=':
+			case '>':
+			case '?':
+			case '_':
+			case 'a':
+			case 'k':
+			case 's':
+			case 'v':
+			case 'x':
+			case '~':
+			return 12;
+			case '$':
+			case '0':
+			case '4':
+			case 'E':
+			case 'F':
+			case 'J':
+			case 'L':
+			case 'P':
+			case 'Q':
+			case 'S':
+			case 'T':
+			case 'V':
+			case 'Y':
+			case '{':
+			case '}':
+			return 14;
+			case 'A':
+			case 'B':
+			case 'C':
+			case 'D':
+			case 'G':
+			case 'H':
+			case 'K':
+			case 'O':
+			case 'R':
+			case 'U':
+			case 'X':
+			return 15;
+			case '#':
+			case '&':
+			case 'N':
+			return 16;
+			case 'M':
+			return 17;
+			case 'w':
+			return 18;
+			case '%':
+			case '@':
+			case 'm':
+			return 20;
+			case 'W':
+			return 21;
+		}
+		return 13;
+		case 3:
+		switch(c) {
+			case ' ':
+			case '\'':
+			case ',':
+			case '.':
+			case ':':
+			case 'i':
+			return 6;
+			case '!':
+			case '(':
+			case ')':
+			case ';':
+			case 'I':
+			case '`':
+			case 'j':
+			case 'l':
+			case '|':
+			return 7;
+			case 'J':
+			return 8;
+			case '[':
+			case ']':
+			return 9;
+			case 'f':
+			case 'r':
+			case 't':
+			return 10;
+			case '"':
+			case '*':
+			case '-':
+			case '/':
+			case '?':
+			case 'c':
+			case 'z':
+			return 11;
+			case 'L':
+			case '\\':
+			case 's':
+			case 'v':
+			case 'x':
+			case 'y':
+			return 12;
+			case '$':
+			case '+':
+			case 'F':
+			case 'Z':
+			case 'a':
+			case 'd':
+			case 'e':
+			case 'g':
+			case 'k':
+			case 'o':
+			case 'q':
+			return 13;
+			case '#':
+			case '%':
+			case '<':
+			case '=':
+			case 'A':
+			case 'B':
+			case 'G':
+			case 'K':
+			case 'P':
+			case 'R':
+			case 'T':
+			case 'V':
+			case '_':
+			return 15;
+			case 'D':
+			case 'O':
+			case 'Q':
+			return 16;
+			case 'H':
+			case 'N':
+			case 'U':
+			return 17;
+			case '&':
+			return 18;
+			case 'w':
+			return 19;
+			case 'M':
+			case 'm':
+			return 21;
+			case 'W':
+			return 23;
+			case '@':
+			return 25;
+		}
+		return 14;
+		case 4:
+		switch(c) {
+			case ' ':
+			case '\'':
+			case '.':
+			return 5;
+			case ',':
+			case ':':
+			case ';':
+			case 'I':
+			case 'i':
+			case 'j':
+			case '|':
+			return 6;
+			case '!':
+			case '[':
+			case ']':
+			case '`':
+			case 'l':
+			return 7;
+			case '(':
+			case ')':
+			case 'J':
+			return 8;
+			case '"':
+			case 'f':
+			case 't':
+			return 9;
+			case '1':
+			case '^':
+			case '_':
+			case 'r':
+			return 10;
+			case '*':
+			case '-':
+			case 'c':
+			return 11;
+			case '+':
+			case '/':
+			case '7':
+			case '<':
+			case '?':
+			case 'L':
+			case '\\':
+			case 'e':
+			case 'k':
+			case 's':
+			case 'v':
+			case 'x':
+			case 'y':
+			case 'z':
+			case '~':
+			return 12;
+			case '$':
+			case '2':
+			case '3':
+			case '5':
+			case '6':
+			case '9':
+			case '>':
+			case 'C':
+			case 'E':
+			case 'F':
+			case 'S':
+			case 'Z':
+			case 'a':
+			case 'd':
+			case 'g':
+			case 'o':
+			case 'q':
+			return 13;
+			case '8':
+			case 'D':
+			case 'H':
+			case 'O':
+			case 'Q':
+			case 'R':
+			return 15;
+			case '#':
+			case 'N':
+			case 'U':
+			return 16;
+			case '&':
+			case '@':
+			return 17;
+			case 'w':
+			return 19;
+			case 'M':
+			case 'm':
+			return 20;
+			case '%':
+			return 21;
+			case 'W':
+			return 22;
+		}
+		return 14;
+	}
+	switch(c) {
+		case ':':
+		case ';':
+		return 4;
+		case '\'':
+		case ',':
+		case '.':
+		case 'i':
+		return 5;
+		case ' ':
+		case '!':
+		case 'I':
+		case '`':
+		case 'l':
+		case '|':
+		return 6;
+		case 'j':
+		return 7;
+		case '"':
+		case '(':
+		case ')':
+		case '*':
+		case '1':
+		case '[':
+		case ']':
+		return 8;
+		case '-':
+		return 9;
+		case '_':
+		case 'f':
+		case 'r':
+		case 't':
+		return 10;
+		case '/':
+		case '\\':
+		case 'v':
+		case 'z':
+		return 11;
+		case '+':
+		case '7':
+		case '=':
+		case '?':
+		case 'c':
+		case 'e':
+		case 's':
+		case 'x':
+		return 12;
+		case '$':
+		case '2':
+		case '3':
+		case '5':
+		case '6':
+		case '>':
+		case 'F':
+		case 'L':
+		case 'Z':
+		case 'a':
+		case 'd':
+		case 'g':
+		case 'k':
+		case 'o':
+		case 'q':
+		case 'u':
+		case 'y':
+		case '~':
+		return 13;
+		case '&':
+		case 'B':
+		case 'K':
+		case 'P':
+		case 'V':
+		case '^':
+		return 15;
+		case '#':
+		case 'D':
+		case 'H':
+		case 'N':
+		case 'O':
+		case 'Q':
+		case 'R':
+		case 'U':
+		case 'w':
+		return 16;
+		case '%':
+		case '@':
+		case 'M':
+		return 19;
+		case 'W':
+		case 'm':
+		return 20;
+	}
+	return 14;
+}
+// GENERATED END
+
+// The item card font and style this machine draws with (dnd_cardfont, dnd_cardstyle), cached: the line count reads
+// the font once per character
+int[] module& GetCardPrefs() {
+	static int f[2];
+	return f;
+}
+
+void RefreshCardPrefs() {
+	GetCardPrefs()[DND_CARDPREF_FONT] = Clamp_Between(GetCVar("dnd_cardfont"), 0, DND_CARDFONTS - 1);
+	GetCardPrefs()[DND_CARDPREF_STYLE] = Clamp_Between(GetCVar("dnd_cardstyle"), 0, DND_CARDSTYLES - 1);
+}
+
+// The menu theme this machine draws with (dnd_menutheme): [0] the current one, [1] the one the menu last drew
+int[] module& GetMenuThemeState() {
+	static int t[2];
+	return t;
+}
+
+// Reads dnd_menutheme; true when it differs from what the menu last drew, so the caller redraws everything.
+bool RefreshMenuTheme() {
+	int[] module& t = GetMenuThemeState();
+	t[0] = Clamp_Between(GetCVar("dnd_menutheme"), 0, DND_MENUTHEMES - 1);
+	if(t[0] == t[1])
+		return false;
+	t[1] = t[0];
+	return true;
+}
+
+// The theme as a screen opens: read it and count it as drawn, so only a change made while open redraws.
+void SyncMenuTheme() {
+	int[] module& t = GetMenuThemeState();
+	t[0] = Clamp_Between(GetCVar("dnd_menutheme"), 0, DND_MENUTHEMES - 1);
+	t[1] = t[0];
+}
+
+// a theme's art prefix in place of the Steel art's MC: 1 Terminal
+str GetMenuThemePrefix(int t) {
+	switch(t) {
+		case 1:
+		return "MT";
+		case 2:
+		return "MH";
+		case 3:
+		return "MK";
+		case 4:
+		return "MV";
+		case 5:
+		return "MQ";
+	}
+	return "MC";
+}
+
+// Menu art in the current theme: MC... becomes the theme's own copy; card art (MCIT) and everything else as given.
+str ThemeArt(str pic) {
+	int t = GetMenuThemeState()[0];
+	if(!t || GetChar(pic, 0) != 'M' || GetChar(pic, 1) != 'C' || (GetChar(pic, 2) == 'I' && GetChar(pic, 3) == 'T'))
+		return pic;
+	return StrParam(s:GetMenuThemePrefix(t), s:StrRight(pic, StrLen(pic) - 2));
+}
+
+// A menu font role (MENUHEAD, MENUTAB, MENUSUB, MENUBODY, MENUBDYS, MENUNUM) in the current theme: THM<theme><role>.
+// Card fonts and anything else as given.
+str ThemeFont(str font) {
+	int t = GetMenuThemeState()[0];
+	if(!t || StrLen(font) < 7 || StrLeft(font, 4) != "MENU" || GetChar(font, 4) == 'C')
+		return font;
+	return StrParam(s:"THM", d:t, s:StrRight(font, StrLen(font) - 4));
+}
+
+// a card style's art suffix: none for style 0, then 1-9, A
+// the card style drawn: the picked one, or for "Match menu theme" the current theme's
+int CardStyleInUse() {
+	int s = GetCardPrefs()[DND_CARDPREF_STYLE];
+	if(s != DND_CARDSTYLE_MATCH)
+		return s;
+	int t = Clamp_Between(GetCVar("dnd_menutheme"), 0, DND_MENUTHEMES - 1);
+	return t ? DND_CARDSTYLE_THEME0 + t : 0;
+}
+
+str GetCardStyleSuffix(int s) {
+	if(!s)
+		return "";
+	if(s < 10)
+		return StrParam(d:s);
+	return StrParam(c:'A' + s - 10);
+}
+
 // this is the refined version of the above function where it counts how many new lines we'd need given a big string that can potentially have many line breaks
-int CountNewLinesInText(str text, int maxWidth) {
+// card: measured in MENUCARD's widths (maxWidth in its doubled space) rather than NSMOLFNT's
+int CountNewLinesInText(str text, int maxWidth, bool card = false) {
     int len = StrLen(text);
     int i;
 
@@ -1051,7 +1622,7 @@ int CountNewLinesInText(str text, int maxWidth) {
     int currentWidth = 0;
 
     int wordWidth = 0;
-    int spaceWidth = GetCharWidth(' ');
+    int spaceWidth = card ? CardCharWidth(' ') : GetCharWidth(' ');
 
 	int color_count = 0;
 	bool in_ccode = false;
@@ -1125,7 +1696,7 @@ int CountNewLinesInText(str text, int maxWidth) {
         }
 
         // Accumulate word width
-        wordWidth += GetCharWidth(c);
+        wordWidth += card ? CardCharWidth(c) : GetCharWidth(c);
     }
 
     // Final word at end of string
@@ -1133,47 +1704,6 @@ int CountNewLinesInText(str text, int maxWidth) {
         lineCount++;
 
     return lineCount;
-}
-
-void HudMessageOnActor(int tid, int msgID, int hudX = 640, int hudY = 480, int xOffset = 0, int yOffset = 0, int range = 128, str sprite = "TNT1A0", str text = "Null", int holdTime = 0.1, int colour = CR_RED) {
-	int dist, angle, vang, pitch, x, y;
-
-	if(sprite != -1) {
-		SetFont(sprite);
-		text = "A";
-		//offset = 0.1;
-	}
-
-	SetHudSize(hudX, hudY, 1);
-	x = GetActorX(tid) - GetActorX(0);
-	y = GetActorY(tid) - GetActorY(0);
-
-	vang = VectorAngle(x,y);
-	angle = (vang - GetActorAngle(0) + 1.0) % 1.0;
-
-	if(((vang + 0.125) % 0.5) > 0.25)
-		dist = FixedDiv(y, sin(vang));
-	else
-		dist = FixedDiv(x, cos(vang));
-
-	if ((angle < 0.2 || angle > 0.8) && (dist >> 16) < range) {
-		if (GetActorPitch(0) >= -0.25 && GetActorPitch(0) <= 0.25) {
-
-			pitch = VectorAngle(dist, GetActorZ(tid) - (GetActorZ(0) + 41.0));
-			pitch = (pitch + GetActorPitch(0) + 1.0) % 1.0;
-
-			// Fixes divide by zero
-			if ((hudX / 2) * sin(angle) != 0 && cos(angle) != 0 && (hudX / 2) * sin(pitch) != 0 && cos(pitch) != 0) {
-				x = hudX / 2 - ((hudX / 2) * sin(angle) / cos(angle));
-				y = hudY / 2 - ((HUDX / 2) * sin(pitch) / cos(pitch));
-
-				x += xOffset;
-				y += yOffset;
-
-				HudMessage(s:text; HUDMSG_PLAIN, msgID, colour, (x << 16), (y << 16), holdTime);
-			}
-		}
-	}
 }
 
 // assumes 999, 999, 999 is total max amount to be shown
@@ -1315,8 +1845,12 @@ void DrawInventoryInfo(int pnum) {
 		MenuHudSize(HUDMAX_X, HUDMAX_Y);
 		stack = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
 		if(stack) {
-			SetFont("NMENUFNT");
-			HudMessage(d:stack; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 5 - ITEMINFOBG_MAXMIDS, CR_GREEN, MenuX(GetIntegerBits(bg_x + HUD_ITEMBAK_XF - 9.0) + 0.2), MenuY(bg_y + 15.0), 0);
+			// in HUDMAX space, drawn 1:1 on the menu canvas
+			int sx = GetIntegerBits(bg_x + HUD_ITEMBAK_XF - 9.0) + 0.2, sy = bg_y + 15.0;
+			MenuHudSize(HUDMAX_X * 3, HUDMAX_Y * 27 / 8);
+			SetFont("MENUNUM");
+			HudMessage(d:stack; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 5 - ITEMINFOBG_MAXMIDS, CR_GREEN,
+				MenuX(CardNumX(sx)), MenuY(CardNumY(sy)), 0);
 		}
 		MenuHudSize(PlayerCursorData.itemHoveredDim.x, PlayerCursorData.itemHoveredDim.y);
 	}

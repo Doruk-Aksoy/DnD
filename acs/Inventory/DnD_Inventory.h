@@ -113,7 +113,6 @@ void ClearTradeItemOrigins(int pnum) {
 #define DND_DISASSEMBLE_TIER_PERCENT 10
 #define DND_DISASSEMBLE_FRACTURE_PERCENT 10 // 10% per fracture
 #define DND_BASE_DISASSEMBLE_CHANCE 40 // 40%
-#define DND_BASE_DISASSEMBLE_CHANCE_PERLUCK 5 // 5%
 #define DND_BASE_FRACTURE_DISASSEMBLE_CHANCE 3
 #define DND_BASE_CORRUPT_DISASSEMBLE_CHANCE 5
 #define DND_BASE_ILVL_YIELD 10
@@ -132,7 +131,6 @@ void ClearTradeItemOrigins(int pnum) {
 #define MAX_ELEMRESIST_VAL 100
 #define MAX_PHYSRESIST_VAL 100
 #define MAX_REFLRESIST_VAL 1000 // 1000 because we use 1 as 0.1% so 1000 is 100%
-#define MAX_WEAKEN_VAL 200
 
 #define DND_SYNERGYITEM_CHANCE 0.125
 // what an ordinary drop gets, as a percent of the above. callers that pass their own percent
@@ -298,23 +296,6 @@ int GetMaxItemAffixes(int item_type, int item_subtype = -1) {
 		break;
 	}
 	return res;
-}
-
-int FindInventoryOfType(int player_index, int item_type, int item_subtype) {
-	int i = 0, j = 0, bid = 0;
-	
-	// try every line
-	for(i = 0; i < MAXINVENTORYBLOCKS_VERT; ++i) {
-		for(j = 0; j < MAXINVENTORYBLOCKS_HORIZ; ++j) {
-			bid = j * MAXINVENTORYBLOCKS_VERT + i;
-			// notice we can return bid here, we don't check like below
-			auto item = GetPlayerInventoryItem(player_index, bid);
-			if(item.item_type == item_type && item.item_subtype == item_subtype)
-				return bid;
-		}
-	}
-	
-	return -1;
 }
 
 // note to self: height is => horizontal, moving heights => x * MAXINVENTORYBLOCKS_VERT, width is vertical, just + x
@@ -586,10 +567,6 @@ bool ConfirmSpaceForOfferings(int pnum, int tradee) {
 	return fits;
 }
 
-bool IsWearingBodyArmor(int pnum) {
-	return (GetUsedItem(pnum, BODY_ARMOR_INDEX).item_type & 0xFFFF) == DND_ITEM_BODYARMOR;
-}
-
 bool IsPlayerInventoryItemUnique(int pnum, int pos) {
 	return GetPlayerInventoryItem(pnum, pos).item_type > UNIQUE_BEGIN;
 }
@@ -643,17 +620,9 @@ int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target
 		}
 	}
 
-	// if has forbid armor but has equipped body armor, don't allow that item to be put, and vice versa if has no armor and has forbid armor etc.
-	if
-	(
-		isUnique &&
-		(item.item_type >> UNIQUE_BITS) - 1 == UITEM_OAKHEART &&
-		IsWearingBodyArmor(pnum)
-	)
-		return POPUP_CANTWEARBODYARMOR;
-
-	if(item_type == DND_ITEM_BODYARMOR && PlayerModData[pnum].vals[PSTAT_EX_FORBID_ARMOR])
-		return POPUP_CANTPUTONBODYARMOR;
+	// Strength requirement, counted without whatever the item replaces in that slot.
+	if(isUnique && GetStrengthWithoutUsedItem(pnum, use_id) < GetItemAttributeValue(pnum, item_index, INV_EX_STRENGTH_REQUIREMENT))
+		return POPUP_STRENGTHREQUIREMENT;
 	// proceed to equip the item now
 
 	// this means we must swap items
@@ -745,6 +714,140 @@ int IsAttribInItem(int pnum, int item_pos, int attrib_id) {
 		if(item.attributes[i].attrib_id == attrib_id)
 			return true;
 	return false;
+}
+
+// The attribute's value on a player inventory item, 0 when it has none.
+int GetItemAttributeValue(int pnum, int item_pos, int attrib_id) {
+	auto item = GetPlayerInventoryItem(pnum, item_pos);
+	int count = item.attrib_count;
+	for(int i = 0; i < count; ++i)
+		if(item.attributes[i].attrib_id == attrib_id)
+			return item.attributes[i].attrib_val;
+	return 0;
+}
+
+// The same for an equipped slot.
+int GetUsedItemAttributeValue(int pnum, int slot, int attrib_id) {
+	auto item = GetUsedItem(pnum, slot);
+	int count = item.attrib_count;
+	for(int i = 0; i < count; ++i)
+		if(item.attributes[i].attrib_id == attrib_id)
+			return item.attributes[i].attrib_val;
+	return 0;
+}
+
+bool IsUsedItemSwitchedOff(int pnum, int slot) {
+	return IsSet(PlayerModData[pnum].gear_off, slot);
+}
+
+void SetUsedItemSwitchedOff(int pnum, int slot, bool off) {
+	if(off)
+		PlayerModData[pnum].gear_off = SetBit(PlayerModData[pnum].gear_off, slot);
+	else
+		PlayerModData[pnum].gear_off = ClearBit(PlayerModData[pnum].gear_off, slot);
+}
+
+// What one mod adds to Strength at a scale: flat points, or with percent its percent.
+int GetStrengthModShare(int atype, int aval, bool percent, int multiplier) {
+	switch(atype) {
+		case INV_STAT_STRENGTH:
+		case INV_EX_ALLSTATS:
+			if(!percent)
+				return ScaleItemModValue(atype, aval, multiplier);
+		break;
+		case INV_IMP_PERCENTSTR:
+		case INV_CORR_PERCENTSTATS:
+			if(percent)
+				return ScaleItemModValue(atype, aval, multiplier);
+		break;
+	}
+	return 0;
+}
+
+// What the equipped item in a slot adds to Strength at its implicit scale.
+int GetUsedItemStrength(int pnum, int slot, bool percent, int multiplier) {
+	auto item = GetUsedItem(pnum, slot);
+	int i, res = 0;
+	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i)
+		res += GetStrengthModShare(item.implicit[i].attrib_id, item.implicit[i].attrib_val, percent, multiplier);
+	multiplier = AddSmallCharmFactor(pnum, slot, multiplier);
+	int count = item.attrib_count;
+	for(i = 0; i < count; ++i)
+		res += GetStrengthModShare(item.attributes[i].attrib_id, item.attributes[i].attrib_val, percent, multiplier);
+	return res;
+}
+
+// Strength before requirements with the equipped item in a slot taken off.
+int GetStrengthWithoutUsedItem(int pnum, int slot) {
+	int flat = CheckActorInventory(pnum + P_TIDSTART, "PSTAT_Strength") + PlayerModData[pnum].vals[PSTAT_STAT_STRENGTH];
+	int pct = 100 + PlayerModData[pnum].vals[PSTAT_IMP_PERCENTSTR] + PlayerModData[pnum].vals[PSTAT_CORR_PERCENTSTATS];
+	auto item = GetUsedItem(pnum, slot);
+	if(item.item_type != DND_ITEM_NULL && !IsUsedItemSwitchedOff(pnum, slot)) {
+		int mult = GetUsedItemModMultiplier(pnum, slot, DND_SYNC_ITEMSOURCE_ITEMSUSED);
+		flat -= GetUsedItemStrength(pnum, slot, false, mult);
+		pct -= GetUsedItemStrength(pnum, slot, true, mult);
+
+		// Without the Mirror of Eternity the other medium charm counts once.
+		int other = slot == MEDIUMCHARM_INDEX1 ? MEDIUMCHARM_INDEX2 : MEDIUMCHARM_INDEX1;
+		if
+		(
+			(item.item_type >> UNIQUE_BITS) - 1 == UITEM_MIRROROFETERNITY &&
+			GetUsedItem(pnum, other).item_type != DND_ITEM_NULL &&
+			!IsUsedItemSwitchedOff(pnum, other)
+		)
+		{
+			mult = GetUsedItemModMultiplier(pnum, other, DND_SYNC_ITEMSOURCE_ITEMSUSED);
+			int lone = GetUsedItemModMultiplier(pnum, other, DND_SYNC_ITEMSOURCE_ITEMSUSED, true);
+			flat -= GetUsedItemStrength(pnum, other, false, mult) - GetUsedItemStrength(pnum, other, false, lone);
+			pct -= GetUsedItemStrength(pnum, other, true, mult) - GetUsedItemStrength(pnum, other, true, lone);
+		}
+	}
+	return flat * pct / 100;
+}
+
+// The equipped item in a slot has a Strength requirement the rest of the player's Strength does not meet.
+bool IsUsedItemStarved(int pnum, int slot) {
+	int req = GetUsedItemAttributeValue(pnum, slot, INV_EX_STRENGTH_REQUIREMENT);
+	return req && GetStrengthWithoutUsedItem(pnum, slot) < req;
+}
+
+// Gear whose requirement went unmet comes off into the inventory, or switches off in place with no room; met again, it switches back on.
+bool CheckGearRequirements(int pnum) {
+	bool changed = false;
+	for(int i = 0; i < MAX_ITEMS_EQUIPPABLE; ++i) {
+		if(!GetUsedItemAttributeValue(pnum, i, INV_EX_STRENGTH_REQUIREMENT))
+			continue;
+		bool starved = IsUsedItemStarved(pnum, i);
+		if(starved == IsUsedItemSwitchedOff(pnum, i))
+			continue;
+		changed = true;
+		if(!starved) {
+			SetUsedItemSwitchedOff(pnum, i, false);
+			ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_ADD);
+			continue;
+		}
+		ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_REMOVE);
+		int spot = GetFreeSpotForItem(i, pnum, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+		if(spot != -1)
+			MoveItemTrade(pnum, i, spot, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+		else
+			SetUsedItemSwitchedOff(pnum, i, true);
+	}
+	if(changed)
+		ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, pnum);
+	return changed;
+}
+
+// Queued by a Strength change, so it runs once the item move or refund behind it is done.
+Script "DnD Gear Requirement Check" (void) {
+	int pnum = PlayerNumber();
+	// later tics than the load or move behind it: clients apply one tic's syncs newest first
+	Delay(const:5);
+	if(pnum < 0 || !PlayerInGame(pnum) || !CheckGearRequirements(pnum))
+		Terminate;
+	// the open menu repaints once the Strength the slot colour reads has reached the client
+	Delay(const:4);
+	SendOwnerScript("DnD Refresh Request", pnum, pnum, 1);
 }
 
 // find the item that has a min, if basis isn't -1 then we must exclude this from inclusion to min
@@ -1788,6 +1891,33 @@ int GetInventoryInfoOffset(int itype, int isubtype = 0) {
 }
 
 // outside source implies this was called from the menu, not in the game
+// a 720x480 text space coordinate on the 1440x1080 menu canvas, keeping its alignment digit
+int CardTextX(int v) {
+	return (((v >> 16) * 2) << 16) + (v & 0xFFFF);
+}
+
+int CardTextY(int v) {
+	return (((v >> 16) * 9 / 4) << 16) + (v & 0xFFFF);
+}
+
+// Card text: placed in the 720x480 text space like the rest of the card, drawn 1:1 on the menu canvas.
+// (cx, cy) is the card's centre column and title row; the text is clipped to the card from there.
+void CardMessage(str txt, int id, int color, int x, int y, int cx, int cy, int hold, bool clip = true) {
+	int l = (cx >> 16) - HUD_ITEMBAK_WIDTH / 2, t = (cy >> 16) - 5;
+	MenuHudSize(HUDTEXTMAX_X * 2, HUDTEXTMAX_Y * 9 / 4);
+	if(clip)
+		MenuClipRect(2 * l, t * 9 / 4, CARD_WRAPW, ITEMINFO_CLIPHEIGHT * 9 / 4, CARD_WRAPW);
+	else
+		MenuClipRect(0, 0, 0, 0, 0);
+	SetFont(GetCardFontName(GetCardPrefs()[DND_CARDPREF_FONT]));
+	HudMessage(s:txt; HUDMSG_PLAIN | HUDMSG_FADEOUT, id, color, MenuX(CardTextX(x)), MenuY(CardTextY(y)), hold, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+	MenuHudSize(HUDTEXTMAX_X, HUDTEXTMAX_Y);
+	if(clip)
+		MenuClipRect(l, t, HUD_ITEMBAK_WIDTH, ITEMINFO_CLIPHEIGHT, HUD_ITEMBAK_WIDTH);
+	else
+		MenuClipRect(0, 0, 0, 0, 0);
+}
+
 void DrawInventoryInfo_Field(int pnum, int topboxid, int source, int yoff, bool isOutsideSource) {
 	DeleteTextRange(RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 18 + ITEMID_SKIP, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES);
 	
@@ -1831,8 +1961,13 @@ void DrawInventoryInfo_Field(int pnum, int topboxid, int source, int yoff, bool 
 		);
 		stack = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, topboxid, -1, source);
 		if(stack) {
-			SetFont("NSMOLFNT");
-			HudMessage(d:stack; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 14 + ITEMID_SKIP, CR_GREEN, MenuX(bx + GetIntegerBits(HUD_ITEMBAK_XF / 2) - 7.2), MenuY(by + 24.0), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+			// in HUDMAX space, drawn 1:1 on the menu canvas
+			int sx = bx + GetIntegerBits(HUD_ITEMBAK_XF / 2) - 7.2, sy = by + 24.0;
+			MenuHudSize(HUDMAX_X * 3, HUDMAX_Y * 27 / 8);
+			SetFont("MENUNUM");
+			HudMessage(d:stack; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 14 + ITEMID_SKIP, CR_GREEN,
+				MenuX(CardNumX(sx)), MenuY(CardNumY(sy)), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+			MenuHudSize(HUDMAX_X, HUDMAX_Y);
 		}
 		
 		// resize to keep ratios
@@ -1885,7 +2020,6 @@ int DrawInventoryText(
 
 	auto item_vsync_data = GetItemVSyncData(DND_SYNCINDEX_STACKABLE);
 
-	SetFont("NSMOLFNT");
 	if(IsStackedItem(itype)) {
 		if(topboxid != item_vsync_data.topleftboxid || source != item_vsync_data.source) {
 			item_vsync_data.isDirty = true;
@@ -1899,22 +2033,13 @@ int DrawInventoryText(
 			tmp_text = StrParam(s:"\c[Y5]", l:GetInventoryTag(temp), s:"\n\n", l:GetInventoryText(temp));
 			item_vsync_data.isDirty = false;
 			item_vsync_data.textID = tmp_text;
-			item_vsync_data.attr_lines_count = CountNewLinesInText(tmp_text, HUD_ITEMBAK_WIDTH);
+			item_vsync_data.attr_lines_count = CountNewLinesInText(tmp_text, CARD_WRAPW, true);
 		}
 		else
 			tmp_text = item_vsync_data.textID;
 
-		HudMessage(
-			s:tmp_text;
-			HUDMSG_PLAIN | HUDMSG_FADEOUT,
-			id_begin - id_mult * MAX_INVENTORY_BOXES - 3 + ITEMID_SKIP,
-			CR_WHITE, 
-			MenuX(bx), 
-			MenuY(by + 32.0 * (source == DND_SYNC_ITEMSOURCE_FIELD) - 32.0 * isOutsideSource), 
-			holdTime, 
-			INVENTORY_FADETIME, 
-			INVENTORY_INFO_ALPHA
-		);
+		CardMessage(tmp_text, id_begin - id_mult * MAX_INVENTORY_BOXES - 3 + ITEMID_SKIP, CR_WHITE,
+			bx, by + 32.0 * (source == DND_SYNC_ITEMSOURCE_FIELD) - 32.0 * isOutsideSource, bx, by, holdTime);
 		// stacked items are a title and a paragraph with none of the offsets below, so this one
 		// stays on the old segment-per-line rule rather than TextExtentToMids
 		DrawItemInfoBackground(id_begin - id_mult * MAX_INVENTORY_BOXES, hx, hy, bg_posx, bg_posy, item_vsync_data.attr_lines_count, -1, holdTime);
@@ -1959,19 +2084,15 @@ int DrawInventoryText(
 		
 		if(itype == DND_ITEM_CHARM) {
 			temp = GetItemTier(lvl);
-			HudMessage(s:GetCharmString(temp, CHARMSTR_COLORCODE), l:GetCharmString(temp, CHARMSTR_TIERTAG), s: " ", l:GetItemTagName(DND_ITEM_CHARM, isubt); 
-				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2 + ITEMID_SKIP, CR_WHITE, MenuX(bx), MenuY(by), holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
-			);
+			CardMessage(StrParam(s:GetCharmString(temp, CHARMSTR_COLORCODE), l:GetCharmString(temp, CHARMSTR_TIERTAG), s: " ", l:GetItemTagName(DND_ITEM_CHARM, isubt)),
+				id_begin - id_mult * MAX_INVENTORY_BOXES - 2 + ITEMID_SKIP, CR_WHITE, bx, by, bx, by, holdTime);
 		}
 		else if(itype == DND_ITEM_GEM) {
-			HudMessage(s:"\c[Y5]", s:GetGemFullName(isubt, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, topboxid, 0, source));
-				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2 + ITEMID_SKIP, CR_WHITE, MenuX(bx), MenuY(by), holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
-			);
+			CardMessage(StrParam(s:"\c[Y5]", s:GetGemFullName(isubt, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, topboxid, 0, source))),
+				id_begin - id_mult * MAX_INVENTORY_BOXES - 2 + ITEMID_SKIP, CR_WHITE, bx, by, bx, by, holdTime);
 		}
 		else if(itype <= UNIQUE_BEGIN) {
-			HudMessage(s:"\c[Y5]", l:GetItemTagName(itype, isubt); 
-				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2 + ITEMID_SKIP, CR_WHITE, MenuX(bx), MenuY(by), holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
-			);
+			CardMessage(StrParam(s:"\c[Y5]", l:GetItemTagName(itype, isubt)), id_begin - id_mult * MAX_INVENTORY_BOXES - 2 + ITEMID_SKIP, CR_WHITE, bx, by, bx, by, holdTime);
 		}
 		else {
 			// unique item case
@@ -1981,29 +2102,21 @@ int DrawInventoryText(
 			isUnique = true;
 
 			unique_creator = GetUniqueCreatorName(temp, itype);
-			HudMessage(s:"\c[A1]", l:GetUniqueItemName(temp, itype); HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2 + ITEMID_SKIP, CR_WHITE, MenuX(bx), MenuY(by), holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
-			HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetItemTagName(temp, isubt); HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 3 + ITEMID_SKIP, CR_WHITE, MenuX(bx), MenuY(by + 8.0), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+			CardMessage(StrParam(s:"\c[A1]", l:GetUniqueItemName(temp, itype)), id_begin - id_mult * MAX_INVENTORY_BOXES - 2 + ITEMID_SKIP, CR_WHITE, bx, by, bx, by, holdTime);
+			CardMessage(StrParam(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetItemTagName(temp, isubt)), id_begin - id_mult * MAX_INVENTORY_BOXES - 3 + ITEMID_SKIP, CR_WHITE,
+				bx, by + ITEMINFO_LINEHF, bx, by, INVENTORY_HOLDTIME);
 		}
 		
 		// A gem has no level or quality; the lines still draw, blank, so the last item's numbers cannot linger.
 		isGem = !isUnique && itype == DND_ITEM_GEM;
 		val = GetLevel() < lvl ? CR_RED : CR_WHITE;
-		HudMessage(s:isGem ? "" : StrParam(l:"DND_LEVEL_HEADER", s:": ", d:lvl); 
-			HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 4 + ITEMID_SKIP, val, MenuX(GetIntegerBits(bx - HUD_ITEMBAK_XF / 2 - 36.0) + 0.1), MenuY(by), holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
-		);
+		CardMessage(isGem ? "" : StrParam(l:"DND_LEVEL_HEADER", s:": ", d:lvl), id_begin - id_mult * MAX_INVENTORY_BOXES - 4 + ITEMID_SKIP, val,
+			GetIntegerBits(bx - HUD_ITEMBAK_XF / 2 - 36.0) + 0.1, by, bx, by, holdTime);
 
 		// quality -- non-stacking item so
 		val = GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, topboxid, -1, source);
-		HudMessage(s:isGem ? "" : StrParam(s:"\c[Q2]Q: ", d:val, s:"%");
-			HUDMSG_PLAIN | HUDMSG_FADEOUT, 
-			id_begin - id_mult * MAX_INVENTORY_BOXES - 18 + ITEMID_SKIP, 
-			CR_GREEN, 
-			MenuX(GetIntegerBits(bx + ((2 * HUD_ITEMBAK_X / 3) << 16)) + 8.2), 
-			MenuY(by), 
-			holdTime, 
-			INVENTORY_FADETIME, 
-			INVENTORY_INFO_ALPHA
-		);
+		CardMessage(isGem ? "" : StrParam(s:"\c[Q2]Q: ", d:val, s:"%"), id_begin - id_mult * MAX_INVENTORY_BOXES - 18 + ITEMID_SKIP, CR_GREEN,
+			GetIntegerBits(bx + ((2 * HUD_ITEMBAK_X / 3) << 16)) + 8.2, by, bx, by, holdTime);
 
 		// implicit
 		if
@@ -2038,7 +2151,7 @@ int DrawInventoryText(
 			}
 			item_vsync_data.implicit_textID = tmp_text;
 			// the true count -- this is a text offset at ITEMINFO_LINEH, nothing else reads it now
-			item_vsync_data.implicit_lines_count = CountNewLinesInText(tmp_text, HUD_ITEMBAK_WIDTH);
+			item_vsync_data.implicit_lines_count = CountNewLinesInText(tmp_text, CARD_WRAPW, true);
 			//Log(s:"implicit lines: ", d:item_vsync_data.implicit_lines_count);
 		}
 		else
@@ -2050,11 +2163,7 @@ int DrawInventoryText(
 
 		if(tmp_text != "") {
 			yoff += ITEMINFO_TITLEGAP;
-			HudMessage(
-				s:tmp_text;
-				HUDMSG_PLAIN | HUDMSG_FADEOUT,
-				id_begin - id_mult * MAX_INVENTORY_BOXES - 5 + ITEMID_SKIP, CR_WHITE, MenuX(bx), MenuY(yoff), holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
-			);
+			CardMessage(tmp_text, id_begin - id_mult * MAX_INVENTORY_BOXES - 5 + ITEMID_SKIP, CR_WHITE, bx, yoff, bx, by, holdTime);
 
 			yoff += ITEMINFO_LINEHF * item_vsync_data.implicit_lines_count;
 		}
@@ -2144,17 +2253,12 @@ int DrawInventoryText(
 			item_vsync_data.last_tag_mode = showModTags;
 			item_vsync_data.last_craft_vals = craftMaterialIdx;
 			item_vsync_data.textID = tmp_text;
-			item_vsync_data.attr_lines_count = CountNewLinesInText(tmp_text, HUD_ITEMBAK_WIDTH);
+			item_vsync_data.attr_lines_count = CountNewLinesInText(tmp_text, CARD_WRAPW, true);
 		}
 		else
 			tmp_text = item_vsync_data.textID;
 
-		SetFont("NSMOLFNT");
-		HudMessage(
-			s:tmp_text;
-			HUDMSG_PLAIN | HUDMSG_FADEOUT,
-			id_begin - id_mult * MAX_INVENTORY_BOXES - 7 + ITEMID_SKIP, CR_WHITE, MenuX(bx), MenuY(yoff), holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
-		);
+		CardMessage(tmp_text, id_begin - id_mult * MAX_INVENTORY_BOXES - 7 + ITEMID_SKIP, CR_WHITE, bx, yoff, bx, by, holdTime);
 
 		// how far the whole block reaches past the title row -- that is what the panel has to cover
 		yoff += ITEMINFO_LINEHF * item_vsync_data.attr_lines_count + ITEMINFO_BOTTOMPAD - by;
@@ -2193,12 +2297,11 @@ void DrawCompareCard(int pnum, int s, int bg_x, int bg_y, int pick, int count) {
 		bg_y -= over << 16;
 	}
 	MenuHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2);
-	SetFont("NSMOLFNT");
 	str label = StrParam(s:"\c[UIGold]", l:"DND_CMP_EQUIPPED");
 	if(count > 1)
 		label = StrParam(s:label, s:" ", d:pick + 1, s:" / ", d:count, s:"   \c[UIDim]", l:"DND_CMP_CYCLE");
-	HudMessage(s:label; HUDMSG_PLAIN | HUDMSG_FADEOUT, base - 9 + ITEMID_SKIP, CR_WHITE,
-		MenuX(GetIntegerBits(3 * (bg_x + HUD_ITEMBAK_XF / 2) / 2) + 0.4), MenuY(GetIntegerBits(3 * Min(bg_y, label_y) / 2) - 9.0), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+	CardMessage(label, base - 9 + ITEMID_SKIP, CR_WHITE, GetIntegerBits(3 * (bg_x + HUD_ITEMBAK_XF / 2) / 2) + 0.4, GetIntegerBits(3 * Min(bg_y, label_y) / 2) - 12.0, 0, 0,
+		INVENTORY_HOLDTIME, false);
 	MenuHudSize(HUDMAX_X, HUDMAX_Y);
 }
 
@@ -2307,7 +2410,7 @@ str ItemCompareLine(int pnum, int s, int j, bool implicit) {
 }
 
 // after a hovered line: NEW, or an arrow and how far its number moved from the equipped line with the same mod;
-// '{' and '}' are NSMOLFNT's up and down arrow glyphs
+// '{' and '}' are MENUCARD's up and down triangle glyphs
 str ItemCompareMark(int pnum, int attr, str line, bool implicit) {
 	int s = GetItemCompare().against - 1, n, i, a, b;
 	if(s < 0)
@@ -2371,13 +2474,14 @@ void DrawItemInfoBackgroundChrome(int hudid_begin, int hx, int hy, int bg_posx, 
 	else if(hovered_orb_craft_result.effect_type == DND_ORBEFFECT_ENTIREITEM)
 		st = "O";
 	int x = ItemInfoDouble(bg_posx), y = ItemInfoDouble(bg_posy), i;
+	str sfx = GetCardStyleSuffix(CardStyleInUse());
 	MenuHudSize(hx * 2, hy * 2);
-	SetFont(StrParam(s:"MCITT", s:st));
+	SetFont(StrParam(s:"MCITT", s:st, s:sfx));
 	HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, hudid_begin, CR_WHITE, MenuX(x), MenuY(y), holdTime, INVENTORY_FADETIME, 0.95);
-	SetFont(StrParam(s:"MCITM", s:st));
+	SetFont(StrParam(s:"MCITM", s:st, s:sfx));
 	for(i = 0; i < mids; ++i)
 		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, hudid_begin - 1 - i, CR_WHITE, MenuX(x), MenuY(y + 2 * (ITEMINFOBG_TOPLEN + i * ITEMINFOBG_MIDLEN)), holdTime, INVENTORY_FADETIME, 0.95);
-	SetFont(StrParam(s:"MCITB", s:st));
+	SetFont(StrParam(s:"MCITB", s:st, s:sfx));
 	HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, hudid_begin - 2 - i, CR_WHITE, MenuX(x), MenuY(y + 2 * (ITEMINFOBG_TOPLEN + i * ITEMINFOBG_MIDLEN)), holdTime, INVENTORY_FADETIME, 0.95);
 	MenuHudSize(hx, hy);
 }
@@ -2528,19 +2632,6 @@ bool UsePlayerItem(int pnum, int item_index, bool countTokens) {
 		return true;
 	}
 	return false;
-}
-
-// Consumes a stack off a stackable item
-void ConsumePlayerItem(int pnum, int item_index) {
-	auto item = GetPlayerInventoryItem(pnum, item_index);
-	if(IsStackedItem(item.item_type)) {
-		GiveInventory("DnD_RefreshPane", 1);
-		--item.item_stack;
-		if(item.item_stack)
-			SyncItemStack(pnum, item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-		else
-			FreeItem(pnum, item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
-	}
 }
 
 void UsePlayerItem_Count(int pnum, int item_index, int count) {
@@ -2730,6 +2821,9 @@ void HandleStrengthChange(int pnum, bool remove, int old_cap) {
 	UpdateStaminaCap(pnum);
 	HandleEShieldChange(pnum, remove);
 	CalculateUnity(pnum);
+
+	if(PlayerModData[pnum].vals[PSTAT_EX_STRENGTH_REQUIREMENT] || PlayerModData[pnum].gear_off)
+		ACS_NamedExecuteAlways("DnD Gear Requirement Check", 0);
 }
 
 // standard attribute processing (not implicits)
@@ -2947,6 +3041,7 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 				HandleCurseImmunityRemoval();
 		break;
 		case INV_STAT_STRENGTH:
+		case INV_EX_STRENGTH_REQUIREMENT:
 		// both switch Strength's effects off
 		case INV_EX_INTBONUSTOMELEE:
 			temp = GetSpawnHealth();
@@ -3213,18 +3308,8 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 	int aval = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, item_index, aindex, source);
 	int aextra = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_EXTRA, item_index, aindex, source);
 
+	aval = ScaleItemModValue(atype, aval, multiplier);
 	if(multiplier != 100) {
-		if(!IsAttributeQualityException(atype)) {
-			if(aval > bcs::INT_MAX / multiplier) {
-				aval /= 100;
-				aval *= multiplier;
-			}
-			else {
-				aval *= multiplier;
-				aval /= 100;
-			}
-		}
-
 		if(!IsAttributeExtraException(atype)) {
 			if(atype != INV_INC_PLUSPROJ && atype != INV_INC_PLUSTWOPROJ) {
 				if(aextra > 100000) {
@@ -3288,18 +3373,8 @@ bool ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 
 	int i, temp;
 
+	aval = ScaleItemModValue(atype, aval, multiplier);
 	if(multiplier != 100) {
-		if(!IsAttributeQualityException(atype)) {
-			if(aval > bcs::INT_MAX / multiplier) {
-				aval /= 100;
-				aval *= multiplier;
-			}
-			else {
-				aval *= multiplier;
-				aval /= 100;
-			}
-		}
-
 		if(!IsAttributeExtraException(atype)) {
 			if(aextra > 100000) {
 				aextra /= 100;
@@ -3529,10 +3604,10 @@ bool ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 	return true;
 }
 
-// Applies item stats to player -- can remove or add
-void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false, bool noSync = false) {
+// The scale of a used item's implicits; no_mirror leaves the Mirror of Eternity's doubling out.
+int GetUsedItemModMultiplier(int pnum, int item_index, int source, bool no_mirror = false) {
 	int ac = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, item_index, -1, source);
-	
+
 	// check cybernetic and put it as bool
 	bool has_cybernetic = ItemIsCybernetic(pnum, item_index, ac, source);
 	int i = 0;
@@ -3540,7 +3615,7 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 	// power cores are inherently cybernetic
 	i = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, 0, source);
 	has_cybernetic |= i == INV_IMP_POWERCORE;
-	
+
 	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i)
 		if(GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, i, source) == INV_CYBERNETIC) {
 			has_cybernetic = true;
@@ -3553,7 +3628,8 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 	// if player has mirror of eternity and this is a medium charm that is NOT the mirror, multiply magnitude by 2
 	if
 	(
-		PlayerModData[pnum].vals[PSTAT_EX_MIRROROTHERMEDIUM] && 
+		!no_mirror &&
+		PlayerModData[pnum].vals[PSTAT_EX_MIRROROTHERMEDIUM] &&
 		(item.item_type & 0xFFFF) == DND_ITEM_CHARM &&
 		item.item_subtype == DND_CHARM_MEDIUM &&
 		(item.item_type >> 16) - 1 != UITEM_MIRROROFETERNITY
@@ -3572,17 +3648,47 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 	// cybernetic check
 	if(has_cybernetic && HasClassPerk_Fast(DND_PLAYER_CYBORG, 1))
 		multiplier = multiplier * (DND_CYBERNETIC_FACTOR + 100) / 100;
-		
+	return multiplier;
+}
+
+// The implicit scale with the Well of Power factor, which only a used item's regular mods get.
+int AddSmallCharmFactor(int pnum, int item_index, int multiplier) {
+	// Well of power factor -- the item type has to be part of this test. DND_CHARM_SMALL is 0, and
+	// every other equippable keeps an unrelated index in item_subtype (boot/armor/helm base, flask
+	// kind), so a subtype-only check hands the factor to whichever of those happens to be base 0.
+	auto item = GetUsedItem(pnum, item_index);
+	int temp = PlayerModData[pnum].vals[PSTAT_EX_FACTOR_SMALLCHARM];
+	if(temp && (item.item_type & 0xFFFF) == DND_ITEM_CHARM && item.item_subtype == DND_CHARM_SMALL)
+		multiplier = multiplier * temp / FACTOR_FIXED_RESOLUTION;
+	return multiplier;
+}
+
+// A mod's value at a scale, as an equipped item applies it.
+int ScaleItemModValue(int atype, int aval, int multiplier) {
+	if(multiplier == 100 || IsAttributeQualityException(atype))
+		return aval;
+	if(aval > bcs::INT_MAX / multiplier)
+		return aval / 100 * multiplier;
+	return aval * multiplier / 100;
+}
+
+// Applies item stats to player -- can remove or add
+void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false, bool noSync = false) {
+	// A switched off slot has nothing applied: taking it off only clears the mark.
+	if(source == DND_SYNC_ITEMSOURCE_ITEMSUSED && IsUsedItemSwitchedOff(pnum, item_index)) {
+		if(remove)
+			SetUsedItemSwitchedOff(pnum, item_index, false);
+		return;
+	}
+
+	int ac = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, item_index, -1, source);
+	int i, multiplier = GetUsedItemModMultiplier(pnum, item_index, source);
+
 	// implicits dont get well of power factor
 	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i)
 		ProcessItemImplicit(pnum, item_index, source, i, remove, multiplier);
 
-	// Well of power factor -- the item type has to be part of this test. DND_CHARM_SMALL is 0, and
-	// every other equippable keeps an unrelated index in item_subtype (boot/armor/helm base, flask
-	// kind), so a subtype-only check hands the factor to whichever of those happens to be base 0.
-	temp = PlayerModData[pnum].vals[PSTAT_EX_FACTOR_SMALLCHARM];
-	if(temp && (item.item_type & 0xFFFF) == DND_ITEM_CHARM && item.item_subtype == DND_CHARM_SMALL)
-		multiplier = multiplier * temp / FACTOR_FIXED_RESOLUTION;
+	multiplier = AddSmallCharmFactor(pnum, item_index, multiplier);
 
 	for(i = 0; i < ac; ++i)
 		ProcessItemFeature(pnum, item_index, source, i, remove, multiplier);
@@ -3598,16 +3704,6 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 			MarkWeaponDataSync(pnum, i, false);
 		}
 	}
-}
-
-int GetCraftableItemCount() {
-	int res = 0, pnum = PlayerNumber();
-	for(int i = 0; i < MAX_INVENTORY_BOXES; ++i) {
-		auto item = GetPlayerInventoryItem(pnum, i);
-		if(IsCraftableItem(item.item_type) && item.height)
-			++res;
-	}
-	return res;
 }
 
 // Orb of Assimilation is the only caller: it copies a mod off the donor at the tier the DONOR rolled

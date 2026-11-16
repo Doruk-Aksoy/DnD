@@ -15,7 +15,6 @@
 #define DND_MEDKIT_TO_FLASK_FACTOR 4
 
 #define DND_BASE_CRITMODIFIER 200
-#define DND_SAVAGERY_MASTERYBONUS 100
 #define DND_HARDCORE_DROPRATEBONUS 0.15
 
 #define ESHIELD_RECHARGEDELAY_BASE (10 * TICRATE) // base time is 10 seconds
@@ -43,7 +42,6 @@
 #define BLOODRUNE_LIFESTEAL_AMT2 45.0
 
 // we multiply by 100 in calc
-#define DND_DAMAGERESIST_FACTOR 10000
 #define DND_BASE_DAMAGERESISTCAP 75.0
 #define DND_MAX_DAMAGERESISTCAP 90.0
 
@@ -80,10 +78,6 @@ int LevelCurve[MAXLEVELS + 1] = { 150, 351, 623, 895, 1165, 1440, 1710, 1980, 22
 #define PLAYER_TRANSFERSTATE 1
 #define MAX_PLAYER_DBSTATES (PLAYER_TRANSFERSTATE + 1)
 global bool 9: PlayerDatabaseState[MAXPLAYERS][MAX_PLAYER_DBSTATES];
-
-int GetExpLimit() {
-	return LevelCurve[GetLevel() - 1];
-}
 
 int GetExpLimit_Level(int lvl) {
 	return LevelCurve[lvl - 1];
@@ -192,18 +186,8 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget, bool noMedkitStor
 	HandleHealDependencyCheck();
 }
 
-#define DND_SPECIALTYARMOR_REDUCE 75
-#define DND_SPECIALTYARMOR_BUFF 50
-#define DND_KNIGHT_MELEEREDUCE 50
-#define DND_KNIGHTARMOR_MELEEWEP_BONUS 0.4
-
 #define DND_RAVAGER_FACTOR 17
 #define DND_RAVAGER_REDUCE 20
-#define DND_RAVAGER_DMGBONUS 25
-
-#define DND_SYNTHMETAL_HITSCANBUFF 50 // 50%
-#define DND_SYNTHMETAL_LIGHTNINGNERF 50
-#define DND_LIGHTNINGCOIL_SPECIAL 85 // 85%
 
 /*int GetStat(int stat_id) {
 	return CheckInventory(StatData[stat_id]);
@@ -233,17 +217,6 @@ int GetActorLevelCredits(int tid) {
 // for what it actually reads now that perks no longer live in an inventory item.
 int GetStatPoints(int stat_id) {
 	return CheckInventory(StatData[stat_id]);
-}
-
-str GetStatLabel(int id) {
-	return StrParam(s:"DND_STAT", d:id + 1);
-}
-
-int GetPlayerEnergyShieldPercent(int pnum) {
-	int cap = GetPlayerEnergyShieldCap(pnum);
-	if(!cap)
-		return 0;
-	return 100 * CheckInventory("EShieldAmount") / cap;
 }
 
 int GetPlayerEnergyShieldRechargeDelay(int pnum) {
@@ -349,10 +322,6 @@ void TakeStat(int stat_id, int amt) {
 
 void SpawnPlayerDrop(int pnum, str actor, int zoffset, int thrust, int setspecial, int setspecial2, bool noRandomVelXY = false) {
 	SpawnDrop(actor, zoffset, thrust, setspecial, setspecial2, noRandomVelXY, pnum + P_TIDSTART);
-}
-
-void SpawnPlayerDropTargeted(int pnum, str actor, int zoffset, int thrust, int setspecial, int setspecial2, bool noRandomVelXY = false) {
-	SpawnDrop(actor, zoffset, thrust, setspecial, setspecial2, noRandomVelXY);
 }
 
 void SpawnPlayerDropAtActor(int pnum, int dest, str actor, int zoffset, int thrust, int setspecial, int setspecial2, bool noRandomVelXY = false) {
@@ -798,10 +767,6 @@ bool RunPrecalcDropChance(int p_chance, int basechance, int m_id, int rng_id) {
 bool RunDropChance(int pnum, int basechance, int low, int high) {
 	//printbold(s:"dc ", f:GetDropChance(pnum), s: " x ", f:basechance, s: " = ", f:FixedMul(GetDropChance(pnum), basechance));
 	return FixedMul(GetDropChance(pnum), basechance) >= random(low, high);
-}
-
-bool RunDefaultRarityChance(int pnum, int basechance) {
-	return FixedMul(GetPlayerItemRarity(pnum), basechance) >= random(0.0, 1.0);
 }
 
 void DecideAccessories() {
@@ -1631,20 +1596,6 @@ int GetPlayerAddedFlatDamage(int pnum, int category) {
 		res += GetPlayerAccuracyFlatDamage(pnum);
 
 	return res;
-}
-
-// One bit per damage category the player currently adds damage in. Zero for anyone without a single
-// added-damage source, which is the whole point: the mixed-damage paths test this first and cost
-// nothing when it is clear.
-int GetPlayerAddedDamageMask(int pnum) {
-	int mask = 0;
-	for(int c = 0; c < MAX_DAMAGE_CATEGORIES; ++c) {
-		// MELEE and SOUL have no mod that can fill them, so they stay zero and never set a bit -- the
-		// same result the old attribute walk produced, without the walk.
-		if(PlayerModData[pnum].vals[PSTAT_ADDEDFLAT_BASE + c])
-			mask |= 1 << c;
-	}
-	return mask;
 }
 
 // Same collapse as MapDamageCategoryToFlatBonus above, same reasoning -- see the comments there.

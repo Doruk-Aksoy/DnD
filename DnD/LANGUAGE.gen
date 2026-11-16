@@ -3,7 +3,6 @@
 DND_HAS									= "has";
 
 DND_HEALTH								= "Health";
-DND_FREE_SLOT							= "FREE SLOT";
 
 DND_PICKUP_HEALTH						= "Health pickup";
 DND_PICKUP_DEMONESSENCE					= "Demon Essence.";
@@ -11,7 +10,6 @@ DND_PICKUP_WEAPON						= "Weapon pickup";
 DND_PICKUP_RESEARCH						= "Research pickup";
 DND_PICKUP_DISCOVERED					= "Discovered";
 DND_PICKUP_ORB							= "Orb pickup";
-DND_PICKUP_ELIXIR						= "Elixir pickup";
 DND_PICKUP_TOKEN						= "Token pickup";
 DND_PICKUP_DUNGEONKEY					= "Dungeon key pickup";
 DND_PICKUP_CHARM						= "Charm pickup";
@@ -28,10 +26,8 @@ DND_PICKUP_POWERCORE					= "Powercore pickup";
 DND_PICKUP_BELT							= "Belt pickup";
 DND_PICKUP_CLAW							= "Claw pickup";
 
-DND_PRICE								= "Price";
 DND_ACTIVATE                            = "Activate!";
 
-DND_TOPURCHASE							= "to purchase";
 DND_KILLS								= "Kills";
 DND_PLAYER								= "Player";
 DND_DMGDEALT							= "Damage Dealt";
@@ -40,7 +36,6 @@ DND_COMPLETED							= "COMPLETED";
 
 DND_OR									= "or";
 DND_AND									= "and";
-DND_KILL								= "Kill";
 DND_FORBUFF								= "for buff";
 DND_CURRTIER							= "Current Tier";
 DND_OBTAIN								= "Obtain";
@@ -98,7 +93,6 @@ DND_TEXT_MAPTOAST						= "The entire map is toast! You're awarded lootboxes!";
 
 DND_ATTRIBUTEPTS						= "Attribute Points";
 
-DND_INVENTORY							= "Inventory";
 
 // Positional on DND_DAMAGECATEGORY -- GetTalentTag() builds the lump name as
 // "DND_TALENT" + (category + 1). Reorder the category enum and these move with it.
@@ -118,7 +112,6 @@ DND_RADIUSTAG							= "Radius";
 DND_DAMAGEBONUS							= "damage bonus";
 DND_DAMAGE								= "damage";
 DND_SPELLDAMAGE							= "spell damage";
-DND_FROM								= "from";
 DND_CLASS								= "Class";
 
 DND_STAT1								= "Strength";
@@ -130,11 +123,6 @@ DND_PERK2								= "Brutality";
 DND_PERK3								= "Risk Aversion";
 DND_PERK4								= "Wisdom";
 DND_PERK5								= "Greed";
-DND_PERK6								= "Medic";
-DND_PERK7								= "Munitionist";
-DND_PERK8								= "Deadliness";
-DND_PERK9								= "Savagery";
-DND_PERK10								= "Acrimony";
 	
 DND_STAT16								= "Experience";
 DND_STAT17								= "Level Experience";
@@ -179,7 +167,6 @@ DND_ACCESSORY							= "Accessory";
 
 DND_PLAYERLOOKUP						= "DnD Player Lookup";
 DND_STATALLOCATION						= "Stat Allocation";
-DND_PERKALLOCATION						= "Perk Allocation";
 DND_WEPSOWNED							= "Weapons Owned";
 DND_PLAYERNOTPLAYING					= "Player isn't currently playing";
 
@@ -199,7 +186,6 @@ DND_DBERR7		= "CHAR ERROR: Can't do this during countdown!";
 DND_DBERR8		= "CHAR ERROR: You have to be logged in for this to work!";
 DND_DBERR9		= "CHAR ERROR: The load time for this map is over!";
 DND_DBERR10		= "CHAR ERROR: Character slot number needs to be between";
-DND_DBERR11A	= "TRANSFER CHAR: Character will remain at the current slot";
 DND_DBERR11B	= "on character save.";
 DND_DBERR12		= "has loaded a character";
 DND_DBERR13A	= "TRANSFER CHAR: Character will be transferred to slot";
@@ -250,8 +236,7 @@ DND_POPUP_ONLYONEUNIQUE						=	"You can't use another of the same unique!";
 DND_POPUP_ALREADYFOUND						=	"You already found this research!";
 DND_POPUP_MAXINVESTMENT						=	"You've invested enough!";
 DND_POPUP_NARESEARCH						=	"We know nothing about this so far.";
-DND_POPUP_CANTUSEBODYARMOR					=	"Can't use body armor with this item!";
-DND_POPUP_CANTPUTONBODYARMOR				=	"You can't use a body armor, it's forbidden!";
+DND_POPUP_STRENGTHREQUIREMENT				=	"Not enough Strength to wear this!";
 DND_POPUP_NOTENOUGHSPACE					=	"You don't have enough space!";
 DND_POPUP_SCAVENGECONFIRM					=	"Disassemble the item for ";
 DND_POPUP_OWNNFT							=	"You already own this NFT... idiot.";

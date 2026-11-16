@@ -94,10 +94,6 @@ int GetSpellCastTics(int pnum, int spell) {
 	return Max(1, ct);
 }
 
-// How many casts a spell banks before it has to wait. Each charge runs its own cooldown, so two
-// charges is not a halved cooldown -- it is two of them in parallel.
-#define DND_SPELL_MAXCHARGES 2
-
 int GetSpellMaxCharges(int pnum, int spell) {
 	// "Holds two charges, each on its own cooldown."
 	if((spell == SPL_RAINOFFIRE || spell == SPL_SURGECAST) && SpellThresholdMet(pnum, spell, DND_SPELL_THRESH_HIGH))
@@ -136,21 +132,6 @@ int GetSpellCooldownLeft(int pnum, int spell) {
 
 	int b = Max(0, cd.atb[pnum][spell] - t);
 	return b ? Min(a, b) : 0;
-}
-
-// 0-100 for the hotbar overlay. The total is recomputed rather than stored: a second array per
-// player per spell buys only the case where a cooldown stat changes mid-cooldown, which moves the
-// bar slightly and nothing else.
-int GetSpellCooldownPercent(int pnum, int spell) {
-	int left = GetSpellCooldownLeft(pnum, spell);
-	if(!left)
-		return 0;
-
-	int total = GetSpellCooldownTics(pnum, spell);
-	if(total <= 0)
-		return 0;
-
-	return Min(100, left * 100 / total);
 }
 
 // Takes time off whichever charge the player is actually waiting on -- the one returning soonest.

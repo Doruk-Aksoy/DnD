@@ -167,6 +167,9 @@ enum {
 	MENU_SPELL_HOTBAR,
 	// Nor this: the gem sockets.
 	MENU_SPELL_GEMS,
+
+	// The player's own settings, behind the gear beside Close.
+	MENU_SETTINGS,
 	
 	#ifdef ISAPRILFIRST
 	MENU_SHOP_NFT

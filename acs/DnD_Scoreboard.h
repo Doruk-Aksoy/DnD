@@ -19,7 +19,6 @@ enum {
 #define MAX_INTERMISSION_SONGS 4
 #define MAX_INTERMISSION_PLAYERS_SHOWN 29 // we can fit 29 players currently
 #define MAX_INTERMISSION_PNAMELEN 25
-#define INTERMISSION_CHAR_SCALE 2.1 // this is a scale found by experimenting with the current resolution
 #define INTERMISSION_SCROLLFACTOR_INT 4
 #define INTERMISSION_SCROLLFACTOR 4.0
 #define INTERMISSION_SCROLLSCALE (0.4166 * INTERMISSION_SCROLLFACTOR_INT) // 320 / 768 = 0.4166
@@ -859,13 +858,13 @@ Script "DnD Scoreboard Loop" (int time, int total_mons) CLIENTSIDE {
 
 		if(!ScoreboardData[DND_SCBRD_SAFETOSAVE]) {
 			HudMessage(
-				s:"\c[L7]", l:"CLASS_PRESS", s:" \ci", k:"+use", s:"\c[L7], \ci", k:"+attack", s:" \c[L7]", l:"DND_OR", s:" \ci", k:"+altattack", s: " \c[L7]", l:"DND_TOREADY", s:"!";
+				s:"\c[L7]", l:"CLASS_PRESS", s:" \ci", s:BindKeysText("+use", "\ci", "\c[L7]"), s:"\c[L7], \ci", s:BindKeysText("+attack", "\ci", "\c[L7]"), s:" \c[L7]", l:"DND_OR", s:" \ci", s:BindKeysText("+altattack", "\ci", "\c[L7]"), s: " \c[L7]", l:"DND_TOREADY", s:"!";
 				HUDMSG_PLAIN | HUDMSG_ALPHA, DND_SCBRDID_CONTINUE, -1, 240.4, 408.1, 0.0, abs(sin(alpha * 1.0 / 360))
 			);
 		}
 		else {
 			HudMessage(
-				s:"\cd", l:"DND_SAFETOSAVE", s:"\n\c[L7]", l:"CLASS_PRESS", s:" \ci", k:"+use", s:"\c[L7], \ci", k:"+attack", s:" \c[L7]", l:"DND_OR", s:" \ci", k:"+altattack", s: " \c[L7]", l:"DND_TOREADY", s:"!";
+				s:"\cd", l:"DND_SAFETOSAVE", s:"\n\c[L7]", l:"CLASS_PRESS", s:" \ci", s:BindKeysText("+use", "\ci", "\c[L7]"), s:"\c[L7], \ci", s:BindKeysText("+attack", "\ci", "\c[L7]"), s:" \c[L7]", l:"DND_OR", s:" \ci", s:BindKeysText("+altattack", "\ci", "\c[L7]"), s: " \c[L7]", l:"DND_TOREADY", s:"!";
 				HUDMSG_PLAIN | HUDMSG_ALPHA, DND_SCBRDID_CONTINUE, -1, 240.4, 408.1, 0.0, abs(sin(alpha * 1.0 / 360))
 			);
 		}

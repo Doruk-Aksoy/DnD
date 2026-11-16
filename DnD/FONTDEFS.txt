@@ -137,3 +137,215 @@ MENUNUM
 	Template MFN%03d
 	SpaceWidth 5
 }
+
+MENUCARD
+{
+	Template MFC%03d
+	SpaceWidth 6
+}
+
+MENUCRDJ
+{
+	Template MFJ%03d
+	SpaceWidth 7
+}
+
+MENUCRDB
+{
+	Template MFR%03d
+	SpaceWidth 5
+}
+
+MENUCRDT
+{
+	Template MFW%03d
+	SpaceWidth 6
+}
+
+MENUCRDE
+{
+	Template MFE%03d
+	SpaceWidth 5
+}
+
+// GENERATED theme fonts: menufont/build.py THEME_FONTS
+THM1HEAD
+{
+	Template W1H%03d
+	SpaceWidth 18
+}
+
+THM1TAB
+{
+	Template W1T%03d
+	SpaceWidth 10
+}
+
+THM1SUB
+{
+	Template W1S%03d
+	SpaceWidth 8
+}
+
+THM1BODY
+{
+	Template W1B%03d
+	SpaceWidth 12
+}
+
+THM1BDYS
+{
+	Template W1Y%03d
+	SpaceWidth 10
+}
+
+THM1NUM
+{
+	Template W1N%03d
+	SpaceWidth 9
+}
+
+THM2HEAD
+{
+	Template W2H%03d
+	SpaceWidth 8
+}
+
+THM2TAB
+{
+	Template W2T%03d
+	SpaceWidth 4
+}
+
+THM2SUB
+{
+	Template W2S%03d
+	SpaceWidth 4
+}
+
+THM2BODY
+{
+	Template W2B%03d
+	SpaceWidth 5
+}
+
+THM2BDYS
+{
+	Template W2Y%03d
+	SpaceWidth 5
+}
+
+THM2NUM
+{
+	Template W2N%03d
+	SpaceWidth 4
+}
+
+THM3HEAD
+{
+	Template W3H%03d
+	SpaceWidth 9
+}
+
+THM3TAB
+{
+	Template W3T%03d
+	SpaceWidth 5
+}
+
+THM3SUB
+{
+	Template W3S%03d
+	SpaceWidth 5
+}
+
+THM3BODY
+{
+	Template W3B%03d
+	SpaceWidth 6
+}
+
+THM3BDYS
+{
+	Template W3Y%03d
+	SpaceWidth 5
+}
+
+THM3NUM
+{
+	Template W3N%03d
+	SpaceWidth 4
+}
+
+THM4HEAD
+{
+	Template W4H%03d
+	SpaceWidth 9
+}
+
+THM4TAB
+{
+	Template W4T%03d
+	SpaceWidth 4
+}
+
+THM4SUB
+{
+	Template W4S%03d
+	SpaceWidth 4
+}
+
+THM4BODY
+{
+	Template W4B%03d
+	SpaceWidth 5
+}
+
+THM4BDYS
+{
+	Template W4Y%03d
+	SpaceWidth 5
+}
+
+THM4NUM
+{
+	Template W4N%03d
+	SpaceWidth 4
+}
+
+THM5HEAD
+{
+	Template W5H%03d
+	SpaceWidth 24
+}
+
+THM5TAB
+{
+	Template W5T%03d
+	SpaceWidth 16
+}
+
+THM5SUB
+{
+	Template W5S%03d
+	SpaceWidth 3
+}
+
+THM5BODY
+{
+	Template W5B%03d
+	SpaceWidth 5
+}
+
+THM5BDYS
+{
+	Template W5Y%03d
+	SpaceWidth 4
+}
+
+THM5NUM
+{
+	Template W5N%03d
+	SpaceWidth 3
+}
+// GENERATED END

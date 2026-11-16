@@ -342,7 +342,6 @@ global spell_syn_T 48: SpellSynergies[MAX_SPELL_SYNERGIES];
 #define SPELL_RANK_INTS (MAX_SPELL_IDS / 8)
 #define MAX_HOTBAR_SLOTS 6
 #define DND_HOTBAR_BASESLOTS 3
-#define HOTBAR_EMPTY 0
 #define SPELL_AURA_INTS (MAX_SPELL_IDS / 32)
 
 // Gem sockets: the first opens at allocated rank 4, the second with it once RES_GEMSOCKET2 is done.

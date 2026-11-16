@@ -92,7 +92,6 @@ enum {
 	RES_GEMCRAFTING		// 61, the last of the second set's 31 bits; the next one opens the third
 };
 
-#define DND_RESEARCH_BEGIN RES_RAREARMOR
 #define DND_RESEARCH_END RES_GEMCRAFTING
 #define MAX_RESEARCHES (DND_RESEARCH_END + 1)
 

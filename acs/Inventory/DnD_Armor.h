@@ -58,10 +58,8 @@ enum {
 #define BODYARMORS_REGULAREND BODYARMOR_TANGLEDRIBCAGE
 #define BODYARMORS_END BODYARMOR_LIGHTNINGCOIL
 
-#define BOOTS_BEGIN BOOTS_SILVER
 #define BOOTS_END BOOTS_WARRIORSABATON
 
-#define HELMS_BEGIN HELMS_LICH
 #define HELMS_END HELMS_ELDER
 
 void SetupArmorDropWeights() {
@@ -124,8 +122,6 @@ void SetupArmorDropWeights() {
 #define DND_HELM_BASEHEIGHT 1
 
 #define LIGHTNINGCOIL_ABSORBFACTOR 80
-
-#define CRUSADER_ESPCT 1
 
 #define MAX_HELM_ATTRIB_DEFAULT 4
 #define MAX_BOOT_ATTRIB_DEFAULT 4
@@ -387,10 +383,6 @@ int GetArmorID(int pnum = -1) {
 		return -1;
 
 	return item.item_subtype;
-}
-
-int GetActorArmorID(int tid) {
-	return GetArmorID(tid - P_TIDSTART);
 }
 
 int GetHelmID(int pnum = -1) {

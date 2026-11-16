@@ -55,10 +55,6 @@ int PickPlayerOrb(int pnum) {
     return PickFromAliasTable(PlayerAliasTables[pnum].orb_table);
 }
 
-int PickPlayerAttribute(int pnum) {
-    return PickFromAliasTable(PlayerAliasTables[pnum].item_attributes_table);
-}
-
 // this is for improving weights of rarer orbs after tables have been built
 void ReadjustOrbWeightsForRarerOnes(int pnum) {
     // include anything that the player themselves might have and anything the map modifiers affect --- exclude MAXPLAYERS pnum from player stuff checking

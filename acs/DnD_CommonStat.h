@@ -21,8 +21,6 @@ enum {
 
 #define DND_ACCURACY_CAP 100000
 
-#define DND_SHIFTBITS_FOR_SLOTFROMFLAG 13 // 8192 must return 0 to us
-
 #define DND_SYNTHMASK_EFFECT 4
 
 #define DND_UNITY_DIVISOR 15
@@ -61,12 +59,10 @@ enum {
 #define DND_CRUSHINGBLOW_PCT 33 // 33% more melee damage taken
 #define DND_OPENWOUNDS_BLEEDCHANCE 25 // 25% bonus bleed chance
 #define DND_OPENWOUNDS_BLEEDMULTIBONUS 50 // 50% bleed dot multi on enemy
-#define DND_DEADSTRIKE_BONUSPCT 100 // 100% dmg bonus
 
 #define DND_BASE_PARRY_AMT 4
 #define DND_PARRY_MASTER_BONUS 2
 #define DND_PARRYMASTER_STAMINAREDUCE 5
-#define DND_MIN_PARRYCOOLDOWN (DND_BASE_PARRY_AMT + DND_PARRY_MASTER_BONUS) // min cooldown should never be shorter than this
 #define DND_PARRY_STAMINABLOCKTIME 105
 #define DND_PARRY_STAMINA_COST 15
 #define DND_PARRY_SPAWNDIST 64
@@ -214,14 +210,7 @@ enum {
 
 #include "DnD_CommonResearch.h"
 
-#define DND_ELITE_BASEDROP 0.002 // same as below
-
-#define DND_ELITE_BASEDROP_ORB 0.025
 #define DND_MONSTER_ORBSTACK_LEVELTHRESHOLD 10
-
-#define DND_BASEARMOR_DROP 0.01375
-#define DND_BASE_CHARMRATE 0.0225
-#define DND_BASE_SPECIALTYRATE 0.00875
 
 #define DND_BASE_PLAYERSPEED 0.9
 #define DND_LOWEST_PLAYERSPEED 0.05
@@ -232,46 +221,19 @@ enum {
 #define BASE_PET_CAP 3
 #define DND_MAX_PET_CAP 10             // the pet cap never goes past this, whatever raises it
 
-#define RISK_AVERSION_VALUE 5 // 5%
-#define BASE_WISDOM_GAIN 10
-#define BASE_GREED_GAIN 10
-#define PERK_MEDICBONUS 10 // percent
-#define PERK_MEDIC_ESBONUS 2 // percent
-#define PERK_MEDICSTOREBONUS 15
-#define DND_SAVAGERY_BONUS 20 // percent
-#define DND_ACRIMONY_GAIN 8 // 8%
-#define DND_ACRIMONY_RECOVERCHANCE 0.2 // 20%
-#define DND_ACRIMONY_RECOVERPERCENT 2
-#define PERK_DEADLINESS_BONUS 0.01 // 1%
-#define DND_LUCK_GAIN 0.03 // 5% multiplicative luck
-#define DND_LUCK_OUTCOME_GAIN 0.03
-
 #define DND_STARTER_LUCK 0.75
 #define DND_LUCK_DIMINISHPERLVL 0.025
-
-#define DND_SHARPSHOOTER_MASTERY_BONUS 0.01
 
 #define DND_STR_KNOCKBACK_GAIN 50
 #define DND_BASE_PLAYER_MASS 250
 
-#define DND_BASE_ARMOR_SHOW 100
-#define DND_BASE_ARMOR 200
-#define DND_BASE_ARMORCAP 300
-
 #define STAT_BASE 0
-#define DND_STAT_MAX 1024 // for menu only, in game stats can go up to 1024
 #define DND_STAT_FULLMAX 1024
 // Retired with the ten-perk system. DND_PERK_MAXPOINTS in DnD_Common.h is the tree's cap.
-
-#define MAX_WEAPON_SLOTS 9
 
 #define BIO_HP_ADD_1 5
 #define BIO_HP_ADD_2 6
 #define BIO_HP_ADD_3 9
-
-#define IMP_RES_ADD_1 10
-#define IMP_RES_ADD_2 15
-#define IMP_RES_ADD_3 15
 
 // The following are also in DnD_Inventory.h, but used here as well because compiling...
 #define MAX_EXPRESIST_VAL 100
@@ -282,8 +244,6 @@ enum {
 #define DND_EXP_RES_ABILITY_BONUS 50
 
 #include "DnD_ClassConstants.h"
-
-#define MAX_MAP_DIFFICULTIES 5
 
 enum {
 	DND_MAPDATA_DIFFICULTY,
@@ -363,7 +323,6 @@ enum {
 	PUP_HOMINGNOREFLECT,
 	PUP_IGNORERADIUSIMMUNITY,
 	PUP_SLAINENEMIESRIP,
-	PUP_FORBIDARMOR,
 	PUP_LUCKYCRITS,
 	PUP_PELLETSFIRECIRCLE,
 	PUP_KNOCKBACKIMMUNE,
@@ -387,9 +346,6 @@ bool CheckUniquePropertyOnPlayer(int pnum, int prop, int extra1 = 0, int extra2 
 		
 		case PUP_SLAINENEMIESRIP:
 		return PlayerModData[pnum].vals[PSTAT_EX_ABILITY_MONSTERSRIP] || pbuffs[pnum].buff_net_values[BUFF_SULPHUR].additive;
-		
-		case PUP_FORBIDARMOR:
-		return PlayerModData[pnum].vals[PSTAT_EX_FORBID_ARMOR];
 		
 		case PUP_LUCKYCRITS:
 		return HasPlayerFlag(pnum, PFLAG_LUCKYCRIT);
@@ -422,19 +378,15 @@ Script "DnD Check Unique Player Property" (int prop) {
 	SetResultValue(CheckUniquePropertyOnPlayer(PlayerNumber(), prop));
 }
 
-#define MGNUMID 709
 #define BONUSBONUSID 708
 #define SECRETBONUSID 707
 #define ITEMBONUSID 706
 #define KILLBONUSID 705
-#define PERKID 704
-#define CASHSPLITID 703
 #define MENUUSEID 702
 
 #define MIN_CREDIT_GAIN 7
 #define MIN_EXP_GAIN 10
 #define ATTRIB_PER_LEVEL 2
-#define NANOCAP 350
 
 #define DND_MONSTERHP_PLAYERSCALE 25
 #define DND_MAX_PLAYERHPSCALE 16
@@ -442,20 +394,11 @@ Script "DnD Check Unique Player Property" (int prop) {
 #define DND_HARDCORE_LOADTIME 5 // minimum time for hardcore load
 #define DND_HARDCORE_SCREENID 6
 
-str GetAttributeLabel(int id) {
-	return StrParam(s:"DND_MENU_ATTR", d:id + 1);
-}
-
 str GetAttributeLabel_Short(int id) {
 	return StrParam(s:"DND_MENU_ATTR_SHORT", d:id + 1);
 }
 
-#define DND_PERK_SHARPSHOOTER_INC 5 // 5%
-#define DND_PERK_BRUTALITY_DAMAGEINC 5 // 5%
-#define DND_PERK_BRUTALITY_RANGEINC 8 // 8%
-#define DND_MUNITION_MASTERY_CHANCE 0.03 // 3%
 #define DND_MASTERY_DEADLINESSCOUNTER 6 // 7th is the crit, we give crit token at 6th so the 7th will be one
-#define DND_MASTERY_LUCKCHANCE 0.25 // 25%
 
 enum {	
 	RES_STAT_DEX = 1,
@@ -600,11 +543,17 @@ bool HasPlayerStrengthDisablers(int pnum) {
 	return PlayerModData[pnum].vals[PSTAT_EX_UNITY] || PlayerModData[pnum].vals[PSTAT_EX_INTBONUSTOMELEE];
 }
 
-int GetStrength(int pnum) {
+// Strength before a gear requirement takes its share.
+int GetStrengthBeforeRequirement(int pnum) {
 	return (
-		CheckActorInventory(pnum + P_TIDSTART, "PSTAT_Strength") + 
+		CheckActorInventory(pnum + P_TIDSTART, "PSTAT_Strength") +
 		PlayerModData[pnum].vals[PSTAT_STAT_STRENGTH]
 	) * (100 + PlayerModData[pnum].vals[PSTAT_IMP_PERCENTSTR] + PlayerModData[pnum].vals[PSTAT_CORR_PERCENTSTATS]) / 100;
+}
+
+// Only Strength past a worn requirement counts, never below 0.
+int GetStrength(int pnum) {
+	return Max(0, GetStrengthBeforeRequirement(pnum) - PlayerModData[pnum].vals[PSTAT_EX_STRENGTH_REQUIREMENT]);
 }
 
 int GetStrengthEffect(int pnum, int factor, int divisor = 1) {
@@ -756,25 +705,6 @@ int CountPlayerPetsOfKind(int pnum, int petid) {
 			++n;
 	}
 	return n;
-}
-
-// The longest standing live pet OF A KIND, or 0. Which one a per kind cap evicts: the oldest of
-// that kind, never an unrelated pet.
-int FindOldestPlayerPetOfKind(int pnum, int petid) {
-	int i, tid, t, best = 0, best_tic = 0;
-	int base = GetPlayerPetSlotBase(pnum);
-	for(i = 0; i < DND_MAX_PETS_PER_PLAYER; ++i) {
-		tid = base + i;
-		if(!IsActorAlive(tid) || PetMonsterProperties[tid - DND_PETTID_BEGIN].id != petid)
-			continue;
-
-		t = PetSummonTic[tid - DND_PETTID_BEGIN];
-		if(!best || t < best_tic) {
-			best = tid;
-			best_tic = t;
-		}
-	}
-	return best;
 }
 
 // The longest standing live pet, or 0. A dead slot simply fails the alive test, so this needs no
@@ -1063,20 +993,6 @@ int GetHealingBonuses(int pnum) {
 	return PlayerModData[pnum].vals[PSTAT_HEALING_EFFECT];
 }
 
-int GetResearchHealthBonuses() {
-	int res = BIO_HP_ADD_1 * (CheckResearchStatus(RES_BIO1) == RES_DONE);
-	res += BIO_HP_ADD_2 * (CheckResearchStatus(RES_BIO2) == RES_DONE);
-	res += BIO_HP_ADD_3 * (CheckResearchStatus(RES_BIO3) == RES_DONE);
-	
-	// cyborg's bonus
-	if(HasClassPerk_Fast(DND_PLAYER_CYBORG, 1)) {
-		res *= DND_CYBORG_CYBER_MULT;
-		res /= DND_CYBORG_CYBER_DIV;
-	}
-
-	return res;
-}
-
 int GetActorResearchHealthBonuses(int tid) {
 	int res = BIO_HP_ADD_1 * (CheckActorResearchStatus(tid, RES_BIO1) == RES_DONE);
 	res += BIO_HP_ADD_2 * (CheckActorResearchStatus(tid, RES_BIO2) == RES_DONE);
@@ -1207,14 +1123,6 @@ bool IsLethalPoolBelow(int pnum, int pct, int pending = 0) {
 // for players
 int IsLowLife() {
 	return GetHealthPercent() <= 50;
-}
-
-int GetActorSpawnHealth(int t) {
-	int caller = ActivatorTID();
-	SetActivator(t);
-	int cap = GetSpawnHealth();
-	SetActivator(caller);
-    return cap;
 }
 
 void HandleCurseImmunityRemoval() {

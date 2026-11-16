@@ -821,10 +821,6 @@ bool CanDropSoulAmmoTID(int tid) {
 			isBoss()) && (MonsterData[mid].flags & DND_MTYPE_DEMON_POW);
 }
 
-bool CanDropSoulAmmo() {
-	return CanDropSoulAmmoTID(ActivatorTID());
-}
-
 bool CanHealMonster() {
 	return !CheckInventory("DnD_DeepCuts") && !CheckInventory("DnD_IgniteTimer") && !CheckInventory("MonsterRegenPause");
 }

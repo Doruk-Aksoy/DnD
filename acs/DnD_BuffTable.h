@@ -134,7 +134,6 @@ enum {
 #define DND_DOOMGUY_ORB_EXEC_DURATION   20
 #define DND_TRIPLEDAMAGE_DURATION       (15 * TICRATE)
 #define DND_TRIPLEDAMAGE2_DURATION      787
-#define DND_TRIPLEDAMAGE_TIER2_EFFECT   75                  // 2.0 * 175/100 = 3.5 => x4.5
 #define DND_RAVAGER_POWER_DURATION      4
 #define DND_RALLY_BUFF_DURATION         8                   // must match RALLY_DURATION
 #define DND_ELEMENTPOWER_DURATION       20

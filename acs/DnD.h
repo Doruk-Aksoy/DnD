@@ -23,7 +23,6 @@ enum {
 	ITEMFILTER_ARMOR = 4
 };
 
-#define DND_EXP_BASEFACTOR 4
 #define DND_CREDITGAIN_FACTOR 1 // divides the regular gain by 2 -- was 2, now 1, goes up by 1
 #define DND_CREDITGAIN_PERLEVELREDUCE 10 // every 10 levels we reduce the gain
 #define DND_RESEARCH_MAX_CHANCE 1.0
@@ -158,13 +157,8 @@ enum {
 #define DND_PAINBLEND_MAXTICS 35
 #define DND_PAINBLEND_MAXALPHA 75 // 75%
 
-#define PERK_GAIN_RATE 5
-
-#define DND_EXPBAR_SIZEX 132
 
 // dash script defs, by KeksDose
-#define SD_TIMEFRAME		7			// Tics during which you must double press
-#define SD_DASHDELAY		27			// Tics before being able to dash again
 #define SD_DASHSPEED		7.75	   	// Dash speed whilst in the air
 #define SD_DASHJUMP			4.0	   	    // Adds a little z-velocity while in the air
 #define SD_DASHSTRONG		12.0		// And dash speed whilst grounded
@@ -317,19 +311,14 @@ int GetPerkDashCooldown(int pnum) {
 
 #define CHANCE_HEART 0.025
 
-#define UPGRADETEXTID 6999
 #define SURVIVEICO 7000
 #define SURVIVETOPTEXTID 7001
 #define SURVIVETEXTID 7002
 #define SURVIVEID 7003
-#define SURVIVETEXTID2 7010
 #define SURVIVEBAKID 7011
 
 #define INTERVENTION_DURATION TICRATE * 8
 
-#define DND_EMERALD_TRANSLATIONID 7000
-
-#define DND_BUDGET_BASE 3
 #define DND_MAX_SHARE 4
 #define DND_HALF_SPREE_PER (DND_SPREE_PER / 2)
 #define DND_SPREE_TRIGGER (DND_SPREE_PER - 1) // -1 because current monster killed doesn't count
@@ -342,25 +331,11 @@ int GetPerkDashCooldown(int pnum) {
 
 #define DND_MAX_MONSTERDELAY 8
 
-#define DND_HEALTHEXPSCALE 5
-#define DND_HEALTHCREDITSCALE 10
-#define DND_HEALTHCREDITAFTER50SCALE 5
-#define DND_HEALTHCREDITAFTER75SCALE 10
-#define DND_HEALTHCREDITUPSCALE 1
 #define DND_MIN_CREDIT 3
 
 #define DND_ARTIFACT_GAIN 50
 
-#define DND_NECRO_BULKSCALE 8
 
-#define DND_AFTER50_INCREMENT 200
-#define DND_AFTER75_INCREMENT 800
-
-#define AGAMOTTO_MOVE_WINDOW 1 << 16
-
-#define DND_MAX_DIGITLEN 7
-
-#define DND_BOSS_SOULGIVE 4
 
 #define RIP_FADE_TIMER 20
 #define RIP_MONSTER_FADE_DELAY 3 * TICRATE
@@ -373,8 +348,6 @@ int GetPerkDashCooldown(int pnum) {
 
 #define DND_BOSSCHEST_DROPRATE 0.33 // 33% chance
 
-#define DND_MARINE_SELFRESIST 25 // 25%
-
 // RPG ELEMENTS END
 
 #define DefStepSound "Player/Move"
@@ -385,9 +358,7 @@ enum {
 	DND_PULLF_REVERSEDIR = 2
 };
 
-#define MAX_GRAVDIS_COUNT 512
 #define GRAVDIS_DELAY_TIME 15 // 3 seconds is total time, 3 x (35 / 7) = 15
-#define GRAVDIS_CHECK_PERIOD 7
 #define GRAVDIS_MINPULLVEL 2.0
 #define GRAVDIS_MAXPULLVEL 32.0
 #define GRAVDIS_FLING_FACTOR 128
@@ -398,7 +369,6 @@ enum {
 
 #define CHARON_PARTICLE_DENSITY 8
 
-#define DARKLANCE_ALT_DURATION 15 // 105 tic duration, 7 tic timer between damage instances => 105 / 7 = 15
 #define DARKLANCE_ALT_DURATION_TICS 105
 #define DARKLANCE_TICKS 7
 #define DARKLANCE_BOUNCE_DIST 256.0
@@ -425,15 +395,12 @@ enum {
 	BONUS_SECRET_RATE = 3,
 };
 	
-#define MAX_SPREE_TEXT 20
 #define MAX_SPREE_MULT 10 // maximum 10 killing sprees will affect your exp gain
 #define SPREE_TEXT_PREFIX "DND_SPREETEXT"
 
 str GetSpreeText(int spree_id) {
 	return StrParam(s:SPREE_TEXT_PREFIX, d:spree_id);
 }
-
-#define AMMODISPLAY_ID 1000
 
 bool PlayerCanLoad[MAXPLAYERS] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 
@@ -993,28 +960,6 @@ bool MonsterSpawnsMustWait() {
 	return memo.wait;
 }
 
-void SpawnTalentCapsule() {
-	if(GameType() != GAME_SINGLE_PLAYER) {
-		for(int i = 0; i < MAXPLAYERS; ++i)
-			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART))
-				SpawnDrop("TalentCapsule", 0, 0, i + 1, 1);
-	}
-	else
-		SpawnDrop("TalentCapsule_SP", 0, 0, 1, 1);
-}
-
-void SpawnResearchId(int id) {
-	if(GameType() != GAME_SINGLE_PLAYER) {
-		for(int i = 0; i < MAXPLAYERS; ++i) {
-			// spawn this only if this isn't already found by the player
-			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && !CheckResearchStatus(id))
-				SpawnPlayerDropTargeted(i, "ResearchModule_MP", 24.0, 16, i + 1, id);
-		}
-	}
-	else if(!CheckResearchStatus(id)) // 1 before id is player (0 + 1)
-		SpawnPlayerDropTargeted(0, "ResearchModule_MP", 24.0, 16, 1, id);
-}
-
 void SpawnAccessory(int pnum) {
 	int id;
 	if(isSoftorHardcore()) {
@@ -1560,15 +1505,6 @@ int GetPVelocity(void) {
 	else
 		vel = FixedDiv(x, cos(angle));
 	return vel >> 16;
-}
-
-int GetWeaponSlotFromFlag(int flags) {
-	// the first 14 bits are unnecessary
-	flags >>= DND_SHIFTBITS_FOR_SLOTFROMFLAG;
-	for(int i = 0; i < 32; ++i)
-		if(IsSet(flags, i))
-			return i;
-	return 0;
 }
 
 void CheckMonsterMapEventBuffs(int m_id) {

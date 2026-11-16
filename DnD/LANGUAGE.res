@@ -37,7 +37,7 @@ RES_LABEL11 			= "Special Ammo Holding";
 RES_DESC11				= "New generation backpacks are super lightweight, marines can carry these to double the capacity of their special ammo types.";
     
 RES_LABEL12 			= "Slot 1 Occult Weapons";
-RES_DESC12				= "Investigating the corpses of the various demons killed helped us unlock the secrets of their occult powers, allowing use of occult melee weaponry. Unlocks Excalibat and Necromancer's Scythe (1).";
+RES_DESC12				= "Investigating the corpses of the various demons killed helped us unlock the secrets of their occult powers, allowing use of occult melee weaponry. Unlocks Excalibat and Necromancer's Sickle (1).";
 
 RES_LABEL13 			= "Slot 2 Luxury Weapons";
 RES_DESC13				= "Some can say light weapons are useless but we beg to differ. Some of them can be quite potent. Unlocks Scatter Pistol (2).";

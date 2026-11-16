@@ -153,23 +153,6 @@ void GiveSpellBuffAround(int pnum, int spell, int bti, int val, int dur, bool al
 	}
 }
 
-// Who a SPLF_TARGETED support spell lands on: the ally under the crosshair, or the caster when that
-// is nobody. PickActor rather than the aim puff, because this answers in the caller's own call and
-// the puff cannot report before its first tick -- and because it needs an ACTOR, which is the one
-// thing PickActor gives directly.
-int GetSpellSupportTarget(int pnum) {
-	int caster = pnum + P_TIDSTART;
-	int t = PickActor(caster, GetActorAngle(caster), GetActorPitch(caster),
-		DND_SPELL_HITSCANRANGE, 0, MF_SHOOTABLE, ML_BLOCKEVERYTHING, PICKAF_RETURNTID);
-
-	// Player tids are one contiguous band, so membership of it is the whole test.
-	int i = t - P_TIDSTART;
-	if(i >= 0 && i < MAXPLAYERS && i != pnum && PlayerInGame(i) && IsActorAlive(t))
-		return i;
-
-	return pnum;
-}
-
 // Every aura the player has switched on, refreshed. Auras carry no duration of their own, so they are
 // granted for a little longer than this pass's own period and simply lapse when it stops renewing
 // them -- which is what makes switching one off take effect without a teardown path per aura.
@@ -2342,14 +2325,12 @@ Script "DnD Chilling Breath" (int pnum) {
 #define DND_CREEPINGFROST_CRAWLERS 1
 #define DND_CREEPINGFROST_SPREAD 0.11   // how far apart the crawlers set off
 #define DND_CREEPINGFROST_PULSE 7       // tics per crawler pulse; divides TICRATE exactly
-#define DND_CREEPINGFROST_PPS 5         // and so this many a second, which DAMAGE2 is split by
 
 // Half-extent the quad actually SHOWS at scale 1: flat.md3 frame 3 is 15.62 and the shader's mask
 // trims it to about 0.81 of that. The crawler scales itself off this so the frost matches its blast.
 #define DND_CREEPINGFROST_QUADR 12.65
 #define DND_CREEPINGFROST_R5_BONUS 4.0  // extra seconds at rank 5
 #define DND_CREEPINGFROST_R10_RISE 64.0 // rank 10: how much higher it may climb
-#define DND_CREEPINGFROST_SEEK 384      // how far a crawler looks for something to crawl at
 
 Script "DnD Creeping Frost Burst" (void) {
 	int pnum = GetSpellActorOwner();
@@ -3085,7 +3066,6 @@ Script "DnD Ice Golem Aura" (int pnum) {
 // ============================ Ice Spear ============================
 // Two phases in ONE actor, so the owner and rip bookkeeping survive. Its added crit is still owed.
 
-#define DND_ICESPEAR_PHASE1 14          // tics in the slow form; DECORATE's 2 hidden + 6 x 2
 #define DND_ICESPEAR_PHASE2 70          // and tics it lives after
 #define DND_ICESPEAR_FASTMULT 4         // how much quicker the evolved form travels
 #define DND_ICESPEAR_FASTMAX 64.0       // but never faster than this, in units a tic
@@ -9421,7 +9401,6 @@ Script "DnD Upheaval Slam FX" (int m) CLIENTSIDE {
 #define DND_TVOLLEY_AREA 256            // energized area radius, 384 at rank 10
 #define DND_TVOLLEY_R10_AREA 384
 #define DND_TVOLLEY_R5_MORE 20          // more damage per overlapping area past the first, from rank 5
-#define DND_TVOLLEY_BIGBLAST 200        // the energized rock's blast, percent of the RADIUS row: 80 -> 160
 #define DND_TVOLLEY_CHUNKS 8            // chunks the energized rock bursts into
 #define DND_TVOLLEY_CHUNKDMG 16
 #define DND_TVOLLEY_CHUNKRIPS 4
@@ -13270,7 +13249,6 @@ Script "DnD Spell Zombie Melee" (void) {
 #define DND_DOOMGUARD_FODCDR 3           // percent increased recovery of that per Doomguard rank past the first
 #define DND_DOOMGUARD_BLOCKTICS (2 * TICRATE)  // blocking after a flinch
 #define DND_DOOMGUARD_RETALIATE 25       // percent chance a blocked hit is answered, once a block
-#define DND_DOOMGUARD_MOVEDIST 896       // it can be this far from its owner before it is brought back: room to leap
 #define DND_DOOMGUARD_CURSECD (30 * TICRATE)  // rank 10
 #define DND_PORTAL_DIST 96
 #define DND_PORTALBOON_SPEED 1           // the boon's bits, on the minion's DnD_PortalBoon

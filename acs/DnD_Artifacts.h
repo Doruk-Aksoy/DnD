@@ -14,10 +14,8 @@ enum {
 	ARTI_STATRESET,
 	ARTI_RADSUIT
 };
-#define MAXARTIFACTS_PERPAGE 10
 #define MAXARTIFACTS (ARTI_RADSUIT + 1)
 
-#define ARTI_ICON 0
 #define ARTI_NAME 1
 str ArtifactInfo[MAXARTIFACTS][2] = { 
 	{ "FKITD0",				"FieldKit"				},	

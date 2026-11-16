@@ -69,7 +69,6 @@ enum {
 	MAX_PROMPTED_LINES
 };
 #define DW_CHALLENGE_BEGIN DW_CHALLENGE1
-#define DW_ULTIMATUM_CHALLENGE_BEGIN DW_ULTIMATUM_EXTRAELEDMG
 
 enum {
 	NPC_OFFER_NA,
@@ -78,9 +77,6 @@ enum {
 	NPC_OFFER_SUPERDEMON,
 	NPC_OFFER_DUNGEON
 };
-
-#define WANDERER_MARK_MIN 5
-#define WANDERER_MARK_MAX 50
 
 enum {
 	DND_NPC_DARKWANDERER,
@@ -1038,7 +1034,7 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 	SetFont("SMALLFONT");
 
 	HudMessage(
-		s:"\c[L7]", l:"CLASS_PRESS", s:" \ci", k:"+use", s: " \c[L7]", l:"CLASS_TOCLOSE", s:"!";
+		s:"\c[L7]", l:"CLASS_PRESS", s:" \ci", s:BindKeysText("+use", "\ci", "\c[L7]"), s: " \c[L7]", l:"CLASS_TOCLOSE", s:"!";
 		HUDMSG_PLAIN, RPGMENUITEMID - 5, -1, (HUDMAX_X_PROMPT << 15) + 0.4, ((HUDMAX_Y_PROMPT << 16) - 100.0) + 0.1, 0.0, 0.0
 	);
 

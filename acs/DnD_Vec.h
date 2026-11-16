@@ -59,11 +59,6 @@ void AddVec2(Vec2_T* v1, Vec2_T* v2) {
 	v1.y += v2.y;
 }
 
-void SubVec2(Vec2_T* v1, Vec2_T* v2) {
-	v1.x -= v2.x;
-	v1.y -= v2.y;
-}
-
 void ScaleVec2(Vec2_T* v, int f) {
 	v.x = FixedMul(v.x, f);
 	v.y = FixedMul(v.y, f);
@@ -90,22 +85,6 @@ Vec2_T* ScaleVec2C(Vec2_T* v, int f) {
 	return res;
 }
 
-int DotProductVec2(Vec2_T* v1, Vec2_T* v2) {
-	int v1x_16 = v1.x >> 16;		int v2x_16 = v2.x >> 16;
-	int v1y_16 = v1.y >> 16;		int v2y_16 = v2.y >> 16;
-	int vdot = v1x_16 * v2x_16 + v1y_16 * v2y_16;
-	
-	if(abs(vdot) > FIXED_LIM)
-		return vdot << 16;
-	return FixedMul(v1.x, v2.x) + FixedMul(v1.y, v2.y);
-}
-
-bool IsUnitVec2(Vec2_T* v) {
-	// check sqrt to really confirm
-	//printbold(s:"unit val: ", f:abs(LengthVec2(v) - 1.0), s: " vs epsilon: ", f:F_EPSILON);
-	return abs(LengthVec2(v) - 1.0) < F_EPSILON;
-}
-
 int LengthVec2(Vec2_T* v) {
 	// we have to accept some accuracy loss, but it'll be extremely minimal (lack of fractional parts basically)
 	int vx_16 = v.x >> 16;
@@ -116,31 +95,12 @@ int LengthVec2(Vec2_T* v) {
 	return fsqrt(FixedMul(v.x, v.x) + FixedMul(v.y, v.y));
 }
 
-void ToUnitVec2(Vec2_T* v) {
-	int len = LengthVec2(v);
-	v.x = FixedDiv(v.x, len);
-	v.y = FixedDiv(v.y, len);
-}
-
 Vec2_T* ToUnitVec2C(Vec2_T* v) {
 	Vec2_T* res = CopyVec2(v);
 	int len = LengthVec2(res);
 	res.x = FixedDiv(res.x, len);
 	res.y = FixedDiv(res.y, len);
 	return res;
-}
-
-void ShowVec2(str prefix, Vec2_T* v) {
-	printbold(s:prefix, s:": (", f:v.x, s: ", ", f:v.y, s:")"); 
-}
-
-void RotateVector2(Vec2_T* v, int angle) {
-	int c = cos(angle);
-	int s = sin(angle);
-	
-	int xtemp = v.x;
-	v.x = FixedMul(c, v.x) - FixedMul(s, v.y);
-	v.y = FixedMul(s, xtemp) + FixedMul(c, v.y);
 }
 
 Vec2_T* RotateVector2C(Vec2_T* v, int angle) {
@@ -160,22 +120,6 @@ Vec2_T* Vec2To(int target_tid) {
 	res.x = GetActorX(target_tid) - GetActorX(0);
 	res.y = GetActorY(target_tid) - GetActorY(0);
 	return res;
-}
-
-int AngleOfVector2(Vec2_T* v) {
-	return VectorAngle(v.x, v.y);
-}
-
-int AngleBetweenVectors2(Vec2_T* v1, Vec2_T* v2) {
-	int v1len = LengthVec2(v1) >> 16;
-	int v2len = LengthVec2(v2) >> 16;
-	
-	if(!v1len)
-		v1len = 1;
-	if(!v2len)
-		v2len = 1;
-	
-	return acos(DotProductVec2(v1, v2) / (v1len * v2len));
 }
 
 /*
@@ -202,12 +146,6 @@ void AddVec3(Vec3_T* v1, Vec3_T* v2) {
 	v1.z += v2.z;
 }
 
-void SubVec3(Vec3_T* v1, Vec3_T* v2) {
-	v1.x -= v2.x;
-	v1.y -= v2.y;
-	v1.z -= v2.z;
-}
-
 void ScaleVec3(Vec3_T* v, int f) {
 	v.x = FixedMul(v.x, f);
 	v.y = FixedMul(v.y, f);
@@ -219,12 +157,6 @@ void AddScaledVec3(Vec3_T* v, Vec3_T* add, int f) {
 	v.x += FixedMul(add.x, f);
 	v.y += FixedMul(add.y, f);
 	v.z += FixedMul(add.z, f);
-}
-
-void MulVecVec3(Vec3_T* v1, Vec3_T* v2) {
-	v1.x = FixedMul(v1.x, v2.x);
-	v1.y = FixedMul(v1.y, v2.y);
-	v1.z = FixedMul(v1.z, v2.z);
 }
 
 void ScaleVec3_Int(Vec3_T* v, int s) {
@@ -268,12 +200,6 @@ int DotProductVec3(Vec3_T* v1, Vec3_T* v2) {
 	return FixedMul(v1.x, v2.x) + FixedMul(v1.y, v2.y) + FixedMul(v1.z, v2.z);
 }
 
-bool IsUnitVec3(Vec3_T* v) {
-	// check sqrt to really confirm
-	//printbold(s:"unit val: ", f:abs(LengthVec2(v) - 1.0), s: " vs epsilon: ", f:F_EPSILON);
-	return abs(LengthVec3(v) - 1.0) < F_EPSILON;
-}
-
 // the length from components, for a vector held in locals, which no function can be handed
 int LengthXYZ(int x, int y, int z) {
 	// we have to accept some accuracy loss, but it'll be extremely minimal (lack of fractional parts basically)
@@ -305,10 +231,6 @@ Vec3_T* ToUnitVec3C(Vec3_T* v) {
 	res.y = FixedDiv(res.y, len);
 	res.z = FixedDiv(res.z, len);
 	return res;
-}
-
-void ShowVec3(str prefix, Vec3_T* v) {
-	printbold(s:prefix, s:": (", f:v.x, s: ", ", f:v.y, s: ", ", f:v.z, s:")"); 
 }
 
 // gets a vector that points to a given actor tid (assumes 0 as us)
@@ -352,18 +274,6 @@ Vec3_T* RotateVector3C(Vec3_T* v, int angle) {
 
 int AngleOfVector3(Vec3_T* v) {
 	return VectorAngle(v.x, v.y);
-}
-
-int AngleBetweenVectors3(Vec3_T* v1, Vec3_T* v2) {
-	int v1len = LengthVec3(v1) >> 16;
-	int v2len = LengthVec3(v2) >> 16;
-	
-	if(!v1len)
-		v1len = 1;
-	if(!v2len)
-		v2len = 1;
-	
-	return acos(DotProductVec3(v1, v2) / (v1len * v2len));
 }
 
 // gets a direction vector for a given actor tid
@@ -491,33 +401,8 @@ Vec3_T* GetRandomSpreadDir(Vec3_T* vDir, Vec3_T* vUp, Vec3_T* vRight, int speed,
 	return vDir_temp;
 }
 
-void StartLookDist(int part, int maxdist = 2048.0) {
-	// The puff tid DOES work now, verified -- see TraceSpellAim, which reads one back on the same
-	// tic. This function has no callers and DistanceHelper was never written.
-	LineAttack(0, GetActorAngle(0), GetActorPitch(0), 0, "DistanceHelper", "None", maxdist, FHF_NORANDOMPUFFZ | FHF_NOIMPACTDECAL);
-}
-
 bool isMoving() {
 	return GetActorVelX(0) != 0.0 || GetActorVelY(0) != 0.0;
-}
-
-bool isPressingMovementKeys() {
-	int bt = GetPlayerInput(-1, INPUT_BUTTONS);
-	return (bt & (BT_MOVELEFT | BT_MOVERIGHT | BT_FORWARD | BT_BACK));
-}
-
-int GetLateralSpeed() {
-	int vx = GetActorVelX(0);
-	int vy = GetActorVelY(0);
-	return FixedMul(vx, vx) + FixedMul(vy, vy);
-}
-
-// Modifies input vector
-void Vel3DFromAnglePitch(Vec3_T* v, int angle, int pitch, int speed = 1) {
-	int cosp = cos(pitch);
-	v.x = speed * FixedMul(cosp, cos(angle));
-	v.y = speed * FixedMul(cosp, sin(angle));
-	v.z = speed * sin(-pitch);
 }
 
 // basically does v1 + (v2 - v1) * a

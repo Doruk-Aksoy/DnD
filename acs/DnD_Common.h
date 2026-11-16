@@ -34,10 +34,6 @@ struct ValueComponent_T {
 	int multiplicative;
 };
 
-// string tables should always follow icon + name if they have both
-#define STRING_ICON 0
-#define STRING_NAME 1
-
 #define CHAOSMARK_DAMAGEBUFF 50
 #define ASMODEUSMARK_DAMAGEBUFF 100
 
@@ -53,7 +49,6 @@ struct ValueComponent_T {
 #define MAXPLAYERS_BITS 6 // 6 bits needed to store 0-63
 #define MAXPLAYERS_MASK 0x3F
 #define TICRATE 35
-#define TICRATE_F 35.0
 #define TICRATE_TIMESFIVE (35 * 5)
 #define HALF_TICRATE 17
 #define MAXLOOTBOXES 1024
@@ -109,11 +104,6 @@ enum {
 // Aura setup -- keep refresh rate below the powerup token's duration!!
 #define DND_MONSTERAURA_REFRESHRATE (TICRATE * 2)
 #define DND_AURAWARD_RESIST 25 // flat, added to the TRUE resist -- see the read in FactorResists
-
-// A_RadiusGive takes a plain unit count and lives in DECORATE, which cannot see this. Aura_Ward_Pulse
-// hardcodes the same number; keep the two in step.
-#define DND_AURAWARD_DISTANCE 256
-#define DND_IMMUNITY_HARDCAP_FACTOR 99 // 1% damage taken
 
 #define DND_DAMAGECATEGORY_BEGIN DND_DAMAGECATEGORY_MELEE
 #define DND_DAMAGECATEGORY_END (DND_DAMAGECATEGORY_OCCULT + 1)
@@ -437,7 +427,7 @@ enum {
 	PSTAT_EX_SECONDEXPBONUS,
 	PSTAT_EX_DOUBLE_HEALTHCAP,
 	PSTAT_EX_PHYSDAMAGEPER_FLATHEALTH,
-	PSTAT_EX_FORBID_ARMOR,
+	PSTAT_EX_STRENGTH_REQUIREMENT,
 	PSTAT_EX_CHANCE_ONDEATH_RAISEZOMBIE,
 	PSTAT_EX_DMGREDUCE_SHAREWITHPETS,
 	PSTAT_EX_DMGINCREASE_TAKEN,
@@ -967,8 +957,6 @@ enum {
 
 #define EPSILON 0.000001
 
-#define DND_VIEWCHECK_DENSITY 8
-
 #define DND_MONSTERBONUS_PERLVL 20 // 20% increase per level on gains granted by monsters
 
 enum {
@@ -984,11 +972,9 @@ enum {
 #define MAXPLAYERCLASSES (DND_PLAYER_TRICKSTER + 1)
 
 #define DND_PLAYER_RADIUS 16.0
-#define DND_PLAYER_RADIUS_INT (DND_PLAYER_RADIUS >> 16)
 
 #define DND_MARINE_SELFEXPLOSIVEREDUCE 25
 
-#define DND_HOBO_SHOTGUNBONUS 30
 #define DND_HOBO_SHOTGUNPELLETBONUS 0.1
 #define DND_HOBO_SHOTGUNPELLETBONUS_PERLVL 0.15
 
@@ -998,26 +984,18 @@ enum {
 #define PUNISHERPERKID1 7010
 #define PUNISHERPERKID2 7011
 
-#define DND_WANDERER_SPELLEFFICIENCY 4
-#define DND_WANDERER_COOLDOWNBONUS 4
-
-#define DND_EXP_HUDID_FILL 266
-#define DND_EXP_HUDID_BACK 267
 
 #define DND_MAX_MONSTERS 12800
 #define DND_MAX_MONSTER_ATTACHMENTS 32
 #define DND_MAX_ATTACHMENT_SLOTS (DND_MAX_MONSTERS + MAX_PETS) // monster slots, then pet slots
 
 #define DND_MAX_TEMP_PROJ 200
-#define DND_MAX_TEMP_PROJ_SMALL 32
 #define DND_EMERALD_TIDADD 100
 #define DND_TEMPORARY_TIDADD 200
 #define DND_AVATAR_CUBESKIP 6000
 
 #define MAX_SHARED_ITEMS 2048
-#define SHARED_ITEM_TYPE_TID_MAX 19048
 
-#define LIMITED_RESPAWN_TID_END 29049
 #define LIMITED_RESPAWN_MAX 10000
 
 #define THUNDERSTAFF_RING_SKIP 2048 // this is calculated in spawner code, but basically 32 x 64 = 2048
@@ -1651,34 +1629,6 @@ void GiveSharedItemTID() {
 		++InformationInLevel[LEVELINFO_TID_SHAREDITEMS];
 }
 
-int GiveIncursionMarkerTID() {
-	int toGive = DND_INCURSIONMARKER_TID + (InformationInLevel[LEVELINFO_TID_INCURSIONMARKERS]++);
-	Thing_ChangeTID(DND_INCURSIONMARKER_AUX, toGive);
-	return toGive;
-}
-
-// naive search -- assumes lowercase key
-bool StringContains(str s, str key) {
-	int len = StrLen(s);
-	int key_len = StrLen(key);
-	
-	int match_id = 0;
-	for(int i = 0; i < len; ++i) {
-		// force lowercase
-		int c = GetChar(s, i);
-		if(c < 'a')
-			c += 32;
-		if(c == GetChar(key, match_id)) {
-			++match_id;
-			if(match_id == key_len)
-				return true;
-		}
-		else
-			match_id = 0;
-	}
-	return false;
-}
-
 bool isPlayer(int tid) {
 	return tid >= P_TIDSTART && tid < P_TIDSTART + MAXPLAYERS;
 }
@@ -1830,13 +1780,6 @@ int SetActorInventory (int tid, str item, int count) {
 	return n;
 }
 
-void GiveOrTake(str item, int count, bool mode) {
-	if(!mode)
-		GiveInventory(item, count);
-	else
-		TakeInventory(item, count);
-}
-
 int Clamp_Between(int x, int low, int high) {
 	if(x < low)
 		return low;
@@ -1851,10 +1794,6 @@ int IsAlive() {
 
 int IsActorAlive(int tid) {
 	return GetActorProperty(tid, APROP_HEALTH) > 0;
-}
-
-int IsDigit(int c) {
-	return c >= '0' && c <= '9';
 }
 
 bool IsActivePlayer(int pnum) {
@@ -2051,30 +1990,6 @@ Script "DnD Try Spawn Area" (int stid, int actortype, int newtid, int r) {
 	SetResultValue(0);
 }
 
-int SpawnAreaRandomTID(int stid, int radius, str actortype, int newtid, int max_tries = 8) {
-	int count = 0;
-	bool finished = false;
-	while(!finished && count++ < max_tries) {
-		// try to spawn at this one point
-		int r = FixedMul(radius, random(0.1875, 1.0));
-		LineAttack(stid, random(0, 1.0), 0, 0, actortype, "", r);
-		finished = true;
-		break;
-		/*if(ThingCountName("DnD_IncursionPuff", AUX_INCURSION_PUFF_TID)) {
-			int cx = GetActorX(AUX_INCURSION_PUFF_TID);
-			int cy = GetActorY(AUX_INCURSION_PUFF_TID);
-			int cz = GetSectorFloorZ(0, cx >> 16, cy >> 16);
-
-			if(Spawn(actortype, cx, cy, cz, newtid, 0))
-				finished = true;
-			else
-				Thing_ChangeTID(AUX_INCURSION_PUFF_TID, 0);
-		}*/
-	}
-
-	return finished;
-}
-
 // Hold 0.03 is one tic. The blank only exists to replace the old message, and every live message
 // makes the next HudMessage slower, so it should leave the list as soon as it can.
 #define DND_DELETETEXT_HOLD 0.03
@@ -2087,12 +2002,6 @@ void DeleteText(int textid) {
 void DeleteTextRange(int r1, int r2) {
 	for(int i = 0; i < r2 - r1 + 1; i++)
 		HudMessage(s:""; HUDMSG_PLAIN, r1 + i, -1, 160.0, 100.0, DND_DELETETEXT_HOLD);
-}
-
-int VectorLength3d(int x, int y, int z) {
-	int len = VectorLength(x, y);
-	len = VectorLength(z, len);
-	return len;
 }
 
 bool isPlayerClass(int ctype) {

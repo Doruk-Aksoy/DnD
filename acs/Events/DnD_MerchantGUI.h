@@ -4,8 +4,6 @@
 #include "DnD_Merchant.h"
 
 #define DND_MERCHANT_CLASSBASED_CHANCE 0.33
-#define DND_MERCHANT_MAXITEMSONROW 5
-#define DND_MERCHANT_YSHIFTROW 72.0
 
 enum {
     DND_MRCHT_TEXT_DEFAULT,
@@ -26,113 +24,6 @@ enum {
 
     DND_MRCHT_TRICKSTER_CANTAFFORD
 };
-
-#define DND_MERCHANT_HUDID_OFFSET 5
-
-coord_T item_dimensions;
-
-void AcquireItemDimensions(int pos) {
-    item_dimensions.x = 40.0;
-    item_dimensions.y = 40.0;
-
-    auto item = GetMerchantItem(pos);
-
-    int item_type = item.item_type & 0xFFFF;
-
-    if(item_type != DND_ITEM_BODYARMOR) {
-        item_dimensions.x = 40.0;
-
-        if(item_type == DND_ITEM_CHARM && item.item_subtype != DND_CHARM_SMALL) {
-            // we downsize the grand charms to fit the screen better
-            item_dimensions.y = 56.0;
-        }
-    }
-    else if(item_type == DND_ITEM_BODYARMOR) {
-        item_dimensions.x = 50.0;
-        item_dimensions.y = 50.0;
-    }
-    else
-        item_dimensions.x = 56.0;
-}
-
-int DrawMerchantItemBox(int item_pos, int boxid, int thisboxid, int hudx, int hudy) {
-    SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
-    
-    auto item = GetMerchantItem(item_pos);
-
-    int txt_id = 0;
-    int item_type = item.item_type & 0xFFFF;
-    int temp;
-    int cpn = ConsolePlayerNumber();
-    int yoff = 0;
-    int xscale = 1;
-    int yscale = 1;
-    str borderpic = "";
-    if(item_type == DND_ITEM_CHARM) {
-        borderpic = GetCharmBoxLabel(item.item_subtype, boxid == thisboxid);
-        if(item.item_subtype == DND_CHARM_LARGE) {
-            xscale = 3;
-            yscale = 2;
-            SetHudSize(HUDMAX_X * xscale / yscale, HUDMAX_Y * xscale / yscale, 1);
-        }
-    }
-    else if(item_type == DND_ITEM_BODYARMOR) {
-        if(boxid == thisboxid)
-            borderpic = "ARMSELG";
-        else
-            borderpic = "ARMSELB";
-    }
-    else
-        borderpic = GetCharmBoxLabel(DND_CHARM_SMALL, boxid == thisboxid);
-
-    if(item_pos >= DND_MERCHANT_MAXITEMSONROW)
-        yoff += DND_MERCHANT_YSHIFTROW;
-
-    SetFont(GetItemImage(item.item_image));
-    HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - DND_MERCHANT_HUDID_OFFSET - 1, CR_WHITE, GetIntegerBits(hudx) * xscale / yscale + item_dimensions.x / 2 + 0.4, (hudy + yoff) * xscale / yscale, 0.0, 0.0);
-    
-    if(boxid == thisboxid) {
-        UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_TRADEVIEW, item.item_type, MAXPLAYERS, 0, HUDMAX_X, HUDMAX_Y);
-
-        // hovered so we can return some special text here
-        if(random(0, 1.0) <= DND_MERCHANT_CLASSBASED_CHANCE) {
-            temp = GetPlayerCredit(cpn);
-            if(GetMerchantItemPrice(item_pos) > temp) {
-                temp = GetActorPlayerClass(cpn + P_TIDSTART);
-                if(temp == DND_PLAYER_DOOMGUY)
-                    txt_id = DND_MRCHT_DOOMGUY_CANTAFFORD;
-                else if(temp == DND_PLAYER_MARINE)
-                    txt_id = DND_MRCHT_MARINE_CANTAFFORD;
-                else if(temp == DND_PLAYER_HOBO)
-                    txt_id = DND_MRCHT_HOBO_CANTAFFORD;
-                else if(temp == DND_PLAYER_WANDERER)
-                    txt_id = random(DND_MRCHT_WANDERER_CANTAFFORD1, DND_MRCHT_WANDERER_CANTAFFORD2);
-                else if(temp == DND_PLAYER_TRICKSTER)
-                    txt_id = DND_MRCHT_TRICKSTER_CANTAFFORD;
-            }
-        }
-        else if(!item.item_stack) {
-            temp = GetActorLevel(cpn + P_TIDSTART);
-            if(temp > item.item_level * 3) {
-                if(item_type != DND_ITEM_CHARM)    
-                    txt_id = DND_MRCHT_TEXT_LOWLEVELARMOR;
-                else if(item_type == DND_ITEM_CHARM)
-                    txt_id = DND_MRCHT_TEXT_LOWLEVELCHARM;
-            }
-            else if(temp < item.item_level - 10) {
-                txt_id = random(DND_MRCHT_HOVER_HIGHLEVELITEM1, DND_MRCHT_HOVER_HIGHLEVELITEM2);
-            }
-        }
-    }
-    else
-        txt_id = DND_MRCHT_TEXT_DEFAULT;
-
-    SetFont(borderpic);
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - DND_MERCHANT_HUDID_OFFSET, CR_WHITE, hudx * xscale / yscale, (hudy + yoff) * xscale / yscale, 0.0, 0.0);
-    SetHudSize(HUDMAX_X_PROMPT, HUDMAX_Y_PROMPT, 1);
-
-    return txt_id;
-}
 
 str GetMerchantText(int id) {
     str txt = "";
@@ -180,254 +71,220 @@ str GetMerchantText(int id) {
     return txt;
 }
 
-void UpdateMerchantText(int txt_id) { 
-    str merchant_text = GetMerchantText(txt_id);
+// The merchant window on the menu's canvas: his portrait and line up top, his stock as wells with prices below.
+// Mutually exclusive with the menu, so it borrows the crafting id band.
+#define MRC_ID MCH_ID_CRAFT_FIRST
+#define MRC_PANE_X 232
+#define MRC_PANE_Y 160
+#define MRC_CELL 140
+#define MRC_CELL_GAP 36
+#define MRC_CELL_X 298
+#define MRC_CELL_Y 400
+#define MRC_ROW_STEP 190
+#define MRC_COLS 5
 
-    SetHudSize(HUDMAX_X_PROMPT, HUDMAX_Y_PROMPT, 1);
-    SetHudClipRect(160, 112, 532, 600, 532);
-    SetFont("SMALLFONT");
-    HudMessage(
-        l:merchant_text;
-        HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 160.1, 128.1, 0.0, 0.0
-    );
-
-    SetHudClipRect(0, 0, 0, 0);
-    SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+int MerchantItemCount() {
+	int n = 0;
+	while(n < DND_MERCHANT_LIMITITEMS && (GlobalItemStorage.TradeViewList[MAXPLAYERS][n].item_type & 0xFFFF) != DND_ITEM_NULL)
+		++n;
+	return n;
 }
 
-void UpdateMerchantItemPriceText(int boxid) {
-    // show user the hovered item's price
-    if(boxid != MAINBOX_NONE) {
-        SetHudSize(HUDMAX_X_PROMPT, HUDMAX_Y_PROMPT, 1);
-        SetHudClipRect(160, 112, 532, 600, 532);
-        SetFont("SMALLFONT");
-
-        str price_col = "\cd";
-        int price = GetMerchantItemPrice(boxid - 1);
-        if(GetPlayerCredit(ConsolePlayerNumber()) < price)
-            price_col = "\cg";
-
-        HudMessage(
-            s:"\c[Y5]", l:"DND_PRICE", s:": ", s:price_col, s:"$", d:price;
-            HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 160.1, 450.1, 0.0, 0.0
-        );
-
-        SetHudClipRect(0, 0, 0, 0);
-        SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
-    }
-    else
-        DeleteText(RPGMENUITEMID - 3);
+int MerchantCellX(int i) {
+	return MRC_CELL_X + (MRC_CELL + MRC_CELL_GAP) * (i % MRC_COLS);
 }
 
-// returns item count
-int UpdateMerchantBoxes(menu_pane_T module& p) {
-    ResetPane(p);
+int MerchantCellY(int i) {
+	return MRC_CELL_Y + MRC_ROW_STEP * (i / MRC_COLS);
+}
 
-    int ipos = 0, offset = 0, yoff = 0;
-    int item_type = GlobalItemStorage.TradeViewList[MAXPLAYERS][ipos].item_type & 0xFFFF;
-    while(item_type != DND_ITEM_NULL) {
-        AcquireItemDimensions(ipos);
+// the box the server knows: item i is box i + 1
+int MerchantHit(int count) {
+	int cx = MchCursorX(), cy = MchCursorY();
+	for(int i = 0; i < count; ++i)
+		if(MchIn(cx, cy, MerchantCellX(i), MerchantCellY(i), MRC_CELL, MRC_CELL))
+			return i + 1;
+	return MAINBOX_NONE;
+}
 
-        if(item_type == DND_ITEM_CHARM && GlobalItemStorage.TradeViewList[MAXPLAYERS][ipos].item_subtype == DND_CHARM_LARGE)
-            item_dimensions.x = 26.0;
+// what he says about a hovered item: a jab when it is out of reach, a remark on its level, or nothing new
+int MerchantHoverText(int pos) {
+	auto item = GetMerchantItem(pos);
+	int cpn = ConsolePlayerNumber(), temp, item_type = item.item_type & 0xFFFF;
+	if(random(0, 1.0) <= DND_MERCHANT_CLASSBASED_CHANCE) {
+		if(GetMerchantItemPrice(pos) > GetPlayerCredit(cpn)) {
+			temp = GetActorPlayerClass(cpn + P_TIDSTART);
+			if(temp == DND_PLAYER_DOOMGUY)
+				return DND_MRCHT_DOOMGUY_CANTAFFORD;
+			if(temp == DND_PLAYER_MARINE)
+				return DND_MRCHT_MARINE_CANTAFFORD;
+			if(temp == DND_PLAYER_HOBO)
+				return DND_MRCHT_HOBO_CANTAFFORD;
+			if(temp == DND_PLAYER_WANDERER)
+				return random(DND_MRCHT_WANDERER_CANTAFFORD1, DND_MRCHT_WANDERER_CANTAFFORD2);
+			if(temp == DND_PLAYER_TRICKSTER)
+				return DND_MRCHT_TRICKSTER_CANTAFFORD;
+		}
+	}
+	else if(!item.item_stack) {
+		temp = GetActorLevel(cpn + P_TIDSTART);
+		if(temp > item.item_level * 3)
+			return (item_type != DND_ITEM_CHARM) ? DND_MRCHT_TEXT_LOWLEVELARMOR : DND_MRCHT_TEXT_LOWLEVELCHARM;
+		if(temp < item.item_level - 10)
+			return random(DND_MRCHT_HOVER_HIGHLEVELITEM1, DND_MRCHT_HOVER_HIGHLEVELITEM2);
+	}
+	return DND_MRCHT_TEXT_DEFAULT;
+}
 
-        AddBoxToPane_Points(p, 400.0 - offset, 200.0 + item_dimensions.y / 2 - yoff, 400.0 - offset - item_dimensions.x, 200.0 - item_dimensions.y / 2 - yoff);
+// a sprite k times larger with its feet on (cx, by): the portraits carry bottom-centre offsets, so they anchor top left
+void MerchantPortrait(str pic, int id, int cx, int by, int k) {
+	MenuHudSize(FixedDiv(MCH_W << 16, k) >> 16, FixedDiv(MCH_H << 16, k) >> 16);
+	SetFont(pic);
+	HudMessage(s:"A"; HUDMSG_PLAIN, id, CR_UNTRANSLATED, MenuX((FixedDiv(cx << 16, k) & MMASK) + 0.1), MenuY((FixedDiv(by << 16, k) & MMASK) + 0.1), 0.0);
+	MenuHudSize(MCH_W, MCH_H);
+}
 
-        offset += item_dimensions.x + 10.0;
-        ++ipos;
-        if(ipos == DND_MERCHANT_MAXITEMSONROW) {
-            yoff = DND_MERCHANT_YSHIFTROW;
-            offset = 0;
-        }
+void DrawMerchantWindow(int boxid, int count, int txt, bool poor) {
+	int i, credit = GetPlayerCredit(ConsolePlayerNumber());
+	MenuHudSize(MCH_W, MCH_H);
+	MchPicScaled("MCDIM", MRC_ID + 44, MCH_W / 2, MCH_H / 2, 120.0);
+	MchPic("MCPANE", MRC_ID + 43, MRC_PANE_X, MRC_PANE_Y);
+	MchPic("MCWELL", MRC_ID + 41, MRC_PANE_X + 30, MRC_PANE_Y + 30);
+	// a purchase he cannot make for you swaps him to his displeased look
+	MerchantPortrait(poor ? "MRCHT0" : "MRCHV0", MRC_ID + 40, MRC_PANE_X + 160, MRC_PANE_Y + 192, 2.8);
+	MchText("MENUHEAD", StrParam(s:"\c[UIGold]", l:"DND_MRC_NAME"), MRC_ID, MRC_PANE_X + 320, MRC_PANE_Y + 52, 1);
+	// his line, then "insufficient funds" right under it; his longest lines take the smaller font so both still fit
+	str line = StrParam(l:GetMerchantText(txt)), body = StrParam(s:"\c[UIWhite]", s:line);
+	if(poor)
+		body = StrParam(s:body, s:"\n\c[UIRed]", l:"DND_POPUP_NOFUNDS");
+	MenuClipRect(MRC_PANE_X + 320, MRC_PANE_Y + 80, 620, 136, 620);
+	MchText((StrLen(line) > 150) ? "MENUBDYS" : "MENUBODY", body, MRC_ID + 1, MRC_PANE_X + 320, MRC_PANE_Y + 84, 3);
+	MenuClipRect(0, 0, 0, 0, 0);
+	MenuClipRect(MRC_PANE_X + 30, MRC_PANE_Y + 222, 916, 2);
+	MchPic("MCDIV", MRC_ID + 42, MRC_PANE_X + 30, MRC_PANE_Y + 222);
+	MenuClipRect(0, 0, 0, 0, 0);
 
-        item_type = GlobalItemStorage.TradeViewList[MAXPLAYERS][ipos].item_type & 0xFFFF;
-    }
-    
-    return ipos;
+	// the stock: a well each, the art fitted to it, the price below in gold or in red when it is out of reach
+	DeleteTextRange(MRC_ID + 10, MRC_ID + 39);
+	for(i = 0; i < count; ++i) {
+		auto item = GetMerchantItem(i);
+		int x = MerchantCellX(i), y = MerchantCellY(i), price = GetMerchantItemPrice(i);
+		int k = Min(3.2, FixedDiv(124.0, (24 * Max(Max(item.width, item.height), 1)) << 16));
+		MchPic((boxid == i + 1) ? "MCMCEL1" : "MCMCEL0", MRC_ID + 30 + i, x - 10, y - 10);
+		MchPicScaled(GetItemImage(item.item_image), MRC_ID + 20 + i, x + MRC_CELL / 2, y + MRC_CELL / 2, k);
+		MchText("MENUBODY", StrParam(s:(price > credit) ? "\c[UIRed]" : "\c[UIGold]", s:MchMoney(price)), MRC_ID + 10 + i, x + MRC_CELL / 2, y + MRC_CELL + 18, 0);
+		if(boxid == i + 1)
+			UpdateCursorHoverData(i, DND_SYNC_ITEMSOURCE_TRADEVIEW, item.item_type, MAXPLAYERS, 0, HUDMAX_X, HUDMAX_Y);
+	}
+	MchText("MENUSUB", StrParam(s:"\c[UIGrey]", l:"DND_MENU_CREDITS", s:" \c[UIGold]", s:MchMoney(credit)), MRC_ID + 3, MRC_PANE_X + 30, MRC_PANE_Y + 636, 1);
+	MchText("MENUSUB", StrParam(s:"\c[UIGrey]", k:"+attack", s:"  ", l:"DND_MRC_BUY", s:"      ", k:"+use", s:"  ", l:"DND_MRC_CLOSE"), MRC_ID + 2, MRC_PANE_X + 946, MRC_PANE_Y + 636, 2);
+	MenuHudSize(HUDMAX_X, HUDMAX_Y);
 }
 
 Script "DnD Prompt Merchant" (void) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
 
-	// draw the background once
-	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
-	SetFont("MRCHV0");
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, -1, 392.0, 160.0, 0.0, 0.0);
-	SetHudSize(HUDMAX_X_PROMPT, HUDMAX_Y_PROMPT, 1);
-	SetFont("PROMPT");
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUBACKGROUNDID, -1, 480.0, 320.0, 0.0, 0.0);
-
-	// draw greetings text
-	SetFont("SMALLFONT");
-
-	HudMessage(
-		s:"\c[L7]", l:"CLASS_PRESS", s:" \ci", k:"+use", s: " \c[L7]", l:"CLASS_TOCLOSE",
-        s:" ", l:"DND_AND", s:" \ci", k:"+attack", s:" \c[L7]", l:"DND_TOPURCHASE", s:"!";
-		HUDMSG_PLAIN, RPGMENUITEMID - 1, -1, (HUDMAX_X_PROMPT << 15) + 0.4, ((HUDMAX_Y_PROMPT << 16) - 100.0) + 0.1, 0.0, 0.0
-	);
-
-	SetHudClipRect(160, 112, 532, 600, 532);
-	
-	menu_pane_T module& CurrentPane = GetPane();
-
-    int item_count = 0;
-    int i = 0, j = 0, k = 0;
-    item_count = UpdateMerchantBoxes(CurrentPane);
-
-    HudMessage(
-        l:GetMerchantText(DND_MRCHT_TEXT_DEFAULT);
-        HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 160.1, 128.1, 0.0, 0.0
-    );
-	HudMessage(
-		l:"DND_MERCHANTHEADER";
-		HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 440.4, 112.1, 0.0, 0.0
-	);
-
+	UpdateMenuZoom(true);
+	SyncMenuTheme();
 	PlayerCursorData.posx = HUDMAX_XF / 2;
 	PlayerCursorData.posy = HUDMAX_YF / 2;
 
-	int boxid = MAINBOX_NONE, boxid_prev = MAINBOX_NONE;
-	int pnum = PlayerNumber();
-	bool sendInput = false;
-    bool redraw = false;
-    // tics left before we may send another input, see the send site below
-    int op_cooldown = 0;
-    GiveInventory("DnD_RefreshPane", 1); // force items to draw first time
+	int boxid = MAINBOX_NONE, boxid_prev = MAINBOX_NONE, i, k, count;
+	int pnum = PlayerNumber(), txt = DND_MRCHT_TEXT_DEFAULT;
+	// roll: he picks a line again, as the old window did on every redraw a hover, a click or a purchase caused
+	bool sendInput = false, redraw = true, poor = false, poor_prev = false, roll = false;
+	// tics left before we may send another input, see the send site below
+	int op_cooldown = 0;
 	while(isAlive() && CheckInventory("ShowingPrompt") && !CheckInventory("ShowingMenu")) {
-        redraw = false;
-		// cursor handling
-		PlayerCursorData.posx = GetCursorPos(GetPlayerInput(ConsolePlayerNumber(), INPUT_YAW), MOUSE_INPUT_X);
-		PlayerCursorData.posy = GetCursorPos(GetPlayerInput(ConsolePlayerNumber(), INPUT_PITCH), MOUSE_INPUT_Y);
-		
-		SetHudClipRect(0, 0, 0, 0);
-		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
-		DrawCursor();
-		
-		// button id recognition
-		boxid = GetTriggeredBoxOnPane(CurrentPane, PlayerCursorData.posx, PlayerCursorData.posy, 402.0);
+		// the cursor reaches past the design space like the menu's
+		PlayerCursorData.posx = GetCursorPos(GetPlayerInput(-1, INPUT_YAW), MOUSE_INPUT_X, HUDMAX_X + MCH_CURSOR_OVER, HUDMAX_Y, -MCH_CURSOR_OVER << 16);
+		PlayerCursorData.posy = GetCursorPos(GetPlayerInput(-1, INPUT_PITCH), MOUSE_INPUT_Y);
+		if(UpdateMenuZoom(true))
+			redraw = true;
+
+		count = MerchantItemCount();
+		boxid = MerchantHit(count);
 		if(boxid != boxid_prev) {
-            redraw = true;
+			redraw = true;
+			roll = true;
+			if(boxid != MAINBOX_NONE)
+				LocalAmbientSound("RPG/MenuMove", 127);
+			else
+				txt = DND_MRCHT_TEXT_DEFAULT;
+		}
+		boxid_prev = boxid;
 
-            if(boxid != MAINBOX_NONE)
-			    LocalAmbientSound("RPG/MenuMove", 127);
-        }
+		// check inputs
+		ListenMouseInput();
 
-        boxid_prev = boxid;
+		if(op_cooldown)
+			--op_cooldown;
 
-        UpdateMerchantItemPriceText(boxid);
+		// DnD_ClickTicker only debounces us for 3 tics while the server discards anything inside its own 4 tic
+		// window, so sends are paced to DND_MENU_SENDINTERVAL as the menu's loop does
+		sendInput = CheckInventory("MenuInput") != 0;
+		if(sendInput && !op_cooldown && !CheckInventory("DnD_ClickTicker")) {
+			GiveInventory("DnD_ClickTicker", 1);
+			// recomputed per send: latching it meant every click inside one round trip re-sent the FIRST box
+			MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = (boxid | MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK]);
+			i = PlayerNumber() | (CheckInventory("MenuInput") << 16);
+			// guarantee nonzero input
+			if(i) {
+				redraw = true;
+				roll = true;
+				op_cooldown = DND_MENU_SENDINTERVAL;
+				NamedRequestScriptPuke("DND Server Box Receive - Merchant", i, MenuInputData[pnum][DND_MENUINPUT_PAYLOAD]);
+				// one press, one send: cleared here, not on the ack, or a high ping bought the item twice
+				SetInventory("MenuInput", 0);
+			}
+		}
 
-        // check inputs
-        ListenMouseInput();
+		Delay(const:1);
 
-        if(op_cooldown)
-            --op_cooldown;
+		if(PlayerCursorData.itemHovered != -1) {
+			if(boxid == MAINBOX_NONE || PlayerCursorData.hoverNeedsReset)
+				ResetCursorHoverData();
+			else
+				DrawInventoryInfo(PlayerCursorData.owner_pnum);
+		}
+		else if(PlayerCursorData.hoverNeedsReset)
+			ResetCursorHoverData();
 
-        // DnD_ClickTicker only debounces us for 3 tics while the server discards anything inside
-        // its own 4 tic window, so clicking alone was always able to outrun it. Pace sends to
-        // DND_MENU_SENDINTERVAL so every one that leaves is accepted -- same reasoning as the main
-        // menu loop in DnD_Menu.h.
-        sendInput = CheckInventory("MenuInput") != 0;
-        if(sendInput && !op_cooldown && !CheckInventory("DnD_ClickTicker")) {
-            GiveInventory("DnD_ClickTicker", 1);
-            // server gets a few extra info in boxid
-            // recomputed per send: latching it meant every click inside one round trip re-sent the
-            // FIRST box, which reads as the click being eaten
-            MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = (boxid | MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK]);
-            i = PlayerNumber() | (CheckInventory("MenuInput") << 16);
-            // guarantee nonzero input
-            if(i) {
-                redraw = true;
-                op_cooldown = DND_MENU_SENDINTERVAL;
-                //Log(s:"trying to send prev item ", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
-                NamedRequestScriptPuke("DND Server Box Receive - Merchant", i, MenuInputData[pnum][DND_MENUINPUT_PAYLOAD]);
-                // One press, one send. This used to be cleared only when the ack came back, so at
-                // high ping the loop kept seeing MenuInput set and re-sent the same click every
-                // time DnD_ClickTicker and the cooldown both allowed -- buying the item twice off
-                // a single click. The main menu loop avoids this by clearing at the top of every
-                // iteration; this loop reads input in the middle, so clear it on send instead.
-                SetInventory("MenuInput", 0);
-            }
-        }
+		// the server's "cannot afford" timer
+		poor = CheckInventory("DnD_SpecialText_Timer");
+		if(poor != poor_prev) {
+			redraw = true;
+			poor_prev = poor;
+		}
 
-        Delay(const:1);
+		if(redraw || CheckInventory("DnD_RefreshPane")) {
+			// a hover keeps his last line unless he has something to say about this item
+			if(boxid != MAINBOX_NONE && (roll || CheckInventory("DnD_RefreshPane"))) {
+				k = MerchantHoverText(boxid - 1);
+				if(k != DND_MRCHT_TEXT_DEFAULT)
+					txt = k;
+			}
+			DrawMerchantWindow(boxid, count, txt, poor);
+			redraw = false;
+			roll = false;
+		}
+		MenuHudSize(HUDMAX_X, HUDMAX_Y);
+		DrawCursor();
 
-        if(PlayerCursorData.itemHovered != -1) {
-            if(boxid == MAINBOX_NONE || PlayerCursorData.hoverNeedsReset)
-                ResetCursorHoverData();
-            else
-                DrawInventoryInfo(PlayerCursorData.owner_pnum);
-        }
-        else if(PlayerCursorData.hoverNeedsReset)
-            ResetCursorHoverData();
-
-        // cant buy dynamic text
-        if(CheckInventory("DnD_SpecialText_Timer")) {
-            SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
-            SetFont("MRCHT0");
-            HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, -1, 388.0, 162.0, 0.0, 0.0);
-
-            SetHudSize(HUDMAX_X_PROMPT, HUDMAX_Y_PROMPT, 1);
-            SetFont("SMALLFONT");
-            HudMessage(
-                l:"DND_POPUP_NOFUNDS";
-                HUDMSG_PLAIN, RPGMENUITEMID - 4, -1, (HUDMAX_X_PROMPT << 15) + 0.4, ((HUDMAX_Y_PROMPT << 16) - 110.0) + 0.1, 0.0, 0.0
-            );
-        }
-        else {
-            SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
-            SetFont("MRCHV0");
-            HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, -1, 392.0, 160.0, 0.0, 0.0);
-
-            DeleteText(RPGMENUITEMID - 4);
-        }
-
-        if(redraw || CheckInventory("DnD_RefreshPane")) {
-            // store previous count, check if there's difference, if there is, remove the last item from right as items are possibly shifted
-            k = item_count;
-            item_count = 0;
-            j = 0;
-            item_count = UpdateMerchantBoxes(CurrentPane);
-
-            // k will be greater or equal to new item_count at all times, since we are not later resupplying this guy
-            if(k != item_count) {
-                for(i = item_count; i < k; ++i) {
-                    DeleteText(RPGMENUITEMID - 2 * (i + 1) - DND_MERCHANT_HUDID_OFFSET);
-                    DeleteText(RPGMENUITEMID - 2 * (i + 1) - DND_MERCHANT_HUDID_OFFSET - 1);
-                }
-            }
-
-            j  = 0;
-            for(i = 0; i < item_count; ++i) {
-                AcquireItemDimensions(i);
-                if((k = DrawMerchantItemBox(i, boxid, i + 1, 80.1 + j, 120.0)) != DND_MRCHT_TEXT_DEFAULT)
-                    UpdateMerchantText(k);
-
-                if((GlobalItemStorage.TradeViewList[MAXPLAYERS][i].item_type & 0xFFFF) == DND_ITEM_CHARM && GlobalItemStorage.TradeViewList[MAXPLAYERS][i].item_subtype == DND_CHARM_LARGE)
-                    item_dimensions.x = 26.0;
-
-                j += item_dimensions.x + 10.0;
-                if(i == DND_MERCHANT_MAXITEMSONROW - 1)
-                    j = 0;
-            }
-
-            if(boxid == MAINBOX_NONE)
-                UpdateMerchantText(DND_MRCHT_TEXT_DEFAULT);
-        }
-
-        // retry ack
-        if(CheckInventory("DND_ACK")) {
-            sendInput = false;
-            SetInventory("MenuInput", 0);
-            //Log(s:"reset input data");
-            MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = 0;
-            MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] = 0;
-        }
+		// retry ack
+		if(CheckInventory("DND_ACK")) {
+			sendInput = false;
+			SetInventory("MenuInput", 0);
+			MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = 0;
+			MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] = 0;
+		}
 	}
 
-    CleanInventoryInfo();
-    DeleteText(RPGMENUID);
-    DeleteTextRange(RPGMENUITEMID - 6 - MAXPLAYERS, RPGMENUITEMID);
+	CleanInventoryInfo();
+	DeleteTextRange(MRC_ID, MRC_ID + 44);
+	DeleteText(RPGMENUCURSORID);
+	UpdateMenuZoom(false);
 }
 
 Script "DND Server Box Receive - Merchant" (int pnum, int boxid) NET {

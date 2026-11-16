@@ -656,20 +656,6 @@ int GetAmmoToGive(int index) {
 	return GetMenuAmmoCount(index - SHOP_FIRSTAMMO_INDEX, AMMOID_COUNT) * GetAmmoGainFactor() / 100;
 }
 
-str GetShopWeaponTag(int id) {
-	str tag = StrParam(l:GetWeaponTag(ShopTableIdToWeaponTableId(id)));
-	if(StrLen(tag) > MAX_TAGCHARS_SHOWN) {
-		// we need to cut the longer text short
-		if(GetChar(tag, MAX_TAGCHARS_SHOWN) == ' ')
-			tag = StrLeft(tag, MAX_TAGCHARS_SHOWN);
-		else if(GetChar(tag, MAX_TAGCHARS_SHOWN - 1) == ' ' || GetChar(tag, MAX_TAGCHARS_SHOWN - 2) == ' ')
-			tag = StrParam(s:StrLeft(tag, MAX_TAGCHARS_SHOWN), s:".");
-		else
-			tag = StrParam(s:StrLeft(tag, MAX_TAGCHARS_SHOWN - 1), s:".");
-	}
-	return tag;
-}
-
 void ResetWeaponStats(int wepid) {
 	int pnum = PlayerNumber();
 	Player_Weapon_Infos[pnum][wepid].quality = 0;
@@ -1543,10 +1529,6 @@ rect_T module& LoadRect(int menu_page, int id) {
 			{ 289.0, 165.0, 178.0, 158.0 }, // orb
 			{ 289.0, 149.0, 182.0, 142.0 }, // mods
 			{ 289.0, 133.0, 179.0, 126.0 }, // leg
-			{ 296.0, 97.0, 182.0, 89.0 }, // show info
-			{ 296.0, 81.0, 182.0, 73.0 }, // show info
-			{ 296.0, 65.0, 142.0, 57.0 }, // show mod tiers
-			{ 296.0, 49.0, 142.0, 41.0 }, // show mod tiers
 			{ -1, -1, -1, -1 }
 		},
 		// help char
@@ -1673,6 +1655,17 @@ rect_T module& LoadRect(int menu_page, int id) {
 		},
 		// gem sockets -- the same
 		{
+			{ -1, -1, -1, -1 }
+		},
+		// settings -- seven rows, placed where the chrome puts its rows
+		{
+			{ 289.0, 261.0, 179.0, 254.0 },
+			{ 289.0, 245.0, 179.0, 238.0 },
+			{ 289.0, 229.0, 179.0, 222.0 },
+			{ 289.0, 213.0, 179.0, 206.0 },
+			{ 289.0, 197.0, 179.0, 190.0 },
+			{ 289.0, 181.0, 179.0, 174.0 },
+			{ 289.0, 165.0, 179.0, 158.0 },
 			{ -1, -1, -1, -1 }
 		}
 		#ifdef ISAPRILFIRST
@@ -1879,6 +1872,8 @@ void FlushStack(int pnum) {
 
 void PushStack(int pnum, int val) {
 	menu_stack_T module& stack = GetMenuStack(pnum);
+	// a new page drops what Back left ahead of the current one, like a browser, so Back never lands on it twice
+	stack.cursize = stack.stackptr + 1;
 	if(stack.cursize < MAX_STACK_ELEMS) {
 		stack.stack_elems[stack.cursize] = val;
 		stack.stackptr = stack.cursize++;
@@ -3679,8 +3674,8 @@ int DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int i
 		j = PlayerNumber();
 		my += 24.0;
 		
-		SetFont("NMENUFNT");
-		HudMessage(s:"\c[R5]", l:GetWeaponTag(extra1), s:":\c- \c[Y5]", l:"DND_MENU_SLOT", s:" - ", d:GetGameSlotOfWeapon(extra1); HUDMSG_PLAIN, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 - ITEMINFOBG_MAXMIDS, CR_WHITE, MenuX(mx), MenuY(my - 24.0), 0.0, 0.0);
+		CardMessage(StrParam(s:"\c[R5]", l:GetWeaponTag(extra1), s:":\c- \c[Y5]", l:"DND_MENU_SLOT", s:" - ", d:GetGameSlotOfWeapon(extra1)),
+			id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 - ITEMINFOBG_MAXMIDS, CR_WHITE, mx, my - 24.0, mx, my - 24.0, 0.0);
 		
 		str modText = "";
 		wep_dps_view_T module& dps = GetWeaponDPSView(j, extra1);
@@ -3737,9 +3732,10 @@ int DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int i
 				modText = StrParam(s:modText, s:GetWeaponModText(temp, WEP_MOD_POWERSET1, temp), s:"\n");
 		}
 		
-		HudMessage(s:modText; HUDMSG_PLAIN, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 - ITEMINFOBG_MAXMIDS, CR_WHITE, MenuX(mx), MenuY(my - 8.0), 0.0, 0.0);
+		CardMessage(modText, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 - ITEMINFOBG_MAXMIDS, CR_WHITE, mx, my - 24.0 + ITEMINFO_LINEHF + 4.0, mx, my - 24.0, 0.0);
 
-		temp = CountNewLinesInText(modText, HUD_ITEMBAK_WIDTH);
+		// one mid per 12 px of lines, the spacing this card was laid out with
+		temp = (CountNewLinesInText(modText, CARD_WRAPW, true) * (ITEMINFO_LINEHF >> 16) + 11) / 12;
 		DrawItemInfoBackground(id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES, hx, hy, bg_x, bg_y, temp);
 		return Min(temp, ITEMINFOBG_MAXMIDS);
 	}
@@ -6029,6 +6025,7 @@ void HandleNFTDrawing(int boxid) {
 #define MCH_EL_CHIP			64
 #define MCH_EL_PAGER		96
 #define MCH_EL_CLOSE		128
+#define MCH_EL_SETTINGS		129
 // the confirm popup's buttons never reach the server as nav: they turn into the old confirm / cancel clicks
 #define MCH_EL_POPYES		160
 #define MCH_EL_POPNO		161
@@ -6043,7 +6040,6 @@ void HandleNFTDrawing(int boxid) {
 #define MCH_RES_BTNSTEP		220
 #define MCH_CODEX_TOPICS	9
 // codex landing page: the options rows sit in the pane, MMODS' category rows too
-#define MCH_CODEX_OPTY		626
 #define MCH_CODEX_CATY		420
 
 // the confirm popup draws in front of the whole menu, just behind the cursor; the menu's close sweep covers it
@@ -6063,6 +6059,9 @@ void HandleNFTDrawing(int boxid) {
 #define MCH_ID_TERMTXT		102
 #define MCH_ID_TERMCARD		105
 #define MCH_ID_TERMDIM		107
+// a theme change's black cover: in front of everything, the cursor (100) included, and outside every cleared range
+#define MCH_ID_THEMECOVER	99
+#define MCH_THEME_COVER_HOLD	0.3
 
 // layout, canvas pixels
 #define MCH_TAB_X			-184
@@ -6070,11 +6069,12 @@ void HandleNFTDrawing(int boxid) {
 #define MCH_TAB_W			200
 #define MCH_TAB_H			52
 #define MCH_TAB_STEP		210
-#define MCH_KEY_X			1358
+#define MCH_KEY_X			1302
 #define MCH_KEY_W			50
 #define MCH_KEY_STEP		56
 #define MCH_CLOSE_X			1528
 #define MCH_CLOSE_W			96
+#define MCH_GEAR_X			(MCH_KEY_X + 3 * MCH_KEY_STEP)	// the settings key, between the history keys and Close
 #define MCH_SUB_X			-184
 #define MCH_SUB_Y			116
 #define MCH_SUB_W			150
@@ -6137,13 +6137,14 @@ enum {
 	MCH_KIND_GEARTRADE,
 	MCH_KIND_DUNGEONS,
 	MCH_KIND_HOME,
-	MCH_KIND_CRAFT
+	MCH_KIND_CRAFT,
+	MCH_KIND_SETTINGS
 };
 
 bool IsChromePage(int page) {
 	return (page >= MENU_SHOP && page <= MENU_SHOP_ACCOUNT) || (page >= MENU_STAT1 && page <= MENU_PERKTREE_LAST) || (page >= MENU_RESEARCH && page <= SHOP_RESPAGE_END) || (page >= MENU_HELP && page <= MENU_MMOD_HELP_END) || page == MENU_SPELL || page == MENU_LOAD || page == MENU_LOAD_INVENTORY || page == MENU_LOAD_STASH || page == MENU_LOAD_CHARM || page == MENU_LOAD_WEAPONDISCARD
 		|| (page >= MENU_FIRST_TRADE && page <= MENU_LAST_TRADE) || page == MENU_LOAD_DUNGEONS || page == MENU_MAIN
-		|| (page >= MENU_FIRST_ACCESSORY_PAGE && page <= MENU_LAST_ACCESSORY_PAGE) || IsChromeCraftPage(page);
+		|| (page >= MENU_FIRST_ACCESSORY_PAGE && page <= MENU_LAST_ACCESSORY_PAGE) || IsChromeCraftPage(page) || page == MENU_SETTINGS;
 }
 
 int GetChromeKind(int page) {
@@ -6197,6 +6198,8 @@ int GetChromeKind(int page) {
 		return MCH_KIND_DUNGEONS;
 	if(page == MENU_MAIN)
 		return MCH_KIND_HOME;
+	if(page == MENU_SETTINGS)
+		return MCH_KIND_SETTINGS;
 	if(IsChromeCraftPage(page))
 		return MCH_KIND_CRAFT;
 	if(page >= MENU_FIRST_ACCESSORY_PAGE && page <= MENU_LAST_ACCESSORY_PAGE)
@@ -6618,6 +6621,8 @@ int GetChromePagerBoxes(int page) {
 
 // Decodes a chrome click on the server against the page it is on.
 int GetChromeElementTarget(int page, int code) {
+	if(code == MCH_EL_SETTINGS)
+		return MENU_SETTINGS;
 	if(code >= MCH_EL_TAB && code < MCH_EL_TAB + MCH_SEC_COUNT)
 		return GetChromeTabTarget(code - MCH_EL_TAB);
 	if(code >= MCH_EL_SUB && code < MCH_EL_CHIP)
@@ -6770,7 +6775,7 @@ int MchEqWellH(int i) {
 }
 
 // each slot of a kind has its own worn well (variant 0 is the plain name), so neighbours never repeat
-str MchWellPic(str base, int slot, bool hover) {
+str MchWellPic(str base, int slot, bool hover, bool red = false) {
 	int v = slot - SMALLCHARM_INDEX1;
 	if(slot >= FLASK1_INDEX)
 		v = slot - FLASK1_INDEX;
@@ -6780,9 +6785,11 @@ str MchWellPic(str base, int slot, bool hover) {
 		v = 0;
 	else if(slot >= MEDIUMCHARM_INDEX1)
 		v = slot - MEDIUMCHARM_INDEX1;
+	// red marks gear that can no longer function, over the hover glow
+	str state = red ? "R" : hover ? "H" : "";
 	if(v)
-		return StrParam(s:base, d:v, s:hover ? "H" : "");
-	return StrParam(s:base, s:hover ? "H" : "");
+		return StrParam(s:base, d:v, s:state);
+	return StrParam(s:base, s:state);
 }
 
 int MchCursorX() {
@@ -6839,15 +6846,13 @@ int GetChromeRowY(int page, int i) {
 		return MCH_ROW_Y + MCH_ROW_STEP * i + MCH_PERK_TOGGLEGAP;
 	if(k == MCH_KIND_SKILLINDEX && i >= MAX_SKILL_TREES)
 		return MCH_ROW_Y + MCH_ROW_STEP * i + MCH_PERK_TOGGLEGAP;
-	if(k == MCH_KIND_CODEXINDEX && i >= MCH_CODEX_TOPICS)
-		return MCH_CODEX_OPTY + MCH_ROW_STEP * (i - MCH_CODEX_TOPICS);
 	if(page == MENU_HELP_MMODS)
 		return MCH_CODEX_CATY + MCH_ROW_STEP * i;
 	return MCH_ROW_Y + MCH_ROW_STEP * i;
 }
 
 int GetChromeRowX(int page, int i) {
-	if((GetChromeKind(page) == MCH_KIND_CODEXINDEX && i >= MCH_CODEX_TOPICS) || page == MENU_HELP_MMODS)
+	if(page == MENU_HELP_MMODS)
 		return MCH_PANE_IX;
 	return MCH_ROW_X;
 }
@@ -6907,6 +6912,8 @@ int GetTriggeredChromeBox(int page) {
 		for(i = 0; i < 3; ++i)
 			if(MchIn(cx, cy, MCH_KEY_X + MCH_KEY_STEP * i, MCH_TAB_Y, MCH_KEY_W, MCH_TAB_H))
 				return MAINBOX_LARR + i;
+		if(MchIn(cx, cy, MCH_GEAR_X, MCH_TAB_Y, MCH_KEY_W, MCH_TAB_H))
+			return MCH_NAV_BASE + MCH_EL_SETTINGS;
 		if(MchIn(cx, cy, MCH_CLOSE_X, MCH_TAB_Y, MCH_CLOSE_W, MCH_TAB_H))
 			return MCH_NAV_BASE + MCH_EL_CLOSE;
 		return MAINBOX_NONE;
@@ -6941,14 +6948,14 @@ int GetTriggeredChromeBox(int page) {
 // ---------------------------------------------------------------- drawing primitives
 
 void MchPic(str pic, int id, int x, int y) {
-	SetFont(pic);
+	SetFont(ThemeArt(pic));
 	HudMessage(s:"A"; HUDMSG_PLAIN, id, CR_UNTRANSLATED, MenuX((x << 16) + 0.1), MenuY((y << 16) + 0.1), 0.0);
 }
 
 // A picture made for a smaller canvas, drawn k times larger and centred on (x, y).
 void MchPicScaled(str pic, int id, int x, int y, int k) {
 	MenuHudSize(FixedDiv(MCH_W << 16, k) >> 16, FixedDiv(MCH_H << 16, k) >> 16);
-	SetFont(pic);
+	SetFont(ThemeArt(pic));
 	HudMessage(s:"A"; HUDMSG_PLAIN, id, CR_UNTRANSLATED, MenuX(FixedDiv(x << 16, k) & MMASK), MenuY(FixedDiv(y << 16, k) & MMASK), 0.0);
 	MenuHudSize(MCH_W, MCH_H);
 }
@@ -7073,7 +7080,7 @@ void MchText(str font, str txt, int id, int x, int y, int align) {
 		fx += 0.1;
 		fy += 0.1;
 	}
-	SetFont(font);
+	SetFont(ThemeFont(font));
 	HudMessage(s:txt; HUDMSG_PLAIN, id, CR_WHITE, MenuX(fx), MenuY(fy), 0.0);
 }
 
@@ -7188,10 +7195,12 @@ bool MchSbarHover() {
 	return r;
 }
 
-// a skill page's instructions, on the board's bottom edge
+#define MCH_SPELLPOCKET_X (3 * (DND_SPELLPANEL_X - 4))	// the info panel's left edge on the canvas
+
+// a skill page's instructions, on the board's bottom edge, centred between the pane's left edge and the panel
 void DrawChromeSpellHint(str lump) {
 	MenuHudSize(MCH_W, MCH_H);
-	MchText("MENUSUB", StrParam(s:"\c[UIGrey]", l:lump), SPELLTREE_HEAD_ID + 1, 476, MCH_PANE_FOOT + 54, 0);
+	MchText("MENUSUB", StrParam(s:"\c[UIGrey]", l:lump), SPELLTREE_HEAD_ID + 1, (MCH_SPELLPOCKET_X - 188) / 2, MCH_PANE_FOOT + 54, 0);
 	MenuHudSize(HUDMAX_X, HUDMAX_Y);
 	SetFont("NMENUFNT");
 }
@@ -7298,7 +7307,11 @@ void DrawChromeFrame(int pnum, int page, int mainboxid) {
 			col = "MCIFW";
 		MchPic(StrParam(s:col, d:mainboxid == MAINBOX_LARR + i), MCH_ID_TABIMG + 7 + i, x + 13, MCH_TAB_Y + 14);
 	}
-	bool hot = mainboxid == MCH_NAV_BASE + MCH_EL_CLOSE;
+	// the settings key: gold while hovered or on its page; the icon on the lower id, in front of its plate
+	bool hot = mainboxid == MCH_NAV_BASE + MCH_EL_SETTINGS;
+	MchPic(hot ? "MCKH0" : "MCKO0", MCH_ID_TABIMG + 15, MCH_GEAR_X, MCH_TAB_Y);
+	MchPic(StrParam(s:"MCIGR", d:hot || page == MENU_SETTINGS), MCH_ID_TABIMG + 14, MCH_GEAR_X + 13, MCH_TAB_Y + 14);
+	hot = mainboxid == MCH_NAV_BASE + MCH_EL_CLOSE;
 	MchPic(hot ? "MCWH0" : "MCWO0", MCH_ID_TABIMG + 13, MCH_CLOSE_X, MCH_TAB_Y);
 	MchText("MENUSUB", StrParam(s:hot ? "\c[UIWhite]" : "\c[UIGrey]", l:"DND_MCH_CLOSE"), MCH_ID_TABTXT + 9, MCH_CLOSE_X + MCH_CLOSE_W / 2, MCH_TAB_Y + 26, 0);
 
@@ -7620,6 +7633,8 @@ str GetChromeTitle(int page) {
 		return "DND_MENU_DUNGEONS";
 	if(k == MCH_KIND_HOME)
 		return "DND_MCH_HOME_TITLE";
+	if(k == MCH_KIND_SETTINGS)
+		return "DND_MCH_SETTINGS";
 	if(k == MCH_KIND_CRAFT)
 		return "DND_MENU_CRAFTING";
 	if(k == MCH_KIND_CODEX)
@@ -7693,7 +7708,7 @@ void DrawChromePage(int pnum, int page, int boxid, int mainboxid, menu_pane_T mo
 	}
 
 	if(k == MCH_KIND_SLOTLIST || k == MCH_KIND_WEAPONS)
-		MchText("MENUBDYS", StrParam(s:"\c[UIDim]R  \c[UIGrey]", l:"DND_MENU_REPLACESWEP", s:"      \c[UIDim]L  \c[UIGrey]", l:"DND_MENU_LUXURYWEP"),
+		MchText("MENUBDYS", StrParam(s:"\c[UIDim]R  \c[UIGrey]", l:"DND_MENU_REPLACESWEP", s:"      \c[UICyan]L  \c[UIGrey]", l:"DND_MENU_LUXURYWEP"),
 			MCH_ID_PAGETXT + 1, MCH_PANE_X + 976, 221, 2);
 	MchPic("MCDIV", MCH_ID_PAGEIMG, MCH_ROW_X, 258);
 	if(k == MCH_KIND_SKILLINDEX) {
@@ -7730,6 +7745,10 @@ void DrawChromePage(int pnum, int page, int boxid, int mainboxid, menu_pane_T mo
 	}
 	if(k == MCH_KIND_HOME) {
 		DrawChromeHome();
+		return;
+	}
+	if(k == MCH_KIND_SETTINGS) {
+		DrawChromeSettings(pnum, boxid);
 		return;
 	}
 	if(k == MCH_KIND_CRAFT) {
@@ -8102,7 +8121,7 @@ void DrawChromeCharacter(int pnum, int page, int boxid, int mainboxid) {
 		MchText("MENUBODY", StrParam(s:"\c[UIWhite]", l:GetAttributeText(i), s:"\n\n\c[UIGrey]", l:"DND_MENU_ATTRKNEE"), MCH_ID_PANETXT + 1, MCH_PANE_IX, MCH_PANE_Y + 84, 3);
 		MenuClipRect(0, 0, 0, 0, 0);
 		MchText("MENUSUB", StrParam(s:"\c[UIDim]", l:"DND_MCH_HINT_ATTR"), MCH_ID_PANETXT + 2, MCH_PANE_IX, MCH_PANE_FOOT + 22, 1);
-		MchText("MENUSUB", StrParam(s:"\c[UIDim]", l:"DND_MENU_STAT_REFUND1", s:" \c[UIGrey]", k:"+jump", s:"\c[UIDim] ", l:"DND_MENU_STAT_REFUND2",
+		MchText("MENUSUB", StrParam(s:"\c[UIDim]", l:"DND_MENU_STAT_REFUND1", s:" ", s:BindKeysText("+jump", "\c[UIGrey]", "\c[UIDim]"), s:"\c[UIDim] ", l:"DND_MENU_STAT_REFUND2",
 			s:"\c[UIGold]$", d:GetAttributeRefundCost(pnum)), MCH_ID_PANETXT + 3, MCH_PANE_IX, MCH_PANE_FOOT + 54, 1);
 		return;
 	}
@@ -8365,7 +8384,7 @@ void DrawChromeResearchList(int pnum, int page, int boxid, int mainboxid) {
 
 	str desc = "";
 	if(!hidden)
-		desc = StrParam(s:"\c[UIWhite]", l:GetResearchDescription(e.res_id));
+		desc = StrParam(s:MchResWeaponScaling(e.res_id), s:"\c[UIWhite]", l:GetResearchDescription(e.res_id));
 	if(status == RES_NA && !nodrop)
 		desc = StrParam(s:desc, s:"\n\n\c[UIGrey]", l:"DND_INVESTMENT_EXPLANATION");
 	MenuClipRect(MCH_PANE_IX, MCH_PANE_Y + 212, MCH_PANE_TEXTW, MCH_RES_BTNY - 16 - MCH_PANE_Y - 212, MCH_PANE_TEXTW);
@@ -8386,6 +8405,43 @@ void DrawChromeResearchList(int pnum, int page, int boxid, int mainboxid) {
 		MchText("MENUTAB", StrParam(s:over ? "\c[UIWhite]" : live ? "\c[UIGold]" : "\c[UIDim]", s:lab), MCH_ID_PANETXT + 5 + i, bx + MCH_TAB_W / 2, MCH_RES_BTNY + 26, 0);
 	}
 	MchText("MENUSUB", StrParam(s:"\c[UIDim]", l:"DND_MCH_HINT_RES"), MCH_ID_PANETXT + 7, MCH_PANE_IX, MCH_PANE_FOOT + 54, 1);
+}
+
+// a weapon's attribute scaling as "STR 1.0%  DEX 3.0%", empty when it scales with none
+str MchWeaponScaling(int wep) {
+	str out = "";
+	for(int a = STAT_STR; a <= STAT_INT; ++a) {
+		int v = Weapons_Data[wep].attunement[a];
+		if(v)
+			out = StrParam(s:out, s:StrLen(out) ? "   " : "", s:"\c[UIGrey]", l:StrParam(s:"DND_MENU_ATTR_SHORT", d:a - STAT_STR + 1), s:" \c[UIGreen]", s:GetFixedRepresentation(v, true), s:"%");
+	}
+	return out;
+}
+
+// The scaling of the weapons a research unlocks, ahead of its description: one line, or a line a weapon for a bundle.
+str MchResWeaponScaling(int res_id) {
+	str out = "";
+	int n = 0, i, k, first = -1;
+	for(i = SHOP_WEAPON_BEGIN; i <= SHOP_LASTWEP_INDEX; ++i) {
+		for(k = 0; k < MAX_RESEARCH_REQUIREMENTS; ++k)
+			if(GetShopItemInfo(i, k + DND_SHOPINFO_REQUIREMENT1) == res_id)
+				break;
+		if(k == MAX_RESEARCH_REQUIREMENTS)
+			continue;
+		int w = ShopTableIdToWeaponTableId(i);
+		str sc = MchWeaponScaling(w);
+		if(!StrLen(sc))
+			continue;
+		if(first == -1)
+			first = w;
+		out = StrParam(s:out, s:"\c[UIGold]", l:GetWeaponTag(w), s:"\c[UIGrey]:  ", s:sc, s:"\n");
+		++n;
+	}
+	if(!n)
+		return "";
+	if(n == 1)
+		return StrParam(s:"\c[UIGrey]", l:"DND_MCH_RES_SCALING", s:"  ", s:MchWeaponScaling(first), s:"\n\n");
+	return StrParam(s:"\c[UIGrey]", l:"DND_MCH_RES_SCALING", s:"\n", s:out, s:"\n");
 }
 
 // ---------------------------------------------------------------- the codex
@@ -8615,19 +8671,74 @@ void DrawChromeCodex(int pnum, int page, int boxid, int mainboxid) {
 		}
 }
 
-// The landing page: the hovered topic up top, the game options (boxes 10-13) below it.
+// The landing page: the hovered topic up top, the average monster level at the foot.
 void DrawChromeCodexIndex(int pnum, int boxid) {
 	mch_state_T module& s = GetMchState();
-	int i, y;
+	int i;
 	if(boxid != MAINBOX_NONE && boxid <= MCH_CODEX_TOPICS)
 		s.row = boxid - 1;
 	i = Clamp_Between(s.row, 0, MCH_CODEX_TOPICS - 1);
 	MchText("MENUHEAD", StrParam(s:"\c[UIGold]", l:StrParam(s:"DND_MCH_CODEX", d:i + 1)), MCH_ID_PANETXT, MCH_PANE_IX, MCH_PANE_Y + 26, 3);
-	MenuClipRect(MCH_PANE_IX, MCH_PANE_Y + 82, MCH_PANE_TEXTW, 180, MCH_PANE_TEXTW);
+	MenuClipRect(MCH_PANE_IX, MCH_PANE_Y + 82, MCH_PANE_TEXTW, 300, MCH_PANE_TEXTW);
 	MchText("MENUBODY", StrParam(s:"\c[UIWhite]", l:StrParam(s:"DND_MCH_CODEXDESC", d:i + 1)), MCH_ID_PANETXT + 1, MCH_PANE_IX, MCH_PANE_Y + 84, 3);
 	MenuClipRect(0, 0, 0, 0, 0);
+	MchText("MENUBDYS", StrParam(s:"\c[UIGrey]", l:"DND_MENU_AVGMONLEVEL", s:" \c[UIGold]", d:CheckInventory("DnD_PTotalLevel") / Max(PlayerCount(), 1)),
+		MCH_ID_PANETXT + 3, MCH_PANE_IX, MCH_PANE_FOOT + 10, 1);
+	MchText("MENUSUB", StrParam(s:"\c[UIDim]", l:"DND_MCH_HINT_CODEX"), MCH_ID_PAGETXT + 2, MCH_PANE_IX, MCH_PANE_FOOT + 54, 1);
+}
 
-	// the option toggles flip their cvar here, on the client, when the server hands back the pulse item
+// ---------------------------------------------------------------- settings
+
+#define MCH_SETTINGS 7
+
+// a setting's current value, coloured like the codex options were
+str MchSettingValue(int i) {
+	if(i == 6)
+		return StrParam(s:"\c[UIGold]", l:StrParam(s:"DND_MCH_MENUTHEME_", d:GetMenuThemeState()[0]));
+	if(i == 5)
+		return StrParam(s:"\c[UIGold]", l:StrParam(s:"DND_MCH_CARDSTYLE_", d:GetCardPrefs()[DND_CARDPREF_STYLE]));
+	if(i == 4)
+		return StrParam(s:"\c[UIGold]", l:StrParam(s:"DND_MCH_CARDFONT_", d:GetCardPrefs()[DND_CARDPREF_FONT]));
+	if(i == 3)
+		return StrParam(s:"\c[UIGold]", l:StrParam(s:"DND_MCH_FILTER_", d:GetCVar("dnd_pickup_filter")));
+	bool on;
+	if(!i)
+		on = CheckInventory("ShowMapInfo");
+	else if(i == 1)
+		on = GetCVar("dnd_detailedmods");
+	else
+		on = GetCVar("dnd_ignoretempweps");
+	return StrParam(s:on ? "\c[UIGreen]" : "\c[UIGrey]", l:on ? "DND_MCH_ON" : "DND_MCH_OFF");
+}
+
+// A card in the picked style (top, two middles, bottom at 1.5x, whole hud units at 960x720) with a line in the picked font.
+#define MCH_SET_CARDX 780
+#define MCH_SET_CARDY 561
+void DrawSettingsCardSample() {
+	str sfx = GetCardStyleSuffix(CardStyleInUse());
+	int x = MCH_SET_CARDX * 2 / 3, y = MCH_SET_CARDY * 2 / 3;
+	MenuHudSize(MCH_W * 2 / 3, MCH_H * 2 / 3);
+	MchPic(StrParam(s:"MCITTN", s:sfx), MCH_ID_PANEIMG + 3, x, y);
+	MchPic(StrParam(s:"MCITMN", s:sfx), MCH_ID_PANEIMG + 2, x, y + 34);
+	MchPic(StrParam(s:"MCITMN", s:sfx), MCH_ID_PANEIMG + 1, x, y + 52);
+	MchPic(StrParam(s:"MCITBN", s:sfx), MCH_ID_PANEIMG, x, y + 70);
+	MenuHudSize(MCH_W, MCH_H);
+	MchText(GetCardFontName(GetCardPrefs()[DND_CARDPREF_FONT]), StrParam(s:"\c[UIWhite]+\c[UIGreen]24\c[UIWhite](\c[UIGold]20-25\c[UIWhite])% ", l:"DND_MCH_SET_SAMPLE", s:" - \c[UIGold]T4"),
+		MCH_ID_PANETXT + 2, MCH_SET_CARDX + 318, MCH_SET_CARDY + 84, 0);
+}
+
+// The gear's page: this player's options as rows (boxes 1-7), the hovered one explained in the pane.
+void DrawChromeSettings(int pnum, int boxid) {
+	mch_state_T module& s = GetMchState();
+	int i, y;
+	if(s.page != MENU_SETTINGS) {
+		s.page = MENU_SETTINGS;
+		s.row = 0;
+	}
+	if(boxid != MAINBOX_NONE && boxid <= MCH_SETTINGS)
+		s.row = boxid - 1;
+
+	// the toggles flip their cvar here, on the client, when the server hands back the pulse item
 	if(CheckInventory("SetMapInfo")) {
 		SetCVar("dnd_showmapinfo", !GetCVar("dnd_showmapinfo"));
 		SetInventory("ShowMapInfo", !CheckInventory("ShowMapInfo"));
@@ -8637,32 +8748,28 @@ void DrawChromeCodexIndex(int pnum, int boxid) {
 	if(CheckInventory("SetTempWepIgnore"))
 		SetCVar("dnd_ignoretempweps", !GetCVar("dnd_ignoretempweps"));
 
-	MenuClipRect(MCH_PANE_IX, MCH_CODEX_OPTY - 70, MCH_PANE_TEXTW, 2);
-	MchPic("MCDIV", MCH_ID_PAGEIMG + 1, MCH_PANE_IX, MCH_CODEX_OPTY - 70);
-	MenuClipRect(0, 0, 0, 0, 0);
-	MchText("MENUTAB", StrParam(s:"\c[UICyan]", l:"DND_MCH_OPTIONS"), MCH_ID_PANETXT + 2, MCH_PANE_IX, MCH_CODEX_OPTY - 34, 1);
-	MchText("MENUBDYS", StrParam(s:"\c[UIGrey]", l:"DND_MENU_AVGMONLEVEL", s:" \c[UIGold]", d:CheckInventory("DnD_PTotalLevel") / Max(PlayerCount(), 1)),
-		MCH_ID_PANETXT + 3, MCH_PANE_IX + MCH_ROW_W, MCH_CODEX_OPTY - 34, 2);
-	for(i = 0; i < 4; ++i) {
-		y = MCH_CODEX_OPTY + MCH_ROW_STEP * i;
-		MchPic(StrParam(s:"MCROW", s:(boxid == MCH_CODEX_TOPICS + 1 + i) ? "S" : "N"), MCH_ID_PANEIMG + 14 + i, MCH_PANE_IX - 8, y - 8);
-		MchText("MENUBODY", StrParam(s:"\c[UIWhite]", l:StrParam(s:"DND_MCH_OPT", d:i + 1)), MCH_ID_PANETXT + 4 + 2 * i, MCH_PANE_IX + 30, y + 27, 1);
-		str v;
-		if(i == 3)
-			v = StrParam(s:"\c[UIGold]", l:StrParam(s:"DND_MCH_FILTER_", d:GetCVar("dnd_pickup_filter")));
-		else {
-			bool on;
-			if(!i)
-				on = CheckInventory("ShowMapInfo");
-			else if(i == 1)
-				on = GetCVar("dnd_detailedmods");
-			else
-				on = GetCVar("dnd_ignoretempweps");
-			v = StrParam(s:on ? "\c[UIGreen]" : "\c[UIGrey]", l:on ? "DND_MCH_ON" : "DND_MCH_OFF");
-		}
-		MchText("MENUBODY", v, MCH_ID_PANETXT + 5 + 2 * i, MCH_PANE_IX + MCH_ROW_W - 20, y + 27, 2);
+	for(i = 0; i < MCH_SETTINGS; ++i) {
+		y = GetChromeRowY(MENU_SETTINGS, i);
+		MchPic(StrParam(s:"MCROW", s:(boxid == i + 1) ? "S" : "N"), MCH_ID_ROWIMG + 12 + i, MCH_ROW_X - 8, y - 8);
+		MchText("MENUBODY", StrParam(s:"\c[UIWhite]", l:StrParam(s:"DND_MCH_OPT", d:i + 1)), MCH_ID_ROWTXT + 3 * i, MCH_ROW_X + 30, y + 27, 1);
+		MchText("MENUBODY", MchSettingValue(i), MCH_ID_ROWTXT + 3 * i + 1, MCH_ROW_X + MCH_ROW_W - 20, y + 27, 2);
 	}
-	MchText("MENUSUB", StrParam(s:"\c[UIDim]", l:"DND_MCH_HINT_CODEX"), MCH_ID_PAGETXT + 2, MCH_PANE_IX, MCH_PANE_FOOT + 54, 1);
+
+	i = Clamp_Between(s.row, 0, MCH_SETTINGS - 1);
+	MchPic("MCPANE", MCH_ID_PAGEIMG + 5, MCH_PANE_X, MCH_PANE_Y);
+	MchText("MENUHEAD", StrParam(s:"\c[UIGold]", l:StrParam(s:"DND_MCH_OPT", d:i + 1)), MCH_ID_PANETXT, MCH_PANE_IX, MCH_PANE_Y + 26, 3);
+	MenuClipRect(MCH_PANE_IX, MCH_PANE_Y + 82, MCH_PANE_TEXTW, 300, MCH_PANE_TEXTW);
+	MchText("MENUBODY", StrParam(s:"\c[UIWhite]", l:StrParam(s:"DND_MCH_SETDESC", d:i + 1), s:"\n\n\c[UIGrey]", l:"DND_MCH_SET_NOW", s:" ", s:MchSettingValue(i)),
+		MCH_ID_PANETXT + 1, MCH_PANE_IX, MCH_PANE_Y + 84, 3);
+	MenuClipRect(0, 0, 0, 0, 0);
+	// the card rows show a small card in the picked style with a line in the picked font
+	if(i == 4 || i == 5)
+		DrawSettingsCardSample();
+	else
+		DeleteTextRange(MCH_ID_PANEIMG, MCH_ID_PANEIMG + 3);
+	if(i < 4)
+		DeleteText(MCH_ID_PANETXT + 2);
+	MchText("MENUSUB", StrParam(s:"\c[UIDim]", l:"DND_MCH_HINT_SETTINGS"), MCH_ID_PAGETXT + 2, MCH_ROW_X, MCH_PANE_FOOT + 54, 1);
 }
 
 // ---------------------------------------------------------------- skills
@@ -8710,8 +8817,8 @@ void DrawChromeSkillIndex(int pnum, int boxid) {
 		if(GetTreeSpellCount(i))
 			body = StrParam(s:"\c[UIGrey]", l:"DND_MCH_LEARNED", s:" \c[UIWhite]", d:MchTreeLearned(pnum, i), s:" / ", d:GetTreeSpellCount(i),
 				s:"\n\n\c[UIWhite]", l:"DND_SPELLINDEX_HELP1", s:"\n", l:"DND_SPELLINDEX_HELP2",
-				s:"\n", l:"DND_MENU_PERK_PINHELP1", s:" \c[UIGold]", k:"+jump", s:"\c[UIWhite] ", l:"DND_MENU_PERK_PINHELP2",
-				s:"\n", l:"DND_SPELLINDEX_REFUND1", s:" \c[UIGold]", k:"+jump", s:"\c[UIWhite] ", l:"DND_SPELLINDEX_REFUND2");
+				s:"\n", l:"DND_MENU_PERK_PINHELP1", s:" ", s:BindKeysText("+jump", "\c[UIGold]", "\c[UIWhite]"), s:"\c[UIWhite] ", l:"DND_MENU_PERK_PINHELP2",
+				s:"\n", l:"DND_SPELLINDEX_REFUND1", s:" ", s:BindKeysText("+jump", "\c[UIGold]", "\c[UIWhite]"), s:"\c[UIWhite] ", l:"DND_SPELLINDEX_REFUND2");
 		else
 			body = StrParam(s:"\c[UIDim]", l:"DND_MCH_TREEEMPTY");
 	}
@@ -8729,7 +8836,7 @@ void DrawChromeSkillIndex(int pnum, int boxid) {
 // The spell pages' own backdrop gave way to the frame; their info panel keeps a pane behind it.
 void DrawChromeSpellPocket() {
 	MenuHudSize(MCH_W, MCH_H);
-	MchPic("MCPOCKET", RPGMENUID, 1140, 194);
+	MchPic("MCPOCKET", RPGMENUID, MCH_SPELLPOCKET_X, 194);
 	MenuHudSize(HUDMAX_X, HUDMAX_Y);
 }
 
@@ -8800,7 +8907,7 @@ str MchGearRowName(int i) {
 // One equipment slot centred where the equipment page has it: its well, and the equipped item's picture at the same 2x.
 void MchGearSlot(int pnum, int slot, int n, int x, int y, str well, int w, int h, bool locked, str empty) {
 	int cx = MchGearX(x), cy = MchGearY(y);
-	MchPic(MchWellPic(locked ? "MCSLFL" : well, slot, false), (n < 12) ? MCH_ID_ROWIMG + n : MCH_ID_ROWIMG + 9 + n, cx - w / 2, cy - h / 2);
+	MchPic(MchWellPic(locked ? "MCSLFL" : well, slot, false, !locked && IsUsedItemStarved(pnum, slot)), (n < 12) ? MCH_ID_ROWIMG + n : MCH_ID_ROWIMG + 9 + n, cx - w / 2, cy - h / 2);
 	if(locked)
 		return;
 	auto item = GetUsedItem(pnum, slot);
@@ -8890,7 +8997,7 @@ void DrawChromeGearEquip(int pnum, int boxid) {
 			MchPic(MchWellPic("MCEQFL", i, false), MCH_ID_PANEIMG + 15 + i, cx - w / 2, cy - h / 2);
 			continue;
 		}
-		MchPic(MchWellPic(MchEqWell(i), i, i == hov), MCH_ID_PANEIMG + 15 + i, cx - w / 2, cy - h / 2);
+		MchPic(MchWellPic(MchEqWell(i), i, i == hov, IsUsedItemStarved(pnum, i)), MCH_ID_PANEIMG + 15 + i, cx - w / 2, cy - h / 2);
 		// item pictures stay 2x so they sit crisp inside the wells
 		auto item = GetUsedItem(pnum, i);
 		if(item.item_type != DND_ITEM_NULL)
@@ -10186,6 +10293,8 @@ typedef struct {
 	int content_tic;
 	int tic;
 	int hot;
+	bool hint_on;		// "Click to select" is showing, pulsing since hint_from
+	int hint_from;
 	int last_cx;
 	int last_cy;
 	int cw[CSEL_PERKS];
@@ -10348,14 +10457,14 @@ void MchTextA(str font, str txt, int id, int x, int y, int align, int alpha) {
 		fx += 0.4;
 		fy += 0.1;
 	}
-	SetFont(font);
+	SetFont(ThemeFont(font));
 	HudMessage(s:txt; HUDMSG_PLAIN | HUDMSG_ALPHA, id, CR_WHITE, MenuX(fx), MenuY(fy), 0.0, alpha);
 }
 
 // a sprite k times larger (fixed), centred on cx and standing on by
 void MchSprite(str pic, int id, int cx, int by, int k, int alpha) {
 	MenuHudSize(FixedDiv(MCH_W << 16, k) >> 16, FixedDiv(MCH_H << 16, k) >> 16);
-	SetFont(pic);
+	SetFont(ThemeArt(pic));
 	HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, id, CR_UNTRANSLATED, MenuX(FixedDiv(cx << 16, k) & MMASK), MenuY((FixedDiv(by << 16, k) & MMASK) + 0.2), 0.0, alpha);
 	MenuHudSize(MCH_W, MCH_H);
 }
@@ -10463,10 +10572,17 @@ void DrawClassSelect() {
 
 	// the class in the middle is a button: under the cursor its floor turns gold and says so
 	MchPic((hot == 5) ? "MCFLOORH" : "MCFLOOR", CSEL_ID + 40, CSEL_CX - 170, CSEL_FLOOR - 12);
-	if(hot == 5)
-		MchText("MENUSUB", StrParam(s:"\c[UIGold]", l:"DND_CSEL_CLICKPICK"), CSEL_ID + 46, CSEL_CX, CSEL_FLOOR + 30, 0);
-	else
+	if(hot == 5) {
+		if(!s.hint_on) {
+			s.hint_on = true;
+			s.hint_from = s.tic;
+		}
+		DrawClassPickHint(s.tic - s.hint_from);
+	}
+	else {
+		s.hint_on = false;
 		DeleteText(CSEL_ID + 46);
+	}
 	for(i = 0; i < MAXPLAYERCLASSES; ++i) {
 		cprefix = StrParam(s:"CLASS", d:i);
 		DrawCarouselItem(s, view, i, CSEL_ID + 20, StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_RIGHTIMG)), StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_NAME)));
@@ -10476,18 +10592,43 @@ void DrawClassSelect() {
 	// the middle class's name and background fade in as it arrives
 	int ca = 0.25 + FixedMul(0.75, CselEase(s.tic - s.content_tic, CSEL_SLIDE_TICS));
 	cprefix = StrParam(s:"CLASS", d:s.cur);
-	MchTextA("MENUHEAD", StrParam(s:"\c[UIGold]", l:GetClassLabel(cprefix, DND_CLASS_LABEL_NAME)), CSEL_ID + 43, CSEL_CX, CSEL_FLOOR + 66, 0, ca);
-	MenuClipRect(CSEL_CX - 660, CSEL_FLOOR + 90, 1320, 100, 1320);
-	MchTextA("MENUBODY", StrParam(s:"\c[UIWhite]", l:GetClassLabel(cprefix, DND_CLASS_LABEL_TEXT)), CSEL_ID + 44, CSEL_CX, CSEL_FLOOR + 92, 4, ca);
+	MchTextA("MENUHEAD", StrParam(s:"\c[UIGold]", l:GetClassLabel(cprefix, DND_CLASS_LABEL_NAME)), CSEL_ID + 43, CSEL_CX, CSEL_FLOOR + 74, 0, ca);
+	MenuClipRect(CSEL_CX - 660, CSEL_FLOOR + 98, 1320, 100, 1320);
+	MchTextA("MENUBODY", StrParam(s:"\c[UIWhite]", l:GetClassLabel(cprefix, DND_CLASS_LABEL_TEXT)), CSEL_ID + 44, CSEL_CX, CSEL_FLOOR + 100, 4, ca);
 	MenuClipRect(0, 0, 0, 0, 0);
 
 	DrawPerkCards(s, CSEL_ID + 50, s.cur, ca, -1);
 
-	MchText("MENUSUB", StrParam(s:"\c[UIGrey]", k:"+moveleft", s:" / ", k:"+moveright", s:"  ", l:"DND_CSEL_CHOOSE", s:"      ", k:"+forward", s:" / ", k:"+back", s:"  ", l:"DND_CSEL_READ",
-		s:"      ", k:"+use", s:"  ", l:"DND_CSEL_PICK", s:"      ", k:"+altattack", s:"  ", l:"DND_CSEL_CLOSEKEY"), CSEL_ID + 45, MCH_ROW_X - 18, MCH_STATUS_Y, 1);
+	// the binds in white, what they do in grey
+	MchText("MENUSUB", StrParam(s:"\c[UIWhite]", s:BindKeysText("+moveleft", "\c[UIWhite]", "\c[UIGrey]"), s:"\c[UIGrey] / \c[UIWhite]", s:BindKeysText("+moveright", "\c[UIWhite]", "\c[UIGrey]"), s:"\c[UIGrey]  ", l:"DND_CSEL_CHOOSE", s:"      \c[UIWhite]", s:BindKeysText("+forward", "\c[UIWhite]", "\c[UIGrey]"), s:"\c[UIGrey] / \c[UIWhite]", s:BindKeysText("+back", "\c[UIWhite]", "\c[UIGrey]"), s:"\c[UIGrey]  ", l:"DND_CSEL_READ",
+		s:"      \c[UIWhite]", s:BindKeysText("+use", "\c[UIWhite]", "\c[UIGrey]"), s:"\c[UIGrey]  ", l:"DND_CSEL_PICK", s:"      \c[UIWhite]", s:BindKeysText("+altattack", "\c[UIWhite]", "\c[UIGrey]"), s:"\c[UIGrey]  ", l:"DND_CSEL_CLOSEKEY"), CSEL_ID + 45, MCH_ROW_X - 18, MCH_STATUS_Y, 1);
 
 	MenuHudSize(HUDMAX_X, HUDMAX_Y);
 	DrawCursor();
+}
+
+// "Click to select", under the floor circle: eases up to CSEL_HINT_GROW, holds there, eases back and rests, on repeat
+#define CSEL_HINT_Y (CSEL_FLOOR + 44)
+#define CSEL_HINT_UP 30
+#define CSEL_HINT_HOLD 3
+#define CSEL_HINT_REST 10
+#define CSEL_HINT_GROW 0.18
+void DrawClassPickHint(int t) {
+	int f = 0;
+	t %= 2 * CSEL_HINT_UP + CSEL_HINT_HOLD + CSEL_HINT_REST;
+	if(t < CSEL_HINT_UP)
+		f = (1.0 - cos(FixedDiv(t << 16, (2 * CSEL_HINT_UP) << 16))) >> 1;
+	else if(t < CSEL_HINT_UP + CSEL_HINT_HOLD)
+		f = 1.0;
+	else if(t < 2 * CSEL_HINT_UP + CSEL_HINT_HOLD)
+		f = (1.0 + cos(FixedDiv((t - CSEL_HINT_UP - CSEL_HINT_HOLD) << 16, (2 * CSEL_HINT_UP) << 16))) >> 1;
+	int k = 1.0 + FixedMul(CSEL_HINT_GROW, f);
+	// a canvas k times smaller, kept a multiple of 4 so its centre column and 4:3 height stay whole numbers
+	int w = ((FixedDiv(MCH_W << 16, k) >> 16) + 2) / 4 * 4, h = w * MCH_H / MCH_W;
+	MenuHudSize(w, h);
+	SetFont(ThemeFont("MENUSUB"));
+	HudMessage(s:"\c[UIGold]", l:"DND_CSEL_CLICKPICK"; HUDMSG_PLAIN, CSEL_ID + 46, CR_WHITE, MenuX((w / 2) << 16), MenuY((CSEL_HINT_Y * h / MCH_H) << 16), 0.0);
+	MenuHudSize(MCH_W, MCH_H);
 }
 
 void ClearClassSelect() {
@@ -10656,11 +10797,11 @@ void DrawCharLoad(int boxid) {
 		DeleteText(CLOAD_ID + 46);
 
 	// the load timer and waiting players from "DnD Character Select Animated", above the cards
-	SetFont("MENUBDYS");
+	SetFont(ThemeFont("MENUBDYS"));
 	HudMessage(s:GetCloadMsg().msg; HUDMSG_PLAIN, CLOAD_ID + 47, CR_RED, MenuX((CSEL_CX << 16) + 0.4), MenuY(((CSEL_FLOOR + 142) << 16) + 0.1), 0.0);
 
-	MchText("MENUSUB", StrParam(s:"\c[UIGrey]", l:"DND_CLOAD_HINT1", s:"      ", k:"+moveleft", s:" / ", k:"+moveright", s:"  ", l:"DND_CLOAD_HINT2",
-		s:"      ", k:"+forward", s:" / ", k:"+back", s:"  ", l:"DND_CSEL_READ"), CLOAD_ID + 45, MCH_ROW_X - 18, MCH_STATUS_Y, 1);
+	MchText("MENUSUB", StrParam(s:"\c[UIGrey]", l:"DND_CLOAD_HINT1", s:"      \c[UIWhite]", s:BindKeysText("+moveleft", "\c[UIWhite]", "\c[UIGrey]"), s:"\c[UIGrey] / \c[UIWhite]", s:BindKeysText("+moveright", "\c[UIWhite]", "\c[UIGrey]"), s:"\c[UIGrey]  ", l:"DND_CLOAD_HINT2",
+		s:"      \c[UIWhite]", s:BindKeysText("+forward", "\c[UIWhite]", "\c[UIGrey]"), s:"\c[UIGrey] / \c[UIWhite]", s:BindKeysText("+back", "\c[UIWhite]", "\c[UIGrey]"), s:"\c[UIGrey]  ", l:"DND_CSEL_READ"), CLOAD_ID + 45, MCH_ROW_X - 18, MCH_STATUS_Y, 1);
 
 	MenuHudSize(HUDMAX_X, HUDMAX_Y);
 	DrawCursor();
@@ -10761,18 +10902,26 @@ void DrawChromeSellPopup(int mainboxid) {
 void MchTermMessage(str head, str code, str body, bool err) {
 	int x = MCH_POP_X, y = MCH_POP_Y + 45, hold = err ? 1.0 : 0.0, fade = err ? 1.0 : 0.0, mode = err ? HUDMSG_FADEOUT : HUDMSG_PLAIN;
 	MenuHudSize(FixedDiv(MCH_W << 16, 120.0) >> 16, FixedDiv(MCH_H << 16, 120.0) >> 16);
-	SetFont("MCDIM");
+	SetFont(ThemeArt("MCDIM"));
 	HudMessage(s:"A"; mode | HUDMSG_ALPHA, MCH_ID_TERMDIM, CR_UNTRANSLATED, MenuX(FixedDiv((MCH_W / 2) << 16, 120.0) & MMASK), MenuY(FixedDiv((MCH_H / 2) << 16, 120.0) & MMASK), hold, fade, err ? 0.6 : 1.0);
 	MenuHudSize(MCH_W, MCH_H);
-	SetFont(err ? "MCTERME" : "MCTERMC");
+	SetFont(ThemeArt(err ? "MCTERME" : "MCTERMC"));
 	HudMessage(s:"A"; mode, MCH_ID_TERMCARD, CR_UNTRANSLATED, MenuX(((x - MCH_TERM_M) << 16) + 0.1), MenuY(((y - MCH_TERM_M) << 16) + 0.1), hold, fade);
-	SetFont("MENUSUB");
+	SetFont(ThemeFont("MENUSUB"));
 	HudMessage(s:"\c[UITermInk]UAC // ", s:head; mode, MCH_ID_TERMTXT, CR_WHITE, MenuX(((x + 18) << 16) + 0.1), MenuY((y + 21) << 16), hold, fade);
 	HudMessage(s:"\c[UITermInk]", s:code; mode, MCH_ID_TERMTXT + 1, CR_WHITE, MenuX(((x + MCH_POP_W - 18) << 16) + 0.2), MenuY((y + 21) << 16), hold, fade);
-	SetFont("MENUBODY");
+	SetFont(ThemeFont("MENUBODY"));
 	MenuClipRect(x + 24, y + 50, MCH_POP_W - 48, 150, MCH_POP_W - 56);
 	HudMessage(s:err ? "\c[UITermRed]> " : "\c[UIGold]> ", s:body, s:err ? "\n\c[UITermRed]> _" : "\n\c[UIGold]> _"; mode, MCH_ID_TERMTXT + 2, CR_WHITE, MenuX(((x + 28) << 16) + 0.1), MenuY(((y + 62) << 16) + 0.1), hold, fade);
 	MenuClipRect(0, 0, 0, 0, 0);
+	MenuHudSize(HUDMAX_X, HUDMAX_Y);
+}
+
+// Pitch black over the whole screen while a new theme's art loads in and the page redraws; it lapses by itself.
+void MchThemeCover() {
+	MenuHudSize(FixedDiv(MCH_W << 16, 120.0) >> 16, FixedDiv(MCH_H << 16, 120.0) >> 16);
+	SetFont("MCBLACK");
+	HudMessage(s:"A"; HUDMSG_PLAIN, MCH_ID_THEMECOVER, CR_UNTRANSLATED, MenuX(FixedDiv((MCH_W / 2) << 16, 120.0) & MMASK), MenuY(FixedDiv((MCH_H / 2) << 16, 120.0) & MMASK), MCH_THEME_COVER_HOLD);
 	MenuHudSize(HUDMAX_X, HUDMAX_Y);
 }
 
@@ -11054,7 +11203,7 @@ void DrawChromePerkPane(int pnum, int pk, bool pinned) {
 	if(pinned)
 		MchText("MENUSUB", StrParam(s:"\c[UICyan]", l:"DND_MENU_PERK_PINNED1", s:"  \c[UIDim]", l:"DND_MCH_PERK_UNPIN"), MCH_ID_PANETXT + 4, MCH_PANE_IX, MCH_PANE_FOOT + 54, 1);
 	else
-		MchText("MENUSUB", StrParam(s:"\c[UIDim]", l:"DND_MCH_HINT_PERK", s:"    ", l:"DND_MENU_PERK_PINHELP1", s:" \c[UIGrey]", k:"+jump", s:"\c[UIDim] ", l:"DND_MCH_PERK_PINHINT"),
+		MchText("MENUSUB", StrParam(s:"\c[UIDim]", l:"DND_MCH_HINT_PERK", s:"    ", l:"DND_MENU_PERK_PINHELP1", s:" ", s:BindKeysText("+jump", "\c[UIGrey]", "\c[UIDim]"), s:"\c[UIDim] ", l:"DND_MCH_PERK_PINHINT"),
 			MCH_ID_PANETXT + 4, MCH_PANE_IX, MCH_PANE_FOOT + 54, 1);
 }
 
@@ -11372,11 +11521,15 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 
 	// Here, not in script 900: run on the server this range was 750 hud messages sent over the network.
 	DeleteTextRange(RPGMENUCURSORID, RPGMENUINVENTORYID);
+	SyncMenuTheme();
 
 	while(CheckInventory("ShowingMenu")) {
 		redraw = false;
-		// a new screen shape redraws the whole menu at its new zoom, as a fresh page
-		if(UpdateMenuZoom(true)) {
+		// a new screen shape or menu theme redraws the whole menu, as a fresh page
+		bool new_theme = RefreshMenuTheme();
+		if(UpdateMenuZoom(true) | new_theme) {
+			if(new_theme)
+				MchThemeCover();
 			ClearMenuDisplay();
 			DeleteTextRange(SPELLPAGE_ID_FIRST, SPELLPAGE_ID_LAST);
 			DeleteText(RPGMENUID);
@@ -11468,12 +11621,9 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		}
 		else if(curopt < MENU_LOAD_CRAFTING || curopt > MENU_LOAD_CRAFTING_LAST) {
 			if(!CheckInventory("DnD_InventoryView") && !CheckInventory("InTradeView") && !CheckInventory("DnD_StashView")) {
-				// GetTriggeredBoxOnPane rejects anything past xlim, and xlim is a FAR EDGE coordinate --
-				// the default 348 means "nothing left of screen x 132". Every other page starts its
-				// content at 184 so it never noticed; this one starts at 26, and its first three columns
-				// were simply unreachable.
+				// xlim is a far edge (mirrored) limit: the skill trees reach left of design x 0, as far as the cursor goes
 				if(IsSpellPage(curopt))
-					boxid = GetTriggeredBoxOnPane(CurrentPane, PlayerCursorData.posx, PlayerCursorData.posy, 470.0, 300.0);
+					boxid = GetTriggeredBoxOnPane(CurrentPane, PlayerCursorData.posx, PlayerCursorData.posy, HUDMAX_XF + ((MCH_CURSOR_OVER + 1) << 16), 300.0);
 				else if(IsChromeShopList(curopt))
 					boxid = MchShopListHit(curopt);
 				else
@@ -12734,29 +12884,31 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 				if(HasLeftClicked(pnum)) {
 					if(boxid >= MBOX_1 && boxid <= MENU_HELP_END - MENU_HELP_BEGIN + 1)
 						temp = MENU_HELP_BEGIN + boxid - 1;
-					else if(boxid == MBOX_10) {
-						GiveInventory("SetMapInfo", 1);
-						LocalAmbientSound("RPG/MenuChoose", 127);
-						temp = -1;
-					}
-					else if(boxid == MBOX_11) {
-						GiveInventory("SetModTierInfo", 1);
-						LocalAmbientSound("RPG/MenuChoose", 127);
-						temp = -1;
-					}
-					else if(boxid == MBOX_12) {
-						GiveInventory("SetTempWepIgnore", 1);
-						SetInventory("DnD_NoTempPickup", !CheckInventory("DnD_NoTempPickup"));
-						LocalAmbientSound("RPG/MenuChoose", 127);
-						temp = -1;
-					}
-					else if(boxid == MBOX_13) {
-						ACS_NamedExecuteWithResult("DnD Filter Click", pnum, 0, 0, 0);
-						LocalAmbientSound("RPG/MenuChoose", 127);
-						temp = -1;
-					}
 					if(boxid != MAINBOX_NONE && temp != -1)
 						UpdateMenuPosition(temp);
+				}
+				if(HasPressedLeft(pnum))
+					ReturnToMain();
+			}
+			else if(curopt == MENU_SETTINGS) {
+				if(HasLeftClicked(pnum) && boxid >= MBOX_1 && boxid <= MBOX_7) {
+					if(boxid == MBOX_1)
+						GiveInventory("SetMapInfo", 1);
+					else if(boxid == MBOX_2)
+						GiveInventory("SetModTierInfo", 1);
+					else if(boxid == MBOX_3) {
+						GiveInventory("SetTempWepIgnore", 1);
+						SetInventory("DnD_NoTempPickup", !CheckInventory("DnD_NoTempPickup"));
+					}
+					else if(boxid == MBOX_4)
+						ACS_NamedExecuteWithResult("DnD Filter Click", pnum, 0, 0, 0);
+					else if(boxid == MBOX_5)
+						ACS_NamedExecuteWithResult("DnD Card Font Click", pnum, 0, 0, 0);
+					else if(boxid == MBOX_6)
+						ACS_NamedExecuteWithResult("DnD Card Style Click", pnum, 0, 0, 0);
+					else
+						ACS_NamedExecuteWithResult("DnD Menu Theme Click", pnum, 0, 0, 0);
+					LocalAmbientSound("RPG/MenuChoose", 127);
 				}
 				if(HasPressedLeft(pnum))
 					ReturnToMain();
@@ -13068,6 +13220,32 @@ Script "DnD Filter Click" (int pnum) CLIENTSIDE {
 		f = 0;
 	SetCVar("dnd_pickup_filter", f);
 	NamedRequestScriptPuke("DND Set Pickup Filter", pnum, f);
+	SetResultValue(0);
+}
+
+// The item card font is this machine's own: the next one, wrapping round, on the clicking client only
+Script "DnD Card Font Click" (int pnum) CLIENTSIDE {
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+	SetCVar("dnd_cardfont", (GetCardPrefs()[DND_CARDPREF_FONT] + 1) % DND_CARDFONTS);
+	RefreshCardPrefs();
+	SetResultValue(0);
+}
+
+// The menu theme likewise: the next one; the menu loop sees the change and redraws everything in it
+Script "DnD Menu Theme Click" (int pnum) CLIENTSIDE {
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+	SetCVar("dnd_menutheme", (GetMenuThemeState()[0] + 1) % DND_MENUTHEMES);
+	SetResultValue(0);
+}
+
+// The item card style likewise: the next one, on the clicking client only
+Script "DnD Card Style Click" (int pnum) CLIENTSIDE {
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+	SetCVar("dnd_cardstyle", (GetCardPrefs()[DND_CARDPREF_STYLE] + 1) % DND_CARDSTYLES);
+	RefreshCardPrefs();
 	SetResultValue(0);
 }
 

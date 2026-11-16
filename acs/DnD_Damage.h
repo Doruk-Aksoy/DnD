@@ -14,7 +14,6 @@
 
 #define DND_CRIT_TOKEN 69
 
-#define DND_PLAYER_HITSCAN_Z 38.0
 #define MAX_RIPPERS_ACTIVE 256
 #define MAX_RIPPER_HITS_STORED 128
 
@@ -23,11 +22,7 @@
 #define DND_MAX_DAMAGELOSEHITS 7 // we let maximum of 70% reduction, so you'll do min 30%
 #define DND_DAMAGELOST_PERCENT 10 // 10%
 
-#define DND_HARDCORE_DEBUFF 15 // 15% more damage taken
-
 #define DND_INVULSPHERE_FACTOR 10 // 10% damage taken, divides by 10 => 90% reduce
-
-#define DND_EXPLOSION_FLAGVARIABLE "user_flags"
 
 #define DND_ADDEDIGNITE_FACTOR 50 // 50%
 
@@ -41,9 +36,6 @@
 #define OCCULT_WEAKEN_DURATION 2
 
 #define VAAJ_WEAKEN_DURATION 3
-#define DND_VAAJ_WEAKENPCT 10
-
-#define DND_CORRUPTORB_DMGREDUCE 75 // /4 => 75% reduced dmg
 
 #define DND_MONSTER_BURN_PERCENT 10
 #define DND_PLAYER_BURNING_CHANCE 0.33
@@ -181,8 +173,6 @@ int DamageCategoryToMonsterDamageType(int d) {
 }
 
 #define MAX_DAMAGE_TYPES (DND_DAMAGETYPE_SOUL + 1)
-#define DAMAGE_TYPE_SHIFT 5
-#define DAMAGE_TYPE_MASK 0x1F
 
 bool IsMeleeDamage(int damage_type) {
 	return damage_type >= DND_DAMAGETYPE_MELEE && damage_type <= DND_DAMAGETYPE_PARRY;
@@ -218,10 +208,6 @@ bool IsLightningDamage(int damage_type) {
 
 bool IsElementalDamageType(int damage_type) {
 	return damage_type >= DND_DAMAGETYPE_FIRE && damage_type <= DND_DAMAGETYPE_LIGHTNING;
-}
-
-bool IsElementalDamageCategory(int damage_category) {
-	return damage_category >= DND_ELECATEGORY_BEGIN && damage_category <= DND_ELECATEGORY_END;
 }
 
 bool IsDamageCapableOfIgnite(int damage_type) {
@@ -1095,46 +1081,9 @@ void HandleOnHitEffects(int owner) {
 	}
 }
 
-int BigNumberFormula(int dmg, int f) {
-	int p = PowersOf10[(digitcount(dmg) + 1) / 2];
-	int wepid = dmg % p;
-	int temp = 0;
-	dmg /= p;
-	
-	// get rid of 0.9999 crap
-	f = f * 100 + 0.001;
-	f >>= 16;
-	
-	dmg *= f;
-	temp = (dmg % 100) * p / 100;
-	dmg /= 100;
-	dmg *= p;
-	
-	wepid *= f;
-	wepid /= 100;
-	
-	dmg += wepid + temp;
-
-	return dmg;
-}
-
 // for now does nothing per weapon, later add new corruptions perhaps
 int GetPlayerIgniteAddedDmg(int pnum, int wepid, int added_dmg) {
 	return added_dmg * DND_ADDEDIGNITE_FACTOR / 100;
-}
-
-// Factors in generic DOT percentages to a base damage, use for weapons that do DOT on their own!
-int FactorDOT(int pnum, int dmg, int percent_increase = 0) {
-	// flat portion
-	dmg += PlayerModData[pnum].vals[PSTAT_DOT_FLAT];
-
-	// dot %
-	dmg = dmg * (100 + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED] + percent_increase) / 100;
-		
-	// dot multi
-	dmg = dmg * (100 + PlayerModData[pnum].vals[PSTAT_DOTMULTI]) / 100;
-	
-	return dmg;
 }
 
 // set pointers appropriately beforehand!
@@ -1209,7 +1158,7 @@ int ApplyNonWeaponBaseDamageBonus(int tid, int dmg, int damage_type, int flags) 
 	}
 	else {
 		// beyond this point wepid doesnt matter so use that instead
-		dmg = bcs::INT_MAX;//BigNumberFormula(dmg, factor);
+		dmg = bcs::INT_MAX;
 	}
 	
 	return dmg;
@@ -2144,7 +2093,6 @@ bool HandleOverloadEffects(int pnum, int victim, int gem_chance = 0, bool gem_on
 			
 			// DnD_OverloadDamage is a BONUS percent added on top of DND_BASE_OVERLOADBUFF
 			// at the consumption site, so it must NOT carry the 100 baseline.
-			// ConvertFixedFactorToInt returns 100 + pct (and 100 for a zero attribute).
 			temp = (PlayerModData[pnum].vals[PSTAT_OVERLOAD_DMGINCREASE] * 100) >> 16;
 			int all_effect = PlayerModData[pnum].vals[PSTAT_INC_ALLOVERLOAD];
 			if(all_effect) {

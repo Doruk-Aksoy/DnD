@@ -450,11 +450,6 @@ int GetDungeonModRangeWithTierExtra(int attr, int tier_mapping, bool which, int 
 	return res;
 }
 
-// this calculates the tier mapping for itself based on supplied level
-int GetDungeonModRange(int attr, int tier, bool which, int attr_factor) {
-	return GetDungeonModRangeWithTier(attr, GetDungeonModTierRangeMapper(attr, tier), which, attr_factor);
-}
-
 str GetDetailedDungeonModRange(int attr, int tier, int trunc_factor = 0, int extra = -1, bool isPercentage = false) {
 	if(extra != -1)
 		return GetDetailedModRange_Unique(tier, trunc_factor, extra, isPercentage);

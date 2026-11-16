@@ -1296,7 +1296,16 @@ str GetItemAttributeText(
 				return StrParam(s:"-\cg", d:val1, s:"%\c[D4] ", l:text);
 			}
 			return StrParam(l:text);
-			
+
+		case INV_EX_STRENGTH_REQUIREMENT:
+			if(showDetailedMods) {
+				return StrParam(
+					s:"\c[D4]", l:text, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c[D4] ", l:"IATTR_TX11S",
+					s:"\n\c[D4]", l:"IATTR_TX11B", s:" ", d:val1, s:" - ", s:GetModTierText(attr, item_type, tier, extra)
+				);
+			}
+			return StrParam(s:"\c[D4]", l:text, s:" ", d:val1, s:" ", l:"IATTR_TX11S", s:"\n\c[D4]", l:"IATTR_TX11B", s:" ", d:val1);
+
 		// negative effects are shown with different color -- these are % ones of those, these are positive numerically
 		case INV_EX_DMGINCREASE_TAKEN:
 		case INV_EX_SPREAD_PENALTY:
@@ -1345,7 +1354,6 @@ str GetItemAttributeText(
 			return StrParam(s:"\c[D4] ", l:text, s:" ", s:bad_tag, d:val1, s:"%\c[D4] ", l:"IATTR_TX35S");
 			
 		// single text negative effects
-		case INV_EX_FORBID_ARMOR:
 		case INV_EX_CANNOTPICKAMMO:
 		case INV_EX_CANTFIRENONOVERHEAT:
 		case INV_EX_RIPPERSONETIMEONLY:

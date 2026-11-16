@@ -115,7 +115,9 @@ DND_ULTIMATUM_REWARDBACK =   "Back";
 DND_ULTIMATUM_REWARDBANK =   "REWARDS EARNED SO FAR";
 DND_ULTIMATUM_REWARDNONE =   "\ckNothing yet. Take a challenge and this round's spoils are yours to collect when it is over.";
 
-DND_MERCHANTHEADER	=	"\c[A3]Bernabe \cj\"\c[06]DRX\cj\" \c[A3]Santiago";
+DND_MRC_NAME		=	"Bernabe \"DRX\" Santiago";
+DND_MRC_BUY			=	"buy";
+DND_MRC_CLOSE		=	"close";
 DND_MRCHT_GREET		=	"Greetings weary traveller! I carry with me some shiny valuables and am willing to part with them for some coin! Take a look, you won't be disappointed.";
 
 DND_MRCHT_HOVER_LOWLEVELARMOR	=	"Well, what can I say? You look really high level but I'm convinced you could use this perfectly good armor right here! I think it's got your name on it too...";
@@ -135,4 +137,3 @@ DND_MRCHT_WANDERER_CANTAFFORD2	=	"Aww poor baby... Did D'sparil steal your lunch
 
 DND_MRCHT_TRICKSTER_CANTAFFORD	=	"Let me guess, all your money went to catnip? No? Then it's the breast implants, definitely...";
 
-DND_MRCHT_ORBOFSIN1				=	"99% of the travellers abandon before locking a good attribute on their items... I offer you this \cfOrb of Sin\c- to you with a special Bernabe discount, just this once!";

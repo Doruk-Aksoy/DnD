@@ -8,8 +8,6 @@
 
 #define FLASK_RECOVERY_TICRATE 2
 
-#define DND_FLASK_DROPRATE 0.0055
-
 enum {
     DND_FLASK_LIFE_SMALL,
     DND_FLASK_LIFE_MEDIUM,
@@ -45,7 +43,6 @@ enum {
 #define FLASK_MANA_BEGIN DND_FLASK_MANA_SMALL
 #define FLASK_MANA_END DND_FLASK_MANA_EXQUISITE
 
-#define FLASKS_BEGIN DND_FLASK_LIFE_SMALL
 #define FLASKS_END DND_FLASK_MANA_EXQUISITE
 
 struct flaskData_T {
@@ -458,27 +455,6 @@ int ConstructFlaskDataOnField(int item_pos, int item_tier, int pnum, int flask =
 	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
 		item.attributes[i].attrib_id = -1;
 	return res;
-}
-
-bool IsAttributeFlaskException(int flask_type, int id) {
-	if(IsRecoveryFlask(flask_type)) {
-		switch(id) {
-			case INV_FLASK_INCEFFECT:
-			case INV_FLASK_INCDURATION:
-			return true;
-		}
-	}
-	else {
-		switch(id) {
-			case INV_FLASK_INCAMOUNTRECOVER:
-			case INV_FLASK_INSTANTRECOVERY:
-			case INV_FLASK_INSTANTONLOWLIFE:
-    		case INV_FLASK_MORERECOVERYONLOWLIFE:
-			case INV_FLASK_INCRECOVERYRATE:
-			return true;
-		}
-	}
-	return false;
 }
 
 void RollFlaskInfo(int item_pos, int item_tier, int pnum, int flask_type, int max_attr) {

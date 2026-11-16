@@ -80,10 +80,6 @@ DND_ORB_MON6		=	"Orb of Reverence";
 DND_ORB_MONTEXT6	=	"Guarantees that the next orb will apply with the maximum effect possible. (Highest tier mod rolls on items, near-perfect rolls...)";
 
 // random stuff + use texts
-DND_ORB_ANDGRANTS	=	"and grants";
-DND_ORB_STATPOINTS	=	"stat points";
-DND_ORB_RANDOMPERKS	=	"random perks";
-DND_ORB_RANDOMPERK	=	"random perk";
 DND_ORB_TIMES		=	"times";
 DND_ORB_ATTRIBUTES	=	"attributes";
 
@@ -114,7 +110,6 @@ DND_ORBUSETEXT8		=	"Orb of Fortitude reforges the item, guaranteeing a \cvdefens
 DND_ORBUSETEXT8_ORD	=	"Orb of Fortitude will \cvinfuse\c- the effect of the next orb";
 
 DND_ORBUSETEXT9A	=	"Orb of Nullification removes";
-DND_ORBUSETEXT9B	=	"Orb of Nullification removes \cdan attribute\c-!";
 DND_ORBUSEFAIL9		=	"Orb of Nullification couldn't be used, the item ran out of attributes to remove\c-!";
 
 DND_ORBUSETEXT10	=	"Orb of Destruction reforges the item, guaranteeing a \cvcritical\c- modifier";
@@ -155,7 +150,6 @@ DND_ORBUSETEXT20	=	"Assimilation Orb consumes the selected items, and produces a
 DND_ORBUSEFAIL20	=	"Assimilation Orb couldn't be used.";
 
 DND_ORBUSETEXT21	=	"Orb of Turmoil reforges the item!";
-DND_ORBUSETEXT21_ORD=	"Orb of Turmoil will \cvinfuse\c- the effect of the next orb";
 
 DND_ORBUSETEXT22	=	"Orb of Hexes reforges the item, guaranteeing an \cvoccult\c- modifier";
 DND_ORBUSETEXT22_ORD=	"Orb of Hexes will \cvinfuse\c- the effect of the next orb";

@@ -48,10 +48,6 @@ enum {
 #define DND_LAST_SYNC_TYPE DND_SYNC_ITEMATTRIBUTES_FRACTURE
 
 #define DND_SYNC_ITEMBEGIN DND_SYNC_ITEMTOPLEFTBOX
-#define DND_SYNC_ITEMEND DND_SYNC_ITEMATTRIBUTES_TIER
-
-#define FIRST_WEPMOD_SYNC (DND_SYNC_WEPMOD_CRIT)
-#define MAX_SYNC_VARS (DND_SYNC_WEPMOD_POWERSET1 + 1)
 
 enum {
 	DND_SYNC_ITEMSOURCE_ITEMSUSED,
@@ -490,15 +486,6 @@ void SyncItemStack(int pnum, int itemid, int source) {
 	int raw_source = source & 0xFFFF;
 	int payload = (raw_source << 8) | (page << 16);
 	SendItemSync("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMSTACK | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, itemid, -1, source), itemid);
-	
-	MarkVSyncItemDirty();
-}
-
-void SyncItemStack_Delayed(int pnum, int itemid, int source) {
-	int page = source >> 16;
-	int raw_source = source & 0xFFFF;
-	int payload = (raw_source << 8) | (page << 16);
-	SendItemSync("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMSTACK | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, itemid, -1, source), itemid);
 	
 	MarkVSyncItemDirty();
 }

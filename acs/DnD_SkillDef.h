@@ -43,7 +43,6 @@ enum {
 // A spell tree node's prerequisites.
 #define DND_MAX_SKILL_REQ 3
 
-#define SPELL_NAME 0
 #define SPELL_COOLDOWNITEM 1
 #define SPELL_COOLDOWNCOUNTER 2
 str SpellInfo[MAX_SPELLS][3] = {

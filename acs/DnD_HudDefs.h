@@ -18,23 +18,10 @@ int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1, ASPECT_4_3 };
 #define INVENTORYINFO_TRADEVIEW_WRAPX 304.0
 #define INVENTORYINFO_TRADEVIEW_WRAPY 200.0
 
-#define NEXT_LINE_LEN 35
-#define NEXT_LINE_LEN_ATTR 30
-
 #define NOTIFBAK_X 160
-#define NOTIFBAK_Y 128
 #define NOTIFBAK_XF 160.0
-#define NOTIFBAK_YF 128.0
 
-#define QSTBOX_X 250
-#define QSTBOX_Y 150
 #define QSTBOX_XF 250.0
-#define QSTBOX_YF 150.0
-
-#define QSTBOX2_X 288
-#define QSTBOX2_Y 173
-#define QSTBOX2_XF 288.0
-#define QSTBOX2_YF 173.0
 
 #define MONSTERINFO_HOLDTIME 0.2
 
@@ -56,23 +43,28 @@ int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1, ASPECT_4_3 };
 #define DND_RESEARCHNOTIFY_FADE 1.0
 #define DND_SPELLPOINTNOTIFY_ID 898		// a skill point found, a line under the research one so both fit on one kill
 
-#define TIPBOX_TOPLEN 70.0
 #define TIPBOX_MIDLEN 39.0
 
 #define ITEMINFOBG_TOPLEN 17.0
 #define ITEMINFOBG_MIDLEN 9.0
 #define ITEMINFOBG_BOTLEN 21.0
-// 20 holds about 30 wrapped attribute lines; a dungeon key with its mod tags shown already needs 13
-#define ITEMINFOBG_MAXMIDS 20
+// 23 is the tallest card a world drop fits between the screen top and the HUD: about 18 wrapped attribute lines
+#define ITEMINFOBG_MAXMIDS 23
 #define ITEMINFO_FIELD_BOTTOM 252		// a world card ends above the HUD's level box (HUDMAX units)
-#define ITEMINFO_CLIPWIDTH 360
 // text clip height: the tallest panel in HUDTEXTMAX pixels, less the 15 the clip starts below its top
 #define ITEMINFO_CLIPHEIGHT (3 * ((ITEMINFOBG_TOPLEN + ITEMINFOBG_MAXMIDS * ITEMINFOBG_MIDLEN + ITEMINFOBG_BOTLEN) >> 16) / 2 - 15)
 
 // Item info panel text layout. These are HUDTEXTMAX pixels -- the panel art is drawn in HUDMAX, so
 // the two never mix without the 3/2 between them.
-#define ITEMINFO_LINEH 8			// NSMOLFNT height, ie. the engine's line step
-#define ITEMINFO_LINEHF 8.0
+// Card text is drawn 1:1 on the menu canvas (1440 x 1080): text space x times 2, y times 9/4
+#define DND_CARDPREF_FONT 0
+#define DND_CARDPREF_STYLE 1
+#define DND_MENUTHEMES 6		// menu art and font sets (dnd_menutheme): Steel, Terminal, Holodeck, Mech, Synthwave, Quest
+#define DND_CARDSTYLES 17		// item card backgrounds the player picks from (dnd_cardstyle), MCIT art suffixed per style
+#define DND_CARDSTYLE_MATCH 16	// the default: Steel, or the menu theme's own card (styles 11-15 for themes 1-5)
+#define DND_CARDSTYLE_THEME0 10
+#define CARD_WRAPW (2 * HUD_ITEMBAK_WIDTH)	// the card's wrap width on the canvas
+#define ITEMINFO_LINEHF 14.0		// the card font's 31 px cell is 13.78 text units, rounded up to keep the alignment digit
 #define ITEMINFO_TEXTTOP 20.0		// panel top -> title row
 #define ITEMINFO_TITLEGAP 2.0		// title bottom -> implicit top
 #define ITEMINFO_SEPGAP 4.0			// implicit bottom -> separator top
@@ -186,9 +178,6 @@ scrollbar_T module& GetScrollBar(int id = 0) {
 
 #define DND_SCROLLBAR_IDSTRIDE (RPGMENUSCROLLGRIPID2 - RPGMENUSCROLLGRIPID)
 
-#define DND_SCROLLBAR_XF (DND_SCROLLBAR_X << 16)
-#define DND_SCROLLBAR_YF (DND_SCROLLBAR_Y << 16)
-
 // how far either side of the bar a click still counts as grabbing it -- 7 pixels is a small
 // target to hit with a cursor that moves at mouse speed
 #define DND_SCROLLBAR_GRABPAD 5
@@ -196,8 +185,6 @@ scrollbar_T module& GetScrollBar(int id = 0) {
 // The cursor runs the other way to the screen (top left is 1:1, see point_in_box), so the bar's
 // screen rectangle has to be flipped into cursor space before anything can be tested against it. The
 // y pair takes the bar's own track, since two bars share the column and only their y separates them.
-#define DND_SCROLLBAR_CURSOR_XMAX ((HUDMAX_X - DND_SCROLLBAR_X + DND_SCROLLBAR_GRABPAD) << 16)
-#define DND_SCROLLBAR_CURSOR_XMIN ((HUDMAX_X - DND_SCROLLBAR_X - DND_SCROLLBAR_W - DND_SCROLLBAR_GRABPAD) << 16)
 #define DND_SCROLLBAR_CURSOR_YMAX(track_y) ((HUDMAX_Y - (track_y)) << 16)
 #define DND_SCROLLBAR_CURSOR_YMIN(track_y, track_h) ((HUDMAX_Y - (track_y) - (track_h)) << 16)
 
@@ -208,10 +195,6 @@ scrollbar_T module& GetScrollBar(int id = 0) {
 #define BOSSDATA_DMGTRIGGER 4
 #define BOSSDATA_AWAKENED 5
 int DungeonBossData[6] = { 0, 0, 0, 0, 0, 0 };
-
-// Box definitions for clickables
-// 7 images on menu leftmost bar
-#define MAX_TAGCHARS_SHOWN 17
 
 // Mainbox Labels
 enum {

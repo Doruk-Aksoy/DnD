@@ -4,12 +4,8 @@
 #include "DnD_InvAttribs.h"
 #include "DnD_Inventory.h"
 
-#define NULL_CHARM -1
-
 #define DND_CHARM_BASEHEIGHT 1
 #define DND_CHARM_BASEWIDTH 1
-
-#define DND_CHARM_SIZEFACTOR 4 // 25%
 
 #define DND_CHARM_BAGCOLORSMAX 3
 #define DND_CHARM_SPECIALTYBOOST_BASE 8 // 8% per chest tier
