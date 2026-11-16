@@ -3,7 +3,7 @@ Actor KickCooldown : Ammo {
 	inventory.maxamount 100
 	ammo.backpackamount 0
 	ammo.backpackmaxamount 100
-	Inventory.Icon "STTPRCNT"
+	Inventory.Icon "H_PRCNT"
 	+IGNORESKILL
 }
 
@@ -533,7 +533,7 @@ Actor SickleCooldown : Ammo {
 	inventory.maxamount 100
 	ammo.backpackamount 0
 	ammo.backpackmaxamount 100
-	Inventory.Icon "STTPRCNT"
+	Inventory.Icon "H_PRCNT"
 	+IGNORESKILL
 }
 
@@ -681,7 +681,7 @@ Actor ExcalibatCooldown : Ammo {
 	inventory.maxamount 100
 	ammo.backpackamount 0
 	ammo.backpackmaxamount 100
-	Inventory.Icon "STTPRCNT"
+	Inventory.Icon "H_PRCNT"
 	+IGNORESKILL
 }
 
@@ -992,7 +992,7 @@ Actor KatanaCooldown : Ammo {
 	inventory.maxamount 100
 	ammo.backpackamount 0
 	ammo.backpackmaxamount 100
-	Inventory.Icon "STTPRCNT"
+	Inventory.Icon "H_PRCNT"
 	+IGNORESKILL
 }
 
@@ -1885,7 +1885,7 @@ Actor DuskBladeCooldown : Ammo {
 	inventory.maxamount 200
 	ammo.backpackamount 0
 	ammo.backpackmaxamount 200
-	Inventory.Icon "STTPRCNT"
+	Inventory.Icon "H_PRCNT"
 	+IGNORESKILL
 }
 
@@ -2116,7 +2116,7 @@ Actor SwordHitCharge : Ammo {
 	inventory.maxamount 100
 	ammo.backpackamount 0
 	ammo.backpackmaxamount 100
-	Inventory.Icon "STTPRCNT"
+	Inventory.Icon "H_PRCNT"
 	+IGNORESKILL
 }
 

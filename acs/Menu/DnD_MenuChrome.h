@@ -1657,7 +1657,7 @@ rect_T module& LoadRect(int menu_page, int id) {
 		{
 			{ -1, -1, -1, -1 }
 		},
-		// settings -- seven rows, placed where the chrome puts its rows
+		// settings -- eight rows, placed where the chrome puts its rows
 		{
 			{ 289.0, 261.0, 179.0, 254.0 },
 			{ 289.0, 245.0, 179.0, 238.0 },
@@ -1666,6 +1666,7 @@ rect_T module& LoadRect(int menu_page, int id) {
 			{ 289.0, 197.0, 179.0, 190.0 },
 			{ 289.0, 181.0, 179.0, 174.0 },
 			{ 289.0, 165.0, 179.0, 158.0 },
+			{ 289.0, 149.0, 179.0, 142.0 },
 			{ -1, -1, -1, -1 }
 		}
 		#ifdef ISAPRILFIRST
@@ -8689,10 +8690,16 @@ void DrawChromeCodexIndex(int pnum, int boxid) {
 
 // ---------------------------------------------------------------- settings
 
-#define MCH_SETTINGS 7
+#define MCH_SETTINGS 8
 
 // a setting's current value, coloured like the codex options were
 str MchSettingValue(int i) {
+	if(i == 7) {
+		int h = GetCVar("dnd_hudtheme");
+		if(h < 0 || h >= DND_MENUTHEMES)
+			return StrParam(s:"\c[UIGold]", l:"DND_MCH_CARDSTYLE_16");
+		return StrParam(s:"\c[UIGold]", l:StrParam(s:"DND_MCH_MENUTHEME_", d:h));
+	}
 	if(i == 6)
 		return StrParam(s:"\c[UIGold]", l:StrParam(s:"DND_MCH_MENUTHEME_", d:GetMenuThemeState()[0]));
 	if(i == 5)
@@ -8767,7 +8774,7 @@ void DrawChromeSettings(int pnum, int boxid) {
 		DrawSettingsCardSample();
 	else
 		DeleteTextRange(MCH_ID_PANEIMG, MCH_ID_PANEIMG + 3);
-	if(i < 4)
+	if(i != 4 && i != 5)
 		DeleteText(MCH_ID_PANETXT + 2);
 	MchText("MENUSUB", StrParam(s:"\c[UIDim]", l:"DND_MCH_HINT_SETTINGS"), MCH_ID_PAGETXT + 2, MCH_ROW_X, MCH_PANE_FOOT + 54, 1);
 }
@@ -12891,7 +12898,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					ReturnToMain();
 			}
 			else if(curopt == MENU_SETTINGS) {
-				if(HasLeftClicked(pnum) && boxid >= MBOX_1 && boxid <= MBOX_7) {
+				if(HasLeftClicked(pnum) && boxid >= MBOX_1 && boxid <= MBOX_8) {
 					if(boxid == MBOX_1)
 						GiveInventory("SetMapInfo", 1);
 					else if(boxid == MBOX_2)
@@ -12906,8 +12913,10 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 						ACS_NamedExecuteWithResult("DnD Card Font Click", pnum, 0, 0, 0);
 					else if(boxid == MBOX_6)
 						ACS_NamedExecuteWithResult("DnD Card Style Click", pnum, 0, 0, 0);
-					else
+					else if(boxid == MBOX_7)
 						ACS_NamedExecuteWithResult("DnD Menu Theme Click", pnum, 0, 0, 0);
+					else
+						ACS_NamedExecuteWithResult("DnD Hud Theme Click", pnum, 0, 0, 0);
 					LocalAmbientSound("RPG/MenuChoose", 127);
 				}
 				if(HasPressedLeft(pnum))
@@ -13237,6 +13246,17 @@ Script "DnD Menu Theme Click" (int pnum) CLIENTSIDE {
 	if(ConsolePlayerNumber() != pnum)
 		Terminate;
 	SetCVar("dnd_menutheme", (GetMenuThemeState()[0] + 1) % DND_MENUTHEMES);
+	SetResultValue(0);
+}
+
+// The HUD theme likewise: Steel through Quest, then Match menu theme
+Script "DnD Hud Theme Click" (int pnum) CLIENTSIDE {
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+	int h = GetCVar("dnd_hudtheme");
+	if(h < 0 || h > DND_HUDTHEME_MATCH)
+		h = DND_HUDTHEME_MATCH;
+	SetCVar("dnd_hudtheme", (h + 1) % (DND_HUDTHEME_MATCH + 1));
 	SetResultValue(0);
 }
 

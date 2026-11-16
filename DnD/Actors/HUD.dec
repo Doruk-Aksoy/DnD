@@ -7,6 +7,13 @@ Actor HPOverAmount : Inventory {
 	inventory.maxamount 100
 }
 
+// The HUD theme this machine draws (1-5, none for Steel): given clientside, SBARINFO switches on its amount.
+Actor DnD_HudTheme : Inventory {
+	inventory.maxamount 5
+	+INVENTORY.UNDROPPABLE
+	+INVENTORY.UNTOSSABLE
+}
+
 Actor ARMOver100 : DnD_Boolean { }
 Actor ARMNormal : DnD_Boolean { }
 Actor ARMBelow50 : DnD_Boolean { }

@@ -91,3 +91,4 @@ user bool dnd_hideauras = false;
 local int dnd_cardfont = 0;
 local int dnd_cardstyle = 16;
 local int dnd_menutheme = 0;
+local int dnd_hudtheme = 6;

@@ -63,6 +63,7 @@ int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1, ASPECT_4_3 };
 #define DND_CARDSTYLES 17		// item card backgrounds the player picks from (dnd_cardstyle), MCIT art suffixed per style
 #define DND_CARDSTYLE_MATCH 16	// the default: Steel, or the menu theme's own card (styles 11-15 for themes 1-5)
 #define DND_CARDSTYLE_THEME0 10
+#define DND_HUDTHEME_MATCH 6	// dnd_hudtheme: 0-5 a menu theme's look on the HUD, 6 (the default) follows the menu theme
 #define CARD_WRAPW (2 * HUD_ITEMBAK_WIDTH)	// the card's wrap width on the canvas
 #define ITEMINFO_LINEHF 14.0		// the card font's 31 px cell is 13.78 text units, rounded up to keep the alignment digit
 #define ITEMINFO_TEXTTOP 20.0		// panel top -> title row

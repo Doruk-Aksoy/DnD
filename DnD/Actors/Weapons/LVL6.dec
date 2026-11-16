@@ -1972,7 +1972,7 @@ Actor SniperZoom : Inventory {
 Actor SniperZoomTimer : Ammo {
 	inventory.amount 1
 	inventory.maxamount 100
-	inventory.icon "STTPRCNT"
+	inventory.icon "H_PRCNT"
 	ammo.backpackamount 0
 	ammo.backpackmaxamount 0
 	+IGNORESKILL

@@ -345,7 +345,7 @@ Actor ShockWaveCounter : Ammo
 	inventory.maxamount 100
 	ammo.backpackamount 0
 	ammo.backpackmaxamount 100
-	inventory.icon "STTPRCNT"
+	inventory.icon "H_PRCNT"
 	+IGNORESKILL
 }
 

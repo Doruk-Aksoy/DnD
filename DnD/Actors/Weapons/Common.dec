@@ -18,7 +18,7 @@ Actor DnD_ParryCooldown : DnD_Boolean {}
 Actor DnD_Stamina : Ammo {
 	inventory.amount 1
 	inventory.maxamount 100
-	inventory.icon "STTPRCNT"
+	inventory.icon "H_PRCNT"
 	+IGNORESKILL
 }
 

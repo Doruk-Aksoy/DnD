@@ -1594,6 +1594,22 @@ str ThemeFont(str font) {
 	return StrParam(s:"THM", d:t, s:StrRight(font, StrLen(font) - 4));
 }
 
+// The HUD theme this machine draws (dnd_hudtheme, or for Match the menu theme): 0 Steel, 1-5 as the menu themes.
+int HudThemeInUse() {
+	int t = GetCVar("dnd_hudtheme");
+	if(t < 0 || t >= DND_MENUTHEMES)
+		t = GetCVar("dnd_menutheme");
+	return Clamp_Between(t, 0, DND_MENUTHEMES - 1);
+}
+
+// A spell HUD image in the HUD theme: a theme's copy is H, the theme's letter, then the name past its first two.
+str HudArt(str pic) {
+	int t = HudThemeInUse();
+	if(!t)
+		return pic;
+	return StrParam(s:"H", s:StrMid("THKVQ", t - 1, 1), s:StrRight(pic, StrLen(pic) - 2));
+}
+
 // a card style's art suffix: none for style 0, then 1-9, A
 // the card style drawn: the picked one, or for "Match menu theme" the current theme's
 int CardStyleInUse() {
@@ -2309,6 +2325,17 @@ Script "DnD Phasing Anim" (int ptid) CLIENTSIDE {
         Delay(const:1);
 		++i;
     }
+}
+
+// SBARINFO picks its theme by DnD_HudTheme's amount, so each machine keeps its own on every player body, spied ones too.
+Script "DnD Hud Theme Token" OPEN CLIENTSIDE {
+	while(1) {
+		int t = HudThemeInUse();
+		for(int i = 0; i < MAXPLAYERS; ++i)
+			if(PlayerInGame(i) && CheckActorInventory(P_TIDSTART + i, "DnD_HudTheme") != t)
+				SetActorInventory(P_TIDSTART + i, "DnD_HudTheme", t);
+		Delay(const:1);
+	}
 }
 
 #include "DnD_HudAnims.h"

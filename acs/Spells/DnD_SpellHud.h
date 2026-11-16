@@ -56,7 +56,7 @@ hotbar_glint_T module& GetHotbarGlint() {
 typedef struct {
 	int shown[MAX_HOTBAR_SLOTS];
 	bool mana_drawn, cast_drawn;
-	int mana_cap, mana_usable, mana_cur, mana_fill, mana_ghost, mana_a, mana_x, mana_y, mana_w, mana_h;
+	int mana_cap, mana_usable, mana_cur, mana_fill, mana_ghost, mana_a, mana_x, mana_y, mana_w, mana_h, mana_theme;
 } spell_hud_drawn_T;
 
 spell_hud_drawn_T module& GetSpellHudDrawn() {
@@ -639,7 +639,7 @@ void DrawManaBar(int pnum) {
 	// Every layer below is persistent, so a bar whose inputs did not change is left on screen as it is.
 	if(d.mana_drawn && d.mana_cap == cap && d.mana_usable == usable && d.mana_cur == cur && d.mana_fill == fill &&
 		d.mana_ghost == ghost && d.mana_a == a && d.mana_x == x && d.mana_y == y && d.mana_w == GetHudStack().w &&
-		d.mana_h == GetHudStack().h)
+		d.mana_h == GetHudStack().h && d.mana_theme == HudThemeInUse())
 		return;
 	d.mana_drawn = true;
 	d.mana_cap = cap;
@@ -652,13 +652,14 @@ void DrawManaBar(int pnum) {
 	d.mana_y = y;
 	d.mana_w = GetHudStack().w;
 	d.mana_h = GetHudStack().h;
+	d.mana_theme = HudThemeInUse();
 
 	// Laid out in stack units above, drawn in the bar's canvas where one unit is one art pixel, so
 	// the clips below are in art pixels too.
 	SetHudSize(GetHudStack().w * DND_MANABAR_CNUM / DND_MANABAR_CDEN, GetHudStack().h * DND_MANABAR_CNUM / DND_MANABAR_CDEN, 0);
 	int cx = x * DND_MANABAR_CNUM / DND_MANABAR_CDEN, cy = y * DND_MANABAR_CNUM / DND_MANABAR_CDEN;
 
-	SetFont("SPLMANAB");
+	SetFont(HudArt("SPLMANAB"));
 	HudMessage(s:"A"; HUDMSG_PLAIN, MANABAR_BACK_ID, CR_UNTRANSLATED,
 		(cx << 16) + 0.1, (cy << 16) + 0.1, 0.0);
 
@@ -667,7 +668,7 @@ void DrawManaBar(int pnum) {
 	int w = DND_MANABAR_LIQW * (cap - usable) / cap;
 	if(w > 0) {
 		SetHudClipRect(cx + DND_MANABAR_LIQ0 + DND_MANABAR_LIQW - w, cy, w + DND_MANABAR_PXW - DND_MANABAR_LIQ0 - DND_MANABAR_LIQW, DND_MANABAR_PXH);
-		SetFont("SPLMANAR");
+		SetFont(HudArt("SPLMANAR"));
 		HudMessage(s:"A"; HUDMSG_PLAIN, MANABAR_RESERVED_ID, CR_UNTRANSLATED,
 			(cx << 16) + 0.1, (cy << 16) + 0.1, 0.0);
 		SetHudClipRect(0, 0, 0, 0);
@@ -689,7 +690,7 @@ void DrawManaBar(int pnum) {
 	w = fill;
 	if(w > 0) {
 		SetHudClipRect(cx, cy, DND_MANABAR_LIQ0 + w, DND_MANABAR_PXH);
-		SetFont("SPLMANAF");
+		SetFont(HudArt("SPLMANAF"));
 		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, MANABAR_FILL_ID, CR_UNTRANSLATED,
 			(cx << 16) + 0.1, (cy << 16) + 0.1, 0.0, a);
 
@@ -854,7 +855,7 @@ void DrawSpellCastBar(int pnum) {
 	int x = (cw - DND_CASTBAR_PXW) / 2, y = DND_CASTBAR_TOP;
 	SetHudSize(cw, HUDMAX_Y * DND_CASTBAR_CNUM / DND_CASTBAR_CDEN, 0);
 
-	SetFont("SPLCSTB");
+	SetFont(HudArt("SPLCSTB"));
 	HudMessage(s:"A"; HUDMSG_PLAIN, CASTBAR_BACK_ID, CR_UNTRANSLATED,
 		(x << 16) + 0.1, (y << 16) + 0.1, 0.0);
 

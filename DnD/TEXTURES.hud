@@ -8,3 +8,11 @@ Graphic "H_BGLEFW", 239, 80
 Graphic "H_BRFCLR", 86, 8
 {
 }
+
+// The overheat ammo icon: drawn 64 x 64, shown at 16 x 16, so it stays crisp where the HUD scales it up.
+Graphic "H_PRCNT", 64, 64
+{
+	XScale 4
+	YScale 4
+	Patch "H_PRCNTH", 0, 0
+}
