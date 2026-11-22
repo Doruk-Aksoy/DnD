@@ -1,0 +1,92 @@
+// Shadow Split: a translucent image of a player that only wanders; "DnD Shadow Split Taunt" turns enemies on it.
+ACTOR Spell_ShadowSplit : PetMonsterBase {
+	Health 100
+	GibHealth -1000
+	Radius 16
+	Height 56
+	Speed 8
+	PainChance 0
+	Mass 100
+	Stamina 1
+	RenderStyle Translucent
+	Alpha 0.55
+	Translation "0:255=%[0.00,0.00,0.00]:[0.30,0.22,0.55]"
+	Tag "Shadow Image"
+	var int user_life;
+	+NOPAIN
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pet Monster Scale", 0, DND_PET_SHADOWSPLITID, -1, -1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Minion Life", 0, DND_PET_SHADOWSPLITID)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pet Distance Move", 0)
+		See:
+			PLAY ABCD 4 A_Wander
+		Loop
+		Death:
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Shadow Split Burst")
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Summon Death Check", 0, DND_PET_SHADOWSPLITID)
+			PLAY H 5 A_Scream
+			PLAY I 5 A_NoBlocking
+			PLAY JKLM 5
+			PLAY N 1 A_FadeOut(0.05)
+		Wait
+	}
+}
+
+// The familiar: ACS keeps it over its owner's shoulder; nothing can touch it.
+Actor Spell_Familiar {
+	Radius 4
+	Height 8
+	RenderStyle Add
+	Alpha 0.95
+	Scale 0.7
+	Translation "0:255=%[0.00,0.00,0.00]:[1.20,1.60,2.00]"
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOBLOCKMAP
+	+DONTSPLASH
+	States {
+		Spawn:
+			TNT1 A 0
+		Fly:
+			SPFX A 2 Bright A_SpawnItem("Spell_ArcaneBolt_Trail")
+		Loop
+		Fade:
+			SPFX A 1 Bright A_FadeOut(0.15)
+		Wait
+	}
+}
+
+// Its bolt; rank 5 bursts at its end ("DnD Familiar Burst"), rank 10's is never sent back and passes shields.
+Actor Spell_Familiar_Bolt : DnD_Spell {
+	PROJECTILE
+	Speed 24
+	Radius 5
+	Height 8
+	RenderStyle Add
+	Alpha 0.95
+	Scale 0.35
+	Translation "0:255=%[0.00,0.00,0.00]:[1.20,1.60,2.00]"
+	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE2))
+	DamageType "Magic"
+	States {
+		SpawnState:
+			TNT1 A 0
+		Fly:
+			SPFX A 1 Bright A_SpawnItem("Spell_ArcaneBolt_Trail")
+		Loop
+		Death:
+			TNT1 A 0 A_JumpIf(user_spellrank < DND_SPELL_THRESH_LOW, "Pop")
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Familiar Burst")
+		Pop:
+			TNT1 A 0 A_PlaySound("Familiar/Hit", CHAN_VOICE)
+			FXPR ABCDEFG 2 Bright
+		Stop
+	}
+}
+
+Actor Spell_Familiar_BoltTrue : Spell_Familiar_Bolt {
+	+DONTREFLECT
+	+FOILINVUL
+}

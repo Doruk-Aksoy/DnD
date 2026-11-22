@@ -116,7 +116,8 @@ int GetReservedPercent(int pnum) {
 	int i, s, pct = 0;
 	for(i = 0; i < l.count; ++i) {
 		s = l.ids[i];
-		if(IsSpellActive(pnum, s))
+		// a toggle that reserves (Temporal Rift) holds its share only while it runs
+		if(IsSpellActive(pnum, s) && ((SpellDefs[s].flags & (SPLF_TOGGLE | SPLF_RESERVES)) != (SPLF_TOGGLE | SPLF_RESERVES) || IsSpellRunning(pnum, s)))
 			pct += GetManaReservationOf(pnum, s);
 	}
 	return Min(pct, 100);

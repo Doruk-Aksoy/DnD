@@ -838,7 +838,34 @@ statusbar normal, fullscreenoffsets {
 		}
 		
 		IsSelected "ResRL3" {
-			drawimage "EICEAM1", -80, -55, center, 18, 18; // won't animate ammo icon for some reason
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage "EICEAM1", -80, -41, center, 18, 18; // won't animate ammo icon for some reason
+		}
+
+		// Overheat and zoom meters: their icon by the top bar, the ammo's by the lower one
+		IsSelected "Upgraded Plasma Rifle", "Upgraded Plasma Rifle4" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
+		}
+
+		IsSelected "Upgraded BFG 9000", "Death Ray" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
+		}
+
+		IsSelected "ResSSG2", "ResRL5" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
+		}
+
+		IsSelected "ResPlasma3", "ResBFG1" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
+		}
+
+		IsSelected "Desolator" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
 		}
 		
 		IsSelected "ResShotgun3" {
@@ -943,8 +970,18 @@ statusbar normal, fullscreenoffsets {
 											IsSelected not "Upgraded Plasma Rifle3" {
 												IsSelected not "ResMG4", "RhinoRifle" {
 													IsSelected not "ResShotgun3", "Upgraded Super Shotgun3" {
-														IsSelected not "ResRL4" {
-															drawimage ammoicon1, -80, -54, center, 18, 18;
+														IsSelected not "ResRL4", "Desolator" {
+															IsSelected not "Upgraded Plasma Rifle", "Upgraded Plasma Rifle4" {
+																IsSelected not "Upgraded BFG 9000", "Death Ray" {
+																	IsSelected not "ResSSG2", "ResRL5" {
+																		IsSelected not "ResPlasma3", "ResBFG1" {
+																			IsSelected not "ResRL3" {
+																				drawimage ammoicon1, -80, -54, center, 18, 18;
+																			}
+																		}
+																	}
+																}
+															}
 														}
 													}
 												}
@@ -2629,7 +2666,28 @@ statusbar normal, fullscreenoffsets {
 			drawimage ammoicon2, -80, -59, center, 18, 18;
 		}
 		IsSelected "ResRL3" {
-			drawimage "EICEAM1", -80, -55, center, 18, 18;
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage "EICEAM1", -80, -41, center, 18, 18;
+		}
+		IsSelected "Upgraded Plasma Rifle", "Upgraded Plasma Rifle4" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
+		}
+		IsSelected "Upgraded BFG 9000", "Death Ray" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
+		}
+		IsSelected "ResSSG2", "ResRL5" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
+		}
+		IsSelected "ResPlasma3", "ResBFG1" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
+		}
+		IsSelected "Desolator" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
 		}
 		IsSelected "ResShotgun3" {
 			drawimage "DBLUD1", -80, -55, center, 18, 18;
@@ -2725,8 +2783,18 @@ statusbar normal, fullscreenoffsets {
 											IsSelected not "Upgraded Plasma Rifle3" {
 												IsSelected not "ResMG4", "RhinoRifle" {
 													IsSelected not "ResShotgun3", "Upgraded Super Shotgun3" {
-														IsSelected not "ResRL4" {
-															drawimage ammoicon1, -80, -54, center, 18, 18;
+														IsSelected not "ResRL4", "Desolator" {
+															IsSelected not "Upgraded Plasma Rifle", "Upgraded Plasma Rifle4" {
+																IsSelected not "Upgraded BFG 9000", "Death Ray" {
+																	IsSelected not "ResSSG2", "ResRL5" {
+																		IsSelected not "ResPlasma3", "ResBFG1" {
+																			IsSelected not "ResRL3" {
+																				drawimage ammoicon1, -80, -54, center, 18, 18;
+																			}
+																		}
+																	}
+																}
+															}
 														}
 													}
 												}
@@ -4260,7 +4328,28 @@ statusbar normal, fullscreenoffsets {
 			drawimage ammoicon2, -80, -59, center, 18, 18;
 		}
 		IsSelected "ResRL3" {
-			drawimage "EICEAM1", -80, -55, center, 18, 18;
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage "EICEAM1", -80, -41, center, 18, 18;
+		}
+		IsSelected "Upgraded Plasma Rifle", "Upgraded Plasma Rifle4" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
+		}
+		IsSelected "Upgraded BFG 9000", "Death Ray" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
+		}
+		IsSelected "ResSSG2", "ResRL5" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
+		}
+		IsSelected "ResPlasma3", "ResBFG1" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
+		}
+		IsSelected "Desolator" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
 		}
 		IsSelected "ResShotgun3" {
 			drawimage "DBLUD1", -80, -55, center, 18, 18;
@@ -4356,8 +4445,18 @@ statusbar normal, fullscreenoffsets {
 											IsSelected not "Upgraded Plasma Rifle3" {
 												IsSelected not "ResMG4", "RhinoRifle" {
 													IsSelected not "ResShotgun3", "Upgraded Super Shotgun3" {
-														IsSelected not "ResRL4" {
-															drawimage ammoicon1, -80, -54, center, 18, 18;
+														IsSelected not "ResRL4", "Desolator" {
+															IsSelected not "Upgraded Plasma Rifle", "Upgraded Plasma Rifle4" {
+																IsSelected not "Upgraded BFG 9000", "Death Ray" {
+																	IsSelected not "ResSSG2", "ResRL5" {
+																		IsSelected not "ResPlasma3", "ResBFG1" {
+																			IsSelected not "ResRL3" {
+																				drawimage ammoicon1, -80, -54, center, 18, 18;
+																			}
+																		}
+																	}
+																}
+															}
 														}
 													}
 												}
@@ -5891,7 +5990,28 @@ statusbar normal, fullscreenoffsets {
 			drawimage ammoicon2, -80, -59, center, 18, 18;
 		}
 		IsSelected "ResRL3" {
-			drawimage "EICEAM1", -80, -55, center, 18, 18;
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage "EICEAM1", -80, -41, center, 18, 18;
+		}
+		IsSelected "Upgraded Plasma Rifle", "Upgraded Plasma Rifle4" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
+		}
+		IsSelected "Upgraded BFG 9000", "Death Ray" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
+		}
+		IsSelected "ResSSG2", "ResRL5" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
+		}
+		IsSelected "ResPlasma3", "ResBFG1" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
+		}
+		IsSelected "Desolator" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
 		}
 		IsSelected "ResShotgun3" {
 			drawimage "DBLUD1", -80, -55, center, 18, 18;
@@ -5987,8 +6107,18 @@ statusbar normal, fullscreenoffsets {
 											IsSelected not "Upgraded Plasma Rifle3" {
 												IsSelected not "ResMG4", "RhinoRifle" {
 													IsSelected not "ResShotgun3", "Upgraded Super Shotgun3" {
-														IsSelected not "ResRL4" {
-															drawimage ammoicon1, -80, -54, center, 18, 18;
+														IsSelected not "ResRL4", "Desolator" {
+															IsSelected not "Upgraded Plasma Rifle", "Upgraded Plasma Rifle4" {
+																IsSelected not "Upgraded BFG 9000", "Death Ray" {
+																	IsSelected not "ResSSG2", "ResRL5" {
+																		IsSelected not "ResPlasma3", "ResBFG1" {
+																			IsSelected not "ResRL3" {
+																				drawimage ammoicon1, -80, -54, center, 18, 18;
+																			}
+																		}
+																	}
+																}
+															}
 														}
 													}
 												}
@@ -7522,7 +7652,28 @@ statusbar normal, fullscreenoffsets {
 			drawimage ammoicon2, -80, -59, center, 18, 18;
 		}
 		IsSelected "ResRL3" {
-			drawimage "EICEAM1", -80, -55, center, 18, 18;
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage "EICEAM1", -80, -41, center, 18, 18;
+		}
+		IsSelected "Upgraded Plasma Rifle", "Upgraded Plasma Rifle4" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
+		}
+		IsSelected "Upgraded BFG 9000", "Death Ray" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
+		}
+		IsSelected "ResSSG2", "ResRL5" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
+		}
+		IsSelected "ResPlasma3", "ResBFG1" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
+		}
+		IsSelected "Desolator" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
 		}
 		IsSelected "ResShotgun3" {
 			drawimage "DBLUD1", -80, -55, center, 18, 18;
@@ -7618,8 +7769,18 @@ statusbar normal, fullscreenoffsets {
 											IsSelected not "Upgraded Plasma Rifle3" {
 												IsSelected not "ResMG4", "RhinoRifle" {
 													IsSelected not "ResShotgun3", "Upgraded Super Shotgun3" {
-														IsSelected not "ResRL4" {
-															drawimage ammoicon1, -80, -54, center, 18, 18;
+														IsSelected not "ResRL4", "Desolator" {
+															IsSelected not "Upgraded Plasma Rifle", "Upgraded Plasma Rifle4" {
+																IsSelected not "Upgraded BFG 9000", "Death Ray" {
+																	IsSelected not "ResSSG2", "ResRL5" {
+																		IsSelected not "ResPlasma3", "ResBFG1" {
+																			IsSelected not "ResRL3" {
+																				drawimage ammoicon1, -80, -54, center, 18, 18;
+																			}
+																		}
+																	}
+																}
+															}
 														}
 													}
 												}
@@ -9153,7 +9314,28 @@ statusbar normal, fullscreenoffsets {
 			drawimage ammoicon2, -80, -59, center, 18, 18;
 		}
 		IsSelected "ResRL3" {
-			drawimage "EICEAM1", -80, -55, center, 18, 18;
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage "EICEAM1", -80, -41, center, 18, 18;
+		}
+		IsSelected "Upgraded Plasma Rifle", "Upgraded Plasma Rifle4" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
+		}
+		IsSelected "Upgraded BFG 9000", "Death Ray" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
+		}
+		IsSelected "ResSSG2", "ResRL5" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
+		}
+		IsSelected "ResPlasma3", "ResBFG1" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
+		}
+		IsSelected "Desolator" {
+			drawimage ammoicon2, -80, -67, center, 18, 18;
+			drawimage ammoicon1, -80, -41, center, 18, 18;
 		}
 		IsSelected "ResShotgun3" {
 			drawimage "DBLUD1", -80, -55, center, 18, 18;
@@ -9249,8 +9431,18 @@ statusbar normal, fullscreenoffsets {
 											IsSelected not "Upgraded Plasma Rifle3" {
 												IsSelected not "ResMG4", "RhinoRifle" {
 													IsSelected not "ResShotgun3", "Upgraded Super Shotgun3" {
-														IsSelected not "ResRL4" {
-															drawimage ammoicon1, -80, -54, center, 18, 18;
+														IsSelected not "ResRL4", "Desolator" {
+															IsSelected not "Upgraded Plasma Rifle", "Upgraded Plasma Rifle4" {
+																IsSelected not "Upgraded BFG 9000", "Death Ray" {
+																	IsSelected not "ResSSG2", "ResRL5" {
+																		IsSelected not "ResPlasma3", "ResBFG1" {
+																			IsSelected not "ResRL3" {
+																				drawimage ammoicon1, -80, -54, center, 18, 18;
+																			}
+																		}
+																	}
+																}
+															}
 														}
 													}
 												}

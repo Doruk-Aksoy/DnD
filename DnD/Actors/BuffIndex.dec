@@ -73,6 +73,46 @@ enum {
     BTI_SPELL_BANISH_ELE,
     BTI_SPELL_BANISH_ENERGY,
     BTI_SPELL_BANISH_MAGIC,
+    BTI_SPELL_VAMPIRISM,
+    BTI_SPELL_INVIGORATE_REGEN,
+    BTI_SPELL_INVIGORATE_ARMOR,
+    BTI_SPELL_INVIGORATE_MANA,
+    BTI_SPELL_PURIFY_SPEED,
+    BTI_SPELL_HOLYPRAYERS_FLAT,
+    BTI_SPELL_HOLYPRAYERS_PCT,
+    BTI_SPELL_EMPFAITH_FLAT,
+    BTI_SPELL_EMPFAITH_RECHARGE,
+    BTI_SPELL_EMPFAITH_MORE,
+    BTI_SPELL_HASTE_SPEED,
+    BTI_SPELL_HASTE_CAST,
+    BTI_SPELL_PURITY_ICE,
+    BTI_SPELL_PURITY_POISON,
+    BTI_SPELL_PURITY_LIGHTNING,
+    BTI_SPELL_PURITY_FIRE,
+    BTI_SPELL_PURITY_IGNITE,
+    BTI_SPELL_PURITY_OVERLOAD,
+    BTI_SPELL_ARCANERY,
+    BTI_SPELL_ARCANERY_CDR,
+    BTI_SPELL_ARCANERY_HASTE,
+    BTI_SPELL_MIGHT,
+    BTI_SPELL_MIGHT_ANY,
+    BTI_SPELL_BLESSEDAIM,
+    BTI_SPELL_BLESSEDAIM_ACC,
+    BTI_SPELL_BLESSEDAIM_CRIT,
+    BTI_SPELL_ARCANERY_MAGIC,
+    BTI_SPELL_PURITY_CHILL,
+    BTI_SPELL_PURITY_PIERCE,
+    BTI_SPELL_ENCHANT,
+    BTI_SPELL_ENCHANT_CONVERT,
+    BTI_SPELL_ENCHANT_PIERCE,
+    BTI_SPELL_ETHEREAL_MANA,
+    BTI_SPELL_ETHEREAL_SPEED,
+    BTI_SPELL_ENERGARMOR_NEG,
+    BTI_SPELL_ENERGARMOR,
+    BTI_SPELL_ENERGARMOR_ES,
+    BTI_SPELL_RIGHTEOUS,
+    BTI_SPELL_ASCENSION,
+    BTI_SPELL_ASCENSION_HASTE,
 
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
@@ -171,6 +211,53 @@ Actor DnD_BuffIcon_SigilIce : DnD_Boolean { }
 Actor DnD_BuffIcon_SigilLightning : DnD_Boolean { }
 Actor DnD_BuffIcon_SigilPoison : DnD_Boolean { }
 Actor DnD_BuffIcon_Ravager : DnD_Boolean { }
+
+// The spell-buff strip (DrawSpellBuffStrip): a shown buff's end in level time, its length and its time left, per slot.
+Actor DnD_SBuffEnd0 : DnD_Info { }
+Actor DnD_SBuffDur0 : DnD_Info { }
+Actor DnD_SBuffEnd1 : DnD_Info { }
+Actor DnD_SBuffDur1 : DnD_Info { }
+Actor DnD_SBuffEnd2 : DnD_Info { }
+Actor DnD_SBuffDur2 : DnD_Info { }
+Actor DnD_SBuffEnd3 : DnD_Info { }
+Actor DnD_SBuffDur3 : DnD_Info { }
+Actor DnD_SBuffEnd4 : DnD_Info { }
+Actor DnD_SBuffDur4 : DnD_Info { }
+Actor DnD_SBuffEnd5 : DnD_Info { }
+Actor DnD_SBuffDur5 : DnD_Info { }
+Actor DnD_SBuffEnd6 : DnD_Info { }
+Actor DnD_SBuffDur6 : DnD_Info { }
+Actor DnD_SBuffEnd7 : DnD_Info { }
+Actor DnD_SBuffDur7 : DnD_Info { }
+Actor DnD_SBuffEnd8 : DnD_Info { }
+Actor DnD_SBuffDur8 : DnD_Info { }
+Actor DnD_SBuffEnd9 : DnD_Info { }
+Actor DnD_SBuffDur9 : DnD_Info { }
+Actor DnD_SBuffEnd10 : DnD_Info { }
+Actor DnD_SBuffDur10 : DnD_Info { }
+Actor DnD_SBuffEnd11 : DnD_Info { }
+Actor DnD_SBuffDur11 : DnD_Info { }
+Actor DnD_SBuffEnd12 : DnD_Info { }
+Actor DnD_SBuffDur12 : DnD_Info { }
+Actor DnD_SBuffEnd13 : DnD_Info { }
+Actor DnD_SBuffDur13 : DnD_Info { }
+Actor DnD_SBuffEnd14 : DnD_Info { }
+Actor DnD_SBuffDur14 : DnD_Info { }
+Actor DnD_SBuffLeft0 : DnD_Info { }
+Actor DnD_SBuffLeft1 : DnD_Info { }
+Actor DnD_SBuffLeft2 : DnD_Info { }
+Actor DnD_SBuffLeft3 : DnD_Info { }
+Actor DnD_SBuffLeft4 : DnD_Info { }
+Actor DnD_SBuffLeft5 : DnD_Info { }
+Actor DnD_SBuffLeft6 : DnD_Info { }
+Actor DnD_SBuffLeft7 : DnD_Info { }
+Actor DnD_SBuffLeft8 : DnD_Info { }
+Actor DnD_SBuffLeft9 : DnD_Info { }
+Actor DnD_SBuffLeft10 : DnD_Info { }
+Actor DnD_SBuffLeft11 : DnD_Info { }
+Actor DnD_SBuffLeft12 : DnD_Info { }
+Actor DnD_SBuffLeft13 : DnD_Info { }
+Actor DnD_SBuffLeft14 : DnD_Info { }
 
 Actor DnD_ChillFXRunning : DnD_Boolean { }
 Actor DnD_FreezeFXRunning : DnD_Boolean { }

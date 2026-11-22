@@ -93,8 +93,15 @@
 	- The instant leech modifiers now read "of leech is instant" and pay that share of mana leech at once as well. The incursion one's downside is now "reduced leech recovery rate", and slows mana leech too.
 	- "More damage while leeching" now also holds while leeching mana.
 * The dungeon modifier "Players cannot lifesteal" is now "Players cannot leech", and blocks mana leech too.
+* Ailments now always need their own damage type: ignite needs fire, chill needs cold, overload needs lightning, bleeding needs physical and poison needs poison damage (or a modifier that says otherwise). The ailment gems no longer roll their ailment on hits of any element; instead they give a spell that element:
+	- "Pyromancer", "Cryomancer", "Electromancer" and "Sanguinomancer": a hit of another element gains 10% of its damage as extra fire, cold, lightning or physical damage (greater: 15%), which can then cause the ailment, with the gem's chance added. On a spell already of their element they work as before.
+	- "Venomancer": a hit of another element gains 10% of its damage as extra poison damage (greater: 15%), and so poisons every time. Its chance to poison is gone, as poison damage always poisons.
+	- The extra damage takes the enemy's resistance to its own element. Fire, cold and lightning are also gained from damage over time; poison and physical only from hits.
+	- On a summon, its minions' hits gain the extra damage the same way and roll the gem's ailment.
+* "Archmage"'s lightning no longer keeps the spell's own element from causing its ailment (a fire spell with "Archmage" can ignite again).
 * A new "HUD theme" setting restyles your HUD in one of the menu themes' looks: its panels, health, armor, ammo and experience bars, flask boxes, spree meter, mana and cast bars, and its numbers. Its default, "Match menu theme", follows the menu theme you have on; it only changes your own screen, and stays with you while spectating another player.
-* The HUD's percent icon, shown beside stamina, overheat, cooldown and charge meters, is redrawn: a sharp, heat coloured "%" in place of Doom's old status bar sign.
+* The HUD's meters no longer show Doom's old percent sign beside them: overheating weapons show a flame, melee cooldowns, charges and stamina show a sword, and the sniper rifle's zoom timer shows a scope.
+* Spell buffs on you now show as icons above your hotbar (or above the mana bar when the hotbar is empty): the spell's own icon, darkening clockwise as it runs out, with its seconds left, brightening in red for the last few. It covers Warmth, Heat Shield, Boiling Blood, Shivering Armor, Galvanic Surge, Venom Gyre, Banish and Rally, whoever cast them on you; it follows the "HUD scale" option.
 * Pending leech now shows on the bars it fills: a faint, darker stretch of the bar marks how far the leech still to be paid will fill it, and the bar glides up into it as the leech pays out.
 	- On the mana bar for mana leech, and on the health bar for life leech, or the energy shield bar when life leech fills your shield.
 	- The life leech counter on the status bar is removed.
@@ -294,6 +301,7 @@
 * Online, weapons could keep firing with no ammo left after a map change, for players who entered the map before the last player finished loading.
 * "Heavy Super Shotgun": "Sleight of Hand" now speeds up its reload as intended.
 * "Erasus": with "Sleight of Hand", reloading after a shot now checks for ammo and a full chamber like a normal reload.
+* The console's "kill monsters" with a minion out no longer leaves your held weapon misbehaving (its special ammo, accuracy and on-attack effects reading the wrong weapon) until you switch weapons.
 
 ==== MONSTER CHANGES ====
 

@@ -274,6 +274,11 @@ int GetPlayerBuffIncreasedDamage(int pnum) {
     return GetPlayerBuffDamageXform(pnum).inc_pct;
 }
 
+// The buff increase a WEAPON hit takes: the generic one plus Enchant Weapon's, which spells never see.
+int GetPlayerWeaponBuffIncreased(int pnum) {
+    return GetPlayerBuffIncreasedDamage(pnum) + pbuffs[pnum].buff_net_values[BUFF_WEAPONINC].additive;
+}
+
 int GetPlayerBuffMoreDamagePacked(int pnum) {
     if(PlayerBuffDamageXformNeedsRecompute(pnum))
         RecomputePlayerBuffDamageXform(pnum);

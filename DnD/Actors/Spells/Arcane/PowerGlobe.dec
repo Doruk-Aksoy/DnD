@@ -1,0 +1,175 @@
+// The globe passes through bodies and goes off on a wall, at its fuse (A_CountDown from ACS) or at a recast ("Detonate").
+// Rank 5 bounces it: BounceCount 5 is four bounces, then it goes off. The blast is "DnD Power Globe Blast".
+Actor Spell_PowerGlobe : DnD_Spell {
+	PROJECTILE
+	+THRUACTORS
+	Speed 14
+	Radius 13
+	Height 21
+	Damage 0
+	ReactionTime 105
+	BounceCount 5
+	BounceFactor 1.0
+	WallBounceFactor 1.0
+	RenderStyle Add
+	Alpha 0.95
+	Scale 0.9
+	Translation "0:255=%[0.00,0.00,0.00]:[1.10,0.55,2.00]"
+	States {
+		SpawnState:
+			TNT1 A 0
+			TNT1 A 0 A_JumpIf(user_spellrank < DND_SPELL_THRESH_LOW, "Fly")
+			TNT1 A 0 A_ChangeFlag("BOUNCEONWALLS", true)
+			TNT1 A 0 A_ChangeFlag("BOUNCEONFLOORS", true)
+			TNT1 A 0 A_ChangeFlag("BOUNCEONCEILINGS", true)
+		Fly:
+			SPFX A 1 Bright A_SpawnItemEx("Spell_PowerGlobe_Dust", frandom(-8, 8), frandom(-8, 8), frandom(3, 18), frandom(-0.4, 0.4), frandom(-0.4, 0.4), frandom(-0.2, 0.4), 0, SXF_CLIENTSIDE, 96)
+			TNT1 A 0 A_CountDown
+		Loop
+		Detonate:
+			TNT1 A 0 A_Stop
+		Goto Death
+		Death:
+			TNT1 A 0 A_Stop
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Power Globe Burst")
+			SPFX A 1 Bright A_FadeOut(0.1)
+		Wait
+	}
+}
+
+// Where a globe went off, for the blast's distances and sight; removed by its script.
+Actor Spell_PowerGlobe_Spot {
+	Radius 2
+	Height 2
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOBLOCKMAP
+	+DONTSPLASH
+	States {
+		Spawn:
+			TNT1 A -1
+		Stop
+	}
+}
+
+// A violet burst other Arcane spells borrow.
+Actor Spell_PowerGlobe_Burst : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.95
+	Scale 1.4
+	Translation "0:255=%[0.00,0.00,0.00]:[1.10,0.55,2.00]"
+	States {
+		Spawn:
+			TNT1 A 0
+			FXPR ABCDEFGHIJKLM 2 Bright
+		Stop
+	}
+}
+
+// Rank 10's pull: sparkles sliding in to the globe.
+Actor Spell_PowerGlobe_Mote : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.4
+	States {
+		Spawn:
+			TNT1 A 0
+			PGSP B 10 Bright
+			PGSP B 1 Bright A_FadeOut(0.2)
+		Wait
+	}
+}
+
+// The blast: the globe's own model swelling to the blast's reach and fading, throwing sparkles and violet smoke.
+// user_r is the reach in map units, set by "DnD Power Globe FX"; 20.7 is the ring radius at actor scale 1.
+Actor Spell_PowerGlobe_Nova : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 1.0
+	Scale 0.9
+	var int user_r;
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 A_JumpIf(user_r > 0, "Burst")
+			TNT1 A 0 A_SetUserVar("user_r", 160)
+		Burst:
+			TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("Spell_PowerGlobe_Spark", 0, 0, 0, frandom(0.15, 1.0) * user_r * 0.1, 0, frandom(-1.0, 1.0) * user_r * 0.06, frandom(0, 360), SXF_CLIENTSIDE)
+			TNT1 AAAAAAAAAA 0 A_SpawnItemEx("Spell_PowerGlobe_Smoke", frandom(0, user_r * 0.3), 0, frandom(-10, 6), frandom(0.1, 0.6) * user_r * 0.02, 0, frandom(0.0, 0.5), frandom(0, 360), SXF_CLIENTSIDE)
+			TNT1 AAAAAAA 0 A_SpawnItemEx("Spell_PowerGlobe_SmokeB", frandom(0, user_r * 0.3), 0, frandom(-10, 6), frandom(0.1, 0.6) * user_r * 0.02, 0, frandom(0.0, 0.5), frandom(0, 360), SXF_CLIENTSIDE)
+		Grow:
+			PGSP A 1 Bright A_SetScale(scalex + (user_r / 20.7 - scalex) * 0.35)
+			TNT1 A 0 A_FadeOut(0.1)
+		Loop
+	}
+}
+
+// A sparkle flung out of the blast: slows, fades; one of four colours.
+Actor Spell_PowerGlobe_Spark : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 1.0
+	Scale 0.3
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_Jump(256, "White", "Violet", "Magenta", "Blue")
+		White:
+			PGSP A 0 A_SetScale(frandom(0.45, 1.0))
+		Goto Live
+		Violet:
+			PGSP B 0 A_SetScale(frandom(0.45, 1.0))
+		Goto Live
+		Magenta:
+			PGSP C 0 A_SetScale(frandom(0.45, 1.0))
+		Goto Live
+		Blue:
+			PGSP D 0 A_SetScale(frandom(0.45, 1.0))
+		Goto Live
+		Live:
+			"####" "#" 1 Bright A_ScaleVelocity(0.9)
+			"####" "#" 0 A_FadeOut(0.024)
+		Loop
+	}
+}
+
+// Glowing violet smoke drifting out of the blast; the SMOK puff's dark edges vanish under Add, so only its body glows.
+Actor Spell_PowerGlobe_Smoke : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.45
+	Scale 1.0
+	+FORCEXYBILLBOARD
+	Translation "0:255=%[0.00,0.00,0.00]:[0.70,0.28,1.40]"
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_SetScale(frandom(0.9, 1.5))
+			SMOK ABCDEFGHIJKLMNOPQ 3 Bright A_SetScale(scalex * 1.035)
+		Stop
+	}
+}
+
+Actor Spell_PowerGlobe_SmokeB : Spell_PowerGlobe_Smoke {
+	Alpha 0.38
+	Translation "0:255=%[0.00,0.00,0.00]:[1.30,0.40,1.10]"
+}
+
+// Star dust shed by the globe in flight.
+Actor Spell_PowerGlobe_Dust : Spell_PowerGlobe_Spark {
+	States {
+		White:
+			PGSP A 0 A_SetScale(frandom(0.1, 0.2))
+		Goto Live
+		Violet:
+			PGSP B 0 A_SetScale(frandom(0.1, 0.2))
+		Goto Live
+		Magenta:
+			PGSP C 0 A_SetScale(frandom(0.1, 0.2))
+		Goto Live
+		Blue:
+			PGSP D 0 A_SetScale(frandom(0.1, 0.2))
+		Goto Live
+		Live:
+			"####" "#" 1 Bright
+			"####" "#" 0 A_FadeOut(0.07)
+		Loop
+	}
+}

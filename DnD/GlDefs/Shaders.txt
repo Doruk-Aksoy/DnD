@@ -1052,6 +1052,305 @@ HardwareShader FIREJET {
 	Speed 1.0
 }
 
+// Arcane Bolt: the model is only a hull, the comet is ray-marched in it.
+HardwareShader ARCBOLT {
+	Shader "GLDefs/Shaders/ArcaneBolt.fp"
+	Speed 1.0
+}
+
+// Power Globe and its blast: the model is only a hull, the globe and ring are ray-marched in it.
+HardwareShader PWRGLOBE {
+	Shader "GLDefs/Shaders/PowerGlobe.fp"
+	Speed 1.0
+}
+
+// Spectral Blades: the swords, drawn in UV space on SBLADE.md3's strips.
+HardwareShader SBLADE {
+	Shader "GLDefs/Shaders/SpectralBlade.fp"
+	Speed 1.0
+}
+
+// Holy Light's beam on FORKBEAM.md3 under its own skin: a white-gold line with motes streaming to the target.
+HardwareShader HOLYBEAM {
+	Shader "GLDefs/Shaders/HolyBeam.fp"
+	Speed 1.0
+}
+
+// Divine Judgement's sword: blued steel and gold lit per facet, glowing carved runes; its X scale carries the stage.
+HardwareShader JDGSWORD {
+	Shader "GLDefs/Shaders/JdgSword.fp"
+	Speed 1.0
+}
+
+// Divine Judgement's shockwave in gold: the slam wave's shader, its tint read off this skin.
+HardwareShader SLAMWAVG {
+	Shader "GLDefs/Shaders/SlamWave.fp"
+	Speed 1.0
+}
+
+// Holy Wrath's pillar of light: each view ray's path through the cylinder, streaks pouring down, a descending front.
+HardwareShader HWPILLAR {
+	Shader "GLDefs/Shaders/HolyPillar.fp"
+	Speed 1.0
+}
+
+// Holy Wrath's ring of holy fire sweeping out from the eruption.
+HardwareShader HWRING {
+	Shader "GLDefs/Shaders/HolyFlameRing.fp"
+	Speed 1.0
+}
+
+// Divine Shield's bubble: clear face-on, a gold rim, turning bands of runes (DSHELL.png's strip), cracks by health.
+HardwareShader DSHELL {
+	Shader "GLDefs/Shaders/DivineShield.fp"
+	Speed 1.0
+}
+
+// Its hit sigils: one of six designs in DSHIT.png, picked and turned by where the hit is.
+HardwareShader DSHIT {
+	Shader "GLDefs/Shaders/DsSigil.fp"
+	Speed 1.0
+}
+
+// Purge's tendril on FORKBEAM.md3 under its own skin: three gold strands winding round each other to the target.
+HardwareShader PRGBEAM {
+	Shader "GLDefs/Shaders/PurgeRibbon.fp"
+	Speed 1.0
+}
+
+// Salvation's shaft over a redeemed corpse: Holy Wrath's pillar hull under its own skin, gentle and pale gold.
+HardwareShader SVSHAFT {
+	Shader "GLDefs/Shaders/SalvationShaft.fp"
+	Speed 1.0
+}
+
+// Defiance's orbs on Power Globe's sphere hull: the holy one's skin picks the gold sun, the dark one's the black heart.
+HardwareShader DFHOLY {
+	Shader "GLDefs/Shaders/DefianceOrb.fp"
+	Speed 1.0
+}
+
+HardwareShader DFDARK {
+	Shader "GLDefs/Shaders/DefianceOrb.fp"
+	Speed 1.0
+}
+
+// Holy Wrath's image of the caster, every class's frames: light building as it flies, a halo, rays at the peak.
+HardwareShader sprite HWI1A1 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI1A2A8 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI1A3A7 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI1A4A6 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI1A5 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI2A1 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI2A2A8 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI2A3A7 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI2A4A6 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI2A5 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI3A1 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI3A2A8 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI3A3A7 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI3A4A6 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI3A5 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI4A1 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI4A2A8 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI4A3A7 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI4A4A6 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI4A5 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI5A1 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI5A2A8 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI5A3A7 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI5A4A6 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI5A5 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI6A1 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI6A2A8 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI6A3A7 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI6A4A6 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI6A5 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI7A1 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI7A2 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI7A3 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI7A4 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI7A5 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI7A6 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI7A7 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI7A8 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI8A1 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI8A2A8 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI8A3A7 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI8A4A6 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite HWI8A5 {
+	Shader "GLDefs/Shaders/HolyImage.fp"
+	Speed 1.0
+}
+
 // Spell_Doomguard's molten visor, the light it casts and its embers, on every frame with a glow (not death).
 HardwareShader sprite S044A1 {
 	Shader "GLDefs/Shaders/DoomguardLava.fp"
@@ -2238,5 +2537,124 @@ HardwareShader sprite S042T8 {
 // Molten Boulder's ball: cracked basalt over lava, in model space.
 HardwareShader MBOULDR {
 	Shader "GLDefs/Shaders/MoltenBoulder.fp"
+	Speed 1.0
+}
+
+// The Arcane auras' rings, one shader each (.claude/tools/arcauras).
+
+HardwareShader HPRAYER {
+	Shader "GLDefs/Shaders/HolyPrayers.fp"
+	Speed 1.0
+}
+
+HardwareShader EMPFAITH {
+	Shader "GLDefs/Shaders/EmpoweringFaith.fp"
+	Speed 1.0
+}
+
+HardwareShader HASTEAUR {
+	Shader "GLDefs/Shaders/Haste.fp"
+	Speed 1.0
+}
+
+HardwareShader PURITYEL {
+	Shader "GLDefs/Shaders/PurityElements.fp"
+	Speed 1.0
+}
+
+HardwareShader ARCANERY {
+	Shader "GLDefs/Shaders/Arcanery.fp"
+	Speed 1.0
+}
+
+HardwareShader MIGHTAUR {
+	Shader "GLDefs/Shaders/Might.fp"
+	Speed 1.0
+}
+
+HardwareShader BLESSAIM {
+	Shader "GLDefs/Shaders/BlessedAim.fp"
+	Speed 1.0
+}
+
+HardwareShader IRONMAID {
+	Shader "GLDefs/Shaders/IronMaiden.fp"
+	Speed 1.0
+}
+
+HardwareShader CONVICTN {
+	Shader "GLDefs/Shaders/Conviction.fp"
+	Speed 1.0
+}
+
+// Conviction's mark: the ring at a marked enemy's feet and the brand over its head.
+
+HardwareShader CVMRING {
+	Shader "GLDefs/Shaders/ConvictionMark.fp"
+	Speed 1.0
+}
+
+HardwareShader sprite CVMBA0 {
+	Shader "GLDefs/Shaders/ConvictionBrand.fp"
+	Speed 1.0
+}
+
+// Energized Armor's shell: violet-blue edges, soft electric filaments crawling over it.
+HardwareShader EASHELL {
+	Shader "GLDefs/Shaders/EnergArmor.fp"
+	Speed 1.0
+}
+
+// Ascension's screen vignette (a HUD image): an edge glow and violet tendrils creeping in and back.
+HardwareShader ASCVIG {
+	Shader "GLDefs/Shaders/AscVignette.fp"
+	Speed 1.0
+}
+
+// Ethereal Body's screen haze (a HUD image): a cold mist drifting at the edges.
+HardwareShader ETHVIG {
+	Shader "GLDefs/Shaders/EthVignette.fp"
+	Speed 1.0
+}
+
+// Mana Burn's drain: a writhing violet tendril, pulses of mana running back to the caster.
+HardwareShader MBBEAM {
+	Shader "GLDefs/Shaders/ManaBurnBeam.fp"
+	Speed 1.0
+}
+
+// Disintegrate's ray: a white-hot core in a violet sheath, crackling arcs; the actor's alpha is its intensity.
+HardwareShader DGBEAM {
+	Shader "GLDefs/Shaders/DisintBeam.fp"
+	Speed 1.0
+}
+
+// Disintegrate's circle at the hands: DGRING.png is its rune strip, turned round a white core.
+HardwareShader DGRING {
+	Shader "GLDefs/Shaders/DisintOrigin.fp"
+	Speed 1.0
+}
+
+// Arcane Trap's sigil: ATSIGIL.png is the rune strip (Disintegrate's DGRING bytes), its own copy so it takes this shader.
+HardwareShader ATSIGIL {
+	Shader "GLDefs/Shaders/ArcTrap.fp"
+	Speed 1.0
+}
+
+// Arcane Trap's trip-wire: a thin faint thread with sparks running along it.
+HardwareShader ATWIRE {
+	Shader "GLDefs/Shaders/ArcWire.fp"
+	Speed 1.0
+}
+
+// Arcane Trap's black hole: a dark heart, turning violet arms out to the pull radius.
+HardwareShader ATHOLE {
+	Shader "GLDefs/Shaders/ArcHole.fp"
+	Speed 1.0
+}
+
+// Arcane Trap's blast ring: a broken bright front.
+HardwareShader ATSHOCK {
+	Shader "GLDefs/Shaders/ArcShock.fp"
 	Speed 1.0
 }

@@ -66,6 +66,24 @@ enum {
 	BUFF_PHYSDAMAGETAKEN,	// MORE/LESS physical damage taken, read per physical portion by HandlePlayerResists. Use BUFF_F_MORETYPE
 	BUFF_IGNITETAKENLESS,	// percent less time a monster's ignite lasts on this player, read by "DnD Player Receive DoT"
 	BUFF_LIFESTEAL,			// 16.16 percent lifesteal, read by GetLifesteal
+	BUFF_REGENRATE,			// percent increased life regeneration, read by "DnD Periodic Regeneration"
+	BUFF_REGENFLAT,			// 16.16 life a second, whole part added to flat regeneration by the same reader
+	BUFF_ESFLAT,			// added energy shield, read by GetRawEnergyShieldCap
+	BUFF_ESMORE,			// MORE energy shield, same reader. Use BUFF_F_MORETYPE
+	BUFF_ESRECHARGE,		// percent faster energy shield recovery, read by GetPlayerEnergyShieldRecoveryRate
+	BUFF_MIGHT,				// 16.16 percent of a melee hit gained as extra magic, staged by GetMightHit
+	BUFF_MIGHTANY,			// above 0: Might takes every attack of a melee weapon
+	BUFF_RANGEDMORE,		// MORE damage of non-magical ranged weapon hits, read by HandlePlayerBuffs. Use BUFF_F_MORETYPE
+	BUFF_RANGEDCRIT,		// flat crit chance (0.01 = 1%) on non-melee weapon shots, read by GetCritChance
+	BUFF_ACCURACYMORE,		// percent more accuracy rating, read by CalculatePlayerAccuracy
+	BUFF_MAGICATTACKMORE,	// MORE damage of magical weapon hits, read by HandlePlayerBuffs. Use BUFF_F_MORETYPE
+	BUFF_CHILLCHANCE,		// flat percent chill chance, read by HandleChillEffects
+	BUFF_ELEPIERCE,			// added elemental resist pierce, read by GetResistPenetration
+	BUFF_WEAPONINC,			// percent increased weapon damage (not spells), read by GetPlayerWeaponBuffIncreased
+	BUFF_ENCHANTCONVERT,	// percent of a physical weapon hit converted to energy, read by GetEnchantShare
+	BUFF_ENERGYPIERCE,		// added energy resist pierce, read by GetResistPenetration
+	BUFF_MAGICNEGATION,		// added magic negation of armor, read by GetArmorRatingEffect
+	BUFF_STATPCT,			// percent increased STR, DEX and INT, read by their getters
 
 	BUFF_TYPES_MAX
 };
@@ -114,7 +132,7 @@ struct buff_T {
 // struct-definition time. VerifyBuffMaskCapacity() checks the two agree at load, and
 // RebuildPlayerBuffMask() bounds-tests every write, so outgrowing this can neither
 // corrupt memory nor pass silently.
-#define DND_BTI_MASK_WORDS 3
+#define DND_BTI_MASK_WORDS 5
 #define DND_BTI_MASK_BITS (DND_BTI_MASK_WORDS * 32)
 
 struct buffData_T {
@@ -240,8 +258,119 @@ str GetBuffIconItem(int slot) {
 	return "";
 }
 
+// ---- Spell-buff strip (DrawSpellBuffStrip): a shown buff's end and length ride two tokens on its player; the presence
+// sync below zeroes a slot's end once its buff is gone or the end is stale after a map change ----
+#define DND_SBUFF_SLOTS 15
+
+// The strip slot a buff keeps alive, or -1 when it is not shown there. Every caller of HandlePlayerBuffAssignment gets
+// the icon for free; auras, toggles and pet guards (renewed every second, with a look of their own) stay off it.
+int GetSpellBuffStripSlot(int bti) {
+	switch(bti) {
+		case BTI_SPELL_ENERGARMOR:
+			return 0;
+		case BTI_SPELL_INVIGORATE_REGEN:
+			return 1;
+		case BTI_SPELL_ENCHANT:
+			return 2;
+		case BTI_SPELL_ASCENSION:
+			return 4;
+		case BTI_SPELL_RIGHTEOUS:
+			return 5;
+		case BTI_SPELL_BOILINGBLOOD:
+			return 6;
+		case BTI_SPELL_HEATSHIELD:
+			return 7;
+		case BTI_SPELL_WARMTH:
+			return 8;
+		case BTI_SPELL_SHIVERINGARMOR:
+			return 9;
+		case BTI_SPELL_GALVANICSURGE_HASTE:
+			return 10;
+		case BTI_SPELL_VENOMGYRE:
+			return 11;
+		case BTI_SPELL_BANISH_PHYS:
+			return 12;
+		case BTI_SPELL_BANISH_ELE:
+			return 12;
+		case BTI_SPELL_BANISH_ENERGY:
+			return 12;
+		case BTI_SPELL_BANISH_MAGIC:
+			return 12;
+		case BTI_SPELL_PURIFY_SPEED:
+			return 13;
+		case BTI_RALLY:
+			return 14;
+	}
+	return -1;
+}
+
+// Whether a strip slot's buff is still on pnum; a slot no buff keeps (Ethereal Body) lives by its end time alone.
+bool HasSpellBuffStripBuff(int pnum, int slot) {
+	switch(slot) {
+		case 0: return HasPlayerBuff(pnum, BTI_SPELL_ENERGARMOR);
+		case 1: return HasPlayerBuff(pnum, BTI_SPELL_INVIGORATE_REGEN);
+		case 2: return HasPlayerBuff(pnum, BTI_SPELL_ENCHANT);
+		case 4: return HasPlayerBuff(pnum, BTI_SPELL_ASCENSION);
+		case 5: return HasPlayerBuff(pnum, BTI_SPELL_RIGHTEOUS);
+		case 6: return HasPlayerBuff(pnum, BTI_SPELL_BOILINGBLOOD);
+		case 7: return HasPlayerBuff(pnum, BTI_SPELL_HEATSHIELD);
+		case 8: return HasPlayerBuff(pnum, BTI_SPELL_WARMTH);
+		case 9: return HasPlayerBuff(pnum, BTI_SPELL_SHIVERINGARMOR);
+		case 10: return HasPlayerBuff(pnum, BTI_SPELL_GALVANICSURGE_HASTE);
+		case 11: return HasPlayerBuff(pnum, BTI_SPELL_VENOMGYRE);
+		case 12: return HasPlayerBuff(pnum, BTI_SPELL_BANISH_PHYS) || HasPlayerBuff(pnum, BTI_SPELL_BANISH_ELE) || HasPlayerBuff(pnum, BTI_SPELL_BANISH_ENERGY) || HasPlayerBuff(pnum, BTI_SPELL_BANISH_MAGIC);
+		case 13: return HasPlayerBuff(pnum, BTI_SPELL_PURIFY_SPEED);
+		case 14: return HasPlayerBuff(pnum, BTI_RALLY);
+	}
+	return true;
+}
+
+// Server: slot's icon on pnum's strip with left of its total tics to run; the end goes last, as clients start their
+// countdown when it changes.
+void SetSpellBuffIconLeft(int pnum, int slot, int left, int total) {
+	int ptid = pnum + P_TIDSTART;
+	SetActorInventory(ptid, StrParam(s:"DnD_SBuffDur", d:slot), total);
+	SetActorInventory(ptid, StrParam(s:"DnD_SBuffLeft", d:slot), left);
+	SetActorInventory(ptid, StrParam(s:"DnD_SBuffEnd", d:slot), Timer() + left);
+}
+
+// A fresh cast: dur tics, all of them left.
+void SetSpellBuffIcon(int pnum, int slot, int dur) {
+	SetSpellBuffIconLeft(pnum, slot, dur, dur);
+}
+
+// The strip's icons read back from the buff list (Temporal Rift's rewind changed their time): each shown buff's
+// longest node, kept against the length it was cast with.
+void RefreshSpellBuffIcons(int pnum) {
+	int left[DND_SBUFF_SLOTS], i, s;
+	for(i = 0; i < DND_SBUFF_SLOTS; ++i)
+		left[i] = 0;
+	i = pbuffs[pnum].buff_list[pbuffs[pnum].head].next_id;
+	while(i != -1) {
+		s = GetSpellBuffStripSlot(pbuffs[pnum].buff_list[i].bt_index);
+		if(s >= 0 && (pbuffs[pnum].buff_list[i].flags & BUFF_F_TICKERREQUIRED))
+			left[s] = Max(left[s], pbuffs[pnum].buff_list[i].duration * DND_BUFF_TICKTIME);
+		i = pbuffs[pnum].buff_list[i].next_id;
+	}
+	for(i = 0; i < DND_SBUFF_SLOTS; ++i)
+		if(left[i] > 0)
+			SetSpellBuffIconLeft(pnum, i, left[i], Max(left[i], CheckActorInventory(pnum + P_TIDSTART, StrParam(s:"DnD_SBuffDur", d:i))));
+}
+
+void ClearStaleSpellBuffIcons(int pnum) {
+	int ptid = pnum + P_TIDSTART, i, end;
+	str e;
+	for(i = 0; i < DND_SBUFF_SLOTS; ++i) {
+		e = StrParam(s:"DnD_SBuffEnd", d:i);
+		end = CheckActorInventory(ptid, e);
+		if(end && (!HasSpellBuffStripBuff(pnum, i) || end - Timer() > CheckActorInventory(ptid, StrParam(s:"DnD_SBuffDur", d:i))))
+			SetActorInventory(ptid, e, 0);
+	}
+}
+
 void SyncBuffDisplayItems(int pnum) {
 	int ptid = pnum + P_TIDSTART;
+	ClearStaleSpellBuffIcons(pnum);
 
 	for(int i = 0; i < DND_BUFF_ICON_COUNT; ++i) {
 		if(HasPlayerBuff(pnum, GetBuffIconTableIndex(i)))
@@ -414,6 +543,21 @@ void HandleBuffApplication(int pnum, int buff_type) {
 			//Log(s:"New speed factor: ", f:base);
 		break;
 
+		// Attributes feed the cached weapon damage, so it is rebuilt when they move.
+		case BUFF_STATPCT:
+			ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, pnum);
+		break;
+
+		// Accuracy lives on the actor, recomputed with the player as the activator.
+		case BUFF_ACCURACYMORE:
+			base = ActivatorTID();
+			if(SetActivator(ptid)) {
+				CalculatePlayerAccuracy(pnum);
+				if(base)
+					SetActivator(base);
+			}
+		break;
+
 		// NOTE: no case may write into ANOTHER buff type's slot here. This function has
 		// no "remove" parameter and runs on both apply and removal, so a cross-type
 		// copy would add on the way in and never subtract on the way out. Buffs that
@@ -455,14 +599,17 @@ void GivePlayerBuff(int pnum, int bsource, int btype, int bbt_index, int bvalue,
 				
 				if(bflags & BUFF_F_REPLACEMENTVALUE) {
 					// if this is a thing, make sure we refactor the buff immediately
+					NoteBuffChange(pnum, DND_RIFTLOG_MOD, i);
 					pbuffs[pnum].buff_list[i].value = breplacement;
 					found = 2;
 					break;
 				}
 
 				// refresh timer if any
-				if(pbuffs[pnum].buff_list[i].duration < bduration)
+				if(pbuffs[pnum].buff_list[i].duration < bduration) {
+					NoteBuffChange(pnum, DND_RIFTLOG_MOD, i);
 					pbuffs[pnum].buff_list[i].duration = bduration;
+				}
 
 				found = 1;
 				return;
@@ -482,6 +629,7 @@ void GivePlayerBuff(int pnum, int bsource, int btype, int bbt_index, int bvalue,
 			if(pbuffs[pnum].buff_list[i].type == btype && pbuffs[pnum].buff_list[i].bt_index == bbt_index && (pbuffs[pnum].buff_list[i].flags & BUFF_F_NODUPLICATE_STRICT)) {
 				if(bflags & BUFF_F_ADDIFNODUPLICATE) {
 					// increase its value
+					NoteBuffChange(pnum, DND_RIFTLOG_MOD, i);
 					pbuffs[pnum].buff_list[i].value += bvalue;
 					pbuffs[pnum].buff_list[i].duration = bduration;
 					//Log(s:"found duplicate, adding value to index: ", d:i, s:" value: ", f:bvalue, s:" ", d:pbuffs.buff_list[i].duration);
@@ -489,6 +637,7 @@ void GivePlayerBuff(int pnum, int bsource, int btype, int bbt_index, int bvalue,
 					break;
 				}
 				else if(pbuffs[pnum].buff_list[i].value < bvalue) {
+					NoteBuffChange(pnum, DND_RIFTLOG_MOD, i);
 					pbuffs[pnum].buff_list[i].value = bvalue;
 					pbuffs[pnum].buff_list[i].duration = bduration;
 
@@ -499,6 +648,7 @@ void GivePlayerBuff(int pnum, int bsource, int btype, int bbt_index, int bvalue,
 					break;
 				}
 				else if(pbuffs[pnum].buff_list[i].value == bvalue && pbuffs[pnum].buff_list[i].duration < bduration) {
+					NoteBuffChange(pnum, DND_RIFTLOG_MOD, i);
 					pbuffs[pnum].buff_list[i].duration = bduration;
 					// transfer flags aand source if we are strict, this is the stronger
 					pbuffs[pnum].buff_list[i].flags = bflags;
@@ -552,6 +702,7 @@ void GivePlayerBuff(int pnum, int bsource, int btype, int bbt_index, int bvalue,
 		//Log(s:"New node ", d:i, s:" and its next is now ", d:j);
 
 		++pbuffs[pnum].buff_count;
+		NoteBuffChange(pnum, DND_RIFTLOG_ADD, i);
 
 		found = 2;
 	}
@@ -623,12 +774,118 @@ void RemoveAllBuffs(int pnum) {
 	}
 }
 
+// ---- Temporal Rift's memory of the buff list (rank 5) ----
+
+#define DND_RIFT_BUFFLOG 64                 // buff changes a running Temporal Rift remembers
+
+enum {
+	DND_RIFTLOG_ADD,
+	DND_RIFTLOG_MOD,
+	DND_RIFTLOG_REMOVE
+};
+
+typedef struct {
+	int time[MAXPLAYERS][DND_RIFT_BUFFLOG];
+	int op[MAXPLAYERS][DND_RIFT_BUFFLOG];
+	int slot[MAXPLAYERS][DND_RIFT_BUFFLOG];
+	int source[MAXPLAYERS][DND_RIFT_BUFFLOG];
+	int type[MAXPLAYERS][DND_RIFT_BUFFLOG];
+	int bt[MAXPLAYERS][DND_RIFT_BUFFLOG];
+	int value[MAXPLAYERS][DND_RIFT_BUFFLOG];
+	int flags[MAXPLAYERS][DND_RIFT_BUFFLOG];
+	int duration[MAXPLAYERS][DND_RIFT_BUFFLOG];
+	int head[MAXPLAYERS];
+	int count[MAXPLAYERS];
+} riftbufflog_T;
+
+riftbufflog_T module& GetRiftBuffLog() {
+	static riftbufflog_T s;
+	return s;
+}
+
+// A buff slot about to change (an add: just changed) while its owner's Temporal Rift runs; charges stay out of it.
+void NoteBuffChange(int pnum, int op, int slot) {
+	if(!IsSpellRunning(pnum, SPL_TEMPORALRIFT) || IsChargeBuff(pbuffs[pnum].buff_list[slot].type))
+		return;
+	riftbufflog_T module& h = GetRiftBuffLog();
+	int i = h.head[pnum];
+	h.time[pnum][i] = Timer();
+	h.op[pnum][i] = op;
+	h.slot[pnum][i] = slot;
+	h.source[pnum][i] = pbuffs[pnum].buff_list[slot].source;
+	h.type[pnum][i] = pbuffs[pnum].buff_list[slot].type;
+	h.bt[pnum][i] = pbuffs[pnum].buff_list[slot].bt_index;
+	h.value[pnum][i] = pbuffs[pnum].buff_list[slot].value;
+	h.flags[pnum][i] = pbuffs[pnum].buff_list[slot].flags;
+	h.duration[pnum][i] = pbuffs[pnum].buff_list[slot].duration;
+	h.head[pnum] = (i + 1) % DND_RIFT_BUFFLOG;
+	h.count[pnum] = Min(h.count[pnum] + 1, DND_RIFT_BUFFLOG);
+}
+
+// Whether a slot holds a buff (is reachable from the head).
+bool IsBuffSlotLinked(int pnum, int slot) {
+	int i = pbuffs[pnum].buff_list[pbuffs[pnum].head].next_id;
+	while(i != -1 && i <= slot) {
+		if(i == slot)
+			return true;
+		i = pbuffs[pnum].buff_list[i].next_id;
+	}
+	return false;
+}
+
+// Links a free slot in at its place: the list runs in slot order, which GivePlayerBuff's gap search relies on.
+void LinkBuffSlot(int pnum, int slot) {
+	int p = pbuffs[pnum].head;
+	while(pbuffs[pnum].buff_list[p].next_id != -1 && pbuffs[pnum].buff_list[p].next_id < slot)
+		p = pbuffs[pnum].buff_list[p].next_id;
+	pbuffs[pnum].buff_list[slot].next_id = pbuffs[pnum].buff_list[p].next_id;
+	pbuffs[pnum].buff_list[p].next_id = slot;
+}
+
+// A buff put back into the slot it had, with its effect applied again.
+void InsertBuffAt(int pnum, int slot, int bsource, int btype, int bbt, int bvalue, int bflags, int bduration) {
+	pbuffs[pnum].buff_list[slot].source = bsource;
+	pbuffs[pnum].buff_list[slot].type = btype;
+	pbuffs[pnum].buff_list[slot].bt_index = bbt;
+	pbuffs[pnum].buff_list[slot].value = bvalue;
+	pbuffs[pnum].buff_list[slot].flags = bflags;
+	pbuffs[pnum].buff_list[slot].duration = bduration;
+	LinkBuffSlot(pnum, slot);
+	++pbuffs[pnum].buff_count;
+	HandleBuffValueComponent(pnum, slot);
+	HandleBuffApplication(pnum, btype);
+}
+
+// The buff in a slot moved to a free one, so the slot can take back what it held; only charges, which the rift leaves
+// alone, can be sitting there.
+void MoveBuffSlotAside(int pnum, int slot) {
+	int f = 1, p = pbuffs[pnum].head;
+	while(f < DND_MAX_PLAYER_BUFFS && (f == slot || IsBuffSlotLinked(pnum, f)))
+		++f;
+	if(f >= DND_MAX_PLAYER_BUFFS)
+		return;
+	while(pbuffs[pnum].buff_list[p].next_id != slot)
+		p = pbuffs[pnum].buff_list[p].next_id;
+	pbuffs[pnum].buff_list[p].next_id = pbuffs[pnum].buff_list[slot].next_id;
+	pbuffs[pnum].buff_list[f].source = pbuffs[pnum].buff_list[slot].source;
+	pbuffs[pnum].buff_list[f].type = pbuffs[pnum].buff_list[slot].type;
+	pbuffs[pnum].buff_list[f].bt_index = pbuffs[pnum].buff_list[slot].bt_index;
+	pbuffs[pnum].buff_list[f].value = pbuffs[pnum].buff_list[slot].value;
+	pbuffs[pnum].buff_list[f].flags = pbuffs[pnum].buff_list[slot].flags;
+	pbuffs[pnum].buff_list[f].duration = pbuffs[pnum].buff_list[slot].duration;
+	LinkBuffSlot(pnum, f);
+	pbuffs[pnum].buff_list[slot].next_id = -1;
+	pbuffs[pnum].buff_list[slot].type = -1;
+	pbuffs[pnum].buff_list[slot].bt_index = -1;
+}
+
 // send 0 indexed, it'll add one since we have dummy node
 // returns the next node of the removed node
 int RemoveBuff(int pnum, int buff_index, int precalc_prev = -1) {
 	++buff_index;
 	if(buff_index >= DND_MAX_PLAYER_BUFFS)
 		buff_index = DND_MAX_PLAYER_BUFFS - 1;
+	NoteBuffChange(pnum, DND_RIFTLOG_REMOVE, buff_index);
 
 	// reverse scan to find whose next we were --- if nobody's that means we were first element/only element
 	int prev = buff_index - 1;

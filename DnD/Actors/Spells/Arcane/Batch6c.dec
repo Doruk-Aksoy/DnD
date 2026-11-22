@@ -1,0 +1,40 @@
+// Shadow Twin: a dark image of a player that chases; "DnD Shadow Twin" fires its owner's weapon from it.
+ACTOR Spell_ShadowTwin : PetMonsterBase {
+	Health 100
+	GibHealth -1000
+	Radius 16
+	Height 56
+	Speed 10
+	PainChance 0
+	Mass 200
+	Stamina 1
+	RenderStyle Translucent
+	Alpha 0.8
+	Translation "0:255=%[0.00,0.00,0.00]:[0.40,0.30,0.70]"
+	Tag "Shadow Twin"
+	+NOPAIN
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pet Monster Scale", 0, DND_PET_SHADOWTWINID, -1, -1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pet Distance Move", 0)
+		SpawnLoop:
+			PLAY AB 10 A_Look
+		Goto See
+		See:
+			PLAY ABCD 4 A_Chase
+		Loop
+		Fire:
+			PLAY E 4
+			PLAY F 4 Bright
+			PLAY E 4
+		Goto See
+		Death:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Summon Death Check", 0, DND_PET_SHADOWTWINID)
+			PLAY H 5 A_Scream
+			PLAY I 5 A_NoBlocking
+			PLAY JKLM 5
+			PLAY N 1 A_FadeOut(0.05)
+		Wait
+	}
+}

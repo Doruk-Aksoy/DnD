@@ -336,6 +336,15 @@ enum {
 	ESHIELD_LEFT_ID = 3000,
 	ESHIELD_RIGHT_ID,
 	METRONOME_BEAT_ID,
+	// Enchant Weapon's screen glow: behind every other in-game layer
+	ENCHANT_GLOW_ID = 8000,
+	ASCENSION_VIG_ID = 8001,
+	ETHEREAL_VIG_ID = 8002,
+	// the spell-buff strip, one id per slot and layer, the count in front
+	SPELLBUFF_TEXT_ID = 7100,
+	SPELLBUFF_SWEEP_ID = 7110,
+	SPELLBUFF_ICON_ID = 7120,
+	SPELLBUFF_FRAME_ID = 7130,
 
 	// Hotbar. Three contiguous runs of MAX_HOTBAR_SLOTS so a slot's three layers share an index.
 	// Ordered back to front by DESCENDING id, per the note above: the frame is behind the icon, and

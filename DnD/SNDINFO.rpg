@@ -1023,3 +1023,55 @@ SoulSiphon/Drain            SOULSIPH
 
 GraveGrasp/Cast             GRAVGRAC
 GraveGrasp/Loop             GRAVGRAL
+
+// Arcane: borrowed takes until the tree has its own
+$alias ArcaneBolt/Cast       Spark/Cast
+$alias ArcaneBolt/Hit        ChargedBolt/Hit
+$alias HolyLight/Cast        Spell/RallyCast
+$alias HolyLight/Hit         LightningBolt/Hit
+$alias Blessing/Cast         Rejuvenation/Cast
+$alias PowerGlobe/Cast       Telekinesis/Cast
+$alias PowerGlobe/Blast      RainOfFire/Hit
+$alias SpectralBlades/Cast   CracklingLance/Cast
+$alias DeathSeeker/Cast      Spell/RallyCast
+$alias DeathSeeker/Hit       LightningBolt/Hit
+$alias Purify/Cast           Rejuvenation/Cast
+$alias Purify/Hit            LightningBolt/Hit
+$alias Invigorate/Cast       HeatShield/Cast
+$alias ManaBurn/Cast         Spark/Cast
+$alias ManaBurn/Hit          ChargedBolt/Hit
+$alias Disintegrate/Cast     CracklingLance/Cast
+$alias DivineJudgement/Hit   LightningBolt/Hit
+$alias Purge/Cast            LifeTap/Cast
+$alias Purge/Hit             LifeTap/Hit
+$alias EnchantWeapon/Cast    HeatShield/Cast
+$alias HolyWrath/Cast        Spell/RallyCast
+$alias HolyWrath/Burst       RainOfFire/Hit
+$alias ArcaneTrap/Place      Desecrate/Cast
+$alias ArcaneTrap/Blast      RainOfFire/Hit
+$alias ArcaneTrap/Hole       Implosion/Cast
+$alias ArcaneComet/Hit       RainOfFire/Hit
+$alias ArcaneBarrage/Charge  Spark/Cast
+$alias ArcaneBarrage/Cast    ChargedBolt/Cast
+$alias EtherealBody/Cast     DarkPact/Cast
+$alias EnergizedArmor/Cast   HeatShield/Cast
+$alias EnergizedArmor/Burst  RainOfFire/Hit
+$alias RighteousCause/Cast   Spell/RallyCast
+$alias Ascension/Cast        Surgecast/Cast
+$alias Salvation/Cast        Spell/RallyCast
+$alias TemporalRift/Cast     Telekinesis/Cast
+$alias TemporalRift/Travel   DarkPact/Cast
+$alias Retribution/Cast      Spell/RallyCast
+$alias Defiance/Cast         RainOfFire/Hit
+$alias DivineShield/Cast     HeatShield/Cast
+$alias ShadowSplit/Cast      DarkPact/Cast
+$alias ShadowSplit/Burst     RainOfFire/Hit
+$alias Familiar/Cast         Telekinesis/Cast
+$alias Familiar/Fire         Spark/Cast
+$alias Familiar/Hit          ChargedBolt/Hit
+$alias Angel/Cast            Spell/RallyCast
+$alias Avenger/Cast          HeatShield/Cast
+$alias Avenger/Enrage        Doomguard/Attack
+$alias Avenger/Throw         Sword/Swing
+$alias Avenger/Break         RainOfFire/Hit
+$alias ShadowTwin/Cast       DarkPact/Cast

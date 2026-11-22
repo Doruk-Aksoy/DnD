@@ -1,0 +1,66 @@
+// On a monster: Arcane Bolt's mark, percent more Arcane damage taken, until the level time in DnD_ArcaneMarkUntil.
+Actor DnD_ArcaneMark : DnD_Info {}
+Actor DnD_ArcaneMarkUntil : DnD_Info {}
+
+// The bolt seeks only the enemy the cast picked (its tracer); its death marks what it struck.
+Actor Spell_ArcaneBolt : DnD_Spell {
+	PROJECTILE
+	Speed 26
+	Radius 6
+	Height 10
+	ReactionTime 70
+	+SEEKERMISSILE
+	+SCREENSEEKER
+	RenderStyle Add
+	Alpha 0.95
+	Scale 0.45
+	Translation "0:255=%[0.00,0.00,0.00]:[0.75,0.45,2.00]"
+	Damage(ACS_NamedExecuteWithResult("DnD Spell Damage", SPELLVAL_DAMAGE))
+	DamageType "Magic"
+	States {
+		// The model's shader reads a phase per bolt back from this scale step, so bolts side by side differ.
+		SpawnState:
+			TNT1 A 0 A_SetScale(0.45 + random(0, 7) * 0.0024)
+		Fly:
+			SPFX A 1 Bright A_SeekerMissile(6, 12, SMF_PRECISE)
+			TNT1 A 0 A_CountDown
+		Loop
+		// The server always jumps, to the hold or the blast; a client blows up its own copy on touching a monster, so it waits.
+		Death:
+			"####" "#" 0 A_JumpIf(user_chain < 0, "GemChainHold")
+			"####" "#" 0 A_Jump(256, "DeathBlast")
+			"####" "#" 35
+		DeathBlast:
+			TNT1 A 0 A_PlaySound("ArcaneBolt/Hit", CHAN_VOICE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Arcane Bolt Hit")
+			TNT1 A 0 A_SetScale(0.55)
+			FXPR ABCDEFG 2 Bright
+		Stop
+	}
+}
+
+Actor Spell_ArcaneBolt_Trail : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.7
+	Scale 0.3
+	Translation "0:255=%[0.00,0.00,0.00]:[0.75,0.45,2.00]"
+	States {
+		Spawn:
+			TNT1 A 0
+			SPFX A 1 Bright A_FadeOut(0.1)
+		Wait
+	}
+}
+
+// Arcane Bolt's look on a gem chain or fork hop.
+Actor Spell_ArcaneBolt_GemArc : DnD_GemStrikeFX {
+	RenderStyle Add
+	Alpha 0.95
+	Scale 0.45
+	Translation "0:255=%[0.00,0.00,0.00]:[0.75,0.45,2.00]"
+	States {
+		Spawn:
+			SPFX A 1 Bright
+		Loop
+	}
+}

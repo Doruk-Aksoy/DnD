@@ -143,6 +143,10 @@ int GetPetSummonSpell(int petid) {
 		case MONSTER_PET_SLAYERKNIGHT:	return SPL_SLAYERKNIGHT;
 		case MONSTER_PET_DOOMGUARD:		return SPL_DOOMGUARD;
 		case MONSTER_PET_DARKPORTAL:	return SPL_DARKPORTAL;
+		case MONSTER_PET_SHADOWSPLIT:	return SPL_SHADOWSPLIT;
+		case MONSTER_PET_ANGEL:		return SPL_ANGEL;
+		case MONSTER_PET_AVENGER:		return SPL_AVENGER;
+		case MONSTER_PET_SHADOWTWIN:	return SPL_SHADOWTWIN;
 	}
 	return -1;
 }
@@ -160,6 +164,10 @@ int GetSummonPetKind(int spell) {
 		case SPL_SLAYERKNIGHT:	return MONSTER_PET_SLAYERKNIGHT;
 		case SPL_DOOMGUARD:		return MONSTER_PET_DOOMGUARD;
 		case SPL_DARKPORTAL:	return MONSTER_PET_DARKPORTAL;
+		case SPL_SHADOWSPLIT:	return MONSTER_PET_SHADOWSPLIT;
+		case SPL_ANGEL:			return MONSTER_PET_ANGEL;
+		case SPL_AVENGER:		return MONSTER_PET_AVENGER;
+		case SPL_SHADOWTWIN:	return MONSTER_PET_SHADOWTWIN;
 	}
 	return -1;
 }
@@ -169,7 +177,9 @@ int GetPetCapWeight(int petid) {
 	switch(petid) {
 		case MONSTER_PET_GHAST:
 		case MONSTER_PET_DEATHKNIGHT:	return 2;
-		case MONSTER_PET_SLAYERKNIGHT:	return 3;
+		case MONSTER_PET_SLAYERKNIGHT:
+		case MONSTER_PET_ANGEL:
+		case MONSTER_PET_AVENGER:		return 3;
 		case MONSTER_PET_DOOMGUARD:		return 5;
 		case MONSTER_PET_DARKPORTAL:	return 0;
 	}
@@ -187,6 +197,7 @@ bool IsPetCarried(int pnum, int petid) {
 		case MONSTER_PET_SLAYERKNIGHT:
 		case MONSTER_PET_DEATHKNIGHT:
 		case MONSTER_PET_DOOMGUARD:
+		case MONSTER_PET_ANGEL:
 		return true;
 		case MONSTER_PET_ZOMBIE:
 		case MONSTER_PET_KNIGHT:
@@ -209,6 +220,10 @@ int GetSummonKindFixedCap(int spell) {
 		return 2;
 		case SPL_DOOMGUARD:
 		case SPL_DARKPORTAL:
+		case SPL_SHADOWSPLIT:
+		case SPL_ANGEL:
+		case SPL_AVENGER:
+		case SPL_SHADOWTWIN:
 		return 1;
 	}
 	return 0;
@@ -263,6 +278,10 @@ str GetSpellSummonScript(int spell) {
 		case SPL_SLAYERKNIGHT:	return "DnD Summon Slayer Knight";
 		case SPL_DOOMGUARD:		return "DnD Summon Doomguard";
 		case SPL_DARKPORTAL:	return "DnD Summon Dark Portal";
+		case SPL_SHADOWSPLIT:	return "DnD Summon Shadow Split";
+		case SPL_ANGEL:			return "DnD Summon Angel";
+		case SPL_AVENGER:		return "DnD Summon Avenger";
+		case SPL_SHADOWTWIN:	return "DnD Summon Shadow Twin";
 	}
 	return "DnD Summon Ice Golem";
 }

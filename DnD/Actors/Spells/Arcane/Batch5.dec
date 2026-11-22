@@ -1,0 +1,90 @@
+// On a monster: Arcane Comet rank 5's resistance loss and its end. On a player: the end of Ethereal Body, of
+// Ascension, and Energized Armor's recast ticket.
+Actor DnD_CometShred : DnD_Info {}
+Actor DnD_CometShredUntil : DnD_Info {}
+Actor DnD_EtherealUntil : DnD_Info {}
+Actor DnD_AscendedUntil : DnD_Info {}
+Actor DnD_EnergArmorTicket : DnD_Info {}
+
+// Client side: the comet coming down.
+Actor Spell_ArcaneComet_Fall : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.95
+	Scale 2.5
+	Translation "0:255=%[0.00,0.00,0.00]:[1.10,0.55,2.00]"
+	+NOGRAVITY
+	States {
+		Spawn:
+			TNT1 A 0
+			SPFX A 1 Bright A_SpawnItem("Spell_ArcaneBolt_Trail")
+		Wait
+	}
+}
+
+// Client side: an ember of the burning zone.
+Actor Spell_ArcaneComet_Ember : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.8
+	Scale 0.4
+	Translation "0:255=%[0.00,0.00,0.00]:[1.10,0.55,2.00]"
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_ChangeVelocity(0, 0, frandom(0.5, 1.5), CVF_REPLACE)
+			SPFX A 1 Bright A_FadeOut(0.04)
+		Wait
+	}
+}
+
+// A barrage missile: rises off the caster, then seeks its tracer (the quarry or a marker on the aimed spot) and
+// bursts; the burst is DnD_SpellExplosive's (DAMAGE in RADIUS).
+Actor Spell_ArcaneBarrage : DnD_SpellExplosive {
+	PROJECTILE
+	Speed 14
+	Radius 6
+	Height 8
+	ReactionTime 140
+	+SEEKERMISSILE
+	+SCREENSEEKER
+	RenderStyle Add
+	Alpha 0.95
+	Scale 0.4
+	Translation "0:255=%[0.00,0.00,0.00]:[0.75,0.45,2.00]"
+	Damage 0
+	DamageType "Magic"
+	States {
+		SpawnState:
+			TNT1 A 0
+			SPFX AAAAAAAAAA 1 Bright A_SpawnItem("Spell_ArcaneBolt_Trail")
+		Seek:
+			SPFX A 1 Bright A_SeekerMissile(10, 18, SMF_PRECISE)
+			TNT1 A 0 A_SpawnItem("Spell_ArcaneBolt_Trail")
+			TNT1 A 0 A_CountDown
+		Loop
+		ContinueFromExplosion:
+			TNT1 A 0 A_SetScale(0.7)
+			FXPR ABCDEFG 2 Bright
+		Goto FinishExplosion
+	}
+}
+
+// Rank 5: never turned back by a reflecting monster, and through a raised shield.
+Actor Spell_ArcaneBarrage_True : Spell_ArcaneBarrage {
+	+DONTREFLECT
+	+FOILINVUL
+}
+
+// Where an unaimed barrage converges.
+Actor Spell_ArcaneBarrage_Mark {
+	Radius 2
+	Height 2
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOBLOCKMAP
+	+DONTSPLASH
+	States {
+		Spawn:
+			TNT1 A -1
+		Stop
+	}
+}

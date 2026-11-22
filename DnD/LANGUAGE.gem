@@ -161,20 +161,20 @@ DND_GEMROLETXT14	= "40% less hit damage, 30% more damage over time, 15% more man
 DND_GEMROLETXTG14	= "60% less hit damage, 45% more damage over time, 25% more mana cost.";
 
 DND_GEMROLE15		= "Pyromancer";
-DND_GEMROLETXT15	= "25% chance to ignite, 15% more mana cost.";
-DND_GEMROLETXTG15	= "50% chance to ignite, 25% more mana cost.";
+DND_GEMROLETXT15	= "25% chance to ignite, gains 10% of non-fire damage as extra fire damage, 15% more mana cost.";
+DND_GEMROLETXTG15	= "50% chance to ignite, gains 15% of non-fire damage as extra fire damage, 25% more mana cost.";
 
 DND_GEMROLE16		= "Cryomancer";
-DND_GEMROLETXT16	= "25% chance to chill, 15% more mana cost.";
-DND_GEMROLETXTG16	= "50% chance to chill, 25% more mana cost.";
+DND_GEMROLETXT16	= "25% chance to chill, gains 10% of non-cold damage as extra cold damage, 15% more mana cost.";
+DND_GEMROLETXTG16	= "50% chance to chill, gains 15% of non-cold damage as extra cold damage, 25% more mana cost.";
 
 DND_GEMROLE17		= "Venomancer";
-DND_GEMROLETXT17	= "25% chance to poison, 15% more mana cost.";
-DND_GEMROLETXTG17	= "50% chance to poison, 25% more mana cost.";
+DND_GEMROLETXT17	= "Gains 10% of non-poison damage as extra poison damage, 15% more mana cost.";
+DND_GEMROLETXTG17	= "Gains 15% of non-poison damage as extra poison damage, 25% more mana cost.";
 
 DND_GEMROLE18		= "Electromancer";
-DND_GEMROLETXT18	= "25% chance to overload, 15% more mana cost.";
-DND_GEMROLETXTG18	= "50% chance to overload, 25% more mana cost.";
+DND_GEMROLETXT18	= "25% chance to overload, gains 10% of non-lightning damage as extra lightning damage, 15% more mana cost.";
+DND_GEMROLETXTG18	= "50% chance to overload, gains 15% of non-lightning damage as extra lightning damage, 25% more mana cost.";
 
 DND_GEMROLE19		= "Vampire";
 DND_GEMROLETXT19	= "1.5% of damage leeched as life, 20% more mana cost.";
@@ -205,8 +205,8 @@ DND_GEMROLETXT25	= "Slain minions have a 25% chance to return after 3 seconds, 3
 DND_GEMROLETXTG25	= "Slain minions have a 50% chance to return after 3 seconds, 50% more mana cost.";
 
 DND_GEMROLE26		= "Sanguinomancer";
-DND_GEMROLETXT26	= "25% chance to cause bleeding, 15% more mana cost.";
-DND_GEMROLETXTG26	= "50% chance to cause bleeding, 25% more mana cost.";
+DND_GEMROLETXT26	= "25% chance to cause bleeding, gains 10% of non-physical damage as extra physical damage, 15% more mana cost.";
+DND_GEMROLETXTG26	= "50% chance to cause bleeding, gains 15% of non-physical damage as extra physical damage, 25% more mana cost.";
 
 DND_GEMROLE27		= "Destroyer";
 DND_GEMROLETXT27	= "+20% resistance penetration, 20% more mana cost.";

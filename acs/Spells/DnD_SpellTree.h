@@ -679,11 +679,11 @@ void HandleSpellHoverPanel(int pnum, int spell) {
 			// Printed in the FIELD's unit. A flat bonus is a raw row value, and the rows are not all the
 			// same kind -- a duration one is fixed point and showed its raw 16384.
 			PanelText(StrParam(s:"\c[Y5]", l:"DND_SPLPANEL_SYNERGY", s:" - \c-", l:GetSpellNameLump(temp),
-				s:": +", s:IsSpellFieldTenthsPercent(spell, SpellSynergies[i].field) ?
+				s:SpellSynergies[i].per_rank < 0 ? ": " : ": +", s:IsSpellFieldTenthsPercent(spell, SpellSynergies[i].field) ?
 					StrParam(s:FixedToTenths((SpellSynergies[i].per_rank << 16) / 10), s:"%") :
 					IsSpellFieldPoisonTenths(spell, SpellSynergies[i].field) ?
 					FixedToTenths((SpellSynergies[i].per_rank << 16) / 10) :
-					IsSpellFieldFixedPoint(SpellSynergies[i].field) ?
+					IsSpellRowFixedPoint(spell, SpellSynergies[i].field) ?
 					FixedToHundredths(SpellSynergies[i].per_rank) :
 					StrParam(d:SpellSynergies[i].per_rank),
 				s:" ", l:GetSpellFieldLumpFor(spell, SpellSynergies[i].field), s:GetSynergyStepText(i)));
@@ -1335,16 +1335,18 @@ bool IsGemRoleActiveOnSpell(int role, int spell) {
 		return !!(f & SPLF_RESERVES);
 		case DND_GEMROLE_INFLUENCER:
 		return !!(f & SPLF_PASSIVE);
+		// the Familiar has no life to grow or bring back; the Shadow Twin's life is its owner's
 		case DND_GEMROLE_SUMMONER:
+		return !!(f & SPLF_SUMMON) && spell != SPL_FAMILIAR && spell != SPL_SHADOWTWIN;
 		case DND_GEMROLE_NECROMANCER:
-		return !!(f & SPLF_SUMMON);
+		return !!(f & SPLF_SUMMON) && spell != SPL_FAMILIAR;
 		// Minion damage reaches the spells minions cast (the Ghast's Dark Wind); the portal deals no damage.
 		case DND_GEMROLE_COMMANDER:
 		return !!(f & SPLF_SUMMON) && spell != SPL_DARKPORTAL;
-		// A minion's cast crits as the spell it is, so minion crit has nothing on the Ghast.
+		// A minion's cast crits as the spell it is (the Ghast, the Familiar, the clone's burst); the Twin's shots as the weapon.
 		case DND_GEMROLE_VORACIOUS:
 		case DND_GEMROLE_ALPHA:
-		return !!(f & SPLF_SUMMON) && spell != SPL_GHAST && spell != SPL_DARKPORTAL;
+		return !!(f & SPLF_SUMMON) && spell != SPL_GHAST && spell != SPL_DARKPORTAL && spell != SPL_SHADOWSPLIT && spell != SPL_FAMILIAR && spell != SPL_SHADOWTWIN;
 		case DND_GEMROLE_PRIEST:
 		return !!(f & SPLF_HEAL);
 		case DND_GEMROLE_HEXMASTER:
@@ -1487,18 +1489,21 @@ void AddGemRoleToSpellRow(int pnum, int spell, int role, bool g) {
 		break;
 		case DND_GEMROLE_PYROMANCER:
 			AddSpellGemMod(pnum, spell, GEMSTAT_IGNITECHANCE, g ? 50 : 25);
+			AddSpellGemMod(pnum, spell, GEMSTAT_GAIN_FIRE, g ? 15 : 10);
 			AddGemCostPenalty(pnum, spell, g ? 0.25 : 0.15);
 		break;
 		case DND_GEMROLE_CRYOMANCER:
 			AddSpellGemMod(pnum, spell, GEMSTAT_CHILLCHANCE, g ? 50 : 25);
+			AddSpellGemMod(pnum, spell, GEMSTAT_GAIN_ICE, g ? 15 : 10);
 			AddGemCostPenalty(pnum, spell, g ? 0.25 : 0.15);
 		break;
 		case DND_GEMROLE_VENOMANCER:
-			AddSpellGemMod(pnum, spell, GEMSTAT_POISONCHANCE, g ? 50 : 25);
+			AddSpellGemMod(pnum, spell, GEMSTAT_GAIN_POISON, g ? 15 : 10);
 			AddGemCostPenalty(pnum, spell, g ? 0.25 : 0.15);
 		break;
 		case DND_GEMROLE_ELECTROMANCER:
 			AddSpellGemMod(pnum, spell, GEMSTAT_OVERLOADCHANCE, g ? 50 : 25);
+			AddSpellGemMod(pnum, spell, GEMSTAT_GAIN_LIGHTNING, g ? 15 : 10);
 			AddGemCostPenalty(pnum, spell, g ? 0.25 : 0.15);
 		break;
 		case DND_GEMROLE_VAMPIRE:
@@ -1533,6 +1538,7 @@ void AddGemRoleToSpellRow(int pnum, int spell, int role, bool g) {
 		break;
 		case DND_GEMROLE_SANGUINOMANCER:
 			AddSpellGemMod(pnum, spell, GEMSTAT_BLEEDCHANCE, g ? 50 : 25);
+			AddSpellGemMod(pnum, spell, GEMSTAT_GAIN_PHYSICAL, g ? 15 : 10);
 			AddGemCostPenalty(pnum, spell, g ? 0.25 : 0.15);
 		break;
 		case DND_GEMROLE_DESTROYER:

@@ -1575,3 +1575,521 @@ Model Spell_MoltenBoulder {
 	FrameIndex S002 C 0 0
 	FrameIndex S002 D 0 0
 }
+
+// Arcane Bolt and its gem hop stand-in: a comet ray-marched in a hull; Scale undoes the actor's 0.45.
+Model Spell_ArcaneBolt {
+	Path "Models/Proj"
+	Model 0 "ARCBOLT.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "ARCBOLT.png"
+	Scale 2.8889 2.8889 2.8889
+	ZOffset 11.1111
+	PITCHFROMMOMENTUM
+	FrameIndex SPFX A 0 0
+}
+
+Model Spell_ArcaneBolt_GemArc {
+	Path "Models/Proj"
+	Model 0 "ARCBOLT.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "ARCBOLT.png"
+	Scale 2.8889 2.8889 2.8889
+	ZOffset 11.1111
+	PITCHFROMMOMENTUM
+	FrameIndex SPFX A 0 0
+}
+
+// Power Globe: Scale undoes the actor's 0.9; the blast swells by actor scale, so its ZOffset stays 0 (ZOffset scales too).
+Model Spell_PowerGlobe {
+	Path "Models/Proj"
+	Model 0 "PWRGLOBE.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "PWRGLOBE.png"
+	Scale 1.4778 1.4778 1.4778
+	ZOffset 11.6667
+	FrameIndex SPFX A 0 0
+}
+
+Model Spell_PowerGlobe_Nova {
+	Path "Models/Proj"
+	Model 0 "PWRGLOBE.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "PWRGLOBE.png"
+	Scale 1.4778 1.4778 1.4778
+	ZOffset 0
+	FrameIndex PGSP A 0 0
+}
+
+// Spectral Blades: 24 frames, the point turned 15 degrees each with its own bend; ZOffset centres it on its 12-high box.
+Model Spell_SpectralBlade {
+	Path "Models/Proj"
+	Model 0 "SBLADE.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "SBLADE.png"
+	Scale 1 1 1
+	ZOffset 6
+	FrameIndex SBLD A 0 0
+	FrameIndex SBLD B 0 1
+	FrameIndex SBLD C 0 2
+	FrameIndex SBLD D 0 3
+	FrameIndex SBLD E 0 4
+	FrameIndex SBLD F 0 5
+	FrameIndex SBLD G 0 6
+	FrameIndex SBLD H 0 7
+	FrameIndex SBLD I 0 8
+	FrameIndex SBLD J 0 9
+	FrameIndex SBLD K 0 10
+	FrameIndex SBLD L 0 11
+	FrameIndex SBLD M 0 12
+	FrameIndex SBLD N 0 13
+	FrameIndex SBLD O 0 14
+	FrameIndex SBLD P 0 15
+	FrameIndex SBLD Q 0 16
+	FrameIndex SBLD R 0 17
+	FrameIndex SBLD S 0 18
+	FrameIndex SBLD T 0 19
+	FrameIndex SBLD U 0 20
+	FrameIndex SBLD V 0 21
+	FrameIndex SBLD W 0 22
+	FrameIndex SBLD X 0 23
+}
+
+Model Spell_SpectralBladeWide {
+	Path "Models/Proj"
+	Model 0 "SBLADE.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "SBLADE.png"
+	Scale 1 1.2 1.2
+	ZOffset 6
+	FrameIndex SBLD A 0 0
+	FrameIndex SBLD B 0 1
+	FrameIndex SBLD C 0 2
+	FrameIndex SBLD D 0 3
+	FrameIndex SBLD E 0 4
+	FrameIndex SBLD F 0 5
+	FrameIndex SBLD G 0 6
+	FrameIndex SBLD H 0 7
+	FrameIndex SBLD I 0 8
+	FrameIndex SBLD J 0 9
+	FrameIndex SBLD K 0 10
+	FrameIndex SBLD L 0 11
+	FrameIndex SBLD M 0 12
+	FrameIndex SBLD N 0 13
+	FrameIndex SBLD O 0 14
+	FrameIndex SBLD P 0 15
+	FrameIndex SBLD Q 0 16
+	FrameIndex SBLD R 0 17
+	FrameIndex SBLD S 0 18
+	FrameIndex SBLD T 0 19
+	FrameIndex SBLD U 0 20
+	FrameIndex SBLD V 0 21
+	FrameIndex SBLD W 0 22
+	FrameIndex SBLD X 0 23
+}
+
+// Holy Light's beam: Forked Lightning's crossed quads under HOLYBEAM.png; ACS aims and stretches it, HolyBeam.fp draws it.
+Model Spell_HolyLight_Beam {
+	Path "Models/Proj"
+	Model 0 "FORKBEAM.md3"
+
+	Path "Graphics/ShaderTex"
+	Skin 0 "HOLYBEAM.png"
+	Scale 1.0 1.0 1.0
+
+	PITCHFROMMOMENTUM
+
+	FrameIndex HLBM A 0 0
+}
+
+// Divine Judgement's sword: its point is the origin, buried 20 under the floor the actor stands on.
+Model Spell_DivineJudgement_Sword {
+	Path "Models/Proj"
+	Model 0 "JDGSWORD.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "JDGSWORD.png"
+	Scale 1.0 1.0 1.0
+	ZOffset -20
+	FrameIndex JDGS A 0 0
+}
+
+// Its shockwave: the slam wave's model under a gold skin; ACS sizes it to the strike's radius.
+Model Spell_DivineJudgement_Wave {
+	Path "Models/Auras"
+	Model 0 "SLAMWAVE.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "SLAMWAVG.png"
+	Scale 1.0 1.0 1.0
+	FrameIndex JDGW A 0 0
+}
+
+// The glowing cracks round the blade, additive art on a flat quad; ACS spreads and fades them.
+Model Spell_DivineJudgement_Cracks {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "JDGCRACK.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 1
+	FrameIndex JDGC A 0 0
+}
+
+// Holy Wrath's pillar of light, hanging 384 down from its origin; its Y scale carries the descent's stage.
+Model Spell_HolyWrath_Pillar {
+	Path "Models/Proj"
+	Model 0 "HWPILLAR.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "HWPILLAR.png"
+	Scale 1.0 1.0 1.0
+	FrameIndex HWPL A 0 0
+}
+
+// Its ring of holy fire, an upright band "DnD Holy Wrath FX" spreads to the strike's radius.
+Model Spell_HolyWrath_Ring {
+	Path "Models/Proj"
+	Model 0 "HWRING.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "HWRING.png"
+	Scale 1.0 1.0 1.0
+	FrameIndex HWRG A 0 0
+}
+
+// The pool of light under the pillar and the fire's glow on the floor, additive art on flat quads.
+Model Spell_HolyWrath_Pool {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "HWPOOL.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 1
+	FrameIndex HWPO A 0 0
+}
+
+Model Spell_HolyWrath_Floor {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "HWFLOOR.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 1.5
+	FrameIndex HWFL A 0 0
+}
+
+// Divine Shield's bubble, centred on its actor; "DnD Divine Shield FX" scales it to the radius, its alpha the health.
+Model Spell_DivineShield_Shell {
+	Path "Models/Proj"
+	Model 0 "DSHELL.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "DSHELL.png"
+	Scale 1.0 1.0 1.0
+	FrameIndex DSSH A 0 0
+}
+
+// A caught missile's sigil, aimed out from the bubble by its velocity.
+Model Spell_DivineShield_Hit {
+	Path "Models/Proj"
+	Model 0 "DSHIT.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "DSHIT.png"
+	Scale 1.0 1.0 1.0
+	PITCHFROMMOMENTUM
+	FrameIndex DSHT A 0 0
+}
+
+// The rune circle where the bubble meets the floor, and rank 10's consecrated ground, turning opposite ways.
+Model Spell_DivineShield_Ring {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "DSRING.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 1
+	ROTATING
+	rotation-vector 0.0 1.0 0.0
+	rotation-speed 0.12
+	FrameIndex DSRG A 0 0
+}
+
+Model Spell_DivineShield_Cons {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "DSCONS.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 0.8
+	ROTATING
+	rotation-vector 0.0 1.0 0.0
+	rotation-speed -0.05
+	FrameIndex DSCN A 0 0
+}
+
+// Purge's tendril: Forked Lightning's crossed quads under PRGBEAM.png; ACS aims and stretches it, PurgeRibbon.fp draws it.
+Model Spell_Purge_Beam {
+	Path "Models/Proj"
+	Model 0 "FORKBEAM.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "PRGBEAM.png"
+	Scale 1.0 1.0 1.0
+	PITCHFROMMOMENTUM
+	FrameIndex PRBM A 0 0
+}
+
+// Salvation's shaft of light, hanging 384 down from its origin; its Y scale carries the descent's stage.
+Model Spell_Salvation_Shaft {
+	Path "Models/Proj"
+	Model 0 "HWPILLAR.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "SVSHAFT.png"
+	Scale 1.0 1.0 1.0
+	FrameIndex SVSH A 0 0
+}
+
+// The prayer's ripple along the floor, additive art on a flat quad; "DnD Salvation Pulse FX" spreads and fades it.
+Model Spell_Salvation_Pulse {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "SVPULSE.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 1
+	FrameIndex SVPU A 0 0
+}
+
+// Defiance's orbs: the hull at 1 / 0.55 undoes the actors' scale, so DefianceOrb.fp works in world units.
+Model Spell_Defiance_Holy {
+	Path "Models/Proj"
+	Model 0 "PWRGLOBE.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "DFHOLY.png"
+	Scale 1.8182 1.8182 1.8182
+	ZOffset 9.0909
+	FrameIndex DFOB A 0 0
+}
+
+Model Spell_Defiance_Dark {
+	Path "Models/Proj"
+	Model 0 "PWRGLOBE.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "DFDARK.png"
+	Scale 1.8182 1.8182 1.8182
+	ZOffset 9.0909
+	FrameIndex DFOB A 0 0
+}
+
+// Conviction's mark: the ring at a marked enemy's feet, the burst's shockwave and the pulse's wave.
+Model Spell_Conviction_Ring {
+	Path "Models/Auras"
+	Model 0 "flat.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "CVMRING.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 0.5
+	FrameIndex CVMR A 0 3
+}
+
+Model Spell_Conviction_Shock {
+	Path "Models/Auras"
+	Model 0 "flat.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "CVMSHOCK.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 0.3
+	FrameIndex CVMK A 0 3
+}
+
+Model Spell_Conviction_Wave {
+	Path "Models/Auras"
+	Model 0 "flat.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "CVMSHOCK.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 0.4
+	FrameIndex CVMK A 0 3
+}
+
+// Blessing's halo: flat2, so it shows from above and below as it settles down a body.
+Model Spell_Blessing_Halo {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "BLSHALO.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 0
+	FrameIndex BLSH A 0 0
+}
+
+// Purify's cleansing ring: flat2, seen from above and below as it rises up a body.
+Model Spell_Purify_Ring {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "PRFYRING.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 0
+	FrameIndex PFRG A 0 0
+}
+
+// Invigorate's pulse ring: flat2, seen from above and below.
+Model Spell_Invigorate_Pulse {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "IVRING.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 0
+	FrameIndex IVRG A 0 0
+}
+
+// Energized Armor's shell (attachment), its swelling burst, and the shockwave over the floor.
+Model Spell_EnergArmorFX {
+	Path "Models/Proj"
+	Model 0 "DSHELL.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "EASHELL.png"
+	Scale 1.0 1.0 1.0
+	FrameIndex EASH A 0 0
+}
+
+Model Spell_EnergArmor_Pop {
+	Path "Models/Proj"
+	Model 0 "DSHELL.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "EASHELL.png"
+	Scale 1.0 1.0 1.0
+	FrameIndex EASH A 0 0
+}
+
+Model Spell_EnergArmor_Wave {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "EAWAVE.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 0
+	FrameIndex EAWV A 0 0
+}
+
+// Righteous Cause's wave over the floor.
+Model Spell_RighteousCause_Wave {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "RCWAVE.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 0
+	FrameIndex RCWV A 0 0
+}
+
+// Ascension's rune ring at the shoulders.
+Model Spell_Ascension_Ring {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "ASRING.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 0
+	FrameIndex ASRG A 0 0
+}
+
+// Mana Burn's drain: the shared beam model stretched hands to target.
+Model Spell_ManaBurn_Beam {
+	Path "Models/Proj"
+	Model 0 "FORKBEAM.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "MBBEAM.png"
+	Scale 1.0 1.0 1.0
+	PITCHFROMMOMENTUM
+	FrameIndex MBBM A 0 0
+}
+
+// Disintegrate's ray: the shared beam model stretched from the hands to its end.
+Model Spell_Disintegrate_Beam {
+	Path "Models/Proj"
+	Model 0 "FORKBEAM.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "DGBEAM.png"
+	Scale 1.0 1.0 1.0
+	PITCHFROMMOMENTUM
+	FrameIndex DGBM A 0 0
+}
+
+// Disintegrate's arcane circle at the hands, standing across the aim; the pulse's throb is a copy of it.
+Model Spell_DisintegrateRayFX {
+	Path "Models/Proj"
+	Model 0 "DGRING.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "DGRING.png"
+	Scale 1.0 1.0 1.0
+	INHERITACTORPITCH
+	FrameIndex DGRG A 0 0
+}
+
+Model Spell_Disintegrate_Kick {
+	Path "Models/Proj"
+	Model 0 "DGRING.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "DGRING.png"
+	Scale 1.0 1.0 1.0
+	INHERITACTORPITCH
+	FrameIndex DGRG A 0 0
+}
+
+// Disintegrate's held ray: the beam model at the hands, pitched with the aim and stretched by each pulse.
+Model Spell_Disintegrate_HeldRay {
+	Path "Models/Proj"
+	Model 0 "FORKBEAM.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "DGBEAM.png"
+	Scale 1.0 1.0 1.0
+	INHERITACTORPITCH
+	FrameIndex DGBM A 0 0
+}
+
+// Arcane Trap's sigil: flat2 lifted a unit off the floor (Zoffset times its scale 2), or the floor wins patches of it.
+Model Spell_ArcaneTrap {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "ATSIGIL.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 0.5
+	FrameIndex ATTR A 0 0
+}
+
+// Arcane Trap's trip-wire: the shared beam model stretched trap to trap.
+Model Spell_ArcaneTrap_Wire {
+	Path "Models/Proj"
+	Model 0 "FORKBEAM.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "ATWIRE.png"
+	Scale 1.0 1.0 1.0
+	PITCHFROMMOMENTUM
+	FrameIndex ATWR A 0 0
+}
+
+// Arcane Trap's blast rings and black hole on flat2; spawned a unit over the floor.
+Model Spell_ArcaneTrap_Shock {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "ATSHOCK.png"
+	Scale 1.0 1.0 1.0
+	FrameIndex ATSH A 0 0
+}
+
+Model Spell_ArcaneTrap_SmallShock {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "ATSHOCK.png"
+	Scale 1.0 1.0 1.0
+	FrameIndex ATSH A 0 0
+}
+
+Model Spell_ArcaneTrap_Hole {
+	Path "Models/Auras"
+	Model 0 "flat2.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "ATHOLE.png"
+	Scale 1.0 1.0 1.0
+	FrameIndex ATHL A 0 0
+}

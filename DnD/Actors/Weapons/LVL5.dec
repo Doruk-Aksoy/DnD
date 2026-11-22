@@ -1666,7 +1666,7 @@ Actor HammerThrowStrength : Ammo {
 	inventory.maxamount 100
 	ammo.backpackamount 0
 	ammo.backpackmaxamount 100
-	Inventory.Icon "H_PRCNT"
+	Inventory.Icon "H_METMEL"
 	+IGNORESKILL
 }
 

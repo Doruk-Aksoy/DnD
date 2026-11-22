@@ -418,6 +418,9 @@ void DoWeaponDamageCache(int pnum, int dmg_id, int dmg, int dmg_rand, int wepid,
 Script "DnD Weapon Damage Cache" (int wepid, int refill_pnum) {
 	bool is_refill = refill_pnum > 0;
 	int pnum = is_refill ? refill_pnum - 1 : PlayerNumber();
+	// a raise with the world as activator would hand its SetInventory to every player
+	if(pnum < 0)
+		Terminate;
 
 	// Perception / Earthshaker's run ends here, because this is what runs on Ready. Only on a real
 	// raise -- a refill is a cache rebuild that does not mean the player stopped firing.

@@ -1,0 +1,51 @@
+// Light rising around a blessed ally.
+Actor Spell_Blessing_Mote : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0
+	Scale 0.35
+	Translation "0:255=%[0.00,0.00,0.00]:[1.90,1.80,1.10]"
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_ChangeVelocity(0, 0, frandom(1.0, 2.0), CVF_REPLACE)
+			SPFX AAAA 1 Bright A_FadeIn(0.2)
+			SPFX A 1 Bright A_FadeOut(0.03)
+		Wait
+	}
+}
+
+// Blessing's halo (BLSHALO on flat2, MODELDEF.spell): "DnD Blessing Halo FX" sizes it, lowers it down the blessed one
+// and from rank 5 spreads it over the floor; it turns as it goes.
+Actor Spell_Blessing_Halo : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Add
+	Alpha 0.0
+	var int user_n;
+	States {
+		Spawn:
+			TNT1 A 0
+		Fall:
+			BLSH A 1 Bright A_SetAngle(angle + 7)
+			TNT1 A 0 A_JumpIf(alpha >= 1.0, "Fall")
+			TNT1 A 0 A_FadeIn(0.2)
+		Loop
+		Fade:
+			BLSH A 1 Bright A_SetAngle(angle + 4)
+			TNT1 A 0 A_FadeOut(0.08)
+		Loop
+		Spread:
+			BLSH A 1 Bright A_SetAngle(angle + 3)
+			TNT1 A 0 A_SetUserVar("user_n", user_n + 1)
+			TNT1 A 0 A_JumpIf(user_n > 7, "Thin")
+		Loop
+		Thin:
+			BLSH A 1 Bright A_SetAngle(angle + 3)
+			TNT1 A 0 A_FadeOut(0.12)
+		Loop
+	}
+}
+
+// The warm bloom at the chest as the halo lands.
+Actor Spell_Blessing_Bloom : Spell_HolyLight_Flare {
+	Scale 0.45
+}

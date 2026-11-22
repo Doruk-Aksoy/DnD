@@ -1,0 +1,216 @@
+// Disintegrate's looks (acs: "DnD Disintegrate Beam/Burn/Hop FX"; the cast bar's and the channel's player attachments).
+
+// The wind-up: a player attachment (DnD_Attachments.h) held through the cast bar, an orb growing at the hands with
+// motes spiralling in across the view; it pops as the bar ends.
+Actor DnD_DisintegrateActive : DnD_Boolean {}
+
+Actor Spell_Disintegrate_FXSpawner : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 1 ACS_NamedExecuteWithResult("DnD Spawn Player Aura", PLAYERFX_DISINTEGRATE)
+		Stop
+	}
+}
+
+Actor Spell_DisintegrateFX : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.05
+	var int user_n;
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_JumpIfInTargetInventory("DnD_DisintegrateActive", 1, "Grow")
+		Stop
+		Grow:
+			DGOR A 1 Bright A_Warp(AAPTR_TARGET, ACS_NamedExecuteWithResult("DnD Disintegrate Hands", 24, 0) / 65536.0, 0, ACS_NamedExecuteWithResult("DnD Disintegrate Hands", 24, 1) / 65536.0, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_JumpIf(scalex >= 0.18, "Motes")
+			TNT1 A 0 A_SetScale(scalex + 0.003)
+		Motes:
+			TNT1 A 0 A_SetUserVar("user_n", user_n + 1)
+			TNT1 A 0 A_JumpIf(user_n % 2, "Check")
+			TNT1 A 0 A_SpawnItemEx("Spell_Disintegrate_InMote", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+		Check:
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_DisintegrateActive", 1, "Grow")
+		Pop:
+			DGOR A 1 Bright A_SetScale(scalex + 0.04)
+			TNT1 A 0 A_FadeOut(0.35)
+		Loop
+	}
+}
+
+// A mote spiralling in to the orb across the caster's view (never toward the eye): 9 out, in over 12 tics.
+Actor Spell_Disintegrate_InMote : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.25
+	var int user_a;
+	var int user_n;
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_SetUserVar("user_a", random(0, 359))
+			TNT1 A 0 A_Warp(AAPTR_DEFAULT, frandom(-1, 1), -9 * cos(user_a), 9 * sin(user_a), 0, WARPF_NOCHECKPOSITION)
+		Spiral:
+			DGMT A 1 Bright A_ChangeVelocity(0, -cos(user_a) * 0.7 - sin(user_a) * 0.8, -sin(user_a) * 0.7 + cos(user_a) * 0.8, CVF_REPLACE | CVF_RELATIVE)
+			TNT1 A 0 A_SetUserVar("user_a", user_a + 25)
+			TNT1 A 0 A_SetUserVar("user_n", user_n + 1)
+			TNT1 A 0 A_JumpIf(user_n < 12, "Spiral")
+		Stop
+	}
+}
+
+// The channel: a player attachment held while it lasts, the arcane circle (DGRING.md3, DisintOrigin.fp) at the hands
+// across the aim; it opens as the channel starts and fades as it lets go.
+Actor DnD_DisintegrateRayActive : DnD_Boolean {}
+
+Actor Spell_DisintegrateRay_FXSpawner : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 1 ACS_NamedExecuteWithResult("DnD Spawn Player Aura", PLAYERFX_DISINTEGRATERAY)
+		Stop
+	}
+}
+
+Actor Spell_DisintegrateRayFX : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Add
+	Alpha 0.75
+	Scale 0.4
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_JumpIfInTargetInventory("DnD_DisintegrateRayActive", 1, "Start")
+		Stop
+		Start:
+			DGRG A 0 Bright A_SpawnItemEx("Spell_Disintegrate_HeldRay", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERPOINTERS)
+		Open:
+			DGRG A 1 Bright A_Warp(AAPTR_TARGET, ACS_NamedExecuteWithResult("DnD Disintegrate Hands", 27, 0) / 65536.0, 0, ACS_NamedExecuteWithResult("DnD Disintegrate Hands", 27, 1) / 65536.0, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			DGRG A 0 Bright A_SetPitch(ACS_NamedExecuteWithResult("DnD Disintegrate Ring Pitch") / 65536.0)
+			DGRG A 0 Bright A_SetScale(scalex + 0.15)
+			DGRG A 0 Bright A_JumpIf(scalex < 0.95, "Open")
+			DGRG A 0 Bright A_SetScale(1.0)
+		Hold:
+			DGRG A 1 Bright A_Warp(AAPTR_TARGET, ACS_NamedExecuteWithResult("DnD Disintegrate Hands", 27, 0) / 65536.0, 0, ACS_NamedExecuteWithResult("DnD Disintegrate Hands", 27, 1) / 65536.0, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			DGRG A 0 Bright A_SetPitch(ACS_NamedExecuteWithResult("DnD Disintegrate Ring Pitch") / 65536.0)
+			DGRG A 0 Bright A_JumpIfInTargetInventory("DnD_DisintegrateRayActive", 1, "Hold")
+		Fade:
+			DGRG A 1 Bright A_Warp(AAPTR_TARGET, ACS_NamedExecuteWithResult("DnD Disintegrate Hands", 27, 0) / 65536.0, 0, ACS_NamedExecuteWithResult("DnD Disintegrate Hands", 27, 1) / 65536.0, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			DGRG A 0 Bright A_SetPitch(ACS_NamedExecuteWithResult("DnD Disintegrate Ring Pitch") / 65536.0)
+			DGRG A 0 Bright A_FadeOut(0.12)
+		Loop
+	}
+}
+
+// The ray held through the channel, spawned by the circle: at the hands along the aim every tic (DGBEAM on FORKBEAM.md3);
+// each pulse sets its length and intensity ("DnD Disintegrate Beam FX"), found by its caster's ray tid.
+Actor Spell_Disintegrate_HeldRay : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Add
+	Alpha 0
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Disintegrate Held Ray"), "Hold")
+		Stop
+		Hold:
+			DGBM A 1 Bright A_Warp(AAPTR_TARGET, ACS_NamedExecuteWithResult("DnD Disintegrate Hands", 24, 0) / 65536.0, 0, ACS_NamedExecuteWithResult("DnD Disintegrate Hands", 24, 1) / 65536.0, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			DGBM A 0 Bright A_SetPitch(ACS_NamedExecuteWithResult("DnD Disintegrate Ring Pitch") / 65536.0)
+			DGBM A 0 Bright A_JumpIfInTargetInventory("DnD_DisintegrateRayActive", 1, "Hold")
+		Fade:
+			DGBM A 1 Bright A_Warp(AAPTR_TARGET, ACS_NamedExecuteWithResult("DnD Disintegrate Hands", 24, 0) / 65536.0, 0, ACS_NamedExecuteWithResult("DnD Disintegrate Hands", 24, 1) / 65536.0, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			DGBM A 0 Bright A_SetPitch(ACS_NamedExecuteWithResult("DnD Disintegrate Ring Pitch") / 65536.0)
+			DGBM A 0 Bright A_FadeOut(0.15)
+		Loop
+	}
+}
+
+// Each pulse: the circle throbs, a copy drawn a little larger settling onto it as it fades; alpha is the intensity.
+Actor Spell_Disintegrate_Kick : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Add
+	Alpha 1.0
+	Scale 1.2
+	States {
+		Spawn:
+			DGRG A 1 Bright
+		Settle:
+			DGRG A 1 Bright A_SetScale(scalex - 0.05)
+			DGRG A 0 Bright A_FadeOut(0.2)
+		Loop
+	}
+}
+
+// The ray: DGBEAM on FORKBEAM.md3 (DisintBeam.fp), stretched from the hands to its end, alpha the intensity (0.5 to 1).
+Actor Spell_Disintegrate_Beam : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Add
+	Alpha 0.5
+	States {
+		Spawn:
+			DGBM A 10 Bright
+		Stop
+	}
+}
+
+// Where the ray ends, every pulse: a flare.
+Actor Spell_Disintegrate_Tip : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Add
+	Alpha 1.0
+	Scale 0.4
+	States {
+		Spawn:
+			DGTP A 1 Bright A_SetScale(0.55)
+			DGTP A 1 Bright A_SetScale(0.6)
+		Fade:
+			DGTP A 1 Bright A_SetScale(scalex * 0.9)
+			TNT1 A 0 A_FadeOut(0.2)
+		Loop
+	}
+}
+
+// One pulse on an enemy in the ray (its middle): ash flakes peeling off and drifting up, violet sparks.
+Actor Spell_Disintegrate_Burn : DnD_SpecialFX {
+	+NOGRAVITY
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_SpawnItemEx("Spell_Disintegrate_Ash", frandom(0, 14), 0, frandom(-16, 16), frandom(0.3, 1.0), 0, frandom(0.6, 1.4), random(0, 359), SXF_NOCHECKPOSITION)
+			TNT1 A 0 A_SpawnItemEx("Spell_Disintegrate_Ash", frandom(0, 14), 0, frandom(-16, 16), frandom(0.3, 1.0), 0, frandom(0.6, 1.4), random(0, 359), SXF_NOCHECKPOSITION)
+			TNT1 A 0 A_SpawnItemEx("Spell_Disintegrate_Ash", frandom(0, 14), 0, frandom(-16, 16), frandom(0.3, 1.0), 0, frandom(0.6, 1.4), random(0, 359), SXF_NOCHECKPOSITION)
+			TNT1 A 0 A_SpawnItemEx("Spell_Disintegrate_Spark", frandom(0, 10), 0, frandom(-10, 10), frandom(1.0, 2.5), 0, frandom(0.5, 2.0), random(0, 359), SXF_NOCHECKPOSITION)
+			TNT1 A 0 A_SpawnItemEx("Spell_Disintegrate_Spark", frandom(0, 10), 0, frandom(-10, 10), frandom(1.0, 2.5), 0, frandom(0.5, 2.0), random(0, 359), SXF_NOCHECKPOSITION)
+			TNT1 A 0 A_SpawnItemEx("Spell_Disintegrate_Spark", frandom(0, 10), 0, frandom(-10, 10), frandom(1.0, 2.5), 0, frandom(0.5, 2.0), random(0, 359), SXF_NOCHECKPOSITION)
+		Stop
+	}
+}
+
+Actor Spell_Disintegrate_Ash : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Translucent
+	Alpha 0.95
+	Scale 0.45
+	States {
+		Spawn:
+			DGAS ABCDABCD 3
+		Fade:
+			DGAS ABCD 3 A_FadeOut(0.1)
+		Loop
+	}
+}
+
+Actor Spell_Disintegrate_Spark : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 1.0
+	Scale 0.4
+	Gravity 0.2
+	States {
+		Spawn:
+			TNT1 A 0
+			DGMT A 1 Bright A_ChangeFlag("NOGRAVITY", 0)
+		Fly:
+			DGMT A 1 Bright A_FadeOut(0.06)
+		Loop
+	}
+}

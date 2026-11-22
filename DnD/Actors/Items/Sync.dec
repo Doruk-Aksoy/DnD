@@ -133,6 +133,15 @@ Actor P_OverchargeCharges : Ammo {
 	+IGNORESKILL
 }
 
+// Retribution's stored stacks, for the hotbar to draw on its icon.
+Actor P_RetributionStacks : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
 // Crackling Lance's intensity stacks, for the hotbar to draw on its icon.
 Actor P_LanceStacks : Ammo {
 	inventory.amount 1

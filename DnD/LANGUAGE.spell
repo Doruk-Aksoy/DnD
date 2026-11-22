@@ -147,6 +147,48 @@ DND_SPLNAME195		=	"Vampirism";
 DND_SPLNAME196		=	"Soul Siphon";
 DND_SPLNAME197		=	"Desecrate";
 
+// Arcane
+DND_SPLNAME200		=	"Arcane Bolt";
+DND_SPLNAME201		=	"Holy Light";
+DND_SPLNAME202		=	"Blessing";
+DND_SPLNAME203		=	"Power Globe";
+DND_SPLNAME204		=	"Spectral Blades";
+DND_SPLNAME205		=	"Death Seeker";
+DND_SPLNAME206		=	"Purify";
+DND_SPLNAME207		=	"Invigorate";
+DND_SPLNAME208		=	"Might";
+DND_SPLNAME209		=	"Mana Burn";
+DND_SPLNAME210		=	"Disintegrate";
+DND_SPLNAME211		=	"Shadow Split";
+DND_SPLNAME212		=	"Summon: Familiar";
+DND_SPLNAME213		=	"Arcane Trap";
+DND_SPLNAME214		=	"Divine Judgement";
+DND_SPLNAME215		=	"Purge";
+DND_SPLNAME216		=	"Enchant Weapon";
+DND_SPLNAME217		=	"Holy Prayers";
+DND_SPLNAME218		=	"Blessed Aim";
+DND_SPLNAME219		=	"Purity of Elements";
+DND_SPLNAME220		=	"Arcanery";
+DND_SPLNAME221		=	"Arcane Comet";
+DND_SPLNAME222		=	"Arcane Barrage";
+DND_SPLNAME223		=	"Shadow Twin";
+DND_SPLNAME224		=	"Temporal Rift";
+DND_SPLNAME225		=	"Energized Armor";
+DND_SPLNAME226		=	"Ethereal Body";
+DND_SPLNAME227		=	"Salvation";
+DND_SPLNAME228		=	"Summon: Angel";
+DND_SPLNAME229		=	"Holy Wrath";
+DND_SPLNAME230		=	"Empowering Faith";
+DND_SPLNAME231		=	"Iron Maiden";
+DND_SPLNAME232		=	"Conviction";
+DND_SPLNAME233		=	"Ascension";
+DND_SPLNAME234		=	"Summon: Avenger";
+DND_SPLNAME235		=	"Defiance";
+DND_SPLNAME236		=	"Divine Shield";
+DND_SPLNAME237		=	"Righteous Cause";
+DND_SPLNAME238		=	"Haste";
+DND_SPLNAME239		=	"Retribution";
+
 
 // Hover text, straight from the design docs. Positional like the names above.
 //
@@ -894,6 +936,248 @@ DND_SPLPER197   = "+2 seconds duration, +7 corpse level, +16 range. Every 3 rank
 DND_SPLR5_197   = "Enemies near your desecrated corpses cannot regenerate life.";
 DND_SPLR10_197  = "The corpses are Hell Knights and Barons, mostly Hell Knights.";
 
+// ================= ARCANE =================
+
+// Arcane Bolt
+DND_SPLDESC200  = "Fire a bolt of arcane energy at the nearest enemy within 512 units, dealing 80 magic damage. Enemies hit take 15% more damage from Arcane spells for 5 seconds.";
+DND_SPLPER200   = "Every even rank adds a target.";
+DND_SPLR5_200   = "Each enemy hit has a 10% chance to grant a Power Charge.";
+DND_SPLR10_200  = "30% chance to launch another set of bolts.";
+
+// Holy Light
+DND_SPLDESC201  = "Fire a beam of holy light. An ally hit is healed for 50; an enemy hit takes 50 magic damage, doubled against undead and demons. Aimed at the ground beneath your feet, it heals you.";
+DND_SPLPER201   = "+25 healing.";
+DND_SPLR5_201   = "Stuns undead and demons hit for 2 seconds.";
+DND_SPLR10_201  = "Also heals 5% of the target's maximum health.";
+
+// Blessing
+DND_SPLDESC202  = "Heal yourself or a target ally for 10% of their missing health.";
+DND_SPLPER202   = "+1% of missing health healed.";
+DND_SPLR5_202   = "Heals everyone within 128 units of the target.";
+DND_SPLR10_202  = "Healing can overfill health by up to 25% of maximum health.";
+
+// Power Globe
+DND_SPLDESC203  = "Hurl a globe of pure energy that passes through enemies and explodes on walls. Cast again to detonate it, or it detonates by itself after 3 seconds, dealing 200 magic damage in a 160 unit radius. Enemies it slays grant a Power Charge.";
+DND_SPLPER203   = "";
+DND_SPLR5_203   = "The globe bounces off surfaces up to 4 times before detonating.";
+DND_SPLR10_203  = "Pulls enemies within 1.25 times the radius in before exploding, and slows them by 25% for 5 seconds.";
+
+// Spectral Blades
+DND_SPLDESC204  = "Summon six blades of energy that surge up to 144 units forward, ripping through enemies for 24 magic damage each, up to 8 times. Each blade flies at a random angle and cuts only along its edge.";
+DND_SPLPER204   = "+1 rip count every two ranks, +1 blade every third rank.";
+DND_SPLR5_204   = "Blades travel 25% farther.";
+DND_SPLR10_204  = "Blades become 20% wider.";
+
+// Death Seeker
+DND_SPLDESC205  = "Cast a homing bolt of light that hunts down undead and magical enemies, dealing 300 magic damage to them.";
+DND_SPLPER205   = "";
+DND_SPLR5_205   = "Enemies hit have a 25% chance to be silenced for 5 seconds.";
+DND_SPLR10_205  = "Enemies it slays rest in peace.";
+
+// Purify
+DND_SPLDESC206  = "Target an ally or a demon. An ally is cleansed of all ailments and curses; a demon takes 200 magic damage.";
+DND_SPLPER206   = "";
+DND_SPLR5_206   = "Demons hit have a 50% chance to be stunned for 2.5 seconds.";
+DND_SPLR10_206  = "Cleansed allies gain 50% movement speed for 1.5 seconds.";
+
+// Invigorate
+DND_SPLDESC207  = "Increase the life regeneration, armor rating and mana regeneration of yourself or a target ally by 25% for 5 seconds. Costs no mana.";
+DND_SPLPER207   = "+2.5% to each increase.";
+DND_SPLR5_207   = "+5 seconds duration.";
+DND_SPLR10_207  = "Also affects players within 192 units of the target.";
+
+// Might
+DND_SPLDESC208  = "Aura. You and allies within 256 units gain 10% of melee attack damage as extra magic damage.";
+DND_SPLPER208   = "+0.75% damage gained.";
+DND_SPLR5_208   = "+128 radius.";
+DND_SPLR10_208  = "Applies to every attack of a melee weapon.";
+
+// Mana Burn
+DND_SPLDESC209  = "Release an arcane bolt of lightning at the target enemy, dealing 100 magic damage plus 8% of your maximum mana.";
+DND_SPLPER209   = "+0.2% of maximum mana as damage.";
+DND_SPLR5_209   = "Hitting an enemy that can cast spells recovers the mana spent over 4 seconds.";
+DND_SPLR10_209  = "The enemy hit is silenced for 2.5 seconds.";
+
+// Disintegrate
+DND_SPLDESC210  = "Channel a ray of destruction from your hands, dealing 75 magic damage every 0.25 seconds along a 160 unit line. Costs mana every 0.25 seconds; the cooldown starts when the channel stops.";
+DND_SPLPER210   = "+12 beam length.";
+DND_SPLR5_210   = "Costs half the mana while you stand still.";
+DND_SPLR10_210  = "Deals 10% more damage for each second channelled, up to 100%.";
+
+// Shadow Split
+DND_SPLDESC211  = "Project a shadow image of yourself that wanders in random directions and taunts nearby enemies to attack it. It has 30% of your maximum life and lasts 10 seconds. Counts as a minion.";
+DND_SPLPER211   = "+2% of your maximum life.";
+DND_SPLR5_211   = "+10 seconds duration.";
+DND_SPLR10_211  = "The clone explodes when it dies or expires, dealing 25% of its maximum life as magic damage in a 192 unit radius.";
+
+// Summon: Familiar
+DND_SPLDESC212  = "Summon a familiar that flies over your shoulder and attacks nearby enemies on its own, firing projectiles that deal 60 magic damage in quick succession. It cannot be attacked. Lasts 10 seconds.";
+DND_SPLPER212   = "+30 projectile damage, +1 second duration.";
+DND_SPLR5_212   = "Projectiles explode in a 64 unit radius for half damage.";
+DND_SPLR10_212  = "Projectiles cannot be deflected and ignore shields.";
+
+// Arcane Trap
+DND_SPLDESC213  = "Place a magical trap where you stand. Alone it is a proximity mine dealing 300 magic damage in a 144 unit radius. Traps 96 to 256 units apart link, and their links are trip-wires. When one goes off, the rest follow 0.25 seconds apart, and linked traps open a black hole at their centre that pulls enemies in and deals 150 magic damage per trap. Traps last 30 seconds, 4 at most.";
+DND_SPLPER213   = "+4.8 longest link.";
+DND_SPLR5_213   = "+1 trap.";
+DND_SPLR10_213  = "Traps last 15 seconds longer. +1 trap.";
+
+// Divine Judgement
+DND_SPLDESC214  = "Call a holy sword of justice down from the sky on the target spot, dealing 300 magic damage in a 192 unit radius. This damage can inflict bleeding. Shortly after it lands, 8 Holy Lights burst from it in every direction.";
+DND_SPLPER214   = "+12 unit radius.";
+DND_SPLR5_214   = "Enemies within 80 units of the middle take 50% more damage and always bleed.";
+DND_SPLR10_214  = "The sword's strike ignores immunities and shields.";
+
+// Purge
+DND_SPLDESC215  = "Launch a magical tendril at an organic enemy within 512 units, dealing 180 magic damage. Demons hit are stunned for 2.5 seconds, undead are silenced for 2.5 seconds. It chains to 3 more organic enemies within 192 units.";
+DND_SPLPER215   = "+1 chain every even rank.";
+DND_SPLR5_215   = "Deals 25% more damage each time it chains.";
+DND_SPLR10_215  = "It can also chain to hurt allies or you, healing for 60% of the damage it would deal.";
+
+// Enchant Weapon
+DND_SPLDESC216  = "Enchant your weapon or a target ally's: weapon base damage is increased by 30% for 8 seconds.";
+DND_SPLPER216   = "+0.5 seconds duration.";
+DND_SPLR5_216   = "+7 seconds duration.";
+DND_SPLR10_216  = "The weapon converts 50% of its damage to energy and gains +20 energy pierce.";
+
+// Holy Prayers
+DND_SPLDESC217  = "Aura. You and allies within 256 units gain +10 life regeneration. Each being healed costs 5 mana, and that cost cannot be reduced.";
+DND_SPLPER217   = "+2.5 life regeneration.";
+DND_SPLR5_217   = "Also regenerate 1% of maximum life.";
+DND_SPLR10_217  = "Each being healed costs 3 mana.";
+
+// Blessed Aim
+DND_SPLDESC218  = "Aura. Non-magical ranged attacks of you and allies within 256 units deal 15% more damage and gain 10% more accuracy rating.";
+DND_SPLPER218   = "+1.5% more damage, +1% more accuracy rating.";
+DND_SPLR5_218   = "Radius becomes 384.";
+DND_SPLR10_218  = "Affected ranged attacks gain +1.5% critical strike chance.";
+
+// Purity of Elements
+DND_SPLDESC219  = "Aura. Elemental damage of you and allies within 256 units is 15% more.";
+DND_SPLPER219   = "+1.5% more damage.";
+DND_SPLR5_219   = "Affected elemental damage gains +10% chance to inflict its ailment.";
+DND_SPLR10_219  = "Also grants +10 elemental pierce.";
+
+// Arcanery
+DND_SPLDESC220  = "Aura. Magical attacks and spells of you and allies within 256 units deal 15% more damage, and cooldowns recover 15% faster.";
+DND_SPLPER220   = "+1.5% more damage, +0.5% cooldown recovery rate.";
+DND_SPLR5_220   = "Also grants 10% spell haste.";
+DND_SPLR10_220  = "Radius is doubled.";
+
+// Arcane Comet
+DND_SPLDESC221  = "Mark a spot up to 1024 units away; after a brief delay a comet of immense arcane power falls on it, dealing 750 magic damage in a 224 unit radius. Half a second later the impact zone burns for 5 seconds, dealing 100 magic damage every 0.25 seconds.";
+DND_SPLPER221   = "-1 second cooldown.";
+DND_SPLR5_221   = "Enemies in the burning zone lose 5 to all resistances every second, up to 25.";
+DND_SPLR10_221  = "The burning zone lasts 4 seconds longer.";
+
+// Arcane Barrage
+DND_SPLDESC222  = "Channel for up to 5 seconds, storing three missiles every second. When you let go, the missiles fly upward unpredictably, about five every 0.3 seconds, then converge on where you point, each dealing 160 magic damage in an 80 unit radius. Costs mana every 0.5 seconds channelled.";
+DND_SPLPER222   = "";
+DND_SPLR5_222   = "Missiles cannot be deflected and ignore shields.";
+DND_SPLR10_222  = "Missiles pierce 25% of the enemy's magic resistance.";
+
+// Shadow Twin
+DND_SPLDESC223  = "Summon a shadow twin of yourself sharing your life, resistances and the weapon you held when you cast it, which it fires every few seconds. It deals 50% less damage and loses 5% of its life every second, fading when its life runs out.";
+DND_SPLPER223   = "-3 seconds cooldown.";
+DND_SPLR5_223   = "Loses 3% of its life every second instead.";
+DND_SPLR10_223  = "Deals only 35% less damage, and has a 20% chance to cast a spell from your hotbar instead of attacking.";
+
+// Temporal Rift
+DND_SPLDESC224  = "Reserve mana for a buff that remembers your life, mana, energy shield and position over the last 4 seconds. Cast again to travel back through time to that spot with those values. Spell haste never shortens its cast.";
+DND_SPLPER224   = "-2 seconds cooldown.";
+DND_SPLR5_224   = "Also puts your buffs and curses back as they were: gained since gone, lost since back, each with the time it had then.";
+DND_SPLR10_224  = "Also puts the cooldowns of your other spells back as they were, ready or not.";
+
+// Energized Armor
+DND_SPLDESC225  = "Imbue your armor or a target ally's for 10 seconds: it counts as fully negating magic damage and has 15% more armor rating. When it ends, it explodes in a 192 unit radius for 100 magic damage plus 2.5 times the target's armor.";
+DND_SPLPER225   = "+0.5% more armor rating.";
+DND_SPLR5_225   = "Lasts 5 seconds longer.";
+DND_SPLR10_225  = "Grants maximum energy shield equal to 20% of the armor rating while it lasts.";
+
+// Ethereal Body
+DND_SPLDESC226  = "Turn into a ghost for 20 seconds, letting most non-magical projectiles pass through you.";
+DND_SPLPER226   = "+1.5 seconds duration.";
+DND_SPLR5_226   = "100% increased mana regeneration while active.";
+DND_SPLR10_226  = "20% more movement speed while in this form.";
+
+// Salvation
+DND_SPLDESC227  = "Echo a holy prayer for 10 seconds that redeems enemy corpses within 512 units: each has a 25% chance a second to be redeemed and vanish, and you recover 5% of your life and energy shield over 4 seconds for each. 10 corpses at most.";
+DND_SPLPER227   = "+1.5% redeem chance, +0.25 seconds duration.";
+DND_SPLR5_227   = "+5 corpses at most.";
+DND_SPLR10_227  = "Allies within 192 units recover the same life and energy shield.";
+
+// Summon: Angel
+DND_SPLDESC228  = "Summon an angel from the heavens with 875 health. It casts Blessing on injured allies, can cast Death Seeker and Purge, and its melee deals 100 magic damage that splashes within 96 units. It stays until slain, but each time you are hurt it loses 0.5% of its maximum health plus 10% of the damage you took. Takes three pet slots.";
+DND_SPLPER228   = "+300 health, +50 melee damage.";
+DND_SPLR5_228   = "The angel can fly.";
+DND_SPLR10_228  = "The angel carries a random aura you have learned.";
+
+// Holy Wrath
+DND_SPLDESC229  = "Project an image of yourself to the target spot, dealing 250 magic damage plus 5% of your maximum life to enemies near it. The image then bursts into light, blinding nearby enemies for 5 seconds.";
+DND_SPLPER229   = "+0.5% of maximum life as damage.";
+DND_SPLR5_229   = "The burst stuns instead of blinding.";
+DND_SPLR10_229  = "The image glides slowly to the spot, dealing its damage once to each enemy it passes through, on top of the burst at the end.";
+
+// Empowering Faith
+DND_SPLDESC230  = "Aura. You and allies within 160 units gain +40 energy shield and 25% faster energy shield recharge.";
+DND_SPLPER230   = "+24 energy shield, +1% faster recharge.";
+DND_SPLR5_230   = "+96 radius.";
+DND_SPLR10_230  = "Also grants 8% more energy shield.";
+
+// Iron Maiden
+DND_SPLDESC231  = "Aura. Any enemy that damages you or allies within 256 units takes 50 magic damage back.";
+DND_SPLPER231   = "";
+DND_SPLR5_231   = "Returned damage adds 0.5% of the attacker's maximum health.";
+DND_SPLR10_231  = "Returned damage has a 15% chance to stun for 1.5 seconds, at most once every 4 seconds.";
+
+// Conviction
+DND_SPLDESC232  = "Aura. Every 4 seconds, enemies within 192 units are marked, exposed to energy and magic damage. A hit of energy or magic damage from you or an ally consumes the mark, deals 20% more damage and sets off a magical explosion of 250 damage within 96 units.";
+DND_SPLPER232   = "+16 radius.";
+DND_SPLR5_232   = "The consuming hit deals 33% more damage.";
+DND_SPLR10_232  = "The mark also gives -15 to the resistance of the consuming hit's damage type for 5 seconds.";
+
+// Ascension
+DND_SPLDESC233  = "Ascend to a form of pure magic for 10 seconds. All damage you take is converted to magic damage, and your spells are 25% more potent and cost 25% less mana.";
+DND_SPLPER233   = "+2 seconds duration, -5 mana cost.";
+DND_SPLR5_233   = "Also grants 25% more spell haste for other spells.";
+DND_SPLR10_233  = "Each kill while ascended recovers 0.5% to 1.5% of Ascension's cooldown.";
+
+// Summon: Avenger
+DND_SPLDESC234  = "Summon a holy spirit for 60 seconds with 1000 health and 1500 fortification, which fully recovers 15 seconds after it breaks. It melees for 300 damage and throws a ripping spear that deals 200 damage. If a monster drops you below 50% health, the Avenger enrages: 50% haste, hunting that monster alone until it dies. Enrage has a 40 second cooldown. Takes three pet slots.";
+DND_SPLPER234   = "+250 health, +300 fortification, +150 melee damage, +100 spear damage.";
+DND_SPLR5_234   = "Slaying the monster it enraged at heals you for 15% of your missing health.";
+DND_SPLR10_234  = "Each time its fortification breaks, it deals 400 magic damage within 160 units, and you recover 2% of your energy shield over 4 seconds for each enemy hit.";
+
+// Defiance
+DND_SPLDESC235  = "Store the damage your spells deal, up to 2500. Channel for 2.5 seconds to release it around you as a nova of holy light and darkness: five holy and five dark projectiles that travel for 3 seconds, each carrying 30% of the stored damage. Holy projectiles also heal allies as Holy Light would, at 30% of the effect. Dark projectiles can hurt any organic enemy.";
+DND_SPLPER235   = "+1000 damage stored.";
+DND_SPLR5_235   = "The channel takes only 1 second.";
+DND_SPLR10_235  = "The projectiles rip through enemies.";
+
+// Divine Shield
+DND_SPLDESC236  = "Raise a bubble of holy light with a 192 unit radius around you that absorbs enemy projectiles with its own barrier of 1500 health, taking 20% more damage from magic. It lasts up to 10 seconds. You and allies can shoot out through it.";
+DND_SPLPER236   = "+250 bubble health, +1 second duration, +8 radius.";
+DND_SPLR5_236   = "+128 radius.";
+DND_SPLR10_236  = "Consecrates the ground inside: you and allies in it regenerate 2% of life a second, and curses expire 60% faster.";
+
+// Righteous Cause
+DND_SPLDESC237  = "Inspire allies within 256 units, increasing their STR, DEX and INT by 33% for 18 seconds. Cannot affect you.";
+DND_SPLPER237   = "+16 radius.";
+DND_SPLR5_237   = "The stat increase becomes 60%.";
+DND_SPLR10_237  = "Lasts 30 seconds.";
+
+// Haste
+DND_SPLDESC238  = "Aura. You and allies within 192 units gain 20% more movement speed and spell haste.";
+DND_SPLPER238   = "+16 radius.";
+DND_SPLR5_238   = "Enemies in the radius are slowed by the same amount.";
+DND_SPLR10_238  = "Radius is doubled.";
+
+// Retribution
+DND_SPLDESC239  = "Gain a stack every 15 seconds, up to 10, recovering faster with cooldown recovery rate. Cast to spend every stack on a holy hammer dealing 200 magic damage that rips through enemies. Hammers last 10 seconds, orbiting you while swinging outward and back.";
+DND_SPLPER239   = "";
+DND_SPLR5_239   = "Holds up to 20 stacks.";
+DND_SPLR10_239  = "Hammers returning to you recover a third of a stack's time instead.";
+
 
 // Field names for the synergy lines the panel builds from SpellSynergies. Positional on SPELLVAL_*.
 DND_SPLFIELD0   = "damage";
@@ -931,8 +1215,21 @@ DND_SPLFIELD_SOULS = "souls per target";
 DND_SPLFIELD_MINIONLIFE = "% of minion life";
 DND_SPLFIELD_LEECH = "% leech";
 DND_SPLFIELD_SLOW = "% slow";
+DND_SPLFIELD_BOLTS = "bolts";
+DND_SPLFIELD_HEALING = "healing";
+DND_SPLFIELD_MAXMANA = "% of maximum mana as damage";
+DND_SPLFIELD_LENGTH = "beam length";
+DND_SPLFIELD_CLONEHP = "% of your life as clone health";
+DND_SPLFIELD_DECAY = "% of life lost a second";
+DND_SPLFIELD_BLACKHOLE = "black hole damage per trap";
+DND_SPLFIELD_LINK = "longest link";
+DND_SPLFIELD_CHAINS = "chains";
+DND_SPLFIELD_BURN = "burning zone damage";
+DND_SPLFIELD_EXPLOSION = "explosion damage";
+DND_SPLFIELD_STORE = "damage stored";
 DND_SPLNOCORPSE = "No organic corpse in reach";
 DND_SPLNOMINION = "No minion of yours in reach";
+DND_SPLNOSTACKS = "No stacks stored";
 
 DND_SPLPANEL_PERRANK   = "Per Rank:";
 DND_SPLPANEL_RANK5     = "Rank 5:";

@@ -78,8 +78,8 @@ int GetSpellCastTics(int pnum, int spell) {
 	if(ct <= 0)
 		return 0;
 
-	// Unleash Earth's 0.33 seconds before it starts concentrating take no haste.
-	if(spell == SPL_UNLEASHEARTH)
+	// Unleash Earth's 0.33 seconds before it starts concentrating, and Temporal Rift's, take no haste.
+	if(spell == SPL_UNLEASHEARTH || spell == SPL_TEMPORALRIFT)
 		return ct;
 
 	int haste = GetSpellHasteTenths(pnum, spell);
@@ -90,6 +90,11 @@ int GetSpellCastTics(int pnum, int spell) {
 	int more = GetSpellGemMod(pnum, spell, GEMSTAT_MORE_HASTE);
 	if(more)
 		ct = FixedDiv(ct, 1.0 + more);
+
+	// a buff's more haste (Haste), the same way; an unwritten slot reads 0, not 1.0
+	more = pbuffs[pnum].buff_net_values[BUFF_SPELLHASTE].multiplicative;
+	if(more > 1.0)
+		ct = FixedDiv(ct, more);
 
 	return Max(1, ct);
 }
@@ -135,9 +140,41 @@ int GetSpellCooldownLeft(int pnum, int spell) {
 }
 
 // Takes time off whichever charge the player is actually waiting on -- the one returning soonest.
+#define DND_RIFT_CDLOG 32                   // cooldown changes a running Temporal Rift remembers
+
+typedef struct {
+	int time[MAXPLAYERS][DND_RIFT_CDLOG];
+	int spell[MAXPLAYERS][DND_RIFT_CDLOG];
+	int at[MAXPLAYERS][DND_RIFT_CDLOG];
+	int atb[MAXPLAYERS][DND_RIFT_CDLOG];
+	int head[MAXPLAYERS];
+	int count[MAXPLAYERS];
+} riftcdlog_T;
+
+riftcdlog_T module& GetRiftCooldownLog() {
+	static riftcdlog_T s;
+	return s;
+}
+
+// A spell's cooldown about to change: while its owner's Temporal Rift runs, what it was is kept for rank 10's rewind.
+void NoteCooldownChange(int pnum, int spell) {
+	if(!IsSpellRunning(pnum, SPL_TEMPORALRIFT))
+		return;
+	riftcdlog_T module& h = GetRiftCooldownLog();
+	auto c = GetSpellCooldowns();
+	int i = h.head[pnum];
+	h.time[pnum][i] = Timer();
+	h.spell[pnum][i] = spell;
+	h.at[pnum][i] = c.at[pnum][spell];
+	h.atb[pnum][i] = c.atb[pnum][spell];
+	h.head[pnum] = (i + 1) % DND_RIFT_CDLOG;
+	h.count[pnum] = Min(h.count[pnum] + 1, DND_RIFT_CDLOG);
+}
+
 // Anything shortening a cooldown has to come through here rather than touching a lane directly, or
 // it silently only ever works on the first charge.
 void ReduceSpellCooldown(int pnum, int spell, int cut) {
+	NoteCooldownChange(pnum, spell);
 	auto c = GetSpellCooldowns();
 	int t = Timer();
 
@@ -150,6 +187,7 @@ void ReduceSpellCooldown(int pnum, int spell, int cut) {
 
 // Frees the charge that would come back LAST, so a spent pair gets one back at once and the other keeps running.
 void RecoverSpellCharge(int pnum, int spell) {
+	NoteCooldownChange(pnum, spell);
 	auto c = GetSpellCooldowns();
 	if(GetSpellMaxCharges(pnum, spell) > 1 && c.atb[pnum][spell] > c.at[pnum][spell])
 		c.atb[pnum][spell] = 0;
@@ -164,6 +202,7 @@ void RecoverSpellCharge(int pnum, int spell) {
 void StartSpellCooldown(int pnum, int spell, int extra_rate = 0) {
 	int cd = GetSpellCooldownTics(pnum, spell, extra_rate);
 	if(cd > 0) {
+		NoteCooldownChange(pnum, spell);
 		auto c = GetSpellCooldowns();
 		int t = Timer();
 
@@ -188,6 +227,7 @@ void HastenSpellCooldown(int pnum, int spell, int extra_rate) {
 	int cut = GetSpellCooldownTics(pnum, spell) - GetSpellCooldownTics(pnum, spell, extra_rate);
 	if(cut <= 0)
 		return;
+	NoteCooldownChange(pnum, spell);
 	GetSpellCooldowns().at[pnum][spell] -= cut;
 	SyncHotbarForSpell(pnum, spell);
 }
@@ -919,7 +959,8 @@ enum {
 	CAST_SILENCED,
 	CAST_NOROOM,
 	CAST_NOCORPSE,
-	CAST_NOMINION
+	CAST_NOMINION,
+	CAST_NOSTACKS
 };
 
 // "If a weapon is being fired, reloaded etc. the spell won't go off. Only when the weapon is idle."
@@ -969,6 +1010,8 @@ int CanCastSpell(int pnum, int spell, int cost_pct = 100) {
 		return CAST_NOCORPSE;
 	if(spell == SPL_DARKPACT && !(GetCorpseData().minion[pnum] = FindAimedMinion(pnum)))
 		return CAST_NOMINION;
+	if(spell == SPL_RETRIBUTION && !GetRetribution().stacks[pnum])
+		return CAST_NOSTACKS;
 
 	return CAST_OK;
 }
@@ -1034,6 +1077,14 @@ int TryCastSpell(int pnum, int spell) {
 		if(IsPlayerSilenced(pnum))
 			return CAST_SILENCED;
 		ACS_NamedExecuteAlways("DnD Soulstorm Steer", 0, pnum);
+		return CAST_OK;
+	}
+
+	// A Power Globe still flying takes the press as its detonation: free and past its own cooldown, but not past a silence.
+	if(spell == SPL_POWERGLOBE && GetPowerGlobeTid(pnum)) {
+		if(IsPlayerSilenced(pnum))
+			return CAST_SILENCED;
+		DetonatePowerGlobes(pnum);
 		return CAST_OK;
 	}
 

@@ -12,6 +12,23 @@ const int PLAYERFX_SHIVERINGARMOR = 7;
 const int PLAYERFX_WRATHAURA = 8;
 const int PLAYERFX_AGONYAURA = 9;
 const int PLAYERFX_VAMPIRISMAURA = 10;
+const int PLAYERFX_HOLYPRAYERSAURA = 11;
+const int PLAYERFX_EMPOWERINGFAITHAURA = 12;
+const int PLAYERFX_HASTEAURA = 13;
+const int PLAYERFX_PURITYAURA = 14;
+const int PLAYERFX_ARCANERYAURA = 15;
+const int PLAYERFX_MIGHTAURA = 16;
+const int PLAYERFX_BLESSEDAIMAURA = 17;
+const int PLAYERFX_IRONMAIDENAURA = 18;
+const int PLAYERFX_CONVICTIONAURA = 19;
+const int PLAYERFX_INVIGORATE = 20;
+const int PLAYERFX_ENCHANTWEAPON = 21;
+const int PLAYERFX_ENERGARMOR = 22;
+const int PLAYERFX_RIGHTEOUSCAUSE = 23;
+const int PLAYERFX_ASCENSION = 24;
+const int PLAYERFX_ETHEREAL = 25;
+const int PLAYERFX_DISINTEGRATE = 26;
+const int PLAYERFX_DISINTEGRATERAY = 27;
 // Mirrors DND_SPELL_THRESH_* in acs/Spells/DnD_SpellDefs.h.
 const int SPELLTHRESH_LOW = 5;
 const int SPELLTHRESH_HIGH = 10;
@@ -243,6 +260,36 @@ const int SPELLTHRESH_HIGH = 10;
 #include "Actors/Spells/Black/SoulSiphon.dec"
 #include "Actors/Spells/Black/GraveGrasp.dec"
 #include "Actors/Spells/Black/Vampirism.dec"
+
+#include "Actors/Spells/Arcane/ArcaneBolt.dec"
+#include "Actors/Spells/Arcane/HolyLight.dec"
+#include "Actors/Spells/Arcane/Blessing.dec"
+#include "Actors/Spells/Arcane/Purify.dec"
+#include "Actors/Spells/Arcane/Invigorate.dec"
+#include "Actors/Spells/Arcane/EnchantWeapon.dec"
+#include "Actors/Spells/Arcane/EnergizedArmor.dec"
+#include "Actors/Spells/Arcane/RighteousCause.dec"
+#include "Actors/Spells/Arcane/Ascension.dec"
+#include "Actors/Spells/Arcane/Ethereal.dec"
+#include "Actors/Spells/Arcane/ManaBurn.dec"
+#include "Actors/Spells/Arcane/Disintegrate.dec"
+#include "Actors/Spells/Arcane/ArcaneTrap.dec"
+#include "Actors/Spells/Arcane/PowerGlobe.dec"
+#include "Actors/Spells/Arcane/SpectralBlades.dec"
+#include "Actors/Spells/Arcane/DeathSeeker.dec"
+#include "Actors/Spells/Arcane/Auras.dec"
+#include "Actors/Spells/Arcane/Batch4.dec"
+#include "Actors/Spells/Arcane/Batch5.dec"
+#include "Actors/Spells/Arcane/Batch5b.dec"
+#include "Actors/Spells/Arcane/Batch6a.dec"
+#include "Actors/Spells/Arcane/Batch6b.dec"
+#include "Actors/Spells/Arcane/Batch6c.dec"
+#include "Actors/Spells/Arcane/DivineJudgement.dec"
+#include "Actors/Spells/Arcane/HolyWrath.dec"
+#include "Actors/Spells/Arcane/DivineShield.dec"
+#include "Actors/Spells/Arcane/Purge.dec"
+#include "Actors/Spells/Arcane/Salvation.dec"
+#include "Actors/Spells/Arcane/Defiance.dec"
 
 #include "Actors/Spells/AllyLock.dec"
 

@@ -937,7 +937,7 @@ Sprite "MGN4Y0", 9, 7
 
 Graphic "H_BGTLY1", 117, 22
 {
-	Patch "H_BGRAM1", 0, 0
+	Patch "H_BGRAM5", 0, 0
 	{
 		FlipX
 	}

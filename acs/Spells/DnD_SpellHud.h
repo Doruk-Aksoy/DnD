@@ -408,7 +408,7 @@ int GetHotbarSlotY() {
 		DND_HOTBAR_GAPY - DND_HOTBAR_LABELH - DND_HOTBAR_ICON;
 }
 
-// Crackling Lance's intensity, Overcharge's charges, Surgecast's seconds left, the Souls Soulstorm feeds on.
+// Crackling Lance's intensity, Overcharge's charges, Surgecast's seconds left, the Souls Soulstorm feeds on, Retribution's stacks.
 int GetHotbarBadge(int spell) {
 	switch(spell) {
 		case SPL_SOULSTORM: return CheckInventory("Souls");
@@ -418,6 +418,7 @@ int GetHotbarBadge(int spell) {
 		case SPL_BALEFULINFUSION: return CheckInventory("P_BalefulTime");
 		case SPL_ROCKARMOR: return CheckInventory("P_RockArmor");
 		case SPL_TELEKINESIS: return CheckInventory("P_TelekinesisTime");
+		case SPL_RETRIBUTION: return CheckInventory("P_RetributionStacks");
 	}
 	return 0;
 }
@@ -601,6 +602,90 @@ int GetManaBarY() {
 // true cap, and the part of it no aura is holding. The bar spans the TRUE cap end to end and draws the
 // reserved share as a dead tail on the right, so switching an aura on visibly eats the pool instead of
 // silently rescaling the bar under the player.
+// ---- The spell-buff strip: the owner's own buffs they cannot see on themselves, above the hotbar ----
+
+#define DND_SBUFF_SC 4          // 64 px icons in a 4x canvas: 16 stack units, a little under the hotbar's 21
+#define DND_SBUFF_ICON 16
+#define DND_SBUFF_GAP 3
+#define DND_SBUFF_LOW 105       // tics left when the frame brightens and the count turns red
+#define DND_SBUFF_SWEEPS 16     // BFSW01-16, the spent share darkened clockwise from 12 o'clock
+
+// A strip slot's icon: its spell's own, or the skill's.
+str GetSpellBuffStripIcon(int slot) {
+	switch(slot) {
+		case 0: return GetSpellIcon(SPL_ENERGIZEDARMOR, false);
+		case 1: return GetSpellIcon(SPL_INVIGORATE, false);
+		case 2: return GetSpellIcon(SPL_ENCHANTWEAPON, false);
+		case 3: return GetSpellIcon(SPL_ETHEREALBODY, false);
+		case 4: return GetSpellIcon(SPL_ASCENSION, false);
+		case 5: return GetSpellIcon(SPL_RIGHTEOUSCAUSE, false);
+		case 6: return GetSpellIcon(SPL_BOILINGBLOOD, false);
+		case 7: return GetSpellIcon(SPL_HEATSHIELD, false);
+		case 8: return GetSpellIcon(SPL_WARMTH, false);
+		case 9: return GetSpellIcon(SPL_SHIVERINGARMOR, false);
+		case 10: return GetSpellIcon(SPL_GALVANICSURGE, false);
+		case 11: return GetSpellIcon(SPL_VENOMGYRE, false);
+		case 12: return GetSpellIcon(SPL_BANISH, false);
+		case 13: return GetSpellIcon(SPL_PURIFY, false);
+		case 14: return "SK_RALLY";
+	}
+	return "SPLBACK";
+}
+
+// The client's own countdown per slot: a client's level clock starts when it joins, so the server's end time cannot be
+// compared with it. A changed end is a new cast (or a rewind): it runs its time left from the tic this client sees it.
+typedef struct {
+	int end[DND_SBUFF_SLOTS];
+	int local[DND_SBUFF_SLOTS];
+} sbuff_clock_T;
+
+sbuff_clock_T module& GetSpellBuffClock() {
+	static sbuff_clock_T s;
+	return s;
+}
+
+// Client side, each tic: the shown buffs right to left from the hotbar's right edge, each its spell's icon, the sweep,
+// a frame and its seconds left. Positioned on the stack canvas, so it follows hud_scale.
+void DrawSpellBuffStrip(void) {
+	int i, n = 0, left, dur, x, k, sc = DND_SBUFF_SC, now = Timer();
+	// over the hotbar's icons when it has any, else straight over the mana bar
+	int y = GetManaBarY() - DND_SBUFF_GAP - DND_SBUFF_ICON;
+	for(i = GetHotbarSlotCount(PlayerNumber()) - 1; i >= 0; --i)
+		if(CheckInventory(GetHotbarSlotItem(i))) {
+			y = GetHotbarSlotY() - DND_SBUFF_GAP - DND_SBUFF_ICON;
+			break;
+		}
+	for(i = 0; i < DND_SBUFF_SLOTS; ++i) {
+		dur = CheckInventory(StrParam(s:"DnD_SBuffDur", d:i));
+		k = CheckInventory(StrParam(s:"DnD_SBuffEnd", d:i));
+		if(k != GetSpellBuffClock().end[i]) {
+			GetSpellBuffClock().end[i] = k;
+			GetSpellBuffClock().local[i] = k ? now + Clamp_Between(CheckInventory(StrParam(s:"DnD_SBuffLeft", d:i)), 1, dur) : 0;
+		}
+		left = GetSpellBuffClock().local[i] - now;
+		if(dur <= 0 || left <= 0 || left > dur)
+			continue;
+		x = GetHudStack().right - DND_HOTBAR_MARGIN - (n + 1) * DND_SBUFF_ICON - n * DND_SBUFF_GAP;
+		++n;
+		SetHudSize(GetHudStack().w * sc, GetHudStack().h * sc, 0);
+		SetFont(GetSpellBuffStripIcon(i));
+		HudMessage(s:"A"; HUDMSG_PLAIN, SPELLBUFF_ICON_ID + i, CR_UNTRANSLATED, ((x * sc) << 16) + 0.1, ((y * sc) << 16) + 0.1, 0.1);
+		k = ((dur - left) * DND_SBUFF_SWEEPS + dur - 1) / dur;
+		if(k > 0) {
+			SetFont(StrParam(s:"BFSW", s:k < 10 ? "0" : "", d:k));
+			HudMessage(s:"A"; HUDMSG_PLAIN, SPELLBUFF_SWEEP_ID + i, CR_UNTRANSLATED, ((x * sc) << 16) + 0.1, ((y * sc) << 16) + 0.1, 0.1);
+		}
+		else
+			DeleteText(SPELLBUFF_SWEEP_ID + i);
+		SetFont(left <= DND_SBUFF_LOW ? "BUFFRMHI" : "BUFFRAME");
+		HudMessage(s:"A"; HUDMSG_PLAIN, SPELLBUFF_FRAME_ID + i, CR_UNTRANSLATED, ((x * sc - 2) << 16) + 0.1, ((y * sc - 2) << 16) + 0.1, 0.1);
+		SetHudSize(GetHudStack().w * 2, GetHudStack().h * 2, 0);
+		SetFont("SMALLFONT");
+		HudMessage(d:(left + TICRATE - 1) / TICRATE; HUDMSG_PLAIN, SPELLBUFF_TEXT_ID + i, left <= DND_SBUFF_LOW ? CR_RED : CR_WHITE,
+			(((x + DND_SBUFF_ICON) * 2 - 1) << 16) + 0.2, (((y + DND_SBUFF_ICON) * 2 - 1) << 16) + 0.2, 0.1);
+	}
+}
+
 void DrawManaBar(int pnum) {
 	// No pool (Blood Magic): its messages are persistent, so a bar drawn before has to be taken down.
 	spell_hud_drawn_T module& d = GetSpellHudDrawn();
@@ -902,7 +987,7 @@ Script "DnD Spell Refusal" (int pnum, int res) CLIENTSIDE {
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 0);
 	SetFont("SMALLFONT");
 	int y = DND_CASTBAR_TOP * DND_CASTBAR_CDEN / DND_CASTBAR_CNUM - DND_CASTBAR_LABEL - DND_CASTBAR_REFUSAL;
-	HudMessage(l:res == CAST_NOCORPSE ? "DND_SPLNOCORPSE" : "DND_SPLNOMINION"; HUDMSG_FADEOUT, CASTBAR_REFUSAL_ID, CR_RED,
+	HudMessage(l:res == CAST_NOCORPSE ? "DND_SPLNOCORPSE" : res == CAST_NOSTACKS ? "DND_SPLNOSTACKS" : "DND_SPLNOMINION"; HUDMSG_FADEOUT, CASTBAR_REFUSAL_ID, CR_RED,
 		((HUDMAX_X / 2) << 16) + 0.4, (y << 16) + 0.1, 1.5, 0.5);
 	SetResultValue(0);
 }

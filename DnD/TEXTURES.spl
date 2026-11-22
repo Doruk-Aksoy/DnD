@@ -961,6 +961,326 @@ Graphic "SP437G", 64, 64
 	}
 }
 
+Graphic "SP500G", 64, 64
+{
+	Patch "SP500", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP501G", 64, 64
+{
+	Patch "SP501", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP502G", 64, 64
+{
+	Patch "SP502", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP503G", 64, 64
+{
+	Patch "SP503", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP504G", 64, 64
+{
+	Patch "SP504", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP505G", 64, 64
+{
+	Patch "SP505", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP506G", 64, 64
+{
+	Patch "SP506", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP507G", 64, 64
+{
+	Patch "SP507", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP508G", 64, 64
+{
+	Patch "SP508", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP509G", 64, 64
+{
+	Patch "SP509", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP510G", 64, 64
+{
+	Patch "SP510", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP511G", 64, 64
+{
+	Patch "SP511", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP512G", 64, 64
+{
+	Patch "SP512", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP513G", 64, 64
+{
+	Patch "SP513", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP514G", 64, 64
+{
+	Patch "SP514", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP515G", 64, 64
+{
+	Patch "SP515", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP516G", 64, 64
+{
+	Patch "SP516", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP517G", 64, 64
+{
+	Patch "SP517", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP518G", 64, 64
+{
+	Patch "SP518", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP519G", 64, 64
+{
+	Patch "SP519", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP520G", 64, 64
+{
+	Patch "SP520", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP521G", 64, 64
+{
+	Patch "SP521", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP522G", 64, 64
+{
+	Patch "SP522", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP523G", 64, 64
+{
+	Patch "SP523", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP524G", 64, 64
+{
+	Patch "SP524", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP525G", 64, 64
+{
+	Patch "SP525", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP526G", 64, 64
+{
+	Patch "SP526", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP527G", 64, 64
+{
+	Patch "SP527", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP528G", 64, 64
+{
+	Patch "SP528", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP529G", 64, 64
+{
+	Patch "SP529", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP530G", 64, 64
+{
+	Patch "SP530", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP531G", 64, 64
+{
+	Patch "SP531", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP532G", 64, 64
+{
+	Patch "SP532", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP533G", 64, 64
+{
+	Patch "SP533", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP534G", 64, 64
+{
+	Patch "SP534", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP535G", 64, 64
+{
+	Patch "SP535", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP536G", 64, 64
+{
+	Patch "SP536", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP537G", 64, 64
+{
+	Patch "SP537", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP538G", 64, 64
+{
+	Patch "SP538", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
+Graphic "SP539G", 64, 64
+{
+	Patch "SP539", 0, 0
+	{
+		Translation Desaturate, 31
+	}
+}
+
 // The cast bar fill tinted crimson for a silence; CastBar.fp reads the tint as the silenced look.
 Graphic "SPLCSTS", 276, 16
 {

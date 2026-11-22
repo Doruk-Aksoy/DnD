@@ -1,0 +1,82 @@
+// Righteous Cause's looks (acs: CastRighteousCause, "DnD Righteous Cause Wave FX", "DnD Righteous Cause Inspire FX").
+
+// The caster's wave over the floor; ACS grows it to the radius, then it fades.
+Actor Spell_RighteousCause_Wave : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Add
+	Alpha 1.0
+	Scale 1.5
+	States {
+		Spawn:
+			RCWV A 14 Bright
+		Fade:
+			RCWV A 1 Bright A_FadeOut(0.15)
+		Loop
+	}
+}
+
+Actor Spell_RighteousCause_Streak : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Add
+	Alpha 1.0
+	XScale 0.3
+	YScale 0.55
+	States {
+		Spawn:
+			TNT1 A 0
+			RCST A 1 Bright
+			RCST A 1 Bright A_FadeOut(0.1)
+		Wait
+	}
+}
+
+Actor Spell_RighteousCause_Flash : Spell_HolyLight_Flare {
+	Scale 0.5
+}
+
+// While the buff lasts: a player attachment (DnD_Attachments.h) whose follower is the sun crown over the head. It drops
+// on large and bright, settles to a faint glow; on its own player's screen it stays unseen (it would cut the view's top).
+Actor DnD_RighteousCauseActive : DnD_Boolean {}
+
+Actor Spell_RighteousCause_FXSpawner : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 1 ACS_NamedExecuteWithResult("DnD Spawn Player Aura", PLAYERFX_RIGHTEOUSCAUSE)
+		Stop
+	}
+}
+
+Actor Spell_RighteousCauseFX {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOTONAUTOMAP
+	RenderStyle Add
+	Alpha 1.0
+	Scale 0.55
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_JumpIfInTargetInventory("DnD_RighteousCauseActive", 1, "Pick")
+		Stop
+		Pick:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Enchant Own Runes"), "Own")
+			TNT1 A 0 A_SetScale(0.46)
+			RCCR A 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass * 2 + 4.0, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_SetScale(0.39)
+			RCCR A 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass * 2 + 4.0, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_SetScale(0.34)
+			RCCR A 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass * 2 + 4.0, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_SetScale(0.31)
+		Settle:
+			RCCR A 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass * 2 + 4.0, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_FadeOut(0.03)
+			TNT1 A 0 A_JumpIf(alpha > 0.55, "Settle")
+		Hold:
+			RCCR A 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass * 2 + 4.0, 0, WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_RighteousCauseActive", 1, "Hold")
+		Stop
+		Own:
+			TNT1 A 5
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_RighteousCauseActive", 1, "Own")
+		Stop
+	}
+}

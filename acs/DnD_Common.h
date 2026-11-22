@@ -1214,6 +1214,18 @@ enum {
 	DND_CORPSE_TID = DND_GEMCHAIN_TID_END,
 	DND_CORPSE_TID_END = DND_CORPSE_TID + MAXPLAYERS * 16,
 
+	// Divine Shield: the sponges that take monster projectiles for a player's bubble, one tid a player.
+	DND_SHIELDSPONGE_TID = DND_CORPSE_TID_END,
+	DND_SHIELDSPONGE_TID_END = DND_SHIELDSPONGE_TID + MAXPLAYERS,
+
+	// Disintegrate: the held ray each client draws for a player's channel, one tid a player (client side only).
+	DND_DISINTEGRATE_RAY_TID = DND_SHIELDSPONGE_TID_END,
+	DND_DISINTEGRATE_RAY_TID_END = DND_DISINTEGRATE_RAY_TID + MAXPLAYERS,
+
+	// Arcane Trap: a player's trip-wires on every client, two tids a player (a generation each; client side only).
+	DND_ARCANETRAP_WIRE_TID = DND_DISINTEGRATE_RAY_TID_END,
+	DND_ARCANETRAP_WIRE_TID_END = DND_ARCANETRAP_WIRE_TID + MAXPLAYERS * 2,
+
 	// ScratchTID()'s window: far above every range here, just under the three fixed ones at the top.
 	DND_SCRATCH_TID = bcs::INT_MAX - 2 - 256,
 	DND_SCRATCH_TID_END = bcs::INT_MAX - 2,

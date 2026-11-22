@@ -1081,7 +1081,7 @@ Actor BladeHits : Ammo
    Inventory.MaxAmount 100
    Ammo.BackpackAmount 0
    Ammo.BackpackMaxAmount 100
-   Inventory.Icon "H_PRCNT"
+   Inventory.Icon "H_METMEL"
    +IGNORESKILL
 }
 
@@ -1092,7 +1092,7 @@ ACTOR BladeCharge : Ammo
    Ammo.BackpackAmount 0
    Ammo.BackpackMaxAmount 100
    Inventory.PickupMessage "Blade Charged."
-   Inventory.Icon "H_PRCNT"
+   Inventory.Icon "H_METMEL"
    +IGNORESKILL
    States
    {
@@ -1272,62 +1272,62 @@ Actor DnD_OverheatCanReduce : DnD_Boolean { }
 Actor PlasmaOverHeat : Ammo {
 	inventory.amount 1
 	inventory.maxamount 100
-	Inventory.Icon "H_PRCNT"
+	Inventory.Icon "H_METHOT"
 	+IGNORESKILL
 }
 
 Actor ShockerOverheat : Ammo {
 	inventory.amount 1
 	inventory.maxamount 100
-	Inventory.Icon "H_PRCNT"
+	Inventory.Icon "H_METHOT"
 	+IGNORESKILL
 }
 
 Actor BFG32768Overheat : Ammo {
 	inventory.amount 1
 	inventory.maxamount 100
-	Inventory.Icon "H_PRCNT"
+	Inventory.Icon "H_METHOT"
 	+IGNORESKILL
 }
 
 Actor IonOverHeat : Ammo {
 	inventory.amount 1
 	inventory.maxamount 100
-	Inventory.Icon "H_PRCNT"
+	Inventory.Icon "H_METHOT"
 	+IGNORESKILL
 }
 
 Actor FreezerOverheat : Ammo {
 	inventory.amount 1
 	inventory.maxamount 100
-	Inventory.Icon "H_PRCNT"
+	Inventory.Icon "H_METHOT"
 	+IGNORESKILL
 }
 
 Actor RebounderOverheat : Ammo {
 	inventory.amount 1
 	inventory.maxamount 100
-	Inventory.Icon "H_PRCNT"
+	Inventory.Icon "H_METHOT"
 	+IGNORESKILL
 }
 
 Actor DesolatorOverheat : Ammo {
 	inventory.amount 1
 	inventory.maxamount 100
-	Inventory.Icon "H_PRCNT"
+	Inventory.Icon "H_METHOT"
 	+IGNORESKILL
 }
 
 Actor DeathRayOverheat : Ammo {
 	inventory.amount 1
 	inventory.maxamount 100
-	Inventory.Icon "H_PRCNT"
+	Inventory.Icon "H_METHOT"
 	+IGNORESKILL
 }
 
 Actor VoidCannonOverheat : Ammo {
 	inventory.amount 1
 	inventory.maxamount 100
-	Inventory.Icon "H_PRCNT"
+	Inventory.Icon "H_METHOT"
 	+IGNORESKILL
 }

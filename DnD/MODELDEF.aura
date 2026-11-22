@@ -307,3 +307,94 @@ Model Spell_ThunderClap_Ring {
 	Scale 1.0 1.0 1.0
 	FrameIndex AURA P 0 3
 }
+
+// The Arcane auras' rings, skins from Graphics/ so their shaders can bind.
+Model Spell_HolyPrayersAuraFX {
+	Path "Models/Auras"
+	Model 0 "flat.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "HPRAYER.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 0.33
+	FrameIndex AURA Y 0 3
+}
+
+Model Spell_EmpoweringFaithAuraFX {
+	Path "Models/Auras"
+	Model 0 "flat.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "EMPFAITH.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 0.33
+	FrameIndex AURA Y 0 3
+}
+
+Model Spell_HasteAuraFX {
+	Path "Models/Auras"
+	Model 0 "flat.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "HASTEAUR.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 0.33
+	FrameIndex AURA Y 0 3
+}
+
+Model Spell_PurityAuraFX {
+	Path "Models/Auras"
+	Model 0 "flat.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "PURITYEL.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 0.33
+	FrameIndex AURA Y 0 3
+}
+
+Model Spell_ArcaneryAuraFX {
+	Path "Models/Auras"
+	Model 0 "flat.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "ARCANERY.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 0.33
+	FrameIndex AURA Y 0 3
+}
+
+Model Spell_MightAuraFX {
+	Path "Models/Auras"
+	Model 0 "flat.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "MIGHTAUR.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 0.33
+	FrameIndex AURA Y 0 3
+}
+
+Model Spell_BlessedAimAuraFX {
+	Path "Models/Auras"
+	Model 0 "flat.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "BLESSAIM.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 0.33
+	FrameIndex AURA Y 0 3
+}
+
+Model Spell_IronMaidenAuraFX {
+	Path "Models/Auras"
+	Model 0 "flat.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "IRONMAID.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 0.33
+	FrameIndex AURA Y 0 3
+}
+
+Model Spell_ConvictionAuraFX {
+	Path "Models/Auras"
+	Model 0 "flat.md3"
+	Path "Graphics/ShaderTex"
+	Skin 0 "CONVICTN.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 0.33
+	FrameIndex AURA Y 0 3
+}

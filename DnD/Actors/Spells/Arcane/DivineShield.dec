@@ -1,0 +1,71 @@
+// Divine Shield's look; "DnD Divine Shield FX" sizes, fades and removes them. The shell's alpha is DivineShield.fp's
+// channel: 0.5..1 the bubble's health, under 0.5 its fade.
+Actor Spell_DivineShield_Shell : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Add
+	Alpha 1.0
+	States {
+		Spawn:
+			DSSH A -1 Bright
+		Stop
+	}
+}
+
+Actor Spell_DivineShield_Ring : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Add
+	Alpha 0.0
+	States {
+		Spawn:
+			DSRG A -1 Bright
+		Stop
+	}
+}
+
+Actor Spell_DivineShield_Cons : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Add
+	Alpha 0.0
+	States {
+		Spawn:
+			DSCN A -1 Bright
+		Stop
+	}
+}
+
+// A caught missile's sigil on the skin, swelling and fading.
+Actor Spell_DivineShield_Hit : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Add
+	Alpha 1.0
+	States {
+		Spawn:
+			TNT1 A 0
+			DSHT A 1 Bright A_SetScale(1.0, 1.0)
+			DSHT A 1 Bright A_SetScale(1.6, 1.6)
+			DSHT A 1 Bright A_SetScale(2.0, 2.0)
+			DSHT A 1 Bright A_SetScale(2.3, 2.3)
+		Fade:
+			DSHT A 1 Bright A_FadeOut(0.12)
+		Loop
+	}
+}
+
+// The shatter: glints raining from the dome; ACS sets user_r to the radius first.
+Actor Spell_DivineShield_Shards : DnD_SpecialFX {
+	+NOGRAVITY
+	var int user_n;
+	var int user_r;
+	States {
+		Spawn:
+			TNT1 A 1
+		Rain:
+			TNT1 A 0 A_SpawnItemEx("Spell_HolyLight_Rise", frandom(0, user_r), 0, frandom(0, user_r * 3 / 4), frandom(0.3, 1.2), 0, frandom(-4.0, -1.5), random(0, 359), SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("Spell_HolyLight_Rise", frandom(0, user_r), 0, frandom(0, user_r * 3 / 4), frandom(0.3, 1.2), 0, frandom(-4.0, -1.5), random(0, 359), SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("Spell_HolyLight_Rise", frandom(0, user_r), 0, frandom(0, user_r * 3 / 4), frandom(0.3, 1.2), 0, frandom(-4.0, -1.5), random(0, 359), SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("Spell_HolyLight_Rise", frandom(0, user_r), 0, frandom(0, user_r * 3 / 4), frandom(0.3, 1.2), 0, frandom(-4.0, -1.5), random(0, 359), SXF_CLIENTSIDE)
+			TNT1 A 1 A_SetUserVar("user_n", user_n + 1)
+			TNT1 A 0 A_JumpIf(user_n < 10, "Rain")
+		Stop
+	}
+}

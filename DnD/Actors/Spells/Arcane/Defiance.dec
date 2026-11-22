@@ -1,0 +1,233 @@
+// Defiance's trails, ends, charge motes, release flash, impacts and heal sparkle; ACS places the impacts and heals.
+
+// Trails: a fading gold mote, a small dark wisp curling up.
+Actor Spell_Defiance_HolyTrail : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.4
+	States {
+		Spawn:
+			HLMT A 1 Bright A_FadeOut(0.08)
+		Loop
+	}
+}
+
+Actor Spell_Defiance_DarkTrail : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Translucent
+	Alpha 0.8
+	Scale 0.35
+	States {
+		Spawn:
+			TNT1 A 0
+			PRWS A 2 A_ChangeVelocity(0, 0, 0.5, CVF_REPLACE)
+			PRWS BCD 2
+		Stop
+	}
+}
+
+// Where they end: a gold flare; the dark one collapses in a puff of dark wisps.
+Actor Spell_Defiance_HolyEnd : Spell_HolyLight_Flare {
+	Scale 0.5
+}
+
+Actor Spell_Defiance_DarkEnd : DnD_SpecialFX {
+	+NOGRAVITY
+	var int user_n;
+	States {
+		Spawn:
+			TNT1 A 0
+		Puff:
+			TNT1 A 0 A_SpawnItemEx("Spell_Defiance_DarkPuff", frandom(0, 6), 0, frandom(-6, 4), frandom(0.4, 1.2), 0, frandom(0.4, 1.4), random(0, 359), SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("Spell_Defiance_DarkPuff", frandom(0, 6), 0, frandom(-6, 4), frandom(0.4, 1.2), 0, frandom(0.4, 1.4), random(0, 359), SXF_CLIENTSIDE)
+			TNT1 A 1 A_SetUserVar("user_n", user_n + 1)
+			TNT1 A 0 A_JumpIf(user_n < 3, "Puff")
+		Stop
+	}
+}
+
+Actor Spell_Defiance_DarkPuff : Spell_Defiance_DarkTrail {
+	Scale 0.7
+	States {
+		Spawn:
+			PRWS ABCD 3
+		Stop
+	}
+}
+
+Actor Spell_Defiance_InMote : Spell_Defiance_HolyTrail {
+	Scale 0.7
+	States {
+		Spawn:
+			HLMT A 1 Bright A_FadeOut(0.035)
+		Loop
+	}
+}
+
+Actor Spell_Defiance_InDark : Spell_Defiance_DarkTrail {
+	Scale 0.7
+	States {
+		Spawn:
+			PRWS ABCD 5
+		Stop
+	}
+}
+
+Actor Spell_Defiance_Flash : Spell_HolyLight_Flare {
+	Scale 1.4
+}
+
+// Holy: a bright flash, a ring of light spreading, gold sparks flung out, warm smoke of light curling up.
+Actor Spell_Defiance_HolyHit : DnD_SpecialFX {
+	+NOGRAVITY
+	var int user_n;
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_SpawnItemEx("Spell_Defiance_HitFlash", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("Spell_Defiance_HolyRing", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE)
+		Burst:
+			TNT1 A 0 A_SpawnItemEx("Spell_Defiance_HolySpark", 0, 0, 0, frandom(2.0, 5.0), 0, frandom(-1.0, 3.5), random(0, 359), SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("Spell_Defiance_HolySpark", 0, 0, 0, frandom(2.0, 5.0), 0, frandom(-1.0, 3.5), random(0, 359), SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("Spell_Defiance_HolySpark", 0, 0, 0, frandom(2.0, 5.0), 0, frandom(-1.0, 3.5), random(0, 359), SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("Spell_Defiance_HolySmoke", frandom(0, 8), 0, frandom(-8, 4), frandom(0.3, 0.9), 0, frandom(0.8, 1.6), random(0, 359), SXF_CLIENTSIDE)
+			TNT1 A 1 A_SetUserVar("user_n", user_n + 1)
+			TNT1 A 0 A_JumpIf(user_n < 4, "Burst")
+		Stop
+	}
+}
+
+Actor Spell_Defiance_HitFlash : Spell_HolyLight_Flare {
+	Scale 0.75
+}
+
+Actor Spell_Defiance_HolyRing : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Add
+	Alpha 1.0
+	Scale 0.15
+	States {
+		Spawn:
+			TNT1 A 0
+			DFRG A 1 Bright A_SetScale(0.22)
+			DFRG A 1 Bright A_SetScale(0.32)
+			DFRG A 1 Bright A_SetScale(0.4)
+			DFRG A 1 Bright A_SetScale(0.46)
+		Fade:
+			DFRG A 1 Bright A_SetScale(scalex + 0.03)
+			DFRG A 0 Bright A_FadeOut(0.16)
+		Loop
+	}
+}
+
+Actor Spell_Defiance_HolySpark : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 1.0
+	Scale 1.0
+	Gravity 0.25
+	States {
+		Spawn:
+			TNT1 A 0
+			DFSP A 1 Bright A_ChangeFlag("NOGRAVITY", 0)
+		Fly:
+			DFSP A 1 Bright A_FadeOut(0.06)
+		Loop
+	}
+}
+
+Actor Spell_Defiance_HolySmoke : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Add
+	Alpha 0.65
+	Scale 0.8
+	States {
+		Spawn:
+			PRWS EFGH 5 Bright
+		Stop
+	}
+}
+
+// Dark: a violet ring snapping inward, then dark smoke bursting out and violet sparks flung off.
+Actor Spell_Defiance_DarkHit : DnD_SpecialFX {
+	+NOGRAVITY
+	var int user_n;
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_SpawnItemEx("Spell_Defiance_DarkRing", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE)
+			TNT1 A 4
+			TNT1 A 0 A_SpawnItemEx("Spell_Defiance_DarkPop", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE)
+		Burst:
+			TNT1 A 0 A_SpawnItemEx("Spell_Defiance_DarkSpark", 0, 0, 0, frandom(2.5, 5.0), 0, frandom(-0.5, 3.0), random(0, 359), SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("Spell_Defiance_DarkSmoke", frandom(0, 6), 0, frandom(-10, 2), frandom(0.6, 1.6), 0, frandom(0.4, 1.4), random(0, 359), SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("Spell_Defiance_DarkSmoke", frandom(0, 6), 0, frandom(-10, 2), frandom(0.6, 1.6), 0, frandom(0.4, 1.4), random(0, 359), SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("Spell_Defiance_DarkSpark", 0, 0, 0, frandom(2.0, 4.5), 0, frandom(-0.5, 3.0), random(0, 359), SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("Spell_Defiance_DarkSpark", 0, 0, 0, frandom(2.0, 4.5), 0, frandom(-0.5, 3.0), random(0, 359), SXF_CLIENTSIDE)
+			TNT1 A 1 A_SetUserVar("user_n", user_n + 1)
+			TNT1 A 0 A_JumpIf(user_n < 4, "Burst")
+		Stop
+	}
+}
+
+Actor Spell_Defiance_DarkRing : Spell_Defiance_HolyRing {
+	Scale 0.6
+	States {
+		Spawn:
+			TNT1 A 0
+			DFRG B 1 Bright A_SetScale(0.48)
+			DFRG B 1 Bright A_SetScale(0.36)
+			DFRG B 1 Bright A_SetScale(0.24)
+			DFRG B 1 Bright A_SetScale(0.12)
+		Stop
+	}
+}
+
+// The moment the ring closes: a small violet flash.
+Actor Spell_Defiance_DarkPop : Spell_HolyLight_Flare {
+	Scale 0.55
+	Translation "0:255=%[0.00,0.00,0.00]:[1.30,0.50,2.00]"
+}
+
+Actor Spell_Defiance_DarkSmoke : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Translucent
+	Alpha 1.0
+	Scale 1.0
+	States {
+		Spawn:
+			PRWS ABCD 5
+		Stop
+	}
+}
+
+Actor Spell_Defiance_DarkSpark : Spell_Defiance_HolySpark {
+	States {
+		Spawn:
+			TNT1 A 0
+			DFSP B 1 Bright A_ChangeFlag("NOGRAVITY", 0)
+		Fly:
+			DFSP B 1 Bright A_FadeOut(0.06)
+		Loop
+	}
+}
+
+// A holy orb passing an ally it heals: a small sparkle rising off them.
+Actor Spell_Defiance_Heal : DnD_SpecialFX {
+	+NOGRAVITY
+	var int user_n;
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_SpawnItemEx("Spell_Defiance_HealFlash", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE)
+		Rise:
+			TNT1 A 0 A_SpawnItemEx("Spell_HolyLight_Rise", frandom(2, 12), 0, frandom(-16, 8), 0, 0, frandom(1.0, 1.8), random(0, 359), SXF_CLIENTSIDE)
+			TNT1 A 2 A_SetUserVar("user_n", user_n + 1)
+			TNT1 A 0 A_JumpIf(user_n < 5, "Rise")
+		Stop
+	}
+}
+
+Actor Spell_Defiance_HealFlash : Spell_HolyLight_Flare {
+	Scale 0.35
+}

@@ -78,6 +78,45 @@ enum {
     BTI_SPELL_BANISH_ENERGY,
     BTI_SPELL_BANISH_MAGIC,
     BTI_SPELL_VAMPIRISM,
+    BTI_SPELL_INVIGORATE_REGEN,
+    BTI_SPELL_INVIGORATE_ARMOR,
+    BTI_SPELL_INVIGORATE_MANA,
+    BTI_SPELL_PURIFY_SPEED,
+    BTI_SPELL_HOLYPRAYERS_FLAT,
+    BTI_SPELL_HOLYPRAYERS_PCT,
+    BTI_SPELL_EMPFAITH_FLAT,
+    BTI_SPELL_EMPFAITH_RECHARGE,
+    BTI_SPELL_EMPFAITH_MORE,
+    BTI_SPELL_HASTE_SPEED,
+    BTI_SPELL_HASTE_CAST,
+    BTI_SPELL_PURITY_ICE,
+    BTI_SPELL_PURITY_POISON,
+    BTI_SPELL_PURITY_LIGHTNING,
+    BTI_SPELL_PURITY_FIRE,
+    BTI_SPELL_PURITY_IGNITE,
+    BTI_SPELL_PURITY_OVERLOAD,
+    BTI_SPELL_ARCANERY,
+    BTI_SPELL_ARCANERY_CDR,
+    BTI_SPELL_ARCANERY_HASTE,
+    BTI_SPELL_MIGHT,
+    BTI_SPELL_MIGHT_ANY,
+    BTI_SPELL_BLESSEDAIM,
+    BTI_SPELL_BLESSEDAIM_ACC,
+    BTI_SPELL_BLESSEDAIM_CRIT,
+    BTI_SPELL_ARCANERY_MAGIC,
+    BTI_SPELL_PURITY_CHILL,
+    BTI_SPELL_PURITY_PIERCE,
+    BTI_SPELL_ENCHANT,
+    BTI_SPELL_ENCHANT_CONVERT,
+    BTI_SPELL_ENCHANT_PIERCE,
+    BTI_SPELL_ETHEREAL_MANA,
+    BTI_SPELL_ETHEREAL_SPEED,
+    BTI_SPELL_ENERGARMOR_NEG,
+    BTI_SPELL_ENERGARMOR,
+    BTI_SPELL_ENERGARMOR_ES,
+    BTI_SPELL_RIGHTEOUS,
+    BTI_SPELL_ASCENSION,
+    BTI_SPELL_ASCENSION_HASTE,
 
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
@@ -629,7 +668,315 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
         case BTI_SPELL_BOILINGBLOOD:
             btype = BUFF_SUPERMOVESPEED;
             bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            // a percent of the base speed, which HandleBuffApplication adds to the player's own
+            bvalue = DND_BASE_PLAYERSPEED * inc_effect / 100;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Invigorate: increased life regeneration and mana regeneration in whole percents, armor rating as a 16.16 percent.
+        case BTI_SPELL_INVIGORATE_REGEN:
+            btype = BUFF_REGENRATE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
             bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_INVIGORATE_ARMOR:
+            btype = BUFF_ARMORINCREASE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect / 100;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_INVIGORATE_MANA:
+            btype = BUFF_MANAREGEN;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Purify rank 10 on a cleansed ally.
+        case BTI_SPELL_PURIFY_SPEED:
+            btype = BUFF_SUPERMOVESPEED;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = DND_BASE_PLAYERSPEED * inc_effect / 100;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Holy Prayers: added life regeneration (16.16 per second) and, from rank 5, a percent of the pool a second (0.01 = 1%).
+        case BTI_SPELL_HOLYPRAYERS_FLAT:
+            btype = BUFF_REGENFLAT;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_HOLYPRAYERS_PCT:
+            btype = BUFF_HEALTHREGEN;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Empowering Faith: added energy shield, percent faster recovery, and from rank 10 percent more shield.
+        case BTI_SPELL_EMPFAITH_FLAT:
+            btype = BUFF_ESFLAT;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_EMPFAITH_RECHARGE:
+            btype = BUFF_ESRECHARGE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_EMPFAITH_MORE:
+            btype = BUFF_ESMORE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect * 1.0 / 100;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Haste: percent more movement speed and spell haste.
+        case BTI_SPELL_HASTE_SPEED:
+            btype = BUFF_SPEED;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect * 1.0 / 100;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_HASTE_CAST:
+            btype = BUFF_SPELLHASTE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect * 1.0 / 100;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Purity of Elements: more damage of each element, in hundredths of a percent as Hatred's.
+        case BTI_SPELL_PURITY_ICE:
+        case BTI_SPELL_PURITY_POISON:
+        case BTI_SPELL_PURITY_LIGHTNING:
+        case BTI_SPELL_PURITY_FIRE:
+            btype = BUFF_ICEDAMAGEDEALT + buff_table_index - BTI_SPELL_PURITY_ICE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect * 1.0 / 10000;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_PURITY_IGNITE:
+            btype = BUFF_IGNITECHANCE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_PURITY_OVERLOAD:
+            btype = BUFF_OVERLOADCHANCE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Arcanery: more spell damage (hundredths of a percent), cooldown recovery rate and spell haste (whole percents).
+        case BTI_SPELL_ARCANERY:
+            btype = BUFF_SPELLDAMAGE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect * 1.0 / 10000;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_ARCANERY_CDR:
+            btype = BUFF_SPELLCDR;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_ARCANERY_HASTE:
+            btype = BUFF_SPELLHASTE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Might: a 16.16 percent of a melee hit gained as magic; from rank 10 any attack of a melee weapon
+        case BTI_SPELL_MIGHT:
+            btype = BUFF_MIGHT;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_MIGHT_ANY:
+            btype = BUFF_MIGHTANY;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Blessed Aim: more damage (hundredths), more accuracy (percent), rank 10 crit (0.01 = 1%)
+        case BTI_SPELL_BLESSEDAIM:
+            btype = BUFF_RANGEDMORE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect * 1.0 / 10000;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_BLESSEDAIM_ACC:
+            btype = BUFF_ACCURACYMORE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_BLESSEDAIM_CRIT:
+            btype = BUFF_RANGEDCRIT;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Arcanery on magical attacks, as its spell half
+        case BTI_SPELL_ARCANERY_MAGIC:
+            btype = BUFF_MAGICATTACKMORE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect * 1.0 / 10000;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Purity rank 5 chill chance and rank 10 elemental pierce
+        case BTI_SPELL_PURITY_CHILL:
+            btype = BUFF_CHILLCHANCE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_PURITY_PIERCE:
+            btype = BUFF_ELEPIERCE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Enchant Weapon: increased weapon damage; rank 10 a share of physical to energy and energy pierce
+        case BTI_SPELL_ENCHANT:
+            btype = BUFF_WEAPONINC;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_ENCHANT_CONVERT:
+            btype = BUFF_ENCHANTCONVERT;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_ENCHANT_PIERCE:
+            btype = BUFF_ENERGYPIERCE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Ethereal Body rank 5 and 10
+        case BTI_SPELL_ETHEREAL_MANA:
+            btype = BUFF_MANAREGEN;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_ETHEREAL_SPEED:
+            btype = BUFF_SPEED;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect * 1.0 / 100;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Energized Armor: magic negation, more armor (16.16 percent), rank 10 shield
+        case BTI_SPELL_ENERGARMOR_NEG:
+            btype = BUFF_MAGICNEGATION;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_ENERGARMOR:
+            btype = BUFF_ARMORINCREASE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect / 100;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_ENERGARMOR_ES:
+            btype = BUFF_ESFLAT;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Righteous Cause: increased STR, DEX and INT
+        case BTI_SPELL_RIGHTEOUS:
+            btype = BUFF_STATPCT;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        // Ascension: more spell damage, rank 5 more spell haste
+        case BTI_SPELL_ASCENSION:
+            btype = BUFF_SPELLDAMAGE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect * 1.0 / 100;
+            bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_SPELL_ASCENSION_HASTE:
+            btype = BUFF_SPELLHASTE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = inc_effect * 1.0 / 100;
             bduration = new_duration;
             tic_duration = bduration;
         break;
@@ -1142,6 +1489,10 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             bvalue = bvalue * shared_potency / 100;
 
         GivePlayerBuff(pnum, bsource, btype, buff_table_index, bvalue, bflags, bduration, update);
+
+        // the owner's spell-buff strip, when this buff is one it shows
+        if(tic_duration > 0 && GetSpellBuffStripSlot(buff_table_index) >= 0)
+            SetSpellBuffIcon(pnum, GetSpellBuffStripSlot(buff_table_index), tic_duration);
 
         // Archangel Beacon. After the wearer's own copy has landed, and only for something that can be
         // shared safely:

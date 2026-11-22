@@ -51,6 +51,8 @@ enum {
 	DND_ATTACHMENT_DELIRIUM,
 	DND_ATTACHMENT_SUBJUGATE,
 	DND_ATTACHMENT_PENETRATE,
+	DND_ATTACHMENT_CONVICTION,
+	DND_ATTACHMENT_CONVICTIONRING,
 };
 
 // The curse row's markers past the first ones, in the enum's order.
@@ -228,6 +230,20 @@ Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 				FaceAttachmentToViewer(tid, res, feet);
 			}
 			break;
+			case DND_ATTACHMENT_CONVICTION: {
+				// the brand over its head, sized to its width (a zombie takes 0.34)
+				int cs = Clamp_Between(GetActorProperty(tid, APROP_RADIUS) * 17 / 1000, 0.3, 0.9);
+				res = CreateMonsterAttachment(tid, "Spell_Conviction_Brand", 0, 0, zoff * 2 + FixedMul(40.0, cs));
+				SizeAttachment(tid, res, "Spell_Conviction_Brand", cs);
+			}
+			break;
+			case DND_ATTACHMENT_CONVICTIONRING: {
+				// round its feet: the ring's rim (0.88 of flat.md3's 15.625) 13 past its radius
+				int rs = FixedDiv(GetActorProperty(tid, APROP_RADIUS) + 13.0, 13.75);
+				res = CreateMonsterAttachment(tid, "Spell_Conviction_Ring");
+				SizeAttachment(tid, res, "Spell_Conviction_Ring", rs);
+			}
+			break;
 			case DND_ATTACHMENT_TEMPORALCHAINS:
 				zoff <<= 1;
 				zoff += 4.0;
@@ -360,6 +376,23 @@ Script "DnD Remove Monster Attachment" (int tid, int sfx_id) CLIENTSIDE {
 	SetResultValue(0);
 }
 
+// The tid of attachment i on monster m.
+int MonsterAttachmentTID(int m, int i) {
+	return DND_MONSTER_ATTACHMENT_TID_BEGIN + GetAttachmentSlot(m) * DND_MAX_MONSTER_ATTACHMENTS + i;
+}
+
+// This side's attachment of class cls on monster m, or -1: found by class, so no side needs another's ids.
+int FindMonsterAttachment(int m, str cls) {
+	int slot = GetAttachmentSlot(m), i;
+	if(slot < 0)
+		return -1;
+	int used = GetMonsterAttachmentsUsed(slot).val;
+	for(i = 0; i < DND_MAX_MONSTER_ATTACHMENTS; ++i)
+		if((used & (1 << i)) && CheckActorClass(MonsterAttachmentTID(m, i), cls))
+			return i;
+	return -1;
+}
+
 Script "DnD Remove Blind FX Count" (void) CLIENTSIDE {
 	SetActivatorToTarget(0);
 	
@@ -402,6 +435,23 @@ enum {
 	DND_PLAYERFX_WRATHAURA,
 	DND_PLAYERFX_AGONYAURA,
 	DND_PLAYERFX_VAMPIRISMAURA,
+	DND_PLAYERFX_HOLYPRAYERSAURA,
+	DND_PLAYERFX_EMPOWERINGFAITHAURA,
+	DND_PLAYERFX_HASTEAURA,
+	DND_PLAYERFX_PURITYAURA,
+	DND_PLAYERFX_ARCANERYAURA,
+	DND_PLAYERFX_MIGHTAURA,
+	DND_PLAYERFX_BLESSEDAIMAURA,
+	DND_PLAYERFX_IRONMAIDENAURA,
+	DND_PLAYERFX_CONVICTIONAURA,
+	DND_PLAYERFX_INVIGORATE,
+	DND_PLAYERFX_ENCHANTWEAPON,
+	DND_PLAYERFX_ENERGARMOR,
+	DND_PLAYERFX_RIGHTEOUSCAUSE,
+	DND_PLAYERFX_ASCENSION,
+	DND_PLAYERFX_ETHEREAL,
+	DND_PLAYERFX_DISINTEGRATE,
+	DND_PLAYERFX_DISINTEGRATERAY,
 	DND_PLAYERFX_COUNT
 };
 
@@ -424,6 +474,23 @@ str GetPlayerAttachmentMarker(int which) {
 		case DND_PLAYERFX_WRATHAURA: return "DnD_WrathAuraActive";
 		case DND_PLAYERFX_AGONYAURA: return "DnD_AgonyAuraActive";
 		case DND_PLAYERFX_VAMPIRISMAURA: return "DnD_VampirismAuraActive";
+		case DND_PLAYERFX_HOLYPRAYERSAURA: return "DnD_HolyPrayersAuraActive";
+		case DND_PLAYERFX_EMPOWERINGFAITHAURA: return "DnD_EmpoweringFaithAuraActive";
+		case DND_PLAYERFX_HASTEAURA: return "DnD_HasteAuraActive";
+		case DND_PLAYERFX_PURITYAURA: return "DnD_PurityAuraActive";
+		case DND_PLAYERFX_ARCANERYAURA: return "DnD_ArcaneryAuraActive";
+		case DND_PLAYERFX_MIGHTAURA: return "DnD_MightAuraActive";
+		case DND_PLAYERFX_BLESSEDAIMAURA: return "DnD_BlessedAimAuraActive";
+		case DND_PLAYERFX_IRONMAIDENAURA: return "DnD_IronMaidenAuraActive";
+		case DND_PLAYERFX_CONVICTIONAURA: return "DnD_ConvictionAuraActive";
+		case DND_PLAYERFX_INVIGORATE: return "DnD_InvigorateActive";
+		case DND_PLAYERFX_ENCHANTWEAPON: return "DnD_EnchantWeaponActive";
+		case DND_PLAYERFX_ENERGARMOR: return "DnD_EnergArmorActive";
+		case DND_PLAYERFX_RIGHTEOUSCAUSE: return "DnD_RighteousCauseActive";
+		case DND_PLAYERFX_ASCENSION: return "DnD_AscensionActive";
+		case DND_PLAYERFX_ETHEREAL: return "DnD_EtherealActive";
+		case DND_PLAYERFX_DISINTEGRATE: return "DnD_DisintegrateActive";
+		case DND_PLAYERFX_DISINTEGRATERAY: return "DnD_DisintegrateRayActive";
 	}
 	return "";
 }
@@ -442,6 +509,23 @@ str GetPlayerAttachmentSpawner(int which) {
 		case DND_PLAYERFX_WRATHAURA: return "Spell_WrathAura_FXSpawner";
 		case DND_PLAYERFX_AGONYAURA: return "Spell_AgonyAura_FXSpawner";
 		case DND_PLAYERFX_VAMPIRISMAURA: return "Spell_VampirismAura_FXSpawner";
+		case DND_PLAYERFX_HOLYPRAYERSAURA: return "Spell_HolyPrayersAura_FXSpawner";
+		case DND_PLAYERFX_EMPOWERINGFAITHAURA: return "Spell_EmpoweringFaithAura_FXSpawner";
+		case DND_PLAYERFX_HASTEAURA: return "Spell_HasteAura_FXSpawner";
+		case DND_PLAYERFX_PURITYAURA: return "Spell_PurityAura_FXSpawner";
+		case DND_PLAYERFX_ARCANERYAURA: return "Spell_ArcaneryAura_FXSpawner";
+		case DND_PLAYERFX_MIGHTAURA: return "Spell_MightAura_FXSpawner";
+		case DND_PLAYERFX_BLESSEDAIMAURA: return "Spell_BlessedAimAura_FXSpawner";
+		case DND_PLAYERFX_IRONMAIDENAURA: return "Spell_IronMaidenAura_FXSpawner";
+		case DND_PLAYERFX_CONVICTIONAURA: return "Spell_ConvictionAura_FXSpawner";
+		case DND_PLAYERFX_INVIGORATE: return "Spell_Invigorate_FXSpawner";
+		case DND_PLAYERFX_ENCHANTWEAPON: return "Spell_EnchantWeapon_FXSpawner";
+		case DND_PLAYERFX_ENERGARMOR: return "Spell_EnergArmor_FXSpawner";
+		case DND_PLAYERFX_RIGHTEOUSCAUSE: return "Spell_RighteousCause_FXSpawner";
+		case DND_PLAYERFX_ASCENSION: return "Spell_Ascension_FXSpawner";
+		case DND_PLAYERFX_ETHEREAL: return "Spell_Ethereal_FXSpawner";
+		case DND_PLAYERFX_DISINTEGRATE: return "Spell_Disintegrate_FXSpawner";
+		case DND_PLAYERFX_DISINTEGRATERAY: return "Spell_DisintegrateRay_FXSpawner";
 	}
 	return "";
 }
@@ -459,6 +543,23 @@ str GetPlayerAttachmentFX(int which) {
 		case DND_PLAYERFX_WRATHAURA: return "Spell_WrathAuraFX";
 		case DND_PLAYERFX_AGONYAURA: return "Spell_AgonyAuraFX";
 		case DND_PLAYERFX_VAMPIRISMAURA: return "Spell_VampirismAuraFX";
+		case DND_PLAYERFX_HOLYPRAYERSAURA: return "Spell_HolyPrayersAuraFX";
+		case DND_PLAYERFX_EMPOWERINGFAITHAURA: return "Spell_EmpoweringFaithAuraFX";
+		case DND_PLAYERFX_HASTEAURA: return "Spell_HasteAuraFX";
+		case DND_PLAYERFX_PURITYAURA: return "Spell_PurityAuraFX";
+		case DND_PLAYERFX_ARCANERYAURA: return "Spell_ArcaneryAuraFX";
+		case DND_PLAYERFX_MIGHTAURA: return "Spell_MightAuraFX";
+		case DND_PLAYERFX_BLESSEDAIMAURA: return "Spell_BlessedAimAuraFX";
+		case DND_PLAYERFX_IRONMAIDENAURA: return "Spell_IronMaidenAuraFX";
+		case DND_PLAYERFX_CONVICTIONAURA: return "Spell_ConvictionAuraFX";
+		case DND_PLAYERFX_INVIGORATE: return "Spell_InvigorateFX";
+		case DND_PLAYERFX_ENCHANTWEAPON: return "Spell_EnchantWeaponFX";
+		case DND_PLAYERFX_ENERGARMOR: return "Spell_EnergArmorFX";
+		case DND_PLAYERFX_RIGHTEOUSCAUSE: return "Spell_RighteousCauseFX";
+		case DND_PLAYERFX_ASCENSION: return "Spell_AscensionFX";
+		case DND_PLAYERFX_ETHEREAL: return "Spell_EtherealFX";
+		case DND_PLAYERFX_DISINTEGRATE: return "Spell_DisintegrateFX";
+		case DND_PLAYERFX_DISINTEGRATERAY: return "Spell_DisintegrateRayFX";
 	}
 	return "";
 }
@@ -476,7 +577,11 @@ int GetPlayerAttachmentSides(int which) {
 // Aura rings draw a fixed 144 units whatever their reach; only the buffs follow the scaled radius.
 bool IsFixedSizeAttachment(int which) {
 	return which == DND_PLAYERFX_ANGERAURA || which == DND_PLAYERFX_HATREDAURA || which == DND_PLAYERFX_WRATHAURA ||
-		which == DND_PLAYERFX_AGONYAURA || which == DND_PLAYERFX_VAMPIRISMAURA;
+		which == DND_PLAYERFX_AGONYAURA || which == DND_PLAYERFX_VAMPIRISMAURA ||
+		(which >= DND_PLAYERFX_HOLYPRAYERSAURA && which <= DND_PLAYERFX_CONVICTIONAURA) || which == DND_PLAYERFX_INVIGORATE ||
+		which == DND_PLAYERFX_ENCHANTWEAPON || which == DND_PLAYERFX_ENERGARMOR ||
+		which == DND_PLAYERFX_RIGHTEOUSCAUSE || which == DND_PLAYERFX_ASCENSION ||
+		which == DND_PLAYERFX_ETHEREAL || which == DND_PLAYERFX_DISINTEGRATE || which == DND_PLAYERFX_DISINTEGRATERAY;
 }
 
 // Polled by the aura rings: dnd_hideauras hides them on this machine alone.

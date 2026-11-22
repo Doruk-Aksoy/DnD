@@ -1,0 +1,144 @@
+// On a monster: the level time Retribution's hammers may strike it again. On players: Defiance's store.
+Actor DnD_RetributionNext : DnD_Info {}
+Actor DnD_DefianceStore : DnD_Info {}
+// On a monster missile: the level time a bubble may catch it again.
+Actor DnD_ShieldCaught : DnD_Info {}
+// On a monster: set while Divine Judgement's rank 5 core strike waits on its bleed roll.
+Actor DnD_JudgementCore : DnD_Info {}
+
+// Temporal Rift: where the caster was, fading.
+Actor Spell_TemporalRift_Echo : DnD_SpecialFX {
+	RenderStyle Add
+	Alpha 0.6
+	Scale 0.6
+	Translation "0:255=%[0.00,0.00,0.00]:[0.60,1.20,2.00]"
+	States {
+		Spawn:
+			TNT1 A 0
+			SPFX A 1 Bright A_FadeOut(0.04)
+		Wait
+	}
+}
+
+// A hammer: ACS moves it round the caster and strikes from where it is.
+Actor Spell_Retribution_Hammer {
+	Radius 6
+	Height 12
+	RenderStyle Add
+	Alpha 0.95
+	Scale 0.7
+	Translation "0:255=%[0.00,0.00,0.00]:[2.00,1.70,0.80]"
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOBLOCKMAP
+	+DONTSPLASH
+	States {
+		Spawn:
+			TNT1 A 0
+		Fly:
+			SPFX A 1 Bright A_SpawnItem("Spell_HolyLight_Mote")
+		Loop
+		Fade:
+			SPFX A 1 Bright A_FadeOut(0.15)
+		Wait
+	}
+}
+
+// Defiance's orbs pass through bodies; ACS strikes for them. Holy Add, dark Translucent with DefianceOrb.fp's alpha.
+// "Spent" ends one at a hit (the hit has its own effect); "Death" at a wall or the life's end, with a small end effect.
+Actor Spell_Defiance_Holy {
+	PROJECTILE
+	+THRUACTORS
+	Speed 12
+	Radius 6
+	Height 10
+	Damage 0
+	RenderStyle Add
+	Alpha 1.0
+	Scale 0.55
+	States {
+		Spawn:
+			DFOB A 1 Bright A_SpawnItemEx("Spell_Defiance_HolyTrail", frandom(-2, 2), frandom(-3, 3), frandom(1, 9), 0, 0, 0, 0, SXF_CLIENTSIDE)
+		Loop
+		Death:
+			TNT1 A 0 Thing_ChangeTID(0, 0)
+			TNT1 A 0 A_Stop
+			TNT1 A 1 A_SpawnItemEx("Spell_Defiance_HolyEnd", 0, 0, 5, 0, 0, 0, 0, SXF_CLIENTSIDE)
+		Stop
+		Spent:
+			TNT1 A 0 Thing_ChangeTID(0, 0)
+			TNT1 A 1 A_Stop
+		Stop
+	}
+}
+
+Actor Spell_Defiance_Dark : Spell_Defiance_Holy {
+	RenderStyle Translucent
+	Alpha 0.1
+	States {
+		Spawn:
+			DFOB A 1 Bright A_SpawnItemEx("Spell_Defiance_DarkTrail", frandom(-2, 2), frandom(-3, 3), frandom(-2, 6), 0, 0, 0, 0, SXF_CLIENTSIDE)
+		Loop
+		Death:
+			TNT1 A 0 Thing_ChangeTID(0, 0)
+			TNT1 A 0 A_Stop
+			TNT1 A 1 A_SpawnItemEx("Spell_Defiance_DarkEnd", 0, 0, 5, 0, 0, 0, 0, SXF_CLIENTSIDE)
+		Stop
+	}
+}
+
+// The bubble's middle: every tic each missile inside is handed the catch.
+Actor Spell_DivineShield {
+	Radius 2
+	Height 2
+	var int user_radius;
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOBLOCKMAP
+	+DONTSPLASH
+	+NOTONAUTOMAP
+	States {
+		Spawn:
+			TNT1 A 1 A_RadiusGive("DnD_ShieldCatch", user_radius, RGF_MISSILES | RGF_NOSIGHT)
+		Loop
+	}
+}
+
+// Its pickup is "DnD Shield Catch", run by the missile.
+Actor DnD_ShieldCatch : CustomInventory {
+	+INVENTORY.ALWAYSPICKUP
+	States {
+		Spawn:
+			TNT1 A -1
+		Stop
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Shield Catch")
+		Stop
+	}
+}
+
+// Set one tic ahead of a caught missile; "DnD Event Handler" moves its hit to the bubble's health.
+Actor Spell_DivineShield_Sponge {
+	Radius 16
+	Height 24
+	Health 1000000
+	Mass 0x7FFFFFFF
+	Species "DivineShield"
+	+SHOOTABLE
+	+NOGRAVITY
+	+USEDAMAGEEVENTSCRIPT
+	+NOBLOOD
+	+NORADIUSDMG
+	+NODAMAGETHRUST
+	+NOTAUTOAIMED
+	+NOTARGET
+	+DONTMORPH
+	+NOICEDEATH
+	+DONTSPLASH
+	+NOTONAUTOMAP
+	States {
+		Spawn:
+			TNT1 A 3
+		Stop
+	}
+}

@@ -1,0 +1,23 @@
+// On a monster: the Holy Wrath cast that last struck it in a glide, so each glide strikes it once.
+Actor DnD_HolyWrathSwept : DnD_Info {}
+
+// An Arcane Trap on the floor (ACS watches and sets it off): a sigil drawn in by its alpha (flat2, ATSIGIL, ArcTrap.fp).
+Actor Spell_ArcaneTrap {
+	Radius 12
+	Height 8
+	RenderStyle Add
+	Alpha 0
+	Scale 2.0
+	+NOINTERACTION
+	+NOGRAVITY
+	+NOBLOCKMAP
+	+DONTSPLASH
+	States {
+		Spawn:
+			TNT1 A 0
+			ATTR AAAAAAAAAAAAAA 1 Bright A_FadeIn(0.0715)
+		Hold:
+			ATTR A -1 Bright
+		Stop
+	}
+}

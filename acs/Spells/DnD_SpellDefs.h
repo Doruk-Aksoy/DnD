@@ -153,7 +153,49 @@ enum {
 	SPL_DARKPACT,
 	SPL_VAMPIRISM,
 	SPL_SOULSIPHON,
-	SPL_DESECRATE
+	SPL_DESECRATE,
+
+	// ---- Arcane ----
+	SPL_ARCANEBOLT = DND_SKILLTREE_ARCANE * DND_SPELLS_PER_TREE,
+	SPL_HOLYLIGHT,
+	SPL_BLESSING,
+	SPL_POWERGLOBE,
+	SPL_SPECTRALBLADES,
+	SPL_DEATHSEEKER,
+	SPL_PURIFY,
+	SPL_INVIGORATE,
+	SPL_MIGHT,
+	SPL_MANABURN,
+	SPL_DISINTEGRATE,
+	SPL_SHADOWSPLIT,
+	SPL_FAMILIAR,
+	SPL_ARCANETRAP,
+	SPL_DIVINEJUDGEMENT,
+	SPL_PURGE,
+	SPL_ENCHANTWEAPON,
+	SPL_HOLYPRAYERS,
+	SPL_BLESSEDAIM,
+	SPL_PURITYOFELEMENTS,
+	SPL_ARCANERY,
+	SPL_ARCANECOMET,
+	SPL_ARCANEBARRAGE,
+	SPL_SHADOWTWIN,
+	SPL_TEMPORALRIFT,
+	SPL_ENERGIZEDARMOR,
+	SPL_ETHEREALBODY,
+	SPL_SALVATION,
+	SPL_ANGEL,
+	SPL_HOLYWRATH,
+	SPL_EMPOWERINGFAITH,
+	SPL_IRONMAIDEN,
+	SPL_CONVICTION,
+	SPL_ASCENSION,
+	SPL_AVENGER,
+	SPL_DEFIANCE,
+	SPL_DIVINESHIELD,
+	SPL_RIGHTEOUSCAUSE,
+	SPL_HASTE,
+	SPL_RETRIBUTION
 };
 
 // Which numbers a spell carries. The DAMAGE, RADIUS and AMOUNT fields are plain integers; COST,
@@ -385,9 +427,9 @@ enum {
 	GEMSTAT_CRITMULT,			// percent
 	GEMSTAT_RESERVE_EFF,		// percent reservation efficiency
 	GEMSTAT_EXTRAPROJ,
-	GEMSTAT_IGNITECHANCE,		// the four ailment chances: percent, rolled on any element
+	GEMSTAT_IGNITECHANCE,		// the ailment chances: percent, added to the roll a hit of that element makes
 	GEMSTAT_CHILLCHANCE,
-	GEMSTAT_POISONCHANCE,
+	GEMSTAT_POISONCHANCE,		// no role gives it: a poison hit always poisons
 	GEMSTAT_OVERLOADCHANCE,
 	GEMSTAT_BLEEDCHANCE,
 	GEMSTAT_LEECH,				// tenths of a percent of damage dealt, as life
@@ -421,8 +463,14 @@ enum {
 	GEMSTAT_MINION_CRIT,		// percent added to its minions' critical strike chance
 	GEMSTAT_MINION_CRITMULT,	// percent added to its minions' critical strike multiplier
 	GEMSTAT_MANALEECH,			// tenths of a percent of damage dealt, as mana
+	GEMSTAT_GAIN_FIRE,			// percent of a hit of another element gained as extra fire; the five follow the ailment chances' order
+	GEMSTAT_GAIN_ICE,
+	GEMSTAT_GAIN_POISON,
+	GEMSTAT_GAIN_LIGHTNING,
+	GEMSTAT_GAIN_PHYSICAL,
 	MAX_GEMSTATS
 };
+#define DND_GEM_GAIN_COUNT 5
 #define LAST_GEMSTAT_MORE GEMSTAT_MORE_LOWLIFE
 #define GEMSTAT_ROWMASK MAX_GEMSTATS			// two words: a bit per stat the row holds, so syncs and resets skip the rest
 #define GEMSTAT_ROWPREV (MAX_GEMSTATS + 2)		// the mask before a rebuild, so the sync also covers what it cleared
@@ -670,6 +718,53 @@ int GetSpellThresholdBonus(int spell, int which, int rank) {
 		case SPL_DEATHANDDECAY:
 			return GetBlackRankBonus(spell, which, r5, r10);
 	}
+	if(SpellDefs[spell].tree == DND_SKILLTREE_ARCANE)
+		return GetArcaneRankBonus(spell, which, rank, r5, r10);
+	return 0;
+}
+
+// Arcane's rank 5 and 10 row changes; the multiplying ones are in ScaleSpellThresholdValue.
+int GetArcaneRankBonus(int spell, int which, int rank, bool r5, bool r10) {
+	switch(spell) {
+		case SPL_BLESSING:
+		case SPL_MIGHT:
+		case SPL_BLESSEDAIM:
+			return which == SPELLVAL_RADIUS && r5 ? 128 : 0;
+		case SPL_SPECTRALBLADES:
+			return which == SPELLVAL_AMOUNT ? rank / 3 : 0;
+		case SPL_INVIGORATE:
+			return which == SPELLVAL_DURATION && r5 ? 5.0 : which == SPELLVAL_RADIUS && r10 ? 192 : 0;
+		case SPL_SHADOWSPLIT:
+			return which == SPELLVAL_DURATION && r5 ? 10.0 : 0;
+		case SPL_ARCANETRAP:
+			if(which == SPELLVAL_AMOUNT2)
+				return (rank - 1) * 48 / 10;
+			if(which == SPELLVAL_AMOUNT)
+				return (r5 ? 1 : 0) + (r10 ? 1 : 0);
+			return which == SPELLVAL_DURATION && r10 ? 15.0 : 0;
+		case SPL_ENCHANTWEAPON:
+			return which == SPELLVAL_DURATION && r5 ? 7.0 : 0;
+		case SPL_HOLYPRAYERS:
+			return which == SPELLVAL_DAMAGE2 && r10 ? -2 : 0;
+		case SPL_ARCANECOMET:
+			return which == SPELLVAL_DURATION && r10 ? 4.0 : 0;
+		case SPL_SHADOWTWIN:
+			return which == SPELLVAL_AMOUNT && r5 ? -2.0 : which == SPELLVAL_DAMAGE2 && r10 ? -15 : 0;
+		case SPL_ENERGIZEDARMOR:
+			return which == SPELLVAL_DURATION && r5 ? 5.0 : 0;
+		case SPL_SALVATION:
+			return which == SPELLVAL_AMOUNT2 && r5 ? 5 : 0;
+		case SPL_DIVINESHIELD:
+			return which == SPELLVAL_RADIUS && r5 ? 128 : 0;
+		case SPL_EMPOWERINGFAITH:
+			return which == SPELLVAL_RADIUS && r5 ? 96 : 0;
+		case SPL_CONVICTION:
+			return which == SPELLVAL_DAMAGE2 && r5 ? 13 : 0;
+		case SPL_RIGHTEOUSCAUSE:
+			return which == SPELLVAL_DAMAGE && r5 ? 27 : which == SPELLVAL_DURATION && r10 ? 12.0 : 0;
+		case SPL_RETRIBUTION:
+			return which == SPELLVAL_AMOUNT && r5 ? 10 : 0;
+	}
 	return 0;
 }
 
@@ -694,7 +789,11 @@ int ScaleSpellThresholdValue(int spell, int which, int rank, int res) {
 			return res + res / 5;
 		if(spell == SPL_PENETRATE && which == SPELLVAL_RADIUS)
 			return res * 2;
+		if(spell == SPL_SPECTRALBLADES && which == SPELLVAL_RADIUS)
+			return res + res / 4;
 	}
+	if(rank >= DND_SPELL_THRESH_HIGH && (spell == SPL_ARCANERY || spell == SPL_HASTE) && which == SPELLVAL_RADIUS)
+		return res * 2;
 	if(rank >= DND_SPELL_THRESH_HIGH && spell == SPL_DEATHANDDECAY && which == SPELLVAL_COOLDOWN)
 		return res / 2;
 	return res;
@@ -765,6 +864,10 @@ int GetSpellValue(int pnum, int spell, int which, int rank_at = 0) {
 	else if(which == SPELLVAL_COST && !(SpellDefs[spell].flags & SPLF_RESERVES)) {
 		res = ApplySpellGemMore(pnum, spell, GEMSTAT_MORE_COST, res);
 
+		// Ascension: its own less, while it lasts.
+		if(IsPlayerAscended(pnum))
+			res = ScaleSpellValue(res, 100 - GetSpellValue(pnum, SPL_ASCENSION, SPELLVAL_DAMAGE2));
+
 		// Arcane Conservation: a LESS of its own, so it multiplies the gems' rather than adding to it.
 		if(PlayerModData[pnum].vals[PSTAT_SPELL_COST_LESS])
 			res = ScaleSpellValue(res, 100 - PlayerModData[pnum].vals[PSTAT_SPELL_COST_LESS]);
@@ -782,7 +885,8 @@ bool IsPassiveEffectRow(int spell, int which) {
 	if(which == SPELLVAL_DAMAGE)
 		return true;
 	if(which == SPELLVAL_DAMAGE2)
-		return spell == SPL_LEGIONMASTERY || spell == SPL_SUMMONMASTERY;
+		return spell == SPL_LEGIONMASTERY || spell == SPL_SUMMONMASTERY || spell == SPL_EMPOWERINGFAITH || spell == SPL_ARCANERY ||
+			spell == SPL_BLESSEDAIM;
 	return which == SPELLVAL_DURATION && spell == SPL_SUMMONMASTERY;
 }
 
@@ -805,6 +909,13 @@ int ScalePassiveEffect(int pnum, int spell, int v) {
 bool IsSpellFieldFixedPoint(int field) {
 	return field == SPELLVAL_COST || field == SPELLVAL_COOLDOWN ||
 		field == SPELLVAL_CASTTIME || field == SPELLVAL_DURATION;
+}
+
+// The same for one spell's row: a few plain rows hold 16.16 percents with decimals.
+bool IsSpellRowFixedPoint(int spell, int field) {
+	if(IsSpellFieldFixedPoint(field))
+		return true;
+	return (spell == SPL_MANABURN && field == SPELLVAL_DAMAGE2) || (spell == SPL_SHADOWTWIN && field == SPELLVAL_AMOUNT);
 }
 
 bool IsHostileSpell(int spell) {
@@ -1139,6 +1250,53 @@ str GetSpellFieldLumpFor(int spell, int which) {
 		case SPL_GRAVEGRASP:
 			if(which == SPELLVAL_AMOUNT)
 				return "DND_SPLFIELD_SLOW";
+		break;
+		case SPL_ARCANEBOLT:
+			if(which == SPELLVAL_AMOUNT)
+				return "DND_SPLFIELD_BOLTS";
+		break;
+		case SPL_HOLYLIGHT:
+		case SPL_BLESSING:
+			if(which == (spell == SPL_HOLYLIGHT ? SPELLVAL_DAMAGE2 : SPELLVAL_DAMAGE))
+				return "DND_SPLFIELD_HEALING";
+		break;
+		case SPL_MANABURN:
+			if(which == SPELLVAL_DAMAGE2)
+				return "DND_SPLFIELD_MAXMANA";
+		break;
+		case SPL_DISINTEGRATE:
+			if(which == SPELLVAL_AMOUNT)
+				return "DND_SPLFIELD_LENGTH";
+		break;
+		case SPL_SHADOWSPLIT:
+			if(which == SPELLVAL_AMOUNT)
+				return "DND_SPLFIELD_CLONEHP";
+		break;
+		case SPL_SHADOWTWIN:
+			if(which == SPELLVAL_AMOUNT)
+				return "DND_SPLFIELD_DECAY";
+		break;
+		case SPL_ARCANETRAP:
+			if(which == SPELLVAL_DAMAGE2)
+				return "DND_SPLFIELD_BLACKHOLE";
+			if(which == SPELLVAL_AMOUNT2)
+				return "DND_SPLFIELD_LINK";
+		break;
+		case SPL_PURGE:
+			if(which == SPELLVAL_AMOUNT)
+				return "DND_SPLFIELD_CHAINS";
+		break;
+		case SPL_ARCANECOMET:
+			if(which == SPELLVAL_DAMAGE2)
+				return "DND_SPLFIELD_BURN";
+		break;
+		case SPL_ENERGIZEDARMOR:
+			if(which == SPELLVAL_DAMAGE2)
+				return "DND_SPLFIELD_EXPLOSION";
+		break;
+		case SPL_DEFIANCE:
+			if(which == SPELLVAL_DAMAGE)
+				return "DND_SPLFIELD_STORE";
 		break;
 	}
 	return GetSpellFieldLump(which);

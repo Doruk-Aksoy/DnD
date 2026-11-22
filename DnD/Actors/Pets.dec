@@ -9,6 +9,10 @@ enum {
 	DND_PET_SLAYERKNIGHTID,
 	DND_PET_DOOMGUARDID,
 	DND_PET_DARKPORTALID,
+	DND_PET_SHADOWSPLITID,
+	DND_PET_ANGELID,
+	DND_PET_AVENGERID,
+	DND_PET_SHADOWTWINID,
 };
 
 // Which row a Black minion's hit reads, for "DnD Spell Minion Hit". MUST match DND_MINIONHIT_* in acs/Spells/DnD_Spells.h.
@@ -21,6 +25,9 @@ enum {
 	MINIONHIT_KNIGHTREDAXE,
 	MINIONHIT_DKMELEE,
 	MINIONHIT_DKSKULL,
+	MINIONHIT_ANGEL,
+	MINIONHIT_AVENGERMELEE,
+	MINIONHIT_AVENGERSPEAR,
 };
 
 // Ids for "DnD Minion Cooldown". MUST match the DND_MINIONCD_* enum in acs/DnD_Skills.h, in

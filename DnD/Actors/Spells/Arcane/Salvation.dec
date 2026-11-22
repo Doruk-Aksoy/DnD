@@ -1,0 +1,90 @@
+// Salvation's shaft over a redeemed corpse: its light comes down over 6 tics (the stage on its Y scale for
+// SalvationShaft.fp), holds, then narrows and fades. Spawned 384 over the corpse's floor.
+Actor Spell_Salvation_Shaft : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Add
+	Alpha 1.0
+	States {
+		Spawn:
+			TNT1 A 0
+			SVSH A 1 Bright A_SetScale(0.450, 1.006)
+			SVSH A 1 Bright A_SetScale(0.450, 1.014)
+			SVSH A 1 Bright A_SetScale(0.450, 1.020)
+			SVSH A 1 Bright A_SetScale(0.450, 1.026)
+			SVSH A 1 Bright A_SetScale(0.450, 1.034)
+			SVSH A 1 Bright A_SetScale(0.450, 1.040)
+			SVSH A 18 Bright A_SetScale(0.450, 1.04)
+			SVSH A 1 Bright A_SetScale(0.431, 1.04)
+			SVSH A 0 Bright A_FadeOut(0.07)
+			SVSH A 1 Bright A_SetScale(0.411, 1.04)
+			SVSH A 0 Bright A_FadeOut(0.07)
+			SVSH A 1 Bright A_SetScale(0.392, 1.04)
+			SVSH A 0 Bright A_FadeOut(0.07)
+			SVSH A 1 Bright A_SetScale(0.373, 1.04)
+			SVSH A 0 Bright A_FadeOut(0.07)
+			SVSH A 1 Bright A_SetScale(0.354, 1.04)
+			SVSH A 0 Bright A_FadeOut(0.07)
+			SVSH A 1 Bright A_SetScale(0.334, 1.04)
+			SVSH A 0 Bright A_FadeOut(0.07)
+			SVSH A 1 Bright A_SetScale(0.315, 1.04)
+			SVSH A 0 Bright A_FadeOut(0.07)
+			SVSH A 1 Bright A_SetScale(0.296, 1.04)
+			SVSH A 0 Bright A_FadeOut(0.07)
+			SVSH A 1 Bright A_SetScale(0.276, 1.04)
+			SVSH A 0 Bright A_FadeOut(0.07)
+			SVSH A 1 Bright A_SetScale(0.257, 1.04)
+			SVSH A 0 Bright A_FadeOut(0.07)
+			SVSH A 1 Bright A_SetScale(0.238, 1.04)
+			SVSH A 0 Bright A_FadeOut(0.07)
+			SVSH A 1 Bright A_SetScale(0.219, 1.04)
+			SVSH A 0 Bright A_FadeOut(0.07)
+			SVSH A 1 Bright A_SetScale(0.199, 1.04)
+			SVSH A 0 Bright A_FadeOut(0.07)
+			SVSH A 1 Bright A_SetScale(0.180, 1.04)
+			SVSH A 0 Bright A_FadeOut(0.07)
+		Stop
+	}
+}
+
+// The prayer's ripple; "DnD Salvation Pulse FX" spreads and fades it.
+Actor Spell_Salvation_Pulse : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Add
+	Alpha 0.8
+	States {
+		Spawn:
+			SVPU A -1 Bright
+		Stop
+	}
+}
+
+// The corpse's soul rising up the shaft as a pale flame; ACS gives it its rise.
+Actor Spell_Salvation_Soul : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Add
+	Alpha 0.0
+	Scale 0.85
+	States {
+		Spawn:
+			TNT1 A 0
+			SVSL ABCD 2 Bright A_FadeIn(0.25)
+		Rise:
+			SVSL ABCD 2 Bright A_FadeOut(0.03)
+		Loop
+	}
+}
+
+// A glint of the recovery flown toward the caster, gone before it reaches them.
+Actor Spell_Salvation_Glint : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Add
+	Alpha 1.0
+	Scale 0.6
+	States {
+		Spawn:
+			HLMT A 13 Bright
+		Fade:
+			HLMT A 1 Bright A_FadeOut(0.2)
+		Loop
+	}
+}

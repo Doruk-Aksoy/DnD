@@ -228,6 +228,10 @@ Script "DnD Player HUD" ENTER CLIENTSIDE {
 			DrawManaBar(pnum);
 			UpdateLeechBars();
 			DrawSpellCastBar(pnum);
+			DrawEnchantGlow(tick);
+			DrawAscensionVignette();
+			DrawEtherealVignette();
+			DrawSpellBuffStrip();
 			drawn = true;
 		}
 		else if(drawn) {
@@ -5112,7 +5116,7 @@ Script "DnD Periodic Regeneration" ENTER {
 		if(isAlive()) {
 			// Percent of the pool a second, fixed point (Nano-machinery, "+% life regeneration"). A buff shifts it, the
 			// Lich's degeneration among them, but only for a player who regenerates by percent at all.
-			bool percent_regen = PlayerModData[pnum].vals[PSTAT_REGEN_PCT] > 0;
+			bool percent_regen = PlayerModData[pnum].vals[PSTAT_REGEN_PCT] > 0 || pbuffs[pnum].buff_net_values[BUFF_HEALTHREGEN].additive > 0;
 			int regen_amt = 0;
 			if(percent_regen)
 				regen_amt = PlayerModData[pnum].vals[PSTAT_REGEN_PCT] + pbuffs[pnum].buff_net_values[BUFF_HEALTHREGEN].additive * 100;
@@ -5130,7 +5134,7 @@ Script "DnD Periodic Regeneration" ENTER {
 			}
 
 			// Flat regeneration is a source by itself: Vigour heals with or without the percent regen.
-			int flat_regen = PlayerModData[pnum].vals[PSTAT_REGEN_FLAT];
+			int flat_regen = PlayerModData[pnum].vals[PSTAT_REGEN_FLAT] + (pbuffs[pnum].buff_net_values[BUFF_REGENFLAT].additive >> 16);
 			if((percent_regen || lump > 0 || flat_regen > 0) && !IsAccessoryEquipped(this, DND_ACCESSORY_GRYPHONBOOTS)) {
 				cur = GetHealPoolCur(pnum);
 				lim = GetRegenCap(pnum);
@@ -5142,7 +5146,7 @@ Script "DnD Periodic Regeneration" ENTER {
 
 				// percents of the pool, rounded since a rolled 0.03 is stored a hair under 3%, then the flat amount on top
 				amt = (FixedMul(amt, regen_amt + lump * 100) + 50) / 100 + Max(0, flat_regen);
-				amt = amt * (100 + PlayerModData[pnum].vals[PSTAT_REGENRATE]) / 100;
+				amt = amt * (100 + PlayerModData[pnum].vals[PSTAT_REGENRATE] + pbuffs[pnum].buff_net_values[BUFF_REGENRATE].additive) / 100;
 
 				// Ultimatum / Fleeting Life, the life half of it
 				int life_less = GetUltimatumRecoveryLess();

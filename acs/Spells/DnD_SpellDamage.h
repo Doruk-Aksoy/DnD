@@ -51,7 +51,7 @@ int GetSpellDamageType(int spell) {
 		case DND_SKILLTREE_ICE:			return DND_DAMAGETYPE_ICE;
 		case DND_SKILLTREE_LIGHTNING:	return DND_DAMAGETYPE_LIGHTNING;
 		case DND_SKILLTREE_BLACK:		return DND_DAMAGETYPE_OCCULT;
-		case DND_SKILLTREE_ARCANE:		return DND_DAMAGETYPE_ENERGY;
+		case DND_SKILLTREE_ARCANE:		return DND_DAMAGETYPE_OCCULT;
 	}
 
 	// Earth, Chaos and Combat carry no element of their own.
@@ -273,7 +273,11 @@ int GetMinionDamageIncrease(int pnum) {
 
 // A summon's own "more minion damage" (its row, Legion Mastery, Commander), as 100 + percent.
 int GetMinionDamageMore(int pnum, int summon) {
-	return 100 + GetPetSpellDamageBonus(pnum, GetSummonPetKind(summon));
+	int kind = GetSummonPetKind(summon);
+	// a summon with no pet of its own (the Familiar): its Commander gems alone
+	if(kind < 0)
+		return ApplySpellGemMore(pnum, summon, GEMSTAT_MORE_MINIONDAMAGE, 100);
+	return 100 + GetPetSpellDamageBonus(pnum, kind);
 }
 
 // One spell hit or tick, priced the same whichever way it lands: "DnD Spell Damage" and the spells that call

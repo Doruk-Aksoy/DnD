@@ -1,0 +1,68 @@
+// Divine Judgement's sword. "DnD Divine Judgement FX" drops it, stands it on the floor and sets its stage through its
+// X scale for JdgSword.fp: 1 + k x 0.002, k 0..10 the runes flaring, 10..20 burning away.
+Actor Spell_DivineJudgement_Sword : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Normal
+	States {
+		Spawn:
+			JDGS A -1 Bright
+		Stop
+	}
+}
+
+// The slam wave and the cracks; ACS sizes and fades both.
+Actor Spell_DivineJudgement_Wave : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Add
+	Alpha 0.7
+	States {
+		Spawn:
+			JDGW A -1 Bright
+		Stop
+	}
+}
+
+Actor Spell_DivineJudgement_Cracks : DnD_SpecialFX {
+	+NOGRAVITY
+	RenderStyle Add
+	Alpha 1.0
+	States {
+		Spawn:
+			JDGC A -1 Bright
+		Stop
+	}
+}
+
+// The column of light marking the spot as the sword falls.
+Actor Spell_DivineJudgement_Mark : Spell_HolyLight_Shaft {
+	Scale 0.75
+}
+
+// The flash where the point bites, with a short quake.
+Actor Spell_DivineJudgement_Impact : Spell_HolyLight_Flare {
+	Scale 2.2
+	States {
+		Spawn:
+			TNT1 A 0
+			HLFL A 0 Bright A_Quake(2, 10, 0, 640, "")
+			HLFL ABCDEFGH 2 Bright
+		Stop
+	}
+}
+
+// Glints thrown up round the blade as it lands.
+Actor Spell_DivineJudgement_Burst : DnD_SpecialFX {
+	+NOGRAVITY
+	var int user_n;
+	States {
+		Spawn:
+			TNT1 A 0
+		Throw:
+			TNT1 A 0 A_SpawnItemEx("Spell_HolyLight_Rise", frandom(8, 48), 0, frandom(0, 10), frandom(0.5, 2.0), 0, frandom(1.5, 3.5), random(0, 359), SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("Spell_HolyLight_Rise", frandom(8, 48), 0, frandom(0, 10), frandom(0.5, 2.0), 0, frandom(1.5, 3.5), random(0, 359), SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("Spell_HolyLight_Rise", frandom(8, 48), 0, frandom(0, 10), frandom(0.5, 2.0), 0, frandom(1.5, 3.5), random(0, 359), SXF_CLIENTSIDE)
+			TNT1 A 0 A_SetUserVar("user_n", user_n + 1)
+			TNT1 A 0 A_JumpIf(user_n < 6, "Throw")
+		Stop
+	}
+}

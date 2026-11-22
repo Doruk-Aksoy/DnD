@@ -232,7 +232,7 @@ int GetPlayerEnergyShieldRecoveryRate(int pnum, int cap) {
 	if(HasPlayerFlag(pnum, PFLAG_CYBER))
 		bonus = 2;
 	
-	int pct = 100 + PlayerModData[pnum].vals[PSTAT_SHIELD_RECOVERYRATE];
+	int pct = 100 + PlayerModData[pnum].vals[PSTAT_SHIELD_RECOVERYRATE] + pbuffs[pnum].buff_net_values[BUFF_ESRECHARGE].additive;
 	int res = cap * bonus;
 
 	if(bonus > 1 && HasClassPerk_Fast(DND_PLAYER_CYBORG, 1)) {
@@ -1107,6 +1107,10 @@ int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0, bool isS
 	// spell cast on that last round was collecting it.
 	if(shot && CheckActorInventory(pnum + P_TIDSTART, "DnD_LuckyBullet"))
 		chance += PlayerModData[pnum].vals[PSTAT_LASTROUND_CRIT];
+
+	// Blessed Aim rank 10
+	if(!isSpell && shot)
+		chance += pbuffs[pnum].buff_net_values[BUFF_RANGEDCRIT].additive;
 
 	// Assassination / Preparation. A MULTIPLIER on the whole chance, like the two below -- "50%
 	// increased crit chance" on a fixed point probability would be absurd read as +50 points.

@@ -511,7 +511,7 @@ int GetDexterity(int pnum) {
 	return (
 		CheckActorInventory(pnum + P_TIDSTART, "PSTAT_Dexterity") + 
 		PlayerModData[pnum].vals[PSTAT_STAT_DEXTERITY]
-	) * (100 + PlayerModData[pnum].vals[PSTAT_IMP_PERCENTDEX] + PlayerModData[pnum].vals[PSTAT_CORR_PERCENTSTATS]) / 100;
+	) * (100 + PlayerModData[pnum].vals[PSTAT_IMP_PERCENTDEX] + PlayerModData[pnum].vals[PSTAT_CORR_PERCENTSTATS] + pbuffs[pnum].buff_net_values[BUFF_STATPCT].additive) / 100;
 }
 
 int GetDexterityEffect(int pnum, int factor, int divisor = 1) {
@@ -529,7 +529,7 @@ int GetIntellect(int pnum) {
 	return (
 		CheckActorInventory(pnum + P_TIDSTART, "PSTAT_Intellect") + 
 		PlayerModData[pnum].vals[PSTAT_STAT_INTELLECT]
-	) * (100 + PlayerModData[pnum].vals[PSTAT_IMP_PERCENTINT] + PlayerModData[pnum].vals[PSTAT_CORR_PERCENTSTATS]) / 100;
+	) * (100 + PlayerModData[pnum].vals[PSTAT_IMP_PERCENTINT] + PlayerModData[pnum].vals[PSTAT_CORR_PERCENTSTATS] + pbuffs[pnum].buff_net_values[BUFF_STATPCT].additive) / 100;
 }
 
 int GetIntellectEffect(int pnum, int factor, int divisor = 1) {
@@ -548,7 +548,7 @@ int GetStrengthBeforeRequirement(int pnum) {
 	return (
 		CheckActorInventory(pnum + P_TIDSTART, "PSTAT_Strength") +
 		PlayerModData[pnum].vals[PSTAT_STAT_STRENGTH]
-	) * (100 + PlayerModData[pnum].vals[PSTAT_IMP_PERCENTSTR] + PlayerModData[pnum].vals[PSTAT_CORR_PERCENTSTATS]) / 100;
+	) * (100 + PlayerModData[pnum].vals[PSTAT_IMP_PERCENTSTR] + PlayerModData[pnum].vals[PSTAT_CORR_PERCENTSTATS] + pbuffs[pnum].buff_net_values[BUFF_STATPCT].additive) / 100;
 }
 
 // Only Strength past a worn requirement counts, never below 0.
@@ -1315,6 +1315,10 @@ void CalculatePlayerAccuracy(int pnum, int wepid = -1) {
 
 	// omnisight essence gives % increased accuracy
 	acc += (acc * acc_pct) / 100;
+
+	// Blessed Aim: percent more
+	if((acc_pct = pbuffs[pnum].buff_net_values[BUFF_ACCURACYMORE].additive))
+		acc += (acc * acc_pct) / 100;
 	if(acc > DND_ACCURACY_CAP)
 		acc = DND_ACCURACY_CAP;
 	//printbold(s:"calc acc ", d:acc);
@@ -1669,6 +1673,12 @@ int GetRawEnergyShieldCap(int pnum) {
 
 	base = (base * (100 + PlayerModData[pnum].vals[PSTAT_SHIELD_PCT] + int_bonus)) / 100;
 
+	// Empowering Faith: added shield joins before the more, which multiplies the lot.
+	base += pbuffs[pnum].buff_net_values[BUFF_ESFLAT].additive;
+	int more = pbuffs[pnum].buff_net_values[BUFF_ESMORE].multiplicative;
+	if(more > 0 && more != 1.0)
+		base = FixedMul(base, more);
+
 	// The shield is CAPPED rather than scaled at the point of use: this is the one function every
 	// reader of the pool goes through, so lowering it here lowers the pool itself, and the clamp on
 	// spawn brings a shield the player walked in with down to meet it.
@@ -1832,6 +1842,13 @@ int GetResistPenetration(int pnum, int category) {
 	}
 
 	val += PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_ALL] + PlayerModData[pnum].vals[PSTAT_EX_UNITY_PEN_BONUS] * GetUnity() / DND_UNITY_DIVISOR;
+
+	if(category == DND_DAMAGECATEGORY_ENERGY)
+		val += pbuffs[pnum].buff_net_values[BUFF_ENERGYPIERCE].additive;
+
+	// Purity of Elements rank 10
+	if(category == DND_DAMAGECATEGORY_FIRE || category == DND_DAMAGECATEGORY_ICE || category == DND_DAMAGECATEGORY_LIGHTNING || category == DND_DAMAGECATEGORY_POISON)
+		val += pbuffs[pnum].buff_net_values[BUFF_ELEPIERCE].additive;
 
 	return val;
 }
